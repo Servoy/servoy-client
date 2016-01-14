@@ -480,18 +480,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					{
 						if (isComponent(propertyType))
 						{
-							Pair<Integer, UUID> idAndUUID = getNewIdAndUUID(webObject);
-							ChildWebComponent childComponent = new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(),
-								beanJSONKey, -1, false, childPd);
+							ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, beanJSONKey, -1, false, childPd);
 							persistMappedPropeties.put(beanJSONKey, childComponent);
 							persistMappedPropetiesByUUID = null;
 						}
 						else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
 						{
-							Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-							WebCustomType webCustomType = new WebCustomType(webObject, childPd, beanJSONKey, -1, false, idAndUUID.getLeft().intValue(),
-								idAndUUID.getRight());
-							webCustomType.setTypeName(simpleTypeName);
+							WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, null, simpleTypeName);
 							persistMappedPropeties.put(beanJSONKey, webCustomType);
 							persistMappedPropetiesByUUID = null;
 						}
@@ -507,10 +502,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-									WebCustomType webCustomType = new WebCustomType(webObject, elementPD, beanJSONKey, i, false, idAndUUID.getLeft().intValue(),
-										idAndUUID.getRight());
-									webCustomType.setTypeName(simpleTypeName);
+									WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false, null,
+										simpleTypeName);
 									persistMappedPropertyArray.add(webCustomType);
 								}
 							}
@@ -518,9 +511,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									Pair<Integer, UUID> idAndUUID = getNewIdAndUUID(webObject);
-									ChildWebComponent childComponent = new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(),
-										beanJSONKey, i, false, elementPD);
+									ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, beanJSONKey, i, false, elementPD);
 									persistMappedPropertyArray.add(childComponent);
 								}
 							}

@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -58,7 +59,20 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
 
-	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
+
+	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew,
+		String compName, String typeName)
+	{
+		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(parentWebObject);
+		WebCustomType customType = new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(),
+			idAndUUID.getRight());
+		customType.setName(compName);
+		customType.setTypeName(typeName);
+		return customType;
+	}
+
+
+	private WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
 	{
 		super(IRepository.WEBCUSTOMTYPES, parentWebObject, id, uuid);
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
