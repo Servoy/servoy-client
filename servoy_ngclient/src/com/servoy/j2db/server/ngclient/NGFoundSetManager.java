@@ -136,6 +136,21 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				}
 			}
 		}
+		else if ("removeFoundSetFromCache".equals(methodName))
+		{
+			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null, null);
+			removeFoundSetTypeSabloValue(foundset);
+		}
+		else if ("removeFoundSetsFromCache".equals(methodName))
+		{
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
+				"foundset_manager").getProperty("foundsets");
+			if (foundsets != null)
+			{
+				foundsets.clear();
+			}
+			foundsetTypeSabloValueMap.clear();
+		}
 		return null;
 	}
 

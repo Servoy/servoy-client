@@ -262,6 +262,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					allowCellFocus: allowCellFocus
 				});
 			}
+			else {
+				$scope.columnDefinitions.sort(function (a, b) {
+					return $scope.model.childElements[a.svyColumnIndex].model.location.x - $scope.model.childElements[b.svyColumnIndex].model.location.x; 
+				});				
+			}
 
 			
 			function layoutColumnsAndGrid() {
@@ -295,9 +300,14 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								{
 									// calculate new width based on weight
 									var elemWidth = $scope.model.childElements[i].model.size.width;
-									var newWidthDelta = elemWidth * totalWidth / resizeWidth;										
-									$scope.columnDefinitions[i].width = elemWidth + newWidthDelta;
-									if($scope.gridApi.grid.columns[i]) $scope.gridApi.grid.columns[i].width = $scope.columnDefinitions[i].width;
+									var newWidthDelta = elemWidth * totalWidth / resizeWidth;
+									for(var j = 0; j < $scope.columnDefinitions.length; j++) {
+										if($scope.columnDefinitions[j].svyColumnIndex == i) {
+											$scope.columnDefinitions[j].width = elemWidth + newWidthDelta;
+											if($scope.gridApi.grid.columns[j]) $scope.gridApi.grid.columns[j].width = $scope.columnDefinitions[j].width;
+											break;
+										}
+									}
 								}
 							}
 						}	
@@ -318,19 +328,41 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			
 			function updateColumnDefinition(scope, idx) {
 				scope.$watch('model.childElements[' + idx + '].model.visible', function (newVal, oldVal) {
-					scope.columnDefinitions[idx].visible = scope.model.childElements[idx].model.visible;
-					layoutColumnsAndGrid();
-					scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+					for(var j = 0; j < $scope.columnDefinitions.length; j++) {
+						if(scope.columnDefinitions[j].svyColumnIndex == idx) {
+							scope.columnDefinitions[j].visible = scope.model.childElements[idx].model.visible;
+							layoutColumnsAndGrid();
+							scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+							break;
+						}
+					}
 				}, false);
 
 				scope.$watch('model.childElements[' + idx + '].model.size.width', function (newVal, oldVal) {
 					if(newVal !== oldVal)
 					{
-						scope.columnDefinitions[idx].width = scope.model.childElements[idx].model.size.width;
+						for(var j = 0; j < $scope.columnDefinitions.length; j++) {
+							if(scope.columnDefinitions[j].svyColumnIndex == idx) {
+								scope.columnDefinitions[j].width = scope.model.childElements[idx].model.size.width;
+								if(scope.gridApi.grid.columns[j]) scope.gridApi.grid.columns[j].width = scope.columnDefinitions[j].width; 
+								layoutColumnsAndGrid();
+								scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+								break;
+							}
+						}						
+					}
+				}, false);
+				
+				scope.$watch('model.childElements[' + idx + '].model.location.x', function (newVal, oldVal) {
+					if(newVal !== oldVal)
+					{
+						scope.columnDefinitions.sort(function (a, b) {
+							return scope.model.childElements[a.svyColumnIndex].model.location.x - scope.model.childElements[b.svyColumnIndex].model.location.x; 
+						});
 						layoutColumnsAndGrid();
 						scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);						
 					}
-				}, false);
+				}, false);				
 
 				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnIndex ? scope.columnDefinitions[idx].svyColumnIndex : idx;
 				// NOTE: below !scope.model.headers[columnHeaderIdx] is also true for !"" - in case html or tastrings are used for columnHeaders

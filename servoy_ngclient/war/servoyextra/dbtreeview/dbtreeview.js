@@ -31,6 +31,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
      	 	{
  				source: $scope.treeJSON,
  				selectMode: 2,
+ 				scrollParent: $element.find(".dbtreeview"),
  				checkbox: true,
 				select: function(event, data) {
 					var v = data.node.selected
@@ -151,7 +152,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 										foundsetChangeWatches[rfoundsetinfo.foundsethash]();
 									}
 									foundsetChangeWatches[rfoundsetinfo.foundsethash] = foundset_manager.addFoundSetChangeCallback(rfoundsetinfo.foundsethash, function() {
-										$scope.api.refresh();
+										refresh();
 									});									
 									item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource), level);
 									if(item.children.length > 0) {
@@ -244,7 +245,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	}
     	
   		
-      	$scope.api.refresh = function() {
+      	function refresh() {
 			if($scope.model.roots && $scope.model.roots.length > 0) {
 				
 				$scope.expandedNodes.length = 0;
@@ -266,7 +267,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 								foundsetChangeWatches[$scope.model.roots[0].foundsethash]();
 							}							
 							foundsetChangeWatches[$scope.model.roots[0].foundsethash] = foundset_manager.addFoundSetChangeCallback($scope.model.roots[0].foundsethash, function() {
-								$scope.api.refresh();
+								refresh();
 							});
 
 							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 1);
@@ -280,6 +281,22 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 			}
       	}
 
+      	$scope.api.refresh = function() {
+      		theTreeDefer.reject();
+      		theTreeDefer = $q.defer();
+      		if(theTree) {
+      			theTree.getRootNode().removeChildren();
+          		theTree = null;
+      		}
+      		for(var wKey in foundsetChangeWatches){
+//      			foundset_manager.removeFoundSetFromCache(wKey);
+      			foundsetChangeWatches[wKey]();
+      			delete foundsetChangeWatches[wKey];
+      		}
+      		foundset_manager.removeFoundSetsFromCache();
+      		refresh();
+      	}
+      	
       	$scope.api.isNodeExpanded = function(pk) {
       		if(theTree) {	  			
 	  			var node = findNode(theTree.getRootNode(), pk, 0);
@@ -328,7 +345,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       		theTreeDefer.promise.then(function(theTree) {
 	  			var node = findNode(theTree.getRootNode(), pk, 0);
 	  			if(node) {
-	  				node.makeVisible();
+	  				node.makeVisible({scrollIntoView: true});
 	  				node.setActive(true);
 	  			}      			
       		});
@@ -341,9 +358,11 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       			if(activeNode) {
       				for(var i = 0; i < activeNode.getParentList().length; i++) {
       					var parentNode = activeNode.getParentList()[i];
-      					selectionPath.push(parentNode.data.callbackinfoParamValue);
+        				var pkIdx = parentNode.key.indexOf('_');      					
+      					selectionPath.push(parentNode.key.substring(pkIdx + 1));
       				}
-      				selectionPath.push(activeNode.data.callbackinfoParamValue);
+      				var pkIdx = activeNode.key.indexOf('_');
+      				selectionPath.push(activeNode.key.substring(pkIdx + 1));
       			}
       		}
       		return selectionPath;

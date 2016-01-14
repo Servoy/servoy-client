@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -45,10 +46,8 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 
 	@Override
 	@OnOpen
-	public void start(Session newSession, @PathParam("sessionid")
-	String sessionid, @PathParam("windowname")
-	String windowname, @PathParam("windowid")
-	String windowid) throws Exception
+	public void start(Session newSession, @PathParam("sessionid") String sessionid, @PathParam("windowname") String windowname,
+		@PathParam("windowid") String windowid) throws Exception
 	{
 		super.start(newSession, sessionid, windowname, windowid);
 	}
@@ -62,9 +61,9 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 
 	@Override
 	@OnClose
-	public void onClose()
+	public void onClose(CloseReason closeReason)
 	{
-		super.onClose();
+		super.onClose(closeReason);
 	}
 
 	@Override
