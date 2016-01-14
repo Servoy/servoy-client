@@ -225,7 +225,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							cellTemplate: cellTemplate,
 							visible: el.model.visible,
 							width: el.model.size.width,
-							minWidth: el.model.size.width,
+//							minWidth: el.model.size.width,
 							cellEditableCondition: false,
 							enableColumnMoving: isMovable,
 							enableColumnResizing: isResizable,
@@ -344,9 +344,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						for(var j = 0; j < $scope.columnDefinitions.length; j++) {
 							if(scope.columnDefinitions[j].svyColumnIndex == idx) {
 								scope.columnDefinitions[j].width = scope.model.childElements[idx].model.size.width;
-								if(scope.gridApi.grid.columns[j]) scope.gridApi.grid.columns[j].width = scope.columnDefinitions[j].width; 
+								if(scope.gridApi.grid.columns[j]) scope.gridApi.grid.columns[j].width = scope.columnDefinitions[j].width;
 								layoutColumnsAndGrid();
-								scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+								$timeout(function() {
+									scope.gridApi.grid.buildColumns({orderByColumnDefs:true});
+									scope.gridApi.grid.refresh();
+								}, 0);
 								break;
 							}
 						}						
@@ -360,7 +363,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							return scope.model.childElements[a.svyColumnIndex].model.location.x - scope.model.childElements[b.svyColumnIndex].model.location.x; 
 						});
 						layoutColumnsAndGrid();
-						scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);						
+						$timeout(function() {
+							scope.gridApi.grid.buildColumns({orderByColumnDefs:true});
+							scope.gridApi.grid.refresh();
+						}, 0);						
 					}
 				}, false);				
 

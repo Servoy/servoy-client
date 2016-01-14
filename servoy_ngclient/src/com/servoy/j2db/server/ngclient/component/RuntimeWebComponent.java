@@ -158,13 +158,12 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	protected boolean isApiFunctionEnabled(String functionName)
 	{
 		FormElement fe = component.getFormElement();
-		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors)
+		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors &&
+			(fe.getForm().getView() != FormController.TABLE_VIEW && fe.getForm().getView() != FormController.LOCKED_TABLE_VIEW))
 		{
 			int anchor = Utils.getAsInteger(component.getProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()));//((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
-			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST) ||
-				(fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
-				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) ||
-					("getHeight").equals(functionName)))
+			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST)) && (("getLocationX").equals(functionName) ||
+				("getLocationY").equals(functionName) || ("getWidth").equals(functionName) || ("getHeight").equals(functionName)))
 			{
 				return false;
 			}
