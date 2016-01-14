@@ -24,6 +24,7 @@
         "removeAllRoots": {
         },
         "refresh": {
+        	"delayUntilFormLoad": true
         },  
         "isNodeExpanded": {
 			"parameters":[
@@ -44,7 +45,8 @@
 							"name":"state",
 							"type": "boolean"
 		                	}		                	
-						 ]						 
+						 ],
+			"delayUntilFormLoad": true						 
         },
         "setNodeLevelVisible": {
 			"parameters":[
@@ -56,7 +58,8 @@
 							"name":"visible",
 							"type": "boolean"
 		                	}		                	
-						 ]
+						 ],
+			"delayUntilFormLoad": true
         },
         "setTextDataprovider": {
 			"parameters":[
@@ -196,7 +199,8 @@
 							"name":"pk",
 							"type": "object[]"
 		                	}
-						 ]
+						 ],
+			"delayUntilFormLoad": true						 
         },
 		"getSelectionPath": {
 			"returns": "object[]"
