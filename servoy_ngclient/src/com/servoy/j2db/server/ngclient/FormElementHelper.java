@@ -120,8 +120,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-					designer);
+			if (formElement instanceof BodyPortal)
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -290,7 +290,8 @@ public class FormElementHelper
 								String tabSeqPropertyName = tabSeqProperty.getName();
 								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
 								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
-								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0)) minBodyPortalTabSeq = tabSeqVal.intValue();
+								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0))
+									minBodyPortalTabSeq = tabSeqVal.intValue();
 							}
 						}
 
@@ -467,48 +468,46 @@ public class FormElementHelper
 					return TabSeqComparator.compareTabSeq(o1.getSeqValue(), o1.element, o2.getSeqValue(), o2.element);
 				}
 			});
-			Iterator<IPersist> iterator = flattenedForm.getAllObjects();
+			Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
 			while (iterator.hasNext())
 			{
-				IPersist persist = iterator.next();
-				if (FormTemplateGenerator.isWebcomponentBean(persist))
+				IFormElement formElement = iterator.next();
+				if (FormTemplateGenerator.isWebcomponentBean(formElement))
 				{
-					String componentType = FormTemplateGenerator.getComponentTypeName((IBasicWebComponent)persist);
+					String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
 					WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 					if (specification != null)
 					{
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 						if (properties != null && properties.size() > 0)
 						{
-							JSONObject json = ((IBasicWebComponent)persist).getJson();
+							JSONObject json = ((IBasicWebComponent)formElement).getJson();
 							for (PropertyDescription tabSeqProperty : properties)
 							{
 								int tabseq = json != null ? json.optInt(tabSeqProperty.getName()) : 0;
 								if (tabseq >= 0)
 								{
-									selected.add(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()));
+									selected.add(new TabSeqProperty(formElement, tabSeqProperty.getName()));
 								}
 								else
 								{
-									cachedTabSeq.put(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()), Integer.valueOf(-2));
+									cachedTabSeq.put(new TabSeqProperty(formElement, tabSeqProperty.getName()), Integer.valueOf(-2));
 								}
 							}
 						}
 					}
 				}
-				else if (persist instanceof ISupportTabSeq)
+				else if (formElement instanceof ISupportTabSeq)
 				{
-					if (((ISupportTabSeq)persist).getTabSeq() >= 0)
+					if (((ISupportTabSeq)formElement).getTabSeq() >= 0)
 					{
-						selected.add(new TabSeqProperty((IFormElement)persist, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+						selected.add(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
 					}
 					else
 					{
-						cachedTabSeq.put(new TabSeqProperty((IFormElement)persist, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
-							Integer.valueOf(-2));
+						cachedTabSeq.put(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()), Integer.valueOf(-2));
 					}
 				}
-
 			}
 
 			int i = 1;
@@ -523,7 +522,7 @@ public class FormElementHelper
 			}
 		}
 
-		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)flattenedForm.getChild(persistIfAvailable.getUUID()), pd.getName()));
+		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(flattenedForm.findChild(persistIfAvailable.getUUID()), pd.getName()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;

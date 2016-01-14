@@ -60,7 +60,7 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		return (String)newJSONValue;
+		return newJSONValue == null ? null : newJSONValue.toString();
 	}
 
 	@Override

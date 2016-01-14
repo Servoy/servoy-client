@@ -35,7 +35,12 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
@@ -138,7 +143,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 
 	private void addScriptToMap(String script, Map<String, Object> map) throws Exception
 	{
-		if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX) || !script.contains("."))
+		if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
 			// scope method
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
@@ -149,12 +154,16 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
 			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
 		}
-		else
+		else if (script.contains("."))
 		{
 			// form method: formname.formmethod
 			String formName = script.substring(0, script.indexOf('.'));
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + script + "()"));
 			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+		}
+		else
+		{
+			Debug.log("Can't create a function callback for " + script);
 		}
 	}
 
@@ -162,6 +171,34 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue != null && formElementContext != null)
+		{
+			String[] components = formElementValue.toString().split("-"); //$NON-NLS-1$
+			if (components.length == 5)
+			{
+				String scriptString = null;
+				// this is a uuid
+				ScriptMethod sm = formElementContext.getFlattenedSolution().getScriptMethod(formElementValue.toString());
+				if (sm != null)
+				{
+					ISupportChilds parent = sm.getParent();
+					if (parent instanceof Solution)
+					{
+						scriptString = "scopes." + sm.getScopeName() + "." + sm.getName();
+					}
+					else if (parent instanceof Form)
+					{
+						scriptString = ((Form)parent).getName() + "." + sm.getName();
+					}
+					else if (parent instanceof TableNode)
+					{
+						scriptString = "entity." + formElementContext.getFormElement().getForm().getName() + "." + sm.getName();
+					}
+				}
+				else Debug.log("can't find a scriptmethod for: " + formElementValue);
+				return toJSON(writer, key, scriptString, pd, browserConversionMarkers, null);
+			}
+		}
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 

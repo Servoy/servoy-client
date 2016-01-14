@@ -9,8 +9,7 @@
 	{
 	    "roots": "foundsetref[]",
 	    "bindings" : "binding[]",
-	    "visibleNodeLevel" : "int",
-	    "visibleNodeState" : "boolean"
+	    "visible" : {"type":"boolean", "default":true}
 	},	
 	"api":
 	{
@@ -34,8 +33,7 @@
 							"type": "object[]"
 		                	}
 						 ],
-			"returns": "boolean",
-			"delayUntilFormLoad": true
+			"returns": "boolean"
         },
         "setExpandNode": {
 			"parameters":[
@@ -194,7 +192,19 @@
 							"type": "string"
 		                	}
 						 ]
-        }
+        },
+		"setSelectionPath": {
+			"parameters":[
+							{                                                                 
+							"name":"pk",
+							"type": "object[]"
+		                	}
+						 ],
+			"delayUntilFormLoad": true						 
+        },
+		"getSelectionPath": {
+			"returns": "object[]"
+        }      
 	},
 	"types": {
 	  "callback": {

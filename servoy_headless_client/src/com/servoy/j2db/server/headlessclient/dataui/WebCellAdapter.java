@@ -22,7 +22,6 @@ import java.util.Iterator;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -34,15 +33,13 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
-import com.servoy.j2db.util.Utils;
 
 /**
  * A {@link IDataAdapter} used in {@link WebCellBasedView} for there columns to handle valuechanged events to make sure that the right cells are set to changed.
- * 
+ *
  * @author jcompagner
  */
 public class WebCellAdapter implements IDataAdapter
@@ -110,24 +107,8 @@ public class WebCellAdapter implements IDataAdapter
 						if (cell instanceof IProviderStylePropertyChanges && cell instanceof IDisplayData)
 						{
 							// only test if it is not already changed
-							IStylePropertyChanges spc = ((IProviderStylePropertyChanges)cell).getStylePropertyChanges();
-							if (!spc.isChanged() && !spc.isValueChanged())
-							{
-								IModel innermostModel = ((Component)cell).getInnermostModel();
-								if (innermostModel instanceof RecordItemModel)
-								{
-									Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
-									Object object = ((Component)cell).getDefaultModelObject();
-									if (!Utils.equalObjects(lastRenderedValue, object))
-									{
-										spc.setValueChanged();
-									}
-								}
-								else
-								{
-									spc.setChanged();
-								}
-							}
+							view.checkForValueChanges(cell);
+
 							// do fire on render on all components for record change
 							if (cell instanceof ISupportOnRender && cell instanceof IScriptableProvider)
 							{
@@ -149,4 +130,5 @@ public class WebCellAdapter implements IDataAdapter
 			}
 		}
 	}
+
 }

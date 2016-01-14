@@ -1209,14 +1209,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (component.isVisibleInHierarchy())
 				{
 					Component innerComponent = CellContainer.getContentsForCell(component);
-					if (!ignoreStyles)
-					{
-						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
-					}
-					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
-						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
 					{
+						if (!ignoreStyles)
+						{
+							// applyStyleOnComponent after the RenderEventExecutor has been updated by the call to updateComponentRenderState()
+							// because this can trigger an onRender call that has to have the correct record
+							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
+						}
 						updateCell = true;
 						componentsToUpdate.add(innerComponent.getParent() instanceof CellContainer ? innerComponent.getParent() : innerComponent);
 						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
@@ -1225,10 +1225,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 						}
 					}
-					else if (innerComponentChanged)
+					else
 					{
-						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
+						if (!ignoreStyles)
+						{
+							// applyStyleOnComponent after the RenderEventExecutor has been updated by the call to updateComponentRenderState()
+							// because this can trigger an onRender call that has to have the correct record
+							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
+						}
+						if (innerComponent instanceof IProviderStylePropertyChanges &&
+							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged())
+							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 					}
+
 				}
 				updateAll = updateAll && updateCell;
 			}
@@ -2865,9 +2874,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						if ((comp instanceof IDisplayData) || !(comp instanceof ILabel))
 						{
-							// labels/buttons that don't display data are not changed
-							((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setValueChanged();
-						}
+							// try to mark cells as changed only if there was a real value change; otherwise there is no use to replace the whole row...
+							checkForValueChanges(comp);
+						} // else labels/buttons that don't display data are not changed
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 				});
@@ -2959,6 +2968,29 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		MainPage mp = table.findParent(MainPage.class);
 		if (mp != null) mp.triggerBrowserRequestIfNeeded();
+	}
+
+	protected void checkForValueChanges(Object cell)
+	{
+		IStylePropertyChanges spc = ((IProviderStylePropertyChanges)cell).getStylePropertyChanges();
+		if (!spc.isChanged() && !spc.isValueChanged())
+		{
+			IModel innermostModel = ((Component)cell).getInnermostModel();
+			if (innermostModel instanceof RecordItemModel)
+			{
+				Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
+				Object object = ((Component)cell).getDefaultModelObject();
+
+				if (!Utils.equalObjects(lastRenderedValue, object))
+				{
+					spc.setValueChanged();
+				}
+			}
+			else
+			{
+				spc.setChanged();
+			}
+		}
 	}
 
 	public IStylePropertyChanges getStylePropertyChanges()
