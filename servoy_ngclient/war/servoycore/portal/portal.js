@@ -32,6 +32,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			if (locale.language) {
 				i18nService.setCurrentLang(locale.language)
 			}
+			
+			$scope.columnMinWidth = 30;
+			
 			var pageSizeFactor = $applicationService.getUIProperty("ngClientPageSizeFactor");
 			if (!pageSizeFactor || pageSizeFactor <= 1) pageSizeFactor = 2;
 			$scope.pageSize = 25;
@@ -303,7 +306,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 									var newWidthDelta = elemWidth * totalWidth / resizeWidth;
 									for(var j = 0; j < $scope.columnDefinitions.length; j++) {
 										if($scope.columnDefinitions[j].svyColumnIndex == i) {
-											$scope.columnDefinitions[j].width = elemWidth + newWidthDelta;
+											var w = elemWidth + newWidthDelta;
+											$scope.columnDefinitions[j].width = w < $scope.columnMinWidth ? $scope.columnMinWidth : w;
 											if($scope.gridApi.grid.columns[j]) $scope.gridApi.grid.columns[j].width = $scope.columnDefinitions[j].width;
 											break;
 										}
@@ -1090,7 +1094,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				gridApi.colResizable.on.columnSizeChanged ($scope, function(colDef, deltaChange) {
 					for(var i = 0; i < $scope.model.childElements.length; i++) {
 						if(colDef.name == $scope.model.childElements[i].name) {
-							$scope.model.childElements[i].model.size.width += deltaChange;
+							var w = $scope.model.childElements[i].model.size.width + deltaChange;
+							$scope.model.childElements[i].model.size.width = w < $scope.columnMinWidth ? $scope.columnMinWidth : w;
 							break;
 						}
 					}
