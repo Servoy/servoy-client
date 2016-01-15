@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,6 +23,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
 import org.sablo.WebEntry;
 import org.sablo.specification.WebComponentPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -31,6 +33,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.MessagesResourceBundle;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
@@ -57,32 +60,33 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String FORMS_PATH = "forms/";
 
 	private static final String[] INDEX_3TH_PARTY_CSS = { //
-		"js/bootstrap-window/css/bootstrap-window.css" };
+	"js/bootstrap-window/css/bootstrap-window.css" };
 	private static final String[] INDEX_3TH_PARTY_JS = { //
-		"js/jquery-1.11.1.js", //
-		"js/jquery.maskedinput.js", //
-		"js/angular_1.4.1.js", //
-		"js/angular-sanitize_1.4.1.js", //
-		"js/angular-webstorage.js", //
-		"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
-		"js/numeral.js", //
-		"js/languages.js", //
-		"js/angular-file-upload/dist/angular-file-upload.min.js", //
-		"js/bootstrap-window/js/Window.js", //
-		"js/bootstrap-window/js/WindowManager.js", //
-		"js/bindonce.js" };
+	"js/jquery-1.11.1.js", //
+	"js/jquery.maskedinput.js", //
+	"js/angular_1.4.1.js", //
+	"js/angular-sanitize_1.4.1.js", //
+	"js/angular-translate-2.8.1.js", //
+	"js/angular-webstorage.js", //
+	"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
+	"js/numeral.js", //
+	"js/languages.js", //
+	"js/angular-file-upload/dist/angular-file-upload.min.js", //
+	"js/bootstrap-window/js/Window.js", //
+	"js/bootstrap-window/js/WindowManager.js", //
+	"js/bindonce.js" };
 	private static final String[] INDEX_SABLO_JS = { //
-		"sablo/lib/reconnecting-websocket.js", //
-		"sablo/js/websocket.js", //
-		"sablo/js/sablo_app.js" };
+	"sablo/lib/reconnecting-websocket.js", //
+	"sablo/js/websocket.js", //
+	"sablo/js/sablo_app.js" };
 	private static final String[] INDEX_SERVOY_JS = { //
-		"js/servoy.js", //
-		"js/servoyWindowManager.js", //
-		"js/servoyformat.js", //
-		"js/servoytooltip.js", //
-		"js/fileupload.js", //
-		"js/servoy-components.js", //
-		"js/servoy_app.js" };
+	"js/servoy.js", //
+	"js/servoyWindowManager.js", //
+	"js/servoyformat.js", //
+	"js/servoytooltip.js", //
+	"js/fileupload.js", //
+	"js/servoy-components.js", //
+	"js/servoy_app.js" };
 
 	private String[] locations;
 	private String[] services;
@@ -248,22 +252,22 @@ public class NGClientEntryFilter extends WebEntry
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
 										FormLayoutStructureGenerator.generateLayout(form, formName, wsSession != null ? new ServoyDataConverterContext(
-												wsSession.getClient()) : new ServoyDataConverterContext(fs), w, Utils.getAsBoolean(request.getParameter("design")),
-												Utils.getAsBoolean(request.getParameter("highlight")));
-										}
-										else if (uri.endsWith(".html"))
-										{
-											((HttpServletResponse)servletResponse).setContentType("text/html");
-											FormLayoutGenerator.generateRecordViewForm(w, form, formName, wsSession != null ? new ServoyDataConverterContext(
-												wsSession.getClient()) : new ServoyDataConverterContext(fs), Utils.getAsBoolean(request.getParameter("design")),
-												Utils.getAsBoolean(request.getParameter("highlight")));
-										}
-										else if (uri.endsWith(".js"))
-										{
-											((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
-											new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-												: new ServoyDataConverterContext(fs), false, Utils.getAsBoolean(request.getParameter("design"))).generate(form,
-												formName, "form_recordview_js.ftl", w);
+											wsSession.getClient()) : new ServoyDataConverterContext(fs), w, Utils.getAsBoolean(request.getParameter("design")),
+											Utils.getAsBoolean(request.getParameter("highlight")));
+									}
+									else if (uri.endsWith(".html"))
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/html");
+										FormLayoutGenerator.generateRecordViewForm(w, form, formName, wsSession != null ? new ServoyDataConverterContext(
+											wsSession.getClient()) : new ServoyDataConverterContext(fs), Utils.getAsBoolean(request.getParameter("design")),
+											Utils.getAsBoolean(request.getParameter("highlight")));
+									}
+									else if (uri.endsWith(".js"))
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+										new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
+											: new ServoyDataConverterContext(fs), false, Utils.getAsBoolean(request.getParameter("design"))).generate(form,
+											formName, "form_recordview_js.ftl", w);
 									}
 									w.flush();
 									return;
@@ -274,9 +278,16 @@ public class NGClientEntryFilter extends WebEntry
 								//prepare for possible index.html lookup
 								Map<String, String> variableSubstitution = new HashMap<String, String>();
 								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
-								ArrayList<String> css = new ArrayList<String>();
+
+								// push some translations to the client, in case the client cannot connect back
+								JSONObject defaultTranslations = new JSONObject();
+								defaultTranslations.put("servoy.ngclient.reconnecting",
+									getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
+								variableSubstitution.put("defaultTranslations", defaultTranslations.toString());
+
+								List<String> css = new ArrayList<String>();
 								css.add("css/servoy.css");
-								ArrayList<String> formScripts = new ArrayList<String>(getFormScriptReferences(fs));
+								List<String> formScripts = new ArrayList<String>(getFormScriptReferences(fs));
 								for (WebComponentPackageSpecification<WebLayoutSpecification> entry : WebComponentSpecProvider.getInstance().getLayoutSpecifications().values())
 								{
 									if (entry.getCssClientLibrary() != null)
@@ -307,6 +318,25 @@ public class NGClientEntryFilter extends WebEntry
 			Debug.error(e);
 			throw e;
 		}
+	}
+
+	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
+	{
+		Map<String, String> solutionDefaultMessages = solution.getRuntimeProperty(Solution.DEFAULT_MESSAGES);
+		if (solutionDefaultMessages == null)
+		{
+			solution.setRuntimeProperty(Solution.DEFAULT_MESSAGES, solutionDefaultMessages = new HashMap<>());
+		}
+		String value = solutionDefaultMessages.get(key);
+		if (value == null)
+		{
+			MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
+				null /* columnNameFilter */, null /* columnValueFilter */, solution.getID());
+			value = messagesResourceBundle.getString(key);
+			solutionDefaultMessages.put(key, value);
+		}
+
+		return value;
 	}
 
 	/**

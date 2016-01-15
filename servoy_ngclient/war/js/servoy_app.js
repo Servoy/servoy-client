@@ -1,8 +1,19 @@
 var controllerProvider;
-angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce', 'ngSanitize']).config(function($controllerProvider,$logProvider) {
+angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
+                             'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
+
+).config(['$controllerProvider', '$logProvider', '$translateProvider', function($controllerProvider, $logProvider, $translateProvider) {
 	controllerProvider = $controllerProvider;
 	$logProvider.debugEnabled(false);
-}).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
+	
+	// TODO: check if this does not break some translated values
+	$translateProvider.useSanitizeValueStrategy('sanitize');
+	$translateProvider.preferredLanguage('servoy-i18n');
+    $translateProvider.useLoader('translateFilterServoyI18Loader');
+    $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
+    $translateProvider.forceAsyncReload(true);
+	
+}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
 
 	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property) {
 
@@ -794,14 +805,25 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 	}
-}).value("$solutionSettings",  {
+}).factory('translateFilterServoyI18Loader', ['$q', function ($q) {
+   return function (options) {
+       // return empty translation, translateFilterServoyI18nMessageLoader is used as missingTranslationHandler
+       return $q.when({});
+    };
+}]).factory('translateFilterServoyI18nMessageLoader', ['$svyI18NService', '$q', function ($svyI18NService, $q) {
+    // use servoy i18n as loader for the translate filter
+	return function(key) {
+		return $svyI18NService.getI18NMessage(key);
+	}
+	}]
+).value("$solutionSettings",  {
 	mainForm: {},
 	navigatorForm: {width:0},
 	solutionTitle: "",
 	styleSheetPath: undefined,
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService, $svyI18NService) {
 	$servoyInternal.connect();
 
 	// initialize locale client side
@@ -849,6 +871,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		style[orientationVar2] = $solutionSettings.navigatorForm.size.width+'px';
 		return style;
 	}
+
 }).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
 
 	$scope.redirectUrl = $solutionSettings.noLicense.redirectUrl;
@@ -983,7 +1006,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService',"$log", function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log,$translate) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -1111,6 +1134,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		setLocale : function(language, country, initializing) {
 			try{
+                $translate.refresh();
 				$svyI18NService.flush();
 				this.setAngularLocale(language);
 				numeral.language((language + '-' + country).toLowerCase());
