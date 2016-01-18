@@ -928,24 +928,32 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		getI18NMessage: function(key) {
 			
 			if (!cachedPromises[key]) {
+				var promise = $sabloApplication.callService("i18nService", "getI18NMessages", {0: key}, false).
+				   then(
+						      function(result) {
+						    	  if (promise.reject) {
+						    		  $q.reject(result)
+						    	  }
+						    	  else {
+							    	  var value = result[key];
+							    	  cachedPromises[key] = {
+							    			  value: value
+							    	  };
+							    	  return value;
+							      }
+						      },
+						      function(error) {
+						    	  if (!this.reject) {
+						    		  delete cachedPromises[key]; // try again later
+						    	  }
+						    	  return $q.reject(error);
+						      }
+						   )
 				cachedPromises[key] = {
-					promise: $sabloApplication.callService("i18nService", "getI18NMessages", {0: key}, false).
-					   then(
-					      function(result) {
-					    	  var value = result[key];
-					    	  cachedPromises[key] = {
-					    			  value: value
-					    	  };
-					    	  return value;
-					      },
-					      function(error) {
-					    	  delete cachedPromises[key]; // try again later
-					    	  return $q.reject(error);
-					      }
-					   )
+					promise: promise
 				};
 			}
-			// return the value when avalailable otherwise {{'mykey' | translate }} does not display anything
+			// return the value when available otherwise {{'mykey' | translate }} does not display anything
 			if (cachedPromises[key].hasOwnProperty('value')) {
 				return cachedPromises[key].value
 			}
@@ -959,7 +967,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			cachedMessages = {};
 			for (var key in cachedPromises) {
 				if (cachedPromises.hasOwnProperty(key) && cachedPromises[key].promise) {
-					cachedPromises[key].promise.reject('flushed');
+					cachedPromises[key].promise.reject = true;
 				}
 			}
 			cachedPromises = {};
