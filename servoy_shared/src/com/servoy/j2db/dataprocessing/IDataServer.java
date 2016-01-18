@@ -28,10 +28,11 @@ import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * Interface for manipulation database data
- * 
+ *
  * @author jblok
  */
 public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
@@ -60,7 +61,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Main query method on databases.
-	 * 
+	 *
 	 * @param client_id client ID
 	 * @param server_name the server to use
 	 * @param transaction_id id or null if none
@@ -98,7 +99,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
 
 	/**
-	 * 
+	 *
 	 * @param client_id
 	 * @param server_name
 	 * @param transaction_id
@@ -132,7 +133,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Change or Add data in database
-	 * 
+	 *
 	 * @param client_id the client ID
 	 * @param statements the changes
 	 * @return the values from the dbsequences for each statement
@@ -141,12 +142,12 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException;
 
-	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
-		RemoteException;
+	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
+		throws RepositoryException, RemoteException;
 
 	/**
 	 * Start a transaction in backend DB.
-	 * 
+	 *
 	 * @param client_id the client ID
 	 * @param server_name start transaction for specified server
 	 * @return String the id
@@ -157,7 +158,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * End a started transaction in backend DB.
-	 * 
+	 *
 	 * @param transaction_id id to end
 	 * @param commit true for commit or false for rollback
 	 * @return boolean true if success full
@@ -173,7 +174,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Insert a data set in a table. When tableName is null a temporary table will be created
-	 * 
+	 *
 	 * @param client_id
 	 * @param set
 	 * @param dataSource
@@ -192,7 +193,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
-	 * 
+	 *
 	 * @param client_id
 	 * @param queryServerName
 	 * @param queryTid
@@ -222,7 +223,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Get the sql from the remote server, needed for databasemanager.getSQL() and databasemanager.getSQLParameters() in scripting.
-	 * 
+	 *
 	 * @param serverName
 	 * @param sqlQuery
 	 * @param startRow
@@ -234,4 +235,6 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
 		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
 
+	public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
+		throws ServoyException, RemoteException;
 }

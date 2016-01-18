@@ -35,6 +35,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * Proxy class around a {@link IDataServer} instance for switchServer support.
@@ -113,8 +114,8 @@ public class DataServerProxy implements IDataServer
 		return ds.createSQLStatement(action, getMappedServerName(server_name), tableName, pkColumnData, tid, sqlUpdate, filters);
 	}
 
-	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
-		RemoteException
+	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
+		throws RepositoryException, RemoteException
 	{
 		return ds.getBlob(clientId, getMappedServerName(serverName), blobSelect, filters, tid);
 	}
@@ -147,7 +148,8 @@ public class DataServerProxy implements IDataServer
 	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, true);
+		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
+			true);
 	}
 
 	public IDataSet performQuery(String client_id, String serverName, String driverTableName, String transaction_id, String sql, Object[] questiondata,
@@ -159,7 +161,8 @@ public class DataServerProxy implements IDataServer
 	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type);
+		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
+			type);
 	}
 
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
@@ -175,8 +178,8 @@ public class DataServerProxy implements IDataServer
 		{
 			if (Debug.tracing())
 			{
-				Debug.trace(type +
-					", perform query time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				Debug.trace(type + ", perform query time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					sqlSelect);
 			}
 		}
 	}
@@ -302,6 +305,19 @@ public class DataServerProxy implements IDataServer
 		boolean forceQualifyColumns) throws RepositoryException, RemoteException
 	{
 		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#createTable(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+	 * com.servoy.j2db.util.ServoyJSONObject)
+	 */
+	@Override
+	public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
+		throws ServoyException, RemoteException
+	{
+		return ds.createTable(client_id, dataSource, serverName, tableName, tid, tableJSON);
 	}
 
 }

@@ -44,6 +44,7 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ClientState;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
@@ -63,6 +64,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
@@ -992,6 +994,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				catch (RemoteException e)
 				{
 					throw new RepositoryException(e);
+				}
+			}
+			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+			{
+				// create it from the solution tables
+				FlattenedSolution s = application.getFlattenedSolution();
+				Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
+				if (tblIte.hasNext())
+				{
+					try
+					{
+						TableNode t = tblIte.next();
+						IServer server = application.getSolution().getServer(IServer.INMEM_SERVER);
+						table = server.getTable(t.getTableName() + "_" + application.getClientID());
+						if (table == null)
+						{
+							GlobalTransaction gt = getGlobalTransaction();
+							String tid = null;
+							if (gt != null)
+							{
+								tid = gt.getTransactionID(t.getServerName());
+							}
+
+							table = application.getDataServer().createTable(application.getClientID(), dataSource, IServer.INMEM_SERVER, t.getTableName(), tid,
+								t.getColumns());
+						}
+
+						inMemDataSources.put(dataSource, table);
+					}
+					catch (ServoyException e)
+					{
+						throw new RepositoryException(e);
+					}
+					catch (RemoteException e)
+					{
+						throw new RepositoryException(e);
+					}
 				}
 			}
 		}

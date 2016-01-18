@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.persistence;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,8 +33,10 @@ import com.servoy.j2db.util.Utils;
  * Base class for database tables and in memory tables.
  * @author emera
  */
-public abstract class AbstractTable implements ITable
+public abstract class AbstractTable implements ITable, Serializable
 {
+	public static final long serialVersionUID = -1L;
+
 	protected final List<Column> keyColumns = new ArrayList<Column>();
 	protected final AliasKeyMap<String, String, Column> columns = new AliasKeyMap<String, String, Column>(new LinkedHashMap<String, Column>());
 	private transient volatile boolean initialized = false;

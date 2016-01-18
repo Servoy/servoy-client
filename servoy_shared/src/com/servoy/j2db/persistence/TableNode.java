@@ -537,4 +537,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		this.setTypedProperty(StaticContentSpecLoader.PROPERTY_COLUMNS, contents);
 	}
+
+	public ServoyJSONObject getColumns()
+	{
+		return this.getTypedProperty(StaticContentSpecLoader.PROPERTY_COLUMNS);
+	}
 }

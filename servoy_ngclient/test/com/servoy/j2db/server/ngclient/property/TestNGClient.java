@@ -72,6 +72,7 @@ import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author Johan
@@ -215,8 +216,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException,
-				RepositoryException
+			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)
+				throws RemoteException, RepositoryException
 			{
 				// TODO Auto-generated method stub
 				return false;
@@ -245,8 +246,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException,
-				RemoteException
+			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array)
+				throws ServoyException, RemoteException
 			{
 				if (array.length > 0)
 				{
@@ -276,8 +277,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
-				Object[] questiondata, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
+				int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
@@ -290,16 +291,16 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
-				Object[] questiondata, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
+				int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException,
-				RemoteException
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
+					throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -325,8 +326,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
-				Object[] questiondata, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
+				int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
@@ -439,6 +440,14 @@ public class TestNGClient extends NGClient
 			{
 				// TODO Auto-generated method stub
 
+			}
+
+			@Override
+			public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
+				throws ServoyException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 	}
@@ -618,7 +627,7 @@ public class TestNGClient extends NGClient
 
 							/*
 							 * (non-Javadoc)
-							 * 
+							 *
 							 * @see com.servoy.j2db.server.shared.IPerfomanceRegistry#getLastCleared(java.lang.String)
 							 */
 							@Override
