@@ -322,25 +322,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	}
 
 	@Override
-	public void setJsonSubproperty(String key, Object value)
-	{
-		try
-		{
-			ServoyJSONObject jsonObject = getJson() == null ? new ServoyJSONObject(true, true) : getJson();
-			if (!jsonObject.has(getName()) || !jsonObject.get(getName()).equals(value))
-			{
-				jsonObject.put(getName(), value);
-				setJson(jsonObject);
-			}
-
-		}
-		catch (JSONException e)
-		{
-			Debug.error(e);
-		}
-	}
-
-	@Override
 	public String getTypeName()
 	{
 		return getBeanClassName();

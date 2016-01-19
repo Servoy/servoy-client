@@ -102,12 +102,6 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	}
 
 	@Override
-	public void setJsonSubproperty(String key, Object value)
-	{
-		webObjectImpl.setJsonSubproperty(key, value);
-	}
-
-	@Override
 	public void setProperty(String propertyName, Object val)
 	{
 		if (webObjectImpl.setProperty(propertyName, val))

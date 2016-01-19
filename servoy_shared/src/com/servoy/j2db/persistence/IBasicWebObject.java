@@ -36,8 +36,6 @@ public interface IBasicWebObject extends ISupportChilds
 
 	String getTypeName();
 
-	void setJsonSubproperty(String key, Object value); // can be a json objec, array or primitive
-
 	JSONObject getFlattenedJson();
 
 	void setProperty(String propertyName, Object val);
