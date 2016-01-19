@@ -60,15 +60,10 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	protected transient final WebObjectImpl webObjectImpl;
 
 
-	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew,
-		String compName, String typeName)
+	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew)
 	{
 		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(parentWebObject);
-		WebCustomType customType = new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(),
-			idAndUUID.getRight());
-		customType.setName(compName);
-		customType.setTypeName(typeName);
-		return customType;
+		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(), idAndUUID.getRight());
 	}
 
 

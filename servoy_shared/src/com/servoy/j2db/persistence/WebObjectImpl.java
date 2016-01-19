@@ -96,8 +96,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		jsonConverters.put(TypesRegistry.getType(InsetsPropertyType.TYPE_NAME),
 			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(InsetsPropertyType.TYPE_NAME));
 		jsonConverters.put(TypesRegistry.getType("border"), (IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType("border"));
-		jsonConverters.put(TypesRegistry.getType("dataprovider"), (IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType("dataprovider"));
-
 	}
 
 	/**
@@ -375,7 +373,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		Object value = val;
 		IPropertyConverterForBrowser<Object> converter = null;
-		if (value instanceof JSONObject && childPd != null && (converter = (IPropertyConverterForBrowser<Object>)jsonConverters.get(childPd.getType())) != null)
+		if ((value instanceof JSONObject || value instanceof String) && childPd != null &&
+			(converter = (IPropertyConverterForBrowser<Object>)jsonConverters.get(childPd.getType())) != null)
 		{
 			if (value instanceof String && ((String)value).startsWith("{"))
 			{
@@ -480,13 +479,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					{
 						if (isComponent(propertyType))
 						{
-							ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, beanJSONKey, -1, false, childPd);
+							ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false);
 							persistMappedPropeties.put(beanJSONKey, childComponent);
 							persistMappedPropetiesByUUID = null;
 						}
 						else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
 						{
-							WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, null, simpleTypeName);
+							WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false);
+							webCustomType.setTypeName(simpleTypeName);
 							persistMappedPropeties.put(beanJSONKey, webCustomType);
 							persistMappedPropetiesByUUID = null;
 						}
@@ -502,8 +502,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false, null,
-										simpleTypeName);
+									WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false);
+									webCustomType.setTypeName(simpleTypeName);
 									persistMappedPropertyArray.add(webCustomType);
 								}
 							}
@@ -511,7 +511,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, beanJSONKey, i, false, elementPD);
+									ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD, beanJSONKey, i, false);
 									persistMappedPropertyArray.add(childComponent);
 								}
 							}

@@ -47,7 +47,7 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 
 	private final PropertyDescription pdAsChildComponent;
 
-	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, String jsonKey, int index, boolean isNew, PropertyDescription childPd)
+	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew)
 	{
 		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
 		return new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(), jsonKey, index, isNew, childPd);
