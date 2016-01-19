@@ -392,7 +392,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				value = converter.fromJSON(value, null, childPd, null, null);
 			}
 		}
-		return value;
+		return (val != JSONObject.NULL) ? value : null;
 	}
 
 	@Override
