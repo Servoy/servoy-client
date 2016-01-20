@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
@@ -1157,6 +1158,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 						if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0)
 						{
 							map.put(StartupArguments.PARAM_KEY_ARGUMENT, Arrays.asList(new String[] { getPreferedSolutionMethodArguments()[0].toString() }));
+							if (getPreferedSolutionMethodArguments().length > 1) map.putAll((JSMap)getPreferedSolutionMethodArguments()[1]);
 						}
 						wsSession.onOpen(map);
 						if (args.optBoolean("remember"))

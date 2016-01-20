@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -198,16 +197,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
 						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
-
-						List<String> arguments = new ArrayList<String>();
-
-						if (args.getSolutionName() != null)
-							arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getSolutionName());
-						if (args.getFirstArgument() != null)
-							arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getFirstArgument());
-						if (args.getMethodName() != null)
-							arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getMethodName());
-						client.handleArguments(arguments.toArray(new String[arguments.size()]), args);
+						client.handleArguments(
+							args.getFirstArgument() != null ? new String[] { args.getSolutionName(), args.getMethodName(), args.getFirstArgument() }
+								: new String[] { args.getSolutionName(), args.getMethodName() },
+							args);
 
 						client.loadSolution(solutionName);
 					}
@@ -217,8 +210,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						sendInternalError(e);
 					}
 				}
-
-
 			});
 		}
 		catch (Exception e)
