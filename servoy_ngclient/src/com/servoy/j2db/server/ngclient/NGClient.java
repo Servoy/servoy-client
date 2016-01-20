@@ -93,6 +93,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private Map<Object, Object> uiProperties;
 
+	private String styleSheet;
+
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
 
@@ -162,6 +164,37 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), runnable);
 		}
+	}
+
+	@Override
+	public void setStyleSheet(String newStyleName)
+	{
+		this.styleSheet = newStyleName;
+		Runnable runnable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				getWebsocketSession().sendStyleSheet();
+			}
+		};
+		// make sure we report this on all windows.
+		if (CurrentWindow.exists() && CurrentWindow.get() instanceof WebsocketSessionWindows)
+		{
+			runnable.run();
+		}
+		else
+		{
+			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), runnable);
+		}
+	}
+
+	/**
+	 * @return the styleSheet
+	 */
+	public String getStyleSheet()
+	{
+		return styleSheet;
 	}
 
 	@Override
