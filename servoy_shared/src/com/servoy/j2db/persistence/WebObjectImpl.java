@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
@@ -261,6 +262,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		if (getPropertyDescription() != null)
 		{
 			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebComponentSpecification)
+				childPd = ((WebComponentSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
 			{
 				IPropertyType< ? > propertyType = childPd.getType();
@@ -306,6 +309,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
 			// depends on this in the end (the same for WebComponentPropertySource)
 			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebComponentSpecification) childPd = ((WebComponentSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
