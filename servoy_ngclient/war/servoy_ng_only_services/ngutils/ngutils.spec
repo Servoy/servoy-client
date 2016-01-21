@@ -16,7 +16,7 @@
 			"parameters" : [ ],
 			"returns" :"string"
 		},
-		"setBrowserEditMessage" : {
+		"setOnUnloadConfirmationMessage" : {
 			"parameters" : [ { "name" : "message", "type" : "string" } ]
 		}
 	},

@@ -18,11 +18,12 @@ angular.module('ngclientutils', [ 'servoy' ])
 		},
 
 		/**
-		 * 
+		 * Set the message that will be shown when the browser tab is closed or the users navigates away, 
+		 * this can be used to let users know they have data modifications that are not yet saved.
 		 *
-		 * @param {string} message the message to show when the user navigates away, null if nothing should be shown.
+		 * @param {string} message the message to show when the user navigates away, null if nothing should be shown anymore.
 		 */
-		setBrowserEditMessage: function(message)
+		setOnUnloadConfirmationMessage: function(message)
 		{
 			confirmMessage = message;
 			if (confirmMessage) {
