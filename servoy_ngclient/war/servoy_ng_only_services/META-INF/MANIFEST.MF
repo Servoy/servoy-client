@@ -2,3 +2,7 @@ Manifest-Version: 1.0
 
 Name: htmlHeaders/htmlHeaders.spec
 Web-Service: True
+
+Name: ngutils/ngutils.spec
+Web-Service: True
+
