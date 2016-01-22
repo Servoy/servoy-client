@@ -41,6 +41,8 @@ import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -51,7 +53,7 @@ import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -168,8 +170,14 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			{
 				if (parent instanceof WebFormUI)
 				{
-					IWebFormController parentFormController = ((WebFormUI)parent).getController();
-					if (parentFormController != null && !parentFormController.isFormVisible())
+					boolean isFormVisible = false;
+					IWindow currentWindow = CurrentWindow.safeGet();
+					if (currentWindow instanceof INGClientWindow)
+					{
+						isFormVisible = ((INGClientWindow)currentWindow).hasForm(parent.getName());
+					}
+
+					if (!isFormVisible)
 					{
 						return false;
 					}
