@@ -38,6 +38,8 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	void sendRedirect(String redirectUrl);
 
+	void sendStyleSheet();
+
 	/**
 	 * Will return the window in which the form with given name is already loaded. It will return null if it's not loaded in any window yet.
 	 */

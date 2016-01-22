@@ -888,7 +888,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	}
 }]).factory("$svyI18NService",['$sabloApplication','$q', function($sabloApplication, $q) {
 	var cachedMessages = {};
+	var cachedPromises = {};
+	var defaultTranslations = {};
 	return {
+		addDefaultTranslations: function(translations) {
+			angular.extend(defaultTranslations, translations);
+		},
 		getI18NMessages: function() {
 			var retValue = {};
 			var serverKeys = {};
@@ -910,7 +915,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 					return retValue;
 				}, function(error) {
-					return error;
+					return $q.reject(error);
 				});
 				return promiseB;
 			}
@@ -920,8 +925,52 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				return defered.promise;
 			}
 		},
+		getI18NMessage: function(key) {
+			
+			if (!cachedPromises[key]) {
+				var promise = $sabloApplication.callService("i18nService", "getI18NMessages", {0: key}, false).
+				   then(
+						      function(result) {
+						    	  if (promise.reject) {
+						    		  return $q.reject(result)
+						    	  }
+						    	  else {
+							    	  var value = result[key];
+							    	  cachedPromises[key] = {
+							    			  value: value
+							    	  };
+							    	  return value;
+							      }
+						      },
+						      function(error) {
+						    	  if (!this.reject) {
+						    		  delete cachedPromises[key]; // try again later
+						    	  }
+						    	  return $q.reject(error);
+						      }
+						   )
+				cachedPromises[key] = {
+					promise: promise
+				};
+			}
+			// return the value when available otherwise {{'mykey' | translate }} does not display anything
+			if (cachedPromises[key].hasOwnProperty('value')) {
+				return cachedPromises[key].value
+			}
+			if (defaultTranslations[key]) {
+				// return the default translation until we have a result from the server
+				return defaultTranslations[key];
+			}
+			return cachedPromises[key].promise;
+		},
 		flush: function() {
 			cachedMessages = {};
+			for (var key in cachedPromises) {
+				if (cachedPromises.hasOwnProperty(key) && cachedPromises[key].promise) {
+					cachedPromises[key].promise.reject = true;
+				}
+			}
+			cachedPromises = {};
 		}
 	}
 }])

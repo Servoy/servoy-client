@@ -1,3 +1,7 @@
+.svy-reconnecting {
+	color: red;
+}
+
 .ng-invalid, 
 .ng-invalid input{
 	background-color: #f90000;

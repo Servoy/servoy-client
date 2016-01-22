@@ -62,6 +62,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormUIInternal;
+import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
@@ -572,6 +573,24 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Sets the ngclient solution style sheet overriding the current one that is set in the solution properties
+	 *
+	 * @sample
+	 * application.setStyleSheet('mystylesheets/customer2.css')//in this case both styles should have about the same classes
+	 *
+	 * @param newStyleName the media path of the stylesheet
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	@JSFunction
+	public void setStyleSheet(String newStyleName)
+	{
+		if (application instanceof INGClientApplication)
+		{
+			((INGClientApplication)application).setStyleSheet(newStyleName);
+		}
+	}
+
+	/**
 	 * Overrides one style (defined in in a form) with another.
 	 *
 	 * @sample
@@ -818,8 +837,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 					else
 					{
 						// maybe is missing because of 500 limit of valuelist, look it up
-						LookupValueList lvl = new LookupValueList(vl, application, ComponentFactory.getFallbackValueList(application, null, Types.OTHER, null,
-							vl), null);
+						LookupValueList lvl = new LookupValueList(vl, application,
+							ComponentFactory.getFallbackValueList(application, null, Types.OTHER, null, vl), null);
 						index = lvl.realValueIndexOf(realValue, false);
 						if (index != -1)
 						{
@@ -949,9 +968,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 				}
 				// Make sure all characters were consumed and that it couldn't
 				// have overflowed.
-				if (i == len &&
-					(oldIndex > (Integer.MIN_VALUE / 10) || (oldIndex == (Integer.MIN_VALUE / 10) && c <= (negate ? -(Integer.MIN_VALUE % 10)
-						: (Integer.MAX_VALUE % 10)))))
+				if (i == len && (oldIndex > (Integer.MIN_VALUE / 10) ||
+					(oldIndex == (Integer.MIN_VALUE / 10) && c <= (negate ? -(Integer.MIN_VALUE % 10) : (Integer.MAX_VALUE % 10)))))
 				{
 					return 0xFFFFFFFFL & (negate ? index : -index);
 				}

@@ -107,7 +107,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		super(webObject);
 	}
 
-	@Override
 	public PropertyDescription getPropertyDescription()
 	{
 		// at the time WebComponent is created the resources project is not yet loaded nor is the typeName property set; so find it when it's needed in this case
