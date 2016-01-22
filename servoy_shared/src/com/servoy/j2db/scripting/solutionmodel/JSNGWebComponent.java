@@ -75,9 +75,7 @@ public class JSNGWebComponent extends JSWebComponent
 					value = defaultRhinoToDesignValue(value, application);
 				}
 			}
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.put(propertyName, value);
-			webComponent.setJson(jsonObject);
+			webComponent.setProperty(propertyName, value);
 		}
 		catch (JSONException e)
 		{
@@ -88,14 +86,11 @@ public class JSNGWebComponent extends JSWebComponent
 	@Override
 	public void resetJSONProperty(String propertyName)
 	{
-		// TODO we could do some checks here that it's really a property not a handler
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.remove(propertyName);
-			webComponent.setJson(jsonObject);
+			WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+			if (spec.getProperty(propertyName) != null) webComponent.clearProperty(propertyName);
 		}
 		catch (JSONException e)
 		{
@@ -110,6 +105,9 @@ public class JSNGWebComponent extends JSWebComponent
 		JSONObject json = webComponent.getFlattenedJson();
 		if (json == null) return Context.getUndefinedValue();
 
+		//TODO for now this works because it is stored as a json;
+		//this needs to be changed to getProperty when SVY-9365 is done
+		//then we will also need special conversions for rhino
 		Object value = json.opt(propertyName);
 		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
@@ -160,7 +158,16 @@ public class JSNGWebComponent extends JSWebComponent
 	@Override
 	public void resetHandler(String handlerName)
 	{
-		resetJSONProperty(handlerName); // TODO we could do some checks here that it's really a handler not a property
+		WebComponent webComponent = getBaseComponent(false);
+		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		if (spec != null)
+		{
+			if (spec.getHandler(handlerName) != null)
+			{
+				webComponent.clearProperty(handlerName);
+			}
+			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
+		}
 	}
 
 	@Override
