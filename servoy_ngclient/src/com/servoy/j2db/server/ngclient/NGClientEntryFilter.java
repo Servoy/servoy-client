@@ -322,21 +322,33 @@ public class NGClientEntryFilter extends WebEntry
 
 	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
+		if (ApplicationServerRegistry.get().isDeveloperStartup())
+		{
+			// do not cache in the solution, it may change in developer
+			return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
+		}
+
 		Map<String, String> solutionDefaultMessages = solution.getRuntimeProperty(Solution.DEFAULT_MESSAGES);
 		if (solutionDefaultMessages == null)
 		{
 			solution.setRuntimeProperty(Solution.DEFAULT_MESSAGES, solutionDefaultMessages = new HashMap<>());
 		}
 		String value = solutionDefaultMessages.get(key);
+
 		if (value == null)
 		{
-			MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
-				null /* columnNameFilter */, null /* columnValueFilter */, solution.getID());
-			value = messagesResourceBundle.getString(key);
+			value = getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
 			solutionDefaultMessages.put(key, value);
 		}
 
 		return value;
+	}
+
+	private String getSolutionDefaultMessageNotCached(int solutionId, Locale locale, String key)
+	{
+		MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
+			null /* columnNameFilter */, null /* columnValueFilter */, solutionId);
+		return messagesResourceBundle.getString(key);
 	}
 
 	/**
