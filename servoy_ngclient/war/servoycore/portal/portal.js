@@ -767,7 +767,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			function updateColumnAPIFromCell(columnApi, cellAPI, elementIndex) {
 				// update column API object with new cell available methods
 				for (var p in cellAPI) {
-					if (!columnApi[p]) columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
+					columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
 				}
 				for (var p in columnApi) {
 					if (!cellAPI[p]) delete columnApi[p];
@@ -1096,6 +1096,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						if(colDef.name == $scope.model.childElements[i].name) {
 							var w = $scope.model.childElements[i].model.size.width + deltaChange;
 							$scope.model.childElements[i].model.size.width = w < $scope.columnMinWidth ? $scope.columnMinWidth : w;
+							$scope.model.childElements[i].model.size.height = $scope.rowHeight;
 							break;
 						}
 					}

@@ -34,6 +34,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -50,8 +51,10 @@ import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.LabelForPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -94,20 +97,17 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			for (WebComponentApiDefinition def : webComponentSpec.getApiFunctions().values())
 			{
-				if (isApiFunctionEnabled(def.getName()))
+				Function func = null;
+				if (apiObject != null)
 				{
-					Function func = null;
-					if (apiObject != null)
+					Object serverSideFunction = apiObject.get(def.getName(), apiObject);
+					if (serverSideFunction instanceof Function)
 					{
-						Object serverSideFunction = apiObject.get(def.getName(), apiObject);
-						if (serverSideFunction instanceof Function)
-						{
-							func = (Function)serverSideFunction;
-						}
+						func = (Function)serverSideFunction;
 					}
-					if (func != null) apiFunctions.put(def.getName(), func);
-					else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 				}
+				if (func != null) apiFunctions.put(def.getName(), func);
+				else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (String propName : specs.keySet())
@@ -157,17 +157,40 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 	protected boolean isApiFunctionEnabled(String functionName)
 	{
-		FormElement fe = component.getFormElement();
-		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors &&
-			(fe.getForm().getView() != FormController.TABLE_VIEW && fe.getForm().getView() != FormController.LOCKED_TABLE_VIEW))
+		boolean isLocationOrSize = "getLocationX".equals(functionName) || "getLocationY".equals(functionName) || "getWidth".equals(functionName) ||
+			"getHeight".equals(functionName);
+
+		if (isLocationOrSize)
 		{
-			int anchor = Utils.getAsInteger(component.getProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()));//((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
-			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST)) && (("getLocationX").equals(functionName) ||
-				("getLocationY").equals(functionName) || ("getWidth").equals(functionName) || ("getHeight").equals(functionName)))
+			// if parent form not visible, don't call api, let it get from the model on the server
+			Container parent = component.getParent();
+			while (parent != null)
 			{
-				return false;
+				if (parent instanceof WebFormUI)
+				{
+					IWebFormController parentFormController = ((WebFormUI)parent).getController();
+					if (parentFormController != null && !parentFormController.isFormVisible())
+					{
+						return false;
+					}
+					break;
+				}
+				parent = parent.getParent();
+			}
+
+			// if it is not table view (it can have columns moved/resize) and not anchored, no need to call api, let it get from the model on the server
+			FormElement fe = component.getFormElement();
+			if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors &&
+				(fe.getForm().getView() != FormController.TABLE_VIEW && fe.getForm().getView() != FormController.LOCKED_TABLE_VIEW))
+			{
+				int anchor = Utils.getAsInteger(component.getProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()));//((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
+				if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST)))
+				{
+					return false;
+				}
 			}
 		}
+
 		return true;
 	}
 

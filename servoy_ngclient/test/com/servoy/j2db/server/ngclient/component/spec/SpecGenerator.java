@@ -529,7 +529,8 @@ public class SpecGenerator
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ \"type\": \"dataprovider\", \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" } , \"values\" :[]}");
-		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
+		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
 
 		Map<String, String> buttonTypeMapping = new HashMap<>();
@@ -539,7 +540,8 @@ public class SpecGenerator
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"TOP\":1}, {\"CENTER\":0} ,{\"BOTTOM\":3}], \"default\" : 0}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"LEFT\":2}, {\"CENTER\":0},{\"RIGHT\":4}], \"default\" : 0}");
-		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"enabled\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
@@ -566,7 +568,8 @@ public class SpecGenerator
 		Map<String, String> calendarTypeMapping = new HashMap<>();
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\", \"svy-line-height-normal\"]}");
-		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		calendarTypeMapping.put("findmode", findModeEditable);
 		calendarTypeMapping.put("readOnly", readOnly);
@@ -575,7 +578,8 @@ public class SpecGenerator
 
 		Map<String, String> checkTypeMapping = new HashMap<>();
 		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"checkbox\"]}");
-		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		checkTypeMapping.put("findmode", findModeEditable);
 		checkTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("check", checkTypeMapping);
@@ -583,7 +587,8 @@ public class SpecGenerator
 		Map<String, String> checkGroupTypeMapping = new HashMap<>();
 		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		checkGroupTypeMapping.put("findmode", findModeEditable);
 		checkGroupTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("checkgroup", checkGroupTypeMapping);
@@ -591,7 +596,8 @@ public class SpecGenerator
 		Map<String, String> comboTypeMapping = new HashMap<>();
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\", \"select2-container-svy-xs\"]}");
-		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		comboTypeMapping.put("findmode", findModeEditable);
 		comboTypeMapping.put("readOnly", readOnlyEnabled);
@@ -599,14 +605,16 @@ public class SpecGenerator
 
 		Map<String, String> htmlAreaMapping = new HashMap<>();
 		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
-		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":370, \"height\":250}}");
+		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":370, \"height\":250}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		htmlAreaMapping.put("findmode", findModeEditable);
 		htmlAreaMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("htmlarea", htmlAreaMapping);
 
 		Map<String, String> imageMediaMapping = new HashMap<>();
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
-		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
+		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		imageMediaMapping.put("readOnly", readOnlyEditable);
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
@@ -618,7 +626,8 @@ public class SpecGenerator
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"TOP\":1}, {\"CENTER\":0} ,{\"BOTTOM\":3}], \"default\" : 0}");
-		labelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"enabled\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
@@ -629,7 +638,8 @@ public class SpecGenerator
 		Map<String, String> listboxTypeMapping = new HashMap<>();
 		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
+		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		listboxTypeMapping.put("findmode", findModeEditable);
 		listboxTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("listbox", listboxTypeMapping);
@@ -637,14 +647,16 @@ public class SpecGenerator
 		Map<String, String> passwordMapping = new HashMap<>();
 		passwordMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		passwordMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		passwordMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		passwordMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		passwordMapping.put("findmode", findModeEditable);
 		passwordMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("password", passwordMapping);
 
 		Map<String, String> radioTypeMapping = new HashMap<>();
 		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"radio\"]}");
-		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		radioTypeMapping.put("findmode", findModeEditable);
 		radioTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("radio", radioTypeMapping);
@@ -652,14 +664,16 @@ public class SpecGenerator
 		Map<String, String> radioGroupTypeMapping = new HashMap<>();
 		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		radioGroupTypeMapping.put("findmode", findModeEditable);
 		radioGroupTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("radiogroup", radioGroupTypeMapping);
 
 		Map<String, String> spinnerMapping = new HashMap<>();
 		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
-		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		spinnerMapping.put("findmode", findModeEditable);
 		spinnerMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("spinner", spinnerMapping);
@@ -691,7 +705,8 @@ public class SpecGenerator
 		Map<String, String> textareaTypeMapping = new HashMap<>();
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
+		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		textareaTypeMapping.put("findmode", findModeEditable);
 		textareaTypeMapping.put("readOnly", readOnlyEditable);
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
@@ -700,7 +715,8 @@ public class SpecGenerator
 		Map<String, String> textfieldTypeMapping = new HashMap<>();
 		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		textfieldTypeMapping.put("findmode", findModeEditable);
 		textfieldTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("textfield", textfieldTypeMapping);
@@ -708,7 +724,8 @@ public class SpecGenerator
 		Map<String, String> typeaheadTypeMapping = new HashMap<>();
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
-		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\" }, \"for\": \"dataProviderID\", \"default\":\"autoVL\", \"canOptimize\":false}");
 		typeaheadTypeMapping.put("findmode", findModeEditable);
 		typeaheadTypeMapping.put("readOnly", readOnlyEditable);
