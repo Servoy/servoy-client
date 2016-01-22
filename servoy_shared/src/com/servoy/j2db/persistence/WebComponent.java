@@ -25,8 +25,6 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
@@ -79,6 +77,14 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		webObjectImpl = createWebObjectImpl();
 	}
 
+	/**
+	 * @return the webObjectImpl
+	 */
+	public WebObjectBasicImpl getImplementation()
+	{
+		return webObjectImpl;
+	}
+
 	protected WebObjectBasicImpl createWebObjectImpl()
 	{
 		return sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
@@ -93,16 +99,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	{
 		stream.defaultReadObject();
 		webObjectImpl = createWebObjectImpl();
-	}
-
-	public PropertyDescription getPropertyDescription()
-	{
-		return getSpecification();
-	}
-
-	public WebComponentSpecification getSpecification()
-	{
-		return (WebComponentSpecification)webObjectImpl.getPropertyDescription();
 	}
 
 	@Override
