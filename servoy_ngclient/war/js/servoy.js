@@ -932,7 +932,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				   then(
 						      function(result) {
 						    	  if (promise.reject) {
-						    		  $q.reject(result)
+						    		  return $q.reject(result)
 						    	  }
 						    	  else {
 							    	  var value = result[key];
