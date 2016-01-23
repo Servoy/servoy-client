@@ -492,21 +492,23 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			{
 				// special handling when double click is also present
 				var fn = $utils.getEventHandler($parse,scope,attrs.svyClick)
-				element.on('click', function(event) {
-					if(element.timerID){
-						clearTimeout(element.timerID);
-						element.timerID=null;
-						//double click, do nothing
-					}
-					else{
-						element.timerID=setTimeout(function(){
+				if (fn)
+				{
+					element.on('click', function(event) {
+						if(element.timerID){
+							clearTimeout(element.timerID);
 							element.timerID=null;
-							scope.$apply(function() {
-								fn(scope, {$event:event});
-							});
-						},250)}
-					return false;
-				}); 
+							//double click, do nothing
+						}
+						else{
+							element.timerID=setTimeout(function(){
+								element.timerID=null;
+								scope.$apply(function() {
+									fn(scope, {$event:event});
+								});
+							},250)}
+					});
+				}	
 			}
 			else
 			{
