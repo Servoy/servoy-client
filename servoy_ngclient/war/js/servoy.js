@@ -705,7 +705,16 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					elem.value = beginning + s + end;
 					elem.selectionStart = startPos;
 					elem.selectionEnd = startPos + s.length;
-					elem.focus();
+					
+					// fire change event
+					if ("createEvent" in document) {
+					    var evt = document.createEvent("HTMLEvents");
+					    evt.initEvent("change", false, true);
+					    elem.dispatchEvent(evt);
+					}
+					else {
+						elem.fireEvent("onchange");	
+					}
 				}
 			}
 		},
