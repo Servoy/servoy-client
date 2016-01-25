@@ -36,12 +36,6 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.types.ColorPropertyType;
-import org.sablo.specification.property.types.DimensionPropertyType;
-import org.sablo.specification.property.types.FontPropertyType;
-import org.sablo.specification.property.types.InsetsPropertyType;
-import org.sablo.specification.property.types.PointPropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
@@ -79,32 +73,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	private Map<UUID, IPersist> persistMappedPropetiesByUUID = null; // cached just like in AbstractBase
 
 	private boolean gettingTypeName;
-
-	// this map can be filled by an extension point if we support 3rd party types.
-	// TODO extension point + maybe use another interface as values - something like IDesignValueConverter - cause this conversion is not related to what the javadoc in IPropertyConverter describes and it can be confusing
-	private static final Map<IPropertyType< ? >, IPropertyConverterForBrowser< ? extends Object>> jsonConverters = new HashMap<IPropertyType< ? >, IPropertyConverterForBrowser< ? extends Object>>();
-
-	static
-	{
-		try
-		{
-			jsonConverters.put(TypesRegistry.getType(PointPropertyType.TYPE_NAME),
-				(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(PointPropertyType.TYPE_NAME));
-			jsonConverters.put(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME),
-				(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(DimensionPropertyType.TYPE_NAME));
-			jsonConverters.put(TypesRegistry.getType(ColorPropertyType.TYPE_NAME),
-				(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(ColorPropertyType.TYPE_NAME));
-			jsonConverters.put(TypesRegistry.getType(FontPropertyType.TYPE_NAME),
-				(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(FontPropertyType.TYPE_NAME));
-			jsonConverters.put(TypesRegistry.getType(InsetsPropertyType.TYPE_NAME),
-				(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(InsetsPropertyType.TYPE_NAME));
-			jsonConverters.put(TypesRegistry.getType("border"), (IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType("border"));
-		}
-		catch (Exception e)
-		{
-			Debug.error("Could not load json converters", e);
-		}
-	}
 
 	/**
 	 * This constructor is to be used if getTypeName is the name of a WebComponent. (so it can be used to get the component spec)
@@ -384,8 +352,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		Object value = val;
 		IPropertyConverterForBrowser<Object> converter = null;
-		if ((value instanceof JSONObject || value instanceof String) && childPd != null &&
-			(converter = (IPropertyConverterForBrowser<Object>)jsonConverters.get(childPd.getType())) != null)
+		if ((value instanceof JSONObject || value instanceof String) && childPd != null && (converter = getConverter(childPd)) != null)
 		{
 			if (value instanceof String && ((String)value).startsWith("{"))
 			{
@@ -404,6 +371,15 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 		}
 		return (val != JSONObject.NULL) ? value : null;
+	}
+
+	/**
+	 * @param childPd
+	 * @return
+	 */
+	private IPropertyConverterForBrowser<Object> getConverter(PropertyDescription childPd)
+	{
+		return (childPd.getType() instanceof IPropertyConverterForBrowser< ? >) ? (IPropertyConverterForBrowser<Object>)childPd.getType() : null;
 	}
 
 	@Override
