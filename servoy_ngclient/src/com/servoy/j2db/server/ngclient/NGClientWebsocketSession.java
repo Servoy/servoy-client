@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -198,16 +197,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
 						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
-
-						List<String> arguments = new ArrayList<String>();
-
-						if (args.getSolutionName() != null) arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
-							args.getSolutionName());
-						if (args.getFirstArgument() != null) arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
-							args.getFirstArgument());
-						if (args.getMethodName() != null) arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
-							args.getMethodName());
-						client.handleArguments(arguments.toArray(new String[arguments.size()]), args);
+						client.handleArguments(
+							args.getFirstArgument() != null ? new String[] { args.getSolutionName(), args.getMethodName(), args.getFirstArgument() }
+								: new String[] { args.getSolutionName(), args.getMethodName() },
+							args);
 
 						client.loadSolution(solutionName);
 					}
@@ -217,8 +210,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						sendInternalError(e);
 					}
 				}
-
-
 			});
 		}
 		catch (Exception e)
@@ -244,25 +235,39 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		sendSolutionCSSURL(solution);
 	}
 
+	public void sendStyleSheet()
+	{
+		if (client != null) sendSolutionCSSURL(client.getSolution());
+	}
+
 	protected void sendSolutionCSSURL(Solution solution)
 	{
-		int styleSheetID = solution.getStyleSheetID();
-		if (styleSheetID > 0)
+		String customStyleSheet = client != null ? client.getStyleSheet() : null;
+		if (customStyleSheet != null)
 		{
-			Media styleSheetMedia = client.getFlattenedSolution().getMedia(styleSheetID);
-			if (styleSheetMedia != null)
-			{
-				String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName();
-				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
-			}
-			else
-			{
-				Debug.error("Cannot find solution styleSheet in media lib.");
-			}
+			String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + customStyleSheet;
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
 		}
 		else
 		{
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { });
+			int styleSheetID = solution.getStyleSheetID();
+			if (styleSheetID > 0)
+			{
+				Media styleSheetMedia = client.getFlattenedSolution().getMedia(styleSheetID);
+				if (styleSheetMedia != null)
+				{
+					String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName();
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
+				}
+				else
+				{
+					Debug.error("Cannot find solution styleSheet in media lib.");
+				}
+			}
+			else
+			{
+				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { });
+			}
 		}
 	}
 
@@ -303,7 +308,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * All windows are now closed. We shutdown the client in order to free up the license/resources for the next NGClient instantiation.
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
 	 */
 	@Override

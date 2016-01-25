@@ -25,8 +25,6 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
@@ -79,6 +77,14 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		webObjectImpl = createWebObjectImpl();
 	}
 
+	/**
+	 * @return the webObjectImpl
+	 */
+	public WebObjectBasicImpl getImplementation()
+	{
+		return webObjectImpl;
+	}
+
 	protected WebObjectBasicImpl createWebObjectImpl()
 	{
 		return sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
@@ -93,16 +99,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	{
 		stream.defaultReadObject();
 		webObjectImpl = createWebObjectImpl();
-	}
-
-	public PropertyDescription getPropertyDescription()
-	{
-		return getSpecification();
-	}
-
-	public WebComponentSpecification getSpecification()
-	{
-		return (WebComponentSpecification)webObjectImpl.getPropertyDescription();
 	}
 
 	@Override
@@ -128,12 +124,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
-	public void setJsonSubproperty(String key, Object value)
-	{
-		webObjectImpl.setJsonSubproperty(key, value);
-	}
-
-	@Override
 	public void setProperty(String propertyName, Object val)
 	{
 		if (webObjectImpl.setProperty(propertyName, val))
@@ -153,8 +143,10 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) return super.getProperty(propertyName);
-		return webObjectImpl.getProperty(propertyName);
+		Object value = null;
+		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) value = super.getProperty(propertyName);
+		if (value == null) value = webObjectImpl.getProperty(propertyName);
+		return value;
 	}
 
 	@Override
@@ -188,12 +180,19 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return webObjectImpl.getTypeName();
 	}
 
+	/**
+	 * DO NOT USE this method! Use setProperty instead.
+	 * @param arg
+	 */
 	public void setJson(JSONObject arg)
 	{
 		if (arg != null && !(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
 		webObjectImpl.setJson(arg);
 	}
 
+	/**
+	 * DO NOT USE this method! Use getProperty instead.
+	 */
 	public JSONObject getJson()
 	{
 		JSONObject x = webObjectImpl.getJson();

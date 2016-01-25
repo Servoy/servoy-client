@@ -1,10 +1,10 @@
 {
 	
-	"name" : "htmlHeaders",
-	"displayName" : "Servoy HTMLHeaders plugin",
+	"name" : "ngclientutils",
+	"displayName" : "Servoy NG Client Utils plugin",
 	"version" : 1,
-	"definition" : "servoy_ng_only_services/htmlHeaders/htmlHeaders.js",
-	"serverscript" : "servoy_ng_only_services/htmlHeaders/htmlHeaders_server.js",
+	"definition" : "servoy_ng_only_services/ngutils/ngutils.js",
+	"serverscript" : "servoy_ng_only_services/ngutils/ngutils_server.js",
 	"libraries" : [],
 	
 	"model" :
@@ -18,6 +18,13 @@
 	
 	"api" :
 	{
+		"getUserAgent" : {
+			"parameters" : [ ],
+			"returns" :"string"
+		},
+		"setOnUnloadConfirmationMessage" : {
+			"parameters" : [ { "name" : "message", "type" : "string" } ]
+		},
 		"setViewportMetaDefaultForMobileAwareSites" : {
 			"parameters" : [ ]
 		},
@@ -30,9 +37,6 @@
 			                 { "name" : "attrValueToFind", "type" : "string" },
 			                 { "name" : "newTag", "type" : "tag" } ],
 			"returns": "tag"
-		},
-		"applyHeaderTags" : {
-			"parameters" : [ ]
 		}
 	},
 	

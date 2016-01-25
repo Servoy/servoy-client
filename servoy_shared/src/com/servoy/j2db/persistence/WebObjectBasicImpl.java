@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.UUID;
 
@@ -116,11 +115,6 @@ public class WebObjectBasicImpl
 	public <T extends IPersist> Iterator<T> getObjects(int tp)
 	{
 		return new TypeIterator<T>(getAllObjects(), tp);
-	}
-
-	public PropertyDescription getPropertyDescription()
-	{
-		return null;
 	}
 
 	public void internalAddChild(IPersist obj)

@@ -481,10 +481,10 @@ public class FormElementHelper
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 						if (properties != null && properties.size() > 0)
 						{
-							JSONObject json = ((IBasicWebComponent)persist).getJson();
+							IBasicWebComponent webComponent = (IBasicWebComponent)persist;
 							for (PropertyDescription tabSeqProperty : properties)
 							{
-								int tabseq = json != null ? json.optInt(tabSeqProperty.getName()) : 0;
+								int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
 								if (tabseq >= 0)
 								{
 									selected.add(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()));
@@ -552,12 +552,7 @@ public class FormElementHelper
 					PropertyDescription property = specification.getProperty(propertyName);
 					if (property != null)
 					{
-						JSONObject json = ((IBasicWebComponent)element).getJson();
-						if (json != null)
-						{
-							return json.optInt(propertyName);
-						}
-						return 0;
+						return Utils.getAsInteger(((IBasicWebComponent)element).getProperty(propertyName));
 					}
 				}
 			}

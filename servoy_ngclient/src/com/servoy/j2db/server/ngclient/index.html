@@ -101,7 +101,7 @@
 		}	
 	</script>
 	<script type="text/javascript">
-		angular.module('servoyApp').run(function($solutionSettings){
+		angular.module('servoyApp').run(function($solutionSettings, $svyI18NService){
 				var orientation = ##orientation##;
 				if (orientation == 2)
 				{
@@ -124,11 +124,14 @@
 				{
 					$solutionSettings.ltrOrientation = true;
 				}
+            
+            // inject default tranlations
+            $svyI18NService.addDefaultTranslations(##defaultTranslations##);
 		});
 	</script>
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
 	
-	    <div sablo-reconnecting-feedback>Disconnected from server, Reconnecting....</div>
+	     <div sablo-reconnecting-feedback class="svy-reconnecting ng-cloak" >{{'servoy.ngclient.reconnecting' | translate}}</div>
 	
 		<div ng-if='!getSessionProblemView()' id="mainForm" sablo-tabseq='1' sablo-tabseq-config="{container: true}">
 			<div class="svy-main-window-navigator-container" ng-if="solutionSettings.navigatorForm.name" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
