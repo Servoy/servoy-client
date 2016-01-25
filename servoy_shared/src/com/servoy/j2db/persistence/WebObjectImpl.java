@@ -20,10 +20,12 @@ package com.servoy.j2db.persistence;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
@@ -36,6 +38,11 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.ColorPropertyType;
+import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.FontPropertyType;
+import org.sablo.specification.property.types.InsetsPropertyType;
+import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
@@ -373,13 +380,24 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return (val != JSONObject.NULL) ? value : null;
 	}
 
+	private static Set<String> propertiesWithConversions = new HashSet<>();
+	static
+	{
+		propertiesWithConversions.add(PointPropertyType.TYPE_NAME);
+		propertiesWithConversions.add(DimensionPropertyType.TYPE_NAME);
+		propertiesWithConversions.add(ColorPropertyType.TYPE_NAME);
+		propertiesWithConversions.add(FontPropertyType.TYPE_NAME);
+		propertiesWithConversions.add(InsetsPropertyType.TYPE_NAME);
+		propertiesWithConversions.add("border"); //$NON-NLS-1$
+	}
+
 	/**
-	 * @param childPd
+	 * @param pd
 	 * @return
 	 */
-	private IPropertyConverterForBrowser<Object> getConverter(PropertyDescription childPd)
+	private IPropertyConverterForBrowser<Object> getConverter(PropertyDescription pd)
 	{
-		return (childPd.getType() instanceof IPropertyConverterForBrowser< ? >) ? (IPropertyConverterForBrowser<Object>)childPd.getType() : null;
+		return (propertiesWithConversions.contains(pd.getType().getName())) ? (IPropertyConverterForBrowser<Object>)pd.getType() : null;
 	}
 
 	@Override
