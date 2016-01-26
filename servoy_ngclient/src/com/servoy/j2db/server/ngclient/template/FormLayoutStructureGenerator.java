@@ -46,7 +46,7 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class FormLayoutStructureGenerator
 {
-	public static void generateLayout(Form form, String realFormName, ServoyDataConverterContext context, PrintWriter writer, boolean design, boolean highlight)
+	public static void generateLayout(Form form, String realFormName, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 	{
 		try
 		{
@@ -57,12 +57,12 @@ public class FormLayoutStructureGenerator
 				IPersist component = components.next();
 				if (component instanceof LayoutContainer)
 				{
-					generateLayoutContainer((LayoutContainer)component, form, context, writer, design, highlight);
+					generateLayoutContainer((LayoutContainer)component, form, context, writer, design);
 				}
 				else if (component instanceof IFormElement)
 				{
 					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), form,
-						design, highlight);
+						design);
 				}
 			}
 			FormLayoutGenerator.generateFormEndTag(writer, design);
@@ -73,10 +73,9 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	public static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design,
-		boolean highlight) throws IOException
+	public static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+		throws IOException
 	{
-		if (highlight) writer.print("<div class='highlight_element'>");
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -87,6 +86,7 @@ public class FormLayoutStructureGenerator
 			WebComponentPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
 				container.getPackageName());
 			WebLayoutSpecification spec = null;
+			boolean highSet = false;
 			if (pkg != null && (spec = pkg.getSpecification(container.getSpecName())) != null)
 			{
 				List<String> allowedChildren = spec.getAllowedChildren();
@@ -101,10 +101,12 @@ public class FormLayoutStructureGenerator
 				writer.print("'");
 				if (spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0)
 				{
-					writer.print(" ng-class='{" + spec.getDesignStyleClass() + ": showWireframe==true}'");
+					writer.print(
+						" ng-class='{" + spec.getDesignStyleClass() + ": showWireframe==true, highlight_element:design_highlight==\"highlight_element\"}'");
+					highSet = true;
 				}
 			}
-
+			if (!highSet) writer.print(" ng-class='design_highlight'");
 		}
 		if (container.getElementId() != null)
 		{
@@ -135,18 +137,17 @@ public class FormLayoutStructureGenerator
 			IPersist component = components.next();
 			if (component instanceof LayoutContainer)
 			{
-				generateLayoutContainer((LayoutContainer)component, form, context, writer, design, highlight);
+				generateLayoutContainer((LayoutContainer)component, form, context, writer, design);
 			}
 			else if (component instanceof IFormElement)
 			{
 				FormLayoutGenerator.generateFormElement(writer,
-					FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context.getSolution(), null, design), form, design, highlight);
+					FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context.getSolution(), null, design), form, design);
 			}
 		}
 		writer.print("</");
 		writer.print(container.getTagType());
 		writer.print(">");
-		if (highlight) writer.print("</div>");
 	}
 //	/**
 //	 * @param form

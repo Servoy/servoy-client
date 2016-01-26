@@ -58,11 +58,11 @@ public class FormHTMLAndJSGenerator implements IFormHTMLAndJSGenerator
 			PrintWriter w = new PrintWriter(htmlTemplate);
 			if (form.isResponsiveLayout())
 			{
-				FormLayoutStructureGenerator.generateLayout(form, realFormName, new ServoyDataConverterContext(application), w, false, false);
+				FormLayoutStructureGenerator.generateLayout(form, realFormName, new ServoyDataConverterContext(application), w, false);
 			}
 			else
 			{
-				FormLayoutGenerator.generateRecordViewForm(w, form, realFormName, new ServoyDataConverterContext(application), false, false);
+				FormLayoutGenerator.generateRecordViewForm(w, form, realFormName, new ServoyDataConverterContext(application), false);
 			}
 			w.flush();
 			w.close();

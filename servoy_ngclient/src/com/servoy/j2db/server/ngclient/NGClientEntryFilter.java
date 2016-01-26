@@ -60,33 +60,33 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String FORMS_PATH = "forms/";
 
 	private static final String[] INDEX_3TH_PARTY_CSS = { //
-	"js/bootstrap-window/css/bootstrap-window.css" };
+		"js/bootstrap-window/css/bootstrap-window.css" };
 	private static final String[] INDEX_3TH_PARTY_JS = { //
-	"js/jquery-1.11.1.js", //
-	"js/jquery.maskedinput.js", //
-	"js/angular_1.4.1.js", //
-	"js/angular-sanitize_1.4.1.js", //
-	"js/angular-translate-2.8.1.js", //
-	"js/angular-webstorage.js", //
-	"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
-	"js/numeral.js", //
-	"js/languages.js", //
-	"js/angular-file-upload/dist/angular-file-upload.min.js", //
-	"js/bootstrap-window/js/Window.js", //
-	"js/bootstrap-window/js/WindowManager.js", //
-	"js/bindonce.js" };
+		"js/jquery-1.11.1.js", //
+		"js/jquery.maskedinput.js", //
+		"js/angular_1.4.1.js", //
+		"js/angular-sanitize_1.4.1.js", //
+		"js/angular-translate-2.8.1.js", //
+		"js/angular-webstorage.js", //
+		"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
+		"js/numeral.js", //
+		"js/languages.js", //
+		"js/angular-file-upload/dist/angular-file-upload.min.js", //
+		"js/bootstrap-window/js/Window.js", //
+		"js/bootstrap-window/js/WindowManager.js", //
+		"js/bindonce.js" };
 	private static final String[] INDEX_SABLO_JS = { //
-	"sablo/lib/reconnecting-websocket.js", //
-	"sablo/js/websocket.js", //
-	"sablo/js/sablo_app.js" };
+		"sablo/lib/reconnecting-websocket.js", //
+		"sablo/js/websocket.js", //
+		"sablo/js/sablo_app.js" };
 	private static final String[] INDEX_SERVOY_JS = { //
-	"js/servoy.js", //
-	"js/servoyWindowManager.js", //
-	"js/servoyformat.js", //
-	"js/servoytooltip.js", //
-	"js/fileupload.js", //
-	"js/servoy-components.js", //
-	"js/servoy_app.js" };
+		"js/servoy.js", //
+		"js/servoyWindowManager.js", //
+		"js/servoyformat.js", //
+		"js/servoytooltip.js", //
+		"js/fileupload.js", //
+		"js/servoy-components.js", //
+		"js/servoy_app.js" };
 
 	private String[] locations;
 	private String[] services;
@@ -251,23 +251,23 @@ public class NGClientEntryFilter extends WebEntry
 									if (html && form.isResponsiveLayout())
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form, formName, wsSession != null ? new ServoyDataConverterContext(
-											wsSession.getClient()) : new ServoyDataConverterContext(fs), w, Utils.getAsBoolean(request.getParameter("design")),
-											Utils.getAsBoolean(request.getParameter("highlight")));
+										FormLayoutStructureGenerator.generateLayout(form, formName,
+											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), w,
+											Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".html"))
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutGenerator.generateRecordViewForm(w, form, formName, wsSession != null ? new ServoyDataConverterContext(
-											wsSession.getClient()) : new ServoyDataConverterContext(fs), Utils.getAsBoolean(request.getParameter("design")),
-											Utils.getAsBoolean(request.getParameter("highlight")));
+										FormLayoutGenerator.generateRecordViewForm(w, form, formName,
+											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+											Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".js"))
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
-										new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-											: new ServoyDataConverterContext(fs), false, Utils.getAsBoolean(request.getParameter("design"))).generate(form,
-											formName, "form_recordview_js.ftl", w);
+										new FormTemplateGenerator(
+											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+											false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl", w);
 									}
 									w.flush();
 									return;

@@ -50,8 +50,7 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
-	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design,
-		boolean highlight)
+	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design)
 	{
 		generateFormStartTag(writer, form, realFormName, false, design);
 		Iterator<Part> it = form.getParts();
@@ -129,7 +128,7 @@ public class FormLayoutGenerator
 					}
 
 					generateFormElementWrapper(writer, fe, design, form);
-					generateFormElement(writer, fe, form, design, highlight);
+					generateFormElement(writer, fe, form, design);
 					generateEndDiv(writer);
 				}
 
@@ -195,10 +194,11 @@ public class FormLayoutGenerator
 	{
 		if (design)
 		{
+
 			writer.print("<div ng-style=\"layout('");
 			writer.print(fe.getName());
 			writer.print("')\"");
-
+			writer.print(" ng-class='design_highlight'");
 		}
 		else
 		{
@@ -297,10 +297,8 @@ public class FormLayoutGenerator
 //		return false;
 //	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design, boolean highlight)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design)
 	{
-		if (highlight) writer.print("<div class='highlight_element" + (form.isResponsiveLayout() ? "" : " inherit_size") + "'>");
-
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -321,6 +319,7 @@ public class FormLayoutGenerator
 		{
 			if (form.isResponsiveLayout())
 			{
+				writer.print(" ng-class='design_highlight'");
 				writer.print(" svy-id='");
 				writer.print(getDesignId(fe));
 				writer.print("'");
@@ -379,8 +378,6 @@ public class FormLayoutGenerator
 		writer.print("</");
 		writer.print(fe.getTagname());
 		writer.println(">");
-		if (highlight) writer.print("</div>");
-
 	}
 
 	/**
