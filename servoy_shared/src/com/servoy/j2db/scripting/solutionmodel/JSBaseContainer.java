@@ -40,7 +40,10 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.ISupportFormElements;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -161,6 +164,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * @return all JSLayoutContainers objects of this container
 	 *
 	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
 	public JSLayoutContainer[] getLayoutContainers()
 	{
@@ -184,12 +188,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return a JSLayoutContainer object
 	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
 	public JSLayoutContainer getLayoutContainer(String name)
 	{
 		if (name == null) return null;
 
-		Iterator<LayoutContainer> containers = getContainer().getLayoutContainers();
+		Iterator<LayoutContainer> containers = getFlattenedContainer().getLayoutContainers();
 		while (containers.hasNext())
 		{
 			LayoutContainer container = containers.next();
@@ -199,6 +204,37 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns a JSLayoutContainer that has the given name throughout the whole form hierarchy.
+	 *
+	 * @sample
+	 * var container = myForm.findLayoutContainer("row1");
+	 * application.output(container.name);
+	 *
+	 * @param name the specified name of the container
+	 *
+	 * @return a JSLayoutContainer object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSLayoutContainer findLayoutContainer(final String name)
+	{
+		if (name == null) return null;
+
+		return (JSLayoutContainer)getFlattenedContainer().acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof LayoutContainer && name.equals(((LayoutContainer)o).getName()))
+				{
+					return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)JSBaseContainer.this, (LayoutContainer)o);
+				}
+				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		});
 	}
 
 	/**
@@ -1796,6 +1832,37 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Debug.log(ex);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns a JSWebComponent that has the given name through the whole hierarchy of JSLayoutContainers
+	 *
+	 * @sample
+	 * var btn = myForm.findWebComponent("mycomponent");
+	 * application.output(mybean.typeName);
+	 *
+	 * @param name the specified name of the web component
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent findWebComponent(final String name)
+	{
+		if (name == null) return null;
+
+		return (JSWebComponent)getFlattenedContainer().acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof WebComponent && name.equals(((WebComponent)o).getName()))
+				{
+					return createWebComponent((IJSParent< ? >)JSBaseContainer.this, (WebComponent)o, application, false);
+				}
+				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		});
 	}
 
 	/**
