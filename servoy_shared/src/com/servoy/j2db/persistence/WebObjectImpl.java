@@ -327,6 +327,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		if (getPropertyDescription() != null)
 		{
 			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebComponentSpecification)
+				childPd = ((WebComponentSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
@@ -381,6 +383,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	}
 
 	private static Set<String> propertiesWithConversions = new HashSet<>();
+
 	static
 	{
 		propertiesWithConversions.add(PointPropertyType.TYPE_NAME);
