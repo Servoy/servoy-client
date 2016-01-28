@@ -176,10 +176,6 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     			if(!item.hideCheckbox) {
     				item.selected = Boolean(foundset.viewPort.rows[i][binding.checkboxvaluedataprovider])
     			}
-
-    			if($scope.model.visibleNodeLevel && level <= $scope.model.visibleNodeLevel) {
-    				item.expanded = $scope.model.visibleNodeState;
-    			}     			
     			
     			if($scope.expandedNodes.indexOf(item.key) != -1) {
     				item.expanded = true;
@@ -332,24 +328,6 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     			}
       		}
       	}
-
-      	$scope.api.setNodeLevelVisible = function(level, state) {
-  			$scope.model.visibleNodeLevel = level;
-  			$scope.model.visibleNodeState = state;
-      		if(theTree) {	  			
-      			expandChildNodes(theTree.getRootNode(), level, state);
-      		}
-      	}
-      	
-      	$scope.api.setSelectionPath = function(pk) {
-      		theTreeDefer.promise.then(function(theTree) {
-	  			var node = findNode(theTree.getRootNode(), pk, 0);
-	  			if(node) {
-	  				node.makeVisible({scrollIntoView: true});
-	  				node.setActive(true);
-	  			}      			
-      		});
-      	}
       	
       	$scope.api.getSelectionPath = function() {
       		var selectionPath = new Array();
@@ -371,6 +349,23 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
   		$scope.$watch('model.roots', function(newValue) {
   			$scope.api.refresh();
 		})
+		
+		$scope.$watch('model.selection', function(newValue) {
+			theTreeDefer.promise.then(function(theTree) {
+	  			var node = findNode(theTree.getRootNode(), newValue, 0);
+	  			if(node) {
+	  				node.makeVisible({scrollIntoView: true});
+	  				node.setActive(true);
+	  			}      			
+      		});
+		})
+		
+  		$scope.$watch('model.levelVisibility', function(newValue) {
+			theTreeDefer.promise.then(function(theTree) {
+				expandChildNodes(theTree.getRootNode(), newValue.level, newValue.state);	
+      		});
+		})		
+		
       },
       templateUrl: 'servoyextra/dbtreeview/dbtreeview.html'
     };

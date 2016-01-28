@@ -68,3 +68,11 @@ $scope.getBinding = function(datasource) {
 	};	
 	return $scope.model.bindings[lastIdx];
 }
+
+$scope.api.setSelectionPath = function(pk) {
+	$scope.model.selection = pk;
+}
+
+$scope.api.setNodeLevelVisible = function(level, state) {
+	$scope.model.levelVisibility = {level: level, state: state};	
+}
