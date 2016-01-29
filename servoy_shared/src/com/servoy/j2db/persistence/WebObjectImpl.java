@@ -20,12 +20,10 @@ package com.servoy.j2db.persistence;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
@@ -36,13 +34,7 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
-import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.types.ColorPropertyType;
-import org.sablo.specification.property.types.DimensionPropertyType;
-import org.sablo.specification.property.types.FontPropertyType;
-import org.sablo.specification.property.types.InsetsPropertyType;
-import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
@@ -64,16 +56,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	// TODO should we have a map that contains all values from the JSON not only the above for IChildWebObject - or at least get/set/clear/has should handle all json values,
 	//	not just persist mapped one (see commented out code in those methods)
-	// we can have property type based conversions implemented here as well (from JSON to Persist property values and vice-versa); there is also currently a case in this area: SVY-9142
-	// so then all conversions that are done now via com.servoy.eclipse.ui.property.WebComponentPropertyHandler.jsonConverters could be done here I think
-	// and then all json properties could be accessed through direct persist getters/setters only that WebComponent/WebCustomType have
-	// and the direct JSON operations can be tucked away in this class only;
-	// one thing we should look at thoroughly at if we use the normal persist (WebComponent/WebCustomType) get/set/clear for properties in json,
-	// then what about iterating on all? do we add a separate method just for getting all
-	// or if we do return them in the usual persist method for iterating - won't that break cloning/copying of persists
-	//(that in this case really only should work on the root persist properties like "json" instead of the contents of subproperties inside the "json" property)
-	// Currently there is some code commented out for making get/set of persist work with json properties as well -
-	// but that can only work when enabling conversions there; see comments with // TODO CONVERSION below
 
 	private boolean arePersistMappedPropetiesLoaded = false;
 	private PropertyDescription pdUseGetterInstead;
@@ -262,7 +244,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				else
 				{
 					// it is a json property defined in spec, but it's not mapping to a persist
-					setOrRemoveJsonSubproperty(propertyName, val, false);
+					setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(propertyName, val), false);
 					return true;
 				}
 			}
@@ -350,7 +332,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					}
 					return java_arr;
 				}
-				return convertToJavaType(childPd, value);
+				return value;
 			}
 		}
 
@@ -360,47 +342,17 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	private Object convertToJavaType(PropertyDescription childPd, Object val)
 	{
 		Object value = val;
-		IPropertyConverterForBrowser<Object> converter = null;
-		if ((value instanceof JSONObject || value instanceof String) && childPd != null && (converter = getConverter(childPd)) != null)
+		IDesignValueConverter< ? > converter = null;
+		if (value != null && childPd != null && (converter = getConverter(childPd)) != null)
 		{
-			if (value instanceof String && ((String)value).startsWith("{"))
-			{
-				try
-				{
-					value = converter.fromJSON(new JSONObject((String)value), null, childPd, null, null);
-				}
-				catch (Exception e)
-				{
-					Debug.error("can't parse '" + value + "' to the real type for property converter: " + childPd.getType(), e);
-				}
-			}
-			else
-			{
-				value = converter.fromJSON(value, null, childPd, null, null);
-			}
+			value = converter.fromDesignValue(value, childPd);
 		}
 		return (val != JSONObject.NULL) ? value : null;
 	}
 
-	private static Set<String> propertiesWithConversions = new HashSet<>();
-
-	static
+	private IDesignValueConverter< ? > getConverter(PropertyDescription pd)
 	{
-		propertiesWithConversions.add(PointPropertyType.TYPE_NAME);
-		propertiesWithConversions.add(DimensionPropertyType.TYPE_NAME);
-		propertiesWithConversions.add(ColorPropertyType.TYPE_NAME);
-		propertiesWithConversions.add(FontPropertyType.TYPE_NAME);
-		propertiesWithConversions.add(InsetsPropertyType.TYPE_NAME);
-		propertiesWithConversions.add("border"); //$NON-NLS-1$
-	}
-
-	/**
-	 * @param pd
-	 * @return
-	 */
-	private IPropertyConverterForBrowser<Object> getConverter(PropertyDescription pd)
-	{
-		return (propertiesWithConversions.contains(pd.getType().getName())) ? (IPropertyConverterForBrowser<Object>)pd.getType() : null;
+		return (pd.getType() instanceof IDesignValueConverter< ? >) ? (IDesignValueConverter< ? >)pd.getType() : null;
 	}
 
 	@Override
@@ -594,6 +546,16 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			Debug.error(e);
 		}
 		return false;
+	}
+
+	private Object convertFromJavaType(String propertyName, Object value)
+	{
+		PropertyDescription pd = getPropertyDescription().getProperty(propertyName);
+		if (pd != null && getConverter(pd) != null)
+		{
+			return getConverter(pd).toDesignValue(value, pd);
+		}
+		return value;
 	}
 
 	@Override
