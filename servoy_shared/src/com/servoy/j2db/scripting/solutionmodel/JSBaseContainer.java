@@ -230,10 +230,16 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				if (o instanceof LayoutContainer && name.equals(((LayoutContainer)o).getName()))
 				{
-					return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)JSBaseContainer.this, (LayoutContainer)o);
+					JSBaseContainer topContainer = JSBaseContainer.this;
+					LayoutContainer lc = (LayoutContainer)o;
+					topContainer = getParentContainer(topContainer, lc, application);
+
+					return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)topContainer, lc);
 				}
 				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
+
+
 		});
 	}
 
@@ -1858,7 +1864,10 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				if (o instanceof WebComponent && name.equals(((WebComponent)o).getName()))
 				{
-					return createWebComponent((IJSParent< ? >)JSBaseContainer.this, (WebComponent)o, application, false);
+					JSBaseContainer topContainer = JSBaseContainer.this;
+					WebComponent wc = (WebComponent)o;
+					topContainer = getParentContainer(topContainer, wc, application);
+					return createWebComponent((IJSParent< ? >)topContainer, wc, application, false);
 				}
 				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
@@ -1946,7 +1955,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		return getWebComponents(false);
 	}
 
-	private JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	private static JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
 	{
 		if (application.getApplicationType() == IApplication.NG_CLIENT)
 		{
@@ -1956,5 +1965,35 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		{
 			return new JSWebComponent(parent, baseComponent, application, isNew);
 		}
+	}
+
+	/**
+	 * @param topContainer
+	 * @param lc
+	 * @return
+	 */
+	private static JSBaseContainer getParentContainer(JSBaseContainer topContainer, IPersist lc, IApplication application)
+	{
+		ArrayList<ISupportChilds> parentHierarchy = new ArrayList<>();
+		ISupportChilds parent = lc.getParent();
+		while (parent != topContainer.getContainer())
+		{
+			parentHierarchy.add(parent);
+			parent = parent.getParent();
+		}
+		for (int i = parentHierarchy.size(); --i >= 0;)
+		{
+			ISupportChilds container = parentHierarchy.get(i);
+			if (container instanceof LayoutContainer)
+			{
+				topContainer = application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)topContainer,
+					(LayoutContainer)container);
+			}
+			else
+			{
+				throw new RuntimeException("unexpected parent: " + container); //$NON-NLS-1$
+			}
+		}
+		return topContainer;
 	}
 }
