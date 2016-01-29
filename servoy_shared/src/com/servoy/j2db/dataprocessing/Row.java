@@ -601,10 +601,22 @@ public class Row
 
 	void setRollbackData(Object[] array, ROLLBACK_MODE mode)
 	{
+		Map<String, Object> changedColumns = new HashMap<String, Object>();
+		String[] columnNames = getRowManager().getSQLSheet().getColumnNames();
 		synchronized (this)
 		{
 			if (mode == ROLLBACK_MODE.OVERWRITE_CHANGES || oldValues == null)
 			{
+				if (columnNames != null && array.length == columnNames.length)
+				{
+					for (int i = 0; i < array.length; i++)
+					{
+						if (!Utils.equalObjects(array[i], columndata[i]))
+						{
+							changedColumns.put(columnNames[i], array[i]);
+						}
+					}
+				}
 				columndata = array;
 				oldValues = null;
 			}
@@ -617,13 +629,14 @@ public class Row
 						if (!Utils.equalObjects(oldValues[i], array[i]))
 						{
 							columndata[i] = array[i];
+							changedColumns.put(columnNames[i], array[i]);
 						}
 					}
 				}
 				oldValues = array;
 			}
 		}
-		getRowManager().fireDependingCalcs(getPKHashKey(), null, null);
+		fireChanges(changedColumns);
 	}
 
 	void rollbackFromOldValues()
@@ -634,11 +647,11 @@ public class Row
 		{
 			if (oldValues != null)
 			{
-				for (int i = 0; i < oldValues.length; i++)
+				if (columnNames != null && oldValues.length == columnNames.length)
 				{
-					if (!Utils.equalObjects(oldValues[i], columndata[i]))
+					for (int i = 0; i < oldValues.length; i++)
 					{
-						if (columnNames != null && i < columnNames.length)
+						if (!Utils.equalObjects(oldValues[i], columndata[i]))
 						{
 							changedColumns.put(columnNames[i], oldValues[i]);
 						}
@@ -650,6 +663,14 @@ public class Row
 		}
 		// maybe is new record, just clear exception
 		lastException = null;
+		fireChanges(changedColumns);
+	}
+
+	/**
+	 * @param changedColumns
+	 */
+	private void fireChanges(Map<String, Object> changedColumns)
+	{
 		if (changedColumns.size() > 0)
 		{
 			for (String dataProviderID : changedColumns.keySet())
