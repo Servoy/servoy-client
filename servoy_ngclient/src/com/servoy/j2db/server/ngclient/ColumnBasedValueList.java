@@ -25,6 +25,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -244,14 +245,9 @@ public class ColumnBasedValueList implements IValueList
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
-	 */
 	@Override
-	public boolean isRecordLinked()
+	public IDataProvider[] getDependedDataProviders()
 	{
-		return false;
+		return null;
 	}
 }

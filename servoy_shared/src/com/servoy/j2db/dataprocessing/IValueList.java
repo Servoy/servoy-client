@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import javax.swing.ListModel;
 
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ValueList;
 
 /**
@@ -75,5 +76,12 @@ public interface IValueList extends ListModel
 
 	public ValueList getValueList();
 
-	public boolean isRecordLinked();
+	/**
+	 * Returns the dataprovders this valuelist depends on, if none then return null
+	 * If it can't really determine then return a new IDataProvider[0] instance so
+	 * it will threat this valuelist that it depends on all dataprovider changes.
+	 *
+	 * @return
+	 */
+	public IDataProvider[] getDependedDataProviders();
 }

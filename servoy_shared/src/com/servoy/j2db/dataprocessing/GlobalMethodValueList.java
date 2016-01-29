@@ -22,6 +22,7 @@ import org.mozilla.javascript.Function;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -238,14 +239,9 @@ public class GlobalMethodValueList extends CustomValueList
 		removeAllElements();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.CustomValueList#isRecordLinked()
-	 */
 	@Override
-	public boolean isRecordLinked()
+	public IDataProvider[] getDependedDataProviders()
 	{
-		return true;
+		return new IDataProvider[0];
 	}
 }
