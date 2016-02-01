@@ -36,6 +36,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFor
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -97,8 +98,16 @@ public class NGPointPropertyType extends PointPropertyType implements IDesignToF
 	@Override
 	public Point fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
-		return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
-			propertyDescription, null, null);
+		try
+		{
+			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+				propertyDescription, null, null);
+		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
 	}
 
 	/*
