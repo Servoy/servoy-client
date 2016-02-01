@@ -37,8 +37,8 @@ import org.mozilla.javascript.Undefined;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.CurrentWindow;
@@ -76,11 +76,11 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	private Scriptable prototypeScope;
 	private final Set<String> specProperties;
 	private final Map<String, Function> apiFunctions;
-	private final WebComponentSpecification webComponentSpec;
+	private final WebObjectSpecification webComponentSpec;
 	private Scriptable parentScope;
 	private Scriptable scopeObject;
 
-	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
+	public RuntimeWebComponent(WebFormComponent component, WebObjectSpecification webComponentSpec)
 	{
 		this.component = component;
 		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
@@ -97,7 +97,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		}
 		if (webComponentSpec != null)
 		{
-			for (WebComponentApiDefinition def : webComponentSpec.getApiFunctions().values())
+			for (WebObjectApiDefinition def : webComponentSpec.getApiFunctions().values())
 			{
 				Function func = null;
 				if (apiObject != null)
@@ -257,7 +257,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					Object retValue = func.call(cx, scope, thisObj, args);
 					if (!(func instanceof WebComponentFunction))
 					{
-						WebComponentApiDefinition def = webComponentSpec.getApiFunctions().get(name);
+						WebObjectApiDefinition def = webComponentSpec.getApiFunctions().get(name);
 						retValue = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(retValue, def.getReturnType(), component, null);
 					}
 					updateVisibleContainers(oldVisibleForms);

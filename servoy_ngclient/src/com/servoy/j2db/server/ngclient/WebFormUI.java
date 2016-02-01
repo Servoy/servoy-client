@@ -25,7 +25,7 @@ import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
@@ -73,7 +73,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public static final String ENABLED = "enabled";
 	public static final String READONLY = "readOnly";
 
-	private static final class FormSpecification extends WebComponentSpecification
+	private static final class FormSpecification extends WebObjectSpecification
 	{
 		private FormSpecification()
 		{
@@ -85,7 +85,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 	}
 
-	private static final WebComponentSpecification FORM_SPEC = new FormSpecification();
+	private static final WebObjectSpecification FORM_SPEC = new FormSpecification();
 
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;
@@ -137,7 +137,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		{
 			// TODO do something similar for child elements (so properties of type 'components' which contain componentSpecs in them)
 
-			WebComponentSpecification componentSpec = fe.getWebComponentSpec(false);
+			WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
 			if (componentSpec == null)
 			{
 				getApplication().reportError("Didn't find a spec file for component " + fe + " when creating form: " + formController.getName(), null);
@@ -207,7 +207,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 	}
 
-	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpecification componentSpec, WebFormComponent component)
+	public void contributeComponentToElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component)
 	{
 		ElementScope elementsScope = getElementsScope();
 		if (elementsScope != null)
@@ -222,7 +222,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 	}
 
-	private int contributeComponentToElementsScope(ElementScope elementsScope, int counterStart, FormElement fe, WebComponentSpecification componentSpec,
+	private int contributeComponentToElementsScope(ElementScope elementsScope, int counterStart, FormElement fe, WebObjectSpecification componentSpec,
 		WebFormComponent component)
 	{
 		int counter = counterStart;

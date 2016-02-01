@@ -30,7 +30,7 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
