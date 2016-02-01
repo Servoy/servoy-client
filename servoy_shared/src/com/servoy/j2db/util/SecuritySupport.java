@@ -31,21 +31,24 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
 public class SecuritySupport
 {
-	private static KeyStore keyStore;
+	private static KeyStore passwordKeyStore;
+	private static KeyStore sslKeyStore;
 	private static char[] passphrase;
 
 //	public static void main(String[] args) throws Exception
 //	{
 //		Settings settings = Settings.getDefaultSettings(false, null);
-//		
+//
 //		//KeyStore ks = getKeyStore(settings);
 //		initKeyStoreAndPassphrase(settings);
-//		
+//
 //		Enumeration e = keyStore.aliases();
 //		if (e.hasMoreElements())
 //		{
@@ -53,7 +56,7 @@ public class SecuritySupport
 //			Key desKey = new SecretKeySpec(new DESedeKeySpec(keyStore.getKey(alias, passphrase).getEncoded()).getKey(),"DESede");
 //		    Cipher desCipher = Cipher.getInstance("DESede");
 //		    desCipher.init(Cipher.ENCRYPT_MODE, desKey);
-//		    
+//
 //		    //  Our cleartext
 //		    byte[] cleartext = "This is just an example".getBytes();
 //
@@ -67,7 +70,7 @@ public class SecuritySupport
 //
 //		    // Decrypt the ciphertext
 //		    byte[] cleartext1 = desCipher.doFinal(ciphertext);
-//		    
+//
 //		    System.out.println(new String(cleartext1) + " lenght "+cleartext1.length);
 //		    System.out.println(Utils.encodeBASE64(ciphertext));
 //		}
@@ -89,9 +92,9 @@ public class SecuritySupport
 			kmf = KeyManagerFactory.getInstance("IbmX509"); //$NON-NLS-1$
 		}
 
-		initKeyStoreAndPassphrase(settings);
+		initSSLKeyStoreAndPassphrase(settings);
 
-		kmf.init(keyStore, passphrase);
+		kmf.init(sslKeyStore, passphrase);
 		ctx.init(kmf.getKeyManagers(), null, null);
 
 		return ctx;
@@ -106,15 +109,28 @@ public class SecuritySupport
 
 	public static Key getCryptKey(Settings settings) throws Exception
 	{
-		initKeyStoreAndPassphrase(settings);
+		if (passwordKeyStore == null)
+		{
+			InputStream is = null;
+			try
+			{
+				is = SecuritySupport.class.getResourceAsStream("background.gif");
+				passwordKeyStore = KeyStore.getInstance("JKS");
+				passwordKeyStore.load(is, "passphrase".toCharArray());
+			}
+			finally
+			{
+				Utils.closeInputStream(is);
+			}
+		}
 
-		Enumeration e = keyStore.aliases();
+		Enumeration e = passwordKeyStore.aliases();
 		while (e.hasMoreElements())
 		{
 			String alias = (String)e.nextElement();
-			if (keyStore.isKeyEntry(alias))
+			if (passwordKeyStore.isKeyEntry(alias))
 			{
-				return new SecretKeySpec(new DESedeKeySpec(keyStore.getKey(alias, passphrase).getEncoded()).getKey(), "DESede");
+				return new SecretKeySpec(new DESedeKeySpec(passwordKeyStore.getKey(alias, "passphrase".toCharArray()).getEncoded()).getKey(), "DESede");
 			}
 		}
 		return null;
@@ -139,9 +155,18 @@ public class SecuritySupport
 	}
 
 	@SuppressWarnings("nls")
-	private static void initKeyStoreAndPassphrase(Properties settings) throws Exception
+	public static String encryptUrlSafe(Settings settings, String value) throws Exception
 	{
-		if (keyStore == null)
+		if (value == null) return value;
+		Cipher cipher = Cipher.getInstance("DESede");
+		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		return Base64.encodeBase64URLSafeString(cipher.doFinal(value.getBytes()));
+	}
+
+	@SuppressWarnings("nls")
+	private static void initSSLKeyStoreAndPassphrase(Properties settings) throws Exception
+	{
+		if (sslKeyStore == null)
 		{
 			InputStream is = null;
 			try
@@ -163,9 +188,7 @@ public class SecuritySupport
 							}
 							if (!file.exists())
 							{
-								Debug.error("couldn't resolve the ssl keystore file " +
-									file.getAbsolutePath() +
-									", maybe the user dir (" +
+								Debug.error("couldn't resolve the ssl keystore file " + file.getAbsolutePath() + ", maybe the user dir (" +
 									System.getProperty("user.dir") +
 									") of the application server is incorrect, please specify the system property: servoy.application_server.dir to point to the right directory [servoy_install]/application_server");
 							}
@@ -182,8 +205,8 @@ public class SecuritySupport
 				{
 					is = SecuritySupport.class.getResourceAsStream("background.gif");
 				}
-				keyStore = KeyStore.getInstance("JKS");
-				keyStore.load(is, passphrase);
+				sslKeyStore = KeyStore.getInstance("JKS");
+				sslKeyStore.load(is, passphrase);
 			}
 			finally
 			{
@@ -193,10 +216,11 @@ public class SecuritySupport
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static void clearCryptKey()
 	{
-		keyStore = null;
+		sslKeyStore = null;
+		passwordKeyStore = null;
 	}
 }
