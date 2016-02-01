@@ -18,22 +18,26 @@ package com.servoy.j2db.server.ngclient.property.types;
 import java.awt.Insets;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.InsetsPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author acostescu
  */
-public class NGInsetsPropertyType extends InsetsPropertyType implements IDesignToFormElement<Object, Insets, Insets>,
-	IFormElementToTemplateJSON<Insets, Insets>
+public class NGInsetsPropertyType extends InsetsPropertyType
+	implements IDesignToFormElement<Object, Insets, Insets>, IFormElementToTemplateJSON<Insets, Insets>, IDesignValueConverter<Insets>
 {
 
 	public final static NGInsetsPropertyType NG_INSTANCE = new NGInsetsPropertyType();
@@ -52,5 +56,40 @@ public class NGInsetsPropertyType extends InsetsPropertyType implements IDesignT
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Insets fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	{
+		try
+		{
+			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+				propertyDescription, null, null);
+		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
+	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		if (value instanceof Insets)
+		{
+			JSONStringer writer = new JSONStringer();
+			toJSON(writer, null, (Insets)value, pd, null, null);
+			return new JSONObject(writer.toString());
+		}
+		return value;
+	}
 }

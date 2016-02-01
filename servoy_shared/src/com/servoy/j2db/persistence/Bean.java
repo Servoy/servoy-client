@@ -285,7 +285,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 		return name + " [" + getBeanClassName() + ']'; //$NON-NLS-1$
 	}
 
-	@Override
 	public ServoyJSONObject getJson()
 	{
 		try
@@ -306,7 +305,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 		return getJson();
 	}
 
-	@Override
 	public void setJson(JSONObject o)
 	{
 		String beanXML = null;
@@ -321,24 +319,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	public void updateJSON()
 	{
 		// not supported by legacy Bean impl of web components
-	}
-
-	@Override
-	public void setJsonSubproperty(String key, Object value)
-	{
-		try
-		{
-			ServoyJSONObject jsonObject = getJson() == null ? new ServoyJSONObject(true, true) : getJson();
-			if (!jsonObject.has(getName()) || !jsonObject.get(getName()).equals(value))
-			{
-				jsonObject.put(getName(), value);
-				setJson(jsonObject);
-			}
-		}
-		catch (JSONException e)
-		{
-			Debug.error(e);
-		}
 	}
 
 	@Override

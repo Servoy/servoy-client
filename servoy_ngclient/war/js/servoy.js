@@ -492,21 +492,23 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			{
 				// special handling when double click is also present
 				var fn = $utils.getEventHandler($parse,scope,attrs.svyClick)
-				element.on('click', function(event) {
-					if(element.timerID){
-						clearTimeout(element.timerID);
-						element.timerID=null;
-						//double click, do nothing
-					}
-					else{
-						element.timerID=setTimeout(function(){
+				if (fn)
+				{
+					element.on('click', function(event) {
+						if(element.timerID){
+							clearTimeout(element.timerID);
 							element.timerID=null;
-							scope.$apply(function() {
-								fn(scope, {$event:event});
-							});
-						},250)}
-					return false;
-				}); 
+							//double click, do nothing
+						}
+						else{
+							element.timerID=setTimeout(function(){
+								element.timerID=null;
+								scope.$apply(function() {
+									fn(scope, {$event:event});
+								});
+							},250)}
+					});
+				}	
 			}
 			else
 			{
@@ -684,8 +686,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 
 		getSelectedText: function (elem){
+			// selectionStart/End seems to be lost/clear when the element looses focus (chrome and IE but firefox works fine)
+			// so we keep save those during blur			
+			var iSelectionStart;
+			var iSelectionEnd;
+			$(elem).on('blur', function() {
+				iSelectionStart = elem.selectionStart;
+				iSelectionEnd = elem.selectionEnd;
+			});
+			
 			return function(){
-				return elem.value.substr(elem.selectionStart, elem.selectionEnd - elem.selectionStart);
+				var startPos = !$(elem).is(":focus") && iSelectionStart != undefined ? iSelectionStart : elem.selectionStart;
+				var endPos = !$(elem).is(":focus") && iSelectionEnd != undefined ? iSelectionEnd : elem.selectionEnd;
+			
+				return elem.value.substr(startPos, endPos - startPos);
 			}
 		},
 		selectAll: function (elem){
@@ -694,16 +708,33 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 		},
 		replaceSelectedText:  function (elem){
+			// selectionStart/End seems to be lost/clear when the element looses focus (chrome and IE but firefox works fine)
+			// so we keep save those during blur
+			var iSelectionStart;
+			var iSelectionEnd;
+			$(elem).on('blur', function() {
+				iSelectionStart = elem.selectionStart;
+				iSelectionEnd = elem.selectionEnd;
+			});			
+			
 			return function(s) {
-				if (typeof elem.selectionStart != 'undefined') {
-					var startPos = elem.selectionStart;
-					var endPos = elem.selectionEnd;
-					var beginning = elem.value.substring(0, startPos);
-					var end = elem.value.substring(endPos);
-					elem.value = beginning + s + end;
-					elem.selectionStart = startPos;
-					elem.selectionEnd = startPos + s.length;
-					elem.focus();
+				var startPos = !$(elem).is(":focus") && iSelectionStart != undefined ? iSelectionStart : elem.selectionStart;
+				var endPos = !$(elem).is(":focus") && iSelectionEnd != undefined ? iSelectionEnd : elem.selectionEnd;
+				
+				var beginning = elem.value.substring(0, startPos);
+				var end = elem.value.substring(endPos);
+				elem.value = beginning + s + end;
+				elem.selectionStart = startPos;
+				elem.selectionEnd = startPos + s.length;
+				
+				// fire change event
+				if ("createEvent" in document) {
+				    var evt = document.createEvent("HTMLEvents");
+				    evt.initEvent("change", false, true);
+				    elem.dispatchEvent(evt);
+				}
+				else {
+					elem.fireEvent("onchange");	
 				}
 			}
 		},
@@ -928,24 +959,32 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		getI18NMessage: function(key) {
 			
 			if (!cachedPromises[key]) {
+				var promise = $sabloApplication.callService("i18nService", "getI18NMessages", {0: key}, false).
+				   then(
+						      function(result) {
+						    	  if (promise.reject) {
+						    		  return $q.reject(result)
+						    	  }
+						    	  else {
+							    	  var value = result[key];
+							    	  cachedPromises[key] = {
+							    			  value: value
+							    	  };
+							    	  return value;
+							      }
+						      },
+						      function(error) {
+						    	  if (!this.reject) {
+						    		  delete cachedPromises[key]; // try again later
+						    	  }
+						    	  return $q.reject(error);
+						      }
+						   )
 				cachedPromises[key] = {
-					promise: $sabloApplication.callService("i18nService", "getI18NMessages", {0: key}, false).
-					   then(
-					      function(result) {
-					    	  var value = result[key];
-					    	  cachedPromises[key] = {
-					    			  value: value
-					    	  };
-					    	  return value;
-					      },
-					      function(error) {
-					    	  delete cachedPromises[key]; // try again later
-					    	  return $q.reject(error);
-					      }
-					   )
+					promise: promise
 				};
 			}
-			// return the value when avalailable otherwise {{'mykey' | translate }} does not display anything
+			// return the value when available otherwise {{'mykey' | translate }} does not display anything
 			if (cachedPromises[key].hasOwnProperty('value')) {
 				return cachedPromises[key].value
 			}
@@ -959,7 +998,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			cachedMessages = {};
 			for (var key in cachedPromises) {
 				if (cachedPromises.hasOwnProperty(key) && cachedPromises[key].promise) {
-					cachedPromises[key].promise.reject('flushed');
+					cachedPromises[key].promise.reject = true;
 				}
 			}
 			cachedPromises = {};

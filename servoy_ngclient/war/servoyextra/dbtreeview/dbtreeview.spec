@@ -9,7 +9,9 @@
 	{
 	    "roots": "foundsetref[]",
 	    "bindings" : "binding[]",
-	    "visible" : {"type":"boolean", "default":true}
+	    "visible" : {"type":"boolean", "default":true},
+	    "selection" : "object[]",
+	    "levelVisibility" : "levelVisibilityType"
 	},	
 	"api":
 	{
@@ -58,8 +60,7 @@
 							"name":"visible",
 							"type": "boolean"
 		                	}		                	
-						 ],
-			"delayUntilFormLoad": true
+						 ]
         },
         "setTextDataprovider": {
 			"parameters":[
@@ -199,8 +200,7 @@
 							"name":"pk",
 							"type": "object[]"
 		                	}
-						 ],
-			"delayUntilFormLoad": true						 
+						 ]						 
         },
 		"getSelectionPath": {
 			"returns": "object[]"
@@ -223,6 +223,10 @@
 	  		"callbackinfo": "callback",
 	  		"methodToCallOnCheckBoxChange": "callback",
 	  		"methodToCallOnDoubleClick": "callback"
+	  },
+	  "levelVisibilityType": {
+	  		"level": "int",
+	  		"state": "boolean"
 	  }
 	}
 }

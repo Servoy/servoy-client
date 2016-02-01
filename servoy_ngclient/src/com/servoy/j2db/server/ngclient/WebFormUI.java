@@ -424,6 +424,11 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		{
 			nav.newFoundset(fs);
 		}
+		if (fs == null)
+		{
+			// no data should be shown anymore, (form is made invisible)
+			dataAdapterList.setRecord(null, false);
+		}
 	}
 
 	@Override

@@ -98,7 +98,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -139,8 +139,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		Object property = wc.getProperty("valuelistID");
-		Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof ValueListTypeSabloValue &&
-			((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
+		Assert.assertTrue(property != null ? property.getClass().getName() : "null",
+			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
 		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListTypeSabloValue)property).getValueList()).getFormat().getDisplayFormat());
 	}
 
@@ -210,7 +210,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
 		WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
-		bean.setJson(new ServoyJSONObject("{atype:{name:'name',text:'i18n:servoy.button.ok'}}", false));
+		bean.setProperty("atype", new ServoyJSONObject("{name:'name',text:'i18n:servoy.button.ok'}", false));
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
@@ -256,7 +256,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		// ok now for the real test that uses WebComponent
 		form.removeChild(bean);
 		WebComponent webComponent = form.createNewWebComponent("mycustombean", "my-component");
-		webComponent.setJson(new ServoyJSONObject("{atype:{name:'name',form:'tabform'}}", false));
+		webComponent.setProperty("atype", new ServoyJSONObject("{name:'name',form:'tabform'}", false));
 		formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);

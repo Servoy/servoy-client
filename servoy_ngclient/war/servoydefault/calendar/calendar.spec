@@ -4,7 +4,7 @@
 	"version": 1,
 	"icon": "servoydefault/calendar/Calendar_C16.png",
 	"definition": "servoydefault/calendar/calendar.js",
-	"libraries": [{"name":"moment", "version":"2.6.0", "url": "servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js", "mimetype":"text/javascript"},{"name":"moment-jdateformatparser", "version":"0.1.1", "url":"servoydefault/calendar/bootstrap-datetimepicker/js/moment-jdateformatparser.js", "mimetype":"text/javascript"},{"name":"bootstrap-datetimepicker", "version":"4.7.14", "url":"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js", "mimetype":"text/javascript"},{"name":"bootstrap-datetimepicker", "version":"4.7.14", "url":"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css", "mimetype":"text/css"},{"name":"bootstrap-datetimepicker-servoy-extension", "version":"1.0", "url":"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker-servoy-extension.css", "mimetype":"text/css"}],
+	"libraries": [{"name":"moment", "version":"2.11.1", "url": "servoydefault/calendar/bootstrap-datetimepicker/js/moment-with-locales.min.js", "mimetype":"text/javascript"},{"name":"moment-jdateformatparser", "version":"0.1.1", "url":"servoydefault/calendar/bootstrap-datetimepicker/js/moment-jdateformatparser.js", "mimetype":"text/javascript"},{"name":"bootstrap-datetimepicker", "version":"4.7.14", "url":"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js", "mimetype":"text/javascript"},{"name":"bootstrap-datetimepicker", "version":"4.7.14", "url":"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css", "mimetype":"text/css"},{"name":"bootstrap-datetimepicker-servoy-extension", "version":"1.0", "url":"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker-servoy-extension.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 
@@ -18,12 +18,12 @@
 	        "foreground" : "color", 
 	        "format" : {"for":["dataProviderID"] , "type" :"format"}, 
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
-	        "location" : "point", 
+	        "location" : {"type" :"point", "pushToServer": "deep"}, 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "placeholderText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "readOnly" : { "type" : "protected", "for" : ["readOnly"]}, 
 	        "selectOnEnter" : {"type" :"boolean", "tags": { "scope" :"design" }}, 
-	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}}, 
+	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}, "pushToServer": "deep"}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["form-control", "input-sm", "svy-padding-xs", "svy-line-height-normal"]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 

@@ -112,6 +112,7 @@ public class FormLayoutStructureGenerator
 			writer.print(container.getElementId());
 			writer.print("' ");
 		}
+		writer.print(" svy-autosave ");
 		Map<String, String> attributes = container.getAttributes();
 		if (attributes != null)
 		{

@@ -758,10 +758,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		for (PropertyDescription propertyDescription : properties.values())
 		{
 			Object configObject = propertyDescription.getConfig();
-			if (configObject instanceof JSONObject && Boolean.TRUE.equals(((JSONObject)configObject).opt(DROPPABLE)))
+			String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyDescription.getType());
+			if (simpleTypeName.equals("component") || (configObject instanceof JSONObject && Boolean.TRUE.equals(((JSONObject)configObject).opt(DROPPABLE)) &&
+				PropertyUtils.isCustomJSONProperty(propertyDescription.getType())))
 			{
-				String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyDescription.getType());
-				if (PropertyUtils.isCustomJSONProperty(propertyDescription.getType()) || simpleTypeName.equals("component")) result.add(simpleTypeName);
+				result.add(simpleTypeName);
 			}
 		}
 		return result;

@@ -18,6 +18,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import java.awt.Color;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
@@ -26,12 +27,14 @@ import org.sablo.specification.property.types.ColorPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
@@ -39,7 +42,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author acostescu
  */
 public class NGColorPropertyType extends ColorPropertyType implements IDesignToFormElement<Object, Color, Color>, IFormElementToTemplateJSON<Color, Color>,
-	ISabloComponentToRhino<Color>, IRhinoToSabloComponent<Color>
+	ISabloComponentToRhino<Color>, IRhinoToSabloComponent<Color>, IDesignValueConverter<Color>
 {
 
 	public final static NGColorPropertyType NG_INSTANCE = new NGColorPropertyType();
@@ -78,6 +81,37 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 			return PersistHelper.createColor(rhinoValue.toString());
 		}
 		return (Color)(rhinoValue instanceof Color ? rhinoValue : null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Color fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	{
+		try
+		{
+			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+				propertyDescription, null, null);
+		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		return (value instanceof Color) ? getStringValue((Color)value) : value;
 	}
 
 }

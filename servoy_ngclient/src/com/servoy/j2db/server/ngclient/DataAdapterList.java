@@ -466,6 +466,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
 	{
+		// if this is not a change in the record that it should not be needed that it should be pushed again.
+		// because all types should just listen to the right stuff.
+		if (this.record == record) return;
 		if (settingRecord)
 		{
 			if (record != this.record)

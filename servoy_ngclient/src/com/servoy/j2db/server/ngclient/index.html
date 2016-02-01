@@ -131,7 +131,7 @@
 	</script>
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
 	
-	     <div sablo-reconnecting-feedback class="svy-reconnecting">{{'servoy.ngclient.reconnecting' | translate}}</div>
+	     <div sablo-reconnecting-feedback class="svy-reconnecting ng-cloak" >{{'servoy.ngclient.reconnecting' | translate}}</div>
 	
 		<div ng-if='!getSessionProblemView()' id="mainForm" sablo-tabseq='1' sablo-tabseq-config="{container: true}">
 			<div class="svy-main-window-navigator-container" ng-if="solutionSettings.navigatorForm.name" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"

@@ -26,7 +26,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
 
-		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo, internalState.beanLayout, containerSize, propertyName);
+		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo, internalState.beanLayout, containerSize, propertyName, componentState.model);
 	};
 
 	function getBeanPropertyChangeNotifierGenerator(propertyValue) {

@@ -15,13 +15,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 }]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property) {
+	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
 		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanLayout(now, beanLayout, changes, parentSize, false);
+				applyBeanLayout(beanModel, beanLayout, changes, parentSize, false);
 			}
 		}
 		return changes;
@@ -30,7 +30,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var sendChanges = function(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property);
+			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname]);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {

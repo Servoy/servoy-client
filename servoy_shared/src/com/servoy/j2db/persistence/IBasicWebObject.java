@@ -36,16 +36,6 @@ public interface IBasicWebObject extends ISupportChilds
 
 	String getTypeName();
 
-	void setJson(JSONObject arg);
-
-	void setJsonSubproperty(String key, Object value); // can be a json objec, array or primitive
-
-	/**
-	 * Returns the JSON object holding this web object's child properties in the .frm file.
-	 * @see IChildWebObject#getFullJsonInFrmFile() which is different in case of {@link ChildWebComponent} instances.
-	 */
-	JSONObject getJson();
-
 	JSONObject getFlattenedJson();
 
 	void setProperty(String propertyName, Object val);
