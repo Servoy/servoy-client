@@ -1129,6 +1129,13 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
 								$scope.foundset.loadExtraRecordsAsync(extraRecords);
 							}
+							else if ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize > $scope.foundset.viewPort.size )
+							{
+								// some row(s) have been added in scroll window, load them
+								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize) - $scope.foundset.viewPort.size);
+								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
+								$scope.foundset.loadExtraRecordsAsync(extraRecords);
+							}	
 						}
 					}
 				}
