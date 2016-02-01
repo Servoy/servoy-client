@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.helper.StringUtil;
-import org.sablo.specification.WebComponentPackageSpecification;
+import org.sablo.specification.NGPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
@@ -84,7 +84,7 @@ public class FormLayoutStructureGenerator
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
 			writer.print("'");
-			WebComponentPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
+			NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
 				container.getPackageName());
 			WebLayoutSpecification spec = null;
 			if (pkg != null && (spec = pkg.getSpecification(container.getSpecName())) != null)

@@ -32,7 +32,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -71,7 +71,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	private final static Map<String, String> ScriptNameToSpecName;
 	private final static Set<String> LegacyApiNames;
 	private Map<Object, Object> clientProperties;
-	private final WebComponentSpecification webComponentSpec;
+	private final WebObjectSpecification webComponentSpec;
 	private Scriptable parentScope;
 
 	static

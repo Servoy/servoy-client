@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.sablo.eventthread.IEventDispatcher;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
@@ -296,8 +296,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IClientService createClientService(String name)
 	{
-		WebComponentSpecification spec = WebServiceSpecProvider.getInstance().getWebServiceSpecification(name);
-		if (spec == null) spec = new WebComponentSpecification(name, "", name, null, null, null, "", null);
+		WebObjectSpecification spec = WebServiceSpecProvider.getInstance().getWebServiceSpecification(name);
+		if (spec == null) spec = new WebObjectSpecification(name, "", name, null, null, null, "", null);
 		return new ServoyClientService(name, spec, this);
 	}
 

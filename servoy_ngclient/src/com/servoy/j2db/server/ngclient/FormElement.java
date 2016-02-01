@@ -37,7 +37,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.BaseSpecProvider.ISpecReloadListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
@@ -381,7 +381,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	{
 		if (form != null && !form.isResponsiveLayout())
 		{
-			WebComponentSpecification spec = getWebComponentSpec();
+			WebObjectSpecification spec = getWebComponentSpec();
 			if (spec.getProperty("location") == null)
 				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
 			if (spec.getProperty("size") == null)
@@ -400,14 +400,14 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		return propertyValues;
 	}
 
-	public WebComponentSpecification getWebComponentSpec()
+	public WebObjectSpecification getWebComponentSpec()
 	{
 		return getWebComponentSpec(true);
 	}
 
-	public WebComponentSpecification getWebComponentSpec(boolean throwException)
+	public WebObjectSpecification getWebComponentSpec(boolean throwException)
 	{
-		WebComponentSpecification spec = null;
+		WebObjectSpecification spec = null;
 		try
 		{
 			spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
@@ -617,7 +617,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	public Collection<String> getHandlers()
 	{
 		List<String> handlers = new ArrayList<>();
-		WebComponentSpecification componentSpec = getWebComponentSpec();
+		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Set<String> events = componentSpec.getHandlers().keySet();
 		for (String eventName : events)
 		{
@@ -669,7 +669,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		Map<String, Object> properties = new HashMap<>();
 
 		adjustForAbsoluteLayout();
-		WebComponentSpecification componentSpec = getWebComponentSpec();
+		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
 		{
@@ -752,7 +752,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	 */
 	public List<String> getSvyTypesNames()
 	{
-		WebComponentSpecification spec = getWebComponentSpec(false);
+		WebObjectSpecification spec = getWebComponentSpec(false);
 		ArrayList<String> result = new ArrayList<String>();
 		Map<String, PropertyDescription> properties = spec.getProperties();
 		for (PropertyDescription propertyDescription : properties.values())

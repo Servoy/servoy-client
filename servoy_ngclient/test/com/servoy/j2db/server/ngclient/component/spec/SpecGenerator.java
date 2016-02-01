@@ -36,8 +36,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -550,10 +550,10 @@ public class SpecGenerator
 
 		Map<String, String> portalTypeMapping = new HashMap<>();
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":200, \"height\":200}}");
-		portalTypeMapping.put("relatedFoundset", "{\"type\" :\"foundset\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\"}");
+		portalTypeMapping.put("relatedFoundset", "{\"type\" :\"foundset\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\"}");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
-		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"}, \"tags\" : {\"scope\": \"private\"} }");
-		portalTypeMapping.put("headers", "{ \"type\" : \"component[]\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"tags\" : {\"scope\": \"private\"} }");
+		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"}, \"tags\" : {\"scope\": \"private\"} }");
+		portalTypeMapping.put("headers", "{ \"type\" : \"component[]\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"enabled\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName()+"\",\""
@@ -610,7 +610,7 @@ public class SpecGenerator
 		imageMediaMapping.put("readOnly", readOnlyEditable);
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\":\"dataprovider\", \"" +WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow +
+			"{ \"type\":\"dataprovider\", \"" +WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow +
 			 "\", \"tags\": { \"scope\": \"design\", \"typeName\": \"mediaDataprovider\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
 
@@ -669,7 +669,7 @@ public class SpecGenerator
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"enabled\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
-		splitpaneMapping.put("divLocation", "{ \"type\": \"double\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\", \"default\": -1 }");
+		splitpaneMapping.put("divLocation", "{ \"type\": \"double\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\", \"default\": -1 }");
 		splitpaneMapping.put("divSize", "{ \"type\": \"int\", \"default\": -1 }");
 		splitpaneMapping.put("resizeWeight","{\"type\":\"double\",\"default\":0}");
 		splitpaneMapping.put("pane1MinSize","{\"type\":\"int\",\"default\":30}");
@@ -716,7 +716,7 @@ public class SpecGenerator
 
 		// specific repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\":\"dataprovider\", \"" +WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow +
+			"{ \"type\":\"dataprovider\", \"" +WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow +
 			 "\", \"tags\": { \"scope\": \"design\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"valuelistID\",\"dataProviderID\"] , \"type\" :\"format\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
@@ -734,8 +734,8 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "{\"type\" :\"tabseq\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "labelfor");
-		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"droppable\":true}");
-		repoTypeMappingExceptions.put("tabIndex", "{ \"type\": \"object\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\" }");
+		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"droppable\":true}");
+		repoTypeMappingExceptions.put("tabIndex", "{ \"type\": \"object\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), "{\"type\" :\"scrollbars\", \"tags\": { \"scope\" :\"design\" }}");

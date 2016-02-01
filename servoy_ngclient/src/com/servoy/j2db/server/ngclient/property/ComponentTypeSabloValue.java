@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
@@ -375,7 +375,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected String findComponentPropertyName(IDataLinkedPropertyValue propertyValueToFind)
 	{
 		Set<String> allPropNames = childComponent.getAllPropertyNames(true);
-		WebComponentSpecification spec = childComponent.getSpecification();
+		WebObjectSpecification spec = childComponent.getSpecification();
 		for (String n : allPropNames)
 			if (nestedPropertyFound(propertyValueToFind, childComponent.getProperty(n), spec.getProperty(n))) return n;
 		return null;

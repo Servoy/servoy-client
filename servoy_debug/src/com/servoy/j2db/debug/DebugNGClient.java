@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
@@ -132,10 +132,10 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
-		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
 		PluginScope scope = (PluginScope)engine.getSolutionScope().get("plugins", engine.getSolutionScope());
 		scope.setLocked(false);
-		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 		{
 			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, engine.getSolutionScope()));
 		}

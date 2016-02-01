@@ -53,8 +53,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.sablo.InMemPackageReader;
-import org.sablo.specification.WebComponentPackage;
-import org.sablo.specification.WebComponentPackage.IPackageReader;
+import org.sablo.specification.NGPackage;
+import org.sablo.specification.NGPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -96,8 +96,8 @@ public abstract class AbstractSolutionTest
 		{
 			if (f.exists())
 			{
-				if (f.isDirectory()) readers.add(new WebComponentPackage.DirPackageReader(f));
-				else readers.add(new WebComponentPackage.JarPackageReader(f));
+				if (f.isDirectory()) readers.add(new NGPackage.DirPackageReader(f));
+				else readers.add(new NGPackage.JarPackageReader(f));
 			}
 			else
 			{
@@ -123,7 +123,7 @@ public abstract class AbstractSolutionTest
 		super();
 	}
 
-	private static class ZipPackageReader implements WebComponentPackage.IPackageReader
+	private static class ZipPackageReader implements NGPackage.IPackageReader
 	{
 		private final ZipFile file;
 		private final String pathPrefix;
@@ -146,7 +146,7 @@ public abstract class AbstractSolutionTest
 		{
 			try
 			{
-				String packageDisplayname = WebComponentPackage.getPackageName(getManifest());
+				String packageDisplayname = NGPackage.getPackageName(getManifest());
 				if (packageDisplayname != null) return packageDisplayname;
 			}
 			catch (IOException e)
@@ -163,7 +163,7 @@ public abstract class AbstractSolutionTest
 		{
 			try
 			{
-				String packageDisplayname = WebComponentPackage.getPackageDisplayname(getManifest());
+				String packageDisplayname = NGPackage.getPackageDisplayname(getManifest());
 				if (packageDisplayname != null) return packageDisplayname;
 			}
 			catch (IOException e)
@@ -216,7 +216,7 @@ public abstract class AbstractSolutionTest
 		@Override
 		public String getPackageType() throws IOException
 		{
-			return WebComponentPackage.getPackageType(getManifest());
+			return NGPackage.getPackageType(getManifest());
 		}
 
 	}
