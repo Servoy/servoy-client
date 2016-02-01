@@ -34,7 +34,6 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -423,8 +422,6 @@ public class FormElementHelper
 			fs.close(null);
 		}
 		globalFlattendSolutions.clear();
-		WebComponentSpecProvider.reload();
-		WebServiceSpecProvider.reload();
 	}
 
 	public void flush(Collection<IPersist> changes)

@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.IWebComponentInitializer;
+import org.sablo.specification.BaseSpecProvider.ISpecReloadListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
@@ -124,15 +125,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		if (willTurnIntoErrorBean)
 		{
-			map.put(
-				"error",
+			map.put("error",
 				"Please remove and insert this component again. Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). See log file for details.");
 
-			Debug.warn("Please remove and insert again the component with name '" +
-				persist.getName() +
-				(this.form != null ? "' on the form '" + this.form.getName() : "") +
-				"'. Type: " +
-				FormTemplateGenerator.getComponentTypeName(persist) +
+			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
+				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. Type: " + FormTemplateGenerator.getComponentTypeName(persist) +
 				". Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). Properties: " +
 				map.get("beanXML")); // so Bean persist used for custom components is no longer working properly - now it uses WebComponent
 		}
@@ -141,8 +138,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
-		PropertyPath propertyPath, boolean inDesigner)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
+		boolean inDesigner)
 	{
 		this.inDesigner = inDesigner;
 		this.persistImpl = null;
@@ -380,20 +377,21 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		adjustForAbsoluteLayout();
 	}
 
-	/**
-	 *
-	 */
 	protected void adjustForAbsoluteLayout()
 	{
 		if (form != null && !form.isResponsiveLayout())
 		{
 			WebComponentSpecification spec = getWebComponentSpec();
-			if (spec.getProperty("location") == null) spec.putProperty("location",
-				new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
-			if (spec.getProperty("size") == null) spec.putProperty("size",
-				new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
-			if (spec.getProperty("anchors") == null) spec.putProperty("anchors",
-				new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+			if (spec.getProperty("location") == null)
+				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
+			if (spec.getProperty("size") == null)
+				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
+			if (spec.getProperty("anchors") == null)
+				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+
+			// TODO the following is a workaround that allows not clearing the form element cache when reloading any ng package (so only when reloaded spec was actually altered here before and it might need to be re-altered again)
+			WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
+			if (webComponentSpecProvider != null) webComponentSpecProvider.addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
 		}
 	}
 
@@ -801,13 +799,26 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		for (PropertyDescription x : pd.getCustomJSONProperties().values())
 		{
-			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) ||
-				x.getType() instanceof ComponentPropertyType ||
-				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) && usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition()))) return true;
+			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) || x.getType() instanceof ComponentPropertyType ||
+				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) &&
+					usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition())))
+				return true;
 		}
 
 		return false;
 	}
 
+	private static class ClearFormElementCacheWhenSpecChanges implements ISpecReloadListener
+	{
+
+		public static final ClearFormElementCacheWhenSpecChanges INSTANCE = new ClearFormElementCacheWhenSpecChanges();
+
+		@Override
+		public void webObjectSpecificationReloaded()
+		{
+			FormElementHelper.INSTANCE.reload();
+		}
+
+	}
 
 }

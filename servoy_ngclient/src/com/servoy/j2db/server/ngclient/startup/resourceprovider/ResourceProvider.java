@@ -72,10 +72,6 @@ public class ResourceProvider implements Filter
 	private static final Map<String, IPackageReader> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
 
-	/**
-	 * @param reader
-	 * @return
-	 */
 	private static String getName(IPackageReader reader)
 	{
 		String name = reader.getName();
@@ -90,50 +86,36 @@ public class ResourceProvider implements Filter
 		return name;
 	}
 
-	public static void addComponentResources(Collection<IPackageReader> readers)
+	public static void updateComponentResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
 	{
-		for (IPackageReader reader : readers)
-		{
-			componentReaders.put(getName(reader), reader);
-		}
-		initSpecProvider();
-	}
-
-	public static void refreshComponentResources(Collection<IPackageReader> readers)
-	{
-		removeComponentResources(readers);
-		initSpecProvider();
-	}
-
-	public static void removeComponentResources(Collection<IPackageReader> readers)
-	{
-		for (IPackageReader reader : readers)
+		for (IPackageReader reader : toRemove)
 		{
 			componentReaders.remove(getName(reader));
 		}
-	}
-
-	public static void addServiceResources(Collection<IPackageReader> readers)
-	{
-		for (IPackageReader reader : readers)
+		for (IPackageReader reader : toAdd)
 		{
-			serviceReaders.put(getName(reader), reader);
+			componentReaders.put(getName(reader), reader);
 		}
-		initSpecProvider();
+
+		WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
+		if (webComponentSpecProvider != null) webComponentSpecProvider.updatePackages(toRemove, toAdd);
+		else initSpecProvider();
 	}
 
-	public static void refreshServiceResources(Collection<IPackageReader> readers)
+	public static void updateServiceResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
 	{
-		removeServiceResources(readers);
-		initSpecProvider();
-	}
-
-	public static void removeServiceResources(Collection<IPackageReader> readers)
-	{
-		for (IPackageReader reader : readers)
+		for (IPackageReader reader : toRemove)
 		{
 			serviceReaders.remove(getName(reader));
 		}
+		for (IPackageReader reader : toAdd)
+		{
+			serviceReaders.put(getName(reader), reader);
+		}
+
+		WebServiceSpecProvider webServiceSpecProvider = WebServiceSpecProvider.getInstance();
+		if (webServiceSpecProvider != null) webServiceSpecProvider.updatePackages(toRemove, toAdd);
+		else initSpecProvider();
 	}
 
 	public static Set<String> getDefaultPackageNames()
@@ -325,7 +307,7 @@ public class ResourceProvider implements Filter
 	{
 	}
 
-	private static class BundlePackageReader implements WebComponentPackage.IPackageReader
+	private static class BundlePackageReader implements IPackageReader
 	{
 		private final URL urlOfManifest;
 		private final Bundle bundle;
@@ -388,11 +370,6 @@ public class ResourceProvider implements Filter
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
-		 */
 		@Override
 		public URL getUrlForPath(String path)
 		{
@@ -412,26 +389,29 @@ public class ResourceProvider implements Filter
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
-		 */
 		@Override
 		public void reportError(String specpath, Exception e)
 		{
 			log.error("Cannot parse spec file '" + specpath + "' from package 'BundlePackageReader[ " + urlOfManifest + " ]'. ", e);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
-		 */
 		@Override
 		public URL getPackageURL()
 		{
 			return null;
 		}
+
+		@Override
+		public String getPackageType() throws IOException
+		{
+			return WebComponentPackage.getPackageType(getManifest());
+		}
+
+		@Override
+		public String toString()
+		{
+			return "Bundle ng package: " + getName();
+		}
+
 	}
 }

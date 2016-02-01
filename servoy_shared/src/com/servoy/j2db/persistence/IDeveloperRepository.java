@@ -37,7 +37,6 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public IRootObject createRootObject(RootObjectMetaData metaData) throws RepositoryException;
 
-
 	public void deleteObject(IPersist persist) throws RepositoryException;
 
 	public void undeleteObject(ISupportChilds parent, IPersist persist) throws RepositoryException;

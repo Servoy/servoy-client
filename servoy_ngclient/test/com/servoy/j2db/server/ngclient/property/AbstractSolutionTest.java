@@ -118,9 +118,6 @@ public abstract class AbstractSolutionTest
 	protected TestNGClient client;
 	protected NGClientEndpoint endpoint;
 
-	/**
-	 *
-	 */
 	public AbstractSolutionTest()
 	{
 		super();
@@ -137,11 +134,6 @@ public abstract class AbstractSolutionTest
 			this.pathPrefix = pathPrefix;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getName()
-		 */
 		@Override
 		public String getName()
 		{
@@ -149,11 +141,6 @@ public abstract class AbstractSolutionTest
 			return split[split.length - 1].replace("/", "");
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageName()
-		 */
 		@Override
 		public String getPackageName()
 		{
@@ -171,11 +158,6 @@ public abstract class AbstractSolutionTest
 			return getName();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageDisplayname()
-		 */
 		@Override
 		public String getPackageDisplayname()
 		{
@@ -193,11 +175,6 @@ public abstract class AbstractSolutionTest
 			return getPackageName();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getManifest()
-		 */
 		@Override
 		public Manifest getManifest() throws IOException
 		{
@@ -208,11 +185,6 @@ public abstract class AbstractSolutionTest
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#readTextFile(java.lang.String, java.nio.charset.Charset)
-		 */
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
@@ -223,37 +195,28 @@ public abstract class AbstractSolutionTest
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
-		 */
 		@Override
 		public URL getUrlForPath(String path) throws MalformedURLException
 		{
 			return null;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
-		 */
 		@Override
 		public URL getPackageURL()
 		{
 			return null;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
-		 */
 		@Override
 		public void reportError(String specpath, Exception e)
 		{
 			System.err.println(e.getMessage());
+		}
+
+		@Override
+		public String getPackageType() throws IOException
+		{
+			return WebComponentPackage.getPackageType(getManifest());
 		}
 
 	}
@@ -271,15 +234,17 @@ public abstract class AbstractSolutionTest
 		if (f.isFile() && f.getName().startsWith("servoy_ngclient_") && f.getName().endsWith(".jar"))
 		{
 			ZipFile zipFile = new ZipFile(f);
-			componentsReaders = inMemPackageReader != null ? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(
-				zipFile, "war/servoydefault/"), inMemPackageReader }
+			componentsReaders = inMemPackageReader != null
+				? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile,
+					"war/servoydefault/"), inMemPackageReader }
 				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile, "war/servoydefault/") };
 			servicesReaders = new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/") };
 		}
 		else
 		{
-			componentsReaders = getReaders(new File[] { new File(f.getAbsoluteFile() + "/../war/servoycore/"), new File(f.getAbsoluteFile() +
-				"/../war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+			componentsReaders = getReaders(
+				new File[] { new File(f.getAbsoluteFile() + "/../war/servoycore/"), new File(f.getAbsoluteFile() + "/../war/servoydefault/") },
+				inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 			servicesReaders = getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null);
 		}
 
