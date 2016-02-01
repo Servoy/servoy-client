@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.Bundle;
-import org.sablo.specification.WebComponentPackage;
-import org.sablo.specification.WebComponentPackage.IPackageReader;
+import org.sablo.specification.NGPackage;
+import org.sablo.specification.NGPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -325,7 +325,7 @@ public class ResourceProvider implements Filter
 	{
 	}
 
-	private static class BundlePackageReader implements WebComponentPackage.IPackageReader
+	private static class BundlePackageReader implements NGPackage.IPackageReader
 	{
 		private final URL urlOfManifest;
 		private final Bundle bundle;
@@ -349,7 +349,7 @@ public class ResourceProvider implements Filter
 		{
 			try
 			{
-				String packageName = WebComponentPackage.getPackageName(getManifest());
+				String packageName = NGPackage.getPackageName(getManifest());
 				if (packageName != null) return packageName;
 			}
 			catch (IOException e)
@@ -367,7 +367,7 @@ public class ResourceProvider implements Filter
 		{
 			try
 			{
-				String packageDisplayname = WebComponentPackage.getPackageDisplayname(getManifest());
+				String packageDisplayname = NGPackage.getPackageDisplayname(getManifest());
 				if (packageDisplayname != null) return packageDisplayname;
 			}
 			catch (IOException e)

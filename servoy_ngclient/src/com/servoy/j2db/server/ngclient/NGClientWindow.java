@@ -27,7 +27,7 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.WebObjectApiDefinition;
 import org.sablo.websocket.BaseWindow;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWebsocketEndpoint;
@@ -96,7 +96,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
+	protected Object invokeApi(WebComponent receiver, WebObjectApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
 		Map<String, Object> callContributions)
 	{
 		Map<String, Object> call = new HashMap<>();

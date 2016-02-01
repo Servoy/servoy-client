@@ -31,7 +31,7 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IFormController;
@@ -286,7 +286,7 @@ public class DebugUtils
 									if (o instanceof WebComponent)
 									{
 										WebComponent webComponent = (WebComponent)o;
-										WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
+										WebObjectSpecification spec = WebComponentSpecProvider.getInstance() != null
 											? WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName()) : null;
 										if (spec != null)
 										{
@@ -334,7 +334,7 @@ public class DebugUtils
 							if (o instanceof WebComponent)
 							{
 								WebComponent webComponent = (WebComponent)o;
-								WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
+								WebObjectSpecification spec = WebComponentSpecProvider.getInstance() != null
 									? WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName()) : null;
 								if (spec != null)
 								{

@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
@@ -63,7 +63,7 @@ public class JSNGWebComponent extends JSWebComponent
 			}
 			else
 			{
-				WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+				WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 				PropertyDescription pd = spec.getProperty(propertyName);
 				if (pd == null) pd = spec.getHandler(propertyName);
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
@@ -89,7 +89,7 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-			WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+			WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 			if (spec.getProperty(propertyName) != null) webComponent.clearProperty(propertyName);
 		}
 		catch (JSONException e)
@@ -109,7 +109,7 @@ public class JSNGWebComponent extends JSWebComponent
 		//this needs to be changed to getProperty when SVY-9365 is done
 		//then we will also need special conversions for rhino
 		Object value = json.opt(propertyName);
-		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
@@ -144,7 +144,7 @@ public class JSNGWebComponent extends JSWebComponent
 	public void setHandler(String handlerName, JSMethod value)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			if (spec.getHandler(handlerName) != null)
@@ -159,7 +159,7 @@ public class JSNGWebComponent extends JSWebComponent
 	public void resetHandler(String handlerName)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			if (spec.getHandler(handlerName) != null)

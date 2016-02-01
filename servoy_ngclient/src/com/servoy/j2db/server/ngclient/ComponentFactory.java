@@ -19,7 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IPersist;
@@ -56,7 +56,7 @@ public class ComponentFactory
 			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList);
 			if (parentToAddTo != null) parentToAddTo.add(webComponent);
 
-			WebComponentSpecification componentSpec = fe.getWebComponentSpec(false);
+			WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
 
 			for (String propName : fe.getRawPropertyValues().keySet())
 			{
