@@ -5475,9 +5475,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int tableSize = table.getList().size();
 
 			Integer selectedIndex = null;
-			if (WebCellBasedView.this.getSelectedIndexes() != null && WebCellBasedView.this.getSelectedIndexes().length > 0)
+			int[] newSelectedIndexes = WebCellBasedView.this.getSelectedIndexes();
+			if (newSelectedIndexes != null && newSelectedIndexes.length > 0)
 			{
-				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
+				selectedIndex = Integer.valueOf(newSelectedIndexes[0]);
+				if (WebCellBasedView.this.selectedIndexes != null && WebCellBasedView.this.selectedIndexes.length > 0)
+				{
+					for (int idx : newSelectedIndexes)
+					{
+						if (Arrays.binarySearch(WebCellBasedView.this.selectedIndexes, idx) < 0)
+						{
+							selectedIndex = Integer.valueOf(idx);
+							break;
+						}
+					}
+				}
 			}
 			if ((selectedIndex == null && table.size() == 0) || (selectedIndex != null && selectedIndex >= table.size() && appendMissingRows))
 			{
