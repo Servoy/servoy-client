@@ -106,6 +106,7 @@ public class PropertyCopy
 		copy.setSize(org.getSize());
 		copy.setBackground(org.getBackground());
 		copy.setForeground(org.getForeground());
+		copy.setToolTipText(org.getToolTipText());
 		copy.setComponentVisible(org.isVisible());
 		copy.setComponentEnabled(org.isEnabled());
 		copy.setOpaque(org.isOpaque());
