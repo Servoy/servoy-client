@@ -61,6 +61,7 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -780,7 +781,15 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 		if (list != null)
 		{
-			converter = new ValuelistValueConverter(list, this, converter);
+			if (!(list instanceof GlobalMethodValueList) && list instanceof CustomValueList && converter == null)
+			{
+				converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
+			}
+			else
+			{
+				converter = new ValuelistValueConverter(list, this,
+					converter == null ? getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID()) : converter);
+			}
 		}
 
 		return converter;
