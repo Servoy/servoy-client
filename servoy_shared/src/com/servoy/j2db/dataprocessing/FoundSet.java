@@ -2616,6 +2616,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given sort string.
+	 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
@@ -2629,6 +2630,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given sort string.
+	 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
@@ -2643,6 +2645,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given record comparator function.
+	 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 	 * The comparator function is called to compare
 	 * two records, that are passed as arguments, and
 	 * it will return -1/0/1 if the first record is less/equal/greater
