@@ -40,7 +40,7 @@ describe('styles helpers', function() {
 	it("should apply svy-imagemediaid", function() { 
 		// is is a design time property, model is sent before
 
-		var template = $(' <div><div" svy-imagemediaid="myModel"></div></div>');
+		var template = $('<div><div><div" svy-imagemediaid="myModel"></div></div></div>');
 		// this directive requires to be in a component with an isolated scope
 		var isolatedScope = $scope.$new(true);
 		isolatedScope.myModel = {img: 'image1.png',
