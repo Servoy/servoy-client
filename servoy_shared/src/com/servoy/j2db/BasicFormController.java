@@ -3055,7 +3055,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Loads a primary key dataset, will remove related sort.
+		 * Loads a primary key dataset, will remove related sort. Tries to preserve selection based on primary key, otherwise first record is selected.
 		 *
 		 * @sample
 		 * //to load a primary key dataset, will remove related sort
@@ -3146,6 +3146,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * Loads records into form foundset based on a query (also known as 'Form by query'). The query must be a valid sql select.
 		 * If the foundset is related this function is not allowed.
+		 * Tries to preserve selection based on primary key, otherwise first record is selected.
 		 *
 		 * see foundset.loadRecords(QBSelect).
 		 *
