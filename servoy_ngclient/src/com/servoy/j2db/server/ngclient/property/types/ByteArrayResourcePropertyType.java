@@ -16,6 +16,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.awt.Dimension;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
@@ -62,7 +64,13 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 		{
 			writer.object();
 			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(sabloValue);
-			writer.key("url").value("resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			String url = "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();//$NON-NLS-1$//$NON-NLS-2$
+			Dimension imageSize = mediaInfo.getMediaSize();
+			if (imageSize != null)
+			{
+				url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
+			}
+			writer.key("url").value(url);
 			writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			writer.endObject();
 		}

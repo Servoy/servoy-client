@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +63,7 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
@@ -473,6 +475,7 @@ public class MediaResourcesServlet extends HttpServlet
 		private final String contentDisposition;
 		private final long modifiedTimeStamp;
 		private long accessedTimeStamp;
+		private final Dimension mediaSize;
 		private byte[] data;
 
 		MediaInfo(String name, String fileName, String contentType, String contentDisposition, byte[] data)
@@ -482,6 +485,7 @@ public class MediaResourcesServlet extends HttpServlet
 			this.contentType = contentType;
 			this.contentDisposition = contentDisposition;
 			modifiedTimeStamp = accessedTimeStamp = System.currentTimeMillis();
+			this.mediaSize = ImageLoader.getSize(data);
 			if (data.length < MAX_DATA_SIZE_FOR_IN_MEMORY)
 			{
 				this.data = data;
@@ -523,6 +527,11 @@ public class MediaResourcesServlet extends HttpServlet
 		public long getLastModifiedTimeStamp()
 		{
 			return modifiedTimeStamp;
+		}
+
+		public Dimension getMediaSize()
+		{
+			return mediaSize;
 		}
 
 		public byte[] getData()
