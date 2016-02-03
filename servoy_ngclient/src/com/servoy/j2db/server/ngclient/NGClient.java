@@ -7,7 +7,6 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,9 +56,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.PluginScope;
-import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
@@ -1148,19 +1145,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
 					if (getClientInfo().getUserUid() != null)
 					{
-						//loadSolution(getSolution().getName());
-						HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-						map.put(StartupArguments.PARAM_KEY_SOLUTION, Arrays.asList(new String[] { getSolution().getName() }));
-						if (getPreferedSolutionMethodNameToCall() != null)
-						{
-							map.put(StartupArguments.PARAM_KEY_METHOD, Arrays.asList(new String[] { getPreferedSolutionMethodNameToCall() }));
-						}
-						if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0)
-						{
-							map.put(StartupArguments.PARAM_KEY_ARGUMENT, Arrays.asList(new String[] { getPreferedSolutionMethodArguments()[0].toString() }));
-							if (getPreferedSolutionMethodArguments().length > 1) map.putAll((JSMap)getPreferedSolutionMethodArguments()[1]);
-						}
-						wsSession.onOpen(map);
+						loadSolution(getSolution().getName());
 						if (args.optBoolean("remember"))
 						{
 							JSONObject r = new JSONObject();
