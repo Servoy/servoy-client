@@ -41,6 +41,14 @@
 						"type":"int"
 					}
 				]
+		},
+		"onHeaderClick" : {
+	        	"parameters":[
+					{
+						"name":"column",
+						"type":"int"
+					}
+				]
 		}
 	}
 }
