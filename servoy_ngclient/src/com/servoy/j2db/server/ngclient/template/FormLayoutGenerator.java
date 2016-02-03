@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PropertyDescription;
 
@@ -315,7 +316,7 @@ public class FormLayoutGenerator
 		writer.print(" svy-handlers='handlers.");
 		writer.print(fe.getName());
 		writer.print("'");
-		if (design)
+		if (design)//this is false in absolute layout
 		{
 			writer.print(" svy-id='");
 			writer.print(fe.getDesignId());
@@ -336,6 +337,15 @@ public class FormLayoutGenerator
 					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
 					writer.print("'");
 				}
+
+				JSONObject ngClass = new JSONObject();
+
+				if (!fe.getForm().equals(form))//is this inherited?
+				{
+					ngClass.put("inheritedElement", true);
+				}
+
+				if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass + "'");
 			}
 			String directEditPropertyName = getDirectEditProperty(fe);
 			if (directEditPropertyName != null)

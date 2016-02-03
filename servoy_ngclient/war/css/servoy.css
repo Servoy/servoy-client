@@ -95,10 +95,6 @@ div.svy-label-with-focus:focus{
 	outline:1px dotted red;
 }
 
-.highlight_element {
-	outline:1px solid lightblue;
-}
-
 .inherit_size {
 	width: inherit;
 	height: inherit; 
