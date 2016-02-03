@@ -1107,6 +1107,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				function testNumberOfRows() {
 					if ($scope.foundset && $scope.foundset.setPreferredViewportSize && !isNaN($scope.gridApi.grid.gridHeight))
 					{
+						shouldCallDataLoaded = true;
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
 						var totalPreferedViewportSize = numberOfRows*pageSizeFactor; 
 						if (preferredViewportSize != totalPreferedViewportSize) {
