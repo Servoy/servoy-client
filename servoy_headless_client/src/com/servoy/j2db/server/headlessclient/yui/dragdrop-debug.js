@@ -2515,7 +2515,7 @@ YAHOO.util.DragDrop.prototype = {
                 this.DDM.handleMouseDown(e, this);
 
                 // this mousedown is mine
-                this.DDM.stopEvent(e);
+                //this.DDM.stopEvent(e);
             } else {
 
 this.logger.log("clickValidator returned false, drag not initiated");
