@@ -107,7 +107,7 @@ import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetListWrapper;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
-import com.servoy.j2db.dataprocessing.ICanNeedEntireState;
+import com.servoy.j2db.dataprocessing.ISupportsNeedEntireState;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -2875,7 +2875,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						if ((comp instanceof IDisplayData) || !(comp instanceof ILabel))
 						{
-							if (comp instanceof ICanNeedEntireState && ((ICanNeedEntireState)comp).needEntireState())
+							if (comp instanceof ISupportsNeedEntireState && ((ISupportsNeedEntireState)comp).needEntireState())
 							{
 								// it if has tags - mark as changed; it could be enhanced further by also know what was last-rendered on tags, not just simple dataproviders
 								((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
