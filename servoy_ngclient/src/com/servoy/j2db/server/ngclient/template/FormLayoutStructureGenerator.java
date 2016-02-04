@@ -25,14 +25,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
-import org.sablo.specification.WebComponentPackageSpecification;
+import org.sablo.specification.NGPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
@@ -83,10 +85,11 @@ public class FormLayoutStructureGenerator
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
 			writer.print("'");
-			WebComponentPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
+			NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
 				container.getPackageName());
 			WebLayoutSpecification spec = null;
 			boolean highSet = false;
+			JSONObject ngClass = new JSONObject();
 			if (pkg != null && (spec = pkg.getSpecification(container.getSpecName())) != null)
 			{
 				List<String> allowedChildren = spec.getAllowedChildren();
@@ -99,14 +102,20 @@ public class FormLayoutStructureGenerator
 				writer.print(" svy-layoutname='");
 				writer.print(spec.getName());
 				writer.print("'");
+
+				if (!(container.getAncestor(IRepository.FORMS).getID() == form.getID()))//is this inherited?
+				{
+					ngClass.put("inheritedElement", true);
+				}
 				if (spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0)
 				{
-					writer.print(
-						" ng-class='{" + spec.getDesignStyleClass() + ": showWireframe==true, highlight_element:design_highlight==\"highlight_element\"}'");
 					highSet = true;
+					ngClass.put(spec.getDesignStyleClass(), "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+					ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
 			}
-			if (!highSet) writer.print(" ng-class='design_highlight'");
+			if (!highSet) ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());
+			if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 		}
 		if (container.getElementId() != null)
 		{
@@ -114,6 +123,7 @@ public class FormLayoutStructureGenerator
 			writer.print(container.getElementId());
 			writer.print("' ");
 		}
+		writer.print(" svy-autosave ");
 		Map<String, String> attributes = container.getAttributes();
 		if (attributes != null)
 		{

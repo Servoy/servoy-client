@@ -146,8 +146,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		if (!application.getFlattenedSolution().formCanBeInstantiated(getForm()))
 		{
 			// abstract form
-			application.reportJSWarning("Form '" + namedInstance +
-				"' is abstract (no parts),and should not be created/touched because the elements are not there");
+			application.reportJSWarning(
+				"Form '" + namedInstance + "' is abstract (no parts),and should not be created/touched because the elements are not there");
 		}
 	}
 
@@ -960,7 +960,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-		throws Exception
+			throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
@@ -1087,7 +1087,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override
@@ -3055,7 +3055,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Loads a primary key dataset, will remove related sort.
+		 * Loads a primary key dataset, will remove related sort. Tries to preserve selection based on primary key, otherwise first record is selected.
 		 *
 		 * @sample
 		 * //to load a primary key dataset, will remove related sort
@@ -3146,6 +3146,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * Loads records into form foundset based on a query (also known as 'Form by query'). The query must be a valid sql select.
 		 * If the foundset is related this function is not allowed.
+		 * Tries to preserve selection based on primary key, otherwise first record is selected.
 		 *
 		 * see foundset.loadRecords(QBSelect).
 		 *
@@ -3620,7 +3621,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		{
 			checkDestroyed();
 			int nfound = formController.performFindImpl(clearLastResults, reduceSearch, false);
-			return nfound < 0 ? 0/* blocked */: nfound;
+			return nfound < 0 ? 0/* blocked */ : nfound;
 		}
 
 		/**
@@ -4237,7 +4238,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sorts the form foundset based on the given sort string.
+		 * Sorts the form foundset based on the given sort string. 
+		 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 		 *
 		 * @sample %%prefix%%controller.sort('columnA desc,columnB asc');

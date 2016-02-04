@@ -19,8 +19,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
@@ -466,6 +466,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
 	{
+		// if this is not a change in the record that it should not be needed that it should be pushed again.
+		// because all types should just listen to the right stuff.
+		if (this.record == record) return;
 		if (settingRecord)
 		{
 			if (record != this.record)
@@ -707,7 +710,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
-					WebComponentApiDefinition call = new WebComponentApiDefinition(onDataChangeCallback);
+					WebObjectApiDefinition call = new WebObjectApiDefinition(onDataChangeCallback);
 					call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
 					call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
 					call.addParameter(new PropertyDescription("exception", TypesRegistry.getType("object")));

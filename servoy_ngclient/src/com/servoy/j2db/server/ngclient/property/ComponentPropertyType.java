@@ -30,7 +30,7 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.WebObjectApiDefinition;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -175,13 +175,13 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		return m;
 	}
 
-	protected List<String> findCallTypesInApiSpecDefinition(Map<String, WebComponentApiDefinition> apis)
+	protected List<String> findCallTypesInApiSpecDefinition(Map<String, WebObjectApiDefinition> apis)
 	{
 		List<String> arr = null;
 		if (apis != null)
 		{
 			arr = new ArrayList<String>();
-			for (Entry<String, WebComponentApiDefinition> apiMethod : apis.entrySet())
+			for (Entry<String, WebObjectApiDefinition> apiMethod : apis.entrySet())
 			{
 				JSONObject apiConfigOptions = apiMethod.getValue().getCustomConfigOptions();
 				if (apiConfigOptions != null && apiConfigOptions.optInt(CALL_ON_KEY, CALL_ON_SELECTED_RECORD) == CALL_ON_ALL_RECORDS)

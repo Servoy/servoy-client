@@ -1,7 +1,7 @@
 <div class="table-responsive" ng-show='model.visible'>
 	<table class='bts-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq'>
 	  <tr>
-	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns"><div ng-bind='column.headerText'></div></th>
+	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns" ng-click="headerClicked(model.columns.indexOf(column))"><div ng-bind='column.headerText'></div></th>
 	  </tr>
 	  <tr ng-repeat="row in model.foundset.viewPort.rows"
 	  	  ng-click="rowClicked(model.foundset.viewPort.rows.indexOf(row))"

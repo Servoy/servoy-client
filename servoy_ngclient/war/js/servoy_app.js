@@ -461,7 +461,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if (media && media.visible)
 				{
 					// the value from model may be incorrect so take value from ui
-					var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+					var componentSize = {width: $(element[0].parentNode.parentNode).width(),height: $(element[0].parentNode.parentNode).height()};
 					var mediaOptions = scope.$eval('model.mediaOptions');
 					if(media.rollOverImg){ 
 						rollOverImgStyle= parseImageOptions( media.rollOverImg, mediaOptions, componentSize);

@@ -30,8 +30,8 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
@@ -311,7 +311,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 		int counter = start;
 		WebComponent component = null;
-		WebComponentApiDefinition apiFunction = null;
+		WebObjectApiDefinition apiFunction = null;
 		do
 		{
 			component = formUI.getComponent(currentFieldName);
@@ -489,7 +489,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			if (elements[i] instanceof RuntimeWebComponent)
 			{
 				WebFormComponent component = ((RuntimeWebComponent)elements[i]).getComponent();
-				WebComponentSpecification spec = component.getSpecification();
+				WebObjectSpecification spec = component.getSpecification();
 				Collection<PropertyDescription> properties = spec.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 				if (properties.size() == 1)
 				{
@@ -515,7 +515,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			boolean defaultTabSequence = true;
 			for (WebComponent component : formUI.getScriptableComponents())
 			{
-				WebComponentSpecification spec = component.getSpecification();
+				WebObjectSpecification spec = component.getSpecification();
 				Collection<PropertyDescription> properties = spec.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 				if (properties.size() == 1)
 				{

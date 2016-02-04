@@ -74,6 +74,14 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	}
 
 	@Override
+	public IWebComponent getParentComponent()
+	{
+		IBasicWebComponent parentComponent = getParent().getParentComponent();
+		if (parentComponent instanceof IWebComponent) return (IWebComponent)parentComponent;
+		else return super.getParentComponent();
+	}
+
+	@Override
 	public IBasicWebObject getParent()
 	{
 		return (IBasicWebObject)super.getParent();

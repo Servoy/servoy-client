@@ -38,8 +38,8 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
@@ -157,7 +157,7 @@ public class WebServiceScriptable implements Scriptable
 	}
 
 	private final INGApplication application;
-	private final WebComponentSpecification serviceSpecification;
+	private final WebObjectSpecification serviceSpecification;
 	private Scriptable prototype;
 	private Scriptable parent;
 	private Scriptable apiObject;
@@ -168,7 +168,7 @@ public class WebServiceScriptable implements Scriptable
 	 * @param serviceSpecification
 	 * @param solutionScope
 	 */
-	public WebServiceScriptable(INGApplication application, WebComponentSpecification serviceSpecification, SolutionScope solutionScope)
+	public WebServiceScriptable(INGApplication application, WebObjectSpecification serviceSpecification, SolutionScope solutionScope)
 	{
 		this.application = application;
 		setParentScope(solutionScope);
@@ -223,7 +223,7 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null && apiObject != null)
 		{
 			Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
@@ -271,7 +271,7 @@ public class WebServiceScriptable implements Scriptable
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(service.getProperty(name), desc, service);
 		}
-		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null) return true;
 		return application.getWebsocketSession().getClientService(serviceSpecification.getName()).getProperties().content.containsKey(name);
 	}
@@ -296,7 +296,7 @@ public class WebServiceScriptable implements Scriptable
 		}
 		else
 		{
-			WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+			WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 			// don't allow api to be overwritten.
 			if (apiFunction != null) return;
 			// TODO conversion should happen from string (color representation) to Color object.

@@ -32,7 +32,7 @@ import javax.swing.border.Border;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.WebComponent;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -822,7 +822,7 @@ public class TestWebFormUI implements IWebFormUI
 	 * org.sablo.specification.WebComponentSpecification, com.servoy.j2db.server.ngclient.WebFormComponent)
 	 */
 	@Override
-	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpecification componentSpec, WebFormComponent component)
+	public void contributeComponentToElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component)
 	{
 		// TODO Auto-generated method stub
 

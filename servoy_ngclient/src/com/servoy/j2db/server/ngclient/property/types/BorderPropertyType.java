@@ -48,6 +48,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -67,9 +68,9 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  * @author jcompagner
  *
  */
-public class BorderPropertyType extends DefaultPropertyType<Border> implements IConvertedPropertyType<Border>,
-	IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>, IRhinoToSabloComponent<Border>,
-	ISabloComponentToRhino<Border>, IRhinoDesignConverter
+public class BorderPropertyType extends DefaultPropertyType<Border>
+	implements IConvertedPropertyType<Border>, IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>,
+	IRhinoToSabloComponent<Border>, ISabloComponentToRhino<Border>, IRhinoDesignConverter, IDesignValueConverter<Border>
 {
 	private static final String TYPE = "type";
 	private static final String BORDER_RADIUS = "borderRadius";
@@ -481,5 +482,42 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	{
 		Border border = fromJSON(value, null, pd, null, null);
 		return ComponentFactoryHelper.createBorderString(border);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Border fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	{
+		try
+		{
+			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+				propertyDescription, null, null);
+		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		if (value instanceof Border)
+		{
+			JSONStringer writer = new JSONStringer();
+			toJSON(writer, null, (Border)value, pd, null, null);
+			return new JSONObject(writer.toString());
+		}
+		return value;
 	}
 }

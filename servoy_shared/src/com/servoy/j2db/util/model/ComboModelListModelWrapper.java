@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.ScopesUtils;
 
@@ -791,15 +792,10 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			return wrapped.getValueList();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
-		 */
 		@Override
-		public boolean isRecordLinked()
+		public IDataProvider[] getDependedDataProviders()
 		{
-			return wrapped.isRecordLinked();
+			return wrapped.getDependedDataProviders();
 		}
 	}
 

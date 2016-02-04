@@ -33,7 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
 
@@ -475,7 +475,7 @@ public class FormElementHelper
 				if (FormTemplateGenerator.isWebcomponentBean(persist))
 				{
 					String componentType = FormTemplateGenerator.getComponentTypeName((IBasicWebComponent)persist);
-					WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+					WebObjectSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 					if (specification != null)
 					{
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
@@ -546,7 +546,7 @@ public class FormElementHelper
 			if (propertyName != null && element instanceof IBasicWebComponent)
 			{
 				String componentType = FormTemplateGenerator.getComponentTypeName(element);
-				WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+				WebObjectSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 				if (specification != null)
 				{
 					PropertyDescription property = specification.getProperty(propertyName);

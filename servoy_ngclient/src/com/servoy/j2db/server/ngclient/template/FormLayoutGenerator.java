@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PropertyDescription;
 
@@ -315,7 +316,7 @@ public class FormLayoutGenerator
 			writer.print(form.getName() + "." + elementName);
 			writer.print("'");
 		}
-		if (design)
+		if (design)//this is false in absolute layout
 		{
 			if (form.isResponsiveLayout())
 			{
@@ -344,6 +345,15 @@ public class FormLayoutGenerator
 					writer.print(directEditPropertyName);
 					writer.print("'");
 				}
+
+				JSONObject ngClass = new JSONObject();
+
+				if (!fe.getForm().equals(form))//is this inherited?
+				{
+					ngClass.put("inheritedElement", true);
+				}
+
+				if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass + "'");
 			}
 			writer.print(" svy-model=\"model('");
 			writer.print(fe.getName());

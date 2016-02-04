@@ -686,8 +686,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 
 		getSelectedText: function (elem){
+			// selectionStart/End seems to be lost/clear when the element looses focus (chrome and IE but firefox works fine)
+			// so we keep save those during blur			
+			var iSelectionStart;
+			var iSelectionEnd;
+			$(elem).on('blur', function() {
+				iSelectionStart = elem.selectionStart;
+				iSelectionEnd = elem.selectionEnd;
+			});
+			
 			return function(){
-				return elem.value.substr(elem.selectionStart, elem.selectionEnd - elem.selectionStart);
+				var startPos = !$(elem).is(":focus") && iSelectionStart != undefined ? iSelectionStart : elem.selectionStart;
+				var endPos = !$(elem).is(":focus") && iSelectionEnd != undefined ? iSelectionEnd : elem.selectionEnd;
+			
+				return elem.value.substr(startPos, endPos - startPos);
 			}
 		},
 		selectAll: function (elem){
@@ -696,25 +708,33 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 		},
 		replaceSelectedText:  function (elem){
+			// selectionStart/End seems to be lost/clear when the element looses focus (chrome and IE but firefox works fine)
+			// so we keep save those during blur
+			var iSelectionStart;
+			var iSelectionEnd;
+			$(elem).on('blur', function() {
+				iSelectionStart = elem.selectionStart;
+				iSelectionEnd = elem.selectionEnd;
+			});			
+			
 			return function(s) {
-				if (typeof elem.selectionStart != 'undefined') {
-					var startPos = elem.selectionStart;
-					var endPos = elem.selectionEnd;
-					var beginning = elem.value.substring(0, startPos);
-					var end = elem.value.substring(endPos);
-					elem.value = beginning + s + end;
-					elem.selectionStart = startPos;
-					elem.selectionEnd = startPos + s.length;
-					
-					// fire change event
-					if ("createEvent" in document) {
-					    var evt = document.createEvent("HTMLEvents");
-					    evt.initEvent("change", false, true);
-					    elem.dispatchEvent(evt);
-					}
-					else {
-						elem.fireEvent("onchange");	
-					}
+				var startPos = !$(elem).is(":focus") && iSelectionStart != undefined ? iSelectionStart : elem.selectionStart;
+				var endPos = !$(elem).is(":focus") && iSelectionEnd != undefined ? iSelectionEnd : elem.selectionEnd;
+				
+				var beginning = elem.value.substring(0, startPos);
+				var end = elem.value.substring(endPos);
+				elem.value = beginning + s + end;
+				elem.selectionStart = startPos;
+				elem.selectionEnd = startPos + s.length;
+				
+				// fire change event
+				if ("createEvent" in document) {
+				    var evt = document.createEvent("HTMLEvents");
+				    evt.initEvent("change", false, true);
+				    elem.dispatchEvent(evt);
+				}
+				else {
+					elem.fireEvent("onchange");	
 				}
 			}
 		},

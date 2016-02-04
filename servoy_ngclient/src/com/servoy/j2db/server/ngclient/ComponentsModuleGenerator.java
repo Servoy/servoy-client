@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 
 import com.servoy.j2db.util.HTTPUtils;
@@ -59,9 +59,9 @@ public class ComponentsModuleGenerator extends HttpServlet
 	 * @param sb
 	 * @param webComponentDescriptions
 	 */
-	protected void generateModules(StringBuilder sb, WebComponentSpecification[] webComponentDescriptions)
+	protected void generateModules(StringBuilder sb, WebObjectSpecification[] webComponentDescriptions)
 	{
-		for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
+		for (WebObjectSpecification webComponentSpec : webComponentDescriptions)
 		{
 			String name = webComponentSpec.getName();
 			generateModule(sb, name);

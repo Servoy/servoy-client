@@ -25,7 +25,7 @@ import org.json.JSONException;
 import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -167,7 +167,7 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
-	public static WebComponentSpecification[] getAllWebServiceSpecificationsThatCanBeAddedToJavaPluginsList()
+	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeAddedToJavaPluginsList()
 	{
 		return getAllWebServiceSpecificationsExcept(new String[] { "sablo", "servoyservices", "servoydefaultservices" });
 	}
@@ -176,16 +176,16 @@ public abstract class NGUtils
 	 * All 3rd party + some of the Servoy services (for example those that are based on bootstrap) should be avoidable when exporting.
 	 * The user might not be using them in the solution and he doesn't want all kinds of libs included that can mess up hist solution's UI.
 	 */
-	public static WebComponentSpecification[] getAllWebServiceSpecificationsThatCanBeUncheckedAtWarExport()
+	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeUncheckedAtWarExport()
 	{
 		return getAllWebServiceSpecificationsExcept(new String[] { "sablo", "servoyservices" });
 	}
 
-	private static WebComponentSpecification[] getAllWebServiceSpecificationsExcept(String[] ignore)
+	private static WebObjectSpecification[] getAllWebServiceSpecificationsExcept(String[] ignore)
 	{
-		ArrayList<WebComponentSpecification> allPublicWebServiceSpecifications = new ArrayList<WebComponentSpecification>();
+		ArrayList<WebObjectSpecification> allPublicWebServiceSpecifications = new ArrayList<WebObjectSpecification>();
 		List<String> ignoreList = Arrays.asList(ignore);
-		for (WebComponentSpecification spec : WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications())
+		for (WebObjectSpecification spec : WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications())
 		{
 			if (ignoreList.indexOf(spec.getPackageName()) == -1)
 			{
@@ -193,6 +193,6 @@ public abstract class NGUtils
 			}
 		}
 
-		return allPublicWebServiceSpecifications.toArray(new WebComponentSpecification[allPublicWebServiceSpecifications.size()]);
+		return allPublicWebServiceSpecifications.toArray(new WebObjectSpecification[allPublicWebServiceSpecifications.size()]);
 	}
 }

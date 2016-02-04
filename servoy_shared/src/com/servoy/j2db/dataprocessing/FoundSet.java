@@ -1312,7 +1312,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Loads records into form foundset based on a query builder object (also known as 'Form by query').
 	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
 	 * If the foundset is related, the relation-condition will be added to the query.
-	 *
+	 * Tries to preserve selection based on primary key, otherwise first record is selected.
+	 * 
 	 * @sample
 	 * %%prefix%%foundset.loadRecords(qbselect);
 	 *
@@ -1712,6 +1713,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		IDataSet pks = pksAndRecords.getPks();
+		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
+		
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
 		{
@@ -1755,6 +1759,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		clearInternalState(true);
 
 		fireDifference(sizeBefore, getSize());
+		
+		// try to preserve selection after load by query; if not possible select first record
+		if (selectedPK != null)
+		{
+			if (!selectRecord(selectedPK))
+			{
+				setSelectedIndex(getSize() > 0 ? 0 : -1);
+			}
+		}
+		
 		return true;
 	}
 
@@ -2027,6 +2041,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		IDataSet pks = pksAndRecords.getPks();
+		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
+		
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
 		{
@@ -2090,6 +2107,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (pksAndRecords.getPks().getRowCount() > 0) getRecord(0);
 
 			fireDifference(sizeBefore, sizeAfter);
+			
+			// try to preserve selection after load pk list; if not possible select first record
+			if (selectedPK != null)
+			{
+				if (!selectRecord(selectedPK))
+				{
+					setSelectedIndex(getSize() > 0 ? 0 : -1);
+				}
+			}
 		}
 		return true;
 	}
@@ -2616,6 +2642,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given sort string.
+	 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
@@ -2629,6 +2656,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given sort string.
+	 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
@@ -2643,6 +2671,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given record comparator function.
+	 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 	 * The comparator function is called to compare
 	 * two records, that are passed as arguments, and
 	 * it will return -1/0/1 if the first record is less/equal/greater
