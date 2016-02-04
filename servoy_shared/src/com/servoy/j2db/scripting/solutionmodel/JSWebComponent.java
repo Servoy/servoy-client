@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Debug;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSWebComponent extends JSComponent<WebComponent>implements IJavaScriptType
+public class JSWebComponent extends JSComponent<WebComponent> implements IJavaScriptType
 {
 
 	protected final IApplication application;

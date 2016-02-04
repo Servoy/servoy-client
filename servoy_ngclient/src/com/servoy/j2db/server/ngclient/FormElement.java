@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.IWebComponentInitializer;
+import org.sablo.specification.BaseSpecProvider.ISpecReloadListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
@@ -384,9 +385,6 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		adjustForAbsoluteLayout();
 	}
 
-	/**
-	 *
-	 */
 	protected void adjustForAbsoluteLayout()
 	{
 		if (form != null && !form.isResponsiveLayout())
@@ -398,6 +396,10 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
 			if (spec.getProperty("anchors") == null)
 				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+
+			// TODO the following is a workaround that allows not clearing the form element cache when reloading any ng package (so only when reloaded spec was actually altered here before and it might need to be re-altered again)
+			WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
+			if (webComponentSpecProvider != null) webComponentSpecProvider.addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
 		}
 	}
 
@@ -815,5 +817,17 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		return false;
 	}
 
+	private static class ClearFormElementCacheWhenSpecChanges implements ISpecReloadListener
+	{
+
+		public static final ClearFormElementCacheWhenSpecChanges INSTANCE = new ClearFormElementCacheWhenSpecChanges();
+
+		@Override
+		public void webObjectSpecificationReloaded()
+		{
+			FormElementHelper.INSTANCE.reload();
+		}
+
+	}
 
 }

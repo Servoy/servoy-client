@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
