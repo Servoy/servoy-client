@@ -23,7 +23,7 @@ package com.servoy.j2db.dataprocessing;
  * @author acostescu
  */
 // TODO I think these actually could be part of {@link IDisplayTagText} but as IDisplayData doesn't implement that I couldn't do it as part of refactor.
-public interface ICanNeedEntireState
+public interface ISupportsNeedEntireState
 {
 
 	/**

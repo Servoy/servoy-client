@@ -26,7 +26,7 @@ import com.servoy.base.util.ITagResolver;
  *
  * @author jblok
  */
-public interface IDisplayData extends ICanNeedEntireState, IDisplay//for a dataprovider!
+public interface IDisplayData extends ISupportsNeedEntireState, IDisplay//for a dataprovider!
 {
 	public Object getValueObject();
 
