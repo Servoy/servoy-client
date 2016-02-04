@@ -726,7 +726,7 @@ public class WebDataField extends TextField<Object>
 
 		int mappedType = Column.mapToDefaultType(dataType);
 		String displayFormat = parsedFormat.getDisplayFormat();
-		if (list == null && mappedType == IColumnTypes.TEXT)
+		if (mappedType == IColumnTypes.TEXT)
 		{
 			converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
 			if (converter == null)
@@ -734,7 +734,7 @@ public class WebDataField extends TextField<Object>
 				converter = super.getConverter(cls);
 			}
 		}
-		else if (displayFormat == null && list == null)
+		else if (displayFormat == null)
 		{
 			converter = super.getConverter(cls);
 		}
