@@ -320,7 +320,7 @@ public class FormLayoutGenerator
 		{
 			if (form.isResponsiveLayout())
 			{
-				writer.print(" ng-class='design_highlight'");
+
 				writer.print(" svy-id='");
 				writer.print(getDesignId(fe));
 				writer.print("'");
@@ -352,8 +352,8 @@ public class FormLayoutGenerator
 				{
 					ngClass.put("inheritedElement", true);
 				}
-
-				if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass + "'");
+				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			}
 			writer.print(" svy-model=\"model('");
 			writer.print(fe.getName());
