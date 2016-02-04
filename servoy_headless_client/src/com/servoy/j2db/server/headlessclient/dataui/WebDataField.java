@@ -61,7 +61,6 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -102,9 +101,9 @@ import com.servoy.j2db.util.text.FixedMaskFormatter;
  *
  * @author jcompagner
  */
-public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
-	IDestroyable, ISupportOnRender
+public class WebDataField extends TextField<Object>
+	implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, ISupportValueList, ISupportInputSelection,
+	ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider, IDestroyable, ISupportOnRender
 {
 	/**
 	 * @author jcompagner
@@ -215,26 +214,26 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		setVersioned(false);
 
 		add(new AttributeModifier("readonly", true, new Model<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+		{
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public String getObject()
-				{
-					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-				}
-			}));
+			@Override
+			public String getObject()
+			{
+				return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
+			}
+		}));
 
 		add(new AttributeModifier("placeholder", true, new Model<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+		{
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public String getObject()
-				{
-					return application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText());
-				}
-			})
+			@Override
+			public String getObject()
+			{
+				return application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText());
+			}
+		})
 		{
 			@Override
 			public boolean isEnabled(Component component)
@@ -702,7 +701,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 							}
 							extraMsg += " with dataprovider: " + dataProviderID; //$NON-NLS-1$
 							throw new ConversionException(
-								"Can't convert from string '" + value + "' to object with format: " + fp.getEditFormat() + extraMsg, e).setConverter(this); //$NON-NLS-1$ //$NON-NLS-2$
+									"Can't convert from string '" + value + "' to object with format: " + fp.getEditFormat() + extraMsg, e).setConverter(this); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					}
 				};
@@ -727,7 +726,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 		int mappedType = Column.mapToDefaultType(dataType);
 		String displayFormat = parsedFormat.getDisplayFormat();
-		if (list == null && mappedType == IColumnTypes.TEXT)
+		if (mappedType == IColumnTypes.TEXT)
 		{
 			converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
 			if (converter == null)
@@ -735,7 +734,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				converter = super.getConverter(cls);
 			}
 		}
-		else if (displayFormat == null && list == null)
+		else if (displayFormat == null)
 		{
 			converter = super.getConverter(cls);
 		}
@@ -781,15 +780,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 		if (list != null)
 		{
-			if (!(list instanceof GlobalMethodValueList) && list instanceof CustomValueList && converter == null)
-			{
-				converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
-			}
-			else
-			{
-				converter = new ValuelistValueConverter(list, this,
-					converter == null ? getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID()) : converter);
-			}
+			converter = new ValuelistValueConverter(list, this, converter);
 		}
 
 		return converter;
@@ -864,14 +855,14 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			if (parsedFormat.isAllUpperCase())
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true," +
-					maxLength + ");");
-				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
-					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toUpperCase();});");
-			}
-			else if (parsedFormat.isAllLowerCase())
-			{
-				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false," +
-					maxLength + ");");
+						maxLength + ");");
+					formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
+						"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toUpperCase();});");
+				}
+				else if (parsedFormat.isAllLowerCase())
+				{
+					formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false," +
+						maxLength + ");");
 				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
 					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toLowerCase();});");
 			}
@@ -1369,7 +1360,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			if (converter instanceof FormatConverter)
 			{
 				((FormatConverter)converter).setLenient(Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application,
-					IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
+						IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 			}
 		}
 	}
