@@ -28,6 +28,7 @@ import org.sablo.services.server.FormServiceHandler;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -131,7 +132,10 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				catch (Exception ex)
 				{
-					Debug.error("Cannot execute inline script", ex);
+					if (!(ex instanceof ExitScriptException))
+					{
+						Debug.error("Cannot execute inline script", ex);
+					}
 				}
 				break;
 			}

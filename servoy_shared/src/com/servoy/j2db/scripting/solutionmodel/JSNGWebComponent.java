@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
@@ -63,7 +63,7 @@ public class JSNGWebComponent extends JSWebComponent
 			}
 			else
 			{
-				WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+				WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 				PropertyDescription pd = spec.getProperty(propertyName);
 				if (pd == null) pd = spec.getHandler(propertyName);
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
@@ -75,9 +75,7 @@ public class JSNGWebComponent extends JSWebComponent
 					value = defaultRhinoToDesignValue(value, application);
 				}
 			}
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.put(propertyName, value);
-			webComponent.setJson(jsonObject);
+			webComponent.setProperty(propertyName, value);
 		}
 		catch (JSONException e)
 		{
@@ -88,14 +86,11 @@ public class JSNGWebComponent extends JSWebComponent
 	@Override
 	public void resetJSONProperty(String propertyName)
 	{
-		// TODO we could do some checks here that it's really a property not a handler
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.remove(propertyName);
-			webComponent.setJson(jsonObject);
+			WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+			if (spec.getProperty(propertyName) != null) webComponent.clearProperty(propertyName);
 		}
 		catch (JSONException e)
 		{
@@ -110,8 +105,11 @@ public class JSNGWebComponent extends JSWebComponent
 		JSONObject json = webComponent.getFlattenedJson();
 		if (json == null) return Context.getUndefinedValue();
 
+		//TODO for now this works because it is stored as a json;
+		//this needs to be changed to getProperty when SVY-9365 is done
+		//then we will also need special conversions for rhino
 		Object value = json.opt(propertyName);
-		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
@@ -146,7 +144,7 @@ public class JSNGWebComponent extends JSWebComponent
 	public void setHandler(String handlerName, JSMethod value)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			if (spec.getHandler(handlerName) != null)
@@ -160,7 +158,16 @@ public class JSNGWebComponent extends JSWebComponent
 	@Override
 	public void resetHandler(String handlerName)
 	{
-		resetJSONProperty(handlerName); // TODO we could do some checks here that it's really a handler not a property
+		WebComponent webComponent = getBaseComponent(false);
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		if (spec != null)
+		{
+			if (spec.getHandler(handlerName) != null)
+			{
+				webComponent.clearProperty(handlerName);
+			}
+			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
+		}
 	}
 
 	@Override

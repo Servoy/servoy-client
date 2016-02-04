@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
@@ -46,7 +47,13 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 
 	private final PropertyDescription pdAsChildComponent;
 
-	public ChildWebComponent(IBasicWebObject parent, int element_id, UUID uuid, String jsonKey, int index, boolean isNew,
+	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew)
+	{
+		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
+		return new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(), jsonKey, index, isNew, childPd);
+	}
+
+	private ChildWebComponent(IBasicWebObject parent, int element_id, UUID uuid, String jsonKey, int index, boolean isNew,
 		PropertyDescription pdAsChildComponent)
 	{
 		super(parent, element_id, uuid);
@@ -64,6 +71,14 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	public JSONObject getFullJsonInFrmFile()
 	{
 		return fullJSONInFrmFile;
+	}
+
+	@Override
+	public IWebComponent getParentComponent()
+	{
+		IBasicWebComponent parentComponent = getParent().getParentComponent();
+		if (parentComponent instanceof IWebComponent) return (IWebComponent)parentComponent;
+		else return super.getParentComponent();
 	}
 
 	@Override
@@ -123,5 +138,4 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	{
 		return pdAsChildComponent;
 	}
-
 }

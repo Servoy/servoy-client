@@ -28,7 +28,7 @@ import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPushToServerSpecialType;

@@ -28,8 +28,8 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
@@ -92,6 +93,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	private volatile NGRuntimeWindowManager runtimeWindowManager;
 
 	private Map<Object, Object> uiProperties;
+
+	private String styleSheet;
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
@@ -165,6 +168,37 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
+	public void setStyleSheet(String newStyleName)
+	{
+		this.styleSheet = newStyleName;
+		Runnable runnable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				getWebsocketSession().sendStyleSheet();
+			}
+		};
+		// make sure we report this on all windows.
+		if (CurrentWindow.exists() && CurrentWindow.get() instanceof WebsocketSessionWindows)
+		{
+			runnable.run();
+		}
+		else
+		{
+			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), runnable);
+		}
+	}
+
+	/**
+	 * @return the styleSheet
+	 */
+	public String getStyleSheet()
+	{
+		return styleSheet;
+	}
+
+	@Override
 	public void setLocale(Locale l)
 	{
 		boolean send = locale != null && !locale.equals(l);
@@ -177,10 +211,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
-		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
 		scope.setLocked(false);
-		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 		{
 			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, scriptEngine.getSolutionScope()));
 		}
@@ -526,10 +560,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		//cleanup here before script engine is destroyed
 		if (canClose || force)
 		{
-			WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
-			for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+			WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
+			for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 			{
-				WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+				WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
 				if (apiFunction != null && getScriptEngine() != null)
 				{
 					PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
@@ -1124,6 +1158,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 						if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0)
 						{
 							map.put(StartupArguments.PARAM_KEY_ARGUMENT, Arrays.asList(new String[] { getPreferedSolutionMethodArguments()[0].toString() }));
+							if (getPreferedSolutionMethodArguments().length > 1) map.putAll((JSMap)getPreferedSolutionMethodArguments()[1]);
 						}
 						wsSession.onOpen(map);
 						if (args.optBoolean("remember"))
@@ -1162,12 +1197,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 
 		return null;
-	}
-
-	@Override
-	public boolean isInDesigner()
-	{
-		return false;
 	}
 
 	@Override

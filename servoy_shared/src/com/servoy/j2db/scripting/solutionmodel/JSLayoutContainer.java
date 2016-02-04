@@ -285,14 +285,20 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		layoutContainer.setLocation(new Point(layoutContainer.getLocation().x, y));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSBaseContainer#getFlattenedContainer()
-	 */
 	@Override
 	public AbstractContainer getFlattenedContainer()
 	{
 		return layoutContainer;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "JSLayoutContainer[" + getTagType() + ", attributes: " + layoutContainer.getAttributes() + "]";
 	}
 }

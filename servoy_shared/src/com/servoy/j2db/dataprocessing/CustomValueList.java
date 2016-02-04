@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -321,8 +322,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 									}
 									try
 									{
-										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, value,
-											format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true);
+										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, value, format == null ? null : format.getDisplayFormat(),
+											Integer.MAX_VALUE, null, true);
 									}
 									catch (Exception e)
 									{
@@ -770,14 +771,9 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		return valueList;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
-	 */
 	@Override
-	public boolean isRecordLinked()
+	public IDataProvider[] getDependedDataProviders()
 	{
-		return false;
+		return null;
 	}
 }

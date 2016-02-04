@@ -36,7 +36,7 @@ import org.json.JSONWriter;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
@@ -70,6 +70,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
@@ -110,7 +111,14 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 			usesPersistTypedProperties(WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()));
 
 		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
-		this.uniqueIdWithinForm = String.valueOf(persist.getID());
+		IFormElement superPersist = persist;
+		String uniqueId = String.valueOf(superPersist.getID());
+		while (inDesigner && superPersist != null)
+		{
+			superPersist = (IFormElement)PersistHelper.getSuperPersist(superPersist);
+			if (superPersist != null) uniqueId = String.valueOf(superPersist.getID());
+		}
+		this.uniqueIdWithinForm = uniqueId;
 
 		propertyValues = new HashMap<String, Object>();
 		propertyValues.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), persist.getName());
@@ -124,15 +132,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		if (willTurnIntoErrorBean)
 		{
-			map.put(
-				"error",
+			map.put("error",
 				"Please remove and insert this component again. Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). See log file for details.");
 
-			Debug.warn("Please remove and insert again the component with name '" +
-				persist.getName() +
-				(this.form != null ? "' on the form '" + this.form.getName() : "") +
-				"'. Type: " +
-				FormTemplateGenerator.getComponentTypeName(persist) +
+			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
+				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. Type: " + FormTemplateGenerator.getComponentTypeName(persist) +
 				". Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). Properties: " +
 				map.get("beanXML")); // so Bean persist used for custom components is no longer working properly - now it uses WebComponent
 		}
@@ -141,8 +145,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
-		PropertyPath propertyPath, boolean inDesigner)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
+		boolean inDesigner)
 	{
 		this.inDesigner = inDesigner;
 		this.persistImpl = null;
@@ -387,13 +391,13 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	{
 		if (form != null && !form.isResponsiveLayout())
 		{
-			WebComponentSpecification spec = getWebComponentSpec();
-			if (spec.getProperty("location") == null) spec.putProperty("location",
-				new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
-			if (spec.getProperty("size") == null) spec.putProperty("size",
-				new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
-			if (spec.getProperty("anchors") == null) spec.putProperty("anchors",
-				new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+			WebObjectSpecification spec = getWebComponentSpec();
+			if (spec.getProperty("location") == null)
+				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
+			if (spec.getProperty("size") == null)
+				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
+			if (spec.getProperty("anchors") == null)
+				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 		}
 	}
 
@@ -402,14 +406,14 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		return propertyValues;
 	}
 
-	public WebComponentSpecification getWebComponentSpec()
+	public WebObjectSpecification getWebComponentSpec()
 	{
 		return getWebComponentSpec(true);
 	}
 
-	public WebComponentSpecification getWebComponentSpec(boolean throwException)
+	public WebObjectSpecification getWebComponentSpec(boolean throwException)
 	{
-		WebComponentSpecification spec = null;
+		WebObjectSpecification spec = null;
 		try
 		{
 			spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
@@ -619,7 +623,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	public Collection<String> getHandlers()
 	{
 		List<String> handlers = new ArrayList<>();
-		WebComponentSpecification componentSpec = getWebComponentSpec();
+		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Set<String> events = componentSpec.getHandlers().keySet();
 		for (String eventName : events)
 		{
@@ -671,7 +675,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		Map<String, Object> properties = new HashMap<>();
 
 		adjustForAbsoluteLayout();
-		WebComponentSpecification componentSpec = getWebComponentSpec();
+		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
 		{
@@ -754,16 +758,17 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	 */
 	public List<String> getSvyTypesNames()
 	{
-		WebComponentSpecification spec = getWebComponentSpec(false);
+		WebObjectSpecification spec = getWebComponentSpec(false);
 		ArrayList<String> result = new ArrayList<String>();
 		Map<String, PropertyDescription> properties = spec.getProperties();
 		for (PropertyDescription propertyDescription : properties.values())
 		{
 			Object configObject = propertyDescription.getConfig();
-			if (configObject instanceof JSONObject && Boolean.TRUE.equals(((JSONObject)configObject).opt(DROPPABLE)))
+			String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyDescription.getType());
+			if (simpleTypeName.equals("component") || (configObject instanceof JSONObject && Boolean.TRUE.equals(((JSONObject)configObject).opt(DROPPABLE)) &&
+				PropertyUtils.isCustomJSONProperty(propertyDescription.getType())))
 			{
-				String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyDescription.getType());
-				if (PropertyUtils.isCustomJSONProperty(propertyDescription.getType()) || simpleTypeName.equals("component")) result.add(simpleTypeName);
+				result.add(simpleTypeName);
 			}
 		}
 		return result;
@@ -801,9 +806,10 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		for (PropertyDescription x : pd.getCustomJSONProperties().values())
 		{
-			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) ||
-				x.getType() instanceof ComponentPropertyType ||
-				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) && usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition()))) return true;
+			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) || x.getType() instanceof ComponentPropertyType ||
+				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) &&
+					usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition())))
+				return true;
 		}
 
 		return false;

@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -58,7 +59,15 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
 
-	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
+
+	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew)
+	{
+		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(parentWebObject);
+		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(), idAndUUID.getRight());
+	}
+
+
+	private WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
 	{
 		super(IRepository.WEBCUSTOMTYPES, parentWebObject, id, uuid);
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
@@ -93,15 +102,9 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	}
 
 	@Override
-	public void setJsonSubproperty(String key, Object value)
-	{
-		webObjectImpl.setJsonSubproperty(key, value);
-	}
-
-	@Override
 	public void setProperty(String propertyName, Object val)
 	{
-		if (!webObjectImpl.setProperty(propertyName, val))
+		if (webObjectImpl.setProperty(propertyName, val))
 		{
 			// see if it's not a direct persist property as well such as size, location, anchors... if it is set it here as well anyway so that they are in sync with spec properties
 			if (purePersistPropertyNames.contains(propertyName)) super.setProperty(propertyName, val);
@@ -118,8 +121,10 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) return super.getProperty(propertyName);
-		return webObjectImpl.getProperty(propertyName);
+		Object value = null;
+		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) value = super.getProperty(propertyName);
+		if (value == null) value = webObjectImpl.getProperty(propertyName);
+		return value;
 	}
 
 	/**
@@ -141,11 +146,18 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		return webObjectImpl.getTypeName();
 	}
 
+	/**
+	 * DO NOT USE this method! Use setProperty instead.
+	 * @param arg
+	 */
 	public void setJson(JSONObject arg)
 	{
 		webObjectImpl.setJson(arg);
 	}
 
+	/**
+	 * DO NOT USE this method! Use setProperty instead.
+	 */
 	public JSONObject getJson()
 	{
 		return webObjectImpl.getJson();
@@ -154,7 +166,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public JSONObject getFlattenedJson()
 	{
-		return getJson();
+		return webObjectImpl.getJson();
 	}
 
 	@Override
@@ -268,7 +280,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public JSONObject getFullJsonInFrmFile()
 	{
-		return getJson();
+		return webObjectImpl.getJson();
 	}
 
 }

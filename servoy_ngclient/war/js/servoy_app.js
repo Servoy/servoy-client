@@ -1,16 +1,27 @@
 var controllerProvider;
-angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce', 'ngSanitize']).config(function($controllerProvider,$logProvider) {
+angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
+                             'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
+
+).config(['$controllerProvider', '$logProvider', '$translateProvider', function($controllerProvider, $logProvider, $translateProvider) {
 	controllerProvider = $controllerProvider;
 	$logProvider.debugEnabled(false);
-}).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
+	
+	// TODO: check if this does not break some translated values
+	$translateProvider.useSanitizeValueStrategy('sanitize');
+	$translateProvider.preferredLanguage('servoy-i18n');
+    $translateProvider.useLoader('translateFilterServoyI18Loader');
+    $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
+    $translateProvider.forceAsyncReload(true);
+	
+}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property) {
+	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
 		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanLayout(now, beanLayout, changes, parentSize, false);
+				applyBeanLayout(beanModel, beanLayout, changes, parentSize, false);
 			}
 		}
 		return changes;
@@ -19,7 +30,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var sendChanges = function(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property);
+			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname]);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
@@ -450,7 +461,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if (media && media.visible)
 				{
 					// the value from model may be incorrect so take value from ui
-					var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+					var componentSize = {width: $(element[0].parentNode.parentNode).width(),height: $(element[0].parentNode.parentNode).height()};
 					var mediaOptions = scope.$eval('model.mediaOptions');
 					if(media.rollOverImg){ 
 						rollOverImgStyle= parseImageOptions( media.rollOverImg, mediaOptions, componentSize);
@@ -794,14 +805,25 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 	}
-}).value("$solutionSettings",  {
+}).factory('translateFilterServoyI18Loader', ['$q', function ($q) {
+   return function (options) {
+       // return empty translation, translateFilterServoyI18nMessageLoader is used as missingTranslationHandler
+       return $q.when({});
+    };
+}]).factory('translateFilterServoyI18nMessageLoader', ['$svyI18NService', '$q', function ($svyI18NService, $q) {
+    // use servoy i18n as loader for the translate filter
+	return function(key) {
+		return $svyI18NService.getI18NMessage(key);
+	}
+	}]
+).value("$solutionSettings",  {
 	mainForm: {},
 	navigatorForm: {width:0},
 	solutionTitle: "",
 	styleSheetPath: undefined,
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService, $svyI18NService) {
 	$servoyInternal.connect();
 
 	// initialize locale client side
@@ -849,6 +871,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		style[orientationVar2] = $solutionSettings.navigatorForm.size.width+'px';
 		return style;
 	}
+
 }).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
 
 	$scope.redirectUrl = $solutionSettings.noLicense.redirectUrl;
@@ -983,7 +1006,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService',"$log", function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log,$translate) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -1111,6 +1134,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		setLocale : function(language, country, initializing) {
 			try{
+                $translate.refresh();
 				$svyI18NService.flush();
 				this.setAngularLocale(language);
 				numeral.language((language + '-' + country).toLowerCase());

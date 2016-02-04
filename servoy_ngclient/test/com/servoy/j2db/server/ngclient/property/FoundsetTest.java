@@ -35,7 +35,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.Container;
 import org.sablo.InMemPackageReader;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -103,19 +103,18 @@ public class FoundsetTest extends AbstractSolutionTest
 		{
 			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
 			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
-			bean.setJson(new ServoyJSONObject(
-				"{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}, myfoundsetWithAllow:{dataproviders:{firstname:'test1',lastname:'test2'}}}",
-				false));
+			bean.setProperty("myfoundset", new ServoyJSONObject("{dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+			bean.setProperty("myfoundsetWithAllow", new ServoyJSONObject("{dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 
 			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
-			bean1.setJson(new ServoyJSONObject(
-				"{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}, myfoundsetWithAllow:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
-				false));
+			bean1.setProperty("myfoundset",
+				new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
+			bean1.setProperty("myfoundsetWithAllow",
+				new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
 
 			WebComponent bean2 = form.createNewWebComponent("mycustomseparatefoundsetbean", "my-component");
-			bean2.setJson(new ServoyJSONObject(
-				"{myfoundset:{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}}",
-				false));
+			bean2.setProperty("myfoundset", new ServoyJSONObject(
+				"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 		}
 		catch (JSONException e)
 		{

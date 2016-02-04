@@ -24,7 +24,7 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -61,7 +61,7 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	public IServoyDataConverterContext getDataConverterContext();
 
-	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpecification componentSpec, WebFormComponent component);
+	public void contributeComponentToElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component);
 
 	void refreshValueList(IValueList valuelist);
 

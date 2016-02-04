@@ -42,7 +42,10 @@ import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
@@ -240,7 +243,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	protected IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat fieldFormat, String dataproviderID)
 	{
-		return com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, fieldFormat.dpType, fieldFormat.parsedFormat, dataproviderID);
+		return com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, fieldFormat.dpType, fieldFormat.parsedFormat,
+			dataproviderID);
 	}
 
 	@Override
@@ -248,7 +252,18 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (formElementValue instanceof IValueList)
 		{
-			return (((IValueList)formElementValue).isRecordLinked()) ? TargetDataLinks.LINKED_TO_ALL : TargetDataLinks.NOT_LINKED_TO_DATA;
+			IDataProvider[] dependedDataProviders = ((IValueList)formElementValue).getDependedDataProviders();
+			if (dependedDataProviders == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
+			if (dependedDataProviders.length == 0) return TargetDataLinks.LINKED_TO_ALL;
+
+			boolean recordLinked = false;
+			String[] dataproviders = new String[dependedDataProviders.length];
+			for (int i = 0; i < dataproviders.length; i++)
+			{
+				dataproviders[i] = dependedDataProviders[i].getDataProviderID();
+				recordLinked = recordLinked || (dependedDataProviders[i] instanceof IColumn || dependedDataProviders[i] instanceof ColumnWrapper);
+			}
+			return new TargetDataLinks(dataproviders, recordLinked);
 		}
 		return null;
 	}

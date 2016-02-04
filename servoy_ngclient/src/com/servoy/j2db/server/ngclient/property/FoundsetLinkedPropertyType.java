@@ -24,7 +24,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
@@ -150,7 +150,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		{
 			PropertyDescription wrappedPd = getConfig(pd).wrappedPropertyDescription;
 			TargetDataLinks r = ((IDataLinkedType<YF, YT>)wrappedType).getDataLinks(formElementValue, wrappedPd, flattenedSolution, formElement);
-			if (!WebComponentSpecification.ARRAY_ELEMENT_PD_NAME.equals(wrappedPd.getName()))
+			if (!WebObjectSpecification.ARRAY_ELEMENT_PD_NAME.equals(wrappedPd.getName()))
 			{
 				formElement.getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(wrappedPd, r);
 			}
@@ -263,7 +263,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		{
 			PropertyDescription wrappedPd = getConfig(pd).wrappedPropertyDescription;
 			boolean r = ((IFindModeAwareType<YF, YT>)wrappedType).isFindModeAware(formElementValue, wrappedPd, flattenedSolution, formElement);
-			if (!WebComponentSpecification.ARRAY_ELEMENT_PD_NAME.equals(wrappedPd.getName()))
+			if (!WebObjectSpecification.ARRAY_ELEMENT_PD_NAME.equals(wrappedPd.getName()))
 			{
 				formElement.getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(wrappedPd, Boolean.valueOf(r));
 			}

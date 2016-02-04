@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
@@ -53,13 +54,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	private final Map<String, Object> persistMappedPropeties = new HashMap<String, Object>(); // value can be IChildWebObject or IChildWebObject[] (ChildWebComponents or WebCustomTypes)
 
-	// TODO should we have a map that contains all values from the JSON not only the above for IChildWebObject - or at least get/set/clear/has should handle all json values, not just persist mapped one (see commented out code in those methods)
-	// we can have property type based conversions implemented here as well (from JSON to Persist property values and vice-versa); there is also currently a case in this area: SVY-9142
-	// so then all conversions that are done now via com.servoy.eclipse.ui.property.WebComponentPropertyHandler.jsonConverters could be done here I think
-	// and then all json properties could be accessed through direct persist getters/setters only that WebComponent/WebCustomType have and the direct JSON operations can be tucked away in this class only;
-	// one thing we should look at thoroughly at if we use the normal persist (WebComponent/WebCustomType) get/set/clear for properties in json, then what about iterating on all? do we add a separate method just for getting all
-	// or if we do return them in the usual persist method for iterating - won't that break cloning/copying of persists (that in this case really only should work on the root persist properties like "json" instead of the contents of subproperties inside the "json" property)
-	// Currently there is some code commented out for making get/set of persist work with json properties as well - but that can only work when enabling conversions there; see comments with // TODO CONVERSION below
+	// TODO should we have a map that contains all values from the JSON not only the above for IChildWebObject - or at least get/set/clear/has should handle all json values,
+	//	not just persist mapped one (see commented out code in those methods)
 
 	private boolean arePersistMappedPropetiesLoaded = false;
 	private PropertyDescription pdUseGetterInstead;
@@ -75,7 +71,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		super(webObject);
 	}
 
-	@Override
 	public PropertyDescription getPropertyDescription()
 	{
 		// at the time WebComponent is created the resources project is not yet loaded nor is the typeName property set; so find it when it's needed in this case
@@ -230,6 +225,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		if (getPropertyDescription() != null)
 		{
 			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
+				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
 			{
 				IPropertyType< ? > propertyType = childPd.getType();
@@ -244,13 +241,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					updatePersistMappedPropeties();
 					return true;
 				}
-				// TODO CONVERSION uncomment this when refactoring to add conversion (see comments at beginning of this class)
-//				else
-//				{
-//					// it is a json property defined in spec, but it's not mapping to a persist
-//					setOrRemoveJsonSubproperty(propertyName, val, false);
-//					return true;
-//				}
+				else
+				{
+					// it is a json property defined in spec, but it's not mapping to a persist
+					setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(propertyName, val), false);
+					return true;
+				}
 			}
 		}
 		return false; // typeName is not yet set (so normally typed properties are not yet accessed) or it's not a typed property
@@ -276,6 +272,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
 			// depends on this in the end (the same for WebComponentPropertySource)
 			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
+				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
@@ -308,19 +306,53 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		Map<String, Object> ctp = getPersistMappedProperties();
 		if (ctp.containsKey(propertyName)) return ctp.get(propertyName);
 
-		// TODO CONVERSION uncomment this when refactoring to add conversion (see comments at beginning of this class)
-//		if (getPropertyDescription() != null)
-//		{
-//			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
-//			if (childPd != null)
-//			{
-//				// it is a json property defined in spec, but it's not mapping to a persist
-//				JSONObject json = getJson();
-//				return json != null ? json.opt(propertyName) : null;
-//			}
-//		}
+		if (getPropertyDescription() != null)
+		{
+			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
+				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
+			if (childPd != null)
+			{
+				// it is a json property defined in spec, but it's not mapping to a persist
+				JSONObject json = getJson();
+				Object value = json != null ? json.opt(propertyName) : null;
+				value = convertToJavaType(childPd, value);
+				if (value instanceof JSONArray)
+				{
+					PropertyDescription desc = null;
+					if (childPd.getType() instanceof CustomJSONArrayType< ? , ? >)
+					{
+						desc = ((CustomJSONArrayType< ? , ? >)childPd.getType()).getCustomJSONTypeDefinition();
+					}
+					JSONArray arr = (JSONArray)value;
+					Object[] java_arr = new Object[arr.length()];
+					for (int i = 0; i < arr.length(); i++)
+					{
+						java_arr[i] = convertToJavaType(desc, arr.get(i));
+					}
+					return java_arr;
+				}
+				return value;
+			}
+		}
 
 		return null;
+	}
+
+	private Object convertToJavaType(PropertyDescription childPd, Object val)
+	{
+		Object value = val;
+		IDesignValueConverter< ? > converter = null;
+		if (value != null && childPd != null && (converter = getConverter(childPd)) != null)
+		{
+			value = converter.fromDesignValue(value, childPd);
+		}
+		return (val != JSONObject.NULL) ? value : null;
+	}
+
+	private IDesignValueConverter< ? > getConverter(PropertyDescription pd)
+	{
+		return (pd.getType() instanceof IDesignValueConverter< ? >) ? (IDesignValueConverter< ? >)pd.getType() : null;
 	}
 
 	@Override
@@ -407,17 +439,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					{
 						if (isComponent(propertyType))
 						{
-							Pair<Integer, UUID> idAndUUID = getNewIdAndUUID(webObject);
-							ChildWebComponent childComponent = new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(),
-								beanJSONKey, -1, false, childPd);
+							ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false);
 							persistMappedPropeties.put(beanJSONKey, childComponent);
 							persistMappedPropetiesByUUID = null;
 						}
 						else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
 						{
-							Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-							WebCustomType webCustomType = new WebCustomType(webObject, childPd, beanJSONKey, -1, false, idAndUUID.getLeft().intValue(),
-								idAndUUID.getRight());
+							WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false);
 							webCustomType.setTypeName(simpleTypeName);
 							persistMappedPropeties.put(beanJSONKey, webCustomType);
 							persistMappedPropetiesByUUID = null;
@@ -434,9 +462,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-									WebCustomType webCustomType = new WebCustomType(webObject, elementPD, beanJSONKey, i, false, idAndUUID.getLeft().intValue(),
-										idAndUUID.getRight());
+									WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false);
 									webCustomType.setTypeName(simpleTypeName);
 									persistMappedPropertyArray.add(webCustomType);
 								}
@@ -445,9 +471,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									Pair<Integer, UUID> idAndUUID = getNewIdAndUUID(webObject);
-									ChildWebComponent childComponent = new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(),
-										beanJSONKey, i, false, elementPD);
+									ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD, beanJSONKey, i, false);
 									persistMappedPropertyArray.add(childComponent);
 								}
 							}
@@ -522,6 +546,16 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			Debug.error(e);
 		}
 		return false;
+	}
+
+	private Object convertFromJavaType(String propertyName, Object value)
+	{
+		PropertyDescription pd = getPropertyDescription().getProperty(propertyName);
+		if (pd != null && getConverter(pd) != null)
+		{
+			return getConverter(pd).toDesignValue(value, pd);
+		}
+		return value;
 	}
 
 	@Override
@@ -789,7 +823,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		IBasicWebObject parentWebObject = webObject.getParent();
 		try
 		{
-			JSONObject entireModel = (parentWebObject.getJson() != null ? parentWebObject.getJson() : new ServoyJSONObject());
+			JSONObject entireModel = (parentWebObject.getFlattenedJson() != null ? parentWebObject.getFlattenedJson() : new ServoyJSONObject());
 			if (!isNew && entireModel.has(webObject.getJsonKey()))
 			{
 				Object v = entireModel.get(webObject.getJsonKey());

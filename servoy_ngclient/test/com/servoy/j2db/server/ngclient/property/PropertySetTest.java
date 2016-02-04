@@ -35,7 +35,6 @@ import org.sablo.services.server.FormServiceHandler;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author jcompagner
@@ -56,7 +55,7 @@ public class PropertySetTest extends AbstractSolutionTest
 		com.servoy.j2db.persistence.WebComponent bean = form.createNewWebComponent("mycustombean", "mycomponent");
 		try
 		{
-			bean.setJson(new ServoyJSONObject("{'background':'#000000'}", false));
+			bean.setProperty("background", "#000000");
 		}
 		catch (JSONException e)
 		{

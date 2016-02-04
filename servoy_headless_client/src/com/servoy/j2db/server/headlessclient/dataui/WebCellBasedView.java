@@ -2874,9 +2874,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						if ((comp instanceof IDisplayData) || !(comp instanceof ILabel))
 						{
-							// labels/buttons that don't display data are not changed
-							((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setValueChanged();
-						}
+							// try to mark cells as changed only if there was a real value change; otherwise there is no use to replace the whole row...
+							checkForValueChanges(comp);
+						} // else labels/buttons that don't display data are not changed
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 				});
@@ -2968,6 +2968,29 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		MainPage mp = table.findParent(MainPage.class);
 		if (mp != null) mp.triggerBrowserRequestIfNeeded();
+	}
+
+	protected void checkForValueChanges(Object cell)
+	{
+		IStylePropertyChanges spc = ((IProviderStylePropertyChanges)cell).getStylePropertyChanges();
+		if (!spc.isChanged() && !spc.isValueChanged())
+		{
+			IModel innermostModel = ((Component)cell).getInnermostModel();
+			if (innermostModel instanceof RecordItemModel)
+			{
+				Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
+				Object object = ((Component)cell).getDefaultModelObject();
+
+				if (!Utils.equalObjects(lastRenderedValue, object))
+				{
+					spc.setValueChanged();
+				}
+			}
+			else
+			{
+				spc.setChanged();
+			}
+		}
 	}
 
 	public IStylePropertyChanges getStylePropertyChanges()
@@ -5515,9 +5538,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int tableSize = table.getList().size();
 
 			Integer selectedIndex = null;
-			if (WebCellBasedView.this.getSelectedIndexes() != null && WebCellBasedView.this.getSelectedIndexes().length > 0)
+			int[] newSelectedIndexes = WebCellBasedView.this.getSelectedIndexes();
+			if (newSelectedIndexes != null && newSelectedIndexes.length > 0)
 			{
-				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
+				selectedIndex = Integer.valueOf(newSelectedIndexes[0]);
+				if (WebCellBasedView.this.selectedIndexes != null && WebCellBasedView.this.selectedIndexes.length > 0)
+				{
+					for (int idx : newSelectedIndexes)
+					{
+						if (Arrays.binarySearch(WebCellBasedView.this.selectedIndexes, idx) < 0)
+						{
+							selectedIndex = Integer.valueOf(idx);
+							break;
+						}
+					}
+				}
 			}
 			if ((selectedIndex == null && table.size() == 0) || (selectedIndex != null && selectedIndex >= table.size() && appendMissingRows))
 			{

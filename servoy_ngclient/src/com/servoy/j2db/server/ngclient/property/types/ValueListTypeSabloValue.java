@@ -40,9 +40,6 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
-import com.servoy.j2db.persistence.IDataProvider;
-import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -51,7 +48,6 @@ import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -189,54 +185,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			revertFilter();
 		}
 
-		// TODO please optimize this, maybe the valuelist didn't actually change even with all these checks below! Can't each 'valueList' object handle this internally? Cause it should know better when it changes...
-		// currently we repopulate always for non-global and non-form DP's; for global DP's we check to see if we really need to do it
-		boolean shouldRepopulateValuelist = (dataProvider == null || !(isFormDP || isGlobalDP));
-
-		if (!shouldRepopulateValuelist)
-		{
-			if (isGlobalDP)
-			{
-				if (dataProvider == null)
-				{
-					shouldRepopulateValuelist = true; // should never happen I think
-				}
-				else
-				{
-					// see if the global that has changed is used as a related primary DP of the valuelist...
-					String relationName = getValueList().getRelationName();
-					FlattenedSolution flattenedSolution = getFlattenedSolution();
-					Relation[] relations = (flattenedSolution != null ? flattenedSolution.getRelationSequence(relationName) : null);
-					if (relations != null)
-					{
-						x : for (Relation r : relations)
-						{
-							try
-							{
-								for (IDataProvider dp : r.getPrimaryDataProviders(flattenedSolution))
-								{
-									if (ScopesUtils.isVariableScope(dp.getDataProviderID()) &&
-										ScopesUtils.getVariableScope(dp.getDataProviderID()).equals(ScopesUtils.getVariableScope(dataProvider)))
-									{
-										shouldRepopulateValuelist = true;
-										break x;
-									}
-								}
-							}
-							catch (RepositoryException e)
-							{
-								Debug.error(e);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (shouldRepopulateValuelist)
+		if (!fireChangeEvent) valueList.removeListDataListener(this);
+		try
 		{
 			valueList.fill(record);
-			if (fireChangeEvent && changeMonitor != null) changeMonitor.valueChanged();
+		}
+		finally
+		{
+			if (!fireChangeEvent) valueList.addListDataListener(this);
 		}
 		previousRecord = record;
 	}

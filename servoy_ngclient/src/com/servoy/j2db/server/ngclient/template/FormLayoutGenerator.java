@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PropertyDescription;
 
@@ -50,8 +51,7 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
-	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design,
-		boolean highlight)
+	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design)
 	{
 		generateFormStartTag(writer, form, realFormName, false, design);
 		Iterator<Part> it = form.getParts();
@@ -125,11 +125,11 @@ public class FormLayoutGenerator
 					}
 					if (fe == null)
 					{
-						fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
+						fe = FormElementHelper.INSTANCE.getFormElement(bc, context.getSolution(), null, design);
 					}
 
 					generateFormElementWrapper(writer, fe, design, form);
-					generateFormElement(writer, fe, form, false, highlight);
+					generateFormElement(writer, fe, form, design);
 					generateEndDiv(writer);
 				}
 
@@ -137,12 +137,13 @@ public class FormLayoutGenerator
 			}
 		}
 
-		generateFormEndTag(writer);
+		generateFormEndTag(writer, design);
 	}
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
 	{
-		writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
+		if (design) writer.print("<div ng-controller='DesignFormController' id='svyDesignForm' ");
+		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
 			writer.print(String.format("data-svy-name=\"%1$s\" ", realFormName));
@@ -184,17 +185,28 @@ public class FormLayoutGenerator
 		writer.println("</div>");
 	}
 
-	public static void generateFormEndTag(PrintWriter writer)
+	public static void generateFormEndTag(PrintWriter writer, boolean design)
 	{
 		generateEndDiv(writer);
-		writer.println("</svy-formload>");
+		if (!design) writer.println("</svy-formload>");
 	}
 
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)
 	{
-		writer.print("<div ng-style=\"layout.");
-		writer.print(fe.getName());
-		writer.print("\"");
+		if (design)
+		{
+
+			writer.print("<div ng-style=\"layout('");
+			writer.print(fe.getName());
+			writer.print("')\"");
+			writer.print(" ng-class='design_highlight'");
+		}
+		else
+		{
+			writer.print("<div ng-style=\"layout.");
+			writer.print(fe.getName());
+			writer.print("\"");
+		}
 		if (!form.isResponsiveLayout() && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
@@ -223,19 +235,18 @@ public class FormLayoutGenerator
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
-			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
-			Form currentForm = form;
-			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
-
-			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
-			{
-				writer.print(" class='inherited_element'");
-			}
 			List<String> typeNames = fe.getSvyTypesNames();
 			if (typeNames.size() > 0)
 			{
 				writer.print(" svy-types='");
 				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+				writer.print("'");
+			}
+			String directEditPropertyName = getDirectEditProperty(fe);
+			if (directEditPropertyName != null)
+			{
+				writer.print(" directEditPropertyName='");
+				writer.print(directEditPropertyName);
 				writer.print("'");
 			}
 			List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
@@ -245,12 +256,13 @@ public class FormLayoutGenerator
 				writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
 				writer.print("'");
 			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
+			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
+			Form currentForm = form;
+			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
+
+			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
-				writer.print(" directEditPropertyName='");
-				writer.print(directEditPropertyName);
-				writer.print("'");
+				writer.print(" class='inherited_element'");
 			}
 		}
 		writer.println(">");
@@ -286,10 +298,8 @@ public class FormLayoutGenerator
 //		return false;
 //	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design, boolean highlight)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design)
 	{
-		if (highlight) writer.print("<div class='highlight_element" + (form.isResponsiveLayout() ? "" : " inherit_size") + "'>");
-
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -306,22 +316,14 @@ public class FormLayoutGenerator
 			writer.print(form.getName() + "." + elementName);
 			writer.print("'");
 		}
-		writer.print(" svy-model='model.");
-		writer.print(fe.getName());
-		writer.print("'");
-		writer.print(" svy-api='api.");
-		writer.print(fe.getName());
-		writer.print("'");
-		writer.print(" svy-handlers='handlers.");
-		writer.print(fe.getName());
-		writer.print("'");
-		if (design)
+		if (design)//this is false in absolute layout
 		{
-			writer.print(" svy-id='");
-			writer.print(fe.getDesignId());
-			writer.print("'");
 			if (form.isResponsiveLayout())
 			{
+
+				writer.print(" svy-id='");
+				writer.print(getDesignId(fe));
+				writer.print("'");
 				List<String> typeNames = fe.getSvyTypesNames();
 				if (typeNames.size() > 0)
 				{
@@ -336,24 +338,56 @@ public class FormLayoutGenerator
 					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
 					writer.print("'");
 				}
+				String directEditPropertyName = getDirectEditProperty(fe);
+				if (directEditPropertyName != null)
+				{
+					writer.print(" directEditPropertyName='");
+					writer.print(directEditPropertyName);
+					writer.print("'");
+				}
+
+				JSONObject ngClass = new JSONObject();
+
+				if (!fe.getForm().equals(form))//is this inherited?
+				{
+					ngClass.put("inheritedElement", true);
+				}
+				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
-			{
-				writer.print(" directEditPropertyName='");
-				writer.print(directEditPropertyName);
-				writer.print("'");
-			}
+			writer.print(" svy-model=\"model('");
+			writer.print(fe.getName());
+			writer.print("')\"");
+			writer.print(" svy-api='api(\"");
+			writer.print(fe.getName());
+			writer.print("\")'");
+			writer.print(" svy-handlers='handlers(\"");
+			writer.print(fe.getName());
+			writer.print("\")'");
+			writer.print(" svy-servoyApi='servoyApi(\"");
+			writer.print(fe.getName());
+			writer.print("\")'");
 		}
-		writer.print(" svy-servoyApi='handlers.");
-		writer.print(fe.getName());
-		writer.print(".svy_servoyApi'");
+		else
+		{
+			writer.print(" svy-model='model.");
+			writer.print(fe.getName());
+			writer.print("'");
+			writer.print(" svy-api='api.");
+			writer.print(fe.getName());
+			writer.print("'");
+			writer.print(" svy-handlers='handlers.");
+			writer.print(fe.getName());
+			writer.print("'");
+			writer.print(" svy-servoyApi='handlers.");
+			writer.print(fe.getName());
+			writer.print(".svy_servoyApi'");
+		}
+
 		writer.println(">");
 		writer.print("</");
 		writer.print(fe.getTagname());
 		writer.println(">");
-		if (highlight) writer.print("</div>");
-
 	}
 
 	/**
@@ -361,7 +395,7 @@ public class FormLayoutGenerator
 	 * @param fe
 	 * @return
 	 */
-	private static String getDesignId(FormElement fe)
+	public static String getDesignId(FormElement fe)
 	{
 		return (fe.getDesignId() == null && fe.getTypeName().equals("servoycore-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
 	}

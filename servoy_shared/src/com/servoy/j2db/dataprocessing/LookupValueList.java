@@ -35,8 +35,10 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.CompareCondition;
@@ -601,15 +603,29 @@ public class LookupValueList implements IValueList
 		return ComponentFactory.getRealValueList(application, valueList, true, 0, null, null);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
-	 */
 	@Override
-	public boolean isRecordLinked()
+	public IDataProvider[] getDependedDataProviders()
 	{
-		return valueList.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ||
-			valueList.getDatabaseValuesType() == IValueListConstants.GLOBAL_METHOD_VALUES;
+		if (valueList.getDatabaseValuesType() == IValueListConstants.GLOBAL_METHOD_VALUES)
+		{
+			return new IDataProvider[0];
+		}
+		else if (valueList.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
+		{
+			Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
+			if (relations != null && relations.length > 0)
+			{
+				try
+				{
+					return relations[relations.length - 1].getPrimaryDataProviders(application.getFlattenedSolution());
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+				}
+			}
+			return new IDataProvider[0];
+		}
+		return null;
 	}
 }

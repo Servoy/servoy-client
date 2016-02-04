@@ -16,9 +16,12 @@
  */
 package com.servoy.j2db.scripting;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
@@ -41,6 +44,8 @@ public class StartupArguments extends HashMap<String, Object>
 	private static final String PARAM_KEY_SHORT_ARGUMENT = "a"; //$NON-NLS-1$
 
 	public static final char PARAM_KEY_VALUE_SEPARATOR = ':';
+
+	private static final Set<String> excludeKeys = new HashSet<String>(Arrays.asList(new String[] { "sessionid", "windowid", "windowname" }));
 
 	public StartupArguments()
 	{
@@ -85,8 +90,9 @@ public class StartupArguments extends HashMap<String, Object>
 	@Override
 	public Object put(String key, Object value)
 	{
-		Object keyValue = null;
+		if (excludeKeys.contains(key)) return null;
 
+		Object keyValue = null;
 		if (value instanceof String)
 		{
 			keyValue = value;

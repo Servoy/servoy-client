@@ -27,9 +27,11 @@ import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -475,14 +477,22 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		return new Pair<QuerySelect, BaseQueryTable>(select, lastTable);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.DBValueList#isRecordLinked()
-	 */
 	@Override
-	public boolean isRecordLinked()
+	public IDataProvider[] getDependedDataProviders()
 	{
-		return true;
+		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
+		if (relations != null && relations.length > 0)
+		{
+			try
+			{
+				return relations[relations.length - 1].getPrimaryDataProviders(application.getFlattenedSolution());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		}
+		// If it can't get from the relation, just return that it depends on all.
+		return new IDataProvider[0];
 	}
 }

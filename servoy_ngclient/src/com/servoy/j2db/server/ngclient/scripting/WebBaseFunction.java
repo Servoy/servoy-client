@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient.scripting;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.WebObjectApiDefinition;
 
 /**
  * Base Javascript function to call a client-side function.
@@ -32,9 +32,9 @@ public abstract class WebBaseFunction implements Function
 {
 	private Scriptable prototype;
 	private Scriptable parent;
-	protected final WebComponentApiDefinition definition;
+	protected final WebObjectApiDefinition definition;
 
-	public WebBaseFunction(WebComponentApiDefinition definition)
+	public WebBaseFunction(WebObjectApiDefinition definition)
 	{
 		this.definition = definition;
 	}

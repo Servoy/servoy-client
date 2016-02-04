@@ -3046,7 +3046,7 @@ public abstract class BasicFormController
 		}
 
 		/**
-		 * Loads a primary key dataset, will remove related sort.
+		 * Loads a primary key dataset, will remove related sort. Tries to preserve selection based on primary key, otherwise first record is selected.
 		 *
 		 * @sample
 		 * //to load a primary key dataset, will remove related sort
@@ -3137,6 +3137,7 @@ public abstract class BasicFormController
 		/**
 		 * Loads records into form foundset based on a query (also known as 'Form by query'). The query must be a valid sql select.
 		 * If the foundset is related this function is not allowed.
+		 * Tries to preserve selection based on primary key, otherwise first record is selected.
 		 *
 		 * see foundset.loadRecords(QBSelect).
 		 *
@@ -4228,7 +4229,8 @@ public abstract class BasicFormController
 		}
 
 		/**
-		 * Sorts the form foundset based on the given sort string.
+		 * Sorts the form foundset based on the given sort string. 
+		 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 		 *
 		 * @sample %%prefix%%controller.sort('columnA desc,columnB asc');

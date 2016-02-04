@@ -33,7 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
 
@@ -96,7 +96,7 @@ public class FormElementHelper
 
 	public FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
-		return getFormElement(formElement, context.getSolution(), propertyPath, (context.getApplication() != null && context.getApplication().isInDesigner()));
+		return getFormElement(formElement, context.getSolution(), propertyPath, false);
 	}
 
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
@@ -122,7 +122,7 @@ public class FormElementHelper
 			}
 			if (formElement instanceof BodyPortal)
 				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
-			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
+			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
@@ -468,46 +468,48 @@ public class FormElementHelper
 					return TabSeqComparator.compareTabSeq(o1.getSeqValue(), o1.element, o2.getSeqValue(), o2.element);
 				}
 			});
-			Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
+			Iterator<IPersist> iterator = flattenedForm.getAllObjects();
 			while (iterator.hasNext())
 			{
-				IFormElement formElement = iterator.next();
-				if (FormTemplateGenerator.isWebcomponentBean(formElement))
+				IPersist persist = iterator.next();
+				if (FormTemplateGenerator.isWebcomponentBean(persist))
 				{
-					String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
-					WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+					String componentType = FormTemplateGenerator.getComponentTypeName((IBasicWebComponent)persist);
+					WebObjectSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 					if (specification != null)
 					{
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 						if (properties != null && properties.size() > 0)
 						{
-							JSONObject json = ((IBasicWebComponent)formElement).getJson();
+							IBasicWebComponent webComponent = (IBasicWebComponent)persist;
 							for (PropertyDescription tabSeqProperty : properties)
 							{
-								int tabseq = json != null ? json.optInt(tabSeqProperty.getName()) : 0;
+								int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
 								if (tabseq >= 0)
 								{
-									selected.add(new TabSeqProperty(formElement, tabSeqProperty.getName()));
+									selected.add(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()));
 								}
 								else
 								{
-									cachedTabSeq.put(new TabSeqProperty(formElement, tabSeqProperty.getName()), Integer.valueOf(-2));
+									cachedTabSeq.put(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()), Integer.valueOf(-2));
 								}
 							}
 						}
 					}
 				}
-				else if (formElement instanceof ISupportTabSeq)
+				else if (persist instanceof ISupportTabSeq)
 				{
-					if (((ISupportTabSeq)formElement).getTabSeq() >= 0)
+					if (((ISupportTabSeq)persist).getTabSeq() >= 0)
 					{
-						selected.add(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+						selected.add(new TabSeqProperty((IFormElement)persist, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
 					}
 					else
 					{
-						cachedTabSeq.put(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()), Integer.valueOf(-2));
+						cachedTabSeq.put(new TabSeqProperty((IFormElement)persist, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
+							Integer.valueOf(-2));
 					}
 				}
+
 			}
 
 			int i = 1;
@@ -522,7 +524,7 @@ public class FormElementHelper
 			}
 		}
 
-		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(flattenedForm.findChild(persistIfAvailable.getUUID()), pd.getName()));
+		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)flattenedForm.getChild(persistIfAvailable.getUUID()), pd.getName()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;
@@ -544,18 +546,13 @@ public class FormElementHelper
 			if (propertyName != null && element instanceof IBasicWebComponent)
 			{
 				String componentType = FormTemplateGenerator.getComponentTypeName(element);
-				WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+				WebObjectSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 				if (specification != null)
 				{
 					PropertyDescription property = specification.getProperty(propertyName);
 					if (property != null)
 					{
-						JSONObject json = ((IBasicWebComponent)element).getJson();
-						if (json != null)
-						{
-							return json.optInt(propertyName);
-						}
-						return 0;
+						return Utils.getAsInteger(((IBasicWebComponent)element).getProperty(propertyName));
 					}
 				}
 			}

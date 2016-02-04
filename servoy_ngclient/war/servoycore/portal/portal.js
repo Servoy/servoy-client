@@ -32,6 +32,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			if (locale.language) {
 				i18nService.setCurrentLang(locale.language)
 			}
+			
+			$scope.columnMinWidth = 30;
+			
 			var pageSizeFactor = $applicationService.getUIProperty("ngClientPageSizeFactor");
 			if (!pageSizeFactor || pageSizeFactor <= 1) pageSizeFactor = 2;
 			$scope.pageSize = 25;
@@ -225,7 +228,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							cellTemplate: cellTemplate,
 							visible: el.model.visible,
 							width: el.model.size.width,
-							minWidth: el.model.size.width,
+//							minWidth: el.model.size.width,
 							cellEditableCondition: false,
 							enableColumnMoving: isMovable,
 							enableColumnResizing: isResizable,
@@ -303,7 +306,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 									var newWidthDelta = elemWidth * totalWidth / resizeWidth;
 									for(var j = 0; j < $scope.columnDefinitions.length; j++) {
 										if($scope.columnDefinitions[j].svyColumnIndex == i) {
-											$scope.columnDefinitions[j].width = elemWidth + newWidthDelta;
+											var w = elemWidth + newWidthDelta;
+											$scope.columnDefinitions[j].width = w < $scope.columnMinWidth ? $scope.columnMinWidth : w;
 											if($scope.gridApi.grid.columns[j]) $scope.gridApi.grid.columns[j].width = $scope.columnDefinitions[j].width;
 											break;
 										}
@@ -344,9 +348,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						for(var j = 0; j < $scope.columnDefinitions.length; j++) {
 							if(scope.columnDefinitions[j].svyColumnIndex == idx) {
 								scope.columnDefinitions[j].width = scope.model.childElements[idx].model.size.width;
-								if(scope.gridApi.grid.columns[j]) scope.gridApi.grid.columns[j].width = scope.columnDefinitions[j].width; 
+								if(scope.gridApi.grid.columns[j]) scope.gridApi.grid.columns[j].width = scope.columnDefinitions[j].width;
 								layoutColumnsAndGrid();
-								scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+								$timeout(function() {
+									scope.gridApi.grid.buildColumns({orderByColumnDefs:true});
+									scope.gridApi.grid.refresh();
+								}, 0);
 								break;
 							}
 						}						
@@ -360,7 +367,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							return scope.model.childElements[a.svyColumnIndex].model.location.x - scope.model.childElements[b.svyColumnIndex].model.location.x; 
 						});
 						layoutColumnsAndGrid();
-						scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);						
+						$timeout(function() {
+							scope.gridApi.grid.buildColumns({orderByColumnDefs:true});
+							scope.gridApi.grid.refresh();
+						}, 0);						
 					}
 				}, false);				
 
@@ -757,7 +767,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			function updateColumnAPIFromCell(columnApi, cellAPI, elementIndex) {
 				// update column API object with new cell available methods
 				for (var p in cellAPI) {
-					if (!columnApi[p]) columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
+					columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
 				}
 				for (var p in columnApi) {
 					if (!cellAPI[p]) delete columnApi[p];
@@ -1084,7 +1094,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				gridApi.colResizable.on.columnSizeChanged ($scope, function(colDef, deltaChange) {
 					for(var i = 0; i < $scope.model.childElements.length; i++) {
 						if(colDef.name == $scope.model.childElements[i].name) {
-							$scope.model.childElements[i].model.size.width += deltaChange;
+							var w = $scope.model.childElements[i].model.size.width + deltaChange;
+							$scope.model.childElements[i].model.size.width = w < $scope.columnMinWidth ? $scope.columnMinWidth : w;
+							$scope.model.childElements[i].model.size.height = $scope.rowHeight;
 							break;
 						}
 					}
@@ -1095,6 +1107,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				function testNumberOfRows() {
 					if ($scope.foundset && $scope.foundset.setPreferredViewportSize && !isNaN($scope.gridApi.grid.gridHeight))
 					{
+						shouldCallDataLoaded = true;
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
 						var totalPreferedViewportSize = numberOfRows*pageSizeFactor; 
 						if (preferredViewportSize != totalPreferedViewportSize) {
@@ -1117,6 +1130,13 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
 								$scope.foundset.loadExtraRecordsAsync(extraRecords);
 							}
+							else if ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize > $scope.foundset.viewPort.size )
+							{
+								// some row(s) have been added in scroll window, load them
+								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize) - $scope.foundset.viewPort.size);
+								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
+								$scope.foundset.loadExtraRecordsAsync(extraRecords);
+							}	
 						}
 					}
 				}
@@ -1322,7 +1342,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			});
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
-			for (key in $scope.model) {
+			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
 

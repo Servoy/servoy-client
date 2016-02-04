@@ -82,7 +82,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	/**
 	 * use this constructor if the component for which this change recorder is made has a default border or padding in the browser.
 	 * So that size calculations will take that into account.
-	 * 
+	 *
 	 * @param defaultBorder
 	 * @param defaultPadding
 	 */
@@ -99,7 +99,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	}
 
 	/** Additional changes recorder for inner components that may change requiring the entire component to be rendered
-	 * 
+	 *
 	 * @param additionalChangesRecorder the additionalChangesRecorder to set
 	 */
 	public void setAdditionalChangesRecorder(IStylePropertyChanges additionalChangesRecorder)
@@ -118,7 +118,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Adds all the css properties to the changed set and calls setChanged()
-	 * 
+	 *
 	 * @param changes
 	 */
 	public void setChanges(Properties changes)
@@ -152,7 +152,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Adds the background-color css property for the given color to the changed properties set.
-	 * 
+	 *
 	 * @param bgcolor
 	 */
 	public void setBgcolor(String bgcolor)
@@ -177,7 +177,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Adds the color css property for the given color to the changed properties set.
-	 * 
+	 *
 	 * @param clr
 	 */
 	public void setFgcolor(String clr)
@@ -198,7 +198,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Adds the border css property for the given color to the changed properties set.
-	 * 
+	 *
 	 * @param border
 	 */
 	public void setBorder(String border)
@@ -232,9 +232,9 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	}
 
 	/**
-	 * Sets the background-color css property to transparent if the boolean is true, 
+	 * Sets the background-color css property to transparent if the boolean is true,
 	 * if false then it test if it has to set the bgcolor or remove the background-color property
-	 * 
+	 *
 	 * @param transparent
 	 */
 	public void setTransparent(boolean transparent)
@@ -267,15 +267,15 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Sets the x,y location css properties to the changed set.
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 */
 	public void setLocation(int x, int y)
 	{
 		setChanged();
-		changedProperties.put("left", getSizeString(x)); //$NON-NLS-1$ 
-		changedProperties.put("top", getSizeString(y)); //$NON-NLS-1$ 
+		changedProperties.put("left", getSizeString(x)); //$NON-NLS-1$
+		changedProperties.put("top", getSizeString(y)); //$NON-NLS-1$
 	}
 
 	/**
@@ -312,7 +312,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButtonOrSelect,
 		int valign)
 	{
-		jsProperties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$ 
+		jsProperties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$
 		jsProperties.put("offsetHeight", getSizeString(height)); //$NON-NLS-1$
 
 		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButtonOrSelect, valign);
@@ -330,7 +330,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		if (properties != null)
 		{
 			properties.put("width", getSizeString(realWidth)); //$NON-NLS-1$
-			properties.put("height", getSizeString(realheight)); //$NON-NLS-1$ 
+			properties.put("height", getSizeString(realheight)); //$NON-NLS-1$
 		}
 		return new Dimension(realWidth, realheight);
 	}
@@ -497,7 +497,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Returns true if this change recorder is changed and its component will be rendered the next time.
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IStylePropertyChanges#isChanged()
 	 */
 	public boolean isChanged()
@@ -506,8 +506,8 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	}
 
 	/**
-	 * returns true if its component model object is changed 
-	 * 
+	 * returns true if its component model object is changed
+	 *
 	 * @see com.servoy.j2db.ui.IStylePropertyChanges#isValueChanged()
 	 */
 	public boolean isValueChanged()
@@ -517,7 +517,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * Set the change flag to true so that the component will be rendered the next time.
-	 * 
+	 *
 	 */
 	public void setChanged()
 	{
@@ -526,7 +526,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 * sets the value changed to true so that servoy knows that it is the value object that is changed.
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IStylePropertyChanges#setValueChanged()
 	 */
 	public void setValueChanged()
@@ -537,7 +537,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	/**
 	 *  Helper method to see if the value is changed.
-	 *  
+	 *
 	 * @param component
 	 * @param value
 	 */
@@ -548,13 +548,19 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		if (model instanceof RecordItemModel)
 		{
 			Object o = ((RecordItemModel)model).getLastRenderedValue(component);
+			Object displayV = value;
+			if (component instanceof IResolveObject)
+			{
+				displayV = ((IResolveObject)component).resolveDisplayValue(value);
+			}
+
 			if (component instanceof IDisplayData && ((IDisplayData)component).getDataProviderID() == null)
 			{
 				// we don't have a mechanism to detect if the text has changed
 				// both oldvalue and newvalue will always be null
 				changed = true;
 			}
-			else if (!Utils.equalObjects(o, value))
+			else if (!Utils.equalObjects(o, displayV))
 			{
 				changed = true;
 				valueChanged = true;

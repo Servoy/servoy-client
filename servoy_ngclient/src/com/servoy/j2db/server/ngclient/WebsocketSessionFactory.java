@@ -29,7 +29,6 @@ import org.sablo.websocket.IWebsocketSessionFactory;
 public class WebsocketSessionFactory implements IWebsocketSessionFactory
 {
 	public static final String CLIENT_ENDPOINT = "client";
-	public static final String DESIGN_ENDPOINT = "designclient";
 
 	/**
 	 * @param uuid

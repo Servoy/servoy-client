@@ -58,11 +58,11 @@ public class FormHTMLAndJSGenerator implements IFormHTMLAndJSGenerator
 			PrintWriter w = new PrintWriter(htmlTemplate);
 			if (form.isResponsiveLayout())
 			{
-				FormLayoutStructureGenerator.generateLayout(form, realFormName, new ServoyDataConverterContext(application), w, false, false);
+				FormLayoutStructureGenerator.generateLayout(form, realFormName, new ServoyDataConverterContext(application), w, false);
 			}
 			else
 			{
-				FormLayoutGenerator.generateRecordViewForm(w, form, realFormName, new ServoyDataConverterContext(application), false, false);
+				FormLayoutGenerator.generateRecordViewForm(w, form, realFormName, new ServoyDataConverterContext(application), false);
 			}
 			w.flush();
 			w.close();
@@ -77,8 +77,8 @@ public class FormHTMLAndJSGenerator implements IFormHTMLAndJSGenerator
 		if (cachedJSTemplate == null)
 		{
 			StringWriter jsTemplate = new StringWriter(512);
-			new FormTemplateGenerator(new ServoyDataConverterContext(application), true, application.isInDesigner()).generate(form, realFormName,
-				"form_recordview_js.ftl", jsTemplate);
+			new FormTemplateGenerator(new ServoyDataConverterContext(application), true, false).generate(form, realFormName, "form_recordview_js.ftl",
+				jsTemplate);
 			cachedJSTemplate = jsTemplate.toString();
 		}
 		return cachedJSTemplate;

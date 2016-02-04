@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a checkbox field in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
@@ -79,7 +79,7 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 			{
 				return Boolean.valueOf(realVal == null);
 			}
-			return Boolean.valueOf(real.equals(realVal));
+			return Boolean.valueOf(Utils.equalObjects(real, realVal)); // not just direct equals cause for example it could happen that one is Long(1) and the other Integer(1) and it would be false
 		}
 		if (realVal instanceof Boolean) return realVal;
 		if (realVal instanceof Number)
@@ -97,7 +97,7 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 		}
 		else
 		{
-//	TODO this seems not possible in web and we don't have the previousRealValue			
+//	TODO this seems not possible in web and we don't have the previousRealValue
 //				// if value == null and still nothing selected return null (no data change)
 //				if (previousRealValue == null && !Utils.getAsBoolean(displayVal))
 //				{
@@ -150,7 +150,7 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 	@Override
 	public String toString()
 	{
-		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
+		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$
 	}
 
 	private final class MyCheckBox extends CheckBox implements IDisplayData, WebBaseSelectBox.ISelector
@@ -164,16 +164,16 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 			this.selectBox = selectBox;
 			setOutputMarkupPlaceholderTag(true);
 			add(new AttributeModifier("disabled", true, new Model<String>() //$NON-NLS-1$
-				{
-					private static final long serialVersionUID = 1L;
+			{
+				private static final long serialVersionUID = 1L;
 
-					@Override
-					public String getObject()
-					{
-						return ((WebDataCheckBox.this.isEnabled() && !WebDataCheckBox.this.isReadOnly()) ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE
-							: AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-					}
-				}));
+				@Override
+				public String getObject()
+				{
+					return ((WebDataCheckBox.this.isEnabled() && !WebDataCheckBox.this.isReadOnly()) ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE
+						: AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
+				}
+			}));
 			add(new StyleAppendingModifier(new Model<String>()
 			{
 				private static final long serialVersionUID = 1L;
@@ -188,7 +188,7 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.Component#initModel()
 		 */
 		@Override

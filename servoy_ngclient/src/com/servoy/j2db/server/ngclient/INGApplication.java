@@ -19,14 +19,14 @@ package com.servoy.j2db.server.ngclient;
 
 import org.sablo.IChangeListener;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.j2db.INGClientApplication;
 
 /**
  * Client with websocket-client specific features.
  *
  * @author rgansevles
  */
-public interface INGApplication extends IApplication
+public interface INGApplication extends INGClientApplication
 {
 	INGClientWebsocketSession getWebsocketSession();
 
@@ -35,8 +35,6 @@ public interface INGApplication extends IApplication
 	INGFormManager getFormManager();
 
 	NGRuntimeWindowManager getRuntimeWindowManager();
-
-	boolean isInDesigner();
 
 	void changesWillBeSend();
 }

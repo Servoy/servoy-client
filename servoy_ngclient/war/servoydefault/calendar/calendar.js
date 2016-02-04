@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$sabloApplication) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -12,13 +12,18 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			var ngModel = child.controller("ngModel");
 			var isDataFormatted = true;
 
-			child.datetimepicker({
-				widgetParent: $(document.body),
-				useCurrent : false,
-				useStrict : true,
-				showClear : true,
-				ignoreReadonly : true
-			});
+			var options = {
+					widgetParent: $(document.body),
+					useCurrent : false,
+					useStrict : true,
+					showClear : true,
+					ignoreReadonly : true
+				};
+			var locale = $sabloApplication.getLocale();
+			if (locale.language) {
+				options.locale = locale.language;
+			}
+			child.datetimepicker(options);
 
 			function inputChanged(e) {
 				if ($scope.model.findmode) {
@@ -302,7 +307,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			// data can already be here, if so call the modelChange function so
 			// that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
-			for (key in $scope.model) {
+			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
 		},
