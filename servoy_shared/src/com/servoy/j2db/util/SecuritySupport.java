@@ -203,7 +203,7 @@ public class SecuritySupport
 				}
 				if (is == null)
 				{
-					is = SecuritySupport.class.getResourceAsStream("background.gif");
+					is = SecuritySupport.class.getResourceAsStream("background2.gif");
 				}
 				sslKeyStore = KeyStore.getInstance("JKS");
 				sslKeyStore.load(is, passphrase);
