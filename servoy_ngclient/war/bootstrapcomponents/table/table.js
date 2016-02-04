@@ -82,12 +82,6 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
 			  }    		  
     	  }
 
-    	  $scope.headerClicked = function(column) {
-			  if ($scope.handlers.onHeaderClick) {
-				  $scope.handlers.onHeaderClick(column + 1);
-			  }    		  
-    	  }
-    	  
     	  $scope.getRowStyle = function(row) {
     		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf($scope.getRealRow(row)) != -1; 
     		  return  isSelected ? $scope.model.selectionClass : "";
