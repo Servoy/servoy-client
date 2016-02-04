@@ -1145,7 +1145,20 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
 					if (getClientInfo().getUserUid() != null)
 					{
-						loadSolution(getSolution().getName());
+						wsSession.getEventDispatcher().postEvent(new Runnable()
+						{
+							public void run()
+							{
+								try
+								{
+									loadSolution(getSolution().getName());
+								}
+								catch (RepositoryException ex)
+								{
+									Debug.error(ex);
+								}
+							}
+						});
 						if (args.optBoolean("remember"))
 						{
 							JSONObject r = new JSONObject();
