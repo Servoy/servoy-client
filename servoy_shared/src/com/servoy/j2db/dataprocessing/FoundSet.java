@@ -4774,6 +4774,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// ignore find states
 			pksAndRecords.setPks(null, 0);
 			setSelectedIndex(-1);
+			numberOfFindStates = 0;
 		}
 		else
 		{
