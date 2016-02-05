@@ -17,12 +17,17 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
@@ -46,6 +51,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.Settings;
 
 /**
  * @author rgansevles
@@ -73,6 +79,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private final IDataProviderHandler dataProviderHandler;
 
+	private final boolean conversionLenient;
+
 	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent, String dataSource, String alias)
 	{
@@ -81,19 +89,13 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
 		this.scriptableParent = scriptableParent;
+		this.conversionLenient = Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.client.query.convert.lenient", "false"));
 	}
 
-	/**
-	 * @param querySelect
-	 */
 	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent, String dataSource, String alias, QuerySelect querySelect)
 	{
-		super(dataSource, alias);
-		this.tableProvider = tableProvider;
-		this.globalScopeProvider = globalScopeProvider;
-		this.dataProviderHandler = dataProviderHandler;
-		this.scriptableParent = scriptableParent;
+		this(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias);
 		this.query = querySelect;
 	}
 
@@ -101,6 +103,14 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	public QuerySelect build()
 	{
 		return AbstractBaseQuery.deepClone(getQuery());
+	}
+
+	/**
+	 * @return the conversionLenient
+	 */
+	public boolean isConversionLenient()
+	{
+		return conversionLenient;
 	}
 
 	/**
@@ -424,13 +434,25 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return queryTable;
 	}
 
-	IQuerySelectValue createOperand(Object value)
+	IQuerySelectValue[] createOperands(Object[] values, BaseColumnType columnType, int flags)
+	{
+		IQuerySelectValue[] operands = new IQuerySelectValue[values.length];
+		for (int i = 0; i < values.length; i++)
+		{
+			operands[i] = createOperand(values[i], columnType, flags);
+		}
+
+		return operands;
+	}
+
+	IQuerySelectValue createOperand(Object value, BaseColumnType columnType, int flags)
 	{
 		if (value instanceof QBColumn)
 		{
 			return ((QBColumn)value).getQuerySelectValue();
 		}
-		final Object val;
+
+		Object val;
 		if (value instanceof QBParameter)
 		{
 			TablePlaceholderKey key = ((QBParameter)value).getPlaceholderKey();
@@ -441,10 +463,29 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 			val = placeholder == null ? new Placeholder(key) : placeholder;
 		}
+		else if (columnType == null)
+		{
+			if (value instanceof Date && !(value instanceof Timestamp))
+			{
+				// make sure a date is a timestamp
+				val = new Timestamp(((Date)value).getTime());
+			}
+			else
+			{
+				val = value;
+			}
+		}
 		else
 		{
-			val = convertDate(value)[0];
+			// convert the value (especially UUID) to the type of the column
+			val = Column.getAsRightType(columnType.getSqlType(), flags, value, columnType.getLength(), !getRoot().isConversionLenient());
+			if (val == null && value != null)
+			{
+				// safety-fallback, could not convert, let JDBC driver do the conversion, only when servoy.client.query.convert.lenient=true
+				val = value;
+			}
 		}
+
 		return new QueryColumnValue(val, null);
 	}
 

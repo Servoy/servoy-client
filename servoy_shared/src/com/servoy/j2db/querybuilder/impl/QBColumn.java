@@ -26,6 +26,7 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -72,7 +73,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		}
 
 		// in case the value is a parameter that will hold a query the query will be used.
-		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), getRoot().createOperand(value)));
+		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), createOperand(value)));
 	}
 
 	protected QBCondition createCondition(ISQLCondition queryCondition)
@@ -83,6 +84,12 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public IQuerySelectValue getQuerySelectValue()
 	{
 		return queryColumn;
+	}
+
+	protected IQuerySelectValue createOperand(Object value)
+	{
+		QueryColumn qColumn = getQuerySelectValue().getColumn();
+		return getRoot().createOperand(value, qColumn == null ? null : qColumn.getColumnType(), qColumn == null ? 0 : qColumn.getFlags());
 	}
 
 	/**
@@ -144,7 +151,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public QBCondition between(Object value1, Object value2)
 	{
 		return createCondition(new CompareCondition(IBaseSQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(),
-			new Object[] { getRoot().createOperand(value1), getRoot().createOperand(value2) }));
+			new Object[] { createOperand(value1), createOperand(value2) }));
 	}
 
 	/**
@@ -188,8 +195,10 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	public QBCondition in(Object[] values)
 	{
+		QueryColumn qColumn = getQuerySelectValue().getColumn();
 		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
-			new Object[][] { values == null ? new Object[0] : convertDate(values) }, true));
+			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, qColumn == null ? null : qColumn.getColumnType(),
+				qColumn == null ? 0 : qColumn.getFlags()) }, true));
 	}
 
 	@Override
@@ -695,7 +704,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

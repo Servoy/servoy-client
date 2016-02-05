@@ -20,7 +20,7 @@ package com.servoy.base.query;
 
 /**
  * Create query objects for mobile clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -51,8 +51,8 @@ public class BaseQueryFactory implements IQueryFactory<IBaseSQLCondition, IBaseQ
 	}
 
 	@Override
-	public BaseQueryColumn createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale)
+	public BaseQueryColumn createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, int flags)
 	{
-		return new BaseQueryColumn(table, id, name, new BaseColumnType(sqlType, length, scale), false);
+		return new BaseQueryColumn(table, id, name, new BaseColumnType(sqlType, length, scale), flags, false);
 	}
 }

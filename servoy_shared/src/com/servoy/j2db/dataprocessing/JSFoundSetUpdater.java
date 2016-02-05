@@ -76,11 +76,11 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 *
 	 * @sampleas js_performUpdate()
 	 *
-	 * @param name The name of the column to update. 
+	 * @param name The name of the column to update.
 	 *
 	 * @param value The new value (can be an array with data for x number of rows) to be stored in the specified column.
-	 * 
-	 * @return true if succeeded, false if failed. 
+	 *
+	 * @return true if succeeded, false if failed.
 	 */
 	public boolean js_setColumn(String name, Object value)
 	{
@@ -124,13 +124,13 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	/**
 	 * Do the actual update in the database, returns true if successful.
 	 * There are 3 types of possible use with the foundset updater
-	 * 1) update entire foundset by a single sql statement; that is not possible when the table of the foundset has tracking enabled then it will loop over the whole foundset. 
+	 * 1) update entire foundset by a single sql statement; that is not possible when the table of the foundset has tracking enabled then it will loop over the whole foundset.
 	 *    When a single sql statement is done, modification columns will not be updated and associated Table Events won't be triggered, because it does the update directly in the database, without getting the records.
 	 *   NOTE: this mode will refresh all foundsets based on same datasource
 	 * 2) update part of foundset, for example the first 4 row (starts with selected row)
 	 * 3) safely loop through foundset (starts with selected row)
-	 * 
-	 * after the perform update call there are no records in edit mode, that where not already in edit mode, because all of them are saved directly to the database, 
+	 *
+	 * after the perform update call there are no records in edit mode, that where not already in edit mode, because all of them are saved directly to the database,
 	 * or in mode 1 the records are not touched at all and the database is updated directly.
 	 *
 	 * @sample
@@ -139,13 +139,13 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 * fsUpdater.setColumn('customer_type',1)
 	 * fsUpdater.setColumn('my_flag',0)
 	 * fsUpdater.performUpdate()
-	 * 
+	 *
 	 * //2) update part of foundset, for example the first 4 row (starts with selected row)
 	 * var fsUpdater = databaseManager.getFoundSetUpdater(foundset)
 	 * fsUpdater.setColumn('customer_type',new Array(1,2,3,4))
 	 * fsUpdater.setColumn('my_flag',new Array(1,0,1,0))
 	 * fsUpdater.performUpdate()
-	 * 
+	 *
 	 * //3) safely loop through foundset (starts with selected row)
 	 * controller.setSelectedIndex(1)
 	 * var count = 0
@@ -154,8 +154,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 * {
 	 * 	fsUpdater.setColumn('my_flag',count++)
 	 * }
-	 * 
-	 * @return true if succeeded, false if failed. 
+	 *
+	 * @return true if succeeded, false if failed.
 	 */
 	public boolean js_performUpdate() throws ServoyException
 	{
@@ -205,7 +205,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 						val = ValueFactory.createNullValue(c.getType());
 					}
 
-					sqlUpdate.addValue(new QueryColumn(sqlParts.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale()), val);
+					sqlUpdate.addValue(new QueryColumn(sqlParts.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()),
+						val);
 				}
 				sqlUpdate.setCondition(sqlParts.getWhereClone());
 
@@ -277,7 +278,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void performLoopUpdate()
 	{
@@ -354,7 +355,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	/**
 	 * Go to next record in this updater, returns true if successful.
 	 * NOTE: this method doesn't take into account deletes and inserts that may happen at same time. For more reliable iterator see foundset.forEach
-	 * 
+	 *
 	 * @sample
 	 * controller.setSelectedIndex(1)
 	 * var count = 0
@@ -363,8 +364,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 * {
 	 * 	fsUpdater.setColumn('my_flag',count++)
 	 * }
-	 * 
-	 * @return true if proceeded to next record, false otherwise 
+	 *
+	 * @return true if proceeded to next record, false otherwise
 	 */
 	public boolean js_next()
 	{

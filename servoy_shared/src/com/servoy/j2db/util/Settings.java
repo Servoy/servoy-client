@@ -426,7 +426,7 @@ public final class Settings extends SortedProperties
 	}
 
 	/**
-	 * Returs the default settings
+	 * Returns the default settings
 	 */
 	public static Settings getInstance()
 	{

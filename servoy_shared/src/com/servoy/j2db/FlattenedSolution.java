@@ -2754,8 +2754,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				// add condition for return dp id
 				lastJoin.getCondition().addCondition(
 					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
-						destColumn.getType(), destColumn.getLength()), new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(),
-						callingColumn.getType(), callingColumn.getLength())));
+						destColumn.getType(), destColumn.getLength(), destColumn.getScale(), destColumn.getFlags()), new QueryColumn(callingQTable,
+						callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength(), callingColumn.getScale(),
+						callingColumn.getFlags())));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
 					ISQLJoin.LEFT_OUTER_JOIN);

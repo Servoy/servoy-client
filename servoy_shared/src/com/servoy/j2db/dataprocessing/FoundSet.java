@@ -1313,7 +1313,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
 	 * If the foundset is related, the relation-condition will be added to the query.
 	 * Tries to preserve selection based on primary key, otherwise first record is selected.
-	 * 
+	 *
 	 * @sample
 	 * %%prefix%%foundset.loadRecords(qbselect);
 	 *
@@ -1652,7 +1652,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				sqlSelect.addColumn(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength()));
+				sqlSelect.addColumn(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
 			}
 		}
 
@@ -1715,7 +1715,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet pks = pksAndRecords.getPks();
 		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
-		
+
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
 		{
@@ -1759,7 +1759,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		clearInternalState(true);
 
 		fireDifference(sizeBefore, getSize());
-		
+
 		// try to preserve selection after load by query; if not possible select first record
 		if (selectedPK != null)
 		{
@@ -1768,7 +1768,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				setSelectedIndex(getSize() > 0 ? 0 : -1);
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -1849,7 +1849,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				pkQueryColumns.add(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength()));
+				pkQueryColumns.add(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
 			}
 
 			// must strip of the order-by part because not all databases (Oracle, who else) like order-by in subselect
@@ -2043,7 +2043,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet pks = pksAndRecords.getPks();
 		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
-		
+
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
 		{
@@ -2107,7 +2107,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (pksAndRecords.getPks().getRowCount() > 0) getRecord(0);
 
 			fireDifference(sizeBefore, sizeAfter);
-			
+
 			// try to preserve selection after load pk list; if not possible select first record
 			if (selectedPK != null)
 			{

@@ -109,7 +109,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		while (pkIt.hasNext())
 		{
 			Column column = pkIt.next();
-			pkColumns.add(new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+			pkColumns.add(new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+				column.getFlags()));
 		}
 		select.setColumns(pkColumns);
 		creationSqlSelect = AbstractBaseQuery.deepClone(select);

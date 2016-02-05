@@ -48,9 +48,9 @@ import com.servoy.j2db.util.XMLUtils;
 
 /**
  * Methods for handling table meta data.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  *
  */
@@ -139,7 +139,7 @@ public class MetaDataUtils
 
 	/**
 	 * Deserialize table contents string to of buffered dataset to a string, includes column names and type info
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 * @throws JSONException
@@ -187,7 +187,7 @@ public class MetaDataUtils
 				else if (Column.mapToDefaultType(columnTypes[i].getSqlType()) == IColumnTypes.DATETIME && val instanceof String)
 				{
 					Date parsed = ServoyJSONObject.parseDate((String)val);
-					row[i] = parsed == null ? val : parsed; // convert when possible, otherwise leave to driver (fails on mysql) 
+					row[i] = parsed == null ? val : parsed; // convert when possible, otherwise leave to driver (fails on mysql)
 				}
 				else
 				{
@@ -206,8 +206,8 @@ public class MetaDataUtils
 
 		QuerySelect query = createTableMetadataQuery(table, qColumns);
 
-		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(
-			ApplicationServerRegistry.get().getClientId(), table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
+		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(ApplicationServerRegistry.get().getClientId(),
+			table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
 		// not too much data?
 		if (dataSet.hadMoreRows())
 		{
@@ -236,7 +236,8 @@ public class MetaDataUtils
 			Column column = columns.next();
 			if (!column.hasFlag(Column.EXCLUDED_COLUMN))
 			{
-				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
+				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), column.getFlags());
 				query.addColumn(qColumn);
 				qColumns.put(column, qColumn);
 			}

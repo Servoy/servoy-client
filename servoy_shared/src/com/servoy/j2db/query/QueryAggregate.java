@@ -22,9 +22,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Aggregates in queries.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QueryAggregate implements IQuerySelectValue, IQueryElement, IQuerySelectValueSupportsSkip
 {
@@ -100,7 +100,8 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 
 	public QueryColumn getColumn()
 	{
-		if (aggregee == null)
+		// for aggregates that do not change the return type return the column of the aggregee
+		if (type == COUNT || aggregee == null)
 		{
 			return null;
 		}
@@ -114,7 +115,7 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.query.IQuerySelectValueSupportsSkip#skip()
 	 */
 	@Override

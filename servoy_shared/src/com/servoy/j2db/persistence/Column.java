@@ -229,54 +229,54 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						return getAsRightType(type, flags, date, l, throwOnFail);
 					case NUMBER :
 						DecimalFormat nformatter = new DecimalFormat(format);
-					{
-						String pos_prefix = nformatter.getPositivePrefix();
-						if (pos_prefix == null) pos_prefix = ""; //$NON-NLS-1$
-						String neg_prefix = nformatter.getNegativePrefix();
-						if (neg_prefix == null) neg_prefix = "-"; //$NON-NLS-1$
-						if (!str.startsWith(pos_prefix) && !str.startsWith(neg_prefix))
 						{
-							nformatter.setPositivePrefix(""); //$NON-NLS-1$
-							nformatter.setNegativePrefix("-"); //$NON-NLS-1$
+							String pos_prefix = nformatter.getPositivePrefix();
+							if (pos_prefix == null) pos_prefix = ""; //$NON-NLS-1$
+							String neg_prefix = nformatter.getNegativePrefix();
+							if (neg_prefix == null) neg_prefix = "-"; //$NON-NLS-1$
+							if (!str.startsWith(pos_prefix) && !str.startsWith(neg_prefix))
+							{
+								nformatter.setPositivePrefix(""); //$NON-NLS-1$
+								nformatter.setNegativePrefix("-"); //$NON-NLS-1$
+							}
 						}
-					}
-					{
-						String pos_suffix = nformatter.getPositiveSuffix();
-						if (pos_suffix == null) pos_suffix = ""; //$NON-NLS-1$
-						String neg_suffix = nformatter.getNegativeSuffix();
-						if (neg_suffix == null) neg_suffix = ""; //$NON-NLS-1$
-						if (!str.endsWith(pos_suffix) && !str.endsWith(neg_suffix))
 						{
-							nformatter.setPositiveSuffix(""); //$NON-NLS-1$
-							nformatter.setNegativeSuffix(""); //$NON-NLS-1$
+							String pos_suffix = nformatter.getPositiveSuffix();
+							if (pos_suffix == null) pos_suffix = ""; //$NON-NLS-1$
+							String neg_suffix = nformatter.getNegativeSuffix();
+							if (neg_suffix == null) neg_suffix = ""; //$NON-NLS-1$
+							if (!str.endsWith(pos_suffix) && !str.endsWith(neg_suffix))
+							{
+								nformatter.setPositiveSuffix(""); //$NON-NLS-1$
+								nformatter.setNegativeSuffix(""); //$NON-NLS-1$
+							}
 						}
-					}
 						return getAsRightType(type, flags, nformatter.parse(str, pos), l, throwOnFail);
 
 					case INTEGER :
 						DecimalFormat iformatter = new DecimalFormat(format);
-					{
-						String pos_prefix = iformatter.getPositivePrefix();
-						if (pos_prefix == null) pos_prefix = ""; //$NON-NLS-1$
-						String neg_prefix = iformatter.getNegativePrefix();
-						if (neg_prefix == null) neg_prefix = "-"; //$NON-NLS-1$
-						if (!str.startsWith(pos_prefix) && !str.startsWith(neg_prefix))
 						{
-							iformatter.setPositivePrefix(""); //$NON-NLS-1$
-							iformatter.setNegativePrefix("-"); //$NON-NLS-1$
+							String pos_prefix = iformatter.getPositivePrefix();
+							if (pos_prefix == null) pos_prefix = ""; //$NON-NLS-1$
+							String neg_prefix = iformatter.getNegativePrefix();
+							if (neg_prefix == null) neg_prefix = "-"; //$NON-NLS-1$
+							if (!str.startsWith(pos_prefix) && !str.startsWith(neg_prefix))
+							{
+								iformatter.setPositivePrefix(""); //$NON-NLS-1$
+								iformatter.setNegativePrefix("-"); //$NON-NLS-1$
+							}
 						}
-					}
-					{
-						String pos_suffix = iformatter.getPositiveSuffix();
-						if (pos_suffix == null) pos_suffix = ""; //$NON-NLS-1$
-						String neg_suffix = iformatter.getNegativeSuffix();
-						if (neg_suffix == null) neg_suffix = ""; //$NON-NLS-1$
-						if (!str.endsWith(pos_suffix) && !str.endsWith(neg_suffix))
 						{
-							iformatter.setPositiveSuffix(""); //$NON-NLS-1$
-							iformatter.setNegativeSuffix(""); //$NON-NLS-1$
+							String pos_suffix = iformatter.getPositiveSuffix();
+							if (pos_suffix == null) pos_suffix = ""; //$NON-NLS-1$
+							String neg_suffix = iformatter.getNegativeSuffix();
+							if (neg_suffix == null) neg_suffix = ""; //$NON-NLS-1$
+							if (!str.endsWith(pos_suffix) && !str.endsWith(neg_suffix))
+							{
+								iformatter.setPositiveSuffix(""); //$NON-NLS-1$
+								iformatter.setNegativeSuffix(""); //$NON-NLS-1$
+							}
 						}
-					}
 						return getAsRightType(type, flags, iformatter.parse(str, pos), l, throwOnFail);
 					case TEXT :
 						if (l > 0 && str.length() >= l)
@@ -473,6 +473,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					if (obj instanceof byte[])
 					{
 						return obj;
+					}
+					if (throwOnFail)
+					{
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.media", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 
@@ -806,7 +810,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		int defType = Column.mapToDefaultType(columnType.getSqlType());
 		return ColumnType.getInstance(columnType.getSqlType(), (defType == IColumnTypes.INTEGER || defType == IColumnTypes.DATETIME) ? 0 /* length irrelevant */
-			: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0);
+		: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0);
 	}
 
 	public String getName()
