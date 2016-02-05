@@ -227,6 +227,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						}
 						Date date = dformatter.parse(str, pos);
 						return getAsRightType(type, flags, date, l, throwOnFail);
+
 					case NUMBER :
 						DecimalFormat nformatter = new DecimalFormat(format);
 						{
@@ -278,18 +279,25 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							}
 						}
 						return getAsRightType(type, flags, iformatter.parse(str, pos), l, throwOnFail);
+
 					case TEXT :
 						if (l > 0 && str.length() >= l)
 						{
 							obj = str.substring(0, l);
 						}
 						return obj;
+
 					case MEDIA :
 						if (obj instanceof byte[])
 						{
 							return obj;
 						}
+						if (throwOnFail)
+						{
+							throw new RuntimeException(Messages.getString("servoy.conversion.error.media", new Object[] { obj })); //$NON-NLS-1$
+						}
 						return null;
+
 					default :
 						return obj.toString();
 				}
@@ -303,23 +311,19 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						{
 							return getAsRightType(type, flags, obj, l, throwOnFail);
 						}
-						else if (obj instanceof Number)
+						if (obj instanceof Number)
 						{
 							return getAsRightType(type, flags, new Date(((Number)obj).longValue()), l, throwOnFail);
 						}
-						else
-						{
-							return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
-						}
+						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
+
 					case NUMBER :
 						if (obj instanceof Number)
 						{
 							return obj;
 						}
-						else
-						{
-							return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
-						}
+						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
+
 					case INTEGER :
 						if (obj instanceof Number)
 						{
@@ -327,15 +331,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							{
 								return obj;
 							}
-							else
-							{
-								return new Long(((Number)obj).longValue());
-							}
+							return new Long(((Number)obj).longValue());
 						}
-						else
-						{
-							return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
-						}
+						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
+
 					case TEXT :
 						String str = obj.toString();
 						if (l > 0 && str.length() >= l)
@@ -343,12 +342,18 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							str = str.substring(0, l);
 						}
 						return str;
+
 					case MEDIA :
 						if (obj instanceof byte[])
 						{
 							return obj;
 						}
+						if (throwOnFail)
+						{
+							throw new RuntimeException(Messages.getString("servoy.conversion.error.media", new Object[] { obj })); //$NON-NLS-1$
+						}
 						return null;
+
 					default :
 						return obj.toString();
 				}
