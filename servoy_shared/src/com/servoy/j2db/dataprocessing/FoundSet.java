@@ -4786,7 +4786,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// ignore find states
 			pksAndRecords.setPks(null, 0);
 			setSelectedIndex(-1);
-			numberOfFindStates = 0;
 		}
 		else
 		{
@@ -4857,7 +4856,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 
 			fireDifference(numberOfFindStates, getSize());
-
+			
+			if (getSelectedIndex() == -1 && getSize() > 0) {
+                setSelectedIndex(0);
+            }
+			
 			int nfound = findPKs.getRowCount();
 			try
 			{
