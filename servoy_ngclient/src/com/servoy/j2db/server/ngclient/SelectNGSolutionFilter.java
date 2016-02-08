@@ -63,27 +63,27 @@ public class SelectNGSolutionFilter implements Filter
 
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
 	{
-		HttpServletRequest request = (HttpServletRequest)servletRequest;
-		String uri = request.getServletPath();
-		if (uri != null)
+		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")))
 		{
-			if (uri.equals("/servoy-ngclient") || uri.equals("/servoy-ngclient/"))
+			HttpServletRequest request = (HttpServletRequest)servletRequest;
+			String uri = request.getServletPath();
+			if (uri != null)
 			{
-				// html contents
-				((HttpServletResponse)servletResponse).setContentType("text/html");
-
-				PrintWriter w = servletResponse.getWriter();
-				addNeededJSAndCSS(getClass().getResource("solution_list.html"), request.getContextPath(), w);
-				w.flush();
-				return;
-			}
-			else if (uri.equals("/servoy-ngclient/solutions.js"))
-			{
-				HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
-
-				IApplicationServerSingleton as = ApplicationServerRegistry.get();
-				if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")))
+				if (uri.equals("/servoy-ngclient"))
 				{
+					// html contents
+					((HttpServletResponse)servletResponse).setContentType("text/html");
+
+					PrintWriter w = servletResponse.getWriter();
+					addNeededJSAndCSS(getClass().getResource("solution_list.html"), w);
+					w.flush();
+					return;
+				}
+				else if (uri.equals("/servoy-ngclient/solutions.js"))
+				{
+					HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
+
+					IApplicationServerSingleton as = ApplicationServerRegistry.get();
 					// js contents giving the actual solutions list
 					List<Solution> ngCompatibleSolutions = new ArrayList<Solution>();
 					if (as.isDeveloperStartup())
@@ -140,14 +140,13 @@ public class SelectNGSolutionFilter implements Filter
 
 					w.flush();
 					return;
-
 				}
 			}
 		}
 		filterChain.doFilter(servletRequest, servletResponse);
 	}
 
-	protected void addNeededJSAndCSS(URL resource, String contextPath, Writer writer) throws IOException
+	protected void addNeededJSAndCSS(URL resource, Writer writer) throws IOException
 	{
 		String htmlAsString = IOUtils.toString(resource);
 		htmlAsString = htmlAsString.replace(CONTRIBUTIONS, getNeededJSAndCSS());
