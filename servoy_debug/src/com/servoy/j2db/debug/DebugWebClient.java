@@ -58,7 +58,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 @SuppressWarnings("nls")
 public class DebugWebClient extends WebClient implements IDebugWebClient
@@ -234,7 +234,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.WebClient#createDispatcher()
 	 */
 	@Override
@@ -323,10 +323,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		super.reportJSInfo(s);
 	}
 
-	/**
-	 * @param message
-	 * @param detail
-	 */
 	private void errorToDebugger(String message, Object detail)
 	{
 		DBGPDebugger debugger = getDebugger();
@@ -361,11 +357,11 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				Object e = ((Exception)detail).getCause();
 				if (e != null)
 				{
-					msg += "\n > " + e.toString(); // complete stack? 
+					msg += "\n > " + e.toString(); // complete stack?
 				}
 				else
 				{
-					msg += "\n > " + detail.toString(); // complete stack? 
+					msg += "\n > " + detail.toString(); // complete stack?
 				}
 				if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 				{
@@ -385,10 +381,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		}
 	}
 
-
-	/**
-	 * @param form
-	 */
 	public void show(Form f)
 	{
 		this.form = f;
@@ -448,7 +440,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override
