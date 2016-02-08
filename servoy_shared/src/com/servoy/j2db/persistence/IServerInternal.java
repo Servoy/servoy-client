@@ -109,7 +109,7 @@ public interface IServerInternal
 
 	Table getRepositoryTable(String name) throws RepositoryException;
 
-	Table createNewTable(IValidateName nameValidator, ITable selectedTable, String tableName) throws RepositoryException;
+	ITable createNewTable(IValidateName nameValidator, ITable selectedTable, String tableName) throws RepositoryException;
 
 	boolean isTableListLoaded();
 
