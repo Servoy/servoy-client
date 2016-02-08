@@ -126,6 +126,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * _____________________________________________________________ JavaScript stuff
 	 */
 	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+
 	static
 	{
 		try
@@ -1778,10 +1779,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
 				||
 				(sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
@@ -2196,7 +2197,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						// check for duplicates
 						Object[] newpk = newpks.getRow(i);
-						if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */|| !pks.containsPk(newpk))
+						if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */ || !pks.containsPk(newpk))
 						{
 							pks.setRow(addIndex++, newpk, false);
 							dbIndexLastPk = startRow + 1 + i; // keep index in db of last added pk to correct maxresult in next chunk
@@ -3681,7 +3682,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean isValidRelation(String name)
 	{
-		return fsm.getApplication().getFlattenedSolution().getRelationSequence(name) != null;
+		Relation[] relationSequence = fsm.getApplication().getFlattenedSolution().getRelationSequence(name);
+		if (relationSequence != null && relationSequence.length > 0 &&
+			(relationSequence[0].isGlobal() || !relationSequence[0].getPrimaryDataSource().equals(getDataSource())))
+		{
+			ServoyException jsStack = new ServoyException();
+			jsStack.fillInStackTrace();
+			fsm.getApplication().reportJSError("An incorrect child relation (" + relationSequence[0].getName() +
+				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation " +
+				(relationSequence[0].isGlobal() ? "is actually a global relation." : "actually has '" + relationSequence[0].getPrimaryDataSource() +
+					"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone."),
+				jsStack);
+		}
+		return relationSequence != null;
 	}
 
 	/**
