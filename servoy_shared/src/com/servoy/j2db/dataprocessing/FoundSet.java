@@ -3717,7 +3717,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			(relationSequence[0].isGlobal() || !relationSequence[0].getPrimaryDataSource().equals(getDataSource())))
 		{
 			ServoyException jsStack = new ServoyException();
-			jsStack.fillInStackTrace();
 			fsm.getApplication().reportJSError("An incorrect child relation (" + relationSequence[0].getName() +
 				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation " +
 				(relationSequence[0].isGlobal() ? "is actually a global relation." : "actually has '" + relationSequence[0].getPrimaryDataSource() +
