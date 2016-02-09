@@ -3713,14 +3713,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean isValidRelation(String name)
 	{
 		Relation[] relationSequence = fsm.getApplication().getFlattenedSolution().getRelationSequence(name);
-		if (relationSequence != null && relationSequence.length > 0 &&
-			(relationSequence[0].isGlobal() || !relationSequence[0].getPrimaryDataSource().equals(getDataSource())))
+		if (relationSequence != null && relationSequence.length > 0 && !relationSequence[0].isGlobal() &&
+			!relationSequence[0].getPrimaryDataSource().equals(getDataSource()))
 		{
 			fsm.getApplication().reportJSError("An incorrect child relation (" + relationSequence[0].getName() +
-				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation " +
-				(relationSequence[0].isGlobal() ? "is actually a global relation." : "actually has '" + relationSequence[0].getPrimaryDataSource() +
-					"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone."),
-				new ServoyException());
+				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation actually has '" +
+				relationSequence[0].getPrimaryDataSource() +
+				"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone.", new ServoyException());
 		}
 		return relationSequence != null;
 	}
