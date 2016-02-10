@@ -163,7 +163,7 @@ public class EventExecutor
 					}
 					catch (Exception ex)
 					{
-						Debug.error(ex);
+						Debug.error("error setting event properties from " + json, ex);
 					}
 					args[i] = event;
 				}
