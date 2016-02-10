@@ -65,8 +65,14 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 
 	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew)
 	{
+		return createNewInstance(webObject, childPd, jsonKey, index, isNew, null);
+	}
+
+	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew,
+		UUID uuid)
+	{
 		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-		return new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), idAndUUID.getRight(), jsonKey, index, isNew, childPd);
+		return new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), uuid != null ? uuid : idAndUUID.getRight(), jsonKey, index, isNew, childPd);
 	}
 
 	private ChildWebComponent(IBasicWebObject parent, int element_id, UUID uuid, String jsonKey, int index, boolean isNew,
@@ -80,6 +86,8 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 		JSONObject json = WebObjectImpl.getFullJSONInFrmFile(this, isNew);
 		fullJSONInFrmFile = json != null ? json : new ServoyJSONObject();
 		if (!fullJSONInFrmFile.has(DEFINITION_KEY)) fullJSONInFrmFile.put(DEFINITION_KEY, new ServoyJSONObject());
+		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
+
 		this.pdAsChildComponent = pdAsChildComponent;
 	}
 

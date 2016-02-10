@@ -28,6 +28,7 @@ import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -62,8 +63,15 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 
 	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew)
 	{
+		return createNewInstance(parentWebObject, propertyDescription, jsonKey, index, isNew, null);
+	}
+
+	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew,
+		UUID uuid)
+	{
 		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(parentWebObject);
-		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(), idAndUUID.getRight());
+		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(),
+			uuid != null ? uuid : idAndUUID.getRight());
 	}
 
 
@@ -76,7 +84,9 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		this.index = index;
 
 		JSONObject fullJSONInFrmFile = WebObjectImpl.getFullJSONInFrmFile(this, isNew);
-		if (fullJSONInFrmFile != null) webObjectImpl.setJsonInternal(fullJSONInFrmFile);
+		if (fullJSONInFrmFile == null) fullJSONInFrmFile = new ServoyJSONObject();
+		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
+		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
 	}
 
 	public PropertyDescription getPropertyDescription()

@@ -28,6 +28,8 @@ import org.sablo.specification.PropertyDescription;
 public interface IChildWebObject extends IBasicWebObject
 {
 
+	public final static String UUID_KEY = "svyUUID";
+
 	/**
 	 * In case this persist is nested inside a WebComponent or a WebCustomType, the json key is the key in the parent persist that has this value.
 	 */

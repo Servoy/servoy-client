@@ -443,18 +443,49 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
 					if (!arrayReturnType)
 					{
-						if (isComponent(propertyType))
+						IChildWebObject childWebObject;
+						boolean isNewChildWebObject = true;
+						UUID childChildWebObjectUUID = null;
+						JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, -1, false);
+						if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
 						{
-							ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false);
-							persistMappedPropeties.put(beanJSONKey, childComponent);
-							persistMappedPropetiesByUUID = null;
+							try
+							{
+								childChildWebObjectUUID = UUID.fromString(childWebObjectJSON.getString(IChildWebObject.UUID_KEY));
+							}
+							catch (IllegalArgumentException ex)
+							{
+								Debug.error(ex);
+							}
+							if (childChildWebObjectUUID != null)
+							{
+								IChildWebObject currentPersist = null;
+								if (persistMappedPropeties.containsKey(beanJSONKey) && persistMappedPropeties.get(beanJSONKey) instanceof IChildWebObject)
+								{
+									currentPersist = (IChildWebObject)persistMappedPropeties.get(beanJSONKey);
+									if (childChildWebObjectUUID.equals(currentPersist.getUUID()))
+									{
+										isNewChildWebObject = false;
+									}
+								}
+							}
 						}
-						else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
+
+						if (isNewChildWebObject)
 						{
-							WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false);
-							webCustomType.setTypeName(simpleTypeName);
-							persistMappedPropeties.put(beanJSONKey, webCustomType);
-							persistMappedPropetiesByUUID = null;
+							if (isComponent(propertyType))
+							{
+								childWebObject = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
+								persistMappedPropeties.put(beanJSONKey, childWebObject);
+								persistMappedPropetiesByUUID = null;
+							}
+							else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
+							{
+								childWebObject = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
+								childWebObject.setTypeName(simpleTypeName);
+								persistMappedPropeties.put(beanJSONKey, childWebObject);
+								persistMappedPropetiesByUUID = null;
+							}
 						}
 					}
 					else if (object instanceof JSONArray)
@@ -464,21 +495,60 @@ public class WebObjectImpl extends WebObjectBasicImpl
 						if (elementPD != null)
 						{
 							ArrayList<IChildWebObject> persistMappedPropertyArray = new ArrayList<IChildWebObject>();
-							if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+
+							if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()) || isComponent(propertyType))
 							{
-								for (int i = 0; i < ((JSONArray)object).length(); i++)
+								ArrayList<IChildWebObject> currentPersistMappedPropertyArray = new ArrayList<IChildWebObject>();
+								if (persistMappedPropeties.containsKey(beanJSONKey) && persistMappedPropeties.get(beanJSONKey) instanceof IChildWebObject[])
 								{
-									WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false);
-									webCustomType.setTypeName(simpleTypeName);
-									persistMappedPropertyArray.add(webCustomType);
+									currentPersistMappedPropertyArray.addAll(Arrays.asList((IChildWebObject[])persistMappedPropeties.get(beanJSONKey)));
 								}
-							}
-							else if (isComponent(propertyType))
-							{
+
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD, beanJSONKey, i, false);
-									persistMappedPropertyArray.add(childComponent);
+									boolean isNewChildWebObject = true;
+									UUID childChildWebObjectUUID = null;
+									JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, i, false);
+									if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
+									{
+										try
+										{
+											childChildWebObjectUUID = UUID.fromString(childWebObjectJSON.getString(IChildWebObject.UUID_KEY));
+										}
+										catch (IllegalArgumentException ex)
+										{
+											Debug.error(ex);
+										}
+										if (childChildWebObjectUUID != null)
+										{
+											for (IChildWebObject wo : currentPersistMappedPropertyArray)
+											{
+												if (childChildWebObjectUUID.equals(wo.getUUID()))
+												{
+													persistMappedPropertyArray.add(wo);
+													isNewChildWebObject = false;
+													break;
+												}
+											}
+										}
+									}
+
+									if (isNewChildWebObject)
+									{
+										if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+										{
+											WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false,
+												childChildWebObjectUUID);
+											webCustomType.setTypeName(simpleTypeName);
+											persistMappedPropertyArray.add(webCustomType);
+										}
+										else if (isComponent(propertyType))
+										{
+											ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD, beanJSONKey, i, false,
+												childChildWebObjectUUID);
+											persistMappedPropertyArray.add(childComponent);
+										}
+									}
 								}
 							}
 							persistMappedPropeties.put(beanJSONKey, persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
@@ -502,7 +572,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public void setJson(JSONObject arg)
 	{
-		clearPersistMappedPropertyCache(); // let them completely reload later when needed
+		clearPersistMappedPropetiesLoaded(); // let them completely reload later when needed
 		setJsonInternal(arg);
 
 		// update JSON property of all parent web objects as all this web object hierarchy is actually described by top-most web object JSON property
@@ -525,6 +595,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			JSONObject oldJson = getJson();
 			// we can no longer check for differences here as we now reuse JSON objects/arrays
 			JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
+
+			ServoyJSONObject oldJsonClone = null;
+			if (oldJson instanceof ServoyJSONObject)
+			{
+				oldJsonClone = ((ServoyJSONObject)oldJson).clone();
+			}
+
 			if (remove)
 			{
 				removed = (jsonObject.remove(key) != null);
@@ -533,8 +610,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			{
 				jsonObject.put(key, value);
 			}
-			setJsonInternal(jsonObject);
-			((AbstractBase)webObject).flagChanged();
+
+			if (oldJsonClone == null || !oldJsonClone.equals(jsonObject))
+			{
+				setJsonInternal(jsonObject);
+				((AbstractBase)webObject).flagChanged();
+			}
 
 			if (arePersistMappedPropetiesLoaded && getPropertyDescription() != null)
 			{
@@ -570,10 +651,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return setOrRemoveJsonSubproperty(key, null, true);
 	}
 
-	protected void clearPersistMappedPropertyCache()
+	protected void clearPersistMappedPropetiesLoaded()
 	{
 		arePersistMappedPropetiesLoaded = false;
-		persistMappedPropeties.clear();
+		//persistMappedPropeties.clear();
 	}
 
 	@Override
@@ -824,23 +905,23 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return new Pair<>(Integer.valueOf(id), uuid);
 	}
 
-	public static JSONObject getFullJSONInFrmFile(IChildWebObject webObject, boolean isNew)
+
+	private static JSONObject getFullJSONInFrmFile(IBasicWebObject parentWebObject, String jsonKey, int index, boolean isNew)
 	{
-		IBasicWebObject parentWebObject = webObject.getParent();
 		try
 		{
 			JSONObject entireModel = (parentWebObject.getFlattenedJson() != null ? parentWebObject.getFlattenedJson() : new ServoyJSONObject());
-			if (!isNew && entireModel.has(webObject.getJsonKey()))
+			if (!isNew && entireModel.has(jsonKey))
 			{
-				Object v = entireModel.get(webObject.getJsonKey());
+				Object v = entireModel.get(jsonKey);
 				JSONObject obj = null;
 				if (v instanceof JSONArray)
 				{
-					obj = ((JSONArray)v).optJSONObject(webObject.getIndex());
+					obj = ((JSONArray)v).optJSONObject(index);
 				}
 				else
 				{
-					obj = entireModel.getJSONObject(webObject.getJsonKey());
+					obj = entireModel.getJSONObject(jsonKey);
 				}
 				return obj;
 			}
@@ -854,6 +935,11 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	public static JSONObject getFullJSONInFrmFile(IChildWebObject webObject, boolean isNew)
+	{
+		return getFullJSONInFrmFile(webObject.getParent(), webObject.getJsonKey(), webObject.getIndex(), isNew);
 	}
 
 }
