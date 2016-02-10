@@ -20,7 +20,7 @@ package com.servoy.base.query;
 
 /**
  * interface for creating queries and conditions.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -33,5 +33,5 @@ public interface IQueryFactory<C extends IBaseSQLCondition, S extends IBaseQuery
 
 	C createCompareCondition(int operator, S operand1, Object operand2);
 
-	S createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale);
+	S createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, int flags);
 }

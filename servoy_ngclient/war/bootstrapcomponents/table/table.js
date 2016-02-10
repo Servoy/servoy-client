@@ -76,18 +76,18 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
     		  $scope.model.foundset.selectedRowIndexes = [$scope.getRealRow(row)];
     	  }
     	  
-    	  $scope.cellClicked = function(row, column) {
-			  if ($scope.handlers.onCellClick) {
-				  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column + 1);
-			  }    		  
-    	  }
-
-    	  $scope.headerClicked = function(column) {
-			  if ($scope.handlers.onHeaderClick) {
-				  $scope.handlers.onHeaderClick(column + 1);
-			  }    		  
+    	  if ($scope.handlers.onHeaderClick) {
+    		  $scope.headerClicked = function(column) {
+    			  $scope.handlers.onHeaderClick(column + 1);
+    		  }
     	  }
     	  
+    	  if ($scope.handlers.onCellClick) {
+    		  $scope.cellClicked = function(row, column) {
+    			  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column + 1);
+    		  }
+    	  }
+
     	  $scope.getRowStyle = function(row) {
     		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf($scope.getRealRow(row)) != -1; 
     		  return  isSelected ? $scope.model.selectionClass : "";

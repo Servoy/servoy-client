@@ -118,10 +118,11 @@ public class I18NUtil
 				Column pkColumn = i18NTable.getRowIdentColumns().get(0); // runtime exception when no ident columns
 
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
-				QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength());
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000);
+				QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength(),
+					pkColumn.getScale(), pkColumn.getFlags());
+				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0);
+				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0);
+				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0);
 
 				ArrayList<SQLStatement> updateStatements = new ArrayList<SQLStatement>();
 				// go thorough messages, update exiting, add news to remote
@@ -185,7 +186,7 @@ public class I18NUtil
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
 							insertColumns = Utils.arrayAdd(insertColumns, new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
-								filterColumn.getType(), filterColumn.getLength()), true);
+								filterColumn.getType(), filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags()), true);
 							insertColumnValues = Utils.arrayAdd(insertColumnValues, filterValue[0], true);
 						}
 
@@ -206,7 +207,7 @@ public class I18NUtil
 							if (filterColumn != null && filterValue != null && filterValue.length > 0)
 							{
 								QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
-									filterColumn.getType(), filterColumn.getLength());
+									filterColumn.getType(), filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
 								CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter,
 									new QueryColumnValue(filterValue[0], null));
 								update.addCondition("FILTER", cc); //$NON-NLS-1$
@@ -243,7 +244,7 @@ public class I18NUtil
 								if (filterColumn != null && filterValue != null && filterValue.length > 0)
 								{
 									QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
-										filterColumn.getType(), filterColumn.getLength());
+										filterColumn.getType(), filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
 									CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter,
 										new QueryColumnValue(filterValue[0], null));
 									delete.addCondition(cc);
@@ -280,9 +281,9 @@ public class I18NUtil
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QuerySelect sql = new QuerySelect(messagesTable);
 
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000);
+				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0);
+				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0);
+				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0);
 
 				sql.addColumn(msgLang);
 				sql.addColumn(msgKey);
@@ -294,7 +295,7 @@ public class I18NUtil
 					if (filterColumn != null && filterValue != null && filterValue.length > 0)
 					{
 						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-							filterColumn.getLength());
+							filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
 						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
 						sql.addCondition("FILTER", cc); //$NON-NLS-1$
 					}

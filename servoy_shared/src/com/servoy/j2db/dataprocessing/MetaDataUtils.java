@@ -237,7 +237,8 @@ public class MetaDataUtils
 			Column column = columns.next();
 			if (!column.hasFlag(Column.EXCLUDED_COLUMN))
 			{
-				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
+				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), column.getFlags());
 				query.addColumn(qColumn);
 				qColumns.put(column, qColumn);
 			}

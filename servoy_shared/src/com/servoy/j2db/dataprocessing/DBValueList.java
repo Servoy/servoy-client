@@ -277,7 +277,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							tableFilterParams = new ArrayList<TableFilter>();
 						}
-						tableFilterParams.add(new TableFilter("dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
+						tableFilterParams.add(new TableFilter(
+							"dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
 							IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
@@ -354,8 +355,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	{
 		if (valueList != null && application != null && application.getFlattenedSolution() != null)
 		{
-			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) ||
-				checkIfCalc(valueList.getDataProviderID3(), t));
+			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) || checkIfCalc(
+				valueList.getDataProviderID3(), t));
 		}
 	}
 
@@ -371,7 +372,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			Column c = table.getColumn(dataprovider);
 			if (c != null)
 			{
-				return new QueryColumn(queryTable, c.getID(), c.getSQLName(), c.getType(), c.getLength());
+				return new QueryColumn(queryTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
 			}
 		}
 		// should never happen
@@ -405,8 +406,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			for (SortColumn sc : sortColumns)
 			{
-				orderColumns.add(
-					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
+				orderColumns.add(new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
 			}
 		}
 

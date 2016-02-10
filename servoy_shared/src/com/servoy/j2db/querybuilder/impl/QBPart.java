@@ -17,9 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.IQueryElement;
@@ -90,21 +87,5 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	{
 		return getRoot().build();
 	}
-
-	/**
-	 * @param value
-	 * @return
-	 */
-	static Object[] convertDate(Object... value)
-	{
-		Object[] converted = new Object[value.length];
-		for (int i = 0; i < value.length; i++)
-		{
-			converted[i] = value[i] instanceof Date && !(value[i] instanceof Timestamp) ? new Timestamp(((Date)value[i]).getTime()) : value[i];
-		}
-
-		return converted;
-	}
-
 
 }

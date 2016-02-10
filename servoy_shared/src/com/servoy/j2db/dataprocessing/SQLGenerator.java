@@ -184,7 +184,8 @@ public class SQLGenerator
 		{
 			Column column = pks.next();
 			pkColumns.add(column);
-			pkQueryColumns.add(new QueryColumn(retval.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+			pkQueryColumns.add(new QueryColumn(retval.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+				column.getFlags()));
 		}
 		retval.setColumns(pkQueryColumns);
 
@@ -348,15 +349,14 @@ public class SQLGenerator
 				if (column instanceof Column)
 				{
 					queryColumn = new QueryColumn(foreignQtable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(),
-						column.getLength());
+						column.getLength(), ((Column)column).getScale(), column.getFlags());
 					unusedRowidentColumns.remove(column);
 				}
 				else if (column instanceof AggregateVariable)
 				{
 					AggregateVariable aggregate = (AggregateVariable)column;
-					queryColumn = new QueryAggregate(aggregate.getType(),
-						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
-						aggregate.getName());
+					queryColumn = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+						aggregate.getDataProviderType(), aggregate.getLength(), 0, aggregate.getFlags()), aggregate.getName());
 
 					// there has to be a group-by clause for all selected fields
 					List<IQuerySelectValue> columns = sqlSelect.getColumns();
@@ -370,8 +370,8 @@ public class SQLGenerator
 					}
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
-					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(),
-						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
+					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1,
+						aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
 					{
@@ -390,9 +390,9 @@ public class SQLGenerator
 				// make sure an invalid sort is not possible
 				if (column instanceof Column && column.getTable().getName().equals(table.getName()))
 				{
-					sqlSelect.addSort(new QuerySort(
-						new QueryColumn(selectTable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(), column.getLength()),
-						sc.getSortOrder() == SortColumn.ASCENDING));
+					sqlSelect.addSort(
+						new QuerySort(new QueryColumn(selectTable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(),
+							column.getLength(), ((Column)column).getScale(), column.getFlags()), sc.getSortOrder() == SortColumn.ASCENDING));
 					unusedRowidentColumns.remove(column);
 				}
 				else
@@ -407,7 +407,8 @@ public class SQLGenerator
 		{
 			for (Column column : unusedRowidentColumns)
 			{
-				sqlSelect.addSort(new QuerySort(new QueryColumn(selectTable, column.getID(), column.getSQLName(), column.getType(), column.getLength()), true));
+				sqlSelect.addSort(new QuerySort(new QueryColumn(selectTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), column.getFlags()), true));
 			}
 		}
 	}
@@ -475,8 +476,8 @@ public class SQLGenerator
 				primaryColumn = (Column)primary[x];
 			}
 
-			QueryColumn foreignColumn = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(),
-				foreign[x].getLength());
+			QueryColumn foreignColumn = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength(),
+				foreign[x].getScale(), foreign[x].getFlags());
 			Object value;
 			if (primaryColumn == null)
 			{
@@ -509,7 +510,8 @@ public class SQLGenerator
 			else
 			// table type, can be stored calc
 			{
-				value = new QueryColumn(primaryTable, primaryColumn.getID(), primaryColumn.getSQLName(), primaryColumn.getType(), primaryColumn.getLength());
+				value = new QueryColumn(primaryTable, primaryColumn.getID(), primaryColumn.getSQLName(), primaryColumn.getType(), primaryColumn.getLength(),
+					primaryColumn.getScale(), primaryColumn.getFlags());
 			}
 
 			// all operators are swappable because only relation operators in RelationItem.RELATION_OPERATORS can be defined.
@@ -702,7 +704,8 @@ public class SQLGenerator
 					}
 
 					// a column
-					qCol = new QueryColumn(columnTable, ((Column)c).getID(), ((Column)c).getSQLName(), ((Column)c).getType(), ((Column)c).getLength());
+					qCol = new QueryColumn(columnTable, ((Column)c).getID(), ((Column)c).getSQLName(), ((Column)c).getType(), ((Column)c).getLength(),
+						((Column)c).getScale(), c.getFlags());
 				}
 				else
 				{
@@ -875,7 +878,7 @@ public class SQLGenerator
 		{
 			BaseQueryColumn pk = pkQueryColumns[p];
 			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType().getSqlType(),
-				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.isIdentity());
+				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.getFlags(), pk.isIdentity());
 
 			// group by on the inner pk, some dbs (hxtt dbf) require that
 			existsSelect.addGroupBy(innerPkColumns[p]);
@@ -910,7 +913,8 @@ public class SQLGenerator
 		for (int i = 0; i < rowIdentColumns.size(); i++)
 		{
 			Column column = rowIdentColumns.get(i);
-			pkQueryColumns[i] = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength());
+			pkQueryColumns[i] = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+				column.getFlags());
 		}
 
 		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
@@ -1025,9 +1029,8 @@ public class SQLGenerator
 		{
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
-			sql.addColumn(new QueryAggregate(aggregate.getType(),
-				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
-				aggregate.getName()));
+			sql.addColumn(new QueryAggregate(aggregate.getType(), new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(),
+				aggregate.getDataProviderType(), aggregate.getLength(), 0, aggregate.getFlags()), aggregate.getName()));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
 		}
 	}
@@ -1109,7 +1112,8 @@ public class SQLGenerator
 			Column column = pks.next();
 			if (!columns.contains(column)) columns.add(column);
 			requiredDataProviderIDs.add(column.getDataProviderID());
-			pkQueryColumns.add(new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+			pkQueryColumns.add(
+				new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(), column.getFlags()));
 		}
 
 		Iterator<Column> it2 = columns.iterator();
@@ -1219,7 +1223,8 @@ public class SQLGenerator
 				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName()); //$NON-NLS-1$
 			}
 			//column = ? construct
-			keys[x] = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength());
+			keys[x] = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength(),
+				foreign[x].getScale(), foreign[x].getFlags());
 		}
 		return new SetCondition(swapped, keys, new Placeholder(createRelationKeyPlaceholderKey(foreignTable, relation.getName())), true);
 	}
@@ -1250,7 +1255,7 @@ public class SQLGenerator
 		int maskedOp = op & IBaseSQLCondition.OPERATOR_MASK;
 		Object value = filter.getValue();
 
-		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());
+		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
 		ISQLCondition filterWhere;
 		if (maskedOp == IBaseSQLCondition.EQUALS_OPERATOR || maskedOp == IBaseSQLCondition.NOT_OPERATOR || maskedOp == IBaseSQLCondition.IN_OPERATOR ||
 			maskedOp == IBaseSQLCondition.NOT_IN_OPERATOR || maskedOp == IBaseSQLCondition.GT_OPERATOR || maskedOp == IBaseSQLCondition.LT_OPERATOR ||
@@ -1354,7 +1359,8 @@ public class SQLGenerator
 		while (columns.hasNext())
 		{
 			Column column = columns.next();
-			QueryColumn queryColumn = new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
+			QueryColumn queryColumn = new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+				column.getScale(), column.getFlags());
 			if (table.getRowIdentColumns().contains(column)) pkQueryColumns.add(queryColumn);
 			allQueryColumns.add(queryColumn);
 		}
@@ -1390,7 +1396,7 @@ public class SQLGenerator
 				continue;
 			}
 			QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-				column.isDBIdentity());
+				column.getFlags(), column.isDBIdentity());
 
 			if (isBlobColumn(column))
 			{
@@ -1456,12 +1462,11 @@ public class SQLGenerator
 		}
 
 		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
-		select.addColumn(
-			new QueryAggregate(aggregateType,
-				(column == null)
-					? (IQuerySelectValue)new QueryColumnValue(aggregee, "n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
-					: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()),
-				"maxval")); //$NON-NLS-1$
+		select.addColumn(new QueryAggregate(aggregateType,
+			(column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee, "n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
+				: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+					column.getFlags()),
+			"maxval")); //$NON-NLS-1$
 		return select;
 
 	}
@@ -1501,9 +1506,9 @@ public class SQLGenerator
 			for (Column column : pkColumns)
 			{
 				QueryColumn innerColumn = new QueryColumn(innerTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-					column.getScale(), false);
+					column.getScale(), column.getFlags(), false);
 				QueryColumn outerColumn = new QueryColumn(outerTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-					column.getScale(), false);
+					column.getScale(), column.getFlags(), false);
 				innerSelect.addCondition("EXISTS", new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, innerColumn, outerColumn)); //$NON-NLS-1$
 			}
 			aggregateSqlSelect.addCondition("EXISTS", new ExistsCondition(innerSelect, true)); //$NON-NLS-1$

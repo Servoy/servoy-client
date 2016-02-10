@@ -86,14 +86,14 @@ public class Messages
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT USE.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public static ICustomMessageLoader customMessageLoader;
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public static void loadInternal(IMessagesCallback callback, IFoundSetManagerInternal fm)
@@ -130,7 +130,7 @@ public class Messages
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	private static Properties loadMessagesFromServer(Solution solution, IMessagesCallback callback, IFoundSetManagerInternal fm)
@@ -245,7 +245,7 @@ public class Messages
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public static void loadMessagesFromDatabaseInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
@@ -300,7 +300,7 @@ public class Messages
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public static void loadMessagesFromDatabaseInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
@@ -347,7 +347,7 @@ public class Messages
 
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public static void loadMessagesFromDatabaseRepositoryInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
@@ -451,9 +451,9 @@ public class Messages
 		{
 			QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect sql = new QuerySelect(messagesTable);
-			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
-			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
-			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5); //$NON-NLS-1$
+			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
+			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
 			sql.addColumn(msgKey);
 			sql.addColumn(msgVal);
 
@@ -464,7 +464,7 @@ public class Messages
 			if (filterColumn != null)
 			{
 				QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-					filterColumn.getLength());
+					filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
 				CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(singleColumnValueFilter, null));
 				sql.addCondition(condMessages, cc);
 			}
@@ -473,9 +473,9 @@ public class Messages
 			{
 				QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 				QuerySelect subselect = new QuerySelect(subselectTable);
-				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
-				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
-				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 5); //$NON-NLS-1$
+				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
+				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
 				subselect.addColumn(msgKeySub);
 
 				String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -530,9 +530,9 @@ public class Messages
 	{
 		QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 		QuerySelect sql = new QuerySelect(messagesTable);
-		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
-		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
-		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5); //$NON-NLS-1$
+		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
+		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
 		sql.addColumn(msgKey);
 		sql.addColumn(msgVal);
 
@@ -544,7 +544,7 @@ public class Messages
 		if (filterColumn != null)
 		{
 			QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-				filterColumn.getLength());
+				filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
 			CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(columnValueFilter, null));
 			sql.addCondition(condMessages, cc);
 		}
@@ -553,9 +553,9 @@ public class Messages
 		{
 			QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect subselect = new QuerySelect(subselectTable);
-			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
-			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
-			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 5); //$NON-NLS-1$
+			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
+			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
 			subselect.addColumn(msgKeySub);
 
 			String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -702,7 +702,7 @@ public class Messages
 				}
 
 				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
+				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, key));
 

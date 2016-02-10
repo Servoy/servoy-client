@@ -65,7 +65,7 @@ import com.servoy.j2db.util.Text;
 
 /**
  * Node used in chain
- * 
+ *
  * @author jblok
  */
 public class PartNode
@@ -159,7 +159,7 @@ public class PartNode
 
 	/**
 	 * Sets the child.
-	 * 
+	 *
 	 * @param child The child to set
 	 */
 	public void setChild(PartNode child)
@@ -184,7 +184,7 @@ public class PartNode
 
 	public List<DataRendererDefinition> process(FormPreviewPanel fpp, FoundSet fs, Table table, QuerySelect sqlString) throws Exception
 	{
-		//Selection model must be in print mode to be able to set the selection to -1  . Otherwise is not allowed by the selectionModel 
+		//Selection model must be in print mode to be able to set the selection to -1  . Otherwise is not allowed by the selectionModel
 		((ISwingFoundSet)fs).getSelectionModel().hideSelectionForPrinting();
 
 		FoundSet rootSet = (FoundSet)fs.copy(false);//this is needed because we must keep sql the same in foundset during printing
@@ -223,7 +223,8 @@ public class PartNode
 				}
 
 				Column column = (Column)element.getColumn();
-				QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength());
+				QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), column.getFlags());
 				selectCols.add(queryColumn);
 				groupbyCols.add(queryColumn);
 				sortbyCols.add(new QuerySort(queryColumn, element.getSortOrder() == SortColumn.ASCENDING));
@@ -234,7 +235,7 @@ public class PartNode
 			{
 				AggregateVariable ag = allAggregates.get(i);
 				selectCols.add(new QueryAggregate(ag.getType(), new QueryColumn(newSQLString.getTable(), -1, ag.getColumnNameToAggregate(),
-					ag.getDataProviderType(), ag.getLength()), ag.getName()));
+					ag.getDataProviderType(), ag.getLength(), 0, ag.getFlags()), ag.getName()));
 			}
 
 			newSQLString.setColumns(selectCols);
@@ -261,7 +262,7 @@ public class PartNode
 			int count = newSet.getSize();
 			for (int ii = 0; ii < count; ii++)
 			{
-				QuerySelect newSQLStringCopy = AbstractBaseQuery.deepClone(newSQLString);//make copy for setting sort column 
+				QuerySelect newSQLStringCopy = AbstractBaseQuery.deepClone(newSQLString);//make copy for setting sort column
 
 				//handle the child first, this puts the rootset in the right state! for use of related(!) fields in the subsums
 				//THIS is EXTREMELY important for correct printing, see also SubSummaryFoundSet.queryForRelatedFoundSet

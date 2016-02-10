@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app="servoySolutionsList" ng-controller="MainController">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>List of solutions</title>
+
+		<!-- contributions -->
+		<script src="servoy-ngclient/solutions.js" type="text/javascript"></script>
+		<link href="css/solution_list.css" rel="stylesheet">
+	</head>
+
+	<script type="text/javascript">
+		angular.module('servoySolutionsList',['solutionsListModule']).controller("MainController", function($scope, $solutionsList) {
+			$scope.ngSolutions = $solutionsList.ngSolutions;
+		});
+	</script>
+
+	<body>
+		<div class="container">
+			<div class="header clearfix">
+				<h2 class="text-muted">Available solutions</h3>
+			</div>
+
+			<div class="jumbotron">
+				<div class="btn-group-vertical" role="group" aria-label="...">
+					<a ng-repeat="s in ngSolutions" class="btn btn-lg btn-warning spaced-up" ng-href="solutions/{{s.name}}/index.html" role="button">
+						{{!!s.titleText ? s.titleText : s.name}}
+						<span ng-style="{{ !!s.requiresAuth ? {} : { display : 'none' } }}" class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+					</a>
+				</div>
+			</div>
+
+			<footer class="footer">
+				<p><img src="images/c1.gif" width="363" height="55" border="0" alt=""></p>
+			</footer>
+	    </div>
+	</body>
+</html>

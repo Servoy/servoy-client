@@ -131,7 +131,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (webObjectImpl.setProperty(propertyName, val))
 		{
 			// see if it's not a direct persist property as well such as size, location, anchors... if it is set it here as well anyway so that they are in sync with spec properties
-			if (purePersistPropertyNames.contains(propertyName)) super.setProperty(propertyName, val);
+			if (hasPersistProperty(propertyName)) super.setProperty(propertyName, val);
 		}
 		else super.setProperty(propertyName, val);
 	}
@@ -146,7 +146,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	public Object getProperty(String propertyName)
 	{
 		Object value = null;
-		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) value = super.getProperty(propertyName);
+		if (webObjectImpl == null || hasPersistProperty(propertyName)) value = super.getProperty(propertyName);
 		if (value == null) value = webObjectImpl.getProperty(propertyName);
 		return value;
 	}
@@ -162,6 +162,11 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			if (!hasIt) hasIt = super.hasProperty(propertyName);
 		}
 		return hasIt;
+	}
+
+	protected boolean hasPersistProperty(String propertyName)
+	{
+		return purePersistPropertyNames.contains(propertyName);
 	}
 
 	/**

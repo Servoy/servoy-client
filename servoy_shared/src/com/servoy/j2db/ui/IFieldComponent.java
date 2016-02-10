@@ -21,12 +21,13 @@ import java.awt.Insets;
 import java.util.List;
 
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.dataprocessing.ISupportsNeedEntireState;
 import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * @author jblok
  */
-public interface IFieldComponent extends ISupportSecuritySettings, IComponent, ISupportEventExecutor, IScriptableProvider
+public interface IFieldComponent extends ISupportsNeedEntireState, ISupportSecuritySettings, IComponent, ISupportEventExecutor, IScriptableProvider
 {
 	public void setToolTipText(String tooltip);
 
@@ -51,8 +52,6 @@ public interface IFieldComponent extends ISupportSecuritySettings, IComponent, I
 	public void setRightClickCommand(String rightClickCmd, Object[] args);
 
 	public void setChangeCmd(String changeCmd, Object[] args);
-
-	public void setNeedEntireState(boolean needEntireState);
 
 	public void setMaxLength(int maxLength);
 

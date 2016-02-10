@@ -176,6 +176,13 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					{
 						isFormVisible = ((INGClientWindow)currentWindow).hasForm(parent.getName());
 					}
+					if (isFormVisible)
+					{
+						// it is reported to be still on the client
+						// but do check also if it is not about to be hidden, by having
+						// formVisible already set to false in the controller
+						isFormVisible = ((WebFormUI)parent).getController().isFormVisible();
+					}
 
 					if (!isFormVisible)
 					{

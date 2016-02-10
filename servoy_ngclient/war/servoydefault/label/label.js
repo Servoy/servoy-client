@@ -7,23 +7,6 @@ angular.module('servoydefaultLabel',['servoy'])
       	handlers: "=svyHandlers",
         api: "=svyApi"
       },
-      controller: function($scope, $element, $attrs) {
-    	  if ( $scope.handlers.onActionMethodID) {
-    		  // in readonly tableview we need cell navigation/cell focus
-    		  // this disabled the click on the outer div so we need he inner div also to act as the click
-    		  // but this triggers outside of the tableview duplicate clicks so prevent the same event (with the same timestamp) to be executed twice.
-	    	  var lastEvent = null;
-	    	  $scope.onclick = function(event) {
-	    		  if (lastEvent) {
-	    			  if (lastEvent.timeStamp == event.timeStamp){
-	    				  return;
-	    			  }
-	    		  }
-	    		  lastEvent = event;
-	        	  $scope.handlers.onActionMethodID(event);
-	          }
-    	  }
-      },
       link: function($scope, $element, $attrs) {
 		var templateUrl = $scope.model.labelFor && ($attrs.headercell == undefined) ? "servoydefault/label/labelfor.html" : "servoydefault/label/label.html";
 		$http.get(templateUrl, {cache: $templateCache}).then(function(result) {

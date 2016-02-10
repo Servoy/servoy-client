@@ -59,8 +59,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- *
  * Filter that should only be there in a developer environment.
+ *
  * @author jcompagner
  */
 @WebFilter(urlPatterns = { "/*" })

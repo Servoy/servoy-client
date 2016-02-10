@@ -22,7 +22,7 @@ import com.servoy.base.query.IQueryFactory;
 
 /**
  * Create queries and conditions for regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -53,9 +53,9 @@ public class QueryFactory implements IQueryFactory<ISQLCondition, IQuerySelectVa
 	}
 
 	@Override
-	public QueryColumn createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale)
+	public QueryColumn createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, int flags)
 	{
-		return new QueryColumn(table, id, name, sqlType, length, scale);
+		return new QueryColumn(table, id, name, sqlType, length, scale, flags);
 	}
 
 }

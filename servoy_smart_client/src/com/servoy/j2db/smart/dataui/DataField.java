@@ -1403,7 +1403,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.displayFormat = null;
 		this.editFormat = null;
 		editorDocument.clearValidators();
-		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
+		boolean emptyCustom = (list instanceof CustomValueList) && !(list instanceof GlobalMethodValueList) && list.getSize() == 0;
 		if (!fp.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
 			displayFormat = fp.getDisplayFormat();

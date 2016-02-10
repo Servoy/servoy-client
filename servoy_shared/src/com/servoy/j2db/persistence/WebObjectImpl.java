@@ -91,6 +91,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return pdUseGetterInstead;
 	}
 
+	protected PropertyDescription getChildPropertyDescription(String propertyName)
+	{
+		if (getPropertyDescription() != null) return getPropertyDescription().getProperty(propertyName);
+		return null;
+	}
+
 	public WebObjectImpl(IBasicWebObject webObject, Object specPD)
 	{
 		super(webObject);
@@ -170,7 +176,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		if (getPropertyDescription() == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
 
-		PropertyDescription childPd = getPropertyDescription().getProperty(key);
+		PropertyDescription childPd = getChildPropertyDescription(key);
 		if (childPd != null)
 		{
 			IPropertyType< ? > propertyType = childPd.getType();
@@ -207,7 +213,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		if (getPropertyDescription() == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
 
-		PropertyDescription childPd = getPropertyDescription().getProperty(key);
+		PropertyDescription childPd = getChildPropertyDescription(key);
 		if (childPd != null)
 		{
 			IPropertyType< ? > propertyType = childPd.getType();
@@ -224,7 +230,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		if (getPropertyDescription() != null)
 		{
-			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			PropertyDescription childPd = getChildPropertyDescription(propertyName);
 			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
 				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
@@ -271,7 +277,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			// IMPORTANT if we decide that this method shouldn't affect all json properties and we remove the following code, we have to update code
 			// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
 			// depends on this in the end (the same for WebComponentPropertySource)
-			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			PropertyDescription childPd = getChildPropertyDescription(propertyName);
 			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
 				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
@@ -289,7 +295,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		boolean hasIt = getPersistMappedProperties().containsKey(propertyName);
 		if (!hasIt && getPropertyDescription() != null)
 		{
-			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			PropertyDescription childPd = getChildPropertyDescription(propertyName);
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
@@ -308,7 +314,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 		if (getPropertyDescription() != null)
 		{
-			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			PropertyDescription childPd = getChildPropertyDescription(propertyName);
 			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
 				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
 			if (childPd != null)
@@ -415,9 +421,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	protected void updatePersistMappedProperty(String beanJSONKey, Object object)
 	{
-		if (object != null && getPropertyDescription().getProperty(beanJSONKey) != null)
+		if (object != null && getChildPropertyDescription(beanJSONKey) != null)
 		{
-			PropertyDescription childPd = getPropertyDescription().getProperty(beanJSONKey);
+			PropertyDescription childPd = getChildPropertyDescription(beanJSONKey);
 			IPropertyType< ? > propertyType = childPd.getType();
 			String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyType);
 			if (isPersistMappedProperty(beanJSONKey))
@@ -550,7 +556,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	private Object convertFromJavaType(String propertyName, Object value)
 	{
-		PropertyDescription pd = getPropertyDescription().getProperty(propertyName);
+		PropertyDescription pd = getChildPropertyDescription(propertyName);
 		if (pd != null && getConverter(pd) != null)
 		{
 			return getConverter(pd).toDesignValue(value, pd);
@@ -586,7 +592,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 			if (getPropertyDescription().isArrayReturnType(persistMappedPropertyValue.getJsonKey()))
 			{
-				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+				if (type == ((CustomJSONArrayType< ? , ? >)getChildPropertyDescription(
 					persistMappedPropertyValue.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
 				{
 					Object children = getPersistMappedProperties().get(persistMappedPropertyValue.getJsonKey());
@@ -610,20 +616,20 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				else
 				{
 					Debug.error("Element type (" +
-						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+						((CustomJSONArrayType< ? , ? >)getChildPropertyDescription(
 							persistMappedPropertyValue.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
 						") does not match persist-to-add type: " + type + " - " + webObject);
 				}
 			}
 			else
 			{
-				if (type == getPropertyDescription().getProperty(persistMappedPropertyValue.getJsonKey()).getType())
+				if (type == getChildPropertyDescription(persistMappedPropertyValue.getJsonKey()).getType())
 				{
 					setProperty(persistMappedPropertyValue.getJsonKey(), persistMappedPropertyValue);
 				}
 				else
 				{
-					Debug.error("Property type (" + getPropertyDescription().getProperty(persistMappedPropertyValue.getJsonKey()).getType() +
+					Debug.error("Property type (" + getChildPropertyDescription(persistMappedPropertyValue.getJsonKey()).getType() +
 						") does not match persist-to-add type: " + type + " - " + webObject);
 				}
 			}

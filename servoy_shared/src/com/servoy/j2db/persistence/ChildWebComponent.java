@@ -17,12 +17,20 @@
 package com.servoy.j2db.persistence;
 
 
+import java.awt.Dimension;
+import java.awt.Point;
+
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.IntPropertyType;
+import org.sablo.specification.property.types.PointPropertyType;
+import org.sablo.specification.property.types.StringPropertyType;
 
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A web component persist that is a child of another web-component (so as a property of another web-component)
@@ -39,6 +47,14 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 
 	public final static String TYPE_NAME_KEY = "typeName";
 	public final static String DEFINITION_KEY = "definition";
+	public static final PropertyDescription NAME_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(),
+		StringPropertyType.INSTANCE);
+	public static final PropertyDescription SIZE_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(),
+		DimensionPropertyType.INSTANCE);
+	public static final PropertyDescription LOCATION_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(),
+		PointPropertyType.INSTANCE);
+	public static final PropertyDescription ANCHORS_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(),
+		IntPropertyType.INSTANCE);
 
 	private transient final String jsonKey;
 	private transient int index;
@@ -115,6 +131,32 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 			{
 				getFullJsonInFrmFile().put(DEFINITION_KEY, arg);
 			}
+
+			@Override
+			protected PropertyDescription getChildPropertyDescription(String propertyName)
+			{
+				PropertyDescription pd = super.getChildPropertyDescription(propertyName);
+				if (pd == null)
+				{
+					if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(propertyName))
+					{
+						return NAME_PROPERTY_DESCRIPTION;
+					}
+					if (StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(propertyName))
+					{
+						return SIZE_PROPERTY_DESCRIPTION;
+					}
+					if (StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(propertyName))
+					{
+						return LOCATION_PROPERTY_DESCRIPTION;
+					}
+					if (StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(propertyName))
+					{
+						return ANCHORS_PROPERTY_DESCRIPTION;
+					}
+				}
+				return pd;
+			}
 		};
 	}
 
@@ -138,4 +180,82 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	{
 		return pdAsChildComponent;
 	}
+
+	/*
+	 * redirect all methods to json, nothing else is saved
+	 */
+
+	@Override
+	protected boolean hasPersistProperty(String propertyName)
+	{
+		return super.hasPersistProperty(propertyName) && !StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(propertyName) &&
+			!StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(propertyName) &&
+			!StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(propertyName) &&
+			!StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(propertyName);
+	}
+
+	@Override
+	public void setName(String arg)
+	{
+		setProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), arg);
+	}
+
+	@Override
+	public String getName()
+	{
+		return (String)getProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
+	}
+
+	@Override
+	public void updateName(IValidateName validator, String arg) throws RepositoryException
+	{
+		setProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), arg);
+	}
+
+	@Override
+	public void setAnchors(int arg)
+	{
+		setProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), arg);
+	}
+
+	@Override
+	public int getAnchors()
+	{
+		return Utils.getAsInteger(getProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()));
+	}
+
+	@Override
+	public void setSize(Dimension arg)
+	{
+		setProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), arg);
+	}
+
+	@Override
+	public Dimension getSize()
+	{
+		Dimension size = (Dimension)getProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
+		if (size == null)
+		{
+			return new java.awt.Dimension(140, 20);
+		}
+		return size;
+	}
+
+	@Override
+	public void setLocation(Point arg)
+	{
+		setProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), arg);
+	}
+
+	@Override
+	public Point getLocation()
+	{
+		java.awt.Point point = (Point)getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
+		if (point == null)
+		{
+			point = new Point(10, 10);
+		}
+		return point;
+	}
+
 }

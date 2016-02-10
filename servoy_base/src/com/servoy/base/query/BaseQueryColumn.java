@@ -30,15 +30,16 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 	protected transient String name;
 	protected String alias;
 	protected transient BaseColumnType columnType;
+	protected int flags;
 	protected transient boolean identity;
 	protected int id; // id of this column, known on the server, may be used to lookup name and columnType
 
-	public BaseQueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, boolean identity)
+	public BaseQueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, int flags, boolean identity)
 	{
-		this(table, id, name, null, columnType, identity);
+		this(table, id, name, null, columnType, flags, identity);
 	}
 
-	public BaseQueryColumn(BaseQueryTable table, int id, String name, String alias, BaseColumnType columnType, boolean identity)
+	public BaseQueryColumn(BaseQueryTable table, int id, String name, String alias, BaseColumnType columnType, int flags, boolean identity)
 	{
 		if (table == null || (id == -1 && name == null))
 		{
@@ -49,6 +50,7 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 		this.name = name;
 		this.alias = alias;
 		this.columnType = columnType;
+		this.flags = flags;
 		this.identity = identity;
 	}
 
@@ -106,6 +108,15 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 			throw new IllegalStateException("Identity requested on incomplete column"); //$NON-NLS-1$
 		}
 		return identity;
+	}
+
+	public int getFlags()
+	{
+		if (name == null)
+		{
+			throw new IllegalStateException("Flags requested on incomplete column"); //$NON-NLS-1$
+		}
+		return flags;
 	}
 
 	@Override

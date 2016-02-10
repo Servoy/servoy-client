@@ -53,7 +53,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
  * Represents a label in the browser that displays data (has a dataprovider) and on on action event.
- * 
+ *
  * @author jcompagner
  */
 public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData, IDisplayTagText, IHeaderContributor
@@ -69,6 +69,10 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	//private String tooltip;
 	private String inputId;
 	private boolean hasHTML;
+
+	private StrippedText strippedText = new StripHTMLTagsConverter.StrippedText();
+	protected ITagResolver resolver;
+	private String bodyText;
 
 	public WebDataSubmitLink(IApplication application, AbstractRuntimeBaseComponent scriptable, String id)
 	{
@@ -120,12 +124,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		return getApplication().getConverterLocator().getConverter(cls);
 	}
 
-	private StrippedText strippedText = new StripHTMLTagsConverter.StrippedText();
-
-	protected ITagResolver resolver;
-
-	private String bodyText;
-
 	public void setTagResolver(ITagResolver resolver)
 	{
 		this.resolver = resolver;
@@ -171,8 +169,9 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 					{
 						try
 						{
-							bodyText = Text.processTags(TagResolver.formatObject(value, application.getLocale(), cf.parsedFormat,
-								(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
+							bodyText = Text.processTags(
+								TagResolver.formatObject(value, application.getLocale(), cf.parsedFormat,
+									(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
 								resolver);
 						}
 						catch (ParseException e)
@@ -214,8 +213,8 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 				{
 					try
 					{
-						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
-							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
+						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat,
+							(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
 					}
 					catch (ParseException e)
 					{
@@ -401,11 +400,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		this.dataProviderID = dataProviderID;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.IDisplayData#getDocument()
-	 */
 	public Document getDocument()
 	{
 		return null;
@@ -430,31 +424,18 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.IDisplay#stopUIEditing()
-	 */
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		return true;
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ui.IDisplayTagText#setTagText(java.lang.String)
-	 */
 	public void setTagText(String tagText)
 	{
 		this.tagText = tagText;
 	}
 
 
-	/**
-	 * @see com.servoy.j2db.ui.IDisplayTagText#getTagText()
-	 */
 	public String getTagText()
 	{
 		return tagText;

@@ -23,24 +23,16 @@ import com.servoy.base.util.ITagResolver;
 
 /**
  * Convenient interface to tie a implementing jComponent easily to a dataAdapter
- * 
+ *
  * @author jblok
  */
-public interface IDisplayData extends IDisplay//for a dataprovider!
+public interface IDisplayData extends ISupportsNeedEntireState, IDisplay//for a dataprovider!
 {
 	public Object getValueObject();
 
 	public void setValueObject(Object data);
 
 	public boolean needEditListener();
-
-	/**
-	 * This makes a display no longer updateable,needFocusListener should return false used by display which uses multiple values to display information typical
-	 * use a dataprovider with a letter which contains %%tags%% where tags are other dataprovider names, the tags are replaced with the values
-	 */
-	public boolean needEntireState();
-
-	public void setNeedEntireState(boolean needEntireState);
 
 	public void addEditListener(IEditListener editListener);
 

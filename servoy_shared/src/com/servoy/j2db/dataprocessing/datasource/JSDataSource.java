@@ -68,6 +68,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename.
+	 * It is important to note that this is a FACTORY method, it constantly creates new foundsets.
 	 *
 	 * @sample
 	 * var fs = datasources.db.example_data.orders.getFoundSet()

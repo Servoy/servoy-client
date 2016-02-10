@@ -151,7 +151,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 			}
 			columns.put(name,
 				builderColumn = new QBColumn(getRoot(), this, new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(),
-					col.getScale(), false)));
+					col.getScale(), col.getFlags(), false)));
 		}
 		return builderColumn;
 	}
