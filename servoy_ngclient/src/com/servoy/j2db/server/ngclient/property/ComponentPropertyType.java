@@ -63,8 +63,8 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
-public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue> implements
-	IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
+public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue>
+	implements IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>
@@ -235,7 +235,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
 		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
-		throws JSONException
+			throws JSONException
 	{
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
@@ -257,8 +257,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{
-			Debug.error(
-				"Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
+			Debug.error("Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.",
+				e);
 			throw e;
 		}
 
@@ -369,7 +369,11 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	@Override
 	public Object toRhinoValue(ComponentTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
-		return Scriptable.NOT_FOUND;
+		if (webComponentValue != null)
+		{
+			return webComponentValue.getRuntimeComponent();
+		}
+		return null;
 	}
 
 	@Override
