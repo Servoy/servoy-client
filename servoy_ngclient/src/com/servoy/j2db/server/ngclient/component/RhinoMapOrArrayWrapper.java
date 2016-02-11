@@ -34,9 +34,11 @@ import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
+import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IRhinoNativeProxy;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -111,7 +113,19 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		if (wrappedValue instanceof List)
 		{
 			if (name.equals("length")) return value;
-			else return Scriptable.NOT_FOUND; // then it will be searched for in prototype that is a native array prototype
+			List list = (List)wrappedValue;
+			if (list.size() > 0)
+			{
+				for (Object element : list)
+				{
+					if (element instanceof ComponentTypeSabloValue && Utils.equalObjects(name, ((ComponentTypeSabloValue)element).getName()))
+					{
+						return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(element,
+							((ComponentTypeSabloValue)element).getComponentPropertyDescription(), baseWebObject, start);
+					}
+				}
+			}
+			return Scriptable.NOT_FOUND; // then it will be searched for in prototype that is a native array prototype
 		}
 
 		PropertyDescription propDesc = propertyDescription.getProperty(name);
@@ -134,14 +148,15 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	public Object get(int index, Scriptable start)
 	{
 		Object value = getSabloValueForIndex(index);
-		return value == Scriptable.NOT_FOUND ? Scriptable.NOT_FOUND : NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value,
-			getArrayElementDescription(), baseWebObject, start);
+		return value == Scriptable.NOT_FOUND ? Scriptable.NOT_FOUND
+			: NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, getArrayElementDescription(), baseWebObject, start);
 	}
 
 	protected PropertyDescription getArrayElementDescription()
 	{
 		PropertyDescription elementType = propertyDescription;
-		if (propertyDescription.getType() instanceof CustomJSONArrayType< ? , ? >) elementType = ((CustomJSONArrayType)propertyDescription.getType()).getCustomJSONTypeDefinition();
+		if (propertyDescription.getType() instanceof CustomJSONArrayType< ? , ? >)
+			elementType = ((CustomJSONArrayType)propertyDescription.getType()).getCustomJSONTypeDefinition();
 		return elementType;
 	}
 

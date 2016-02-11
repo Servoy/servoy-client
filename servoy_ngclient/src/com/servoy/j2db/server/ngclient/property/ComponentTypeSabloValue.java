@@ -54,6 +54,7 @@ import com.servoy.j2db.server.ngclient.IDirtyPropertyListener;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType.IModelWriter;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
@@ -109,6 +110,20 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		this.forFoundsetTypedPropertyName = forFoundsetTypedPropertyName;
 		this.recordBasedProperties = forFoundsetTypedPropertyName != null ? new ArrayList<>(formElementValue.recordBasedProperties) : null;
 		this.componentPropertyDescription = componentPropertyDescription;
+	}
+
+	public String getName()
+	{
+		if (formElementValue != null && formElementValue.element != null)
+		{
+			return formElementValue.element.getName();
+		}
+		return null;
+	}
+
+	public PropertyDescription getComponentPropertyDescription()
+	{
+		return componentPropertyDescription;
 	}
 
 	@Override
@@ -884,6 +899,15 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName + "' to value '" +
 				value + "' of component: " + childComponent + ". Foundset is null.", new RuntimeException());
 		}
+	}
+
+	public Object getRuntimeComponent()
+	{
+		if (childComponent != null)
+		{
+			return new RuntimeWebComponent(childComponent, childComponent.getSpecification());
+		}
+		return null;
 	}
 
 	protected final class ComponentDataLinkedPropertyListener implements IDataLinkedPropertyRegistrationListener
