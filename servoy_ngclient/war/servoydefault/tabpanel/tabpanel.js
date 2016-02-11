@@ -158,7 +158,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 
 			$scope.select = function(tab) {
 				if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
-				if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId) || (tab == $scope.model.selectedTab)) return;
+				if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId && tab.relationName == $scope.model.selectedTab.relationName) || (tab == $scope.model.selectedTab)) return;
 				var selectEvent = $window.event ? $window.event : null;
 				if ($scope.model.selectedTab) {
 					if ($scope.model.selectedTab.containsFormId && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
