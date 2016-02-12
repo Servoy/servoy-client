@@ -31,7 +31,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Interface for manipulation database data
- * 
+ *
  * @author jblok
  */
 public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
@@ -54,13 +54,14 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public static final int USERMANAGEMENT_QUERY = 16;
 	public static final int META_DATA_QUERY = 17;
 	public static final int METHOD_CALL = 18;
+	public static final int METHOD_CALL_WAITING_FOR_USER_INPUT = 19;
 
 
 	public static final String BLOB_MARKER_COLUMN_ALIAS = "SV_BLOB_M"; //$NON-NLS-1$
 
 	/**
 	 * Main query method on databases.
-	 * 
+	 *
 	 * @param client_id client ID
 	 * @param server_name the server to use
 	 * @param transaction_id id or null if none
@@ -97,30 +98,9 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
 		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
 
-	/**
-	 * 
-	 * @param client_id
-	 * @param server_name
-	 * @param transaction_id
-	 * @param array
-	 * @return
-	 * @throws ServoyException
-	 * @throws RemoteException
-	 */
 	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException;
 
 
-	/**
-	 * @param action from ISQLStatement static fields
-	 * @param server_name server name in lower case to work on
-	 * @param tableName table name in lowercase to work on
-	 * @param pkColumnData must be db compatible types and columns ordered a-z when having mulitple columns
-	 * @param tid transaction id, can be null if not present
-	 * @param sql the SQL to execute
-	 * @param questiondata the data for the question marks (must be db compatible types)
-	 * @return the statement
-	 * @throws RemoteException
-	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
 		Object[] questiondata) throws RemoteException, RepositoryException;
 
@@ -132,7 +112,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Change or Add data in database
-	 * 
+	 *
 	 * @param client_id the client ID
 	 * @param statements the changes
 	 * @return the values from the dbsequences for each statement
@@ -141,12 +121,12 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException;
 
-	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid) throws RepositoryException,
-		RemoteException;
+	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
+		throws RepositoryException, RemoteException;
 
 	/**
 	 * Start a transaction in backend DB.
-	 * 
+	 *
 	 * @param client_id the client ID
 	 * @param server_name start transaction for specified server
 	 * @return String the id
@@ -157,7 +137,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * End a started transaction in backend DB.
-	 * 
+	 *
 	 * @param transaction_id id to end
 	 * @param commit true for commit or false for rollback
 	 * @return boolean true if success full
@@ -173,7 +153,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Insert a data set in a table. When tableName is null a temporary table will be created
-	 * 
+	 *
 	 * @param client_id
 	 * @param set
 	 * @param dataSource
@@ -192,7 +172,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
-	 * 
+	 *
 	 * @param client_id
 	 * @param queryServerName
 	 * @param queryTid
@@ -222,7 +202,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 
 	/**
 	 * Get the sql from the remote server, needed for databasemanager.getSQL() and databasemanager.getSQLParameters() in scripting.
-	 * 
+	 *
 	 * @param serverName
 	 * @param sqlQuery
 	 * @param startRow

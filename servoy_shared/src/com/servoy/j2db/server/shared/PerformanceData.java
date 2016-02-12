@@ -4,56 +4,38 @@ package com.servoy.j2db.server.shared;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
-import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Keeps a list off last 200 most expensive action (e.g. sql) operations, to be viewed in a UI
- * 
+ * Keeps a list off last 200 most expensive actions (e.g. sql, method calls) to be viewed in a UI.
+ *
  * @author jblok
  */
-public class PerformanceData
+public class PerformanceData extends PerformanceAggregator
 {
-	private static final int TOTAL_IN_LIST = 200;
-	private final SortedList<PerformanceTimingAggregate> timeObjects = new SortedList<PerformanceTimingAggregate>(new TimeComparator());
-	private final Map<String, PerformanceTimingAggregate> action_timeObjects = new HashMap<String, PerformanceTimingAggregate>(TOTAL_IN_LIST);
 	private final Map<UUID, PerformanceTiming> startedTimings = new HashMap<UUID, PerformanceTiming>();
 
-	public synchronized void addTiming(String action, long interval_ms, long total_ms, int type)
+	// stack because for example an showForm modal dialog could execute other actions and then when modal
+	// is closed sub-actions might still happen and they need to point to the correct parent action
+	private final Stack<UUID> startedTimingUUIDsStack = new Stack<>();
+
+	public PerformanceData()
 	{
-		PerformanceTimingAggregate time = action_timeObjects.get(action);
-		if (time == null)
-		{
-			time = new PerformanceTimingAggregate(action, type);
-			action_timeObjects.put(action, time);
-		}
-		//remove
-		timeObjects.remove(time);
-
-		//update obj
-		time.updateTime(interval_ms, total_ms);
-
-		//do sort again
-		timeObjects.add(time);
-
-		//do clean
-		if (timeObjects.size() > TOTAL_IN_LIST)
-		{
-			PerformanceTimingAggregate old = timeObjects.remove(TOTAL_IN_LIST);
-			action_timeObjects.remove(old.getAction());
-		}
+		super(TOTAL_IN_LIST);
 	}
 
-	public synchronized void clear()
+	public PerformanceData(int maxEntriesToKeep)
 	{
-		timeObjects.clear();
-		action_timeObjects.clear();
+		super(maxEntriesToKeep);
 	}
 
 	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID);
+		startedTimingUUIDsStack.push(timing.getUuid());
 		startedTimings.put(timing.getUuid(), timing);
 		return timing.getUuid();
 	}
@@ -72,10 +54,37 @@ public class PerformanceData
 	public synchronized void endAction(UUID uuid)
 	{
 		PerformanceTiming timing = startedTimings.remove(uuid);
-		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType());
+		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());
+		startedTimingUUIDsStack.pop();
 	}
 
-	private static class TimeComparator implements Comparator<PerformanceTimingAggregate>
+	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
+	public synchronized Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
+	{
+		if (startedTimingUUIDsStack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
+		UUID lastStartedTimingUUID = startedTimingUUIDsStack.peek();
+
+		PerformanceTiming lastStartedTiming = startedTimings.get(lastStartedTimingUUID);
+		UUID subTimingUUID = null;
+		if (lastStartedTiming != null)
+		{
+			subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
+		}
+		return new Pair<>(lastStartedTimingUUID, subTimingUUID);
+	}
+
+	public synchronized void endSubAction(Pair<UUID, UUID> subActionUUIDs)
+	{
+		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
+
+		PerformanceTiming timingWithSubAction = startedTimings.get(subActionUUIDs.getLeft());
+		if (timingWithSubAction != null)
+		{
+			timingWithSubAction.endAction(subActionUUIDs.getRight());
+		}
+	}
+
+	protected static class TimeComparator implements Comparator<PerformanceTimingAggregate>
 	{
 		public int compare(PerformanceTimingAggregate o1, PerformanceTimingAggregate o2)
 		{
@@ -87,11 +96,6 @@ public class PerformanceData
 			}
 			return (int)(t2 - t1);
 		}
-	}
-
-	public synchronized PerformanceTimingAggregate[] toArray()
-	{
-		return timeObjects.toArray(new PerformanceTimingAggregate[timeObjects.size()]);
 	}
 
 	public synchronized PerformanceTiming[] getStartedActions()

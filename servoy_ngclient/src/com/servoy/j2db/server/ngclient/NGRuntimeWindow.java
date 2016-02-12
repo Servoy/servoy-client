@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -30,6 +31,7 @@ import org.sablo.websocket.CurrentWindow;
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Form;
@@ -37,8 +39,11 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -396,7 +401,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 		else if (getApplication().getRuntimeWindowManager().getMainApplicationWindow() != null)
 		{
-			if (getApplication().getRuntimeWindowManager().getMainApplicationWindow() != null) formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
+			if (getApplication().getRuntimeWindowManager().getMainApplicationWindow() != null)
+				formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
 		}
 		if (formController instanceof IWebFormController) getApplication().getFormManager().setCurrentControllerJS((IWebFormController)formController);
 
@@ -446,7 +452,29 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				{
 					Debug.log(e);
 				}
-				getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT, IEventDispatcher.NO_TIMEOUT);
+
+				IPerfomanceRegistry perfRegistry = null;
+				try
+				{
+					perfRegistry = getApplication().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+				}
+				catch (RemoteException e)
+				{
+					Debug.error(e);
+				}
+
+				Pair<UUID, UUID> perfId = perfRegistry.getPerformanceData(getApplication().getSolutionName()).startSubAction("$windowService.show",
+					System.currentTimeMillis(), IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID());
+				try
+				{
+					getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT,
+						IEventDispatcher.NO_TIMEOUT);
+				}
+				finally
+				{
+					if (perfId != null) perfRegistry.getPerformanceData(getApplication().getSolutionName()).endSubAction(perfId);
+				}
+
 				// this is now a hide of this window, set back the window name just before this show.
 				getApplication().getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
 			}

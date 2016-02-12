@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -28,16 +29,21 @@ import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
+import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Sablo window for NGClient
@@ -102,7 +108,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		Map<String, Object> call = new HashMap<>();
 		if (callContributions != null) call.putAll(callContributions);
 
-		if (!isDelayedApiCall(receiver, apiFunction))
+		boolean delayedCall = isDelayedApiCall(receiver, apiFunction);
+		if (!delayedCall)
 		{
 			IWebFormController form = websocketSession.getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
 			touchForm(form.getForm(), form.getName(), false);
@@ -113,7 +120,30 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			call.put("propertyPath", componentContext.getPropertyPath());
 		}
 
-		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+		IPerfomanceRegistry perfRegistry = null;
+		try
+		{
+			perfRegistry = getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		Pair<UUID, UUID> perfId = null;
+		if (perfRegistry != null && !delayedCall) // so it is waiting for a response
+			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(
+				receiver.getSpecification().getName() + "." + apiFunction.getName(), System.currentTimeMillis(),
+				apiFunction.getBlockEventProcessing() ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getClient().getClientID());
+		try
+		{
+			// actual call
+			return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+		}
+		finally
+		{
+			if (perfId != null) perfRegistry.getPerformanceData(getClient().getSolutionName()).endSubAction(perfId);
+		}
 	}
 
 	@Override
@@ -340,6 +370,34 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments, WebObjectApiDefinition apiFunction,
+		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
+	{
+		IPerfomanceRegistry perfRegistry = null;
+		try
+		{
+			perfRegistry = getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		Pair<UUID, UUID> perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(serviceName + "." + functionName,
+			System.currentTimeMillis(),
+			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
+			getClient().getClientID());
+		try
+		{
+			return super.executeServiceCall(serviceName, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);
+		}
+		finally
+		{
+			if (perfId != null) perfRegistry.getPerformanceData(getClient().getSolutionName()).endSubAction(perfId);
+		}
 	}
 
 }
