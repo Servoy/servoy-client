@@ -10,7 +10,7 @@
 	 	"shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
 	 	"popupform": {"type": "popupform", "pushToServer": "shallow", "tags": { "scope" :"private" }},
 	 	"popupMenus" : {"type": "popup[]", "tags": { "scope" :"private" }},
-	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "tags": { "scope" :"private" }} 
+	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }} 
 	},
 	"api":
 	{
