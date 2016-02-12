@@ -262,6 +262,25 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				element.css(style);
 			}
 		},
+		setHorizontalAlignmentFlexbox: function(element,halign) {
+			if (halign != -1)
+			{
+				var style ={}
+				if (halign == 0)
+				{
+					style['justify-content'] = 'center';
+				}
+				else if (halign == 4)
+				{
+					style['justify-content'] = 'flex-end';
+				}
+				else
+				{
+					style['justify-content'] = 'flex-start';
+				}
+				element.css(style);
+			}
+		},
 		setVerticalAlignment: function(element,valign) {
 			var style ={}
 			if (valign == 1)

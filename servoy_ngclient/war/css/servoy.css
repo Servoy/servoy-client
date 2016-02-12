@@ -33,11 +33,13 @@ input[type=date] {
 	width: 0px!important;/*override value from ng-grid css*/	
 }
 
-/*align labels for radios and check groups with input element*/
+/*align labels for radios and check groups with input element;
+ we should use flexbox instead of useless vertical-align*/
 label.svy-check-radio{
 	display:block;
 }
-label.svy-check-radio input{
+label.svy-check-radio input[type="checkbox"],
+label.svy-check-radio input[type="radio"]{
     vertical-align:middle;
     margin:0px;
 }
@@ -45,7 +47,13 @@ label.svy-check-radio input{
 label.svy-check-radio span{
 	vertical-align: middle;
 }
-
+label.svy-check{
+	display:flex;
+	align-items:center;
+}
+label.svy-check span{
+	padding-left: 3px;
+}
 div.svy-label-with-focus:focus{
 	border: thin solid black;	
 }
