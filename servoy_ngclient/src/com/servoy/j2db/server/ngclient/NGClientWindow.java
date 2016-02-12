@@ -54,16 +54,14 @@ import com.servoy.j2db.util.UUID;
 public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
 
-	private final INGClientWebsocketSession websocketSession;
-
 	/**
 	 * @param websocketSession
+	 * @param windowUuid
 	 * @param windowName
 	 */
-	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowName)
+	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
 	{
-		super(windowName);
-		this.websocketSession = websocketSession;
+		super(websocketSession, windowUuid, windowName);
 	}
 
 	public static INGClientWindow getCurrentWindow()
@@ -91,13 +89,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public Container getForm(String formName)
 	{
-		return (Container)websocketSession.getClient().getFormManager().getForm(formName).getFormUI();
+		return (Container)getSession().getClient().getFormManager().getForm(formName).getFormUI();
 	}
 
 	@Override
 	public void sendChanges() throws IOException
 	{
-		if (websocketSession.getClient() != null) websocketSession.getClient().changesWillBeSend();
+		if (getSession().getClient() != null) getSession().getClient().changesWillBeSend();
 		super.sendChanges();
 	}
 
@@ -111,7 +109,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		boolean delayedCall = isDelayedApiCall(receiver, apiFunction);
 		if (!delayedCall)
 		{
-			IWebFormController form = websocketSession.getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
+			IWebFormController form = getSession().getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
 			touchForm(form.getForm(), form.getName(), false);
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
@@ -162,7 +160,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				String currentWindowName = getCurrentWindow().getName();
 				if (currentWindowName == null)
 				{
-					currentWindowName = websocketSession.getClient().getRuntimeWindowManager().getMainApplicationWindow().getName();
+					currentWindowName = getSession().getClient().getRuntimeWindowManager().getMainApplicationWindow().getName();
 				}
 				formUI.setParentWindowName(currentWindowName);
 			}
@@ -185,7 +183,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				{
 					// this means a previous async touchForm already sent URL and JS code (updateController) to client, but the client form was not yet loaded (directives, scopes....)
 					// so probably a tabpanel or component that asked for it changed it's mind and no longer showed it; make sure it will show before waiting!
-					websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
+					getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
 						new Object[] { formName });
 				}
 				Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
@@ -200,7 +198,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				}
 				try
 				{
-					websocketSession.getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
+					getSession().getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
 				}
 				catch (CancellationException e)
 				{
@@ -243,11 +241,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				@Override
 				public void run()
 				{
-					if (websocketSession.getClient().isEventDispatchThread() && forceLoad)
+					if (getSession().getClient().isEventDispatchThread() && forceLoad)
 					{
 						try
 						{
-							websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
+							getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
 								new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
 						}
 						catch (IOException e)
@@ -257,7 +255,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					}
 					else
 					{
-						websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
+						getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
 							new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
 					}
 				}
@@ -289,7 +287,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName, boolean addSessionID)
 	{
-		FlattenedSolution fs = websocketSession.getClient().getFlattenedSolution();
+		FlattenedSolution fs = getSession().getClient().getFlattenedSolution();
 		Solution sc = fs.getSolutionCopy(false);
 		String realUrl = getDefaultFormURLStart(form, realFormName);
 		boolean copy = false;
@@ -334,7 +332,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 	public void destroyForm(String name)
 	{
-		websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
+		getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
 		// also remove it from the endpoint as a form that is on the client.
 		getEndpoint().formDestroyed(name);
 	}

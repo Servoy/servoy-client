@@ -7,7 +7,6 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +31,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionManager;
-import org.sablo.websocket.utils.ObjectReference;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -1277,9 +1274,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	 */
 	public String getStatusLine()
 	{
-		Collection<ObjectReference< ? extends IWindow>> refs = getWebsocketSession().getWindowsRefs();
+		long lastAccessed = getWebsocketSession().getLastAccessed();
 
-		if (refs.size() == 0)
+		if (lastAccessed == Long.MIN_VALUE)
 		{
 			// this should normally not happen
 			return "No websockets";
@@ -1290,13 +1287,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			// a window is in use, there is a last ping time
 			return "Websocket connected, last ping time: " + new SimpleDateFormat("EEE HH:mm:ss").format(new Date(lastPingTime));
-		}
-
-		// all windows are inactive get the last accessed.
-		long lastAccessed = Long.MIN_VALUE;
-		for (ObjectReference< ? extends IWindow> ref : refs)
-		{
-			lastAccessed = Math.max(lastAccessed, ref.getLastAccessed());
 		}
 
 		return "Websockets disconnected since " + new SimpleDateFormat("EEE HH:mm:ss").format(new Date(lastAccessed));
