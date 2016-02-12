@@ -573,38 +573,31 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Sets the ngclient solution style sheet overriding the current one that is set in the solution properties
+	 * Overrides one style with another. In NGClient, it overrides the original stylesheet media defined on a solution with another media.
 	 *
 	 * @sample
-	 * application.setStyleSheet('mystylesheets/customer2.css')//in this case both styles should have about the same classes
-	 *
-	 * @param newStyleName the media path of the stylesheet
-	 */
-	@ServoyClientSupport(ng = true, wc = false, sc = false)
-	@JSFunction
-	public void setStyleSheet(String newStyleName)
-	{
-		if (application instanceof INGClientApplication)
-		{
-			((INGClientApplication)application).setStyleSheet(newStyleName);
-		}
-	}
-
-	/**
-	 * Overrides one style (defined in in a form) with another.
-	 *
-	 * @sample
+	 * // Smart Client/Web Client usage
 	 * //This function will only have effect on  forms not yet created, so solution onLoad is the best place to override'
 	 * //For example overriding the use of default/designed style anywhere in the solution from 'mystyle' to 'mystyle_mac'
 	 * application.overrideStyle('mystyle','mystyle_mace')//in this case both styles should have about the same classes
 	 *
+	 * //NGClient usage
+	 * application.overrideStyle('oldstylesheet.css','mystylesheets/newstylesheet.css');
+	 *
 	 * @param originalStyleName Name of the style to override
 	 * @param newStyleName Name of the new style
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void js_overrideStyle(String originalStyleName, String newStyleName)
 	{
-		ComponentFactory.overrideStyle(originalStyleName, newStyleName);
+		if (application instanceof INGClientApplication)
+		{
+			((INGClientApplication)application).overrideStyleSheet(originalStyleName, newStyleName);
+		}
+		else
+		{
+			ComponentFactory.overrideStyle(originalStyleName, newStyleName);
+		}
 	}
 
 	/**

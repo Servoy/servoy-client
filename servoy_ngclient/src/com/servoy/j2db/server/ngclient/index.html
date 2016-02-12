@@ -5,7 +5,7 @@
 		<title ng-bind="solutionSettings.solutionTitle"></title>
 	
 		<!-- component_contributions -->
-		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'>
+		<link ng-repeat="path in solutionSettings.styleSheetPaths" rel="stylesheet" ng-href='{{path}}'>
 	</head>
 	<script type="text/javascript">
 		var isOldBrowser = function(){
