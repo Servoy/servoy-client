@@ -96,7 +96,7 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 						$svyProperties.setCssProperty(element, "color", value);
 						break;
 					case "horizontalAlignment":
-						$svyProperties.setHorizontalAlignment(element, value);
+						$svyProperties.setHorizontalAlignmentFlexbox(element, value);
 						break;
 					case "toolTipText":
 						if (tooltipState)
