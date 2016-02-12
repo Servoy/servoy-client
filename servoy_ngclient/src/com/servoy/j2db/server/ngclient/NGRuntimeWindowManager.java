@@ -98,7 +98,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 				if (size != null)
 				{
 					NGRuntimeWindow window = windowName == null ? (NGRuntimeWindow)getMainApplicationWindow() : getWindow(windowName);
-					window.updateSize(size.optInt("width"), size.optInt("height"));
+					if (window != null) window.updateSize(size.optInt("width"), size.optInt("height"));
 				}
 				break;
 			}
@@ -109,7 +109,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 				if (windowName != null && location != null)
 				{
 					NGRuntimeWindow window = getWindow(windowName);
-					window.updateLocation(location.optInt("x"), location.optInt("y"));
+					if (window != null) window.updateLocation(location.optInt("x"), location.optInt("y"));
 				}
 				break;
 			}

@@ -43,7 +43,7 @@ public class DataException extends ServoyException
 	public DataException(int errorCode, SQLException ex, String sql)
 	{
 		super(errorCode);
-		msg = ex.getMessage();
+		msg = getChainedMessage(ex);
 		sqlState = ex.getSQLState();
 		vendorErrorCode = ex.getErrorCode();
 		this.sql = sql;
@@ -60,10 +60,25 @@ public class DataException extends ServoyException
 		initCause(cause);
 	}
 
+	private static String getChainedMessage(SQLException ex)
+	{
+		SQLException e = ex.getNextException();
+		StringBuilder sb = new StringBuilder(ex.getMessage());
+		while (e != null)
+		{
+			sb.append("\nNextException: SQL Error: ").append(e.getErrorCode()) //
+			.append(", SQLState: ").append(e.getSQLState()) //
+			.append(", Message: ").append(e.getMessage());
+			e = e.getNextException();
+		}
+		return sb.toString();
+	}
+
+
 	// THIS METHOD IS REMOVED FROM InstanceJavaMethod WITH A HACK to keep compatibility with old ways :) - when ServoyException was not using js_...
 	/**
 	 * @sameas com.servoy.j2db.util.ServoyException#js_isServoyException()
-	 * 
+	 *
 	 * @deprecated Use "typeof" operator instead.
 	 */
 	@Deprecated
@@ -77,7 +92,7 @@ public class DataException extends ServoyException
 	 * This method will always return true; it makes the distinction between DataException and ServoyException.
 	 *
 	 * @deprecated Use "typeof" operator instead.
-	 * 
+	 *
 	 * @sample
 	 * var record = array[i];
 	 * application.output(record.exception);
@@ -88,7 +103,7 @@ public class DataException extends ServoyException
 	 * 	application.output("VendorErrorCode: " + record.exception.getVendorErrorCode());
 	 * }
 	 * @return true.
-	
+
 	 */
 	@Deprecated
 	public boolean js_isDataException()
@@ -191,16 +206,16 @@ public class DataException extends ServoyException
 
 	/**
 	 * Returns the parameters of the SQL query that caused this DataException in an array.
-	 *  
+	 *
 	 * @sample
 	 * var record = array[i];
 	 * application.output(record.exception);
 	 * if (record.exception instanceof DataException)
-	 * {   
+	 * {
 	 * 	var param = record.exception.getParameters();
 	 * 	for (j = 0; j < param.length; j++)
-	 * 	{      
-	 * 		application.output("SQL Parameter [" + j + "]: " + param[j]);  
+	 * 	{
+	 * 		application.output("SQL Parameter [" + j + "]: " + param[j]);
 	 * 	}
 	 * }
 	 * @return the parameters of the SQL query that caused this DataException in an array.

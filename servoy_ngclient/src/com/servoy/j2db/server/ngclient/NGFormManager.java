@@ -616,7 +616,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 		else
 		{
-			Debug.error("should the form " + formName + " have a window name?"); // throw new RuntimeException("window not set for form:" + formName + " (" + form + ")");
+			Debug.log("should the form " + formName + " have a window name, window very likely already closed?"); // throw new RuntimeException("window not set for form:" + formName + " (" + form + ")");
 		}
 		return form;
 	}
