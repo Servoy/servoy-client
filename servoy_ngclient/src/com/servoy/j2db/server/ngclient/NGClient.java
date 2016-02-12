@@ -91,7 +91,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private Map<Object, Object> uiProperties;
 
-	private String styleSheet;
+	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>();
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
@@ -165,9 +165,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public void setStyleSheet(String newStyleName)
+	public void overrideStyleSheet(String oldStyleSheet, String newStyleSheet)
 	{
-		this.styleSheet = newStyleName;
+		overrideStyleSheets.put(oldStyleSheet, newStyleSheet);
 		Runnable runnable = new Runnable()
 		{
 			@Override
@@ -190,9 +190,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	/**
 	 * @return the styleSheet
 	 */
-	public String getStyleSheet()
+	public Map<String, String> getOverrideStyleSheets()
 	{
-		return styleSheet;
+		return overrideStyleSheets;
 	}
 
 	@Override

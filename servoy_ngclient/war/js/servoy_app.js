@@ -820,7 +820,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	mainForm: {},
 	navigatorForm: {width:0},
 	solutionTitle: "",
-	styleSheetPath: undefined,
+	styleSheetPaths: [],
 	ltrOrientation : true,
 	enableAnchoring: true
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService, $svyI18NService) {
@@ -1017,12 +1017,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		});				
 	}
 	return {
-		setStyleSheet: function(path) {
-			if (angular.isDefined(path)) {
-				$solutionSettings.styleSheetPath = path +"?t="+Date.now();
-			} else {
-				delete $solutionSettings.styleSheetPath;
+		setStyleSheets: function(paths) {
+			var links = [];
+			
+			if (angular.isDefined(paths)) {
+				for (var i =0;i<paths.length;i++)
+				{
+					links[i] = paths[i] +"?t="+Date.now();
+				}	
 			}
+			$solutionSettings.styleSheetPaths = links;
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		getUserProperty: function(key) {

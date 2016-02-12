@@ -44,7 +44,9 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
@@ -194,5 +196,32 @@ public abstract class NGUtils
 		}
 
 		return allPublicWebServiceSpecifications.toArray(new WebObjectSpecification[allPublicWebServiceSpecifications.size()]);
+	}
+
+	public static List<String> getOrderedStyleSheets(FlattenedSolution fs)
+	{
+		List<String> styleSheets = new ArrayList<String>();
+		Solution[] modules = fs.getModules();
+		if (modules != null)
+		{
+			for (Solution solution : modules)
+			{
+				if (solution.getStyleSheetID() > 0)
+				{
+					Media media = fs.getMedia(solution.getStyleSheetID());
+					if (!styleSheets.contains(media.getName()))
+					{
+						styleSheets.add(media.getName());
+					}
+				}
+			}
+		}
+		if (fs.getSolution().getStyleSheetID() > 0)
+		{
+			Media media = fs.getMedia(fs.getSolution().getStyleSheetID());
+			styleSheets.remove(media.getName());
+			styleSheets.add(0, media.getName());
+		}
+		return styleSheets;
 	}
 }

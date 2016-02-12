@@ -25,9 +25,6 @@ package com.servoy.j2db;
 public interface INGClientApplication extends IApplication
 {
 
-	/**
-	 * @param newStyleName
-	 */
-	void setStyleSheet(String newStyleName);
+	void overrideStyleSheet(String oldStyleSheet, String newStyleSheet);
 
 }

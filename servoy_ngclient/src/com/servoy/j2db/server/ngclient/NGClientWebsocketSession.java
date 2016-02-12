@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -40,12 +41,12 @@ import org.sablo.websocket.utils.ObjectReference;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
@@ -243,32 +244,30 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	protected void sendSolutionCSSURL(Solution solution)
 	{
-		String customStyleSheet = client != null ? client.getStyleSheet() : null;
-		if (customStyleSheet != null)
+		Map<String, String> overrideStyleSheets = client != null ? client.getOverrideStyleSheets() : null;
+		List<String> styleSheets = NGUtils.getOrderedStyleSheets(client.getFlattenedSolution());
+		if (styleSheets != null && styleSheets.size() > 0)
 		{
-			String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + customStyleSheet;
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
+			if (overrideStyleSheets != null)
+			{
+				for (String oldStyleSheet : overrideStyleSheets.keySet())
+				{
+					if (styleSheets.contains(oldStyleSheet))
+					{
+						styleSheets.set(styleSheets.indexOf(oldStyleSheet), overrideStyleSheets.get(oldStyleSheet));
+					}
+				}
+			}
+			Collections.reverse(styleSheets);
+			for (int i = 0; i < styleSheets.size(); i++)
+			{
+				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i));
+			}
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}
 		else
 		{
-			int styleSheetID = solution.getStyleSheetID();
-			if (styleSheetID > 0)
-			{
-				Media styleSheetMedia = client.getFlattenedSolution().getMedia(styleSheetID);
-				if (styleSheetMedia != null)
-				{
-					String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName();
-					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
-				}
-				else
-				{
-					Debug.error("Cannot find solution styleSheet in media lib.");
-				}
-			}
-			else
-			{
-				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { });
-			}
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
 		}
 	}
 
