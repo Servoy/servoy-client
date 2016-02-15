@@ -36,7 +36,7 @@ describe("Test array_custom_property suite", function() {
 			iS = sabloConverters.INTERNAL_IMPL;
 			$compile = _$compile_;
 
-			if (!$scope) $scope = _$rootScope_.$new();
+			$scope = _$rootScope_.$new();
 		});
 
 		// mock timout
@@ -80,7 +80,6 @@ describe("Test array_custom_property suite", function() {
 					"w": false,
 					"v": [ 1, 2, 3, 4 ]
 			};
-
 			var template = '<div></div>';
 			$compile(template)($scope);
 			realClientValue = sabloConverters.convertFromServerToClient(serverValue,'JSON_arr', undefined, $scope, componentModelGetter);
