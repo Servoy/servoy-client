@@ -74,21 +74,24 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 	public void updateSubActionTimes(Map<String, PerformanceTimingAggregate> newSubActionTimings)
 	{
 		long it = 0, rt = 0;
-		for (Entry<String, PerformanceTimingAggregate> newE : newSubActionTimings.entrySet())
+		if (newSubActionTimings != null)
 		{
-			PerformanceTimingAggregate newSubTime = newE.getValue();
-			addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap());
-			if (newSubTime.getType() != IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
+			for (Entry<String, PerformanceTimingAggregate> newE : newSubActionTimings.entrySet())
 			{
-				if (totalSubActionTimes == null)
+				PerformanceTimingAggregate newSubTime = newE.getValue();
+				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap());
+				if (newSubTime.getType() != IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 				{
-					// done here so that methods that don't call API will not create this unneeded instance
-					totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL);
-					totalSubActionTimes.count = count - 1; // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
-				}
+					if (totalSubActionTimes == null)
+					{
+						// done here so that methods that don't call API will not create this unneeded instance
+						totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL);
+						totalSubActionTimes.count = count - 1; // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
+					}
 
-				it += newSubTime.getTotalIntervalTimeMS();
-				rt += newSubTime.getTotalTimeMS();
+					it += newSubTime.getTotalIntervalTimeMS();
+					rt += newSubTime.getTotalTimeMS();
+				}
 			}
 		}
 
