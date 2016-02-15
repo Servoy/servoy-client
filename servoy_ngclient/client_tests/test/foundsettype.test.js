@@ -1072,9 +1072,8 @@ describe("Test foundset_custom_property suite", function() {
 			);
 			expect(getAndClearNotified()).toEqual(false);
 			expect(realClientValue[iS].isChanged()).toEqual(false);
-		});
-		
-		it("Should send sort to server", function() {
+			
+			//Should send sort to server
 			var newD = realClientValue.sort([{"name":'i', "direction":"asc"}, {"name":'d', "direction":"desc"}]);
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
