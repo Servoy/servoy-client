@@ -55,6 +55,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public static final int USERMANAGEMENT_QUERY = 16;
 	public static final int META_DATA_QUERY = 17;
 	public static final int METHOD_CALL = 18;
+	public static final int METHOD_CALL_WAITING_FOR_USER_INPUT = 19;
 
 
 	public static final String BLOB_MARKER_COLUMN_ALIAS = "SV_BLOB_M"; //$NON-NLS-1$
