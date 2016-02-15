@@ -17,13 +17,17 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.servoy.j2db.dataprocessing.IDataServer;
 
 /**
  * Timing of actions like queries in the server.
  *
  * @author jblok
  */
-public class PerformanceTimingAggregate
+public class PerformanceTimingAggregate extends PerformanceAggregator
 {
 	private final String action;
 	private long min_ms;
@@ -34,14 +38,19 @@ public class PerformanceTimingAggregate
 	private long xtotal_ms;
 	private long total_interval_ms;
 
+	private PerformanceTimingAggregate totalSubActionTimes;
+
 	public PerformanceTimingAggregate(String action, int type)
 	{
+		super(TOTAL_IN_SUBLIST);
 		this.action = action;
 		this.type = type;
 	}
 
 	public PerformanceTimingAggregate(PerformanceTimingAggregate copy)
 	{
+		super(copy);
+
 		this.action = copy.getAction();
 		this.type = copy.getType();
 		this.min_ms = copy.getMinTimeMS();
@@ -60,6 +69,38 @@ public class PerformanceTimingAggregate
 		max_ms = count == 0 ? running_ms : Math.max(max_ms, running_ms);
 		s2 += (running_ms * running_ms);
 		count++;
+	}
+
+	public void updateSubActionTimes(Map<String, PerformanceTimingAggregate> newSubActionTimings)
+	{
+		long it = 0, rt = 0;
+		for (Entry<String, PerformanceTimingAggregate> newE : newSubActionTimings.entrySet())
+		{
+			PerformanceTimingAggregate newSubTime = newE.getValue();
+			addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap());
+			if (newSubTime.getType() != IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
+			{
+				if (totalSubActionTimes == null)
+				{
+					// done here so that methods that don't call API will not create this unneeded instance
+					totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL);
+					totalSubActionTimes.count = count - 1; // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
+				}
+
+				it += newSubTime.getTotalIntervalTimeMS();
+				rt += newSubTime.getTotalTimeMS();
+			}
+		}
+
+		if (totalSubActionTimes != null)
+		{
+			totalSubActionTimes.updateTime(it, rt); // it can happen that if in one parent method execution there are no child API calls, min will become 0 - that is normal
+		}
+	}
+
+	public PerformanceTimingAggregate getTotalSubActionTimes()
+	{
+		return totalSubActionTimes;
 	}
 
 	public void updateTime(long total_interval_ms, long running_ms, long min_ms, long max_ms, long s2, int count)
@@ -142,4 +183,5 @@ public class PerformanceTimingAggregate
 	{
 		return s2;
 	}
+
 }

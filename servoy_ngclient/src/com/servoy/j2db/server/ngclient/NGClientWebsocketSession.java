@@ -34,9 +34,9 @@ import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionManager;
-import org.sablo.websocket.utils.ObjectReference;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
@@ -88,9 +88,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public INGClientWindow createWindow(String windowName)
+	public INGClientWindow createWindow(IWebsocketSession session, String windowUuid, String windowName)
 	{
-		return new NGClientWindow(this, windowName);
+		return new NGClientWindow(this, windowUuid, windowName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -98,12 +98,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public Collection<INGClientWindow> getWindows()
 	{
 		return (Collection<INGClientWindow>)super.getWindows();
-	}
-
-	@Override
-	public Collection<ObjectReference< ? extends IWindow>> getWindowsRefs()
-	{
-		return super.getWindowsRefs();
 	}
 
 	@Override
@@ -337,9 +331,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void invalidateWindow(IWindow window)
+	public void updateLastAccessed(IWindow window)
 	{
-		super.invalidateWindow(window);
+		super.updateLastAccessed(window);
 
 		// check for window activity each time a window is closed, after the timeout period
 		ApplicationServerRegistry.get().getExecutor().schedule(new Runnable()

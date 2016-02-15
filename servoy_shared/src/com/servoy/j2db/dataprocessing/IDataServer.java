@@ -98,16 +98,6 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
 		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
 
-	/**
-	 *
-	 * @param client_id
-	 * @param server_name
-	 * @param transaction_id
-	 * @param array
-	 * @return
-	 * @throws ServoyException
-	 * @throws RemoteException
-	 */
 	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException;
 
 

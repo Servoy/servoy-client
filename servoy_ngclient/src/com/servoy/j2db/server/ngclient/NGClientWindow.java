@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -28,16 +29,21 @@ import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
+import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Sablo window for NGClient
@@ -48,16 +54,14 @@ import com.servoy.j2db.util.Pair;
 public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
 
-	private final INGClientWebsocketSession websocketSession;
-
 	/**
 	 * @param websocketSession
+	 * @param windowUuid
 	 * @param windowName
 	 */
-	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowName)
+	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
 	{
-		super(windowName);
-		this.websocketSession = websocketSession;
+		super(websocketSession, windowUuid, windowName);
 	}
 
 	public static INGClientWindow getCurrentWindow()
@@ -85,13 +89,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public Container getForm(String formName)
 	{
-		return (Container)websocketSession.getClient().getFormManager().getForm(formName).getFormUI();
+		return (Container)getSession().getClient().getFormManager().getForm(formName).getFormUI();
 	}
 
 	@Override
 	public void sendChanges() throws IOException
 	{
-		if (websocketSession.getClient() != null) websocketSession.getClient().changesWillBeSend();
+		if (getSession().getClient() != null) getSession().getClient().changesWillBeSend();
 		super.sendChanges();
 	}
 
@@ -102,9 +106,10 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		Map<String, Object> call = new HashMap<>();
 		if (callContributions != null) call.putAll(callContributions);
 
-		if (!isDelayedApiCall(receiver, apiFunction))
+		boolean delayedCall = isDelayedApiCall(receiver, apiFunction);
+		if (!delayedCall)
 		{
-			IWebFormController form = websocketSession.getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
+			IWebFormController form = getSession().getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
 			touchForm(form.getForm(), form.getName(), false);
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
@@ -113,7 +118,30 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			call.put("propertyPath", componentContext.getPropertyPath());
 		}
 
-		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+		IPerfomanceRegistry perfRegistry = null;
+		try
+		{
+			perfRegistry = getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		Pair<UUID, UUID> perfId = null;
+		if (perfRegistry != null && !delayedCall) // so it is waiting for a response
+			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(
+				receiver.getSpecification().getName() + "." + apiFunction.getName(), System.currentTimeMillis(),
+				apiFunction.getBlockEventProcessing() ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getClient().getClientID());
+		try
+		{
+			// actual call
+			return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+		}
+		finally
+		{
+			if (perfId != null) perfRegistry.getPerformanceData(getClient().getSolutionName()).endSubAction(perfId);
+		}
 	}
 
 	@Override
@@ -132,7 +160,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				String currentWindowName = getCurrentWindow().getName();
 				if (currentWindowName == null)
 				{
-					currentWindowName = websocketSession.getClient().getRuntimeWindowManager().getMainApplicationWindow().getName();
+					currentWindowName = getSession().getClient().getRuntimeWindowManager().getMainApplicationWindow().getName();
 				}
 				formUI.setParentWindowName(currentWindowName);
 			}
@@ -155,7 +183,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				{
 					// this means a previous async touchForm already sent URL and JS code (updateController) to client, but the client form was not yet loaded (directives, scopes....)
 					// so probably a tabpanel or component that asked for it changed it's mind and no longer showed it; make sure it will show before waiting!
-					websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
+					getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
 						new Object[] { formName });
 				}
 				Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
@@ -170,7 +198,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				}
 				try
 				{
-					websocketSession.getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
+					getSession().getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
 				}
 				catch (CancellationException e)
 				{
@@ -213,11 +241,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				@Override
 				public void run()
 				{
-					if (websocketSession.getClient().isEventDispatchThread() && forceLoad)
+					if (getSession().getClient().isEventDispatchThread() && forceLoad)
 					{
 						try
 						{
-							websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
+							getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
 								new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
 						}
 						catch (IOException e)
@@ -227,7 +255,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					}
 					else
 					{
-						websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
+						getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
 							new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
 					}
 				}
@@ -259,7 +287,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName, boolean addSessionID)
 	{
-		FlattenedSolution fs = websocketSession.getClient().getFlattenedSolution();
+		FlattenedSolution fs = getSession().getClient().getFlattenedSolution();
 		Solution sc = fs.getSolutionCopy(false);
 		String realUrl = getDefaultFormURLStart(form, realFormName);
 		boolean copy = false;
@@ -304,7 +332,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 	public void destroyForm(String name)
 	{
-		websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
+		getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
 		// also remove it from the endpoint as a form that is on the client.
 		getEndpoint().formDestroyed(name);
 	}
@@ -340,6 +368,34 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments, WebObjectApiDefinition apiFunction,
+		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
+	{
+		IPerfomanceRegistry perfRegistry = null;
+		try
+		{
+			perfRegistry = getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		Pair<UUID, UUID> perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(serviceName + "." + functionName,
+			System.currentTimeMillis(),
+			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
+			getClient().getClientID());
+		try
+		{
+			return super.executeServiceCall(serviceName, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);
+		}
+		finally
+		{
+			if (perfId != null) perfRegistry.getPerformanceData(getClient().getSolutionName()).endSubAction(perfId);
+		}
 	}
 
 }

@@ -17,30 +17,51 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Map;
+
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Timing of actions like queries in the server.
- * 
+ * Timing of actions like queries/methods in the server.
+ * It can contain sub-actions so it extends PerformanceData.
+ *
  * @author jblok
  */
-public class PerformanceTiming
+public class PerformanceTiming extends PerformanceData
 {
+
 	private final UUID uuid;
 	private final String action;
-	private final long start_ms;
+	private long start_ms;
 	private final int type;
 	private long interval_ms;
 	private final String clientUUID;
 
 	public PerformanceTiming(String action, int type, long start_ms, String clientUUID)
 	{
+		super(TOTAL_IN_SUBLIST);
+
 		this.uuid = UUID.randomUUID();
 		this.action = action;
 		this.type = type;
 		this.start_ms = start_ms;
 		this.clientUUID = clientUUID;
+	}
+
+
+	@Override
+	public synchronized void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
+		Map<String, PerformanceTimingAggregate> subSubActionTimings)
+	{
+		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
+		{
+			// the subaction was waiting for user input; so discard it's running time from this action's calculation as it's not useful
+			// (we could also keep a separate longs and substract them from these values during display if we need to show total time of an action including waiting for user stuff in the future)
+			start_ms += totalMsSubAction;
+		}
+
+		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subSubActionTimings);
 	}
 
 	public UUID getUuid()
@@ -129,4 +150,5 @@ public class PerformanceTiming
 	{
 		interval_ms = System.currentTimeMillis();
 	}
+
 }
