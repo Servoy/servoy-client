@@ -101,6 +101,17 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException;
 
 
+	/**
+	 * @param action from ISQLStatement static fields
+	 * @param server_name server name in lower case to work on
+	 * @param tableName table name in lowercase to work on
+	 * @param pkColumnData must be db compatible types and columns ordered a-z when having mulitple columns
+	 * @param tid transaction id, can be null if not present
+	 * @param sql the SQL to execute
+	 * @param questiondata the data for the question marks (must be db compatible types)
+	 * @return the statement
+	 * @throws RemoteException
+	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
 		Object[] questiondata) throws RemoteException, RepositoryException;
 
