@@ -2,6 +2,7 @@ describe("Test array_custom_property suite", function() {
 
 	var sabloConverters;
 	var $scope;
+	var $rootScope;
 	var iS;
 
 	var componentModelGetter; // can be used if needed; now undefined
@@ -37,6 +38,7 @@ describe("Test array_custom_property suite", function() {
 			$compile = _$compile_;
 
 			if (!$scope) $scope = _$rootScope_.$new();
+			$rootScope = _$rootScope_;
 		});
 
 		// mock timout
@@ -91,7 +93,7 @@ describe("Test array_custom_property suite", function() {
 		it("Should not send value updates for when pushToServer is not specified", function() {
 			// *** initial size no viewport
 			realClientValue[2] = 100; 
-			$scope.$digest();
+			$rootScope.$digest();
 
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
