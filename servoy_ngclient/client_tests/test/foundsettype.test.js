@@ -23,7 +23,7 @@ describe("Test foundset_custom_property suite", function() {
 		foundsetTypeConstants = _$foundsetTypeConstants_;
 		$compile = _$compile_;
 
-		if (!$scope) $scope = _$rootScope_.$new(); // our 'it's below depend on being run in sequence...; don't recreate scope each time cause we need to digest the correct scope in following 'it'
+		$scope = _$rootScope_.$new();
 	}));
 
 	// var CHANGE = 0;
@@ -1050,9 +1050,8 @@ describe("Test foundset_custom_property suite", function() {
 					]
 				}
 			});
-		});
-		
-		it("Should send change of date value to server", function() {
+			
+			//Should send change of date value to server
 			$scope.$digest();
 			var newD = realClientValue.viewPort.rows[12].d = new Date(new Date().getTime() + 1);
 			$scope.$digest();
@@ -1063,9 +1062,8 @@ describe("Test foundset_custom_property suite", function() {
 			);
 			expect(getAndClearNotified()).toEqual(false);
 			expect(realClientValue[iS].isChanged()).toEqual(false);
-		});
-		
-		it("Should send change of int value to server", function() {
+			
+			//Should send change of int value to server
 			realClientValue.viewPort.rows[0].i = 4321;
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
@@ -1075,9 +1073,8 @@ describe("Test foundset_custom_property suite", function() {
 			);
 			expect(getAndClearNotified()).toEqual(false);
 			expect(realClientValue[iS].isChanged()).toEqual(false);
-		});
-		
-		it("Should send sort to server", function() {
+			
+			//Should send sort to server
 			var newD = realClientValue.sort([{"name":'i', "direction":"asc"}, {"name":'d', "direction":"desc"}]);
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);

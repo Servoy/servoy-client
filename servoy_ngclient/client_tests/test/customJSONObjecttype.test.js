@@ -36,7 +36,7 @@ describe("Test custom_object_property suite", function() {
 			iS = sabloConverters.INTERNAL_IMPL;
 			$compile = _$compile_;
 
-			if (!$scope) $scope = _$rootScope_.$new();
+			$scope = _$rootScope_.$new();
 		});
 
 		// mock timout
