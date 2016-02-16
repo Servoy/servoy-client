@@ -273,6 +273,7 @@ public class ResourceProvider implements Filter
 			if (url != null)
 			{
 				URLConnection connection = url.openConnection();
+				connection.setUseCaches(false);
 				long lastModifiedTime = connection.getLastModified() / 1000 * 1000;
 				((HttpServletResponse)response).setDateHeader("Last-Modified", lastModifiedTime);
 				((HttpServletResponse)response).setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
