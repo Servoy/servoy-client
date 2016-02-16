@@ -20,7 +20,9 @@ package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -37,28 +39,36 @@ public class ComponentResourcesExporter
 	/**
 	 * Copy the default component packages to war.
 	 * @param path
-	 * @throws IOException 
-	 * @throws Exception 
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	public static void copyDefaultComponentsAndServices(File tmpWarDir) throws IOException
+	public static void copyDefaultComponentsAndServices(File tmpWarDir, List<String> excludedComponentPackages, List<String> excludedServicePackages)
+		throws IOException
 	{
-		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir);
+		List<String> excludedPackages = new ArrayList<String>();
+		if (excludedComponentPackages != null) excludedPackages.addAll(excludedComponentPackages);
+		if (excludedServicePackages != null) excludedPackages.addAll(excludedServicePackages);
+		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir, excludedPackages);
 	}
 
 	/**
 	 * Used in war export to create a components.properties file which is needed to load the components specs in war.
 	 * @return the locations of components folders relative to the war dir.
 	 */
-	public static String getComponentDirectoryNames()
+	public static String getComponentDirectoryNames(List<String> excludedComponentPackages)
 	{
 		StringBuilder locations = new StringBuilder();
 		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.endsWith("services/"))
+			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.endsWith("servoydefaultservices/"))
 			{
-				locations.append("/" + name + ";");
+				String packageName = name.substring(0, name.length() - 1);
+				if (excludedComponentPackages == null || excludedComponentPackages.indexOf(packageName) == -1)
+				{
+					locations.append("/" + name + ";");
+				}
 			}
 		}
 		locations.deleteCharAt(locations.length() - 1);
@@ -69,14 +79,21 @@ public class ComponentResourcesExporter
 	 * Used in war export to create a services.properties file, which is needed to load services specs in the war.
 	 * @return the locations of services folders relative to the war dir.
 	 */
-	public static String getServicesDirectoryNames()
+	public static String getServicesDirectoryNames(List<String> excludedServicePackages)
 	{
 		StringBuilder locations = new StringBuilder();
 		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			if (name.endsWith("services/")) locations.append("/" + name + ";");
+			if (name.endsWith("servoydefaultservices/"))
+			{
+				String packageName = name.substring(0, name.length() - 1);
+				if (excludedServicePackages == null || excludedServicePackages.indexOf(packageName) == -1)
+				{
+					locations.append("/" + name + ";");
+				}
+			}
 		}
 		if (locations.length() > 0) locations.deleteCharAt(locations.length() - 1);
 		return locations.toString();
@@ -85,9 +102,9 @@ public class ComponentResourcesExporter
 	/**
 	 * @param path
 	 * @param tmpWarDir
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	private static void copy(Enumeration<String> paths, File destDir) throws IOException
+	private static void copy(Enumeration<String> paths, File destDir, List<String> excludedPackages) throws IOException
 	{
 		if (paths != null)
 		{
@@ -96,8 +113,12 @@ public class ComponentResourcesExporter
 				String path = paths.nextElement();
 				if (path.endsWith("/"))
 				{
-					File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
-					copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir);
+					String packageName = path.substring("war/".length(), path.length() - 1);
+					if (excludedPackages.indexOf(packageName) == -1)
+					{
+						File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
+						copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir, excludedPackages);
+					}
 				}
 				else
 				{
