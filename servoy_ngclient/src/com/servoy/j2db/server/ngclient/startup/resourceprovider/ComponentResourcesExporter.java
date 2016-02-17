@@ -62,7 +62,7 @@ public class ComponentResourcesExporter
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.endsWith("servoydefaultservices/"))
+			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.endsWith("services/"))
 			{
 				String packageName = name.substring(0, name.length() - 1);
 				if (excludedComponentPackages == null || excludedComponentPackages.indexOf(packageName) == -1)
@@ -86,7 +86,7 @@ public class ComponentResourcesExporter
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			if (name.endsWith("servoydefaultservices/"))
+			if (name.endsWith("services/"))
 			{
 				String packageName = name.substring(0, name.length() - 1);
 				if (excludedServicePackages == null || excludedServicePackages.indexOf(packageName) == -1)
