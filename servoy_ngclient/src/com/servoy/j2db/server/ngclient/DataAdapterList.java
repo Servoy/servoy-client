@@ -516,7 +516,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	}
 
-	public boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
+	protected boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
 	{
 		if (oldRecord == newRecord) return true;
 		return false;

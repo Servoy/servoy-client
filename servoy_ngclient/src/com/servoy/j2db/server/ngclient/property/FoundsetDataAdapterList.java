@@ -60,7 +60,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	}
 
 	@Override
-	public boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
+	protected boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
 	{
 		return false;
 	}
