@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONException;
@@ -54,6 +55,7 @@ import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Utility methods for NGClient.
@@ -201,27 +203,45 @@ public abstract class NGUtils
 	public static List<String> getOrderedStyleSheets(FlattenedSolution fs)
 	{
 		List<String> styleSheets = new ArrayList<String>();
-		Solution[] modules = fs.getModules();
-		if (modules != null)
+		List<Solution> orderedModules = new ArrayList<Solution>();
+
+		orderedModules.add(fs.getSolution());
+		buildOrderedModulesList(fs.getSolution(), orderedModules, new ArrayList<Solution>(Arrays.asList(fs.getModules())));
+		for (Solution solution : orderedModules)
 		{
-			for (Solution solution : modules)
+			if (solution.getStyleSheetID() > 0)
 			{
-				if (solution.getStyleSheetID() > 0)
+				Media media = fs.getMedia(solution.getStyleSheetID());
+				if (!styleSheets.contains(media.getName()))
 				{
-					Media media = fs.getMedia(solution.getStyleSheetID());
-					if (!styleSheets.contains(media.getName()))
-					{
-						styleSheets.add(media.getName());
-					}
+					styleSheets.add(media.getName());
 				}
 			}
 		}
-		if (fs.getSolution().getStyleSheetID() > 0)
-		{
-			Media media = fs.getMedia(fs.getSolution().getStyleSheetID());
-			styleSheets.remove(media.getName());
-			styleSheets.add(0, media.getName());
-		}
 		return styleSheets;
+	}
+
+	private static void buildOrderedModulesList(Solution parent, List<Solution> orderedModules, List<Solution> fsModules)
+	{
+		List<Solution> newParents = new ArrayList<Solution>();
+		for (String moduleName : Utils.getTokenElements(parent.getModulesNames(), ",", true))
+		{
+			Iterator<Solution> it = fsModules.iterator();
+			while (it.hasNext())
+			{
+				Solution module = it.next();
+				if (module.getName().equals(moduleName))
+				{
+					if (!orderedModules.contains(module)) orderedModules.add(module);
+					it.remove();
+					newParents.add(module);
+					break;
+				}
+			}
+		}
+		for (Solution newParent : newParents)
+		{
+			buildOrderedModulesList(newParent, orderedModules, fsModules);
+		}
 	}
 }
