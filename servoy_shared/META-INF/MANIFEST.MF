@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 7.4.5.2041
+Bundle-Version: 7.4.6.2043
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
