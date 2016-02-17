@@ -206,7 +206,10 @@ public abstract class NGUtils
 		List<Solution> orderedModules = new ArrayList<Solution>();
 
 		orderedModules.add(fs.getSolution());
-		buildOrderedModulesList(fs.getSolution(), orderedModules, new ArrayList<Solution>(Arrays.asList(fs.getModules())));
+		if (fs.getModules() != null)
+		{
+			buildOrderedModulesList(fs.getSolution(), orderedModules, new ArrayList<Solution>(Arrays.asList(fs.getModules())));
+		}
 		for (Solution solution : orderedModules)
 		{
 			if (solution.getStyleSheetID() > 0)
