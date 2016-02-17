@@ -576,7 +576,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		IFoundSetInternal retval = null;
 		Relation relation = application.getFlattenedSolution().getRelation(relationName);
-		if (Relation.isValid(relation, application.getFlattenedSolution()))
+		if (!Relation.isValid(relation, application.getFlattenedSolution()))
 		{
 			return null;
 		}
