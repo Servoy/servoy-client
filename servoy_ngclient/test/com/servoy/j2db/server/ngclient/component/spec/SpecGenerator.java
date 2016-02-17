@@ -726,7 +726,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
-		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\" }, \"for\": \"dataProviderID\", \"default\":\"autoVL\", \"canOptimize\":false}");
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\" }, \"for\": \"dataProviderID\", \"default\":\"autoVL\", \"canOptimize\":false, \"lookup\":true}");
 		typeaheadTypeMapping.put("findmode", findModeEditable);
 		typeaheadTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
