@@ -544,7 +544,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private RelatedFoundSet getRelatedFoundSetWhenLoaded(IRecordInternal state, Relation relation) throws RepositoryException
 	{
-		if (state == null || Relation.isValid(relation, application.getFlattenedSolution()))
+		if (state == null || !Relation.isValid(relation, application.getFlattenedSolution()))
 		{
 			return null;
 		}
