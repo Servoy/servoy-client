@@ -27,6 +27,12 @@ import java.util.Map;
  */
 public interface IPerfomanceRegistry
 {
+
+	public static final String MAX_ENTRIES_PER_CONTEXT_PROPERTY_NAME_PREFIX = "servoy.performanceStats.maxEntriesPerContext.";
+
+	public static final int UNLIMITED_ENTRIES = -1;
+	public static final int OFF = 0;
+
 	PerformanceData getPerformanceData(String context);
 
 	Date getLastCleared(String context);
@@ -38,4 +44,13 @@ public interface IPerfomanceRegistry
 	String[] getPerformanceTimingContexts();
 
 	PerformanceTimingAggregate[] getPerformanceTiming(String string);
+
+	int getMaxNumberOfEntriesPerContext();
+
+	void setMaxNumberOfEntriesPerContext(int maxNumberOfEntriesPerContext);
+
+	boolean isEnabled();
+
+	String getId();
+
 }

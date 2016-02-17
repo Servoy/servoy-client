@@ -33,13 +33,12 @@ import com.servoy.j2db.util.UUID;
 public class PerformanceAggregator
 {
 
-	public static final int TOTAL_IN_LIST = 200;
-	public static final int TOTAL_IN_SUBLIST = 200;
+	public static final int DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION = 500;
 
 	private SortedList<PerformanceTimingAggregate> sortedAggregates;
 	private Map<String, PerformanceTimingAggregate> aggregatesByAction;
 
-	private final int maxEntriesToKeep;
+	protected final int maxEntriesToKeep;
 
 	public PerformanceAggregator(int maxEntriesToKeep)
 	{
@@ -70,13 +69,16 @@ public class PerformanceAggregator
 	 */
 	public synchronized void addTiming(String action, long interval_ms, long total_ms, int type, Map<String, PerformanceTimingAggregate> subActionTimings)
 	{
-		if (aggregatesByAction == null) aggregatesByAction = new HashMap<String, PerformanceTimingAggregate>(maxEntriesToKeep);
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+
+		if (aggregatesByAction == null) aggregatesByAction = new HashMap<String, PerformanceTimingAggregate>(
+			maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
 		if (sortedAggregates == null) sortedAggregates = new SortedList<PerformanceTimingAggregate>(new TimeComparator());
 
 		PerformanceTimingAggregate time = aggregatesByAction.get(action);
 		if (time == null)
 		{
-			time = new PerformanceTimingAggregate(action, type);
+			time = new PerformanceTimingAggregate(action, type, getSubActionMaxEntries());
 			aggregatesByAction.put(action, time);
 		}
 		// remove it because it will need to be sorted again after update
@@ -90,7 +92,7 @@ public class PerformanceAggregator
 		sortedAggregates.add(time);
 
 		// do clean
-		if (sortedAggregates.size() > maxEntriesToKeep)
+		if (maxEntriesToKeep != IPerfomanceRegistry.UNLIMITED_ENTRIES && sortedAggregates.size() > maxEntriesToKeep)
 		{
 			PerformanceTimingAggregate old = sortedAggregates.remove(maxEntriesToKeep);
 			aggregatesByAction.remove(old.getAction());
@@ -112,6 +114,11 @@ public class PerformanceAggregator
 	public synchronized Map<String, PerformanceTimingAggregate> toMap()
 	{
 		return (aggregatesByAction != null ? Collections.unmodifiableMap(aggregatesByAction) : new HashMap<String, PerformanceTimingAggregate>());
+	}
+
+	protected int getSubActionMaxEntries()
+	{
+		return maxEntriesToKeep == IPerfomanceRegistry.UNLIMITED_ENTRIES ? IPerfomanceRegistry.UNLIMITED_ENTRIES : Math.max(5, maxEntriesToKeep / 10);
 	}
 
 }

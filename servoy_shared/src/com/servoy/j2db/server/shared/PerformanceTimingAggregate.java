@@ -40,9 +40,9 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 
 	private PerformanceTimingAggregate totalSubActionTimes;
 
-	public PerformanceTimingAggregate(String action, int type)
+	public PerformanceTimingAggregate(String action, int type, int maxEntriesToKeep)
 	{
-		super(TOTAL_IN_SUBLIST);
+		super(maxEntriesToKeep);
 		this.action = action;
 		this.type = type;
 	}
@@ -85,7 +85,7 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 					if (totalSubActionTimes == null)
 					{
 						// done here so that methods that don't call API will not create this unneeded instance
-						totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL);
+						totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL, getSubActionMaxEntries());
 						totalSubActionTimes.count = count - 1; // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
 					}
 

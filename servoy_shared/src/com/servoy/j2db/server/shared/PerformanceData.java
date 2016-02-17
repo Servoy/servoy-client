@@ -22,11 +22,6 @@ public class PerformanceData extends PerformanceAggregator
 	// is closed sub-actions might still happen and they need to point to the correct parent action
 	private final Stack<UUID> startedTimingUUIDsStack = new Stack<>();
 
-	public PerformanceData()
-	{
-		super(TOTAL_IN_LIST);
-	}
-
 	public PerformanceData(int maxEntriesToKeep)
 	{
 		super(maxEntriesToKeep);
@@ -34,7 +29,9 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
 	{
-		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID);
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return null;
+
+		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep);
 		startedTimingUUIDsStack.push(timing.getUuid());
 		startedTimings.put(timing.getUuid(), timing);
 		return timing.getUuid();
@@ -47,12 +44,16 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void intervalAction(UUID uuid)
 	{
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+
 		PerformanceTiming timing = startedTimings.get(uuid);
 		if (timing != null) timing.setIntervalTime();
 	}
 
 	public synchronized void endAction(UUID uuid)
 	{
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+
 		PerformanceTiming timing = startedTimings.remove(uuid);
 		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());
 		startedTimingUUIDsStack.pop();
@@ -61,6 +62,8 @@ public class PerformanceData extends PerformanceAggregator
 	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
 	public synchronized Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
 	{
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return null;
+
 		if (startedTimingUUIDsStack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 		UUID lastStartedTimingUUID = startedTimingUUIDsStack.peek();
 
@@ -75,6 +78,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void endSubAction(Pair<UUID, UUID> subActionUUIDs)
 	{
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
 		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
 		PerformanceTiming timingWithSubAction = startedTimings.get(subActionUUIDs.getLeft());

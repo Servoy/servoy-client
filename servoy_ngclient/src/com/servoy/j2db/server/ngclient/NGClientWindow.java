@@ -129,7 +129,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 
 		Pair<UUID, UUID> perfId = null;
-		if (perfRegistry != null && !delayedCall) // so it is waiting for a response
+		if (perfRegistry != null && perfRegistry.isEnabled() && !delayedCall) // so it is waiting for a response
 			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(
 				receiver.getSpecification().getName() + "." + apiFunction.getName(), System.currentTimeMillis(),
 				apiFunction.getBlockEventProcessing() ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getClient().getClientID());
@@ -384,10 +384,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			Debug.error(e);
 		}
 
-		Pair<UUID, UUID> perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(serviceName + "." + functionName,
-			System.currentTimeMillis(),
-			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-			getClient().getClientID());
+		Pair<UUID, UUID> perfId = null;
+		if (perfRegistry.isEnabled())
+			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
+				(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
+				getClient().getClientID());
 		try
 		{
 			return super.executeServiceCall(serviceName, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);

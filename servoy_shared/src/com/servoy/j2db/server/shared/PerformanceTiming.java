@@ -38,9 +38,9 @@ public class PerformanceTiming extends PerformanceData
 	private long interval_ms;
 	private final String clientUUID;
 
-	public PerformanceTiming(String action, int type, long start_ms, String clientUUID)
+	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep)
 	{
-		super(TOTAL_IN_SUBLIST);
+		super(maxEntriesToKeep);
 
 		this.uuid = UUID.randomUUID();
 		this.action = action;
