@@ -99,13 +99,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String dataprovider = "";
 		String def = null;
 		boolean canOptimize = true;
-		boolean lookup = true;
+		boolean lookup = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			canOptimize = json.optBoolean("canOptimize", true);
-			lookup = json.optBoolean("lookup", true);
+			lookup = json.optBoolean("lookup", false);
 		}
 		return new ValueListConfig(dataprovider, def, canOptimize, lookup);
 	}
