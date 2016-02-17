@@ -69,6 +69,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
+import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IScriptAccordionPanelMethods;
 import com.servoy.j2db.ui.IScriptDataLabelMethods;
@@ -107,7 +108,8 @@ import com.servoy.j2db.util.Utils;
 public class ScriptEngine implements IScriptSupport
 {
 	public static final String SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY = "servoy.disableScriptCompile"; //$NON-NLS-1$
-	private final static Pattern docStripper = Pattern.compile("\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
+	private final static Pattern docStripper = Pattern.compile(
+		"\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
 
 	private final static ContextFactory.Listener contextListener = new ContextFactory.Listener()
 	{
@@ -127,6 +129,7 @@ public class ScriptEngine implements IScriptSupport
 			cx.setApplicationClassLoader(null);
 		}
 	};
+
 	static
 	{
 		class ServoyContextFactory extends ContextFactory
@@ -235,36 +238,37 @@ public class ScriptEngine implements IScriptSupport
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);
 
 			// add application variable to solution scope
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_APPLICATION, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsApplication,
-				new InstanceJavaMembers(tmpSolutionScope, JSApplication.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_APPLICATION, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsApplication, new InstanceJavaMembers(tmpSolutionScope, JSApplication.class)));
 			registerScriptObjectReturnTypes(jsApplication);
 
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsUtils,
-				new InstanceJavaMembers(tmpSolutionScope, JSUtils.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsUtils, new InstanceJavaMembers(tmpSolutionScope, JSUtils.class)));
 
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jssec,
-				new InstanceJavaMembers(tmpSolutionScope, JSSecurity.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jssec, new InstanceJavaMembers(tmpSolutionScope, JSSecurity.class)));
 			registerScriptObjectReturnTypes(jssec);
 			tmpSolutionScope.put(JSSecurity.class.getSimpleName(), tmpSolutionScope, new NativeJavaClass(tmpSolutionScope, JSSecurity.class));
 
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SOLUTION_MODIFIER, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, solutionModifier,
-				new InstanceJavaMembers(tmpSolutionScope, JSSolutionModel.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SOLUTION_MODIFIER, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, solutionModifier, new InstanceJavaMembers(tmpSolutionScope, JSSolutionModel.class)));
 			registerScriptObjectClass(JSSolutionModel.class);
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsdbm,
-				new InstanceJavaMembers(tmpSolutionScope, JSDatabaseManager.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsdbm, new InstanceJavaMembers(tmpSolutionScope, JSDatabaseManager.class)));
 			registerScriptObjectClass(JSDatabaseManager.class);
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATASOURCES, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsds,
-				new InstanceJavaMembers(tmpSolutionScope, JSDataSources.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATASOURCES, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsds, new InstanceJavaMembers(tmpSolutionScope, JSDataSources.class)));
 			registerScriptObjectClass(JSDataSources.class);
 
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_I18N, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, i18n, new InstanceJavaMembers(
-				tmpSolutionScope, JSI18N.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_I18N, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, i18n, new InstanceJavaMembers(tmpSolutionScope, JSI18N.class)));
 
 			ScriptObjectRegistry.getJavaMembers(RepositoryException.class, tmpSolutionScope);
 			ScriptObjectRegistry.getJavaMembers(ApplicationException.class, tmpSolutionScope);
 			ScriptObjectRegistry.getJavaMembers(ServoyException.class, tmpSolutionScope);
 			ScriptObjectRegistry.getJavaMembers(DataException.class, tmpSolutionScope);
-			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SERVOY_EXCEPTION, tmpSolutionScope, new NativeJavaClass(tmpSolutionScope, ServoyException.class));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SERVOY_EXCEPTION, tmpSolutionScope,
+				new NativeJavaClass(tmpSolutionScope, ServoyException.class));
 			registerScriptObjectClass(ServoyException.class);
 
 			ScriptObjectRegistry.getJavaMembers(DataRendererOnRenderWrapper.class, tmpSolutionScope);
@@ -346,8 +350,8 @@ public class ScriptEngine implements IScriptSupport
 					try
 					{
 						IPrefixedConstantsObject constants = (IPrefixedConstantsObject)element.newInstance();
-						toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element.equals(JSFieldWithConstants.class)
-							? JSField.class : element));
+						toplevelScope.put(constants.getPrefix(), toplevelScope,
+							new NativeJavaClass(toplevelScope, element.equals(JSFieldWithConstants.class) ? JSField.class : element));
 						if (scriptableAddition != null)
 						{
 							scriptableAddition.addVar(constants.getPrefix(), new NativeJavaClass(scriptableAddition, element));
@@ -579,8 +583,8 @@ public class ScriptEngine implements IScriptSupport
 				f.put("_scopename_", f, sp.getScopeName()); //$NON-NLS-1$
 			}
 			f.put("_methodname_", f, sp.getDataProviderID()); //$NON-NLS-1$
-			f.put(
-				"_AllowToRunInFind_", f, Boolean.valueOf(sp.getDeclaration().indexOf("@AllowToRunInFind") != -1 || declaration.indexOf(".search") != -1 || declaration.indexOf("controller.loadAllRecords") != -1)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			f.put("_AllowToRunInFind_", f, Boolean.valueOf(sp.getDeclaration().indexOf("@AllowToRunInFind") != -1 || declaration.indexOf(".search") != -1 || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				declaration.indexOf("controller.loadAllRecords") != -1));
 		}
 		return f;
 	}
@@ -603,20 +607,29 @@ public class ScriptEngine implements IScriptSupport
 				userUidBefore = application.getClientInfo().getUserUid();
 			}
 			Context cx = Context.enter();
-			String methodName = f.getClassName();
-			if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-			String scopeName = scope.getClassName();
-			if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
-			if (scope instanceof FoundSet)
+
+			// only search for nice strings needed in performance admin page if performance is actually enabled
+			IPerfomanceRegistry performanceRegistry = application.getApplicationServerAccess().getFunctionPerfomanceRegistry();
+			String methodName = null;
+			String solutionName = null;
+			if (performanceRegistry.isEnabled())
 			{
-				Scriptable parentScope = ((FoundSet)scope).getPrototype();
-				if (parentScope instanceof LazyCompilationScope)
+				methodName = f.getClassName();
+				if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
+				String scopeName = scope.getClassName();
+				if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+				if (scope instanceof FoundSet)
 				{
-					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+					Scriptable parentScope = ((FoundSet)scope).getPrototype();
+					if (parentScope instanceof LazyCompilationScope)
+					{
+						scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+					}
 				}
+				solutionName = application.getSolutionName();
+				methodName = scopeName + "." + methodName; //$NON-NLS-1$
 			}
-			String solutionName = application.getSolutionName();
-			methodName = scopeName + "." + methodName; //$NON-NLS-1$
+
 			UUID pfUuid = null;
 			try
 			{
@@ -643,12 +656,11 @@ public class ScriptEngine implements IScriptSupport
 				}
 
 				//run
-				if (!(application instanceof ISmartClientApplication))
+				if (performanceRegistry.isEnabled() && !(application instanceof ISmartClientApplication))
 				{
 					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					pfUuid = application.getApplicationServerAccess().getFunctionPerfomanceRegistry().getPerformanceData(solutionName).startAction(methodName,
-						System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID());
-
+					pfUuid = performanceRegistry.getPerformanceData(solutionName).startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL,
+						application.getClientID());
 				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
@@ -683,7 +695,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 				else if (pfUuid != null)
 				{
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().getPerformanceData(solutionName).endAction(pfUuid);
+					performanceRegistry.getPerformanceData(solutionName).endAction(pfUuid);
 				}
 				Context.exit();
 			}
@@ -736,8 +748,8 @@ public class ScriptEngine implements IScriptSupport
 			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$
 			if (compileFunction instanceof NativeFunction)
 			{
-				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string,
-					"internal_anon", 1, null); //$NON-NLS-1$
+				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string, "internal_anon", 1, //$NON-NLS-1$
+					null);
 			}
 			else
 			{

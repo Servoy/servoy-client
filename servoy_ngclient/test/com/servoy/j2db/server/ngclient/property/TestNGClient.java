@@ -67,6 +67,7 @@ import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.server.shared.IUserManager;
+import com.servoy.j2db.server.shared.PerformanceAggregator;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
@@ -625,11 +626,6 @@ public class TestNGClient extends NGClient
 								return null;
 							}
 
-							/*
-							 * (non-Javadoc)
-							 *
-							 * @see com.servoy.j2db.server.shared.IPerfomanceRegistry#getLastCleared(java.lang.String)
-							 */
 							@Override
 							public Date getLastCleared(String context)
 							{
@@ -640,7 +636,7 @@ public class TestNGClient extends NGClient
 							@Override
 							public PerformanceData getPerformanceData(String context)
 							{
-								return new PerformanceData();
+								return new PerformanceData(PerformanceAggregator.DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
 							}
 
 							@Override
@@ -656,6 +652,30 @@ public class TestNGClient extends NGClient
 								// TODO Auto-generated method stub
 
 							}
+
+							@Override
+							public int getMaxNumberOfEntriesPerContext()
+							{
+								return 500;
+							}
+
+							@Override
+							public void setMaxNumberOfEntriesPerContext(int maxNumberOfEntriesPerContext)
+							{
+							}
+
+							@Override
+							public boolean isEnabled()
+							{
+								return true;
+							}
+
+							@Override
+							public String getId()
+							{
+								return "testPrfReg";
+							}
+
 						};
 					}
 

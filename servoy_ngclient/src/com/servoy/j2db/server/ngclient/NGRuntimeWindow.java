@@ -463,7 +463,9 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					Debug.error(e);
 				}
 
-				Pair<UUID, UUID> perfId = perfRegistry.getPerformanceData(getApplication().getSolutionName()).startSubAction("$windowService.show",
+				Pair<UUID, UUID> perfId = null;
+
+				if (perfRegistry.isEnabled()) perfId = perfRegistry.getPerformanceData(getApplication().getSolutionName()).startSubAction("$windowService.show",
 					System.currentTimeMillis(), IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID());
 				try
 				{
