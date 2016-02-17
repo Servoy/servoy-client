@@ -468,7 +468,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		// if this is not a change in the record that it should not be needed that it should be pushed again.
 		// because all types should just listen to the right stuff.
-		if (this.record == record) return;
+		if (shouldIgnoreRecordChange(this.record, record)) return;
 		if (settingRecord)
 		{
 			if (record != this.record)
@@ -514,6 +514,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
+	}
+
+	public boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
+	{
+		if (oldRecord == newRecord) return true;
+		return false;
 	}
 
 	public IRecordInternal getRecord()

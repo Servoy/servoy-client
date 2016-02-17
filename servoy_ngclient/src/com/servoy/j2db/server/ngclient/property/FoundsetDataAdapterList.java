@@ -59,6 +59,12 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		}
 	}
 
+	@Override
+	public boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
+	{
+		return false;
+	}
+
 	public boolean isQuietRecordChangeInProgress()
 	{
 		return keepQuiet;
