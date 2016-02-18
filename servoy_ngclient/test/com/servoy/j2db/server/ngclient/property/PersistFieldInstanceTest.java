@@ -36,8 +36,8 @@ import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -140,8 +140,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		Object property = wc.getProperty("valuelistID");
 		Assert.assertTrue(property != null ? property.getClass().getName() : "null",
-			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof LookupValueList);
-		Assert.assertEquals("#,###.00", ((LookupValueList)((ValueListTypeSabloValue)property).getValueList()).getDisplayFormat()[0]);
+			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
+		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListTypeSabloValue)property).getValueList()).getFormat().getDisplayFormat());
+
 	}
 
 	@Test
