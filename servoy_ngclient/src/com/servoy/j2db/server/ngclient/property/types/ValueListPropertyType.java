@@ -224,7 +224,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
 			LookupValueList lookupValueList = null;
-			if (config.lookup()) try
+			if (config.lookup() && val.getValueListType() == IValueListConstants.DATABASE_VALUES) try
 			{
 				IValueList secondLookup = ComponentFactory.getFallbackValueList(application, dataproviderID, fieldFormat.uiType, fieldFormat.parsedFormat, val);
 				lookupValueList = new LookupValueList(val, application, secondLookup, format);
