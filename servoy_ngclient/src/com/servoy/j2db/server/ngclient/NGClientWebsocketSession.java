@@ -46,9 +46,9 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -239,7 +239,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	protected void sendSolutionCSSURL(Solution solution)
 	{
 		Map<String, String> overrideStyleSheets = client != null ? client.getOverrideStyleSheets() : null;
-		List<String> styleSheets = NGUtils.getOrderedStyleSheets(client.getFlattenedSolution());
+		List<String> styleSheets = PersistHelper.getOrderedStyleSheets(client.getFlattenedSolution());
 		if (styleSheets != null && styleSheets.size() > 0)
 		{
 			if (overrideStyleSheets != null)

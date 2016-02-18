@@ -60,8 +60,8 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -369,7 +369,7 @@ public class DebugUtils
 					}
 				}
 			}
-			else if (persist instanceof Media && NGUtils.getOrderedStyleSheets(clientState.getFlattenedSolution()).contains(((Media)persist).getName()))
+			else if (persist instanceof Media && PersistHelper.getOrderedStyleSheets(clientState.getFlattenedSolution()).contains(((Media)persist).getName()))
 			{
 				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
 				for (IFormController formController : cachedFormControllers)
