@@ -114,10 +114,10 @@ public class ComponentResourcesExporter
 				if (path.endsWith("/"))
 				{
 					String packageName = path.substring("war/".length(), path.length() - 1);
-					if (excludedPackages.indexOf(packageName) == -1)
+					if (excludedPackages == null || excludedPackages.indexOf(packageName) == -1)
 					{
 						File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
-						copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir, excludedPackages);
+						copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir, null);
 					}
 				}
 				else
