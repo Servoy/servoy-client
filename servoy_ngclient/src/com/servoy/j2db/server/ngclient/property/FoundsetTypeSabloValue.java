@@ -127,8 +127,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected FoundsetTypeRowDataProvider rowDataProvider;
 
 	// child components can be foundset linked (forFoundset: ...); in this case foundset prop. API can sort by child component name if it's told
-	// which child component maps to which foundset column...
-	protected final Map<String, String> linkedChildComponentToColumn;
+	// which child component maps to which foundset column... the same goes for dataprovider properties linked to foundsets for example
+	protected final Map<String, String> recordDataLinkedPropertyIDToColumnDP;
 
 	protected final DataAdapterList parentDAL;
 
@@ -148,7 +148,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
 		// nothing to do here; foundset is not initialized until it's attached to a component
-		linkedChildComponentToColumn = new HashMap<String, String>();
+		recordDataLinkedPropertyIDToColumnDP = new HashMap<String, String>();
 		// foundsetSelector as defined in component design XML.
 		if (designJSONValue != null)
 		{
@@ -620,7 +620,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					{
 						JSONArray columns = update.getJSONArray("sort");
 						StringBuilder sort = new StringBuilder();
-						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : linkedChildComponentToColumn;
+						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
 						String dataProviderID = null;
 						boolean sortAscending = true;
 						for (int j = 0; j < columns.length(); j++)
@@ -886,9 +886,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		return "'" + propertyName + "' foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
 	}
 
-
-	protected void setColumnDataprovider(String name, String dataprovider)
+	public void setRecordDataLinkedPropertyIDToColumnDP(String id, String dataprovider)
 	{
-		linkedChildComponentToColumn.put(name, dataprovider);
+		if (dataprovider == null) recordDataLinkedPropertyIDToColumnDP.remove(id);
+		else recordDataLinkedPropertyIDToColumnDP.put(id, dataprovider);
 	}
+
 }

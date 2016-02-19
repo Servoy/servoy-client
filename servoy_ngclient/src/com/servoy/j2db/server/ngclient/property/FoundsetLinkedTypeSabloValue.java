@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient.property;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +46,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Property value for {@link FoundsetLinkedPropertyType}.
@@ -63,6 +63,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 	protected static final String PUSH_TO_SERVER = "w";
 
+	protected static final String ID_FOR_FOUNDSET = "idForFoundset";
+
 	/**
 	 * When non-null then the wrapped property is not yet initialized - waiting for forFoundset property's DAL to be available
 	 */
@@ -74,6 +76,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected PropertyChangeListener forFoundsetPropertyListener;
 	protected IDataLinkedPropertyRegistrationListener dataLinkedPropertyRegistrationListener;
 	protected IChangeListener changeMonitor;
+	protected String idForFoundset;
+	protected boolean idForFoundsetChanged = false;
 
 	protected ViewportDataChangeMonitor<FoundsetLinkedViewportRowDataProvider<YF, YT>> viewPortChangeMonitor;
 
@@ -130,6 +134,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (foundsetPropValue == null) return;
 
 		FoundsetDataAdapterList dal = foundsetPropValue.getDataAdapterList();
+		idForFoundset = null;
 		dal.addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener(changeMonitor, foundsetPropValue));
 
 		this.wrappedSabloValue = (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
@@ -188,9 +193,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					// this could be the result of initialization or it could for example get changed from Rhino
 					boolean changed = (viewPortChangeMonitor == null);
 
-					viewPortChangeMonitor = new ViewportDataChangeMonitor<>(changeMonitor, new FoundsetLinkedViewportRowDataProvider<YF, YT>(
-						foundsetPropValue.getDataAdapterList(), pd, FoundsetLinkedTypeSabloValue.this));
+					if (viewPortChangeMonitor != null) foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					viewPortChangeMonitor = new ViewportDataChangeMonitor<>(changeMonitor,
+						new FoundsetLinkedViewportRowDataProvider<YF, YT>(foundsetPropValue.getDataAdapterList(), pd, FoundsetLinkedTypeSabloValue.this));
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
+
+					// register the first dataprovider used by the wrapped property to the foundset for sorting
+					if (idForFoundset == null /* the rest of the condition should always be true */ && targetDataLinks.dataProviderIDs != null &&
+						targetDataLinks.dataProviderIDs.length > 0)
+					{
+						idForFoundset = UUID.randomUUID().toString();
+						idForFoundsetChanged = true;
+						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, targetDataLinks.dataProviderIDs[0]);
+					}
 
 					if (changed) changeMonitor.valueChanged();
 				} // else we will send single value to client as it is not record dependent and the client can just duplicate that to match foundset viewport size
@@ -204,6 +219,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					// wrapped property is now no longer record linked so we only send one value to be duplicated
 					// this could be the result of initialization or it could for example get changed from Rhino
 					getFoundsetValue().removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					if (idForFoundset != null)
+					{
+						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, null);
+						idForFoundset = null;
+						idForFoundsetChanged = true;
+					}
 					viewPortChangeMonitor = null;
 					changeMonitor.valueChanged();
 				}
@@ -215,8 +236,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
-		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).dataProviderOrRecordChanged(record,
-			dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
+		if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
+			((IDataLinkedPropertyValue)wrappedSabloValue).dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
 	}
 
 	protected YT getWrappedValue()
@@ -235,8 +256,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// TODO should we make current method return a completely new instance instead and leave component code do the rest?
 			if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
 			wrappedSabloValue = newWrappedVal;
-			if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor,
-				componentOrService);
+			if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
+				((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, componentOrService);
 		}
 	}
 
@@ -254,6 +275,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
+		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
@@ -312,6 +334,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();
+		if (idForFoundsetChanged)
+		{
+			writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+		}
+
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; just send it's changes
@@ -337,7 +364,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 
 				List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
-				Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
 
 				writer.array();
 				for (int i = 0; i < viewPortChanges.size(); i++)
@@ -371,8 +397,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return;
 		}
 
-		if ((wrappedPropertyDescription instanceof IPushToServerSpecialType && ((IPushToServerSpecialType)wrappedPropertyDescription).shouldAlwaysAllowIncommingJSON()) ||
-			PushToServerEnum.allow.compareTo(pushToServer) <= 0)
+		if ((wrappedPropertyDescription instanceof IPushToServerSpecialType &&
+			((IPushToServerSpecialType)wrappedPropertyDescription).shouldAlwaysAllowIncommingJSON()) || PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 		{
 			try
 			{
@@ -402,8 +428,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 							// TODO should we make current method return a completely new instance instead and leave component code do the rest?
 							if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
 							wrappedSabloValue = newWrappedValue;
-							if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(
-								changeMonitor, component);
+							if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
+								((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, component);
 						}
 					}
 					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
@@ -477,8 +503,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						// TODO should we make current method return a completely new instance instead and leave component code do the rest?
 						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
 						wrappedSabloValue = newWrappedValue;
-						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(
-							changeMonitor, component);
+						if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
+							((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, component);
 
 						// the full value has changed; the whole viewport might be affected
 						viewPortChangeMonitor.viewPortCompletelyChanged();
