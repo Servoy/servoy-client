@@ -145,7 +145,17 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 			
 			if (serverJSONValue[ID_FOR_FOUNDSET] === null) {
 				if (angular.isDefined(newValue[ID_FOR_FOUNDSET])) delete newValue[ID_FOR_FOUNDSET];
-			} else if (angular.isDefined(serverJSONValue[ID_FOR_FOUNDSET])) newValue[ID_FOR_FOUNDSET] = serverJSONValue[ID_FOR_FOUNDSET];
+			} else if (angular.isDefined(serverJSONValue[ID_FOR_FOUNDSET])) {
+				// make it non-iterable as the newValue is an array an ppl. might iterate over it - they wont expect this in the iterations
+				if (Object.defineProperty) {
+					Object.defineProperty(newValue, ID_FOR_FOUNDSET, {
+						configurable: true,
+						enumerable: false,
+						writable: true,
+						value: serverJSONValue[ID_FOR_FOUNDSET]
+					});
+				} else newValue[ID_FOR_FOUNDSET] = serverJSONValue[ID_FOR_FOUNDSET];
+			}
 			
 			// restore/add model watch
 			addBackWatches(newValue, componentScope);
