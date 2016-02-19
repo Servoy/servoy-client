@@ -1,5 +1,5 @@
 angular.module('dialogs',['servoy'])
-.factory("dialogs",function($q) {
+.factory("dialogs",function($q,$sabloTestability) {
 	return {
 		/**
 		 * Shows an error dialog with the specified title, message and a customizable set of buttons.
@@ -68,7 +68,11 @@ angular.module('dialogs',['servoy'])
 					  message: dialogMessage,
 					  value: initialValue
 					};
-			bootbox.prompt(dialogOptions);
+			var dialog = bootbox.prompt(dialogOptions);
+			$sabloTestability.block(true);
+			dialog.on("shown.bs.modal", function() {
+				$sabloTestability.block(false);
+			})
 			return dialogOpenedDeferred.promise;
 		},
 		/**
@@ -103,7 +107,11 @@ angular.module('dialogs',['servoy'])
 					  inputType: 'select',
 					  inputOptions: options
 					};
-			bootbox.prompt(dialogOptions);
+			var dialog = bootbox.prompt(dialogOptions);
+			$sabloTestability.block(true);
+			dialog.on("shown.bs.modal", function() {
+				$sabloTestability.block(false);
+			})
 			return dialogOpenedDeferred.promise;
 		},
 		showWarningDialog: function(dialogTitle,dialogMessage,buttonsText) {
@@ -143,7 +151,11 @@ angular.module('dialogs',['servoy'])
 					dialogOptions.buttons[buttonsText[i]] = buttonModel;
 				}	
 			}	
-			bootbox.dialog(dialogOptions);
+			var dialog = bootbox.dialog(dialogOptions);
+			$sabloTestability.block(true);
+			dialog.on("shown.bs.modal", function() {
+				$sabloTestability.block(false);
+			})
 			return dialogOpenedDeferred.promise;
 		}
 	}
