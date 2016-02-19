@@ -456,7 +456,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				IPerfomanceRegistry perfRegistry = null;
 				try
 				{
-					perfRegistry = getApplication().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+					perfRegistry = (getApplication().getApplicationServerAccess() != null
+						? getApplication().getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 				}
 				catch (RemoteException e)
 				{
@@ -465,8 +466,9 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 				Pair<UUID, UUID> perfId = null;
 
-				if (perfRegistry.isEnabled()) perfId = perfRegistry.getPerformanceData(getApplication().getSolutionName()).startSubAction("$windowService.show",
-					System.currentTimeMillis(), IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID());
+				if (perfRegistry != null && perfRegistry.isEnabled())
+					perfId = perfRegistry.getPerformanceData(getApplication().getSolutionName()).startSubAction("$windowService.show",
+						System.currentTimeMillis(), IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID());
 				try
 				{
 					getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT,

@@ -34,7 +34,6 @@ import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -88,7 +87,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public INGClientWindow createWindow(IWebsocketSession session, String windowUuid, String windowName)
+	public INGClientWindow createWindow(String windowUuid, String windowName)
 	{
 		return new NGClientWindow(this, windowUuid, windowName);
 	}

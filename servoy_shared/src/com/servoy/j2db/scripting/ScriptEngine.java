@@ -609,10 +609,11 @@ public class ScriptEngine implements IScriptSupport
 			Context cx = Context.enter();
 
 			// only search for nice strings needed in performance admin page if performance is actually enabled
-			IPerfomanceRegistry performanceRegistry = application.getApplicationServerAccess().getFunctionPerfomanceRegistry();
+			IPerfomanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null
+				? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 			String methodName = null;
 			String solutionName = null;
-			if (performanceRegistry.isEnabled())
+			if (performanceRegistry != null && performanceRegistry.isEnabled())
 			{
 				methodName = f.getClassName();
 				if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
@@ -656,7 +657,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 
 				//run
-				if (performanceRegistry.isEnabled() && !(application instanceof ISmartClientApplication))
+				if (performanceRegistry != null && performanceRegistry.isEnabled() && !(application instanceof ISmartClientApplication))
 				{
 					//	application.addPerformanceTiming(server, sql, 0 - t1);
 					pfUuid = performanceRegistry.getPerformanceData(solutionName).startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL,

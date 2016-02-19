@@ -121,7 +121,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		IPerfomanceRegistry perfRegistry = null;
 		try
 		{
-			perfRegistry = getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+			perfRegistry = (getClient().getApplicationServerAccess() != null ? getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 		}
 		catch (RemoteException e)
 		{
@@ -377,7 +377,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		IPerfomanceRegistry perfRegistry = null;
 		try
 		{
-			perfRegistry = getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry();
+			perfRegistry = (getClient().getApplicationServerAccess() != null ? getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 		}
 		catch (RemoteException e)
 		{
@@ -385,7 +385,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 
 		Pair<UUID, UUID> perfId = null;
-		if (perfRegistry.isEnabled())
+		if (perfRegistry != null && perfRegistry.isEnabled())
 			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 				(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
 				getClient().getClientID());
