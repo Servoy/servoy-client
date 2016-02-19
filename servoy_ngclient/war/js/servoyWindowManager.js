@@ -160,7 +160,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location,$sabloLoadingIndicator) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location,$sabloLoadingIndicator,$sabloTestability) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -329,6 +329,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 						instance.loadingIndicatorIsHidden = true;
 						$sabloLoadingIndicator.hideLoading();
 					}
+					$sabloTestability.increaseEventLoop();
 					instance.bsWindowInstance.$el.on('bswin.resize',instance.onResize)
 					instance.bsWindowInstance.$el.on('bswin.move',instance.onMove)
 					instance.bsWindowInstance.$el.on("setActive", function(ev, active) {
@@ -351,6 +352,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					delete instance.loadingIndicatorIsHidden;
 					$sabloLoadingIndicator.showLoading();
 				}
+				$sabloTestability.decreaseEventLoop();
 				instance.hide();
 				if($(document).find('[svy-window]').length < 2) {
 					$("#mainForm").trigger("enableTabseq");
