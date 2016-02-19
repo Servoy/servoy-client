@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.awt.Dimension;
 import java.awt.Point;
 
 import org.mozilla.javascript.annotations.JSFunction;
@@ -283,6 +284,44 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	{
 		checkModification();
 		layoutContainer.setLocation(new Point(layoutContainer.getLocation().x, y));
+	}
+
+	/**
+	 * Get/set container height.
+	 *
+	 * @sample
+	 * layoutContainer.height = 300;
+	 */
+	@JSGetter
+	public int getHeight()
+	{
+		return layoutContainer.getSize().height;
+	}
+
+	@JSSetter
+	public void setHeight(int height)
+	{
+		checkModification();
+		layoutContainer.setSize(new Dimension(layoutContainer.getSize().width, height));
+	}
+
+	/**
+	 * Get/set container width.
+	 *
+	 * @sample
+	 * layoutContainer.width = 300;
+	 */
+	@JSGetter
+	public int getWidth()
+	{
+		return layoutContainer.getSize().width;
+	}
+
+	@JSSetter
+	public void setWidth(int width)
+	{
+		checkModification();
+		layoutContainer.setSize(new Dimension(width, layoutContainer.getSize().height));
 	}
 
 	@Override

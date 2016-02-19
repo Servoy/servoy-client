@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,9 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
+import org.sablo.specification.NGPackageSpecification;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -39,16 +44,23 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Utils;
+
+import freemarker.ext.beans.StringModel;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.TemplateModelException;
 
 /**
  * Wrapper around form for use in templates.
@@ -150,7 +162,8 @@ public class FormWrapper
 		{
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid(persist))
 			{
-				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist)))
+					baseComponents.add((BaseComponent)persist);
 			}
 		}
 		if ((isListView && !design) || isTableView)
@@ -217,6 +230,35 @@ public class FormWrapper
 			properties.put(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName(), BorderPropertyType.writeBorderToJson(border));
 		}
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
+	}
+
+	public String getContainerSizesString() throws JSONException, IllegalArgumentException, TemplateModelException
+	{
+		Map<String, Dimension> sizes = new HashMap<String, Dimension>();
+		Collection<BaseComponent> components = getBaseComponents();
+		if (components != null)
+		{
+			for (BaseComponent component : components)
+			{
+				if (component.getParent() instanceof LayoutContainer)
+				{
+					LayoutContainer container = (LayoutContainer)component.getParent();
+					NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
+						container.getPackageName());
+					if (pkg != null)
+					{
+						WebLayoutSpecification spec = pkg.getSpecification(container.getSpecName());
+						if (NGUtils.isAbsoluteLayoutDiv(spec) && formElementValidator instanceof DefaultObjectWrapper)
+						{
+							Object wrappedComponent = ((DefaultObjectWrapper)formElementValidator).wrap(component);
+							sizes.put(((FormElementContext)(((StringModel)wrappedComponent).getWrappedObject())).getName(), container.getSize());
+						}
+					}
+
+				}
+			}
+		}
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), sizes, null, null).endObject().toString();
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

@@ -21,6 +21,9 @@ Web-Layout: True
 Name: div.spec
 Web-Layout: True
 
+Name: absolutelayoutdiv.spec
+Web-Layout: True
+
 Name: 3columns.spec
 Web-Composite: True
 

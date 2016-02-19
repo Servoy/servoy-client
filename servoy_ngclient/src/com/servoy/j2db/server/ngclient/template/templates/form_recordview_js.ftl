@@ -29,10 +29,11 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				'${bc.name}': '${bc.typeName}'<#if bc_has_next>,</#if>
 			</#list>
 			}
-
+	
+	var parentSizes = ${containerSizesString}
 	var formProperties = ${propertiesString}
 
-	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false);
+	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
 	formState.resolving = true;
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving form = ${name}");
 

@@ -277,7 +277,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		applyBeanData: applyBeanData,
 		getComponentChanges: getComponentChanges,
 
-		initFormState: function(formName, beanDatas, formProperties, formScope, resolve) {
+		initFormState: function(formName, beanDatas, formProperties, formScope, resolve, parentSizes) {
 
 			var hasFormState = $sabloApplication.hasFormState(formName);
 
@@ -319,7 +319,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						var newBeanConversionInfo = beanDatas[beanName].conversions;
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
-						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
 					}
 				} else {
 					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope

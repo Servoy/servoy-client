@@ -37,8 +37,10 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -78,6 +80,13 @@ public class FormLayoutStructureGenerator
 	public static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 		throws IOException
 	{
+		NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
+		WebLayoutSpecification spec = null;
+		if (pkg != null)
+		{
+			spec = pkg.getSpecification(container.getSpecName());
+		}
+		boolean isAbsoluteLayoutDiv = NGUtils.isAbsoluteLayoutDiv(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -85,12 +94,9 @@ public class FormLayoutStructureGenerator
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
 			writer.print("'");
-			NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
-				container.getPackageName());
-			WebLayoutSpecification spec = null;
 			boolean highSet = false;
 			JSONObject ngClass = new JSONObject();
-			if (pkg != null && (spec = pkg.getSpecification(container.getSpecName())) != null)
+			if (spec != null)
 			{
 				List<String> allowedChildren = spec.getAllowedChildren();
 				if (allowedChildren.size() > 0)
@@ -124,6 +130,13 @@ public class FormLayoutStructureGenerator
 			writer.print("' ");
 		}
 		writer.print(" svy-autosave ");
+		if (isAbsoluteLayoutDiv)
+		{
+			// we need to specify the height
+			writer.print(" style='height:");
+			writer.print(container.getSize().height);
+			writer.print("px' ");
+		}
 		Map<String, String> attributes = container.getAttributes();
 		if (attributes != null)
 		{
@@ -151,8 +164,16 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormLayoutGenerator.generateFormElement(writer,
-					FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context.getSolution(), null, design), form, design);
+				FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context.getSolution(), null, design);
+				if (isAbsoluteLayoutDiv)
+				{
+					FormLayoutGenerator.generateFormElementWrapper(writer, fe, design, form, false);
+				}
+				FormLayoutGenerator.generateFormElement(writer, fe, form, design);
+				if (isAbsoluteLayoutDiv)
+				{
+					FormLayoutGenerator.generateEndDiv(writer);
+				}
 			}
 		}
 		writer.print("</");

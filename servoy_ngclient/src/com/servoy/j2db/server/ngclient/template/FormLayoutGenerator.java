@@ -128,7 +128,7 @@ public class FormLayoutGenerator
 						fe = FormElementHelper.INSTANCE.getFormElement(bc, context.getSolution(), null, design);
 					}
 
-					generateFormElementWrapper(writer, fe, design, form);
+					generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
 					generateFormElement(writer, fe, form, design);
 					generateEndDiv(writer);
 				}
@@ -191,7 +191,7 @@ public class FormLayoutGenerator
 		if (!design) writer.println("</svy-formload>");
 	}
 
-	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)
+	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form, boolean isResponsive)
 	{
 		if (design)
 		{
@@ -207,7 +207,7 @@ public class FormLayoutGenerator
 			writer.print(fe.getName());
 			writer.print("\"");
 		}
-		if (!form.isResponsiveLayout() && fe.getPersistIfAvailable() instanceof BaseComponent)
+		if (!isResponsive && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			int anchors = bc.getAnchors();
