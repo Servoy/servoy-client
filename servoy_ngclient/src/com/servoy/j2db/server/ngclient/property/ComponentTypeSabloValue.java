@@ -163,7 +163,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			if (propertyValue != null)
 			{
 				String dataprovider = ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
-				foundsetPropValue.setColumnDataprovider(childComponent.getName(), dataprovider);
+				foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(childComponent.getName(), dataprovider);
 			}
 		}
 	}

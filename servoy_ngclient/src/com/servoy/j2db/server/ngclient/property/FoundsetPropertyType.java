@@ -184,7 +184,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				}
 				case "dataproviders" :
 				{
-					if (webComponentValue.linkedChildComponentToColumn.size() > 0)
+					if (webComponentValue.recordDataLinkedPropertyIDToColumnDP.size() > 0)
 					{
 						return "Foundset bound to a components with dataproviders, can't be set through the foundset property";
 					}
@@ -228,7 +228,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				}
 				case "dataproviders" :
 				{
-					if (webComponentValue.linkedChildComponentToColumn.size() > 0)
+					if (webComponentValue.recordDataLinkedPropertyIDToColumnDP.size() > 0)
 					{
 						throw new RuntimeException("Foundset bound to a components with dataproviders, can't be set through the foundset property");
 					}

@@ -8,6 +8,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	var VIEWPORT_VALUE_UPDATE = "vpu";
 	var CONVERSION_NAME = "fsLinked";
 	var PROPERTY_CHANGE = "propertyChange";
+	var ID_FOR_FOUNDSET = "idForFoundset";
 
 	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
 
@@ -84,7 +85,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 							$sabloUtils.getInDepthProperty(serverJSONValue, CONVERSIONS, VIEWPORT_VALUE_UPDATE),
 							componentScope, componentModelGetter, true);
 				} else {
-					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of of 'the one' new value)
+					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
 					var wholeViewport;
 					var conversionInfos;
 					
@@ -141,6 +142,10 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					else if (!didSomething) $log.error("Can't interpret foundset linked prop. server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
 				}
 			}
+			
+			if (serverJSONValue[ID_FOR_FOUNDSET] === null) {
+				if (angular.isDefined(newValue[ID_FOR_FOUNDSET])) delete newValue[ID_FOR_FOUNDSET];
+			} else if (angular.isDefined(serverJSONValue[ID_FOR_FOUNDSET])) newValue[ID_FOR_FOUNDSET] = serverJSONValue[ID_FOR_FOUNDSET];
 			
 			// restore/add model watch
 			addBackWatches(newValue, componentScope);
