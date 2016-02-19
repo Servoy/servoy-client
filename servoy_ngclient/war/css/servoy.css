@@ -50,6 +50,12 @@ label.svy-check-radio span{
 label.svy-check{
 	display:flex;
 	align-items:center;
+	padding: 1px;
+	margin: 0px;
+}
+label.svy-radio{
+	padding: 1px;
+	margin: 0px;
 }
 label.svy-check span{
 	padding-left: 3px;
