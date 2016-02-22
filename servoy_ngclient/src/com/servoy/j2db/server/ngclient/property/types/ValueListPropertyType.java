@@ -168,7 +168,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		valueList = getIValueList(formElementValue, pd, formElement, component, dataAdapterList, val, valueList, config, dataproviderID);
 
-		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd) : null;
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd,
+			getComponentFormat(pd, dataAdapterList, formElement, config, dataproviderID)) : null;
 	}
 
 	/**
@@ -201,23 +202,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		if (val != null)
 		{
-			String format = null;
-			if (dataproviderID != null)
-			{
-				Collection<PropertyDescription> properties = formElement.getProperties(FormatPropertyType.INSTANCE);
-				for (PropertyDescription formatPd : properties)
-				{
-					// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
-					if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
-						(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
-					{
-						format = (String)formElement.getPropertyValue(formatPd.getName());
-						break;
-					}
-				}
-			}
-			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
-				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
+			ComponentFormat fieldFormat = getComponentFormat(pd, dataAdapterList, formElement, config, dataproviderID);
 			valueList = getRealValueList(application, val, fieldFormat, dataproviderID);
 		}
 		else
@@ -239,6 +224,29 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 		return valueList;
+	}
+
+	protected ComponentFormat getComponentFormat(PropertyDescription pd, DataAdapterList dataAdapterList, INGFormElement formElement, ValueListConfig config,
+		String dataproviderID)
+	{
+		String format = null;
+		INGApplication application = dataAdapterList.getApplication();
+		if (dataproviderID != null)
+		{
+			Collection<PropertyDescription> properties = formElement.getProperties(FormatPropertyType.INSTANCE);
+			for (PropertyDescription formatPd : properties)
+			{
+				// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+				if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
+					(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
+				{
+					format = (String)formElement.getPropertyValue(formatPd.getName());
+					break;
+				}
+			}
+		}
+		return ComponentFormat.getComponentFormat(format, dataproviderID,
+			application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
 	}
 
 	protected IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat fieldFormat, String dataproviderID)
@@ -273,6 +281,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		BaseWebObject componentOrService)
 	{
 		Object vl = componentOrService.getProperty(pd.getName());
+		ParsedFormat format = null;
+		int type = -1;
 		if (vl != null)
 		{
 			ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
@@ -285,8 +295,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				ValueList valuelist = application.getFlattenedSolution().getValueList(name);
 				if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
-					ParsedFormat format = ((CustomValueList)list).getFormat();
-					int type = ((CustomValueList)list).getValueType();
+					format = ((CustomValueList)list).getFormat();
+					type = ((CustomValueList)list).getValueType();
 					newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
 				}
 			}
@@ -294,7 +304,9 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			ValueListConfig config = (ValueListConfig)pd.getConfig();
 			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
 				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
-			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd) : previousComponentValue;
+			return newVl != null
+				? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd, new ComponentFormat(format, type, type))
+				: previousComponentValue;
 		}
 		return null;
 	}
