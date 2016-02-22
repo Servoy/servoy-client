@@ -1233,6 +1233,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }])
 .run(function($window, $sabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {
-		$sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, true)
+		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)
 	}
 })
