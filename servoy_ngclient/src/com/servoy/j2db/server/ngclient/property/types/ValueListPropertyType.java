@@ -35,14 +35,12 @@ import org.sablo.websocket.utils.DataConversion;
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IColumn;
@@ -99,15 +97,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String dataprovider = "";
 		String def = null;
 		boolean canOptimize = true;
-		boolean lookup = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			canOptimize = json.optBoolean("canOptimize", true);
-			lookup = json.optBoolean("lookup", false);
 		}
-		return new ValueListConfig(dataprovider, def, canOptimize, lookup);
+		return new ValueListConfig(dataprovider, def, canOptimize);
 	}
 
 	@Override
@@ -191,7 +187,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		DataAdapterList dataAdapterList, ValueList val, IValueList valueList, ValueListConfig config, String dataproviderID)
 	{
 		int valuelistID = Utils.getAsInteger(formElementValue);
-		IValueList result = valueList;
 		INGApplication application = dataAdapterList.getApplication();
 		if (valuelistID > 0)
 		{
@@ -223,18 +218,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
-			LookupValueList lookupValueList = null;
-			if (config.lookup() && val.getValueListType() == IValueListConstants.DATABASE_VALUES) try
-			{
-				IValueList secondLookup = ComponentFactory.getFallbackValueList(application, dataproviderID, fieldFormat.uiType, fieldFormat.parsedFormat, val);
-				lookupValueList = new LookupValueList(val, application, secondLookup, format);
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
-			}
-			if (lookupValueList != null) result = lookupValueList;
-			else result = getRealValueList(application, val, fieldFormat, dataproviderID);
+			valueList = getRealValueList(application, val, fieldFormat, dataproviderID);
 		}
 		else
 		{
@@ -244,17 +228,17 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				IWebFormUI formUI = component.findParent(WebFormUI.class);
 				if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
 				{
-					result = new ColumnBasedValueList(application, formElement.getForm().getServerName(), formElement.getForm().getTableName(),
+					valueList = new ColumnBasedValueList(application, formElement.getForm().getServerName(), formElement.getForm().getTableName(),
 						(String)formElement.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
 				}
 				else
 				{
 					// not supported empty valuelist (based on relations) just return an empty valuelist
-					result = new CustomValueList(application, null, "", false, IColumnTypes.TEXT, null);
+					valueList = new CustomValueList(application, null, "", false, IColumnTypes.TEXT, null);
 				}
 			}
 		}
-		return result;
+		return valueList;
 	}
 
 	protected IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat fieldFormat, String dataproviderID)

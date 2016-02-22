@@ -142,7 +142,6 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertTrue(property != null ? property.getClass().getName() : "null",
 			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
 		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListTypeSabloValue)property).getValueList()).getFormat().getDisplayFormat());
-
 	}
 
 	@Test
