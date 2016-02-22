@@ -25,15 +25,13 @@ public class ValueListConfig
 	private final String dataprovider;
 	private final String defaultValue;
 	private final boolean canOptimize;
-	private final boolean lookup;
 
-	public ValueListConfig(String dataprovider, String def, boolean canOptimize, boolean lookup)
+	public ValueListConfig(String dataprovider, String def, boolean canOptimize)
 	{
 		super();
 		this.dataprovider = dataprovider;
 		this.defaultValue = def;
 		this.canOptimize = canOptimize;
-		this.lookup = lookup;
 	}
 
 	public String getFor()
@@ -49,10 +47,5 @@ public class ValueListConfig
 	public boolean canOptimize()
 	{
 		return canOptimize;
-	}
-
-	public boolean lookup()
-	{
-		return lookup;
 	}
 }

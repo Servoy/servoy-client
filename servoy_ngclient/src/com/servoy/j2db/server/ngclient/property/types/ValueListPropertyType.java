@@ -35,14 +35,12 @@ import org.sablo.websocket.utils.DataConversion;
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IColumn;
@@ -99,15 +97,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String dataprovider = "";
 		String def = null;
 		boolean canOptimize = true;
-		boolean lookup = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			canOptimize = json.optBoolean("canOptimize", true);
-			lookup = json.optBoolean("lookup", false);
 		}
-		return new ValueListConfig(dataprovider, def, canOptimize, lookup);
+		return new ValueListConfig(dataprovider, def, canOptimize);
 	}
 
 	@Override
@@ -172,7 +168,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		valueList = getIValueList(formElementValue, pd, formElement, component, dataAdapterList, val, valueList, config, dataproviderID);
 
-		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd) : null;
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd,
+			getComponentFormat(pd, dataAdapterList, formElement, config, dataproviderID)) : null;
 	}
 
 	/**
@@ -191,7 +188,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		DataAdapterList dataAdapterList, ValueList val, IValueList valueList, ValueListConfig config, String dataproviderID)
 	{
 		int valuelistID = Utils.getAsInteger(formElementValue);
-		IValueList result = valueList;
 		INGApplication application = dataAdapterList.getApplication();
 		if (valuelistID > 0)
 		{
@@ -206,35 +202,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		if (val != null)
 		{
-			String format = null;
-			if (dataproviderID != null)
-			{
-				Collection<PropertyDescription> properties = formElement.getProperties(FormatPropertyType.INSTANCE);
-				for (PropertyDescription formatPd : properties)
-				{
-					// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
-					if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
-						(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
-					{
-						format = (String)formElement.getPropertyValue(formatPd.getName());
-						break;
-					}
-				}
-			}
-			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
-				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
-			LookupValueList lookupValueList = null;
-			if (config.lookup() && val.getValueListType() == IValueListConstants.DATABASE_VALUES) try
-			{
-				IValueList secondLookup = ComponentFactory.getFallbackValueList(application, dataproviderID, fieldFormat.uiType, fieldFormat.parsedFormat, val);
-				lookupValueList = new LookupValueList(val, application, secondLookup, format);
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
-			}
-			if (lookupValueList != null) result = lookupValueList;
-			else result = getRealValueList(application, val, fieldFormat, dataproviderID);
+			ComponentFormat fieldFormat = getComponentFormat(pd, dataAdapterList, formElement, config, dataproviderID);
+			valueList = getRealValueList(application, val, fieldFormat, dataproviderID);
 		}
 		else
 		{
@@ -244,17 +213,40 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				IWebFormUI formUI = component.findParent(WebFormUI.class);
 				if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
 				{
-					result = new ColumnBasedValueList(application, formElement.getForm().getServerName(), formElement.getForm().getTableName(),
+					valueList = new ColumnBasedValueList(application, formElement.getForm().getServerName(), formElement.getForm().getTableName(),
 						(String)formElement.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
 				}
 				else
 				{
 					// not supported empty valuelist (based on relations) just return an empty valuelist
-					result = new CustomValueList(application, null, "", false, IColumnTypes.TEXT, null);
+					valueList = new CustomValueList(application, null, "", false, IColumnTypes.TEXT, null);
 				}
 			}
 		}
-		return result;
+		return valueList;
+	}
+
+	protected ComponentFormat getComponentFormat(PropertyDescription pd, DataAdapterList dataAdapterList, INGFormElement formElement, ValueListConfig config,
+		String dataproviderID)
+	{
+		String format = null;
+		INGApplication application = dataAdapterList.getApplication();
+		if (dataproviderID != null)
+		{
+			Collection<PropertyDescription> properties = formElement.getProperties(FormatPropertyType.INSTANCE);
+			for (PropertyDescription formatPd : properties)
+			{
+				// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+				if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
+					(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
+				{
+					format = (String)formElement.getPropertyValue(formatPd.getName());
+					break;
+				}
+			}
+		}
+		return ComponentFormat.getComponentFormat(format, dataproviderID,
+			application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
 	}
 
 	protected IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat fieldFormat, String dataproviderID)
@@ -289,6 +281,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		BaseWebObject componentOrService)
 	{
 		Object vl = componentOrService.getProperty(pd.getName());
+		ParsedFormat format = null;
+		int type = -1;
 		if (vl != null)
 		{
 			ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
@@ -301,8 +295,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				ValueList valuelist = application.getFlattenedSolution().getValueList(name);
 				if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
-					ParsedFormat format = ((CustomValueList)list).getFormat();
-					int type = ((CustomValueList)list).getValueType();
+					format = ((CustomValueList)list).getFormat();
+					type = ((CustomValueList)list).getValueType();
 					newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
 				}
 			}
@@ -310,7 +304,9 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			ValueListConfig config = (ValueListConfig)pd.getConfig();
 			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
 				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
-			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd) : previousComponentValue;
+			return newVl != null
+				? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd, new ComponentFormat(format, type, type))
+				: previousComponentValue;
 		}
 		return null;
 	}

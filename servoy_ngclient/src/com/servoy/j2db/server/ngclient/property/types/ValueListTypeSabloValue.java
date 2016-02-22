@@ -35,7 +35,10 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
@@ -69,15 +72,17 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private IRecordInternal previousRecord;
 	private final PropertyDescription vlPD;
 	protected BaseWebObject component;
+	private final ComponentFormat format;
 
 	public ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID,
-		PropertyDescription vlPD)
+		PropertyDescription vlPD, ComponentFormat format)
 	{
 		this.valueList = valueList;
 		this.dataAdapterList = dataAdapterList;
 		this.config = config;
 		this.dataproviderID = dataproviderID;
 		this.vlPD = vlPD;
+		this.format = format;
 	}
 
 	public IValueList getValueList()
@@ -235,7 +240,22 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		if (filteredValuelist == null)
 		{
-			if (valueList instanceof CustomValueList)
+			if (valueList instanceof DBValueList)
+			{
+				try
+				{
+					filteredValuelist = new LookupListModel(dataAdapterList.getApplication(),
+						new LookupValueList(valueList.getValueList(), dataAdapterList.getApplication(),
+							ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), dataproviderID, format != null ? format.uiType : 0,
+								format != null ? format.parsedFormat : null, valueList.getValueList()),
+							format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null));
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+			}
+			else if (valueList instanceof CustomValueList)
 			{
 				filteredValuelist = new LookupListModel(dataAdapterList.getApplication(), (CustomValueList)valueList);
 			}
