@@ -360,7 +360,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	private String[] getGlobalDPFromRelatedDP(String[] dataproviders)
+	private String[] getAllDependantDataProviders(String[] dataproviders)
 	{
 		ArrayList<String> returnDP = new ArrayList<>();
 		for (String dp : dataproviders)
@@ -373,20 +373,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(dp.substring(0, idx));
 					if (relations != null)
 					{
-						for (Relation relation : relations)
+						for (int i = 0; i < relations.length; i++)
 						{
-							if (Relation.isValid(relation, getApplication().getFlattenedSolution()) && relation.isGlobal())
+							Relation relation = relations[i];
+							if (Relation.isValid(relation, getApplication().getFlattenedSolution()) && (relation.isGlobal() || i == 0))
 							{
 								try
 								{
 									IDataProvider[] dps = relation.getPrimaryDataProviders(getApplication().getFlattenedSolution());
 									for (IDataProvider idp : dps)
 									{
-										String rdp = idp.getDataProviderID();
-										if (ScopesUtils.isVariableScope(rdp))
-										{
-											returnDP.add(rdp);
-										}
+										returnDP.add(idp.getDataProviderID());
 									}
 								}
 								catch (RepositoryException ex)
@@ -416,7 +413,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		else
 		{
-			dataproviders = getGlobalDPFromRelatedDP(dataproviders);
+			dataproviders = getAllDependantDataProviders(dataproviders);
 		}
 		for (String dpID : dataproviders)
 		{
