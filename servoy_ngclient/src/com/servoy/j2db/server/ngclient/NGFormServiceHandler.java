@@ -128,7 +128,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 						formName = SecuritySupport.decrypt(Settings.getInstance(), formName);
 					}
 					IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
-					form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"), args.optJSONArray("params"));
+					return form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"), args.optJSONArray("params"));
 				}
 				catch (Exception ex)
 				{

@@ -1,59 +1,65 @@
 {
 	"layoutName": "responsive_form",
-	"class": "container",
+	"class": "container-fluid",
 	"children": [{
-		"layoutName": "column",
+	    	"layoutName": "row",
 		"model": {
-			"class": "col-md-3"
-		}
-	}, {
-		"layoutName": "column",
-		"model": {
-			"class": "col-md-9",
+		    	"class": "row",
 			"children": [{
-				"layoutName": "row",
+				"layoutName": "column",
 				"model": {
-					"class": "row",
-					"children": [{
-						"layoutName": "column",
-						"model": {
-							"class": "col-md-4"
-						}
-					}, {
-						"layoutName": "column",
-						"model": {
-							"class": "col-md-4"
-						}
-					}, {
-						"layoutName": "column",
-						"model": {
-							"class": "col-md-4"
-						}
-					}]
+					"class": "col-md-3"
 				}
 			}, {
-				"layoutName": "row",
+				"layoutName": "column",
 				"model": {
-					"class": "row",
+					"class": "col-md-9",
 					"children": [{
-						"layoutName": "column",
+						"layoutName": "row",
 						"model": {
-							"class": "col-md-12"
+							"class": "row",
+							"children": [{
+								"layoutName": "column",
+								"model": {
+									"class": "col-md-4"
+								}
+							}, {
+								"layoutName": "column",
+								"model": {
+									"class": "col-md-4"
+								}
+							}, {
+								"layoutName": "column",
+								"model": {
+									"class": "col-md-4"
+								}
+							}]
 						}
-					}]
-				}
-			}, {
-				"layoutName": "row",
-				"model": {
-					"class": "row",
-					"children": [{
-						"layoutName": "column",
+					}, {
+						"layoutName": "row",
 						"model": {
-							"class": "col-md-12"
+							"class": "row",
+							"children": [{
+								"layoutName": "column",
+								"model": {
+									"class": "col-md-12"
+								}
+							}]
+						}
+					}, {
+						"layoutName": "row",
+						"model": {
+							"class": "row",
+							"children": [{
+								"layoutName": "column",
+								"model": {
+									"class": "col-md-12"
+								}
+							}]
 						}
 					}]
 				}
 			}]
-		}
-	}]
+			}
+		}]
 }

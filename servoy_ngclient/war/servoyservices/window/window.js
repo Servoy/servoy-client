@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log) {
+.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability) {
 	var scope = $services.getServiceScope('window');
 	return {
 
@@ -122,8 +122,10 @@ angular.module('window',['servoy'])
 						}
 						if (!pushedChanges) $(targetEl).change();
 						pushedChanges = true;
+						$sabloTestability.block(true);
 						$timeout(function(callback,argsWithEvent) {
 							$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+							$sabloTestability.block(false);
 						},10,true,callback,argsWithEvent);
 						if (retValue && consumeEvent) retValue = false;
 					}	
