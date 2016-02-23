@@ -227,6 +227,7 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 		}
+		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (design)
 		{
 			writer.print(" svy-id='");

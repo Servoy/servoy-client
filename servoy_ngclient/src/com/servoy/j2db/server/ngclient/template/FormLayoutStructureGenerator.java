@@ -109,6 +109,7 @@ public class FormLayoutStructureGenerator
 				writer.print(spec.getName());
 				writer.print("'");
 
+				ngClass.put("svy-layoutcontainer", true);
 				if (!(container.getAncestor(IRepository.FORMS).getID() == form.getID()))//is this inherited?
 				{
 					ngClass.put("inheritedElement", true);
@@ -122,6 +123,10 @@ public class FormLayoutStructureGenerator
 			}
 			if (!highSet) ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());
 			if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
+		}
+		else
+		{
+			writer.print(" ng-class=\"'svy-layoutcontainer'\" ");
 		}
 		if (container.getElementId() != null)
 		{
