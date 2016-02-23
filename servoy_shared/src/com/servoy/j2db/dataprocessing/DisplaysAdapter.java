@@ -54,7 +54,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * This adapter is a kind of model between the display(s) and the state.
- * 
+ *
  * @author jblok
  */
 public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelListener, IDestroyable, ListSelectionListener
@@ -94,7 +94,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 	/**
 	 * Push new state in this data adapter
-	 * 
+	 *
 	 * @param state the state to work with.
 	 */
 	public void setRecord(IRecordInternal state)
@@ -114,7 +114,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			{
 				if (state != null) obj = state.getValue(dataProviderID);
 			}
-			else if (dal.getFormScope() != null /* design component */&& dal.getFormScope().has(dataProviderID, dal.getFormScope()))
+			else if (dal.getFormScope() != null /* design component */ && dal.getFormScope().has(dataProviderID, dal.getFormScope()))
 			{
 				obj = dal.getFormScope().get(dataProviderID);
 			}
@@ -167,6 +167,10 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 				currRecord = ((ISwingFoundSet)value).getRecord(((ISwingFoundSet)value).getSelectedIndex());
 				if (currRecord == null) currRecord = ((ISwingFoundSet)value).getPrototypeState();
 				newRelated.add(currRecord);
+			}
+			else
+			{
+				currRecord = null;
 			}
 		}
 
@@ -521,7 +525,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 	/**
 	 * Add a display to this adapter
-	 * 
+	 *
 	 * @param display the display to add
 	 */
 	public void addDisplay(IDisplayData display)
