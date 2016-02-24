@@ -143,10 +143,9 @@ public class EventExecutor
 								// quickly create a scriptable wrappar around the component so that the source can be set to a value that we expect.
 								FormElement fe = ((WebFormComponent)component).getFormElement();
 								RuntimeWebComponent runtimeComponent = new RuntimeWebComponent((WebFormComponent)component, component.getSpecification());
-								if (fe.isLegacy() ||
-										((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-											fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-											"svy-")))
+								if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+									fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
+									fe.getTypeName().startsWith("svy-")))
 								{
 									// add legacy behavior
 									runtimeComponent.setPrototype(new RuntimeLegacyComponent((WebFormComponent)component));
@@ -163,7 +162,7 @@ public class EventExecutor
 					}
 					catch (Exception ex)
 					{
-						Debug.error("error setting event properties from " + json, ex);
+						Debug.error("error setting event properties from " + json + ", for component: " + componentName, ex);
 					}
 					args[i] = event;
 				}
