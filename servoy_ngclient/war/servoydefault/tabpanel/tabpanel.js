@@ -118,7 +118,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.getForm = function(tab) {
-				if ($scope.model.selectedTab && tab.containsFormId == $scope.model.selectedTab.containsFormId) {
+				if ($scope.model.selectedTab && (tab.containsFormId == $scope.model.selectedTab.containsFormId) && (tab.relationName == $scope.model.selectedTab.relationName)) {
 					return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
 				}
 				return "";
@@ -148,7 +148,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			$scope.getTabIndex = function(tab) {
 				if(tab) {
 					for(var i=0;i<$scope.model.tabs.length;i++) {
-						if ($scope.model.tabs[i].containsFormId == tab.containsFormId) {
+						if (($scope.model.tabs[i].containsFormId == tab.containsFormId) && ($scope.model.tabs[i].relationName == tab.relationName)) {
 							return i + 1;
 						}
 					}
