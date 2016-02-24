@@ -434,6 +434,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	private ArrayList<IRecordInternal> getRelatedRecords(IRecordInternal record, String relName)
 	{
+		// similar code as the loop below is also in class DisplaysAdapter - just in case future fixes need to apply to both places
 		ArrayList<IRecordInternal> returnRelatedRecords = new ArrayList<IRecordInternal>();
 		if (record != null)
 		{
@@ -449,6 +450,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					currRecord = ((ISwingFoundSet)v).getRecord(((ISwingFoundSet)v).getSelectedIndex());
 					if (currRecord == null) currRecord = ((ISwingFoundSet)v).getPrototypeState();
 					returnRelatedRecords.add(currRecord);
+				}
+				else
+				{
+					currRecord = null;
 				}
 			}
 		}
