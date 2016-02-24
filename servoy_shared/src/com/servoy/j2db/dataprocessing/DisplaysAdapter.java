@@ -158,6 +158,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		// get the new records were are depending on
 		IRecordInternal currRecord = record;
 		String[] parts = dataProviderID.split("\\."); //$NON-NLS-1$
+
+		// similar code as the loop below is also in class DataproviderTypeSabloValue - just in case future fixes need to apply to both places
 		List<IRecordInternal> newRelated = new ArrayList<IRecordInternal>(parts.length - 1);
 		for (int i = 0; currRecord != null && i < parts.length - 1; i++)
 		{
