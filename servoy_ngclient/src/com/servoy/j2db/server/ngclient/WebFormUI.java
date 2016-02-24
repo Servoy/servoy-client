@@ -328,7 +328,11 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		{
 			for (Object componentName : names)
 			{
-				components.add(((RuntimeWebComponent)getElementsScope().get((String)componentName, null)).getComponent());
+				Object component = getElementsScope().get((String)componentName, null);
+				if (component instanceof RuntimeWebComponent)
+				{
+					components.add(((RuntimeWebComponent)component).getComponent());
+				}
 			}
 		}
 		return components;
