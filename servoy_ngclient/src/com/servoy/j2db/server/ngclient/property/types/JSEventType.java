@@ -40,6 +40,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.util.Debug;
 
 /**
  * JSEvent property type
@@ -50,7 +51,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
  * @author gboros
  *
  */
-public class JSEventType extends ReferencePropertyType<JSEvent>implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
+public class JSEventType extends ReferencePropertyType<JSEvent> implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
 {
 	public static final JSEventType INSTANCE = new JSEventType();
 	public static final String TYPE_NAME = "JSEvent"; //$NON-NLS-1$
@@ -108,10 +109,17 @@ public class JSEventType extends ReferencePropertyType<JSEvent>implements IPrope
 						}
 					}
 				}
-				event.setTimestamp(new Timestamp(jsonObject.optLong("timestamp")));
-				if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
-				if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
-				if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
+				try
+				{
+					if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
+					if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
+					if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
+					event.setTimestamp(new Timestamp(jsonObject.optLong("timestamp")));
+				}
+				catch (Exception e)
+				{
+					Debug.error("error setting event properties from " + jsonObject + ", for component: " + elementName + " on form " + formName, e);
+				}
 			}
 		}
 		return event;
