@@ -34,6 +34,7 @@ import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -44,6 +45,8 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.INGFormManager;
+import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGFormManager;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
@@ -51,7 +54,10 @@ import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -242,7 +248,29 @@ public class DebugNGClient extends NGClient implements IDebugClient
 			{
 				boolean isVisible = controller.isFormVisible();
 				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables);
-				((WebFormController)controller).initFormUI();
+				if (!Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
+				{
+					// for now we just destroy the form and recreate it with the other datasource;
+					// TODO we just load the shared foundset for that datasource - can we improve this somehow so that the loaded foundset is closer to the current runtime situation of the form? (related tabs etc.)
+					String name = controller.getName();
+					controller.destroy();
+					controller = getFormManager().leaseFormPanel(name);
+					FoundSet foundset;
+					try
+					{
+						foundset = (FoundSet)getFoundSetManager().getSharedFoundSet(controller.getDataSource());
+						foundset.loadAllRecords();
+						controller.loadRecords(foundset);
+					}
+					catch (ServoyException e)
+					{
+						Debug.error(e);
+					}
+				}
+				else
+				{
+					((WebFormController)controller).initFormUI();
+				}
 				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
 			}
 			WebsocketSessionWindows allendpoints = new NGClientWebsocketSessionWindows(getWebsocketSession());
