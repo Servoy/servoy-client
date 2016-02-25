@@ -9,6 +9,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	$scope.expandedNodes = [];
     	$scope.activeNodes = [];
     	$scope.pendingChildrenRequests = 0;
+    	$scope.pendingRefresh = false;
     	var theTree;
     	var clickTimeout;
     	var theTreeDefer = $q.defer();
@@ -145,83 +146,90 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	
     	function getRelatedFoundSetCallback(item, sort, level) {
     		return function(rfoundsetinfo) {
-				foundset_manager.getFoundSet(
-						rfoundsetinfo.foundsethash,
-						getDataproviders(rfoundsetinfo.foundsetdatasource, rfoundsetinfo.foundsetpk), sort).then(
-								function(rfoundset) {
-									if(foundsetChangeWatches[rfoundsetinfo.foundsethash] != undefined) {
-										foundsetChangeWatches[rfoundsetinfo.foundsethash]();
-									}
-									foundsetChangeWatches[rfoundsetinfo.foundsethash] = foundset_manager.addFoundSetChangeCallback(rfoundsetinfo.foundsethash, function() {
-										if(jQuery.contains(document.documentElement, $element.get(0)) && ($scope.pendingChildrenRequests < 1)) {
-											refresh();
+    			if(rfoundsetinfo) {
+					foundset_manager.getFoundSet(
+							rfoundsetinfo.foundsethash,
+							getDataproviders(rfoundsetinfo.foundsetdatasource, rfoundsetinfo.foundsetpk), sort).then(
+									function(rfoundset) {
+										if(foundsetChangeWatches[rfoundsetinfo.foundsethash] != undefined) {
+											foundsetChangeWatches[rfoundsetinfo.foundsethash]();
 										}
-									});									
-									item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource), level);
-									if(item.children.length > 0) {
-										item.folder = "true";
-									}
-									$scope.pendingChildrenRequests = $scope.pendingChildrenRequests - 1;
-								});
+										foundsetChangeWatches[rfoundsetinfo.foundsethash] = foundset_manager.addFoundSetChangeCallback(rfoundsetinfo.foundsethash, function() {
+											if(jQuery.contains(document.documentElement, $element.get(0)) && ($scope.pendingChildrenRequests < 1)) {
+												refresh();
+											}
+										});									
+										item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource), level);
+										if(item.children.length > 0) {
+											item.folder = "true";
+										}
+										$scope.pendingChildrenRequests = $scope.pendingChildrenRequests - 1;
+									});
+				}
+				else {
+					$scope.pendingChildrenRequests = $scope.pendingChildrenRequests - 1;
+				}
 			}
     	}
     	
     	
     	function getChildren(foundset, foundsethash, foundsetpk, binding, level) {
     		var returnChildren = new Array();
-    		for(var i = 0; i < foundset.viewPort.rows.length; i++) {
-    			var item = {};
-    			item.key =  foundsethash + '_' + foundset.viewPort.rows[i][foundsetpk]; 
-    			item.title = foundset.viewPort.rows[i][binding.textdataprovider];
-    			if(binding.tooltiptextdataprovider) item.tooltip = foundset.viewPort.rows[i][binding.tooltiptextdataprovider];
-    			if(binding.imageurldataprovider) item.icon = getIconURL(foundset.viewPort.rows[i][binding.imageurldataprovider]);
-    			item.hideCheckbox = binding.hascheckboxdataprovider == undefined || !foundset.viewPort.rows[i][binding.hascheckboxdataprovider];
-    			if(!item.hideCheckbox) {
-    				item.selected = Boolean(foundset.viewPort.rows[i][binding.checkboxvaluedataprovider])
-    			}
-    			
-    			if($scope.expandedNodes.indexOf(item.key) != -1) {
-    				item.expanded = true;
-    			}
-    			
-    			if($scope.activeNodes.indexOf(item.key) != -1) {
-    				item.active = true;
-    			}    			
-    			
-    			item.data = {}
-    			item.data._svyRowId = foundset.viewPort.rows[i]._svyRowId;
-    			
-    			if(binding.checkboxvaluedataprovider) {
-    				item.data.checkboxvaluedataprovider = binding.checkboxvaluedataprovider;
-    				item.data.checkboxvaluedataprovidertype = typeof foundset.viewPort.rows[i][binding.checkboxvaluedataprovider];
-    			}
- 	
-    			if(binding.callbackinfo || binding.methodToCallOnCheckBoxChange || binding.methodToCallOnDoubleClick)
-    			{
-    				if(binding.callbackinfo) {
-    					item.data.callbackinfo = binding.callbackinfo.f;
-    					item.data.callbackinfoParamValue = foundset.viewPort.rows[i][binding.callbackinfo.param];
-    				}
-    				if(binding.methodToCallOnCheckBoxChange) {
-    					item.data.methodToCallOnCheckBoxChange = binding.methodToCallOnCheckBoxChange.f;
-    					item.data.methodToCallOnCheckBoxChangeParamValue = foundset.viewPort.rows[i][binding.methodToCallOnCheckBoxChange.param];
-    				}
-    				if(binding.methodToCallOnDoubleClick) {
-    					item.data.methodToCallOnDoubleClick = binding.methodToCallOnDoubleClick.f;
-    					item.data.methodToCallOnDoubleClickParamValue = foundset.viewPort.rows[i][binding.methodToCallOnDoubleClick.param];
-    				}    				    				
-    			}
-
-    			returnChildren.push(item);
-    			if(binding.nrelationname) {
-    				$scope.pendingChildrenRequests = $scope.pendingChildrenRequests + 1; 
-    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
-					foundset_manager.getRelatedFoundSetHash(
-							foundsethash,
-							foundset.viewPort.rows[i]._svyRowId,
-							binding.nrelationname).then(getRelatedFoundSetCallback(item, sort, level + 1));
-    			}
-    		} 
+    		if(foundset) {
+	    		for(var i = 0; i < foundset.viewPort.rows.length; i++) {
+	    			var item = {};
+	    			item.key =  foundsethash + '_' + foundset.viewPort.rows[i][foundsetpk]; 
+	    			item.title = foundset.viewPort.rows[i][binding.textdataprovider];
+	    			if(binding.tooltiptextdataprovider) item.tooltip = foundset.viewPort.rows[i][binding.tooltiptextdataprovider];
+	    			if(binding.imageurldataprovider) item.icon = getIconURL(foundset.viewPort.rows[i][binding.imageurldataprovider]);
+	    			item.hideCheckbox = binding.hascheckboxdataprovider == undefined || !foundset.viewPort.rows[i][binding.hascheckboxdataprovider];
+	    			if(!item.hideCheckbox) {
+	    				item.selected = Boolean(foundset.viewPort.rows[i][binding.checkboxvaluedataprovider])
+	    			}
+	    			
+	    			if($scope.expandedNodes.indexOf(item.key) != -1) {
+	    				item.expanded = true;
+	    			}
+	    			
+	    			if($scope.activeNodes.indexOf(item.key) != -1) {
+	    				item.active = true;
+	    			}    			
+	    			
+	    			item.data = {}
+	    			item.data._svyRowId = foundset.viewPort.rows[i]._svyRowId;
+	    			
+	    			if(binding.checkboxvaluedataprovider) {
+	    				item.data.checkboxvaluedataprovider = binding.checkboxvaluedataprovider;
+	    				item.data.checkboxvaluedataprovidertype = typeof foundset.viewPort.rows[i][binding.checkboxvaluedataprovider];
+	    			}
+	 	
+	    			if(binding.callbackinfo || binding.methodToCallOnCheckBoxChange || binding.methodToCallOnDoubleClick)
+	    			{
+	    				if(binding.callbackinfo) {
+	    					item.data.callbackinfo = binding.callbackinfo.f;
+	    					item.data.callbackinfoParamValue = foundset.viewPort.rows[i][binding.callbackinfo.param];
+	    				}
+	    				if(binding.methodToCallOnCheckBoxChange) {
+	    					item.data.methodToCallOnCheckBoxChange = binding.methodToCallOnCheckBoxChange.f;
+	    					item.data.methodToCallOnCheckBoxChangeParamValue = foundset.viewPort.rows[i][binding.methodToCallOnCheckBoxChange.param];
+	    				}
+	    				if(binding.methodToCallOnDoubleClick) {
+	    					item.data.methodToCallOnDoubleClick = binding.methodToCallOnDoubleClick.f;
+	    					item.data.methodToCallOnDoubleClickParamValue = foundset.viewPort.rows[i][binding.methodToCallOnDoubleClick.param];
+	    				}    				    				
+	    			}
+	
+	    			returnChildren.push(item);
+	    			if(binding.nrelationname) {
+	    				$scope.pendingChildrenRequests = $scope.pendingChildrenRequests + 1; 
+	    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
+						foundset_manager.getRelatedFoundSetHash(
+								foundsethash,
+								foundset.viewPort.rows[i]._svyRowId,
+								binding.nrelationname).then(getRelatedFoundSetCallback(item, sort, level + 1));
+	    			}
+	    		} 
+	    	}
     		return returnChildren;
     	}
     	 
@@ -249,8 +257,10 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 			
 				for(var wKey in foundsetChangeWatches) {
 					// foundset_manager.removeFoundSetFromCache(wKey);
-      				foundsetChangeWatches[wKey]();
-      				delete foundsetChangeWatches[wKey];
+					if(foundsetChangeWatches[wKey]) {
+      					foundsetChangeWatches[wKey]();
+      					delete foundsetChangeWatches[wKey];
+      				}
       			}
       			foundset_manager.removeFoundSetsFromCache();
 			
@@ -280,8 +290,9 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 							});
  
 							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 1);
-							$scope.$watch('pendingChildrenRequests', function(nV) {
+							var pendingChildrenRequestsWatch = $scope.$watch('pendingChildrenRequests', function(nV) {
 								if(nV == 1) {
+									pendingChildrenRequestsWatch();
 									if(theTree) {
 										reloadTree();
 									}
@@ -289,14 +300,24 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 										initTree();
 									}
 									$scope.pendingChildrenRequests = 0;
+									if($scope.pendingRefresh) {
+										$scope.pendingRefresh = false;
+										refresh();
+									}
 								}
 							})
 				});
 			}
+			else if($scope.pendingChildrenRequests > 0) {
+				$scope.pendingRefresh = true;
+			}
       	}
 
       	$scope.api.refresh = function() {
-      		if($scope.pendingChildrenRequests > 0) return;
+      		if($scope.pendingChildrenRequests > 0) {
+      			$scope.pendingRefresh = true;
+      			return;
+      		}
       		theTreeDefer.reject();
       		theTreeDefer = $q.defer();
       		if(theTree) {
@@ -364,19 +385,23 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 		})
 		
 		$scope.$watch('model.selection', function(newValue) {
-			theTreeDefer.promise.then(function(theTree) {
-	  			var node = findNode(theTree.getRootNode(), newValue, 0);
-	  			if(node) {
-	  				node.makeVisible({scrollIntoView: true});
-	  				node.setActive(true);
-	  			}      			
-      		});
+			if(newValue) {
+				theTreeDefer.promise.then(function(theTree) {
+		  			var node = findNode(theTree.getRootNode(), newValue, 0);
+		  			if(node) {
+		  				node.makeVisible({scrollIntoView: true});
+		  				node.setActive(true);
+		  			}      			
+	      		});
+	      	}
 		})
 		
   		$scope.$watch('model.levelVisibility', function(newValue) {
-			theTreeDefer.promise.then(function(theTree) {
-				expandChildNodes(theTree.getRootNode(), newValue.level, newValue.state);	
-      		});
+  			if(newValue) {
+				theTreeDefer.promise.then(function(theTree) {
+					expandChildNodes(theTree.getRootNode(), newValue.level, newValue.state);	
+	      		});
+	      	}
 		})		
 		
       },
