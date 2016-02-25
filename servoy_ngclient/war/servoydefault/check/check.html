@@ -8,5 +8,5 @@
 	   	    svy-focuslost='handlers.onFocusLostMethodID($event)'
 			id="{{::model.svyMarkupId}}"
 			/>
-	 <span ng-bind="model.text" />
+	 <span ng-bind="isInPortal()? '' : model.text" />
 </label>

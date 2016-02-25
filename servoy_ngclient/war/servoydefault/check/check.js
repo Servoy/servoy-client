@@ -136,6 +136,10 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
+			
+			$scope.isInPortal = function() {
+				return ($element.closest('.svy-portal').length >0) && ($element.closest('.svy-listviewwrapper').length == 0);
+			}
 
 		},
 		templateUrl : 'servoydefault/check/check.html'
