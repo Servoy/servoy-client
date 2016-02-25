@@ -260,7 +260,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private void sendTitle(String title)
 	{
 		String titleString = "";
-		if (windowType == 2)
+		if (windowType == JSWindow.WINDOW)
 		{
 			Solution solution = getApplication().getSolution();
 			String solutionTitle = solution.getTitleText();
@@ -301,7 +301,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					}
 				}
 			}
-			String appName = "Servoy Web Client"; //$NON-NLS-1$
+			String appName = "Servoy NG Client"; //$NON-NLS-1$
 			boolean branding = Utils.getAsBoolean(getApplication().getSettings().getProperty("servoy.branding", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 			String appTitle = getApplication().getSettings().getProperty("servoy.branding.windowtitle"); //$NON-NLS-1$
 			if (branding && appTitle != null)
@@ -319,7 +319,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 		else
 		{
-			titleString = title;
+			titleString = getApplication().getI18NMessageIfPrefixed(title);
 		}
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setTitle",
 			new Object[] { this.getName(), titleString });
@@ -437,6 +437,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 		String titleArg = getTitle();
 		titleArg = titleArg == null ? formName : titleArg;
+		titleArg = getApplication().getI18NMessageIfPrefixed(titleArg);
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("show",
 			new Object[] { getName(), formName, titleArg });
 
