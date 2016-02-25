@@ -3,16 +3,24 @@ angular.module('valuelist_property', ['webSocketModule'])
 .run(function ($sabloConverters, $sabloUtils, $q, $sabloTestability) {
 	$sabloConverters.registerCustomPropertyHandler('valuelist', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+			var realServerJSONValue = serverJSONValue;
 			// if we have a deferred filter, notify that the new value arrived
 			if (currentClientValue && angular.isDefined(currentClientValue[$sabloConverters.INTERNAL_IMPL].deferredFilter)) {
+				if (realServerJSONValue && realServerJSONValue.filter != currentClientValue[$sabloConverters.INTERNAL_IMPL].savedFilterStringReq) 
+				{
+					// if this is not the request for the latest filter request, ignore and retourn the current client value.
+					return currentClientValue;
+				}
 				componentScope.$evalAsync(function() {
 					$sabloTestability.block(false);
-					currentClientValue[$sabloConverters.INTERNAL_IMPL].deferredFilter.resolve(serverJSONValue);
+					currentClientValue[$sabloConverters.INTERNAL_IMPL].deferredFilter.resolve(realServerJSONValue.values);
 					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].deferredFilter; // this isn't actually needed cause the old value isn't used anymore
+					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].savedFilterStringReq; // this isn't actually needed cause the old value isn't used anymore
 				});
 			}
 			
 			if (serverJSONValue) {
+					serverJSONValue = serverJSONValue.values;
 					$sabloConverters.prepareInternalState(serverJSONValue);
 					var internalState = serverJSONValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 					
@@ -21,14 +29,19 @@ angular.module('valuelist_property', ['webSocketModule'])
 					{
 						value:  function(filterString) {
 							var retVal = serverJSONValue;
-								
+
+							// only block once
+							if(!angular.isDefined(internalState.deferredFilter)) {
+								$sabloTestability.block(true);
+							}
+							else internalState.deferredFilter.reject("Previous filter canceled due to new one");
 							var deferred = $q.defer();
 							internalState.deferredFilter = deferred;
 							retVal = deferred.promise;
 
 							internalState.filterStringReq = filterString;
+							internalState.savedFilterStringReq = filterString;
 							if (internalState.changeNotifier) internalState.changeNotifier();
-							$sabloTestability.block(true);
 							return retVal;
 						},
 						enumerable: false
