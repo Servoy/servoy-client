@@ -48,7 +48,9 @@ label.svy-check-radio span{
 	vertical-align: middle;
 }
 label.svy-check{
+	display:-ms-flexbox;
 	display:flex;
+	-ms-flex-align:center;
 	align-items:center;
 	padding: 1px;
 	margin: 0px;
