@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$sabloApplication) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -190,14 +190,38 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			}
 
 			$scope.focusGained = function(event) {
-				if ($scope.model.format.edit)
-					setDateFormat($scope.model.format, 'edit');
-				else
-					setDateFormat($scope.model.format, 'display');
+				if (!$scope.model.findmode) {
+					if ($scope.model.format.edit && $scope.model.format.isMask) {
+						var settings = {};
+						settings.placeholder = $scope.model.format.placeHolder ? $scope.model.format.placeHolder : " ";
+						if ($scope.model.format.allowedCharacters)
+							settings.allowedCharacters = $scope.model.format.allowedCharacters;
+
+						$element.find('input').mask($scope.model.format.edit, settings);
+						$element.on("dp.change", inputChanged);
+					}
+					else if ($scope.model.format.edit)
+						setDateFormat($scope.model.format, 'edit');
+					else
+						setDateFormat($scope.model.format, 'display');
+				}
 			}
 
 			$scope.focusLost = function(event) {
-				setDateFormat($scope.model.format, 'display');
+				if (!$scope.model.findmode) {
+					if ($scope.model.format.edit && $scope.model.format.isMask)
+					{
+						$element.find('input').unmask();
+					}
+					else
+					{
+						setDateFormat($scope.model.format, 'display');
+					}
+				}
+				else
+				{
+					inputChanged(event);
+				}
 			}
 
 			/**
@@ -227,7 +251,6 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			var element = $element.children().first();
 			var inputElement = element.children().first();
 			var tooltipState = null;
-			var formatState = null;
 			var className = null;
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,

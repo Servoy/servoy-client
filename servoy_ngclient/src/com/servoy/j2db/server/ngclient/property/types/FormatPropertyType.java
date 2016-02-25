@@ -70,8 +70,8 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class FormatPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>/* <ComponentFormat> */,
-	ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>, ISabloComponentToRhino<Object> /* <ComponentFormat */,
-	IRhinoToSabloComponent<Object> /* <ComponentFormat */
+ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>, ISabloComponentToRhino<Object> /* <ComponentFormat */,
+IRhinoToSabloComponent<Object> /* <ComponentFormat */
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -125,13 +125,13 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public Object/* ComponentFormat */defaultValue(PropertyDescription pd)
+	public Object/* ComponentFormat */ defaultValue(PropertyDescription pd)
 	{
 		return DESIGN_DEFAULT;
 	}
 
 	@Override
-	public Object/* ComponentFormat */fromJSON(Object newValue, Object/* ComponentFormat */previousValue, PropertyDescription pd,
+	public Object/* ComponentFormat */ fromJSON(Object newValue, Object/* ComponentFormat */ previousValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// TODO remove when these types are design-aware and we know exactly how to deal with FormElement values (a refactor is to be done soon)
@@ -164,19 +164,20 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		boolean isMask = format.parsedFormat.isMask();
 		boolean isAllUppercase = format.parsedFormat.isAllUpperCase();
 		boolean isAllLowercase = format.parsedFormat.isAllLowerCase();
+		String placeHolder = null;
+		if (format.parsedFormat.getPlaceHolderString() != null) placeHolder = format.parsedFormat.getPlaceHolderString();
+		else if (format.parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(format.parsedFormat.getPlaceHolderCharacter());
 		String mask = format.parsedFormat.getEditFormat();
 		if (isMask && type.equals("DATETIME"))
 		{
 			mask = format.parsedFormat.getDateMask();
+			if (placeHolder == null) placeHolder = format.parsedFormat.getDisplayFormat();
 		}
 		else if (format.parsedFormat.getDisplayFormat() != null && type.equals("TEXT"))
 		{
 			isMask = true;
 			mask = format.parsedFormat.getDisplayFormat();
 		}
-		String placeHolder = null;
-		if (format.parsedFormat.getPlaceHolderString() != null) placeHolder = format.parsedFormat.getPlaceHolderString();
-		else if (format.parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(format.parsedFormat.getPlaceHolderCharacter());
 		map.put("isMask", Boolean.valueOf(isMask));
 		map.put("edit", mask);
 		map.put("placeHolder", placeHolder);
@@ -341,10 +342,10 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 				}
 			}
 			ComponentFormat format = ComponentFormat.getComponentFormat(
-				(String)formElementValue,
-				dataproviderId,
-				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-					component.getDataConverterContext().getForm().getForm()), application, true);
+					(String)formElementValue,
+					dataproviderId,
+					application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
+						component.getDataConverterContext().getForm().getForm()), application, true);
 			return format;
 		}
 		return formElementValue;
