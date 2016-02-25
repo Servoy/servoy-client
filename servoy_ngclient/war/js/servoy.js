@@ -268,14 +268,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				var style ={}
 				if (halign == 0)
 				{
+					style['-ms-flex-pack'] = 'center';
 					style['justify-content'] = 'center';
 				}
 				else if (halign == 4)
 				{
+					style['-ms-flex-pack'] = 'end';
 					style['justify-content'] = 'flex-end';
 				}
 				else
 				{
+					style['-ms-flex-pack'] = 'start';
 					style['justify-content'] = 'flex-start';
 				}
 				element.css(style);
