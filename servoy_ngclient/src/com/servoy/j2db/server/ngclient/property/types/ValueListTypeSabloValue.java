@@ -203,6 +203,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	}
 
 	private List<Map<String, Object>> javaValueForJSON;
+	private String filter;
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, boolean checkChanged) throws IllegalArgumentException, JSONException
 	{
@@ -211,7 +212,17 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
 			DataConversion clientConversionsInsideValuelist = new DataConversion();
-			JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
+			if (key != null) writer.key(key);
+			writer.object();
+			if (filter != null)
+			{
+				writer.key("filter");
+				writer.value(filter);
+				filter = null;
+			}
+			writer.key("values");
+			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
+			writer.endObject();
 			// TODO send these to browser and use them in browser!
 		}
 		javaValueForJSON = newJavaValueForJSON;
@@ -238,6 +249,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	 */
 	public void filterValuelist(String filterString)
 	{
+		this.filter = filterString;
 		if (filteredValuelist == null)
 		{
 			if (valueList instanceof DBValueList)
