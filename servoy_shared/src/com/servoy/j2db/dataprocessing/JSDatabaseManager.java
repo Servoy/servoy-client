@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -775,7 +776,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -864,7 +865,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -940,7 +941,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	private boolean validateQueryArguments(Object[] arguments, String sql_query)
 	{
-		// TODO HOW TO HANDLE ARGS WITH NULL?? sHOULD BE CONVERTED TO NullValue?????
 		if (arguments != null)
 		{
 			for (int i = 0; i < arguments.length; i++)
@@ -954,6 +954,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					application.reportJSError("Custom query: " + sql_query + //$NON-NLS-1$
 						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
 					return false;
+				}
+				else if (arguments[i] == null)
+				{
+					arguments[i] = ValueFactory.createNullValue(Types.OTHER);
 				}
 			}
 		}
@@ -2051,8 +2055,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
-					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-						column.getScale(), column.getFlags()));
+					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+						column.getFlags()));
 					sqlSelect.setColumns(cols);
 					SQLStatement trackingInfo = null;
 					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
@@ -2657,7 +2661,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2684,7 +2688,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3726,7 +3730,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 										{
 											try
 											{
-												int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
+												int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(
+													ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
 												if (convType != Integer.MAX_VALUE)
 												{
 													type = Column.mapToDefaultType(convType);
@@ -3734,9 +3739,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 											}
 											catch (IOException e)
 											{
-												Debug.error(
-													"Exception loading properties for converter " + columnConverter.getName() + ", properties: " +
-														ci.getConverterProperties(), e);
+												Debug.error("Exception loading properties for converter " + columnConverter.getName() + ", properties: " +
+													ci.getConverterProperties(), e);
 											}
 										}
 									}
@@ -3851,7 +3855,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException
