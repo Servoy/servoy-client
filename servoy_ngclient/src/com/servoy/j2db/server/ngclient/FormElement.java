@@ -309,16 +309,23 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 				if (formElementValue != NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 				{
 					// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
-					if (pd.getType() instanceof IDataLinkedType)
+					try
 					{
-						getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd,
-							((IDataLinkedType)pd.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
-					}
+						if (pd.getType() instanceof IDataLinkedType)
+						{
+							getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd,
+								((IDataLinkedType)pd.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
+						}
 
-					if (pd.getType() instanceof IFindModeAwareType)
+						if (pd.getType() instanceof IFindModeAwareType)
+						{
+							getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd,
+								((IFindModeAwareType)pd.getType()).isFindModeAware(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
+						}
+					}
+					catch (Exception e)
 					{
-						getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd,
-							((IFindModeAwareType)pd.getType()).isFindModeAware(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
+						Debug.error(e);
 					}
 				}
 			}
