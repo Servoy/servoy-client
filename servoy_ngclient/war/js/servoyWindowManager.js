@@ -317,6 +317,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					instance.size = storage.get(sol+name+'.storedBounds.size')
 					instance.location =  storage.get(sol+name+'.storedBounds.location')
 				}
+				$sabloTestability.block(true);
 				$servoyWindowManager.open({
 					animation: false,
 					templateUrl: "templates/dialog.html",
@@ -516,13 +517,20 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	DIALOG:0,
 	MODAL_DIALOG:1,
 	WINDOW:2
-}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$timeout,$windowService, $servoyInternal,$sabloApplication,$formService) {
+}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$timeout,$windowService, $servoyInternal,$sabloApplication,$formService,$sabloTestability) {
 
+	var block = true;
 	// these scope variables can be accessed by child scopes
 	// for example the default navigator watches 'win' to see if it changed the current form
 	$scope.win =  windowInstance
 	$scope.getFormUrl = function() {
-		return $windowService.getFormUrl(windowInstance.form.name)
+		var url = $windowService.getFormUrl(windowInstance.form.name)
+		if (block && url) {
+			$sabloTestability.block(false);
+			block = false;
+		}
+		return url;
+		
 	}
 	$scope.getNavigatorFormUrl = function() {
 		if (windowInstance.navigatorForm && windowInstance.navigatorForm.name)
