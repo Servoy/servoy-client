@@ -91,7 +91,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	protected boolean recordBasedPropertiesChanged = false;
 	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
-	protected ViewportDataChangeMonitor viewPortChangeMonitor;
+	protected ViewportDataChangeMonitor<ComponentViewportRowDataProvider> viewPortChangeMonitor;
 	protected List<Runnable> changesWhileUpdatingFoundsetBasedDPFromClient;
 
 	protected ComponentDataLinkedPropertyListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
@@ -258,7 +258,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							{
 								queueChangeRunnable.run();
 							}
-						} // else this change was probably determined by the fact that we reuse components, changing the record in the DAL to get data for a specific row
+						}
+						else
+						{
+							// else this change was probably determined by the fact that we reuse components, changing the record in the DAL to get data for a specific row;
+							// so we need to clear component changes for this property because we do not notify the parent here (we want to ignore the change) so
+							// we shouldn't keep the property marked as dirty - thus blocking future property changes to generate a valueChanged on parent's monitor
+							childComponent.flagPropertyAsDirty(propertyName, false);
+						}
 					}
 					else
 					{
@@ -327,7 +334,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor,
+			viewPortChangeMonitor = new ViewportDataChangeMonitor<>(monitor,
 				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
@@ -519,7 +526,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			// viewPortChanges.size() > 0
 			{
 				List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
-				Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
 				DataConversion clientConversionInfo = new DataConversion();
 
 				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);

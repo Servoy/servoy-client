@@ -73,6 +73,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private final PropertyDescription vlPD;
 	protected BaseWebObject component;
 	private final ComponentFormat format;
+	private List<Map<String, Object>> javaValueForJSON;
+	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
 	public ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID,
 		PropertyDescription vlPD, ComponentFormat format)
@@ -202,23 +204,20 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		previousRecord = record;
 	}
 
-	private List<Map<String, Object>> javaValueForJSON;
-	private String filter;
-
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, boolean checkChanged) throws IllegalArgumentException, JSONException
 	{
 		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
-		if (!checkChanged || javaValueForJSON == null || !javaValueForJSON.equals(newJavaValueForJSON))
+		if (!checkChanged || filterStringForResponse != null || javaValueForJSON == null || !javaValueForJSON.equals(newJavaValueForJSON))
 		{
 			if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
 			DataConversion clientConversionsInsideValuelist = new DataConversion();
 			if (key != null) writer.key(key);
 			writer.object();
-			if (filter != null)
+			if (filterStringForResponse != null)
 			{
 				writer.key("filter");
-				writer.value(filter);
-				filter = null;
+				writer.value(filterStringForResponse);
+				filterStringForResponse = null;
 			}
 			writer.key("values");
 			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
@@ -249,7 +248,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	 */
 	public void filterValuelist(String filterString)
 	{
-		this.filter = filterString;
+		this.filterStringForResponse = filterString;
 		if (filteredValuelist == null)
 		{
 			if (valueList instanceof DBValueList)
