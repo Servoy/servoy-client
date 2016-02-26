@@ -120,14 +120,21 @@ public class FormLayoutStructureGenerator
 					ngClass.put(spec.getDesignStyleClass(), "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 					ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
-				String dropHighlightCondition = "<canContainDraggedElement(";
-				for (int i = 0; i < allowedChildren.size() - 1; i++)
+				if (allowedChildren.size() > 0)
 				{
-					dropHighlightCondition += "'" + allowedChildren.get(i) + "', ";
+					String dropHighlightCondition = "<canContainDraggedElement(";
+					if (allowedChildren.size() > 1)
+					{
+						for (int i = 0; i < allowedChildren.size() - 1; i++)
+						{
+							dropHighlightCondition += "'" + allowedChildren.get(i) + "', ";
+						}
+					}
+					dropHighlightCondition += "'" + allowedChildren.get(allowedChildren.size() - 1) + "'";
+					dropHighlightCondition += ")<";
+					ngClass.put("drop_highlight", dropHighlightCondition);//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
-				dropHighlightCondition += "'" + allowedChildren.get(allowedChildren.size() - 1) + "'";
-				dropHighlightCondition += ")<";
-				ngClass.put("drop_highlight", dropHighlightCondition);//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+
 			}
 
 			if (!highSet) ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");
