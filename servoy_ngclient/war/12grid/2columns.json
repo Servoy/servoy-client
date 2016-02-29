@@ -1,23 +1,17 @@
 {
-	"layoutName":"3columns",
+	"layoutName":"2columns",
 	"class":"row",
 	"children" : [
 		{
 			"layoutName":"column",
 			"model": {
-				"class":"col-md-4"
+				"class":"col-md-6"
 			}
 		},
 		{
 			"layoutName":"column",
 			"model": {
-				"class":"col-md-4"
-			}
-		},
-		{
-			"layoutName":"column",
-			"model": {
-				"class":"col-md-4"
+				"class":"col-md-6"
 			}
 		}
 	]

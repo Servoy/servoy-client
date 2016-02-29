@@ -1,0 +1,12 @@
+{
+	"layoutName":"1column",
+	"class":"row",
+	"children" : [
+		{
+			"layoutName":"column",
+			"model": {
+				"class":"col-md-12"
+			}
+		}
+	]
+}
