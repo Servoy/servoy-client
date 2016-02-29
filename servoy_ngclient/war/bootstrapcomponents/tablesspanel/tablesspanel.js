@@ -33,6 +33,12 @@ angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstra
     	  $scope.getContainerStyle = function() {
     		  return {position:"relative", minHeight:$scope.model.height+"px"};
     	  }
+    	  
+    	  $scope.showEditorHint = function()
+    	  {
+    		  return !$scope.model.containedForm && $element[0].getAttribute("svy-id") !== null;
+    	  }
+    	  
       },
       templateUrl: 'bootstrapcomponents/tablesspanel/tablesspanel.html'
     };
