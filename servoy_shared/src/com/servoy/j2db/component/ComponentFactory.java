@@ -1392,7 +1392,14 @@ public class ComponentFactory
 				//if (valuelist != null && valuelist.getValueListType() != ValueList.CUSTOM_VALUES) type = valuelist.getDisplayValueType();
 				int l = dp.getLength();
 				int defaultType = Column.mapToDefaultType(fieldFormat.dpType);
-				if (l > 0 && (defaultType == IColumnTypes.TEXT || defaultType == IColumnTypes.MEDIA))
+				boolean skipMaxLength = false;
+				if (valuelist != null)
+				{
+					//if the display values are different than the real values, then maxlength should be skipped
+					IValueList vl = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, dp.getDataProviderID());
+					skipMaxLength = vl.hasRealValues();
+				}
+				if (l > 0 && (defaultType == IColumnTypes.TEXT || defaultType == IColumnTypes.MEDIA) && !skipMaxLength)
 				{
 					fl.setMaxLength(l);
 				}
