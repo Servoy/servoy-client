@@ -1,5 +1,5 @@
 {
-	"layoutName":"2columns",
+	"layoutName":"row",
 	"class":"row",
 	"children" : [
 		{
