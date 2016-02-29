@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -36,11 +35,9 @@ import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
-import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
@@ -118,21 +115,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			call.put("propertyPath", componentContext.getPropertyPath());
 		}
 
-		IPerfomanceRegistry perfRegistry = null;
-		try
-		{
-			perfRegistry = (getClient().getApplicationServerAccess() != null ? getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
+		Pair<UUID, UUID> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
 
-		Pair<UUID, UUID> perfId = null;
-		if (perfRegistry != null && perfRegistry.isEnabled() && !delayedCall) // so it is waiting for a response
-			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(
-				receiver.getSpecification().getName() + "." + apiFunction.getName(), System.currentTimeMillis(),
-				apiFunction.getBlockEventProcessing() ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getClient().getClientID());
 		try
 		{
 			// actual call
@@ -140,7 +124,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 		finally
 		{
-			if (perfId != null) perfRegistry.getPerformanceData(getClient().getSolutionName()).endSubAction(perfId);
+			if (perfId != null) getClient().onStopSubAction(perfId);
 		}
 	}
 
@@ -374,28 +358,14 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments, WebObjectApiDefinition apiFunction,
 		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
 	{
-		IPerfomanceRegistry perfRegistry = null;
-		try
-		{
-			perfRegistry = (getClient().getApplicationServerAccess() != null ? getClient().getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
-
-		Pair<UUID, UUID> perfId = null;
-		if (perfRegistry != null && perfRegistry.isEnabled())
-			perfId = perfRegistry.getPerformanceData(getClient().getSolutionName()).startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
-				(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-				getClient().getClientID());
+		Pair<UUID, UUID> perfId = getClient().onStartSubAction(serviceName, functionName, apiFunction, arguments);
 		try
 		{
 			return super.executeServiceCall(serviceName, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);
 		}
 		finally
 		{
-			if (perfId != null) perfRegistry.getPerformanceData(getClient().getSolutionName()).endSubAction(perfId);
+			if (perfId != null) getClient().onStopSubAction(perfId);
 		}
 	}
 

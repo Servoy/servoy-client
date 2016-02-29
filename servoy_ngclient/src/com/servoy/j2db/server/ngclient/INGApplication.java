@@ -18,8 +18,11 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.sablo.IChangeListener;
+import org.sablo.specification.WebObjectApiDefinition;
 
 import com.servoy.j2db.INGClientApplication;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Client with websocket-client specific features.
@@ -37,4 +40,8 @@ public interface INGApplication extends INGClientApplication
 	NGRuntimeWindowManager getRuntimeWindowManager();
 
 	void changesWillBeSend();
+
+	Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] arguments);
+
+	void onStopSubAction(Pair<UUID, UUID> perfId);
 }

@@ -23,7 +23,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
+import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.sablo.eventthread.WebsocketSessionWindows;
+import org.sablo.specification.WebObjectApiDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -45,8 +48,6 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
-import com.servoy.j2db.server.ngclient.INGFormManager;
-import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGFormManager;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
@@ -56,7 +57,9 @@ import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindo
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -325,5 +328,51 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	IDesignerCallback getDesignerCallback()
 	{
 		return designerCallback;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.NGClient#onStartSubAction(java.lang.String, java.lang.String, org.sablo.specification.WebObjectApiDefinition)
+	 */
+	@Override
+	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] args)
+	{
+
+		Pair<UUID, UUID> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
+		IExecutingEnviroment engine = getScriptEngine();
+		if (engine instanceof RemoteDebugScriptEngine)
+		{
+			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+			DBGPDebugFrame stackFrame = debugger.getStackManager().getStackFrame(0);
+			if (stackFrame instanceof ServoyDebugFrame)
+			{
+				ServoyDebugFrame servoyDebugFrame = (ServoyDebugFrame)stackFrame;
+				servoyDebugFrame.onEnterSubAction(serviceName + "." + functionName, args);
+			}
+		}
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.NGClient#onStopSubAction(com.servoy.j2db.util.Pair)
+	 */
+	@Override
+	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	{
+		super.onStopSubAction(perfId);
+		IExecutingEnviroment engine = getScriptEngine();
+		if (engine instanceof RemoteDebugScriptEngine)
+		{
+			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+			DBGPDebugFrame stackFrame = debugger.getStackManager().getStackFrame(0);
+			if (stackFrame instanceof ServoyDebugFrame)
+			{
+				ServoyDebugFrame servoyDebugFrame = (ServoyDebugFrame)stackFrame;
+				servoyDebugFrame.onExitSubAction();
+			}
+		}
 	}
 }

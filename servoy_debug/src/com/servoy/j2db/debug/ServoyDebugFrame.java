@@ -42,25 +42,40 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 	private final ServoyDebugFrame parent;
 	private final List<DataCallProfileData> dataCallProfileDatas = new ArrayList<DataCallProfileData>();
 	final IServiceProvider client;
+	private final Context ct;
+	private ServoyDebugFrame servoyDebugSubFrame;
+	private String subActionName;
 
 	/**
 	 * @param ct
 	 * @param node
 	 * @param debugger
-	 * @param parent 
+	 * @param parent
 	 */
 	public ServoyDebugFrame(Context ct, DebuggableScript node, ServoyDebugger debugger, ServoyDebugFrame parent)
 	{
 		super(ct, node, debugger);
+		this.ct = ct;
 		this.node = node;
 		this.debugger = debugger;
 		this.parent = parent;
 		this.client = J2DBGlobals.getServiceProvider();
 	}
 
+	public ServoyDebugFrame(Context ct, DebuggableScript node, ServoyDebugger debugger, ServoyDebugFrame parent, String subActionName)
+	{
+		super(ct, node, debugger);
+		this.ct = ct;
+		this.node = node;
+		this.debugger = debugger;
+		this.parent = parent;
+		this.subActionName = subActionName;
+		this.client = J2DBGlobals.getServiceProvider();
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.debug.IDataCallListener#addDataCallProfileData(com.servoy.j2db.debug.DataCallProfileData)
 	 */
 	public void addDataCallProfileData(DataCallProfileData data)
@@ -113,6 +128,10 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 		boolean innerFunction = false;
 		String name = node.getFunctionName();
 		DebuggableScript currentNode = node;
+		if (subActionName != null)
+		{
+			name = subActionName;
+		}
 		while ((name == null || name.equals("")) && currentNode.getParent() != null)
 		{
 			name = currentNode.getParent().getFunctionName();
@@ -133,4 +152,22 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 		}
 		return super.eval(value);
 	}
+
+	/**
+	 * @param functionName
+	 */
+	public void onEnterSubAction(String functionName, Object[] arguments)
+	{
+		servoyDebugSubFrame = new ServoyDebugFrame(ct, node, debugger, this, functionName);
+		servoyDebugSubFrame.onEnter(ct, null, null, arguments);
+	}
+
+	/**
+	 *
+	 */
+	public void onExitSubAction()
+	{
+		if (servoyDebugSubFrame != null) servoyDebugSubFrame.onExit(ct, false, null);
+	}
+
 }

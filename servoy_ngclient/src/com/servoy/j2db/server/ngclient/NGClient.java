@@ -43,6 +43,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
@@ -61,16 +62,19 @@ import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindo
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.shared.IPerfomanceRegistry;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IGetStatusLine;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
@@ -1309,6 +1313,55 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			this.timeout = timeout;
 			this.onRootFrame = onRootFrame;
 		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.INGApplication#onStartSubAction(java.lang.String, java.lang.String, org.sablo.specification.WebObjectApiDefinition)
+	 */
+	@Override
+	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] arguments)
+	{
+		IPerfomanceRegistry perfRegistry = null;
+		try
+		{
+			perfRegistry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+
+		Pair<UUID, UUID> perfId = null;
+		if (perfRegistry != null && perfRegistry.isEnabled())
+			perfId = perfRegistry.getPerformanceData(getSolutionName()).startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
+				(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
+				getClientID());
+		return perfId;
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.INGApplication#onStopSubAction(com.servoy.j2db.util.Pair)
+	 */
+	@Override
+	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	{
+		IPerfomanceRegistry perfRegistry = null;
+		try
+		{
+			perfRegistry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+		perfRegistry.getPerformanceData(getSolutionName()).endSubAction(perfId);
 
 	}
 }
