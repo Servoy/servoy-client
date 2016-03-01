@@ -85,6 +85,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 				}
  			});
       		theTree = theTree.fancytree("getTree");
+      		theTreeDefer.resolve(theTree);
      	}
     	 
     	function getIconURL(iconPath) {
@@ -234,19 +235,21 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	}
     	 
     	function findNode(node, pkarray, level) {
-    		if(pkarray.length > 0) {
+    		if(pkarray && pkarray.length > 0) {
     			var nodeChildren = node.getChildren();
-    			for(var i = 0; i < nodeChildren.length; i++) {
-    				var pkIdx = nodeChildren[i].key.indexOf('_');
-    				if(nodeChildren[i].key.substring(pkIdx + 1) == pkarray[level].toString()) {
-    					if(level + 1 < pkarray.length) {
-    						return findNode(nodeChildren[i], pkarray, level + 1);
-    					}
-    					else {
-    						return nodeChildren[i];
-    					}
-    				}
-    			}
+    			if(nodeChildren) {
+	    			for(var i = 0; i < nodeChildren.length; i++) {
+	    				var pkIdx = nodeChildren[i].key.indexOf('_');
+	    				if(nodeChildren[i].key.substring(pkIdx + 1) == pkarray[level].toString()) {
+	    					if(level + 1 < pkarray.length) {
+	    						return findNode(nodeChildren[i], pkarray, level + 1);
+	    					}
+	    					else {
+	    						return nodeChildren[i];
+	    					}
+	    				}
+	    			}
+	    		}
     		}
     		return null;
     	}
@@ -320,10 +323,6 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       		}
       		theTreeDefer.reject();
       		theTreeDefer = $q.defer();
-      		if(theTree) {
-      			theTree.getRootNode().removeChildren();
-          		theTree = null;
-      		}
       		refresh();
       	}
       	
