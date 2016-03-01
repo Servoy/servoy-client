@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.mozilla.javascript.JavaScriptException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IPrepareForSave;
@@ -51,6 +53,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class EditRecordList
 {
+
+	protected static final Logger log = LoggerFactory.getLogger("com.servoy.j2db.dataprocessing.editedRecords"); //$NON-NLS-1$
+
 	private final FoundSetManager fsm;
 
 	private final List<IPrepareForSave> prepareForSaveListeners = new ArrayList<IPrepareForSave>(2);
@@ -469,7 +474,8 @@ public class EditRecordList
 							{
 								if (!((FoundSet)record.getParentFoundSet()).executeFoundsetTriggerBreakOnFalse(new Object[] { record },
 									record.existInDataSource() ? StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID
-										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true)) // throws ServoyException when trigger method throws exception
+										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID,
+									true)) // throws ServoyException when trigger method throws exception
 								{
 									// just directly return if one returns false.
 									return ISaveConstants.VALIDATION_FAILED;
@@ -494,6 +500,8 @@ public class EditRecordList
 						}
 						catch (ServoyException e)
 						{
+							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+								e);
 							// trigger method threw exception
 							lastStopEditingException = e;
 							failedCount++;
@@ -584,7 +592,8 @@ public class EditRecordList
 							for (int l = 0; l < values.length; l++)
 							{
 								// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
-								if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != updateInfo.getRow()) && pks.containsKey(l)) continue;
+								if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != updateInfo.getRow()) && pks.containsKey(l))
+									continue;
 
 								boolean same = values[l] == pkObject;
 								if (!same && values[l] != null)
@@ -632,6 +641,7 @@ public class EditRecordList
 			}
 			catch (Exception e)
 			{
+				log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
 				lastStopEditingException = e;
 				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException));
@@ -662,6 +672,8 @@ public class EditRecordList
 					Object retValue = idents[i];
 					if (retValue instanceof Exception)
 					{
+						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+							(Exception)retValue);
 						lastStopEditingException = (Exception)retValue;
 						failedCount++;
 						if (retValue instanceof ServoyException)
@@ -727,6 +739,7 @@ public class EditRecordList
 				}
 				catch (Exception e)
 				{
+					log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
 					lastStopEditingException = e;
 					failedCount++;
 					row.setLastException(e);
@@ -789,13 +802,15 @@ public class EditRecordList
 					rowUpdateInfoRecord = rowUpdateInfo.getRecord();
 					((FoundSet)rowUpdateInfoRecord.getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfoRecord },
 						rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION ? StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID
-							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, true);
+							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID,
+						true);
 				}
 				catch (ServoyException e)
 				{
 					if (e instanceof DataException && e.getCause() instanceof JavaScriptException)
 					{
 						// trigger method threw exception
+						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
 						lastStopEditingException = e;
 						failedCount++;
 						rowUpdateInfoRecord.getRawData().setLastException(e);
@@ -1166,8 +1181,8 @@ public class EditRecordList
 				{
 					String cname = it.next();
 					//access is based on columns, but we don't yet use that fine grained level, its table only
-					access = Integer.valueOf(fsm.getApplication().getFlattenedSolution().getSecurityAccess(
-						Utils.getDotQualitfied(table.getServerName(), table.getName(), cname)));
+					access = Integer.valueOf(
+						fsm.getApplication().getFlattenedSolution().getSecurityAccess(Utils.getDotQualitfied(table.getServerName(), table.getName(), cname)));
 				}
 				else
 				{
