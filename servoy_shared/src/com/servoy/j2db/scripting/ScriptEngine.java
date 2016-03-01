@@ -892,9 +892,11 @@ public class ScriptEngine implements IScriptSupport
 
 	public static String extractFunction(String declaration, String replacement)
 	{
-		if (declaration != null && declaration.indexOf("/**") >= 0)
+		int docIndex = declaration.indexOf("/**");
+		int functionKeywordIndex = declaration.indexOf("function ");
+		if (docIndex > 0 && docIndex < functionKeywordIndex)
 		{
-			declaration = declaration.substring(declaration.indexOf("/**"));
+			declaration = declaration.substring(docIndex);
 		}
 		return docStripper.matcher(declaration).replaceFirst(replacement);
 	}
