@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -608,7 +609,8 @@ public class SQLGenerator
 	{
 		List<Object[]> data = new ArrayList<Object[]>();
 		data.add(new Object[] { "c1||c2", application.getI18NMessage("servoy.client.findModeHelp.orGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
-		data.add(new Object[] { application.getI18NMessage("servoy.client.findModeHelp.formatDateCol1"), application.getI18NMessage("servoy.client.findModeHelp.formatDateCol2") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { application.getI18NMessage("servoy.client.findModeHelp.formatDateCol1"), application.getI18NMessage( //$NON-NLS-1$
+		"servoy.client.findModeHelp.formatDateCol2") }); //$NON-NLS-1$
 		data.add(new Object[] { "!c", application.getI18NMessage("servoy.client.findModeHelp.notGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
 		data.add(new Object[] { "#c", application.getI18NMessage("servoy.client.findModeHelp.modifiedCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
 		data.add(new Object[] { "^", application.getI18NMessage("servoy.client.findModeHelp.nullGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
@@ -640,7 +642,8 @@ public class SQLGenerator
 		data.add(new Object[] { "\\_", application.getI18NMessage("servoy.client.findModeHelp.containsUnderscoreCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
 
 		BufferedDataSet set = new BufferedDataSet(
-			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage("servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$ //$NON-NLS-2$
+			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage( //$NON-NLS-1$
+			"servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$
 			data);
 		JSDataSet ds = new JSDataSet(application, set);
 		return "<html><body>" + ds.js_getAsHTML(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -831,8 +834,8 @@ public class SQLGenerator
 			}
 			catch (Exception e)
 			{
-				IllegalArgumentException illarg = new IllegalArgumentException("Could not convert value '" + obj + "' for dataprovider '" + dataProviderID +
-					"'", e); //$NON-NLS-1$
+				IllegalArgumentException illarg = new IllegalArgumentException(
+					"Could not convert value '" + obj + "' for dataprovider '" + dataProviderID + "'", e); //$NON-NLS-3$
 				if (throwOnFail)
 				{
 					throw illarg;
@@ -1336,18 +1339,20 @@ public class SQLGenerator
 		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 
-		Iterator<Column> columns = table.getColumns().iterator();
-		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
-		ArrayList<IQuerySelectValue> allQueryColumns = new ArrayList<IQuerySelectValue>();
-		while (columns.hasNext())
+		LinkedHashMap<Column, QueryColumn> allQueryColumns = new LinkedHashMap<Column, QueryColumn>();
+		for (Column column : table.getColumns())
 		{
-			Column column = columns.next();
-			QueryColumn queryColumn = new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
-			if (table.getRowIdentColumns().contains(column)) pkQueryColumns.add(queryColumn);
-			allQueryColumns.add(queryColumn);
+			allQueryColumns.put(column, new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 		}
 
-		lockSelect.setColumns(allQueryColumns);
+		lockSelect.setColumns(new ArrayList<IQuerySelectValue>(allQueryColumns.values()));
+
+		// get the pk columns, make sure the order is in pk-order (alphabetical)
+		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
+		for (Column pkColumn : table.getRowIdentColumns())
+		{
+			pkQueryColumns.add(allQueryColumns.get(pkColumn));
+		}
 
 		// values is an array as wide as the columns, each element consists of the values for that column
 		Object[][] values = new Object[pkQueryColumns.size()][];
