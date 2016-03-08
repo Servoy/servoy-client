@@ -743,7 +743,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						blocked = true;
 					}
 				}
-				if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
+				if (!blocked && formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
 					if ($log.debugEnabled) $log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
 					// someone already loaded or is loading this form....
