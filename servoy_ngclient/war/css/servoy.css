@@ -202,6 +202,10 @@ div.svy-label-with-focus:focus{
 	top:auto;
 	left:auto;
 }
+.dropdown-menu[typeahead-popup] {
+	max-height:200px;
+	overflow:auto;
+}
 .ui-select-bootstrap > .ui-select-choices {
 	width: auto;
 }
