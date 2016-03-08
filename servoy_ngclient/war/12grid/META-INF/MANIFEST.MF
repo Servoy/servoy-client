@@ -13,6 +13,9 @@ Web-Layout: True
 Name: column.spec
 Web-Layout: True
 
+Name: row.spec
+Web-Layout: True
+
 Name: 1column.spec
 Web-Layout: True
 
