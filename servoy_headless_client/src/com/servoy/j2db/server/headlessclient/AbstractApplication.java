@@ -62,7 +62,9 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * @author Johan
+ * @author jcompagner
+ *
+ * @since 8.0
  *
  */
 public abstract class AbstractApplication extends ClientState implements IApplication
@@ -85,7 +87,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -589,21 +591,4 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	{
 		return null;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ClientState#shutDown(boolean)
-	 */
-	@Override
-	public void shutDown(boolean force)
-	{
-		super.shutDown(force);
-		if (beanManager != null)
-		{
-			beanManager.flushCachedItems();
-			beanManager = null;
-		}
-	}
-
 }

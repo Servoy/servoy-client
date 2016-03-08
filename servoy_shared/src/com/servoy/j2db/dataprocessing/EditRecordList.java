@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.mozilla.javascript.JavaScriptException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IPrepareForSave;
@@ -52,6 +54,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class EditRecordList
 {
+
+	protected static final Logger log = LoggerFactory.getLogger("com.servoy.j2db.dataprocessing.editedRecords"); //$NON-NLS-1$
+
 	private final FoundSetManager fsm;
 
 	private final List<IPrepareForSave> prepareForSaveListeners = new ArrayList<IPrepareForSave>(2);
@@ -496,6 +501,8 @@ public class EditRecordList
 						}
 						catch (ServoyException e)
 						{
+							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+								e);
 							// trigger method threw exception
 							lastStopEditingException = e;
 							failedCount++;
@@ -635,6 +642,7 @@ public class EditRecordList
 			}
 			catch (Exception e)
 			{
+				log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
 				lastStopEditingException = e;
 				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException));
@@ -665,6 +673,8 @@ public class EditRecordList
 					Object retValue = idents[i];
 					if (retValue instanceof Exception)
 					{
+						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+							(Exception)retValue);
 						lastStopEditingException = (Exception)retValue;
 						failedCount++;
 						if (retValue instanceof ServoyException)
@@ -730,6 +740,7 @@ public class EditRecordList
 				}
 				catch (Exception e)
 				{
+					log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
 					lastStopEditingException = e;
 					failedCount++;
 					row.setLastException(e);
@@ -800,6 +811,7 @@ public class EditRecordList
 					if (e instanceof DataException && e.getCause() instanceof JavaScriptException)
 					{
 						// trigger method threw exception
+						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
 						lastStopEditingException = e;
 						failedCount++;
 						rowUpdateInfoRecord.getRawData().setLastException(e);
