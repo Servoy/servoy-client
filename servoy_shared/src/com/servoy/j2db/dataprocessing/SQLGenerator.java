@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -397,7 +398,8 @@ public class SQLGenerator
 				}
 				else
 				{
-					Debug.log("Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.log(
+							"Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -1353,19 +1355,21 @@ public class SQLGenerator
 		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 
-		Iterator<Column> columns = table.getColumns().iterator();
-		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
-		ArrayList<IQuerySelectValue> allQueryColumns = new ArrayList<IQuerySelectValue>();
-		while (columns.hasNext())
+		LinkedHashMap<Column, QueryColumn> allQueryColumns = new LinkedHashMap<>();
+		for (Column column : table.getColumns())
 		{
-			Column column = columns.next();
-			QueryColumn queryColumn = new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-				column.getScale(), column.getFlags());
-			if (table.getRowIdentColumns().contains(column)) pkQueryColumns.add(queryColumn);
-			allQueryColumns.add(queryColumn);
+			allQueryColumns.put(column, new QueryColumn(lockSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+				column.getScale(), column.getFlags()));
 		}
 
-		lockSelect.setColumns(allQueryColumns);
+		lockSelect.setColumns(new ArrayList<IQuerySelectValue>(allQueryColumns.values()));
+
+		// get the pk columns, make sure the order is in pk-order (alphabetical)
+		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<>();
+		for (Column pkColumn : table.getRowIdentColumns())
+		{
+			pkQueryColumns.add(allQueryColumns.get(pkColumn));
+		}
 
 		// values is an array as wide as the columns, each element consists of the values for that column
 		Object[][] values = new Object[pkQueryColumns.size()][];
