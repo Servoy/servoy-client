@@ -17,8 +17,12 @@
 
 package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -33,6 +37,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Manifest;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -213,7 +221,7 @@ public class ResourceProvider implements Filter
 		String pathInfo = ((HttpServletRequest)request).getRequestURI();
 		if (pathInfo != null && !pathInfo.equals("/"))
 		{
-			URL url = null;
+
 			Bundle bundle;
 			try
 			{
@@ -225,50 +233,7 @@ public class ResourceProvider implements Filter
 				chain.doFilter(request, response);
 				return;
 			}
-			try
-			{
-				if (pathInfo.startsWith("/")) url = bundle.getEntry("/war" + pathInfo);
-				else url = bundle.getEntry("/war/" + pathInfo);
-			}
-			catch (Exception e)
-			{
-				Debug.log("can't get zip entry '" + pathInfo + "'from bundle: " + bundle, e);
-			}
-			if (url == null)
-			{
-				int index = pathInfo.indexOf('/', 1);
-				if (index > 1 && !pathInfo.substring(index).equals("/"))
-				{
-					String packageName = URLDecoder.decode(pathInfo.substring(0, index), "UTF8");
-					packageName = packageName.startsWith("/") ? packageName.substring(1) : packageName;
-					IPackageReader reader = componentReaders.get(packageName);
-					if (reader != null)
-					{
-						url = reader.getUrlForPath(pathInfo.substring(index));
-						if (url == null)
-						{
-							Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the component package");
-						}
-					}
-					else
-					{
-						reader = serviceReaders.get(packageName);
-						if (reader != null)
-						{
-							url = reader.getUrlForPath(pathInfo.substring(index));
-							if (url == null)
-							{
-								Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the service package");
-							}
-						}
-					}
-				}
-			}
-
-			if (url == null)
-			{
-				url = org.sablo.startup.Activator.getDefault().getResource(pathInfo);
-			}
+			URL url = computeURL(pathInfo, bundle);
 
 			if (url != null)
 			{
@@ -305,10 +270,18 @@ public class ResourceProvider implements Filter
 						response.setContentType("text/html");
 					}
 				}
-				try (InputStream is = connection.getInputStream())
+				String compileLessWithNashorn = null;
+				if (url.getFile().toLowerCase().endsWith(".less") && (compileLessWithNashorn = compileLessWithNashorn(url)) != null)
+				{
+					response.setContentType("text/css");
+					response.setContentLength(compileLessWithNashorn.length());
+					response.getWriter().print(compileLessWithNashorn);
+				}
+				else try (InputStream is = connection.getInputStream())
 				{
 					Utils.streamCopy(is, response.getOutputStream());
 				}
+
 			}
 			else
 			{
@@ -319,6 +292,108 @@ public class ResourceProvider implements Filter
 		{
 			chain.doFilter(request, response);
 		}
+	}
+
+
+	private static String getText(URL url) throws Exception
+	{
+		URLConnection connection = url.openConnection();
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		StringBuilder result = new StringBuilder();
+		String inputLine;
+		while ((inputLine = bufferedReader.readLine()) != null)
+			result.append(inputLine);
+		bufferedReader.close();
+		return result.toString();
+	}
+
+
+	public static String compileLessWithNashorn(URL url)
+	{
+		//we have to pass in null as classloader if we want to acess the java 8 nashorn
+		ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
+		if (engine != null)
+		{
+			try
+			{
+				Invocable invocable = (Invocable)engine;
+				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-2.5.1.js"));
+				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-env-2.5.1.js"));
+				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/lessrunner.js"));
+				Object result = invocable.invokeFunction("convert", getText(url));
+				return result.toString();
+			}
+			catch (ScriptException e)
+			{
+				Debug.log(e);
+			}
+			catch (NoSuchMethodException e)
+			{
+				Debug.log(e);
+			}
+			catch (Exception e)
+			{
+				Debug.log(e);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param pathInfo
+	 * @param bundle
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws MalformedURLException
+	 */
+	public static URL computeURL(String pathInfo, Bundle bundle) throws UnsupportedEncodingException, MalformedURLException
+	{
+		URL url = null;
+		try
+		{
+			if (pathInfo.startsWith("/")) url = bundle.getEntry("/war" + pathInfo);
+			else url = bundle.getEntry("/war/" + pathInfo);
+		}
+		catch (Exception e)
+		{
+			Debug.log("can't get zip entry '" + pathInfo + "'from bundle: " + bundle, e);
+		}
+		if (url == null)
+		{
+			int index = pathInfo.indexOf('/', 1);
+			if (index > 1 && !pathInfo.substring(index).equals("/"))
+			{
+				String packageName = URLDecoder.decode(pathInfo.substring(0, index), "UTF8");
+				packageName = packageName.startsWith("/") ? packageName.substring(1) : packageName;
+				IPackageReader reader = componentReaders.get(packageName);
+				if (reader != null)
+				{
+					url = reader.getUrlForPath(pathInfo.substring(index));
+					if (url == null)
+					{
+						Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the component package");
+					}
+				}
+				else
+				{
+					reader = serviceReaders.get(packageName);
+					if (reader != null)
+					{
+						url = reader.getUrlForPath(pathInfo.substring(index));
+						if (url == null)
+						{
+							Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the service package");
+						}
+					}
+				}
+			}
+		}
+
+		if (url == null)
+		{
+			url = org.sablo.startup.Activator.getDefault().getResource(pathInfo);
+		}
+		return url;
 	}
 
 	@Override
