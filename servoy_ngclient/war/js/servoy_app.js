@@ -178,8 +178,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
 		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($window.location.pathname)[1];
 		else $solutionSettings.solutionName  = solName;
-		$solutionSettings.windowName = $sabloApplication.getWindowId()
-		var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, [$sabloApplication.getSessionId(), $sabloApplication.getWindowName(), $sabloApplication.getWindowId()], {solution:$solutionSettings.solutionName})
+		$solutionSettings.windowName = $sabloApplication.getWindowId();
+		var recordingPrefix;
+		if ($window.location.search.indexOf("svy_record=true") > -1) {
+			recordingPrefix = "/recording/websocket";
+			
+		}
+		var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, [$sabloApplication.getSessionId(), $sabloApplication.getWindowName(), $sabloApplication.getWindowId()], {solution:$solutionSettings.solutionName},recordingPrefix)
 		wsSession.onMessageObject(function (msg, conversionInfo) {
 			// data got back from the server
 			for(var formname in msg.forms) {
@@ -258,6 +263,17 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 			if (msg.sessionid) {
 				webStorage.session.add("sessionid",msg.sessionid);
+				if (recordingPrefix) {
+					var btn = $window.document.createElement("A");        // Create a <button> element
+					btn.href = "/solutions/" + msg.sessionid + ".recording";
+					btn.target = "_blank";
+					btn.style.position= "absolute";
+					btn.style.right = "0px";
+					btn.style.bottom = "0px";
+					var t = $window.document.createTextNode("Download"); 
+					btn.appendChild(t);                                // Append the text to <button>
+					$window.document.body.appendChild(btn); 
+				}
 			}
 			if (msg.windowid) {
 				$solutionSettings.windowName = msg.windowid;

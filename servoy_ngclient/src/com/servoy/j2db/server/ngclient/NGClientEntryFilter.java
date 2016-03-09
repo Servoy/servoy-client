@@ -105,6 +105,7 @@ public class NGClientEntryFilter extends WebEntry
 	public void init(final FilterConfig fc) throws ServletException
 	{
 		this.filterConfig = fc;
+		ApplicationServerRegistry.getServiceRegistry().registerService(IMessagesRecorder.class, new MessageRecorder());
 		//when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
@@ -312,6 +313,20 @@ public class NGClientEntryFilter extends WebEntry
 						}
 					}
 				}
+			}
+			else if (uri != null && uri.endsWith(".recording"))
+			{
+				IMessagesRecorder recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
+				int index = uri.lastIndexOf('/');
+				CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
+				if (message != null)
+				{
+					HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
+					((HttpServletResponse)servletResponse).setContentType("text/plain");
+					servletResponse.getWriter().write(message.toString());
+					return;
+				}
+
 			}
 			Debug.log("No solution found for this request, calling the default filter: " + uri);
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null);
