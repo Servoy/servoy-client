@@ -254,6 +254,22 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     		return null;
     	}
     	
+    	function loadRoot(nr) {
+				foundset_manager.getFoundSet($scope.model.roots[nr].foundsethash, getDataproviders($scope.model.roots[nr].foundsetdatasource, $scope.model.roots[nr].foundsetpk)).then(
+						function(foundset) {
+							if(foundsetChangeWatches[$scope.model.roots[nr].foundsethash] != undefined) {
+								foundsetChangeWatches[$scope.model.roots[nr].foundsethash]();
+							}							
+							foundsetChangeWatches[$scope.model.roots[nr].foundsethash] = foundset_manager.addFoundSetChangeCallback($scope.model.roots[nr].foundsethash, function() {
+								if(jQuery.contains(document.documentElement, $element.get(0)) && ($scope.pendingChildrenRequests < 1)) {
+									refresh();
+								}
+							});
+ 
+							$scope.treeJSON = $scope.treeJSON.concat(getChildren(foundset, $scope.model.roots[nr].foundsethash, $scope.model.roots[nr].foundsetpk, getBinding($scope.model.roots[nr].foundsetdatasource), 1));
+							$scope.pendingChildrenRequests = $scope.pendingChildrenRequests - 1;
+				});    	
+    	}
   		
       	function refresh() {
 			if($scope.pendingChildrenRequests < 1 && $scope.model.roots && $scope.model.roots.length > 0) {
@@ -267,7 +283,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       			}
       			foundset_manager.removeFoundSetsFromCache();
 			
-				$scope.pendingChildrenRequests = 1;
+				$scope.pendingChildrenRequests = $scope.model.roots.length;
 				$scope.expandedNodes.length = 0;
 				$scope.activeNodes.length = 0;
 				if(theTree) {	  			
@@ -281,35 +297,29 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 			        });
 	      		}
 
-				foundset_manager.getFoundSet($scope.model.roots[0].foundsethash, getDataproviders($scope.model.roots[0].foundsetdatasource, $scope.model.roots[0].foundsetpk)).then(
-						function(foundset) {
-							if(foundsetChangeWatches[$scope.model.roots[0].foundsethash] != undefined) {
-								foundsetChangeWatches[$scope.model.roots[0].foundsethash]();
-							}							
-							foundsetChangeWatches[$scope.model.roots[0].foundsethash] = foundset_manager.addFoundSetChangeCallback($scope.model.roots[0].foundsethash, function() {
-								if(jQuery.contains(document.documentElement, $element.get(0)) && ($scope.pendingChildrenRequests < 1)) {
-									refresh();
-								}
-							});
- 
-							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 1);
-							var pendingChildrenRequestsWatch = $scope.$watch('pendingChildrenRequests', function(nV) {
-								if(nV == 1) {
-									pendingChildrenRequestsWatch();
-									if(theTree) {
-										reloadTree();
-									}
-									else {
-										initTree();
-									}
-									$scope.pendingChildrenRequests = 0;
-									if($scope.pendingRefresh) {
-										$scope.pendingRefresh = false;
-										refresh();
-									}
-								}
-							})
-				});
+				$scope.treeJSON = [];
+				for(var i = 0; i < $scope.model.roots.length; i++) {
+					$scope.pendingChildrenRequests = $scope.pendingChildrenRequests + 1; 
+					loadRoot(i);
+				}
+				
+				
+				var pendingChildrenRequestsWatch = $scope.$watch('pendingChildrenRequests', function(nV) {
+						if(nV == $scope.model.roots.length) {
+							pendingChildrenRequestsWatch();
+							if(theTree) {
+								reloadTree();
+							}
+							else {
+								initTree();
+							}
+							$scope.pendingChildrenRequests = 0;
+							if($scope.pendingRefresh) {
+								$scope.pendingRefresh = false;
+								refresh();
+							}
+						}
+				})
 			}
 			else if($scope.pendingChildrenRequests > 0) {
 				$scope.pendingRefresh = true;
