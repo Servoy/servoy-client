@@ -473,7 +473,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 						}
 						visibleTab = (Map<String, Object>)(tabsList.get(index));
 					}
-					else if (tabIndex instanceof String)
+					else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
 					{
 						for (int i = 0; i < tabsList.size(); i++)
 						{
