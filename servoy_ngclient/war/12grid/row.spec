@@ -6,5 +6,8 @@
 	"designStyleClass" : "rowDesign",
 	"definition": "row.json",
 	"contains": ["column","clearfix"],
-	"topContainer": true
+	"topContainer": true,
+	"model": {
+		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" } , "values" :["row"]}
+	}
 }
