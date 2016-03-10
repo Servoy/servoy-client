@@ -158,16 +158,34 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				return columnTitle;
 			}
 
-			var allowCellFocus = $scope.model.readOnlyMode !== undefined ? $scope.model.readOnlyMode : $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
+			var readOnlyOptimizedMode = $scope.model.readOnlyMode !== undefined ? $scope.model.readOnlyMode : $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
 			if (elements)
 			{
+				if(!readOnlyOptimizedMode) {
+					$element.on("keydown", function(event) {
+						if(!$scope.foundset.multiSelect && (event.which == 38 || event.which == 40)) {
+							var selectedRowIdx = $scope.foundset.selectedRowIndexes[0];
+							if(event.which == 38) { // arrow up
+								selectedRowIdx--;
+								if(selectedRowIdx < 0) return;
+							}
+							else if(event.which == 40) { // arrow down
+								selectedRowIdx++;
+								if(selectedRowIdx >= $scope.foundset.serverSize) return;
+							}
+							$scope.transferFocus();
+							$scope.requestSelectionUpdate([selectedRowIdx]);
+						}					
+					});
+				}
+
 				for (var idx = 0; idx < elements.length; idx++) {
 					var el = elements[idx];
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					var columnTitle = getColumnTitle(idx);
 					var cellTemplate
-					if(allowCellFocus && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {
+					if(readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {
 						var handlers = ""
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
@@ -235,7 +253,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							enableColumnMenu: isSortable,
 							enableSorting:isSortable,
 							enableHiding: false,
-							allowCellFocus: allowCellFocus,
+							allowCellFocus: readOnlyOptimizedMode,
 							headerCellClass: headerCellClass,
 							svyHeaderAction: headerAction,
 							svyRightClick: headerRightClick,
@@ -262,7 +280,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					name: "unique",
 					cellEditableCondition: false,
 					type: "object", // just put a type here to avoid a console warning, we don't know the type and we dont use the edit feature of ui-grid
-					allowCellFocus: allowCellFocus
+					allowCellFocus: readOnlyOptimizedMode
 				});
 			}
 			else {
@@ -926,7 +944,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			$scope.$watchCollection('foundset.selectedRowIndexes', function() {
 				updateGridSelectionFromFoundset(true);
 			});
-
+			
 			$scope.gridOptions = {
 					data: 'foundset.viewPort.rows',
 					enableRowSelection: true,
@@ -966,6 +984,31 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.NEVER;
 			
 
+			$scope.requestSelectionUpdate = function(tmpSelectedRowIdxs) {
+				$scope.foundset.requestSelectionUpdate(tmpSelectedRowIdxs).then(
+						function(serverRows){
+							//success
+						},
+						function(serverRows){
+							//canceled 
+							if (serverRows === 'canceled'){
+								return;
+							}
+							//reject
+							var i = 0;
+							for (i = 0; i < serverRows.length; i++) {
+								var rowid = absoluteRowIndexToRowId(serverRows[i]);
+								var selection = {};
+								selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
+								$scope.ignoreSelection = true;
+								$scope.gridApi.selection.selectRow(selection);
+								$scope.ignoreSelection = false;
+							}
+							document.activeElement.blur();
+						}
+					);
+			};			
+			
 			$scope.gridOptions.onRegisterApi = function(gridApi) {
 				var shouldCallDataLoaded = false;
 				var focusedRowId;
@@ -1020,39 +1063,15 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 					if (tmpSelectedRowIdxs.length === 0 && newNGGridSelectedItems.length > 0) return;
 					
-					requestSelectionUpdate(tmpSelectedRowIdxs);
+					$scope.requestSelectionUpdate(tmpSelectedRowIdxs);
 				});
 				
-				function requestSelectionUpdate(tmpSelectedRowIdxs) {
-					$scope.foundset.requestSelectionUpdate(tmpSelectedRowIdxs).then(
-							function(serverRows){
-								//success
-							},
-							function(serverRows){
-								//canceled 
-								if (serverRows === 'canceled'){
-									return;
-								}
-								//reject
-								var i = 0;
-								for (i = 0; i < serverRows.length; i++) {
-									var rowid = absoluteRowIndexToRowId(serverRows[i]);
-									var selection = {};
-									selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
-									$scope.ignoreSelection = true;
-									$scope.gridApi.selection.selectRow(selection);
-									$scope.ignoreSelection = false;
-								}
-								document.activeElement.blur();
-							}
-						);
-				};
 
 				gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
 					var tmpSelectedRowIdxs = [];					
 					var absRowIdx = rowIdToAbsoluteRowIndex(newRowCol.row.entity[$foundsetTypeConstants.ROW_ID_COL_KEY]);
 					tmpSelectedRowIdxs.push(absRowIdx);
-					requestSelectionUpdate(tmpSelectedRowIdxs);
+					$scope.requestSelectionUpdate(tmpSelectedRowIdxs);
 		        });
 
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
@@ -1361,7 +1380,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 
   $templateCache.put('svy-ui-grid/ui-grid-row',
 		  "<div row-element-helper sablo-tabseq=\"rowRenderIndex + 1\" sablo-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
-  );
+  );	
 
   $templateCache.put('ui-grid/uiGridHeaderCell',
 		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\" svy-click=\"col.colDef.svyHeaderAction($event)\" svy-rightclick=\"col.colDef.svyRightClick($event)\" svy-dblclick=\"col.colDef.svyDoubleClick($event)\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\" ng-class=\"{'ui-grid-column-menu-button-last-col': isLastCol && grid.options.enableGridMenu}\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
