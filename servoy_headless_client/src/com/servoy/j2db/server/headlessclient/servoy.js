@@ -1161,11 +1161,13 @@ if (typeof(Servoy.DD) == "undefined")
 				}			
 					
 				dd.onMouseDown = function(e) {
-					// ignore drag source if a modifier is set
-					// also, if dd is on a form, and an select/option is clicked from a select on this form
-					// don't consider the form as a drag source - FF/IE issue
-//					if(Servoy.Utils.getModifiers(e) != 0 || (e.target && e.target.tagName && (e.target.tagName.toLowerCase() == 'option' || e.target.tagName.toLowerCase() == 'select'))) return;
-//					requestFocus(this.id);
+					// this is for popup menu close; dd eats the event and the menu remains open
+					// make sure we close it
+					var element = document.getElementById("basicmenu");
+					if (element && element.parentNode)
+					{
+						element.parentNode.removeChild(element);
+					}	
 				};									
 
 				dd.on('b4MouseDownEvent', function(ev)
