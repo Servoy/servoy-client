@@ -287,7 +287,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	}
 
 	/**
-	 * Get/set container height.
+	 * Get/set container height. This is only used for Absolute Layout Container.
 	 *
 	 * @sample
 	 * layoutContainer.height = 300;
@@ -306,7 +306,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	}
 
 	/**
-	 * Get/set container width.
+	 * Get/set container width. This is only used for Absolute Layout Container.
 	 *
 	 * @sample
 	 * layoutContainer.width = 300;
