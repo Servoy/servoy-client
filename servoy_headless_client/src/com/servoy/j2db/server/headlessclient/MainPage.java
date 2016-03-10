@@ -87,7 +87,6 @@ import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
-import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -244,7 +243,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Page#getVersion(int)
 	 */
 	@Override
@@ -525,22 +524,22 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			}
 		};
 		body.add(new AttributeModifier("dir", true, new AbstractReadOnlyModel<String>() //$NON-NLS-1$
+		{
+
+			@Override
+			public String getObject()
 			{
+				String value = AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE;
+				Locale l = client.getLocale();
+				Solution solution = client.getSolution();
 
-				@Override
-				public String getObject()
+				if (solution != null && l != null)
 				{
-					String value = AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE;
-					Locale l = client.getLocale();
-					Solution solution = client.getSolution();
-
-					if (solution != null && l != null)
-					{
-						value = OrientationApplier.getHTMLContainerOrientation(l, solution.getTextOrientation());
-					}
-					return value;
+					value = OrientationApplier.getHTMLContainerOrientation(l, solution.getTextOrientation());
 				}
-			}));
+				return value;
+			}
+		}));
 
 		add(body);
 		pageContributor = new PageContributor(client, "contribution");
@@ -612,8 +611,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			{
 				if (main != null)
 				{
-					return getRequest().getRelativePathPrefixToContextRoot() +
-						"servoy-webclient/templates/" + client.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) + "/servoy_web_client_default.css"; //$NON-NLS-1$ //$NON-NLS-2$
+					return getRequest().getRelativePathPrefixToContextRoot() + "servoy-webclient/templates/" + //$NON-NLS-1$
+						client.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) + "/servoy_web_client_default.css"; //$NON-NLS-1$
 				}
 				return null;
 			}
@@ -1407,9 +1406,9 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
 		WebClientSession session = (WebClientSession)getSession();
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame, (url.equals(urlFor(serveResourceReference).toString()) &&
-			session != null && session.isServedResourceAttachment()) &&
-			(target == null || target.equals("_self")));
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame,
+			(url.equals(urlFor(serveResourceReference).toString()) && session != null && session.isServedResourceAttachment()) &&
+				(target == null || target.equals("_self")));
 	}
 
 	/**
@@ -1541,7 +1540,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			fileUploadWindow.setPageMapName(FILE_UPLOAD_PAGEMAP);
 			if (title == null)
 			{
-				fileUploadWindow.setTitle(Messages.getString("servoy.filechooser.title"));
+				fileUploadWindow.setTitle(client.getI18NMessage("servoy.filechooser.title"));
 			}
 			else if (!"".equals(title))
 			{
@@ -1709,8 +1708,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				catch (WicketRuntimeException e)
 				{
 					// ignore if it is the timeout exception in case we only want to touch if not in use
-					if (!onlyIfNotInUse || e.getCause() != null) throw new RuntimeException("Touching page " + getPageMapName() + "/" + getPath() +
-						" couldn't be done in thread: " + Thread.currentThread().getName(), e);
+					if (!onlyIfNotInUse || e.getCause() != null) throw new RuntimeException(
+						"Touching page " + getPageMapName() + "/" + getPath() + " couldn't be done in thread: " + Thread.currentThread().getName(), e);
 					Debug.trace("Touch page ignored.");
 				}
 				finally
@@ -1810,8 +1809,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
 		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
-		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2,
-			resizeable, closeAll, modal, undecorated, storeBounds, opacity, transparent);
+		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null)
+			callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal, undecorated, storeBounds, opacity, transparent);
 		else
 		{
 			if (useAJAX)
