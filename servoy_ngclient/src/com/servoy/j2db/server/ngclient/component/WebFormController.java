@@ -17,10 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
+import java.awt.Point;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,8 @@ import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
@@ -64,6 +67,7 @@ import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -295,68 +299,57 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	protected void focusField(String fieldName, boolean skipReadonly)
 	{
-		List<String> sequence = Arrays.asList(getTabSequence());
-		if (sequence.size() == 0) return;
-		int start = 0;
-		String currentFieldName = fieldName;
-		if (currentFieldName == null)
-		{
-			currentFieldName = sequence.get(0);
-		}
-		else
-		{
-			start = sequence.indexOf(currentFieldName);
-			if (start < 0) return;
-		}
-
-		int counter = start;
 		WebComponent component = null;
 		WebObjectApiDefinition apiFunction = null;
-		do
+		if (fieldName != null)
 		{
-			component = formUI.getComponent(currentFieldName);
-			if (component != null) apiFunction = component.getSpecification().getApiFunction("requestFocus");
-			else
+			component = formUI.getComponent(fieldName);
+			if (component == null)
 			{
 				RuntimeWebComponent[] runtimeComponents = getWebComponentElements();
 				if (runtimeComponents != null)
 				{
 					for (RuntimeWebComponent runtimeComponent : runtimeComponents)
 					{
-						if (Utils.equalObjects(currentFieldName, runtimeComponent.getComponent().getName()))
+						if (Utils.equalObjects(fieldName, runtimeComponent.getComponent().getName()))
 						{
 							component = runtimeComponent.getComponent();
-							apiFunction = runtimeComponent.getComponent().getSpecification().getApiFunction("requestFocus");
 							break;
 						}
 					}
 				}
 			}
-			if (apiFunction != null)
+			if (component != null)
 			{
-				if (skipReadonly)
-				{
-					// TODO first https://support.servoy.com/browse/SVY-8024 should be fixed then this check should be on the property type.
-					if (Boolean.TRUE.equals(component.getProperty("readOnly")))
-					{
-						apiFunction = null;
-					}
-				}
-
-			}
-
-			if (apiFunction == null)
-			{
-				if (fieldName != null) return;
-				counter++;
-				if (counter == sequence.size()) counter = 0;
-				if (counter == start) return;
-				currentFieldName = sequence.get(counter);
+				apiFunction = component.getSpecification().getApiFunction("requestFocus");
 			}
 		}
-		while (apiFunction == null);
+		else
+		{
+			Collection<WebComponent> tabSequenceComponents = getTabSequenceComponents();
+			if (tabSequenceComponents != null)
+			{
+				for (WebComponent seqComponent : tabSequenceComponents)
+				{
+					apiFunction = seqComponent.getSpecification().getApiFunction("requestFocus");
+					if (apiFunction != null)
+					{
+						if (skipReadonly)
+						{
+							// TODO first https://support.servoy.com/browse/SVY-8024 should be fixed then this check should be on the property type.
+							if (Boolean.TRUE.equals(component.getProperty("readOnly")))
+							{
+								continue;
+							}
+						}
+						component = seqComponent;
+						break;
+					}
+				}
+			}
+		}
 
-		if (component != null) component.invokeApi(apiFunction, null);
+		if (apiFunction != null && component != null) component.invokeApi(apiFunction, null);
 	}
 
 	@Override
@@ -504,6 +497,44 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				Debug.error("Could not set the tab sequence property for element " + elements[i]);
 			}
 		}
+	}
+
+	private Collection<WebComponent> getTabSequenceComponents()
+	{
+		SortedList<WebComponent> orderedComponents = new SortedList<WebComponent>(new Comparator<WebComponent>()
+		{
+
+			@Override
+			public int compare(WebComponent o1, WebComponent o2)
+			{
+				PropertyDescription pd1 = o1.getSpecification().getProperties(NGTabSeqPropertyType.NG_INSTANCE).iterator().next();
+				Integer val1 = (Integer)o1.getProperty(pd1.getName());
+				PropertyDescription pd2 = o2.getSpecification().getProperties(NGTabSeqPropertyType.NG_INSTANCE).iterator().next();
+				Integer val2 = (Integer)o2.getProperty(pd2.getName());
+				if (val1 == 0 && val2 == 0)
+				{
+					Point location1 = (Point)o1.getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
+					Point location2 = (Point)o2.getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
+					return PositionComparator.comparePoint(true, location1, location2);
+				}
+				return val1 - val2;
+			}
+
+		});
+
+		for (WebComponent component : formUI.getAllComponents())
+		{
+			Collection<PropertyDescription> tabSeqProperties = component.getSpecification().getProperties(NGTabSeqPropertyType.NG_INSTANCE);
+			if (tabSeqProperties.size() == 1)
+			{
+				Integer val1 = (Integer)component.getProperty(tabSeqProperties.iterator().next().getName());
+				if (val1 >= 0)
+				{
+					orderedComponents.add(component);
+				}
+			}
+		}
+		return orderedComponents;
 	}
 
 	@Override

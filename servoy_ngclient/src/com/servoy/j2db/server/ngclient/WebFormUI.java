@@ -338,6 +338,26 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		return components;
 	}
 
+	public Collection<WebComponent> getAllComponents()
+	{
+		Collection<WebComponent> allComponents = new ArrayList<WebComponent>();
+		addAllChildren(this, allComponents);
+		return allComponents;
+	}
+
+	private void addAllChildren(Container parent, Collection<WebComponent> allComponents)
+	{
+		Collection<WebComponent> directChildren = parent.getComponents();
+		allComponents.addAll(directChildren);
+		for (WebComponent component : directChildren)
+		{
+			if (component instanceof Container)
+			{
+				addAllChildren((Container)component, allComponents);
+			}
+		}
+	}
+
 	@Override
 	public boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
