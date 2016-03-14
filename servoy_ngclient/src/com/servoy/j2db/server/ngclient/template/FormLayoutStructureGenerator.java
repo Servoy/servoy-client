@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
 import org.sablo.specification.NGPackageSpecification;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
@@ -158,19 +160,24 @@ public class FormLayoutStructureGenerator
 			writer.print(container.getSize().height);
 			writer.print("px' ");
 		}
-		Map<String, String> attributes = container.getAttributes();
-		if (attributes != null)
+		Map<String, String> attributes = new HashMap<String, String>(container.getAttributes());
+		for (String propertyName : spec.getAllPropertiesNames())
 		{
-			for (Entry<String, String> entry : attributes.entrySet())
+			PropertyDescription pd = spec.getProperty(propertyName);
+			if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
 			{
-				writer.print(" ");
-				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
-				if (entry.getValue() != null && entry.getValue().length() > 0)
-				{
-					writer.print("=\"");
-					StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
-					writer.print("\"");
-				}
+				attributes.put(propertyName, pd.getDefaultValue().toString());
+			}
+		}
+		for (Entry<String, String> entry : attributes.entrySet())
+		{
+			writer.print(" ");
+			StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
+			if (entry.getValue() != null && entry.getValue().length() > 0)
+			{
+				writer.print("=\"");
+				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
+				writer.print("\"");
 			}
 		}
 		writer.println(">");
