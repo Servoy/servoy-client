@@ -19,6 +19,11 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 		},
 		link: function (scope, element, attrs) {
 
+			// workaround for ui-select issue, that sets the select items formatter (scope.$$childHead.$select.parserResult) too late 
+			if(scope.$$childHead && scope.$$childHead.$select && (scope.$$childHead.$select.parserResult == undefined)) {
+				scope.$$childHead.$select.parserResult = { source: function() { return undefined }};	
+			} 
+			
 			scope.$watch("model.format", function (newVal) {
 				if (newVal && newVal["text-transform"]) {
 					scope.style["text-transform"] = newVal["text-transform"];
