@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 import org.sablo.WebEntry;
-import org.sablo.specification.NGPackageSpecification;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.websocket.IWebsocketSessionFactory;
@@ -292,7 +292,7 @@ public class NGClientEntryFilter extends WebEntry
 								List<String> css = new ArrayList<String>();
 								css.add("css/servoy.css");
 								List<String> formScripts = new ArrayList<String>(getFormScriptReferences(fs));
-								for (NGPackageSpecification<WebLayoutSpecification> entry : WebComponentSpecProvider.getInstance().getLayoutSpecifications().values())
+								for (PackageSpecification<WebLayoutSpecification> entry : WebComponentSpecProvider.getInstance().getLayoutSpecifications().values())
 								{
 									if (entry.getCssClientLibrary() != null)
 									{

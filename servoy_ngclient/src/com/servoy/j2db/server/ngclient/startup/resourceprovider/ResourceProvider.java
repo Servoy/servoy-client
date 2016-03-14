@@ -52,8 +52,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.Bundle;
-import org.sablo.specification.NGPackage;
-import org.sablo.specification.NGPackage.IPackageReader;
+import org.sablo.specification.Package;
+import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -383,7 +383,7 @@ public class ResourceProvider implements Filter
 	{
 	}
 
-	private static class BundlePackageReader implements NGPackage.IPackageReader
+	private static class BundlePackageReader implements Package.IPackageReader
 	{
 		private final URL urlOfManifest;
 		private final Bundle bundle;
@@ -407,7 +407,7 @@ public class ResourceProvider implements Filter
 		{
 			try
 			{
-				String packageName = NGPackage.getPackageName(getManifest());
+				String packageName = Package.getPackageName(getManifest());
 				if (packageName != null) return packageName;
 			}
 			catch (IOException e)
@@ -425,7 +425,7 @@ public class ResourceProvider implements Filter
 		{
 			try
 			{
-				String packageDisplayname = NGPackage.getPackageDisplayname(getManifest());
+				String packageDisplayname = Package.getPackageDisplayname(getManifest());
 				if (packageDisplayname != null) return packageDisplayname;
 			}
 			catch (IOException e)
@@ -480,7 +480,7 @@ public class ResourceProvider implements Filter
 		@Override
 		public String getPackageType() throws IOException
 		{
-			return NGPackage.getPackageType(getManifest());
+			return Package.getPackageType(getManifest());
 		}
 
 		@Override

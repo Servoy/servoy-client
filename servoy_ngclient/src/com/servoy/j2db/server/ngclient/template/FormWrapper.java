@@ -30,7 +30,7 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
-import org.sablo.specification.NGPackageSpecification;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.websocket.utils.JSONUtils;
@@ -243,7 +243,7 @@ public class FormWrapper
 				if (component.getParent() instanceof LayoutContainer)
 				{
 					LayoutContainer container = (LayoutContainer)component.getParent();
-					NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
+					PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
 						container.getPackageName());
 					if (pkg != null)
 					{

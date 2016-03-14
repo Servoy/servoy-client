@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
-import org.sablo.specification.NGPackageSpecification;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
@@ -82,7 +82,7 @@ public class FormLayoutStructureGenerator
 	public static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 		throws IOException
 	{
-		NGPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
+		PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
 		WebLayoutSpecification spec = null;
 		if (pkg != null)
 		{

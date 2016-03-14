@@ -53,8 +53,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.sablo.InMemPackageReader;
-import org.sablo.specification.NGPackage;
-import org.sablo.specification.NGPackage.IPackageReader;
+import org.sablo.specification.Package;
+import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -96,8 +96,8 @@ public abstract class AbstractSolutionTest
 		{
 			if (f.exists())
 			{
-				if (f.isDirectory()) readers.add(new NGPackage.DirPackageReader(f));
-				else readers.add(new NGPackage.JarPackageReader(f));
+				if (f.isDirectory()) readers.add(new Package.DirPackageReader(f));
+				else readers.add(new Package.JarPackageReader(f));
 			}
 			else
 			{
@@ -123,7 +123,7 @@ public abstract class AbstractSolutionTest
 		super();
 	}
 
-	private static class ZipPackageReader implements NGPackage.IPackageReader
+	private static class ZipPackageReader implements Package.IPackageReader
 	{
 		private final ZipFile file;
 		private final String pathPrefix;
@@ -146,7 +146,7 @@ public abstract class AbstractSolutionTest
 		{
 			try
 			{
-				String packageDisplayname = NGPackage.getPackageName(getManifest());
+				String packageDisplayname = Package.getPackageName(getManifest());
 				if (packageDisplayname != null) return packageDisplayname;
 			}
 			catch (IOException e)
@@ -163,7 +163,7 @@ public abstract class AbstractSolutionTest
 		{
 			try
 			{
-				String packageDisplayname = NGPackage.getPackageDisplayname(getManifest());
+				String packageDisplayname = Package.getPackageDisplayname(getManifest());
 				if (packageDisplayname != null) return packageDisplayname;
 			}
 			catch (IOException e)
@@ -216,7 +216,7 @@ public abstract class AbstractSolutionTest
 		@Override
 		public String getPackageType() throws IOException
 		{
-			return NGPackage.getPackageType(getManifest());
+			return Package.getPackageType(getManifest());
 		}
 
 	}

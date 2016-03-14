@@ -36,7 +36,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.sablo.InMemPackageReader;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.NGPackage.IPackageReader;
+import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
