@@ -355,7 +355,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				}
 				$sabloTestability.decreaseEventLoop();
 				instance.hide();
-				if($(document).find('[svy-window]').length < 2) {
+				if($(document).find('[svy-window]').length < 1) {
 					$("#mainForm").trigger("enableTabseq");
 				}
 			}else {
