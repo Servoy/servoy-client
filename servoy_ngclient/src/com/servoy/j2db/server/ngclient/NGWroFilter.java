@@ -25,6 +25,9 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
+
 import ro.isdc.wro.config.factory.PropertyWroConfigurationFactory;
 import ro.isdc.wro.config.jmx.WroConfiguration;
 import ro.isdc.wro.http.WroFilter;
@@ -38,9 +41,6 @@ import ro.isdc.wro.model.group.GroupExtractor;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.ResourceType;
 import ro.isdc.wro.util.ObjectFactory;
-
-import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author gboros
@@ -192,7 +192,7 @@ public class NGWroFilter extends WroFilter
 			Resource r = new Resource();
 			r.setType(type);
 			r.setUri("/" + s);
-			r.setMinimize(isMinimize && !s.endsWith(".min.js"));
+			r.setMinimize(isMinimize && !s.toLowerCase().endsWith(".min.js"));
 			g.addResource(r);
 		}
 		contributionsGroups.add(g);
