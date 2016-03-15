@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -306,6 +307,10 @@ public class FormLayoutGenerator
 		writer.print(" name='");
 		writer.print(fe.getName());
 		writer.print("'");
+		if (design && (fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null)
+		{
+			writer.print(" group-id='" + ((IFormElement)fe.getPersistIfAvailable()).getGroupID() + "'");
+		}
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
 			String elementName = fe.getName();
@@ -317,11 +322,10 @@ public class FormLayoutGenerator
 			writer.print(form.getName() + "." + elementName);
 			writer.print("'");
 		}
-		if (design)//this is false in absolute layout
+		if (design)
 		{
 			if (form.isResponsiveLayout())
 			{
-
 				writer.print(" svy-id='");
 				writer.print(getDesignId(fe));
 				writer.print("'");
@@ -349,7 +353,7 @@ public class FormLayoutGenerator
 
 				JSONObject ngClass = new JSONObject();
 
-				if (!fe.getForm().equals(form))//is this inherited?
+				if (!fe.getForm().equals(form)) //is this inherited?
 				{
 					ngClass.put("inheritedElement", true);
 				}
@@ -368,6 +372,10 @@ public class FormLayoutGenerator
 			writer.print(" svy-servoyApi='servoyApi(\"");
 			writer.print(fe.getName());
 			writer.print("\")'");
+			if (fe.getPersistIfAvailable() instanceof IFormElement)
+			{
+				writer.print(" form-index=" + ((IFormElement)fe.getPersistIfAvailable()).getFormIndex() + "");
+			}
 		}
 		else
 		{
