@@ -42,7 +42,6 @@ import ro.isdc.wro.util.ObjectFactory;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
-
 /**
  * @author gboros
  *
@@ -193,7 +192,7 @@ public class NGWroFilter extends WroFilter
 			Resource r = new Resource();
 			r.setType(type);
 			r.setUri("/" + s);
-			r.setMinimize(isMinimize);
+			r.setMinimize(isMinimize && !s.endsWith(".min.js"));
 			g.addResource(r);
 		}
 		contributionsGroups.add(g);
