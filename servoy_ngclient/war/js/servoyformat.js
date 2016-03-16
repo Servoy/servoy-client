@@ -74,13 +74,15 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		var centIndex = -1;
 		var milIndex = -1;
 		var MILLSIGN = '\u2030' //‰
-
+		var lastChar = false;
+		
 		if (servoyFormat.indexOf("%") > -1) {
 			if (servoyFormat.indexOf("'%'") == -1)
 			{
 				data *= 100;
 			}	
 			centIndex = partchedFrmt.indexOf("%")
+			lastChar = (centIndex === partchedFrmt.length-1);
 			partchedFrmt = partchedFrmt.replaceAll("%", "p"); // p doesn't mean anything in numeraljs
 
 		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
@@ -89,6 +91,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				data *= 1000;
 			}	
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
+			lastChar = (milIndex === partchedFrmt.length-1);
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "p");
 		}
 
@@ -153,8 +156,8 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			else ret += ' ' + currency;
 		}
 
-		if (centIndex > -1) ret = ret.insert(centIndex, '%');
-		if (milIndex > -1) ret = ret.insert(milIndex, MILLSIGN);
+		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
+		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
 		if (minIndex > -1) ret = ret.insert(minIndex, '-');
 
 		if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
