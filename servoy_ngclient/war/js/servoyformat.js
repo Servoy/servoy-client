@@ -76,12 +76,18 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		var MILLSIGN = '\u2030' //‰
 
 		if (servoyFormat.indexOf("%") > -1) {
-			data *= 100;
+			if (servoyFormat.indexOf("'%'") == -1)
+			{
+				data *= 100;
+			}	
 			centIndex = partchedFrmt.indexOf("%")
 			partchedFrmt = partchedFrmt.replaceAll("%", "p"); // p doesn't mean anything in numeraljs
 
 		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
-			data *= 1000;
+			if (servoyFormat.indexOf("'"+MILLSIGN+"'") == -1)
+			{
+				data *= 1000;
+			}	
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "p");
 		}
@@ -171,8 +177,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 		var multFactor = 1;
 		var MILLSIGN = '\u2030'
-		if (format.indexOf(MILLSIGN) > -1) {
+		if (format.indexOf(MILLSIGN) > -1 && format.indexOf("'"+MILLSIGN+"'") == -1) {
 			multFactor *= 0.001
+		}
+		if (format.indexOf("'%'") > -1) {
+			multFactor = 100
 		}
 
 		var ret = numeral().unformat(data)
