@@ -133,7 +133,7 @@ public class DatabaseUtils
 
 				if (c == null)
 				{
-					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getScale());
+					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength());
 					existingColumnInfo++;
 					int element_id = persistFactory.getNewElementID(null);
 					ColumnInfo ci = new ColumnInfo(element_id, true);
