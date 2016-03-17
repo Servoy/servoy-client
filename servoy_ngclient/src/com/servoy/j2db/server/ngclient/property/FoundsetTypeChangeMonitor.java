@@ -47,6 +47,8 @@ public class FoundsetTypeChangeMonitor
 	 * or even inside the viewPort but will be combined by incremental updates (adds/deletes).
 	 */
 	protected static final int SEND_VIEWPORT_BOUNDS = 0b000000010;
+
+	protected static final int SEND_FOUNDSET_SORT = 0b000000100;
 	/**
 	 * Foundset size changed (add/remove of records).
 	 */
@@ -126,6 +128,16 @@ public class FoundsetTypeChangeMonitor
 		if (!shouldSendAll())
 		{
 			changeFlags = changeFlags | SEND_FOUNDSET_SIZE;
+		}
+	}
+
+	protected void foundsetSortChanged()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_FOUNDSET_SORT;
+			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
 
@@ -412,6 +424,11 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_FOUNDSET_SIZE) != 0;
 	}
 
+	public boolean shouldSendFoundsetSort()
+	{
+		return (changeFlags & SEND_FOUNDSET_SORT) != 0;
+	}
+
 	public boolean shouldSendHadMoreRows()
 	{
 		return (changeFlags & SEND_HAD_MORE_ROWS) != 0;
@@ -449,8 +466,9 @@ public class FoundsetTypeChangeMonitor
 
 	public boolean hasChanges()
 	{
-		return shouldSendAll() || shouldSendFoundsetSize() || shouldSendSelectedIndexes() || shouldSendViewPortBounds() || shouldSendWholeViewPort() ||
-			shouldSendColumnFormats() || shouldSendSelectionAccepted() || shouldSendSelectionDenied() || getViewPortChanges().size() > 0;
+		return shouldSendAll() || shouldSendFoundsetSize() || shouldSendFoundsetSort() || shouldSendSelectedIndexes() || shouldSendViewPortBounds() ||
+			shouldSendWholeViewPort() || shouldSendColumnFormats() || shouldSendSelectionAccepted() || shouldSendSelectionDenied() ||
+			getViewPortChanges().size() > 0;
 	}
 
 	public void clearChanges()
@@ -504,7 +522,8 @@ public class FoundsetTypeChangeMonitor
 			w.object().key("rows").value(rowData);
 			clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
 
-			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(Integer.valueOf(type)).endObject();
+			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(
+				Integer.valueOf(type)).endObject();
 
 			return true;
 		}

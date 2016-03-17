@@ -10,6 +10,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var CONVERSIONS = "conversions"; // data conversion info
 
 	var SERVER_SIZE = "serverSize";
+	var SORT_COLUMNS = "sortColumns";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	var SEND_SELECTION_RESPONSE = "selectionResponse";
 	var SEND_SELECTION_REQUESTID = "selectionRequestID";
@@ -81,6 +82,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS])) {
 					currentClientValue[COLUMN_FORMATS] = serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS];
+					updates = true;
+				}
+				
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SORT_COLUMNS])) {
+					currentClientValue[SORT_COLUMNS] = serverJSONValue[UPDATE_PREFIX + SORT_COLUMNS];
 					updates = true;
 				}
 				

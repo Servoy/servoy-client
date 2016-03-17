@@ -1104,11 +1104,21 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				gridApi.core.on.sortChanged ($scope, function( grid, sortColumns ) {
 					// call the server (through foundset type)
 					var columns = [];
+					var sortString = "";
 					for (var i = 0; i < sortColumns.length; i++)
 					{
 						columns[i] = {name: sortColumns[i].name, direction : sortColumns[i].sort.direction};
+						sortString += sortColumns[i].name + " " + sortColumns[i].sort.direction;
+						if (i < sortColumns.length -1)
+						{
+							sortString +=","
+						}	
 					}
-					$scope.foundset.sort(columns);
+					if (sortString != $scope.foundset.sortColumns)
+					{
+						$scope.foundset.sortColumns = sortString;
+						$scope.foundset.sort(columns);
+					}	
 				});
 				gridApi.colResizable.on.columnSizeChanged ($scope, function(colDef, deltaChange) {
 					for(var i = 0; i < $scope.model.childElements.length; i++) {
@@ -1253,6 +1263,32 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						testNumberOfRows();
 					});
 
+					$scope.$watch('foundset.sortColumns', function(newVal, oldVal) {
+						var uiSort = $scope.gridApi.grid.getColumnSorting();
+						var uiSortString = '';
+						for (var i = 0; i < uiSort.length; i++)
+						{
+							uiSortString += uiSort[i].name + " " + uiSort[i].sort.direction;
+							if (i < uiSort.length -1)
+							{
+								uiSortString +=","
+							}	
+						}
+						//check if we really received a new sort from the server
+						if (newVal !== oldVal && newVal != uiSortString)
+						{
+							var sorts = newVal.split(",");
+							if (sorts && sorts.length >0)
+							{
+								var sort = sorts[0].split(" ");
+								if (sort.length == 2)
+								{
+									$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
+								}	
+							}	
+						}	
+					});
+					
 					$scope.$watchCollection('foundset.viewPort.rows', function(newVal, oldVal) {
 						rowCache = {};
 						// check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding and any other watches

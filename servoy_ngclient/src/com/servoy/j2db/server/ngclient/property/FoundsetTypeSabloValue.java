@@ -91,6 +91,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
 	public static final String SERVER_SIZE = "serverSize";
+	public static final String SORT = "sortColumns";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 
 	public static final String SEND_SELECTION_RESPONSE = "selectionResponse";
@@ -361,6 +362,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		}
 
 		destinationJSON.key(SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
+		destinationJSON.key(SORT).value(getFoundset() != null ? getFoundset().getSort() : "");
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
@@ -464,6 +466,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			{
 				destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendFoundsetSort())
+			{
+				destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + SORT).value(getFoundset() != null ? getFoundset().getSort() : "");
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendHadMoreRows())
@@ -654,7 +662,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						{
 							try
 							{
-								foundset.setSort(sort.toString());
+								String newSort = sort.toString();
+								foundset.setSort(newSort);
+								if (!Utils.equalObjects(foundset.getSort(), newSort))
+								{
+									// not sorted, send back to client
+									changeMonitor.foundsetSortChanged();
+								}
 							}
 							catch (ServoyException e)
 							{
