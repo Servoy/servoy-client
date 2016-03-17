@@ -880,9 +880,6 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		if (old_repository_version < 48)
 		{
 			cs.new Element(435, IRepository.TABLENODES, PROPERTY_COLUMNS.getPropertyName(), IRepository.JSON, null);
-		}
-		if (old_repository_version < 49)
-		{
 			cs.new Element(436, IRepository.WEBCOMPONENTS, PROPERTY_GROUPID.getPropertyName(), IRepository.STRING);
 		}
 		//##add property adds here
