@@ -51,6 +51,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
+import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -362,7 +363,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		}
 
 		destinationJSON.key(SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
-		destinationJSON.key(SORT).value(getFoundset() != null ? getFoundset().getSort() : "");
+		destinationJSON.key(SORT).value(getSortStringAsNames());
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
@@ -471,7 +472,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			if (changeMonitor.shouldSendFoundsetSort())
 			{
 				destinationJSON.object();
-				destinationJSON.key(UPDATE_PREFIX + SORT).value(getFoundset() != null ? getFoundset().getSort() : "");
+				destinationJSON.key(UPDATE_PREFIX + SORT).value(getSortStringAsNames());
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendHadMoreRows())
@@ -906,4 +907,34 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		else recordDataLinkedPropertyIDToColumnDP.put(id, dataprovider);
 	}
 
+	private String getSortStringAsNames()
+	{
+		String sortString = "";
+		if (getFoundset() != null)
+		{
+			Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
+			List<SortColumn> sortColumns = getFoundset().getSortColumns();
+			for (int j = 0; j < sortColumns.size(); j++)
+			{
+				String elementName = null;
+				for (String name : dp.keySet())
+				{
+					if (Utils.equalObjects(dp.get(name), sortColumns.get(j).getDataProviderID()))
+					{
+						elementName = name;
+						break;
+					}
+				}
+				if (elementName != null)
+				{
+					sortString += elementName + " " + ((sortColumns.get(j).getSortOrder() == SortColumn.DESCENDING) ? "desc" : "asc");
+					if (j < sortColumns.size() - 1)
+					{
+						sortString += ",";
+					}
+				}
+			}
+		}
+		return sortString;
+	}
 }
