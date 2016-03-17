@@ -933,6 +933,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						sortString += ",";
 					}
 				}
+				else
+				{
+					// not found, stop
+					break;
+				}
 			}
 		}
 		return sortString;
