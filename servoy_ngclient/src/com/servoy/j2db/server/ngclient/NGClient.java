@@ -97,6 +97,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
 
+	private final IPerfomanceRegistry perfRegistry;
+
 	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
 		super(new WebCredentials());
@@ -108,6 +110,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		getClientInfo().setApplicationType(getApplicationType());
 		try
 		{
+			IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+			if (registry.isEnabled()) perfRegistry = registry;
+			else perfRegistry = null;
 			applicationSetup();
 			applicationInit();
 			applicationServerInit();
@@ -1316,27 +1321,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.INGApplication#onStartSubAction(java.lang.String, java.lang.String, org.sablo.specification.WebObjectApiDefinition)
-	 */
 	@Override
 	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] arguments)
 	{
-		IPerfomanceRegistry perfRegistry = null;
-		try
-		{
-			perfRegistry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
-
-
 		Pair<UUID, UUID> perfId = null;
-		if (perfRegistry != null && perfRegistry.isEnabled())
+		if (perfRegistry != null)
 			perfId = perfRegistry.getPerformanceData(getSolutionName()).startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 				(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
 				getClientID());
@@ -1344,23 +1333,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.INGApplication#onStopSubAction(com.servoy.j2db.util.Pair)
-	 */
 	@Override
 	public void onStopSubAction(Pair<UUID, UUID> perfId)
 	{
-		IPerfomanceRegistry perfRegistry = null;
-		try
-		{
-			perfRegistry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
 		perfRegistry.getPerformanceData(getSolutionName()).endSubAction(perfId);
 
 	}
