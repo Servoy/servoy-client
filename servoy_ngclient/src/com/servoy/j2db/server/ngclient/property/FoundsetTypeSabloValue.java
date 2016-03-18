@@ -936,6 +936,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				else
 				{
 					// not found, stop
+					if (sortString.endsWith(","))
+					{
+						sortString = sortString.substring(0, sortString.length() - 1);
+					}
 					break;
 				}
 			}

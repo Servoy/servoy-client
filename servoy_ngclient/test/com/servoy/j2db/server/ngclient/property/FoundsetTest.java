@@ -722,6 +722,70 @@ public class FoundsetTest extends AbstractSolutionTest
 			"{\"serverSize\":18,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter.toString());
 
+		try
+		{
+			rawPropertyValue.getFoundset().setSort("test1 asc");
+		}
+		catch (ServoyException e)
+		{
+			e.printStackTrace();
+		}
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		Assert.assertEquals(
+			"{\"serverSize\":18,\"sortColumns\":\"firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString());
+
+		try
+		{
+			rawPropertyValue.getFoundset().setSort("test2 desc,pk asc,test1 asc");
+		}
+		catch (ServoyException e)
+		{
+			e.printStackTrace();
+		}
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		Assert.assertEquals(
+			"{\"serverSize\":18,\"sortColumns\":\"lastname desc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString());
+
+		try
+		{
+			rawPropertyValue.getFoundset().setSort("test2 desc,test1 asc");
+		}
+		catch (ServoyException e)
+		{
+			e.printStackTrace();
+		}
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		Assert.assertEquals(
+			"{\"serverSize\":18,\"sortColumns\":\"lastname desc,firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString());
+
+		try
+		{
+			rawPropertyValue.getFoundset().setSort("pk asc,test1 asc");
+		}
+		catch (ServoyException e)
+		{
+			e.printStackTrace();
+		}
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		Assert.assertEquals(
+			"{\"serverSize\":18,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString());
+
 		//changes to json
 		//add changes test
 
