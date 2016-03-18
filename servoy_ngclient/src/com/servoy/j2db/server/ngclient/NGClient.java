@@ -111,7 +111,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		try
 		{
 			IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-			if (registry.isEnabled()) perfRegistry = registry;
+			if (registry != null && registry.isEnabled()) perfRegistry = registry;
 			else perfRegistry = null;
 			applicationSetup();
 			applicationInit();
