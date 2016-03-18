@@ -112,6 +112,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = "ngClientOptimizedReadonlyMode"; //$NON-NLS-1$
 
 	/**
+	 * When Boolean.TRUE, any subsequent events on same element and having same type will be blocked (cancelled).
+	 */
+	public static final String BLOCK_DUPLICATE_EVENTS = "ngBlockDuplicateEvents"; //$NON-NLS-1$
+
+	/**
 	 * A number that defines the factor of what the next page size should be is in the tableview/listview/portal,
 	 * this value is used to get the initial size (numerOfVisibleRows * thisPageSize).
 	 * So a value of 2 (default) will load in 20 records if the number of visible rows is 10.

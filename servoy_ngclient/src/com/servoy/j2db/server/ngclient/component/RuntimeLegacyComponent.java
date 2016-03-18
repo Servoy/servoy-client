@@ -498,6 +498,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			if ("clientProperty".equals(propertyName) && args != null && args.length >= 2)
 			{
 				putClientProperty(args[0], args[1]);
+				value = clientProperties;
 			}
 //			if (StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(propertyName))
 //			{

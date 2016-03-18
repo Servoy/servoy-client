@@ -244,6 +244,19 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR;
 
 	/**
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty()..
+	 *
+	 * If set to true, any events of same type and on same component will be blocked (cancelled) until first event is finished.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.NG_BLOCK_DUPLICATE_EVENTS, true)
+	 */
+	public static final String NG_BLOCK_DUPLICATE_EVENTS = IApplication.BLOCK_DUPLICATE_EVENTS;
+
+	/**
 	 * Property that can be set using application.putClientProperty().
 	 *
 	 * If set to true, you can change selection in webclient tableview using up/down keys

@@ -817,7 +817,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
-		if (IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE.equals(name) || IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR.equals(name))
+		if (IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE.equals(name) || IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR.equals(name) ||
+			IApplication.BLOCK_DUPLICATE_EVENTS.equals(name))
 		{
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty", new Object[] { name, val });
 		}
