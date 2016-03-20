@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,7 +69,7 @@ public class EditRecordList
 
 	private final List<IRecordInternal> editedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(32));
 	private final List<IRecordInternal> failedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(2));
-	private final List<IRecordInternal> recordTested = Collections.synchronizedList(new ArrayList<IRecordInternal>(2)); //tested for OnRecordSave event
+	private final List<IRecordInternal> recordTested = Collections.synchronizedList(new ArrayList<IRecordInternal>(2)); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
 	private final boolean disableInsertsReorder;
@@ -436,25 +435,33 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
-				Iterator<IRecordInternal> it = new AllowListModificationIterator<IRecordInternal>(editedRecords);
-				outer : while (it.hasNext())
+				Map<IRecordInternal, Integer> processed = new HashMap<IRecordInternal, Integer>();
+				for (IRecordInternal tmp = getFirstElement(editedRecords, recordsToSave); tmp != null; tmp = getFirstElement(editedRecords, recordsToSave))
 				{
-					IRecordInternal tmp = it.next();
+					// check if we do not have an infinite recursive loop
+					Integer count = processed.get(tmp);
+					if (count != null && count.intValue() > 50)
+					{
+						fsm.getApplication().reportJSError(
+							"stopEditing max loop counter exceeded on " + tmp.getParentFoundSet().getDataSource() + "/" + tmp.getPKHashKey(),
+							new RuntimeException());
+						return ISaveConstants.SAVE_FAILED;
+					}
+					processed.put(tmp, Integer.valueOf(count == null ? 1 : (count.intValue() + 1)));
 
 					if (tmp instanceof Record)
 					{
 						Record record = (Record)tmp;
-
-						if (recordsToSave != null && !recordsToSave.contains(record)) continue;
 
 						//prevent multiple update for the same row (from multiple records)
 						for (int j = 0; j < rowUpdates.size(); j++)
 						{
 							if (rowUpdates.get(j).getRow() == record.getRawData())
 							{
-								recordTested.remove(record);
-								it.remove();
-								continue outer;
+								// create a new rowUpdate that contains both updates
+								RowUpdateInfo removed = rowUpdates.remove(j);
+								recordTested.remove(removed.getRecord());
+								break;
 							}
 						}
 
@@ -495,7 +502,6 @@ public class EditRecordList
 							else
 							{
 								recordTested.remove(record);
-								it.remove();
 							}
 						}
 						catch (ServoyException e)
@@ -511,21 +517,19 @@ public class EditRecordList
 								failedRecords.add(record);
 							}
 							recordTested.remove(record);
-							it.remove();
 						}
 						catch (Exception e)
 						{
 							Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
 							recordTested.remove(record);
-							it.remove();
 						}
 					}
 					else
 					{
 						// find state
 						recordTested.remove(tmp);
-						it.remove();
 					}
+					editedRecords.remove(tmp);
 				}
 			}
 			finally
@@ -720,7 +724,6 @@ public class EditRecordList
 				editRecordsLock.lock();
 				try
 				{
-					editedRecords.remove(record);
 					recordTested.remove(record);
 				}
 				finally
@@ -834,10 +837,8 @@ public class EditRecordList
 				}
 			}
 
-			Iterator<Map.Entry<FoundSet, List<Record>>> it = foundsetToRecords.entrySet().iterator();
-			while (it.hasNext())
+			for (Map.Entry<FoundSet, List<Record>> entry : foundsetToRecords.entrySet())
 			{
-				Map.Entry<FoundSet, List<Record>> entry = it.next();
 				FoundSet fs = entry.getKey();
 				fs.recordsUpdated(entry.getValue(), foundsetToAggregateDeletes.get(fs));
 			}
@@ -906,6 +907,23 @@ public class EditRecordList
 
 		return ISaveConstants.STOPPED;
 	}
+
+	/**
+	 * Get the first element of a list, filter on subList when not null;
+	 */
+	private static IRecordInternal getFirstElement(List<IRecordInternal> records, List<IRecord> subList)
+	{
+		for (IRecordInternal record : records)
+		{
+			if (subList == null || subList.contains(record))
+			{
+				return record;
+			}
+		}
+
+		return null;
+	}
+
 
 	/**
 	 * Mark record as failed, move to failed records, remove from editedRecords if it was in there.
@@ -1496,78 +1514,6 @@ public class EditRecordList
 			editRecordsLock.unlock();
 		}
 		fireEditChange();
-	}
-
-	/**
-	 * This iterator will iterate over a list even if the list is modified during iteration. It is not thread-safe. <BR>
-	 * <BR>
-	 * The iterator will return every Object in the List (including null if contained) exactly one time (even if it is contained by more that one location in
-	 * the list). If the list is modified during iteration, the iterator will also return the new objects in the list. <BR>
-	 * <BR>
-	 * All operations on this iterator run in linear time, roughly speaking.
-	 *
-	 * @author acostescu
-	 */
-	private static class AllowListModificationIterator<T> implements Iterator<T>
-	{
-
-		private final Map<T, Boolean> alreadyProcessed = new HashMap<T, Boolean>();
-		private T elementReturnedByNext;
-		private boolean nextReturned = false;
-		private final List<T> list;
-
-		/**
-		 * Creates a new instance that iterates over the specified list.
-		 *
-		 * @param list the list to be used for iteration.
-		 */
-		public AllowListModificationIterator(List<T> list)
-		{
-			this.list = list;
-		}
-
-		public boolean hasNext()
-		{
-			boolean has = false;
-			int size = list.size();
-			for (int i = 0; i < size; i++)
-			{
-				if (!alreadyProcessed.containsKey(list.get(i)))
-				{
-					has = true;
-					break;
-				}
-			}
-
-			return has;
-		}
-
-		public T next()
-		{
-			int size = list.size();
-			for (int i = 0; i < size; i++)
-			{
-				elementReturnedByNext = list.get(i);
-				if (!alreadyProcessed.containsKey(elementReturnedByNext))
-				{
-					alreadyProcessed.put(elementReturnedByNext, Boolean.TRUE);
-					nextReturned = true;
-					return elementReturnedByNext;
-				}
-			}
-
-			nextReturned = false;
-			throw new NoSuchElementException();
-		}
-
-		public void remove()
-		{
-			if (nextReturned)
-			{
-				list.remove(elementReturnedByNext);
-			}
-		}
-
 	}
 
 	/**
