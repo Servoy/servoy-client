@@ -44,7 +44,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void intervalAction(UUID uuid)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF || uuid == null) return;
 
 		PerformanceTiming timing = startedTimings.get(uuid);
 		if (timing != null) timing.setIntervalTime();
@@ -52,7 +52,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void endAction(UUID uuid)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+		if (maxEntriesToKeep == IPerfomanceRegistry.OFF || uuid == null) return;
 
 		PerformanceTiming timing = startedTimings.remove(uuid);
 		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());

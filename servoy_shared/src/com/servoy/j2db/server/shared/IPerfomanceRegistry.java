@@ -49,8 +49,6 @@ public interface IPerfomanceRegistry
 
 	void setMaxNumberOfEntriesPerContext(int maxNumberOfEntriesPerContext);
 
-	boolean isEnabled();
-
 	String getId();
 
 }

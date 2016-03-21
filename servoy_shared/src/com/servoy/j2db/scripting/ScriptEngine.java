@@ -70,6 +70,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IScriptAccordionPanelMethods;
 import com.servoy.j2db.ui.IScriptDataLabelMethods;
@@ -609,29 +610,8 @@ public class ScriptEngine implements IScriptSupport
 			Context cx = Context.enter();
 
 			// only search for nice strings needed in performance admin page if performance is actually enabled
-			IPerfomanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null
-				? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-			String methodName = null;
-			String solutionName = null;
-			if (performanceRegistry != null && performanceRegistry.isEnabled())
-			{
-				methodName = f.getClassName();
-				if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-				String scopeName = scope.getClassName();
-				if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
-				if (scope instanceof FoundSet)
-				{
-					Scriptable parentScope = ((FoundSet)scope).getPrototype();
-					if (parentScope instanceof LazyCompilationScope)
-					{
-						scopeName = ((LazyCompilationScope)parentScope).getScopeName();
-					}
-				}
-				solutionName = application.getSolutionName();
-				methodName = scopeName + "." + methodName; //$NON-NLS-1$
-			}
-
 			UUID pfUuid = null;
+			PerformanceData performanceData = null;
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -655,13 +635,30 @@ public class ScriptEngine implements IScriptSupport
 						}
 					}
 				}
-
+				String solutionName = application.getSolutionName();
+				IPerfomanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null && !(application instanceof ISmartClientApplication)
+					? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
 				//run
-				if (performanceRegistry != null && performanceRegistry.isEnabled() && !(application instanceof ISmartClientApplication))
+				if (performanceData != null)
 				{
+					String methodName = null;
+					methodName = f.getClassName();
+					if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
+					String scopeName = scope.getClassName();
+					if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+					if (scope instanceof FoundSet)
+					{
+						Scriptable parentScope = ((FoundSet)scope).getPrototype();
+						if (parentScope instanceof LazyCompilationScope)
+						{
+							scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+						}
+					}
+
+					methodName = scopeName + "." + methodName; //$NON-NLS-1$
 					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					pfUuid = performanceRegistry.getPerformanceData(solutionName).startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL,
-						application.getClientID());
+					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID());
 				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
@@ -696,7 +693,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 				else if (pfUuid != null)
 				{
-					performanceRegistry.getPerformanceData(solutionName).endAction(pfUuid);
+					performanceData.endAction(pfUuid);
 				}
 				Context.exit();
 			}

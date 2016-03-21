@@ -301,7 +301,7 @@ public class TestNGClient extends NGClient
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
-					throws ServoyException, RemoteException
+				throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -662,12 +662,6 @@ public class TestNGClient extends NGClient
 							@Override
 							public void setMaxNumberOfEntriesPerContext(int maxNumberOfEntriesPerContext)
 							{
-							}
-
-							@Override
-							public boolean isEnabled()
-							{
-								return true;
 							}
 
 							@Override

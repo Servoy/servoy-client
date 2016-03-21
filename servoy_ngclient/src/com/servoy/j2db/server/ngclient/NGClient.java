@@ -63,6 +63,9 @@ import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.PerformanceData;
+import com.servoy.j2db.server.shared.PerformanceTiming;
+import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
@@ -110,12 +113,15 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		getClientInfo().setApplicationType(getApplicationType());
 		try
 		{
-			IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-			if (registry != null && registry.isEnabled()) perfRegistry = registry;
-			else perfRegistry = null;
 			applicationSetup();
 			applicationInit();
 			applicationServerInit();
+			IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+			if (registry == null)
+			{
+				registry = new DummyPerformanceRegistry();
+			}
+			perfRegistry = registry;
 		}
 		catch (Exception e)
 		{
@@ -1296,6 +1302,65 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return "Websockets disconnected since " + new SimpleDateFormat("EEE HH:mm:ss").format(new Date(lastAccessed));
 	}
 
+	/**
+	 * @author jcompagner
+	 *
+	 */
+	private static final class DummyPerformanceRegistry implements IPerfomanceRegistry
+	{
+		@Override
+		public void setMaxNumberOfEntriesPerContext(int maxNumberOfEntriesPerContext)
+		{
+		}
+
+		@Override
+		public String[] getPerformanceTimingContexts()
+		{
+			return null;
+		}
+
+		@Override
+		public PerformanceTimingAggregate[] getPerformanceTiming(String string)
+		{
+			return null;
+		}
+
+		@Override
+		public PerformanceData getPerformanceData(String context)
+		{
+			return null;
+		}
+
+		@Override
+		public int getMaxNumberOfEntriesPerContext()
+		{
+			return 0;
+		}
+
+		@Override
+		public Date getLastCleared(String context)
+		{
+			return null;
+		}
+
+		@Override
+		public String getId()
+		{
+			return null;
+		}
+
+		@Override
+		public Map<String, PerformanceTiming[]> getActiveTimings()
+		{
+			return null;
+		}
+
+		@Override
+		public void clearPerformanceData(String context)
+		{
+		}
+	}
+
 	private class ShowUrl
 	{
 		private final String url;
@@ -1325,19 +1390,18 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] arguments)
 	{
-		Pair<UUID, UUID> perfId = null;
-		if (perfRegistry != null)
-			perfId = perfRegistry.getPerformanceData(getSolutionName()).startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
-				(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-				getClientID());
-		return perfId;
-
+		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
+		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
+			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
+			getClientID());
+		return null;
 	}
 
 	@Override
 	public void onStopSubAction(Pair<UUID, UUID> perfId)
 	{
-		perfRegistry.getPerformanceData(getSolutionName()).endSubAction(perfId);
+		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
+		if (performanceData != null) performanceData.endSubAction(perfId);
 
 	}
 }

@@ -40,6 +40,7 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
@@ -466,10 +467,13 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 
 				Pair<UUID, UUID> perfId = null;
-
-				if (perfRegistry != null && perfRegistry.isEnabled())
-					perfId = perfRegistry.getPerformanceData(getApplication().getSolutionName()).startSubAction("$windowService.show",
-						System.currentTimeMillis(), IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID());
+				PerformanceData performanceData = null;
+				if (perfRegistry != null)
+				{
+					performanceData = perfRegistry.getPerformanceData(getApplication().getSolutionName());
+					perfId = performanceData != null ? performanceData.startSubAction("$windowService.show", System.currentTimeMillis(),
+						IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID()) : null;
+				}
 				try
 				{
 					getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT,
@@ -477,7 +481,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				finally
 				{
-					if (perfId != null) perfRegistry.getPerformanceData(getApplication().getSolutionName()).endSubAction(perfId);
+					if (perfId != null) performanceData.endSubAction(perfId);
 				}
 
 				// this is now a hide of this window, set back the window name just before this show.
