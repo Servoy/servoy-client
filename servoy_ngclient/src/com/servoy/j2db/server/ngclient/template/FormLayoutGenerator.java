@@ -198,7 +198,7 @@ public class FormLayoutGenerator
 		{
 
 			writer.print("<div ng-style=\"layout('");
-			writer.print(fe.getName());
+			writer.print(fe.getDesignId());
 			writer.print("')\"");
 			writer.print(" ng-class='design_highlight'");
 		}
@@ -361,16 +361,16 @@ public class FormLayoutGenerator
 				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			}
 			writer.print(" svy-model=\"model('");
-			writer.print(fe.getName());
+			writer.print(fe.getDesignId());
 			writer.print("')\"");
 			writer.print(" svy-api='api(\"");
-			writer.print(fe.getName());
+			writer.print(fe.getDesignId());
 			writer.print("\")'");
 			writer.print(" svy-handlers='handlers(\"");
-			writer.print(fe.getName());
+			writer.print(fe.getDesignId());
 			writer.print("\")'");
 			writer.print(" svy-servoyApi='servoyApi(\"");
-			writer.print(fe.getName());
+			writer.print(fe.getDesignId());
 			writer.print("\")'");
 			if (fe.getPersistIfAvailable() instanceof IFormElement)
 			{

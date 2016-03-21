@@ -472,7 +472,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 	public String getDesignId()
 	{
-		if (inDesigner && getPersistIfAvailable() != null)
+		if (inDesigner && getPersistIfAvailable() != null && getPersistIfAvailable().getUUID() != null)
 		{
 			return getPersistIfAvailable().getUUID().toString();
 		}
