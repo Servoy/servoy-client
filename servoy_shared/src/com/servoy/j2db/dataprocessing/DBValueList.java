@@ -277,8 +277,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							tableFilterParams = new ArrayList<TableFilter>();
 						}
-						tableFilterParams.add(new TableFilter(
-							"dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
+						tableFilterParams.add(new TableFilter("dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
 							IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
@@ -293,8 +292,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 					if (set.getRowCount() >= maxValuelistRows)
 					{
-						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
-							null);
+						if (application instanceof IApplication)
+						{
+							((IApplication)application).reportJSWarning(
+								"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+						}
+						else
+						{
+							application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+								null);
+						}
 					}
 
 					String[] displayFormat = getDisplayFormat();
@@ -334,8 +341,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					}
 					if (fs.getSize() >= maxValuelistRows)
 					{
-						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
-							null);
+						if (application instanceof IApplication)
+						{
+							((IApplication)application).reportJSWarning(
+								"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+						}
+						else
+						{
+							application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+								null);
+						}
 					}
 
 				}
@@ -355,8 +370,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	{
 		if (valueList != null && application != null && application.getFlattenedSolution() != null)
 		{
-			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) || checkIfCalc(
-				valueList.getDataProviderID3(), t));
+			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) ||
+				checkIfCalc(valueList.getDataProviderID3(), t));
 		}
 	}
 
@@ -406,7 +421,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			for (SortColumn sc : sortColumns)
 			{
-				orderColumns.add(new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
+				orderColumns.add(
+					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
 			}
 		}
 
