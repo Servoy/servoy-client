@@ -1,6 +1,6 @@
-<div ng-class='model.styleClass' ng-show='!model.tabs || model.tabs.length == 0' ng-show='model.visible'>
+<div ng-class='model.styleClass' ng-show='showEditorHint()' ng-show='model.visible'>
   <label>
-  	 <span>Select contained form</span>
+  	 <span>No tabs defined</span>
   </label>
 </div>
 <tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;" ng-show='model.visible' sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">

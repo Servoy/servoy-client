@@ -98,6 +98,11 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
     		  return {minHeight:$scope.model.height+"px"};
     	  }
     	  
+    	  $scope.showEditorHint = function()
+    	  {
+    		  return (!$scope.model.tabs || $scope.model.tabs.length == 0) && $element[0].getAttribute("svy-id") !== null;
+    	  }
+    	  
       },
       templateUrl: 'bootstrapcomponents/tabpanel/tabpanel.html'
     };
