@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
+
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
@@ -113,6 +116,17 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		String tag = getTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE);
 		if (tag == null)
 		{
+			if (WebComponentSpecProvider.getInstance().getLayoutSpecifications() != null &&
+				WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(getPackageName()) != null)
+			{
+				WebLayoutSpecification spec = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(getPackageName()).getSpecification(
+					getSpecName());
+				if (spec != null && spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()) != null &&
+					spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).hasDefault())
+				{
+					return (String)spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).getDefaultValue();
+				}
+			}
 			return "div";
 		}
 		return tag;
