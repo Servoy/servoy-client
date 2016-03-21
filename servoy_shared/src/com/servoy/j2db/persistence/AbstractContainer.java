@@ -60,9 +60,17 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.FORMS), false);
+		if (validateName(arg))
+		{
+			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.FORMS), false);
+		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
+	}
+
+	protected boolean validateName(String newName)
+	{
+		return true;
 	}
 
 	/**

@@ -239,6 +239,13 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	}
 
 	@Override
+	protected boolean validateName(String newName)
+	{
+		// allow null name
+		return newName != null;
+	}
+
+	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + " -> " + getPackageName() + " [" + getSpecName() + "]";
