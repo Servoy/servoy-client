@@ -7,7 +7,6 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       },
       link: function($scope, $element, $attrs) {    	  
     	$scope.expandedNodes = [];
-    	$scope.activeNodes = [];
     	$scope.pendingChildrenRequests = 0;
     	$scope.pendingRefresh = false;
     	var theTree;
@@ -79,6 +78,18 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 								data.node.data.methodToCallOnDoubleClick.script,
 								[data.node.data.methodToCallOnDoubleClickParamValue]);
 					}
+				},
+				activate: function(even, data) {
+					var selectionPath = [];
+					var activeNode = data.node;
+      				for(var i = 0; i < activeNode.getParentList().length; i++) {
+      					var parentNode = activeNode.getParentList()[i];
+        				var pkIdx = parentNode.key.indexOf('_');      					
+      					selectionPath.push(parentNode.key.substring(pkIdx + 1));
+      				}
+      				var pkIdx = activeNode.key.indexOf('_');
+      				selectionPath.push(activeNode.key.substring(pkIdx + 1));
+      				$scope.model.selection = selectionPath;
 				},
 				init: function() {
 		      		if(theTree) theTreeDefer.resolve(theTree);
@@ -192,10 +203,6 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 	    				item.expanded = true;
 	    			}
 	    			
-	    			if($scope.activeNodes.indexOf(item.key) != -1) {
-	    				item.active = true;
-	    			}    			
-	    			
 	    			item.data = {}
 	    			item.data._svyRowId = foundset.viewPort.rows[i]._svyRowId;
 	    			
@@ -271,6 +278,20 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 				});    	
     	}
   		
+  		function selectNode(selection) {
+			if(selection && selection.length) {
+				theTreeDefer.promise.then(function(theTree) {
+		  			var node = findNode(theTree.getRootNode(), selection, 0);
+		  			if(node && !node.isActive()) {
+		  				$timeout(function() {
+		  							node.makeVisible({scrollIntoView: true});
+		  							node.setActive(true);
+								}, 200);
+		  			}      			
+	      		});
+	      	}
+  		}
+  		
       	function refresh() {
 			if($scope.pendingChildrenRequests < 1 && $scope.model.roots && $scope.model.roots.length > 0) {
 			
@@ -285,15 +306,11 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 			
 				$scope.pendingChildrenRequests = $scope.model.roots.length;
 				$scope.expandedNodes.length = 0;
-				$scope.activeNodes.length = 0;
 				if(theTree) {	  			
 		  			theTree.getRootNode().visit(function(node){
 		  				if(node.isExpanded()) {
 		  					$scope.expandedNodes.push(node.key);
-		  				}
-		  				if(node.isActive()) {
-		  					$scope.activeNodes.push(node.key);
-		  				}		  				
+		  				}	
 			        });
 	      		}
 
@@ -313,6 +330,8 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 							else {
 								initTree();
 							}
+							selectNode($scope.model.selection);
+
 							$scope.pendingChildrenRequests = 0;
 							if($scope.pendingRefresh) {
 								$scope.pendingRefresh = false;
@@ -371,38 +390,17 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     			}
       		}
       	}
-      	
+
       	$scope.api.getSelectionPath = function() {
-      		var selectionPath = new Array();
-      		if(theTree) {	  			
-      			var activeNode = theTree.getActiveNode();
-      			if(activeNode) {
-      				for(var i = 0; i < activeNode.getParentList().length; i++) {
-      					var parentNode = activeNode.getParentList()[i];
-        				var pkIdx = parentNode.key.indexOf('_');      					
-      					selectionPath.push(parentNode.key.substring(pkIdx + 1));
-      				}
-      				var pkIdx = activeNode.key.indexOf('_');
-      				selectionPath.push(activeNode.key.substring(pkIdx + 1));
-      			}
-      		}
-      		return selectionPath;
+      		return $scope.model.selection;
       	}
-      	
+
   		$scope.$watch('model.roots', function(newValue) {
   			$scope.api.refresh();
 		})
 		
 		$scope.$watch('model.selection', function(newValue) {
-			if(newValue) {
-				theTreeDefer.promise.then(function(theTree) {
-		  			var node = findNode(theTree.getRootNode(), newValue, 0);
-		  			if(node) {
-		  				node.makeVisible({scrollIntoView: true});
-		  				node.setActive(true);
-		  			}      			
-	      		});
-	      	}
+			selectNode(newValue);
 		})
 		
   		$scope.$watch('model.levelVisibility', function(newValue) {
