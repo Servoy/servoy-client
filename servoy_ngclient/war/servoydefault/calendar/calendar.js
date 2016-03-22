@@ -17,7 +17,8 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					useCurrent : false,
 					useStrict : true,
 					showClear : true,
-					ignoreReadonly : true
+					ignoreReadonly : true,
+					showTodayButton: true
 				};
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {

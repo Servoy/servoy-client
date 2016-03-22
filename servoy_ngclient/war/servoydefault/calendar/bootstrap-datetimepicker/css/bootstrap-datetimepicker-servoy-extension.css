@@ -1,3 +1,6 @@
 .bootstrap-datetimepicker-widget.dropdown-menu {
 	z-index: 10000;
 }
+.bootstrap-datetimepicker-widget table td.today {
+  color: #f00;
+}
