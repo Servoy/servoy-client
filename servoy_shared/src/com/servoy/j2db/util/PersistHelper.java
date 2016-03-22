@@ -979,6 +979,7 @@ public class PersistHelper
 							// some deleted element
 							continue;
 						}
+						existingIDs.add(child.getID());
 						children.add(child);
 					}
 					if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))

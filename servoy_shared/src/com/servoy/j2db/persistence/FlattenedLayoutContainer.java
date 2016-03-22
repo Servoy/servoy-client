@@ -86,4 +86,10 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	{
 		return layoutContainer.hashCode();
 	}
+
+	@Override
+	public List<IPersist> getHierarchyChildren()
+	{
+		return getAllObjectsAsList();
+	}
 }
