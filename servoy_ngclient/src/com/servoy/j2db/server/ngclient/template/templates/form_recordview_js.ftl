@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -51,7 +51,6 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	var getExecutor = function(beanName,eventType) {
 		var callExecutor = function(args, rowId) {
-			var executing = false;
 			var blockDuplicates = null;
 			if ($scope.model && $scope.model[beanName] && $scope.model[beanName].clientProperty &&  angular.isDefined($scope.model[beanName].clientProperty.ngBlockDuplicateEvents))
 			{
@@ -69,15 +68,11 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 					{
 						// reject execution
 						console.log("rejecting execution of: "+eventType +" on "+beanName);
-						return null;
+						return $q.resolve(null);;
 					}
 				}
-				executing = true;
 				executingEvents[executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': rowId};
-			}
-			var promise = $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
-			if (blockDuplicates &&  executing)
-			{
+				var promise = $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 				promise.finally(function(){
 					for (var i=0;i<executingEvents.length;i++)
 					{
@@ -88,8 +83,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 						}
 					}
 				});
+				return promise;
 			}
-			return promise;
+			return $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 		}
 		var wrapper = function() {
 			return callExecutor(arguments, null);
