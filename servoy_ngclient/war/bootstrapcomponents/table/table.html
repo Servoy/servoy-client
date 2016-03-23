@@ -1,4 +1,4 @@
-<div class="table-responsive" ng-show='model.visible'>
+<div class="table-responsive" ng-if='model.visible'>
 	<table class='bts-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq'>
 	  <tr>
 	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns" svy-click="headerClicked(model.columns.indexOf(column))"><div ng-bind='column.headerText'></div></th>
@@ -15,12 +15,12 @@
 	  </tr>
 	</table>
 </div>
-<ul class="bts-pagination pagination svy-nomargin" ng-show="showPagination()">
+<ul class="bts-pagination pagination svy-nomargin" ng-if="showPagination()">
 	  <li ng-class="model.currentPage == 1 ? 'disabled' : ''"><a href="#" ng-click="modifyPage(-1)">&laquo;</a></li>
 	  <li class="disabled"><a href="#">{{model.currentPage}}</a></li>
 	  <li ng-class="hasNext() ? '' : 'disabled'"><a href="#" ng-click="modifyPage(1)">&raquo;</a></li>
 </ul>
-<div ng-class='model.styleClass' ng-show='!model.columns || model.columns.length == 0' ng-show='model.visible'>
+<div ng-class='model.styleClass' ng-if='model.visible && (!model.columns || model.columns.length == 0)'>
 	  <label>
 	  	 <span>Drop table columns from palette</span>
 	  </label>

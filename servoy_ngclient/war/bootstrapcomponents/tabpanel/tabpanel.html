@@ -1,9 +1,9 @@
-<div ng-class='model.styleClass' ng-show='showEditorHint()' ng-show='model.visible'>
+<div ng-class='model.styleClass' ng-if='model.visible && showEditorHint()'>
   <label>
   	 <span>No tabs defined</span>
   </label>
 </div>
-<tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;" ng-show='model.visible' sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
+<tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;" ng-if='model.visible' sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
     <tab ng-repeat="tab in model.tabs" active="tab.active" select="select(tab)" >
       <tab-heading>
         <span  ng-bind='tab.text'></span>

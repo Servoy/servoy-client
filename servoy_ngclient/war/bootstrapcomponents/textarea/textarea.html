@@ -6,7 +6,7 @@
 	   	svy-enter='handlers.onActionMethodID($event)'
 	   	svy-rightclick='handlers.onRightClickMethodID($event)'
       	svy-autoapply
-      	ng-show='model.visible'
+      	ng-if='model.visible'
       	ng-disabled="!model.enabled"
 	    ng-readonly="model.readOnly"
 		sablo-tabseq='model.tabSeq'

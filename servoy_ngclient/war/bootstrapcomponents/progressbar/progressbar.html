@@ -4,9 +4,9 @@
 	type={{model.type}}
 	animate="model.animate"
 	max="model.max"
-	ng-show='model.visible'
+	ng-if='model.visible'
 	sablo-tabseq='model.tabSeq'
 	>
-	<b ng-show="model.showValue">{{model.value}}%</b>
+	<b ng-if="model.showValue">{{model.value}}%</b>
 
 </progressbar>

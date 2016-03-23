@@ -10,7 +10,7 @@
        			  for value in model.valuelistID.filterList($viewValue)"
 		typeahead-input-formatter="formatLabel($model)"
 		ng-blur="doSvyApply()"
-		ng-show='model.visible'
+		ng-if='model.visible'
 		ng-disabled="!model.enabled"
 		sablo-tabseq='model.tabSeq'
 		ng-readonly="model.readOnly"/>
