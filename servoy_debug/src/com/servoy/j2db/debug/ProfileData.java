@@ -27,7 +27,7 @@ import com.servoy.j2db.scripting.JSEvent;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public final class ProfileData
 {
@@ -51,10 +51,10 @@ public final class ProfileData
 	 * @param l
 	 * @param args
 	 * @param sourceName
-	 * @param parentSourceCall 
-	 * @param innerFunction 
-	 * @param lineNumbers 
-	 * @param dataCallProfileDatas 
+	 * @param parentSourceCall
+	 * @param innerFunction
+	 * @param lineNumbers
+	 * @param dataCallProfileDatas
 	 */
 	public ProfileData(String functionName, long time, Object[] args, String sourceName, String parentSourceCall, boolean innerFunction, int[] lineNumbers,
 		List<DataCallProfileData> dataCallProfileDatas)
@@ -79,75 +79,78 @@ public final class ProfileData
 			this.isCalculation = false;
 		}
 		this.time = time;
-		this.args = new String[args.length];
-		this.sourceName = sourceName;
-
-
-		for (int i = 0; i < args.length; i++)
+		if (args != null)
 		{
-			if (args[i] instanceof Wrapper)
+			this.args = new String[args.length];
+			for (int i = 0; i < args.length; i++)
 			{
-				args[i] = ((Wrapper)args[i]).unwrap();
-			}
-			if (args[i] instanceof JSEvent)
-			{
-				JSEvent event = (JSEvent)args[i];
-				StringBuilder sb = new StringBuilder();
-				sb.append("JSEvent[");
-				boolean added = false;
-				if (event.getType() != null)
+				if (args[i] instanceof Wrapper)
 				{
-					sb.append("type=");
-					sb.append(event.getType());
-					added = true;
+					args[i] = ((Wrapper)args[i]).unwrap();
 				}
-				if (event.getFormName() != null)
+				if (args[i] instanceof JSEvent)
 				{
-					if (added) sb.append(",");
-					sb.append("form=");
-					sb.append(event.getFormName());
-					added = true;
+					JSEvent event = (JSEvent)args[i];
+					StringBuilder sb = new StringBuilder();
+					sb.append("JSEvent[");
+					boolean added = false;
+					if (event.getType() != null)
+					{
+						sb.append("type=");
+						sb.append(event.getType());
+						added = true;
+					}
+					if (event.getFormName() != null)
+					{
+						if (added) sb.append(",");
+						sb.append("form=");
+						sb.append(event.getFormName());
+						added = true;
+					}
+					if (event.getElementName() != null)
+					{
+						if (added) sb.append(",");
+						sb.append("element=");
+						sb.append(event.getElementName());
+						added = true;
+					}
+					if (event.getModifiers() != 0)
+					{
+						if (added) sb.append(",");
+						sb.append("modifiers=");
+						sb.append(event.getModifiers());
+						added = true;
+					}
+					if (event.getX() != 0)
+					{
+						if (added) sb.append(",");
+						sb.append("x=");
+						sb.append(event.getX());
+						added = true;
+					}
+					if (event.getY() != 0)
+					{
+						if (added) sb.append(",");
+						sb.append("y=");
+						sb.append(event.getY());
+						added = true;
+					}
+					sb.append("]");
+					this.args[i] = sb.toString();
 				}
-				if (event.getElementName() != null)
+				else if (args[i] instanceof Undefined)
 				{
-					if (added) sb.append(",");
-					sb.append("element=");
-					sb.append(event.getElementName());
-					added = true;
+					this.args[i] = "undefined";
 				}
-				if (event.getModifiers() != 0)
+				else
 				{
-					if (added) sb.append(",");
-					sb.append("modifiers=");
-					sb.append(event.getModifiers());
-					added = true;
+					this.args[i] = args[i] != null ? args[i].toString() : null;
 				}
-				if (event.getX() != 0)
-				{
-					if (added) sb.append(",");
-					sb.append("x=");
-					sb.append(event.getX());
-					added = true;
-				}
-				if (event.getY() != 0)
-				{
-					if (added) sb.append(",");
-					sb.append("y=");
-					sb.append(event.getY());
-					added = true;
-				}
-				sb.append("]");
-				this.args[i] = sb.toString();
-			}
-			else if (args[i] instanceof Undefined)
-			{
-				this.args[i] = "undefined";
-			}
-			else
-			{
-				this.args[i] = args[i] != null ? args[i].toString() : null;
 			}
 		}
+		else this.args = new String[] { };
+
+		this.sourceName = sourceName;
 	}
 
 	/**
