@@ -197,7 +197,7 @@ public class FormLayoutGenerator
 		if (design)
 		{
 
-			writer.print("<div ng-style=\"layout('");
+			writer.print("<div createscope ng-style=\"layout('");
 			writer.print(fe.getDesignId());
 			writer.print("')\"");
 			writer.print(" ng-class='design_highlight'");
