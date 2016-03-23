@@ -302,6 +302,10 @@ public class FormLayoutGenerator
 
 	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design)
 	{
+		if (design && form.isResponsiveLayout())
+		{
+			writer.print("<createscope>");
+		}
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -397,6 +401,10 @@ public class FormLayoutGenerator
 		writer.print("</");
 		writer.print(fe.getTagname());
 		writer.println(">");
+		if (design && form.isResponsiveLayout())
+		{
+			writer.print("</createscope>");
+		}
 	}
 
 	/**
