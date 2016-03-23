@@ -4,7 +4,7 @@
 	"version": 1,
 	"definition": "servoyextra/dbtreeview/dbtreeview.js",
 	"serverscript": "servoyextra/dbtreeview/dbtreeview_server.js",
-	"libraries": [{"name":"jquery-ui.min.js", "version":"1.11.4", "url":"servoyextra/dbtreeview/js/jquery-ui.min.js", "mimetype":"text/javascript"}, {"name":"jquery.fancytree-all.min.js", "version":"2.9.0", "url":"servoyextra/dbtreeview/js/jquery.fancytree-all.min.js", "mimetype":"text/javascript"},{"name":"ui.fancytree.css", "version":"2.9.0", "url":"servoyextra/dbtreeview/css/skin-win8/ui.fancytree.css", "mimetype":"text/css"}, {"name":"dbtreeview.css", "version":"1", "url":"servoyextra/dbtreeview/css/dbtreeview.css", "mimetype":"text/css"}],
+	"libraries": [{"name":"dbtreeview.css", "version":"1", "url":"servoyextra/dbtreeview/css/dbtreeview.css", "mimetype":"text/css"}],
 	"model":
 	{
 	    "roots": "foundsetref[]",
