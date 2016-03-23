@@ -5,8 +5,7 @@
 	"icon": "servoycore/slider/SLIDER16.png",
 	"definition": "servoycore/slider/slider.js", 
 	"libraries": [{"name":"jquery-ui.custom", "version":"1.9.2", "url":"servoycore/slider/css/jquery-ui-1.9.2.custom.css", "mimetype":"text/css"},
-				  {"name":"jquery-ui.min.js", "version":"1.11.4", "url":"servoycore/slider/js/jquery-ui.min.js", "mimetype":"text/javascript"}, 
-	 			  {"name":"jquery-ui.min.css", "version":"1.11.4", "url":"servoycore/slider/css/jquery-ui.min.css", "mimetype":"text/css"},
+				  {"name":"jquery-ui.min.css", "version":"1.11.4", "url":"servoycore/slider/css/jquery-ui.min.css", "mimetype":"text/css"},
 				  {"name":"ui-slider", "version":"1", "url":"servoycore/slider/ui-slider/slider.js", "mimetype":"text/javascript"}],	
 	
 	"model":
