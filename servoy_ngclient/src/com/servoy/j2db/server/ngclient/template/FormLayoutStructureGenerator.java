@@ -146,6 +146,12 @@ public class FormLayoutStructureGenerator
 		{
 			writer.print(" ng-class=\"'svy-layoutcontainer'\" ");
 		}
+		if (container.getName() != null)
+		{
+			writer.print(" svy-name='");
+			writer.print(container.getName());
+			writer.print("' ");
+		}
 		if (container.getElementId() != null)
 		{
 			writer.print(" id='");
