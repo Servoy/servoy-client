@@ -44,6 +44,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
@@ -374,5 +375,11 @@ public class DebugNGClient extends NGClient implements IDebugClient
 				servoyDebugFrame.onExitSubAction();
 			}
 		}
+	}
+
+	@Override
+	protected int getSolutionTypeFilter()
+	{
+		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE;
 	}
 }
