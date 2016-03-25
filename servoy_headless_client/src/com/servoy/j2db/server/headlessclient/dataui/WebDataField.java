@@ -793,6 +793,8 @@ public class WebDataField extends TextField<Object>
 			}
 		}
 
+		if (converter == null) converter = super.getConverter(cls);
+
 		return converter;
 	}
 
