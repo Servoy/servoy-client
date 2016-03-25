@@ -2049,4 +2049,32 @@ public class Form extends AbstractContainer
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE }, readOnly);
 	}
 
+	/**
+	 * Set the onElementChangeMethodID
+	 *
+	 * @param arg the onElementChangeMethodID
+	 */
+	public void setOnElementDataChangeMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID, arg);
+	}
+
+	/**
+	 * Method that is executed when the data in one of the form's component is successfully changed and
+	 * the onDataChange callback from the component does not exist or exists and returned true
+	 *
+	 * @templatedescription Handle changed data, return false if the value should not be accepted. In NGClient you can return also a (i18n) string, instead of false, which will be shown as a tooltip.
+	 * @templatename onElementDataChange
+	 * @templatetype Boolean
+	 * @templateparam ${dataproviderType} oldValue old value
+	 * @templateparam ${dataproviderType} newValue new value
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 * @templatecode
+	 * return true
+	 */
+	public int getOnElementDataChangeMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID).intValue();
+	}
 }

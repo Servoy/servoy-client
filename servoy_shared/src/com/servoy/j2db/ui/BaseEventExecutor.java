@@ -68,7 +68,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	public boolean hasChangeCmd()
 	{
-		return changeCommand != null;
+		return changeCommand != null || getFormElementChangeCommand() != null;
 	}
 
 	public boolean hasActionCmd()
@@ -171,9 +171,24 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	public void fireChangeCommand(Object oldVal, Object newVal, boolean saveData, IDisplayData display)
 	{
-		Object o = fireEventCommand(EventType.dataChange, changeCommand, new Object[] { oldVal, newVal }, changeArgs, saveData, display, false,
-			MODIFIERS_UNSPECIFIED, true);
-		display.setValueValid(!Boolean.FALSE.equals(o) && !(o instanceof String && ((String)o).length() > 0), oldVal);
+		boolean isValueValid = true;
+		if (changeCommand != null)
+		{
+			Object o = fireEventCommand(EventType.dataChange, changeCommand, new Object[] { oldVal, newVal }, changeArgs, saveData, display, false,
+				MODIFIERS_UNSPECIFIED, true);
+			isValueValid = !Boolean.FALSE.equals(o) && !(o instanceof String && ((String)o).length() > 0);
+			display.setValueValid(isValueValid, oldVal);
+		}
+		if (isValueValid)
+		{
+			String formElementChangeCommand = getFormElementChangeCommand();
+			if (formElementChangeCommand != null)
+			{
+				Object o = fireEventCommand(EventType.dataChange, formElementChangeCommand, new Object[] { oldVal, newVal }, changeArgs, saveData, display, false,
+					MODIFIERS_UNSPECIFIED, true);
+				display.setValueValid(!Boolean.FALSE.equals(o) && !(o instanceof String && ((String)o).length() > 0), oldVal);
+			}
+		}
 	}
 
 	/* ----------------------------------------- */
@@ -183,8 +198,8 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	{
 		for (int i = 0; enterCommands != null && i < enterCommands.length; i++)
 		{
-			if (Boolean.FALSE.equals(fireEventCommand(JSEvent.EventType.focusGained, enterCommands[i], null, (enterArgs == null || enterArgs.length <= i)
-				? null : enterArgs[i], false, display, focusEvent, modifiers, false)))
+			if (Boolean.FALSE.equals(fireEventCommand(JSEvent.EventType.focusGained, enterCommands[i], null,
+				(enterArgs == null || enterArgs.length <= i) ? null : enterArgs[i], false, display, focusEvent, modifiers, false)))
 			{
 				break;
 			}
@@ -195,8 +210,8 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	{
 		for (int i = 0; leaveCommands != null && i < leaveCommands.length; i++)
 		{
-			if (Boolean.FALSE.equals(fireEventCommand(JSEvent.EventType.focusLost, leaveCommands[i], null, (leaveArgs == null || leaveArgs.length <= i) ? null
-				: leaveArgs[i], false, display, focusEvent, modifiers, false)))
+			if (Boolean.FALSE.equals(fireEventCommand(JSEvent.EventType.focusLost, leaveCommands[i], null,
+				(leaveArgs == null || leaveArgs.length <= i) ? null : leaveArgs[i], false, display, focusEvent, modifiers, false)))
 			{
 				break;
 			}
@@ -311,5 +326,19 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	protected Object getSource(Object display)
 	{
 		return display;
+	}
+
+	private String getFormElementChangeCommand()
+	{
+		if (actionListener != null)
+		{
+			FormController fc = actionListener.getFormController();
+			if (fc != null && fc.getForm().getOnElementDataChangeMethodID() > 0)
+			{
+				return Integer.toString(fc.getForm().getOnElementDataChangeMethodID());
+			}
+
+		}
+		return null;
 	}
 }

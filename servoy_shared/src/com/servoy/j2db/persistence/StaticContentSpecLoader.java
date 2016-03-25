@@ -268,6 +268,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	//public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
 	public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
 	public static final TypedProperty<String> PROPERTY_TYPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TYPENAME);
+	public static final TypedProperty<Integer> PROPERTY_ONELEMENTDATACHANGEMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONELEMENTDATACHANGEMETHODID);
 
 	// deprecated or metadata properties
 	private static final TypedProperty<String> PROPERTY_SERVERNAME = new TypedProperty<String>("serverName"); //$NON-NLS-1$;
@@ -881,6 +883,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			cs.new Element(435, IRepository.TABLENODES, PROPERTY_COLUMNS.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(436, IRepository.WEBCOMPONENTS, PROPERTY_GROUPID.getPropertyName(), IRepository.STRING);
+			cs.new Element(437, IRepository.FORMS, PROPERTY_ONELEMENTDATACHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+
 		}
 		//##add property adds here
 		return cs;

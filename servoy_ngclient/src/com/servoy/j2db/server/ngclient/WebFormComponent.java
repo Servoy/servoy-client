@@ -256,7 +256,21 @@ public class WebFormComponent extends Container implements IContextProvider
 			{
 				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusLostMethodID(), args);
 			}
-			return dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
+
+			Object executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
+
+			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+				(formElement.getForm().getOnElementDataChangeMethodID() > 0) && formElement.getForm().getOnElementDataChangeMethodID() != functionID)
+			{
+				boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
+					!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
+				if (isValueValid)
+				{
+					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementDataChangeMethodID(), args);
+				}
+			}
+
+			return executeEventReturn;
 		}
 	}
 

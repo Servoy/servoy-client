@@ -115,13 +115,20 @@ public class ComponentFactory
 				{
 					webComponent.add(eventName, ((Number)eventValue).intValue());
 				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) && (fe.getForm().getOnElementFocusGainedMethodID() > 0))
+				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+					(fe.getForm().getOnElementFocusGainedMethodID() > 0))
 				{
 					webComponent.add(eventName, fe.getForm().getOnElementFocusGainedMethodID());
 				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) && (fe.getForm().getOnElementFocusLostMethodID() > 0))
+				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+					(fe.getForm().getOnElementFocusLostMethodID() > 0))
 				{
 					webComponent.add(eventName, fe.getForm().getOnElementFocusLostMethodID());
+				}
+				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+					(fe.getForm().getOnElementDataChangeMethodID() > 0))
+				{
+					webComponent.add(eventName, fe.getForm().getOnElementDataChangeMethodID());
 				}
 			}
 			// just created, it should have no changes.
@@ -139,8 +146,8 @@ public class ComponentFactory
 			boolean templatevalue = true;
 			if (propertySpec.getType() instanceof ISupportTemplateValue)
 			{
-				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue, propertySpec, new FormElementContext(
-					component.getFormElement()));
+				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue, propertySpec,
+					new FormElementContext(component.getFormElement()));
 			}
 			if (templatevalue)
 			{

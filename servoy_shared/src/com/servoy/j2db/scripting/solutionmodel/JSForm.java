@@ -587,8 +587,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 					int test = p.getHeight();
 					if (test < testHeight)
 					{
-						throw new RuntimeException(
-								"Illegal lowerbound " + height + " for the part " + Part.getDisplayName(partType) + " it must be greater than the previous part lowerbound " + testHeight); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						throw new RuntimeException("Illegal lowerbound " + height + " for the part " + Part.getDisplayName(partType) + //$NON-NLS-1$//$NON-NLS-2$
+							" it must be greater than the previous part lowerbound " + testHeight); //$NON-NLS-1$
 					}
 					testHeight = test;
 				}
@@ -2624,7 +2624,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 				}
 				else if (parent instanceof JSForm && ((JSForm)parent).form.getDataSource() != null)
 				{
-					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).form.getDataSource(), false);
+					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).form.getDataSource(),
+						false);
 					scriptMethod = AbstractBase.selectById(foundsetMethods, methodid);
 					if (scriptMethod != null)
 					{
@@ -3225,6 +3226,24 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	public void setOnRender(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementDataChangeMethodID()
+	 *
+	 * @sample
+	 * form.onElementDataChange = form.newMethod('function onElementDataChange(oldValue, newValue, event) { application.output("Data changed from " + oldValue + " to " + newValue + " at " + event.getTimestamp()); }');
+	 */
+	@JSGetter
+	public JSMethod getOnElementDataChange()
+	{
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID);
+	}
+
+	@JSSetter
+	public void setOnElementDataChange(IBaseSMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID, method);
 	}
 
 	/**
