@@ -102,9 +102,9 @@ import com.servoy.j2db.util.text.FixedMaskFormatter;
  *
  * @author jcompagner
  */
-public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
-	IDestroyable, ISupportOnRender
+public class WebDataField extends TextField<Object>
+	implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, ISupportValueList, ISupportInputSelection,
+	ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider, IDestroyable, ISupportOnRender
 {
 	/**
 	 * @author jcompagner
@@ -215,26 +215,26 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		setVersioned(false);
 
 		add(new AttributeModifier("readonly", true, new Model<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+		{
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public String getObject()
-				{
-					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-				}
-			}));
+			@Override
+			public String getObject()
+			{
+				return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
+			}
+		}));
 
 		add(new AttributeModifier("placeholder", true, new Model<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+		{
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public String getObject()
-				{
-					return application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText());
-				}
-			})
+			@Override
+			public String getObject()
+			{
+				return application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText());
+			}
+		})
 		{
 			@Override
 			public boolean isEnabled(Component component)
@@ -701,8 +701,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 								extraMsg = " on component " + name; //$NON-NLS-1$
 							}
 							extraMsg += " with dataprovider: " + dataProviderID; //$NON-NLS-1$
-							throw new ConversionException(
-								"Can't convert from string '" + value + "' to object with format: " + fp.getEditFormat() + extraMsg, e).setConverter(this); //$NON-NLS-1$ //$NON-NLS-2$
+							throw new ConversionException("Can't convert from string '" + value + "' to object with format: " + fp.getEditFormat() + extraMsg, //$NON-NLS-1$//$NON-NLS-2$
+								e).setConverter(this);
 						}
 					}
 				};
@@ -741,7 +741,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 		else if (mappedType == IColumnTypes.DATETIME)
 		{
-			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
+			boolean lenient = Boolean.TRUE.equals(
+				UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(displayFormat, null, application.getLocale(), lenient);
 			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null)
 			{
@@ -791,6 +792,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					converter == null ? getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID()) : converter);
 			}
 		}
+
+		if (converter == null) converter = super.getConverter(cls);
 
 		return converter;
 	}
@@ -863,15 +866,15 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			}
 			if (parsedFormat.isAllUpperCase())
 			{
-				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true," +
-					maxLength + ");");
+				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress",
+					"return Servoy.Validation.changeCase(this,event,true," + maxLength + ");");
 				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
 					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toUpperCase();});");
 			}
 			else if (parsedFormat.isAllLowerCase())
 			{
-				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false," +
-					maxLength + ");");
+				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress",
+					"return Servoy.Validation.changeCase(this,event,false," + maxLength + ");");
 				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
 					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toLowerCase();});");
 			}
@@ -1368,8 +1371,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			if (converter instanceof FormatConverter)
 			{
-				((FormatConverter)converter).setLenient(Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application,
-					IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
+				((FormatConverter)converter).setLenient(
+					Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 			}
 		}
 	}
