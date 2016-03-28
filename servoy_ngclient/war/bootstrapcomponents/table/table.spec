@@ -2,7 +2,7 @@
 	"name": "bootstrapcomponents-table",
 	"displayName": "Table",
 	"version": 1,
-	"icon": "servoydefault/portal/portal.gif",
+	"icon": "servoycore/portal/portal.gif",
 	"definition": "bootstrapcomponents/table/table.js",
 	"libraries": [{"name":"bootstrapcomponents-table-css", "version":"1.0", "url":"bootstrapcomponents/table/table.css", "mimetype":"text/css"}],
 	"model":
