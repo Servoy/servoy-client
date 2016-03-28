@@ -4,6 +4,7 @@
 	"version": 1,
 	"definition": "bootstrapcomponents/progressbar/progressbar.js",
 	"libraries": [],
+	"icon": "bootstrapcomponents/progressbar/progress_bar.png",
 	"model":
 	{
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default" : "progress-striped" , "values" :["progress-striped", "progress-striped active"]},
