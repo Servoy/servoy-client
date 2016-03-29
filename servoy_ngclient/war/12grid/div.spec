@@ -5,7 +5,9 @@
 	"definition": "div.json",
 	"contains": ["component","div"],
 	"topContainer": true,
+	"tagType":"div",
 	"model": {
-		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" }}
+		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" }},
+		"tagType" : "string"
 	}
 }
