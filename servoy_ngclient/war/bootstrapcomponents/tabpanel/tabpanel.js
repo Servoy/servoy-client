@@ -58,7 +58,7 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
     	  			}
 					if (newValue)
 					{ 
-						$scope.svyServoyapi.formWillShow($scope.model.tabs[newValue-1].containedForm,$scope.model.relationName);
+						$scope.svyServoyapi.formWillShow($scope.model.tabs[newValue-1].containedForm,$scope.model.tabs[newValue-1].relationName);
 						$scope.model.tabs[newValue-1].active = true;
 					}
 				}	
