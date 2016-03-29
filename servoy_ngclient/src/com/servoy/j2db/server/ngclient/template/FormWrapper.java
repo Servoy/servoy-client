@@ -218,6 +218,7 @@ public class FormWrapper
 		properties.put("designSize", form.getSize());
 		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) &&
 			FormElementHelper.INSTANCE.hasExtraParts(form));
+		properties.put("absoluteLayout", !form.isResponsiveLayout());
 		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),

@@ -1,4 +1,4 @@
-angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstrapcomponentsTablesspanel', function() {  
+angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstrapcomponentsTablesspanel', function($sabloApplication) {  
     return {
       restrict: 'E',
       scope: {
@@ -31,7 +31,21 @@ angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstra
 		  });
 		
     	  $scope.getContainerStyle = function() {
-    		  return {position:"relative", minHeight:$scope.model.height+"px"};
+    		  var height = 0;
+    		  if ($scope.model.height)
+    		  {
+    			  height = $scope.model.height
+    		  }
+    		  else if ($scope.model.containedForm && $sabloApplication.hasFormStateWithData($scope.model.containedForm))
+    		  {
+    			  // for absolute form default height is design height, for responsive form default height is 0
+    			  var formState = $sabloApplication.getFormStateEvenIfNotYetResolved($scope.model.containedForm);
+    			  if (formState && formState.properties && formState.properties.absoluteLayout)
+    			  {
+    				  height = formState.properties.designSize.height; 
+    			  }	  
+    		  }	  
+    		  return {position:"relative", minHeight:height+"px"};
     	  }
     	  
     	  $scope.showEditorHint = function()
