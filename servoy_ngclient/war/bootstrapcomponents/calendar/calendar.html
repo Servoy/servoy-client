@@ -1,11 +1,11 @@
 <div class='input-group date'
     ng-model="model.dataProviderID"
-    ng-if='model.visible'>
+    ng-show='model.visible'>
 	<input type="text" 
 	   svy-enter='handlers.onActionMethodID($event)'
 	   ng-disabled="!model.enabled"
 	   ng-readonly="model.readOnly"
        sablo-tabseq='model.tabSeq'
 	   ng-class='model.styleClass'/>
-	<span class="input-group-addon"  ng-if="!model.readOnly && model.enabled"><span class="glyphicon glyphicon-calendar"></span></span>
+	<span class="input-group-addon"  ng-show="!model.readOnly && model.enabled"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>
