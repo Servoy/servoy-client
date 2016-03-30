@@ -204,32 +204,24 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		previousRecord = record;
 	}
 
-	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, boolean checkChanged) throws IllegalArgumentException, JSONException
-	{
-		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
-		if (!checkChanged || filterStringForResponse != null || javaValueForJSON == null || !javaValueForJSON.equals(newJavaValueForJSON))
-		{
-			if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
-			DataConversion clientConversionsInsideValuelist = new DataConversion();
-			if (key != null) writer.key(key);
-			writer.object();
-			if (filterStringForResponse != null)
-			{
-				writer.key("filter");
-				writer.value(filterStringForResponse);
-				filterStringForResponse = null;
-			}
-			writer.key("values");
-			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
-			writer.endObject();
-			// TODO send these to browser and use them in browser!
-		}
-		javaValueForJSON = newJavaValueForJSON;
-	}
-
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion) throws IllegalArgumentException, JSONException
 	{
-		toJSON(writer, key, clientConversion, false);
+		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
+		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
+		DataConversion clientConversionsInsideValuelist = new DataConversion();
+		if (key != null) writer.key(key);
+		writer.object();
+		if (filterStringForResponse != null)
+		{
+			writer.key("filter");
+			writer.value(filterStringForResponse);
+			filterStringForResponse = null;
+		}
+		writer.key("values");
+		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
+		writer.endObject();
+		// TODO send these to browser and use them in browser!
+		javaValueForJSON = newJavaValueForJSON;
 	}
 
 	private void revertFilter()

@@ -12,7 +12,7 @@
 	    "format" : {"for":["valuelistID","dataProviderID"] , "type" :"format"},
 	    "readOnly" : { "type": "protected", "blockingOn": true, "default": false,"for": ["dataProviderID","onDataChangeMethodID"] },
 	    "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default" : "form-control"},
-	    "valuelistID" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataProviderID", "default":"autoVL", "canOptimize":false, "pushToServer": "allow"},
+	    "valuelistID" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataProviderID", "default":"autoVL", "pushToServer": "allow"},
 	    "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
 	    "visible" : "visible"
 	},

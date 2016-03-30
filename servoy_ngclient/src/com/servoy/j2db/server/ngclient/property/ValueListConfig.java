@@ -24,14 +24,12 @@ public class ValueListConfig
 {
 	private final String dataprovider;
 	private final String defaultValue;
-	private final boolean canOptimize;
 
-	public ValueListConfig(String dataprovider, String def, boolean canOptimize)
+	public ValueListConfig(String dataprovider, String def)
 	{
 		super();
 		this.dataprovider = dataprovider;
 		this.defaultValue = def;
-		this.canOptimize = canOptimize;
 	}
 
 	public String getFor()
@@ -42,10 +40,5 @@ public class ValueListConfig
 	public String getDefaultValue()
 	{
 		return defaultValue;
-	}
-
-	public boolean canOptimize()
-	{
-		return canOptimize;
 	}
 }

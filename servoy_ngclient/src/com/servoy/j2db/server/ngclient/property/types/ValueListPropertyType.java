@@ -32,7 +32,6 @@ import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 
-import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFormat;
@@ -96,14 +95,12 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		String dataprovider = "";
 		String def = null;
-		boolean canOptimize = true;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
-			canOptimize = json.optBoolean("canOptimize", true);
 		}
-		return new ValueListConfig(dataprovider, def, canOptimize);
+		return new ValueListConfig(dataprovider, def);
 	}
 
 	@Override
@@ -133,26 +130,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (sabloValue != null)
 		{
-			boolean checkIfChanged = false;
-			// TODO we should have type info here to send instead of null for real/display values
-			if (dataConverterContext != null)
-			{
-				BaseWebObject webObject = dataConverterContext.getWebObject();
-				// if not writing properties, then it means the valuelist is already on the client, so
-				// send it only if it is changed
-				if (webObject instanceof WebFormComponent)
-				{
-					WebFormComponent wfc = (WebFormComponent)webObject;
-					int formViewType = wfc.getFormElement().getForm().getView();
-					if (sabloValue.config.canOptimize() &&
-						(formViewType == IFormConstants.VIEW_TYPE_RECORD || formViewType == IFormConstants.VIEW_TYPE_RECORD_LOCKED) &&
-						!wfc.isWritingComponentProperties())
-					{
-						checkIfChanged = true;
-					}
-				}
-			}
-			sabloValue.toJSON(writer, key, clientConversion, checkIfChanged);
+			sabloValue.toJSON(writer, key, clientConversion);
 		}
 		return writer;
 	}
