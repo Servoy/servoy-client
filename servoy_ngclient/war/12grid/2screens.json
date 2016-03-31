@@ -1,5 +1,5 @@
 {
-"layoutName": "2screens",
+		"layoutName": "row",
 		"class": "row",
 		"children": [{
 			"layoutName": "column",
