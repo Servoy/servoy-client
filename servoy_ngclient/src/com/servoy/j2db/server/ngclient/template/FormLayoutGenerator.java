@@ -367,15 +367,15 @@ public class FormLayoutGenerator
 			writer.print(" svy-model=\"model('");
 			writer.print(fe.getDesignId());
 			writer.print("')\"");
-			writer.print(" svy-api='api(\"");
+			writer.print(" svy-api=\"api('");
 			writer.print(fe.getDesignId());
-			writer.print("\")'");
-			writer.print(" svy-handlers='handlers(\"");
+			writer.print("')\"");
+			writer.print(" svy-handlers=\"handlers('");
 			writer.print(fe.getDesignId());
-			writer.print("\")'");
-			writer.print(" svy-servoyApi='servoyApi(\"");
+			writer.print("')\"");
+			writer.print(" svy-servoyApi=\"servoyApi('");
 			writer.print(fe.getDesignId());
-			writer.print("\")'");
+			writer.print("')\"");
 			if (fe.getPersistIfAvailable() instanceof IFormElement)
 			{
 				writer.print(" form-index=" + ((IFormElement)fe.getPersistIfAvailable()).getFormIndex() + "");

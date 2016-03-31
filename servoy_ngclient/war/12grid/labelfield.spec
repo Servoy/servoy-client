@@ -5,6 +5,6 @@
 	"icon": "12grid/labelfield.png",
 	"designStyleClass" : "rowDesign",
 	"definition": "labelfield.json",
-	"contains": ["column"],
+	"contains": ["12grid.column"],
 	"topContainer": true
 }

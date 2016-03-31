@@ -4,7 +4,7 @@
 	"version": 1,
 	"definition": "responsivetable.json",
 	"icon": "12grid/container.gif",
-	"contains": ["component","div"],
+	"contains": ["bootstrapcomponents.*"],
 	"topContainer": true,
 	"model": {
 		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" }}

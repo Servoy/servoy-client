@@ -3,7 +3,7 @@
 	"displayName": "Custom Div",
 	"version": 1,
 	"definition": "div.json",
-	"contains": ["component","div"],
+	"contains": ["bootstrapcomponents.*","12grid.div"],
 	"topContainer": true,
 	"tagType":"div",
 	"model": {

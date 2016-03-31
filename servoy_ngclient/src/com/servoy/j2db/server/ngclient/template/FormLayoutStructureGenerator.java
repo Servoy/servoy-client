@@ -103,9 +103,9 @@ public class FormLayoutStructureGenerator
 				List<String> allowedChildren = spec.getAllowedChildren();
 				if (allowedChildren.size() > 0)
 				{
-					writer.print(" svy-allowed-children='");
-					writer.print("[" + StringUtil.join(allowedChildren, ",") + "]");
-					writer.print("'");
+					writer.print(" svy-allowed-children=\"");
+					writer.print(StringUtil.join(allowedChildren, ","));
+					writer.print("\"");
 				}
 				writer.print(" svy-layoutname='");
 				writer.print(spec.getName());

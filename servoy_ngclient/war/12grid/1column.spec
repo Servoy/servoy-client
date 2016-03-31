@@ -5,6 +5,6 @@
 	"icon": "12grid/3columns.png",
 	"designStyleClass" : "rowDesign",
 	"definition": "1column.json",
-	"contains": ["column"],
+	"contains": ["12grid.column"],
 	"topContainer": true
 }

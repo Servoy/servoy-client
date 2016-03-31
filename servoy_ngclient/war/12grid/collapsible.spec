@@ -5,6 +5,6 @@
 	"icon": "12grid/container.gif",
 	"definition": "collapsible.json",
 	"designStyleClass" : "rowDesign",
-	"contains": ["div"],
+	"contains": ["12grid.div"],
 	"topContainer": true
 }

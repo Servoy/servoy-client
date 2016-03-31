@@ -5,7 +5,7 @@
 	"icon": "12grid/container.gif",
 	"designStyleClass" : "rowDesign",
 	"definition": "container.json",
-	"contains": ["row"],
+	"contains": ["12grid.row"],
 	"topContainer": true,
 	"model": {
 		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" } , "values" :["container","container-fluid"]}
