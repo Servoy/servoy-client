@@ -350,7 +350,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	 * @param message
 	 * @param detail
 	 */
-	private void errorToDebugger(String message, Object errorDetail)
+	public void errorToDebugger(String message, Object errorDetail)
 	{
 		Object detail = errorDetail;
 		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();

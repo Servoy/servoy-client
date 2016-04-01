@@ -421,4 +421,13 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	{
 		return super.getSolutionTypeFilter();
 	}
+
+	/*
+	 * @see com.servoy.j2db.IDebugClient#errorToDebugger(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void errorToDebugger(String message, Object detail)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+	}
 }

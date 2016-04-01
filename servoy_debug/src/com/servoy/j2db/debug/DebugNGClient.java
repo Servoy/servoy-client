@@ -382,4 +382,10 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	{
 		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE;
 	}
+
+	@Override
+	public void errorToDebugger(String message, Object detail)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+	}
 }

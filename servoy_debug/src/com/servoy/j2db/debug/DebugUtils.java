@@ -17,6 +17,8 @@
 package com.servoy.j2db.debug;
 
 import java.awt.EventQueue;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,7 +113,48 @@ public class DebugUtils
 					{
 						detail = e;
 					}
-					msg += "\n > " + detail.toString(); // complete stack?
+
+					String stackTrace = null;
+
+					ByteArrayOutputStream bos = null;
+					PrintStream ps = null;
+
+					try
+					{
+						bos = new ByteArrayOutputStream();
+						ps = new PrintStream(bos);
+
+						((Exception)detail).printStackTrace(ps);
+
+						ps.flush();
+						bos.flush();
+
+						stackTrace = bos.toString();
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+					finally
+					{
+						if (ps != null) ps.close();
+						if (bos != null)
+						{
+							try
+							{
+								bos.close();
+							}
+							catch (Exception ex)
+							{
+								Debug.error(ex);
+							}
+						}
+					}
+
+					if (stackTrace == null) stackTrace = detail.toString();
+
+					msg += "\n > " + stackTrace;
+
 					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 					{
 						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();

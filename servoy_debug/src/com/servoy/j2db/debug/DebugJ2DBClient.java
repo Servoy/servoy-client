@@ -1449,4 +1449,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			}
 		}
 	}
+
+	/*
+	 * @see com.servoy.j2db.IDebugClient#errorToDebugger(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void errorToDebugger(String message, Object detail)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+	}
 }

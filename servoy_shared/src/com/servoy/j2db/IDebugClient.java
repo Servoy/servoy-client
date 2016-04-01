@@ -43,4 +43,5 @@ public interface IDebugClient extends IApplication
 
 	public void loadSecuritySettings(FlattenedSolution root) throws ServoyException, RemoteException;
 
+	void errorToDebugger(String message, Object detail);
 }
