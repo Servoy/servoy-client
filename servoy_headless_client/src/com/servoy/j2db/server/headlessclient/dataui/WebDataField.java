@@ -784,7 +784,7 @@ public class WebDataField extends TextField<Object>
 		{
 			if (!(list instanceof GlobalMethodValueList) && list instanceof CustomValueList && converter == null)
 			{
-				converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
+				converter = new ValuelistValueConverter(list, this, converter);
 			}
 			else
 			{
