@@ -18,10 +18,11 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.util.EventObject;
+import java.util.List;
 
 /**
  * The event object for foundset event listeners
- * 
+ *
  * @author jblok
  * @since Servoy 5.0
  */
@@ -69,19 +70,26 @@ public class FoundSetEvent extends EventObject
 	private final int changeType;
 	private final int firstRow;
 	private final int lastRow;
+	private final List<String> dataProviders;
 
 	public FoundSetEvent(IFoundSet source, int type, int changeType, int firstRow, int lastRow)
+	{
+		this(source, type, changeType, firstRow, lastRow, null);
+	}
+
+	public FoundSetEvent(IFoundSet source, int type, int changeType, int firstRow, int lastRow, List<String> dataProviders)
 	{
 		super(source);
 		this.type = type;
 		this.changeType = changeType;
 		this.firstRow = firstRow;
 		this.lastRow = lastRow;
+		this.dataProviders = dataProviders;
 	}
 
 	public FoundSetEvent(IFoundSet source, int type, int changeType)
 	{
-		this(source, type, changeType, -1, -1);
+		this(source, type, changeType, -1, -1, null);
 	}
 
 	public IFoundSet getSourceFoundset()
@@ -92,7 +100,7 @@ public class FoundSetEvent extends EventObject
 	/**
 	 * Returns the type of the event. Can be {@link FoundSetEvent#FIND_MODE_CHANGE}, {@link FoundSetEvent#CONTENTS_CHANGED} or
 	 * {@link FoundSetEvent#NEW_FOUNDSET}.
-	 * 
+	 *
 	 * @return the type of the event.
 	 */
 	public int getType()
@@ -103,7 +111,7 @@ public class FoundSetEvent extends EventObject
 	/**
 	 * Returns the change type of the event when type is {@link FoundSetEvent#CONTENTS_CHANGED}. Can be {@link FoundSetEvent#CHANGE_DELETE}, {@link FoundSetEvent#CHANGE_INSERT} or
 	 * {@link FoundSetEvent#CHANGE_UPDATE}.
-	 * 
+	 *
 	 * @return the change type of the event.
 	 */
 	public int getChangeType()
@@ -112,7 +120,7 @@ public class FoundSetEvent extends EventObject
 	}
 
 	/**
-	 * Returns the first row of the change when it was a contents change update (INSERT,DELETE,UPDATE) 
+	 * Returns the first row of the change when it was a contents change update (INSERT,DELETE,UPDATE)
 	 * @return the firstRow
 	 * @since 7.4
 	 */
@@ -129,6 +137,14 @@ public class FoundSetEvent extends EventObject
 	public int getLastRow()
 	{
 		return lastRow;
+	}
+
+	/**
+	 * @return the dataProviders
+	 */
+	public List<String> getDataProviders()
+	{
+		return dataProviders;
 	}
 
 	@Override

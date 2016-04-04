@@ -91,6 +91,7 @@ public class FoundsetTypeViewport
 		int oldStartIndex = this.startIndex;
 		int oldSize = this.size;
 
+		if (foundset != null) foundset.removeFoundSetEventListener(getFoundsetEventListener());
 		if (positiveOrNegativeRecordNo >= 0)
 		{
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
@@ -104,6 +105,7 @@ public class FoundsetTypeViewport
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
+		if (foundset != null) foundset.addFoundSetEventListener(getFoundsetEventListener());
 	}
 
 	/**
@@ -182,7 +184,8 @@ public class FoundsetTypeViewport
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 						{
-							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
+							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this,
+								event.getDataProviders());
 						}
 						changeMonitor.checkHadMoreRows();
 					}

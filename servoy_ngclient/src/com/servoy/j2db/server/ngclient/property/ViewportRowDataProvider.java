@@ -49,6 +49,8 @@ public abstract class ViewportRowDataProvider
 
 	protected abstract boolean shouldGenerateRowIds();
 
+	protected abstract boolean containsColumn(String columnName);
+
 	protected void writeRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
 		throws JSONException
 	{

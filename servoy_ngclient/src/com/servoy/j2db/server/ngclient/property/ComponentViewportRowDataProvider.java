@@ -28,6 +28,8 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
+import com.servoy.j2db.util.Utils;
 
 /**
  * This class provides viewport data for a component's record - related properties. It is used when combining component properties with foundset properties.
@@ -60,10 +62,12 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		w.object();
 		dal.setRecordQuietly(record);
 
-		if (columnName != null)
+		String columnPropertyName = getPropertyName(columnName);
+
+		if (columnPropertyName != null)
 		{
 			// cell update
-			populateCellData(columnName, w, clientConversionInfo);
+			populateCellData(columnPropertyName, w, clientConversionInfo);
 		}
 		else
 		{
@@ -74,6 +78,39 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 			}
 		}
 		w.endObject();
+	}
+
+	@Override
+	protected boolean containsColumn(String columnName)
+	{
+		if (columnName == null) return true;
+
+		return getPropertyName(columnName) != null;
+	}
+
+	private String getPropertyName(String columnName)
+	{
+		if (columnName != null)
+		{
+			if (recordBasedProperties.contains(columnName))
+			{
+				return columnName;
+			}
+			else
+			{
+				// this is probably a dpid
+				for (String propertyName : recordBasedProperties)
+				{
+					Object dpValue = component.getProperty(propertyName);
+					if (dpValue instanceof DataproviderTypeSabloValue &&
+						Utils.equalObjects(((DataproviderTypeSabloValue)dpValue).getDataProviderID(), columnName))
+					{
+						return propertyName;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException

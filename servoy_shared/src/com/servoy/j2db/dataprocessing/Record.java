@@ -72,6 +72,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * _____________________________________________________________ JavaScript stuff
 	 */
 	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+
 	static
 	{
 		try
@@ -292,8 +293,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		if (row.containsDataprovider(dataProviderID))
 		{
 			// when the value of a database column is set, the record must be in editing mode (not for unstored calcs)
-			if (checkIsEditing && parent.getSQLSheet().getColumnIndex(dataProviderID) != -1 && !isEditing()) throw new IllegalStateException(
-				"Record is not in edit, call startEditing() first"); //$NON-NLS-1$
+			if (checkIsEditing && parent.getSQLSheet().getColumnIndex(dataProviderID) != -1 && !isEditing())
+				throw new IllegalStateException("Record is not in edit, call startEditing() first"); //$NON-NLS-1$
 			boolean mustRecalculate = row.mustRecalculate(dataProviderID, true);
 			Object prevValue = row.setValue(this, dataProviderID, managebleValue);
 			if (mustRecalculate && row.containsCalculation(dataProviderID))
@@ -854,7 +855,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	public void notifyChange(ModificationEvent e, FireCollector collector)//this method is only called if I'm not the source of the event
 	{
 		fireJSModificationEvent(e);
-		collector.put(this.getParentFoundSet(), this);
+		collector.put(this.getParentFoundSet(), this, e.getName());
 	}
 
 	protected void manageCalcDependency(String calc, UsedDataProviderTracker usedDataProviderTracker)
@@ -1091,8 +1092,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 					if (!Utils.equalObjects(oldv, newd[i])) rows.add(new Object[] { cnames[i], oldv, newd[i] });
 				}
 			}
-			return new JSDataSet(getParentFoundSet().getFoundSetManager().getApplication(), new BufferedDataSet(
-				new String[] { "col_name", "old_value", "new_value" }, rows)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return new JSDataSet(getParentFoundSet().getFoundSetManager().getApplication(),
+				new BufferedDataSet(new String[] { "col_name", "old_value", "new_value" }, rows)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return null;
 	}

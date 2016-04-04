@@ -43,12 +43,22 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 		throws JSONException
 	{
 		w.object();
-		w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex is just a hint for where to start searching for the pk when needed
+		if (columnName == null)
+		{
+			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex is just a hint for where to start searching for the pk when needed
+		}
 
-		// we ignore columnName as foundset type is currently not able to send column level updates;
-		foundsetPropertyValue.populateRowData(record, w, clientConversionInfo, browserConverterContext);
+		foundsetPropertyValue.populateRowData(record, columnName, w, clientConversionInfo, browserConverterContext);
 
 		w.endObject();
+	}
+
+	@Override
+	protected boolean containsColumn(String columnName)
+	{
+		if (columnName == null) return true;
+
+		return foundsetPropertyValue.getComponentName(columnName) != null;
 	}
 
 	@Override

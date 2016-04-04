@@ -32,7 +32,7 @@ public class FireCollector
 	/**
 	 * Creates a new FireCollector or returns the current one of the current thread already has one.
 	 * Make sure that when calling this method, the {@link #done()} method needs to be called. So that should be in a try/finally block
-	 * 
+	 *
 	 * @return {@link FireCollector}
 	 */
 	public static FireCollector getFireCollector()
@@ -47,7 +47,7 @@ public class FireCollector
 		return fireCollector;
 	}
 
-	private final Map<IFireCollectable, List<Object>> map = new HashMap<IFireCollectable, List<Object>>();
+	private final Map<IFireCollectable, Map<IRecord, List<String>>> map = new HashMap<IFireCollectable, Map<IRecord, List<String>>>();
 	private int depth = 0;
 
 	private FireCollector()
@@ -62,9 +62,10 @@ public class FireCollector
 			{
 				while (map.size() > 0)
 				{
-					ArrayList<Map.Entry<IFireCollectable, List<Object>>> copy = new ArrayList<Map.Entry<IFireCollectable, List<Object>>>(map.entrySet());
+					ArrayList<Map.Entry<IFireCollectable, Map<IRecord, List<String>>>> copy = new ArrayList<Map.Entry<IFireCollectable, Map<IRecord, List<String>>>>(
+						map.entrySet());
 					map.clear();
-					for (Map.Entry<IFireCollectable, List<Object>> entry : copy)
+					for (Map.Entry<IFireCollectable, Map<IRecord, List<String>>> entry : copy)
 					{
 						entry.getKey().completeFire(entry.getValue());
 					}
@@ -82,15 +83,24 @@ public class FireCollector
 	 * @param parentFoundSet
 	 * @param record
 	 */
-	public void put(IFireCollectable rowCollectable, Object collected)
+	public void put(IFireCollectable rowCollectable, IRecord collected, String dataproviderID)
 	{
-		List<Object> lst = map.get(rowCollectable);
+		Map<IRecord, List<String>> lst = map.get(rowCollectable);
 		if (lst == null)
 		{
-			lst = new ArrayList<Object>();
+			lst = new HashMap<IRecord, List<String>>();
 			map.put(rowCollectable, lst);
 		}
-		lst.add(collected);
+		List<String> dataproviders = lst.get(collected);
+		if (dataproviders == null)
+		{
+			dataproviders = new ArrayList<String>();
+			lst.put(collected, dataproviders);
+		}
+		if (!dataproviders.contains(dataproviderID))
+		{
+			dataproviders.add(dataproviderID);
+		}
 	}
 
 }

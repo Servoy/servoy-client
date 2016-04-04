@@ -159,7 +159,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 */
 	public void queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
 	{
-		if (!rowDataProvider.isReady()) return;
+		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return;
 
 		if (!shouldSendWholeViewport())
 		{

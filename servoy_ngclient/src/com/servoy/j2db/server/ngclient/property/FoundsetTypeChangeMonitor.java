@@ -364,7 +364,7 @@ public class FoundsetTypeChangeMonitor
 		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
 	}
 
-	public void recordsUpdated(int firstRow, int lastRow, int foundSetSize, FoundsetTypeViewport viewPort)
+	public void recordsUpdated(int firstRow, int lastRow, int foundSetSize, FoundsetTypeViewport viewPort, List<String> dataproviders)
 	{
 		if (firstRow == 0 && lastRow == foundSetSize - 1)
 		{
@@ -384,8 +384,19 @@ public class FoundsetTypeChangeMonitor
 				{
 					for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 					{
-						vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex,
-							lastViewPortIndex, propertyValue.getFoundset(), RowData.CHANGE);
+						if (firstViewPortIndex == lastViewPortIndex && dataproviders != null && dataproviders.size() > 0)
+						{
+							for (String dataprovider : dataproviders)
+							{
+								vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex, dataprovider,
+									propertyValue.getFoundset());
+							}
+						}
+						else
+						{
+							vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
+								firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(), RowData.CHANGE);
+						}
 					}
 					viewPortRecordChangesUpdated = true;
 				}

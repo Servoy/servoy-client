@@ -572,27 +572,46 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		}
 	}
 
-	protected void populateRowData(IRecordInternal record, JSONWriter w, DataConversion clientConversionInfo, IBrowserConverterContext browserConverterContext)
-		throws JSONException
+	protected String getComponentName(String columnName)
 	{
-		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
+		Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
+		Iterator<Entry<String, String>> it = dp.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Entry<String, String> entry = it.next();
+			if (Utils.equalObjects(columnName, entry.getValue()))
+			{
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo,
+		IBrowserConverterContext browserConverterContext) throws JSONException
+	{
+		Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
+		Iterator<Entry<String, String>> it = dp.entrySet().iterator();
 		while (it.hasNext())
 		{
 			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
-			Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
-			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
+			if (columnName == null || Utils.equalObjects(columnName, dataProvider))
+			{
+				Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
+				PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
 
-			// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)
-//			if (pd != null)
-//			{
-//				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
-//					webObject));
-//			}
+				// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)
+				//			if (pd != null)
+				//			{
+				//				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
+				//					webObject));
+				//			}
 
-			clientConversionInfo.pushNode(entry.getKey());
-			FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, browserConverterContext);
-			clientConversionInfo.popNode();
+				clientConversionInfo.pushNode(entry.getKey());
+				FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, browserConverterContext);
+				clientConversionInfo.popNode();
+			}
 		}
 	}
 
@@ -810,7 +829,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 										if (!Utils.equalObjects(record.getValue(dataProviderName), value) ||
 											returnValueAdjustedIncommingValueForRow.value.booleanValue())
 										{
-											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort);
+											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort,
+												Arrays.asList(new String[] { dataProviderName }));
 										}
 									}
 								}
@@ -912,19 +932,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		String sortString = "";
 		if (getFoundset() != null)
 		{
-			Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
 			List<SortColumn> sortColumns = getFoundset().getSortColumns();
 			for (int j = 0; j < sortColumns.size(); j++)
 			{
-				String elementName = null;
-				for (String name : dp.keySet())
-				{
-					if (Utils.equalObjects(dp.get(name), sortColumns.get(j).getDataProviderID()))
-					{
-						elementName = name;
-						break;
-					}
-				}
+				String elementName = getComponentName(sortColumns.get(j).getDataProviderID());
 				if (elementName != null)
 				{
 					sortString += elementName + " " + ((sortColumns.get(j).getSortOrder() == SortColumn.DESCENDING) ? "desc" : "asc");

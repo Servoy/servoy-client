@@ -76,7 +76,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
 	 */
-	public void completeFire(List<Object> entries)
+	public void completeFire(Map<IRecord, List<String>> entries)
 	{
 	}
 

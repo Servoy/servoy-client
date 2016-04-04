@@ -2043,7 +2043,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet pks = pksAndRecords.getPks();
 		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
-		
+
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
 		{
@@ -2107,7 +2107,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (pksAndRecords.getPks().getRowCount() > 0) getRecord(0);
 
 			fireDifference(sizeBefore, sizeAfter);
-			
+
 			// try to preserve selection after load pk list; if not possible select first record
 			if (selectedPK != null)
 			{
@@ -4863,10 +4863,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			fireDifference(numberOfFindStates, getSize());
 
-			if (getSelectedIndex() == -1 && getSize() > 0) {
-                setSelectedIndex(0);
-            }
-			
+			if (getSelectedIndex() == -1 && getSize() > 0)
+			{
+				setSelectedIndex(0);
+			}
+
 			int nfound = findPKs.getRowCount();
 			try
 			{
@@ -5156,6 +5157,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
+	protected void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	{
+		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
+	}
+
 	private void fireFoundSetEvent(final FoundSetEvent e)
 	{
 		if (foundSetEventListeners.size() > 0)
@@ -5242,13 +5248,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
 	 */
-	public void completeFire(List<Object> entries)
+	public void completeFire(Map<IRecord, List<String>> entries)
 	{
 		int start = Integer.MAX_VALUE;
 		int end = -1;
-		for (Object object : entries)
+		List<String> dataproviders = null;
+		for (IRecord record : entries.keySet())
 		{
-			int index = getRecordIndex((IRecord)object);
+			int index = getRecordIndex(record);
 			if (index != -1 && start > index)
 			{
 				start = index;
@@ -5257,10 +5264,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				end = index;
 			}
+			dataproviders = entries.get(record);
 		}
 		if (start != Integer.MAX_VALUE && end != -1)
 		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE);
+			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
 		}
 	}
 

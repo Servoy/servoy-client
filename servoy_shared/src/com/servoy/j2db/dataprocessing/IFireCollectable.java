@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jcompagner
@@ -24,5 +25,5 @@ import java.util.List;
  */
 public interface IFireCollectable
 {
-	void completeFire(List<Object> entries);
+	void completeFire(Map<IRecord, List<String>> entries);
 }

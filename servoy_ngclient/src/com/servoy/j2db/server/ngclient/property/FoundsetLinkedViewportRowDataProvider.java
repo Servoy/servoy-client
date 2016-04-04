@@ -61,6 +61,12 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 		return false;
 	}
 
+	@Override
+	protected boolean containsColumn(String columnName)
+	{
+		return true;
+	}
+
 	/**
 	 * We need this as a separate reference and not only passed when doing toJSON on main property because on foundset changes, the foundset property
 	 * will write at once the changes and keep them as strings... So then we need access to the context at that time.
