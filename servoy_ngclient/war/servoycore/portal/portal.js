@@ -65,12 +65,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							foundsetSetTimeOut2 = null;
 						}
 						foundsetSetTimeOut2 = $timeout(function() {
-							$scope.foundset = newVal;
+							$scope.foundset = newVal == null?EMPTY:newVal;
 						},1);
 					},1);
 				}
 				else {
-					$scope.foundset = newVal;
+					$scope.foundset = newVal == null?EMPTY:newVal;
 				}
 			})
 
@@ -1188,7 +1188,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						var elementSize = null;
 						var timeoutPromise = null;
 						function getNewSize() {
-							var newSize = [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ];
+							var newSize;
+							if ($scope.foundset == EMPTY) newSize = [0,0];
+							else newSize = [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ];
 							if (!elementSize || (newSize[0] != elementSize[0] || newSize[1] != elementSize[1])){
 								elementSize = newSize;
 								$scope.$apply();
