@@ -136,7 +136,7 @@
 		<div ng-if='!getSessionProblemView()' id="mainForm" sablo-tabseq='1' sablo-tabseq-config="{container: true}">
 			<div class="svy-main-window-navigator-container" ng-if="solutionSettings.navigatorForm.name" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
 				ng-include="getNavigatorFormUrl()"></div>
-			<div class="svy-main-window-container" ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
+			<div class="svy-main-window-container" svy-autosave ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
 			<div hiddendiv="true" sablo-tabseq='-2' ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
 		</div>
 		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'>		  
