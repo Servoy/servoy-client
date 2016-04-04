@@ -49,6 +49,9 @@ public abstract class ViewportRowDataProvider
 
 	protected abstract boolean shouldGenerateRowIds();
 
+	/**
+	 *  Returns whether viewport contains dataprovider sent as parameter. Null means all columns, so will return true.
+	 */
 	protected abstract boolean containsColumn(String columnName);
 
 	protected void writeRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
