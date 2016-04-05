@@ -476,8 +476,9 @@ public class WebDataField extends TextField<Object>
 		}
 		if (isEnabled() && isEditable() && Column.mapToDefaultType(dataType) == IColumnTypes.NUMBER)
 		{
-			container.getHeaderResponse().renderOnDomReadyJavascript(
-				"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
+			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
+			container.getHeaderResponse().renderOnDomReadyJavascript("$(function(){$(\"#" + getMarkupId() + //$NON-NLS-1$
+				"\").numpadDecSeparator({useRegionalSettings: false,separator: '" + dfs.getDecimalSeparator() + "'});});"); //$NON-NLS-1$
 		}
 		if (scriptable.getPlaceholderText() != null)
 		{

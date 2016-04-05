@@ -2049,7 +2049,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			selectAll();
 			eventExecutor.skipSelectOnEnter();
 		}
-		if (e.getKeyCode() == KeyEvent.VK_DECIMAL && isEditable())
+		if (e.getKeyCode() == KeyEvent.VK_DECIMAL && isEditable() && Column.mapToDefaultType(dataType) == IColumnTypes.NUMBER)
 		{
 			if (e.getID() == KeyEvent.KEY_PRESSED)
 			{
