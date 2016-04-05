@@ -142,9 +142,13 @@ public class ScriptNameValidator implements IValidateName
 		{
 			throw new RepositoryException("The tab '" + nameToCheck + "' already exists on the tab panel"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		if (obj instanceof LayoutContainer)
+		{
+			throw new RepositoryException("The layout container '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
-	public Object findDuplicate(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext) throws RepositoryException
+	public Object findDuplicate(final String nameToCheck, final int skip_element_id, ValidatorSearchContext searchContext) throws RepositoryException
 	{
 		if (solutionRoot == null)
 		{
@@ -232,6 +236,24 @@ public class ScriptNameValidator implements IValidateName
 					return form;
 				}
 			}
+		}
+
+		if (searchContext.getType() == IRepository.LAYOUTCONTAINERS)
+		{
+			Form form = (Form)((IPersist)searchContext.getObject()).getAncestor(IRepository.FORMS);
+			return form.acceptVisitor(new IPersistVisitor()
+			{
+				@Override
+				public Object visit(IPersist o)
+				{
+					if (o instanceof LayoutContainer && nameToCheck.equalsIgnoreCase(((LayoutContainer)o).getName()) &&
+						((LayoutContainer)o).getID() != skip_element_id)
+					{
+						return o;
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
 		}
 
 		if (searchContext.getObject() instanceof Form && searchContext.getType() != IRepository.ELEMENTS && searchContext.getType() != IRepository.FORMS)

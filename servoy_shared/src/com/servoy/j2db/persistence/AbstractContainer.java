@@ -62,7 +62,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	{
 		if (validateName(arg))
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.FORMS), false);
+			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), getTypeID()), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
