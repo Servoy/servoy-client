@@ -1401,6 +1401,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return getNoTableFoundSet();
 		}
+		else
+		{
+			// make sure inmem table is created
+			getTable(l.getDataSource());
+		}
 
 		FoundSet foundset = separateFoundSets.get(l);
 		if (foundset == null)
@@ -1420,6 +1425,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (dataSource == null || !application.getFlattenedSolution().isMainSolutionLoaded())
 		{
 			return getNoTableFoundSet();
+		}
+		else
+		{
+			// make sure inmem table is created
+			getTable(dataSource);
 		}
 
 		FoundSet foundset = sharedDataSourceFoundSet.get(dataSource);
