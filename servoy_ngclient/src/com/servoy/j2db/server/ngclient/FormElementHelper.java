@@ -34,7 +34,6 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
-import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -520,7 +519,7 @@ public class FormElementHelper
 			}
 		}
 
-		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)flattenedForm.getChild(persistIfAvailable.getUUID()), pd.getName()));
+		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)flattenedForm.findChild(persistIfAvailable.getUUID()), pd.getName()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;
