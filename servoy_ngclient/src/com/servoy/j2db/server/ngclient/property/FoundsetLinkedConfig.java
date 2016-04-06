@@ -49,4 +49,8 @@ public class FoundsetLinkedConfig
 		return forFoundset;
 	}
 
+	public PropertyDescription getWrappedPropertyDescription()
+	{
+		return wrappedPropertyDescription;
+	}
 }
