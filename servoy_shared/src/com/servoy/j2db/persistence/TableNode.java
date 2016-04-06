@@ -38,6 +38,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	private static final long serialVersionUID = 1L;
 
+	private ITable table;
+
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
@@ -172,10 +174,16 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return stn == null ? null : stn[0];
 	}
 
+	public void setTable(ITable table)
+	{
+		this.table = table;
+	}
+
 	ITable getTable() throws RepositoryException
 	{
 		// can we exact this out of this class?
 		// aggregates and script calculations are depending on this (IColumn.getTable())
+		if (table != null) return table;
 		String dataSource = getDataSource();
 		String[] dbServernameTablename = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 		try
