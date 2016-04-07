@@ -788,8 +788,8 @@ public class WebDataField extends TextField<Object>
 			}
 			else
 			{
-				converter = new ValuelistValueConverter(list, this,
-					converter == null ? getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID()) : converter);
+				converter = new ValuelistValueConverter(list, this, (converter == null && mappedType == IColumnTypes.TEXT)
+					? getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID()) : converter);
 			}
 		}
 
