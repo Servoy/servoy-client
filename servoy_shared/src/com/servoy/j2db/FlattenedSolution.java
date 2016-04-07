@@ -238,8 +238,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				{
 					newParent.removeChild(clone);
 				}
-				throw new RuntimeException(
-					"name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " + e.getMessage());
+				throw new RuntimeException("name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " +
+					e.getMessage());
 			}
 		}
 
@@ -619,8 +619,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						solutionAndModuleMetaDatas.add(moduleMetaData);
 					}
 
-					Solution[] mods = activeSolutionHandler.loadActiveSolutions(
-						solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
+					Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
 					setSolutionAndModules(mainSolutionMetaData.getName(), mods);
 				}
 			}
@@ -692,16 +691,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				s.getChangeHandler().addIPersistListener(this);
 			}
 		}
-		// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
-		Iterator<Form> it = getForms(false);
-		while (it.hasNext())
-		{
-			Form childForm = it.next();
-			if (childForm.getExtendsID() > 0)
-			{
-				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
-			}
-		}
+		refreshSuperForms(null);
 	}
 
 	/**
@@ -2278,8 +2268,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
 		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary, onlyGlobalsWhenForeign,
-			onlyLiteralsWhenForeign);
+		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
+			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
@@ -2658,8 +2648,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return null;
 		}
 
-		String relationName = Relation.INTERNAL_PREFIX + "VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + //$NON-NLS-1$
-			valueList.getName() + '-';
+		String relationName = Relation.INTERNAL_PREFIX +
+			"VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + valueList.getName() + '-'; //$NON-NLS-1$
 
 		synchronized (this)
 		{
@@ -2762,11 +2752,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 
 				// add condition for return dp id
-				lastJoin.getCondition().addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR,
-					new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(), destColumn.getType(), destColumn.getLength(),
-						destColumn.getScale(), destColumn.getFlags()),
-					new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength(),
-						callingColumn.getScale(), callingColumn.getFlags())));
+				lastJoin.getCondition().addCondition(
+					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
+						destColumn.getType(), destColumn.getLength(), destColumn.getScale(), destColumn.getFlags()), new QueryColumn(callingQTable,
+						callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength(), callingColumn.getScale(),
+						callingColumn.getFlags())));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
 					ISQLJoin.LEFT_OUTER_JOIN);
@@ -3007,14 +2997,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		while (it.hasNext())
 		{
 			Form childForm = it.next();
-			if (childForm.getID() == persist.getID() || childForm.getExtendsID() == persist.getID())
+			if ((persist != null && childForm.getID() == persist.getID()) ||
+				(childForm.getExtendsID() > 0 && (persist == null || childForm.getExtendsID() == persist.getID())))
 			{
-				// this is an adjustment of a sub form make sure we create a copy first.
-				if (childForm.getID() != persist.getID() && getSolutionCopy().getChild(childForm.getUUID()) == null)
-				{
-					childForm = createPersistCopy(childForm);
-					registerChangedForm(childForm);
-				}
 				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
 			}
 		}
