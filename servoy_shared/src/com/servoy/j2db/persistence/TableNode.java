@@ -38,7 +38,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	private static final long serialVersionUID = 1L;
 
-	private ITable table;
+	private transient ITable table;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
