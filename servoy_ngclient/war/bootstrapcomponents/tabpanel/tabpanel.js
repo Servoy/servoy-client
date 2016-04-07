@@ -41,7 +41,7 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
 					})    		  
     		  }	  
     	  }
-    	  if ($scope.model.tabs && $scope.model.tabs.length >0)
+    	  if ($scope.model.tabs && $scope.model.tabs.length >0 && $scope.model.tabs[0].containedForm)
     	  {
     	   	  $scope.model.tabIndex = 1;
     		  $scope.model.tabs[0].active = true;
