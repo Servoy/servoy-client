@@ -628,10 +628,4 @@ public class LookupValueList implements IValueList
 		}
 		return null;
 	}
-
-	@Override
-	public void reportJSError(String message)
-	{
-		application.reportJSError(message, null);
-	}
 }

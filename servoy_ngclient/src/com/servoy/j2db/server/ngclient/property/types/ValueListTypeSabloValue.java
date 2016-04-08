@@ -73,7 +73,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private final PropertyDescription vlPD;
 	protected BaseWebObject component;
 	private final ComponentFormat format;
-	private List<Map<String, Object>> javaValueForJSON;
 	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
 	public ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID,
@@ -154,8 +153,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	 */
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
 	{
-		if (config.getMaxCount() < valuelistSize && config.shouldLogWhenOverMax())
-			valueList.reportJSError("Valuelist " + valueListName + " fully loaded with " + config.getMaxCount() + " rows, more rows are discarded!!"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (config.getMaxCount() < valuelistSize && config.shouldLogWhenOverMax()) dataAdapterList.getApplication().reportJSError(
+			"Valuelist " + valueListName + " fully loaded with " + config.getMaxCount() + " rows, more rows are discarded!!", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	}
 
@@ -235,8 +234,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		writer.key("values");
 		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
 		writer.endObject();
-		// TODO send these to browser and use them in browser!
-		javaValueForJSON = newJavaValueForJSON;
 	}
 
 	private void revertFilter()

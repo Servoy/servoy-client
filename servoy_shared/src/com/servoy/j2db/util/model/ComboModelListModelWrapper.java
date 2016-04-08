@@ -798,11 +798,6 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			return wrapped.getDependedDataProviders();
 		}
 
-		@Override
-		public void reportJSError(String message)
-		{
-			if (!wrapped.equals(this)) wrapped.reportJSError(message);
-		}
 	}
 
 }

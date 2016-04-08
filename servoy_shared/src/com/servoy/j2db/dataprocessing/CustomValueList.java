@@ -776,10 +776,4 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	{
 		return null;
 	}
-
-	@Override
-	public void reportJSError(String message)
-	{
-		application.reportJSError(message, null);
-	}
 }

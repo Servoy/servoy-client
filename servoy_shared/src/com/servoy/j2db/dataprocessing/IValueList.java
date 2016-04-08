@@ -85,8 +85,4 @@ public interface IValueList extends ListModel
 	 */
 	public IDataProvider[] getDependedDataProviders();
 
-	/**
-	 * @param errorMessage
-	 */
-	public void reportJSError(String errorMessage);
 }

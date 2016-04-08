@@ -252,16 +252,4 @@ public class ColumnBasedValueList implements IValueList
 	{
 		return null;
 	}
-
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IValueList#reportJSWarning(java.lang.String)
-	 */
-	@Override
-	public void reportJSError(String warningMessage)
-	{
-		application.reportJSError(warningMessage, null);
-	}
 }
