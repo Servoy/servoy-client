@@ -32,19 +32,17 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/*
 	 * The most significant 64 bits of this UUID.
-	 * 
+	 *
 	 * @serial
 	 */
 	private long mostSignificantBits;
 
 	/*
 	 * The least significant 64 bits of this UUID.
-	 * 
+	 *
 	 * @serial
 	 */
 	private long leastSignificantBits;
-
-	private boolean lowerCase = false;
 
 	/*
 	 * The random number generator used by this class to create random based UUIDs.
@@ -75,7 +73,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	/**
 	 * Constructs a new <tt>UUID</tt> using the specified data. <tt>mostSigBits</tt> is used for the most significant 64 bits of the <tt>UUID</tt> and
 	 * <tt>leastSigBits</tt> becomes the least significant 64 bits of the <tt>UUID</tt>.
-	 * 
+	 *
 	 * @param mostSigBits
 	 * @param leastSigBits
 	 */
@@ -85,17 +83,11 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 		this.leastSignificantBits = leastSigBits;
 	}
 
-	public UUID(long mostSigBits, long leastSigBits, boolean lowerCase)
-	{
-		this(mostSigBits, leastSigBits);
-		this.lowerCase = lowerCase;
-	}
-
 	/**
 	 * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
-	 * 
+	 *
 	 * The <code>UUID</code> is generated using a cryptographically strong pseudo random number generator.
-	 * 
+	 *
 	 * @return a randomly generated <tt>UUID</tt>.
 	 */
 	public static UUID randomUUID()
@@ -117,7 +109,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * Creates a <tt>UUID</tt> from the string standard representation as described in the {@link #toString} method.
-	 * 
+	 *
 	 * @param name a string that specifies a <tt>UUID</tt>.
 	 * @return a <tt>UUID</tt> with the specified value.
 	 * @throws IllegalArgumentException if name does not conform to the string representation as described in {@link #toString}.
@@ -139,14 +131,14 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 		leastSigBits <<= 48;
 		leastSigBits |= Long.decode(components[4]).longValue();
 
-		return new UUID(mostSigBits, leastSigBits, name.toLowerCase().equals(name));
+		return new UUID(mostSigBits, leastSigBits);
 	}
 
 	// Field Accessor Methods
 
 	/**
 	 * Returns the least significant 64 bits of this UUID's 128 bit value.
-	 * 
+	 *
 	 * @return the least significant 64 bits of this UUID's 128 bit value.
 	 */
 	public long getLeastSignificantBits()
@@ -156,7 +148,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * Returns the most significant 64 bits of this UUID's 128 bit value.
-	 * 
+	 *
 	 * @return the most significant 64 bits of this UUID's 128 bit value.
 	 */
 	public long getMostSignificantBits()
@@ -176,7 +168,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * The version number associated with this <tt>UUID</tt>. The version number describes how this <tt>UUID</tt> was generated.
-	 * 
+	 *
 	 * The version number has the following meaning:
 	 * <p>
 	 * <ul>
@@ -185,7 +177,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	 * <li>3 Name-based UUID
 	 * <li>4 Randomly generated UUID
 	 * </ul>
-	 * 
+	 *
 	 * @return the version number of this <tt>UUID</tt>.
 	 */
 	public int version()
@@ -195,7 +187,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * The variant number associated with this <tt>UUID</tt>. The variant number describes the layout of the <tt>UUID</tt>.
-	 * 
+	 *
 	 * The variant number has the following meaning:
 	 * <p>
 	 * <ul>
@@ -204,7 +196,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	 * <li>6 Reserved, Microsoft Corporation backward compatibility
 	 * <li>7 Reserved for future definition
 	 * </ul>
-	 * 
+	 *
 	 * @return the variant number of this <tt>UUID</tt>.
 	 */
 	public int variant()
@@ -226,15 +218,15 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * The timestamp value associated with this UUID.
-	 * 
+	 *
 	 * <p>
 	 * The 60 bit timestamp value is constructed from the time_low, time_mid, and time_hi fields of this <tt>UUID</tt>. The resulting timestamp is measured in
 	 * 100-nanosecond units since midnight, October 15, 1582 UTC.
 	 * <p>
-	 * 
+	 *
 	 * The timestamp value is only meaningful in a time-based UUID, which has version type 1. If this <tt>UUID</tt> is not a time-based UUID then this method
 	 * throws UnsupportedOperationException.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException if this UUID is not a version 1 UUID.
 	 */
 	public long timestamp()
@@ -252,15 +244,15 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * The clock sequence value associated with this UUID.
-	 * 
+	 *
 	 * <p>
 	 * The 14 bit clock sequence value is constructed from the clock sequence field of this UUID. The clock sequence field is used to guarantee temporal
 	 * uniqueness in a time-based UUID.
 	 * <p>
-	 * 
+	 *
 	 * The clockSequence value is only meaningful in a time-based UUID, which has version type 1. If this UUID is not a time-based UUID then this method throws
 	 * UnsupportedOperationException.
-	 * 
+	 *
 	 * @return the clock sequence of this <tt>UUID</tt>.
 	 * @throws UnsupportedOperationException if this UUID is not a version 1 UUID.
 	 */
@@ -275,15 +267,15 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * The node value associated with this UUID.
-	 * 
+	 *
 	 * <p>
 	 * The 48 bit node value is constructed from the node field of this UUID. This field is intended to hold the IEEE 802 address of the machine that generated
 	 * this UUID to guarantee spatial uniqueness.
 	 * <p>
-	 * 
+	 *
 	 * The node value is only meaningful in a time-based UUID, which has version type 1. If this UUID is not a time-based UUID then this method throws
 	 * UnsupportedOperationException.
-	 * 
+	 *
 	 * @return the node value of this <tt>UUID</tt>.
 	 * @throws UnsupportedOperationException if this UUID is not a version 1 UUID.
 	 */
@@ -300,10 +292,10 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * Returns a <code>String</code> object representing this <code>UUID</code>.
-	 * 
+	 *
 	 * <p>
 	 * The UUID string representation is as described by this BNF :
-	 * 
+	 *
 	 * <pre>
 	 *     UUID                   = &lt;time_low&gt; &quot;-&quot; &lt;time_mid&gt; &quot;-&quot;
 	 *                              &lt;time_high_and_version&gt; &quot;-&quot;
@@ -320,7 +312,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	 *           | &quot;a&quot; | &quot;b&quot; | &quot;c&quot; | &quot;d&quot; | &quot;e&quot; | &quot;f&quot;
 	 *           | &quot;A&quot; | &quot;B&quot; | &quot;C&quot; | &quot;D&quot; | &quot;E&quot; | &quot;F&quot;
 	 * </pre>
-	 * 
+	 *
 	 * @return a string representation of this <tt>UUID</tt>.
 	 */
 	@Override
@@ -336,7 +328,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 		sb.append(digits(leastSignificantBits >> 48, 4));
 		sb.append('-');
 		sb.append(digits(leastSignificantBits, 12));
-		return lowerCase ? sb.toString() : sb.toString().toUpperCase();
+		return sb.toString().toUpperCase();
 	}
 
 	/** Returns val represented by the specified number of hex digits. */
@@ -348,7 +340,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * Returns a hash code for this <code>UUID</code>.
-	 * 
+	 *
 	 * @return a hash code value for this <tt>UUID</tt>.
 	 */
 	@Override
@@ -360,7 +352,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	/**
 	 * Compares this object to the specified object. The result is <tt>true</tt> if and only if the argument is not <tt>null</tt>, is a <tt>UUID</tt> object,
 	 * has the same variant, and contains the same value, bit for bit, as this <tt>UUID</tt>.
-	 * 
+	 *
 	 * @param obj the object to compare with.
 	 * @return <code>true</code> if the objects are the same; <code>false</code> otherwise.
 	 */
@@ -379,10 +371,10 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * Compares this UUID with the specified UUID.
-	 * 
+	 *
 	 * <p>
 	 * The first of two UUIDs follows the second if the most significant field in which the UUIDs differ is greater for the first UUID.
-	 * 
+	 *
 	 * @param otherUUID <tt>UUID</tt> to which this <tt>UUID</tt> is to be compared.
 	 * @return -1, 0 or 1 as this <tt>UUID</tt> is less than, equal to, or greater than <tt>other</tt>.
 	 */
@@ -396,7 +388,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	/**
 	 * Convert to byte array, compatible with UUID(byte[])
-	 * 
+	 *
 	 * @return the result byte array
 	 */
 	public byte[] toBytes()
