@@ -5,7 +5,7 @@
 	"definition": "div.json",
 	"contains": ["bootstrapcomponents.*","12grid.div"],
 	"topContainer": true,
-	"categoryName":"Advanced",
+	"categoryName":"Templates",
 	"icon": "12grid/customdiv.png",
 	"tagType":"div",
 	"model": {
