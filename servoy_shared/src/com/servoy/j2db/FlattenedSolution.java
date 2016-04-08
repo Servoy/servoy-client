@@ -114,7 +114,7 @@ import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * Runtime object which represents the entire solution, flattened, containing modules, caching stuff
- * 
+ *
  * @author jcompagner,jblok
  */
 public class FlattenedSolution implements IPersistListener, IDataProviderHandler, IRelationProvider, ISupportScriptProviders, IMediaProvider
@@ -234,8 +234,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				{
 					newParent.removeChild(clone);
 				}
-				throw new RuntimeException("name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " +
-					e.getMessage());
+				throw new RuntimeException(
+					"name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " + e.getMessage());
 			}
 		}
 
@@ -612,7 +612,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						solutionAndModuleMetaDatas.add(moduleMetaData);
 					}
 
-					Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
+					Solution[] mods = activeSolutionHandler.loadActiveSolutions(
+						solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
 					setSolutionAndModules(mainSolutionMetaData.getName(), mods);
 				}
 			}
@@ -673,7 +674,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				synchronized (modStyles)
 				{
 					Map<String, Style> allStyles = getAllStyles();
-					synchronized (allStyles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards) 
+					synchronized (allStyles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards)
 					{
 						allStyles.putAll(modStyles);
 					}
@@ -697,7 +698,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private Map<String, Style> getAllStyles()
 	{
@@ -795,7 +796,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/*
 	 * Get a flattened form from this flattened solution.
-	 * 
+	 *
 	 * <p>When the form does not have a parent, the form itself is returned
 	 */
 	public Form getFlattenedForm(IPersist persist)
@@ -906,7 +907,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Check whether a form can be instantiated.
-	 * 
+	 *
 	 * @param form
 	 * @return
 	 */
@@ -1352,7 +1353,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * @return
-	 * @throws RepositoryException 
+	 * @throws RepositoryException
 	 */
 	protected IDataProvider getEnumDataProvider(String id) throws RepositoryException
 	{
@@ -1415,7 +1416,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				dataProvidersMap.put(col.getDataProviderID(), col);
 			}
 
-			//2) last the scriptcalculations and aggregates so the overlap the columns in case of stored calcs			
+			//2) last the scriptcalculations and aggregates so the overlap the columns in case of stored calcs
 			Iterator<TableNode> tableNodes = getTableNodes(table);
 			while (tableNodes.hasNext())
 			{
@@ -1710,7 +1711,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Get relations from string rel1.rel2. ... .reln
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -1772,7 +1773,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Search for a persist by UUID in the main solution and all modules.
-	 * 
+	 *
 	 * @param uuid
 	 * @return
 	 */
@@ -1811,7 +1812,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Search for a persist in the parent tree in the main solution and all modules.
-	 * 
+	 *
 	 * @param persist
 	 * @return
 	 */
@@ -2063,7 +2064,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					// if this is hit here with a normal (not flattened form) that has an extend.
 					// and that form is a solution modal form. the f.getSolution() doesn't have to find it.
 					// because f.getSolution() is the copy solution thats inside the FlattenedSolution.
-					// that one doesn't have any other forms. But normally all forms should be flattened. 
+					// that one doesn't have any other forms. But normally all forms should be flattened.
 					extendedForm = flattenedSolution == null ? form.getSolution().getForm(extended_form_id) : flattenedSolution.getForm(extended_form_id);
 					if (flattenedSolution == null && extendedForm == null) // check for module form
 					{
@@ -2320,8 +2321,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
 		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
-			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
+		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary, onlyGlobalsWhenForeign,
+			onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
@@ -2383,7 +2384,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			// the form cache was null, try to create it
 			fillFormCaches();
-			// can become null if a flush did happen in the mean time, then try again 
+			// can become null if a flush did happen in the mean time, then try again
 			tmp = formCacheById;
 		}
 		return tmp.get(id);
@@ -2669,7 +2670,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						if (r.getJoinType() != ISQLJoin.INNER_JOIN)
 						{
 							// disabled related vl sorting for muti-level related VLs,
-							// outer join on the intermediate tables causes extra results that influence the sorting result 
+							// outer join on the intermediate tables causes extra results that influence the sorting result
 							return null;
 						}
 					}
@@ -2700,8 +2701,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return null;
 		}
 
-		String relationName = Relation.INTERNAL_PREFIX +
-			"VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + valueList.getName() + '-'; //$NON-NLS-1$
+		String relationName = Relation.INTERNAL_PREFIX + "VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + //$NON-NLS-1$
+			valueList.getName() + '-';
 
 		synchronized (this)
 		{
@@ -2804,10 +2805,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 
 				// add condition for return dp id
-				lastJoin.getCondition().addCondition(
-					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
-						destColumn.getType(), destColumn.getLength()), new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(),
-						callingColumn.getType(), callingColumn.getLength())));
+				lastJoin.getCondition().addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR,
+					new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(), destColumn.getType(), destColumn.getLength()),
+					new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength())));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
 					ISQLJoin.LEFT_OUTER_JOIN);
@@ -2925,7 +2925,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * @param form
-	 * @param application 
+	 * @param application
 	 */
 	public void registerChangedForm(Form form)
 	{
@@ -2966,7 +2966,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("nls")
 	public void checkStateForms(IServiceProvider provider)
@@ -3044,19 +3044,22 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	private void refreshSuperForms(IPersist persist)
 	{
-		Iterator<Form> it = getForms(false);
-		while (it.hasNext())
+		if (persist != null)
 		{
-			Form childForm = it.next();
-			if (childForm.getID() == persist.getID() || childForm.getExtendsID() == persist.getID())
+			Iterator<Form> it = getForms(false);
+			while (it.hasNext())
 			{
-				// this is an adjustment of a sub form make sure we create a copy first.
-				if (childForm.getID() != persist.getID() && getSolutionCopy().getChild(childForm.getUUID()) == null)
+				Form childForm = it.next();
+				if (childForm.getID() == persist.getID() || childForm.getExtendsID() == persist.getID())
 				{
-					childForm = createPersistCopy(childForm);
-					registerChangedForm(childForm);
+					// this is an adjustment of a sub form make sure we create a copy first.
+					if (childForm.getID() != persist.getID() && getSolutionCopy().getChild(childForm.getUUID()) == null)
+					{
+						childForm = createPersistCopy(childForm);
+						registerChangedForm(childForm);
+					}
+					childForm.setExtendsForm(getForm(childForm.getExtendsID()));
 				}
-				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
 			}
 		}
 	}
