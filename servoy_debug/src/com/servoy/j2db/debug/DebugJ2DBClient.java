@@ -825,6 +825,12 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		saveSettings();
 	}
 
+	public void shutDownAndDispose()
+	{
+		shutDown = true;
+		super.shutDown(true);
+	}
+
 	/**
 	 * @see com.servoy.j2db.smart.J2DBClient#getActions()
 	 */

@@ -803,7 +803,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		currentSolution = solution;
 		if (debugJ2DBClient != null)
 		{
-			debugJ2DBClient.shutDown(true);
+			debugJ2DBClient.shutDownAndDispose();
 			debugJ2DBClient = null;
 		}
 		if (debugWebClient != null)
