@@ -1965,7 +1965,7 @@ public class Form extends AbstractContainer
 
 	public long getLastModified()
 	{
-		if (getExtendsForm() != null) return getExtendsForm().getLastModified() + lastModified;
+		if (getExtendsForm() != null) return Math.max(getExtendsForm().getLastModified(), lastModified);
 		return lastModified;
 	}
 
