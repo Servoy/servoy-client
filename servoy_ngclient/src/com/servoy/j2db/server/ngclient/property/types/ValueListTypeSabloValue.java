@@ -104,8 +104,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		List<Map<String, Object>> jsonValue = null;
 		if (filteredValuelist != null)
 		{
-			List<Map<String, Object>> array = new ArrayList<>(filteredValuelist.getSize());
-			for (int i = 0; i < filteredValuelist.getSize(); i++)
+			int size = Math.min(config.getMaxCount(), filteredValuelist.getSize());
+			List<Map<String, Object>> array = new ArrayList<>(size);
+			for (int i = 0; i < size; i++)
 			{
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", filteredValuelist.getRealElementAt(i));
@@ -118,12 +119,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 				array.add(map);
 			}
+			logMaxSizeExceptionIfNecessary(filteredValuelist.getValueList().getName(), filteredValuelist.getSize());
 			jsonValue = array;
 		}
 		else
 		{
-			List<Map<String, Object>> array = new ArrayList<>(valueList.getSize());
-			for (int i = 0; i < valueList.getSize(); i++)
+			int size = Math.min(config.getMaxCount(), valueList.getSize());
+			List<Map<String, Object>> array = new ArrayList<>(size);
+			for (int i = 0; i < size; i++)
 			{
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", valueList.getRealElementAt(i));
@@ -138,10 +141,22 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				}
 				array.add(map);
 			}
+			logMaxSizeExceptionIfNecessary(valueList.getName(), valueList.getSize());
 			jsonValue = array;
 		}
 
 		return jsonValue;
+	}
+
+	/**
+	 * @param valuelistSize
+	 *
+	 */
+	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
+	{
+		if (config.getMaxCount() < valuelistSize && config.shouldLogWhenOverMax())
+			valueList.reportJSError("Valuelist " + valueListName + " fully loaded with " + config.getMaxCount() + " rows, more rows are discarded!!"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
 	}
 
 	@Override

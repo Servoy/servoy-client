@@ -106,7 +106,7 @@ public class SpecGenerator
 			"SELECT16.png",
 			IRepository.FIELDS,
 			IRuntimeCombobox.class,
-			new String[] { "{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.js\", \"mimetype\":\"text/javascript\"},{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.css\", \"mimetype\":\"text/css\"}"
+			new String[] { "{\"name\":\"ui-select\", \"version\":\"0.8.1\", \"url\":\"servoydefault/combobox/lib/select.js\", \"mimetype\":\"text/javascript\"},{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.css\", \"mimetype\":\"text/css\"}"
 				// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
 		specTemplateList.add(new SpecTemplateModel("label", "Label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
@@ -398,7 +398,7 @@ public class SpecGenerator
 			{
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "divLocation", IRepository.INTEGER, Integer.valueOf(-1)));
-				model.add(cs.new Element(-1, IRepository.FIELDS, "divSize", IRepository.INTEGER, Integer.valueOf(-1)));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "divSize", IRepository.INTEGER, Integer.valueOf(5)));
 				model.add(cs.new Element(-1, IRepository.FIELDS, "resizeWeight", IRepository.INTEGER, Integer.valueOf(-1)));
 				model.add(cs.new Element(-1, IRepository.FIELDS, "pane1MinSize", IRepository.INTEGER, Integer.valueOf(-1)));
 				model.add(cs.new Element(-1, IRepository.FIELDS, "pane2MinSize", IRepository.INTEGER, Integer.valueOf(-1)));
@@ -599,6 +599,7 @@ public class SpecGenerator
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
+		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\", \"logWhenOverMax\":true}, \"for\": \"dataProviderID\", \"max\":500}");
 		comboTypeMapping.put("findmode", findModeEditable);
 		comboTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("combobox", comboTypeMapping);
@@ -684,7 +685,8 @@ public class SpecGenerator
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"enabled\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		splitpaneMapping.put("divLocation", "{ \"type\": \"double\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\", \"default\": -1 }");
-		splitpaneMapping.put("divSize", "{ \"type\": \"int\", \"default\": -1 }");
+		splitpaneMapping.put("divSize", "{ \"type\": \"int\", \"default\": 5 }");
+		splitpaneMapping.put("tabs", "{\"type\":\"tab[]\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"droppable\":true}");
 		splitpaneMapping.put("resizeWeight","{\"type\":\"double\",\"default\":0}");
 		splitpaneMapping.put("pane1MinSize","{\"type\":\"int\",\"default\":30}");
 		splitpaneMapping.put("pane2MinSize","{\"type\":\"int\",\"default\":30}");
@@ -726,7 +728,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}, \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), "{\"type\" :\"point\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.deep + "\"}");
-		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\" }, \"for\": \"dataProviderID\", \"default\":\"autoVL\"}");
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\", \"logWhenOverMax\":false}, \"for\": \"dataProviderID\", \"default\":\"autoVL\", \"max\":50}");
 		typeaheadTypeMapping.put("findmode", findModeEditable);
 		typeaheadTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
@@ -751,7 +753,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "{\"type\" :\"tabseq\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "labelfor");
-		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"droppable\":true}");
+		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\", \"droppable\":true}");
 		repoTypeMappingExceptions.put("tabIndex", "{ \"type\": \"object\", \"" + WebObjectSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.shallow + "\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }}");

@@ -24,13 +24,18 @@ public class ValueListConfig
 {
 	private final String dataprovider;
 	private final String defaultValue;
+	private final int maxCount;
+	private final boolean logMax;
 
-	public ValueListConfig(String dataprovider, String def)
+	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax)
 	{
 		super();
 		this.dataprovider = dataprovider;
 		this.defaultValue = def;
+		this.maxCount = maxCount;
+		this.logMax = logMax;
 	}
+
 
 	public String getFor()
 	{
@@ -40,5 +45,15 @@ public class ValueListConfig
 	public String getDefaultValue()
 	{
 		return defaultValue;
+	}
+
+	public int getMaxCount()
+	{
+		return maxCount;
+	}
+
+	public boolean shouldLogWhenOverMax()
+	{
+		return logMax;
 	}
 }

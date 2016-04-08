@@ -40,9 +40,11 @@ public class ColumnBasedValueList implements IValueList
 	private final LookupListModel dlm;
 	private final String dataProviderID;
 	private boolean fillFirstTime;
+	private final IApplication application;
 
 	public ColumnBasedValueList(IApplication application, String serverName, String tableName, String dataProviderID)
 	{
+		this.application = application;
 		dlm = new LookupListModel(application, serverName, tableName, dataProviderID);
 		this.dataProviderID = dataProviderID;
 		fillFirstTime = true;
@@ -249,5 +251,17 @@ public class ColumnBasedValueList implements IValueList
 	public IDataProvider[] getDependedDataProviders()
 	{
 		return null;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IValueList#reportJSWarning(java.lang.String)
+	 */
+	@Override
+	public void reportJSError(String warningMessage)
+	{
+		application.reportJSError(warningMessage, null);
 	}
 }

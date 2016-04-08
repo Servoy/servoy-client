@@ -95,12 +95,27 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		String dataprovider = "";
 		String def = null;
+		int max = Integer.MAX_VALUE;
+		boolean logMax = true;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
+			if (json.has("max")) max = json.optInt("max");
+			if (json.has("tags"))
+			{
+				try
+				{
+					JSONObject tags = json.getJSONObject("tags");
+					if (tags.has("logWhenOverMax")) logMax = tags.getBoolean("logWhenOverMax");
+				}
+				catch (JSONException e)
+				{
+					Debug.log(e);
+				}
+			}
 		}
-		return new ValueListConfig(dataprovider, def);
+		return new ValueListConfig(dataprovider, def, max, logMax);
 	}
 
 	@Override
