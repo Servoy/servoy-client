@@ -55,6 +55,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.table = table;
 	}
 
+	@Override
+	public boolean supportsLimit()
+	{
+		return true;
+	}
+
 
 	public ArrayList<IQuerySelectValue> getColumns()
 	{
@@ -807,8 +813,8 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, new Byte((byte)(distinct ? 1 : 0 +
-			(plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy });
+		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, new Byte(
+			(byte)(distinct ? 1 : 0 + (plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy });
 	}
 
 	@SuppressWarnings("unchecked")

@@ -22,9 +22,9 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 
 /**
  * Select statement based on user-defined string and arguments.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QueryCustomSelect extends QueryCustomElement implements ISQLSelect, Immutable
 {
@@ -39,6 +39,13 @@ public final class QueryCustomSelect extends QueryCustomElement implements ISQLS
 	public QueryCustomSelect(String sql)
 	{
 		super(sql);
+	}
+
+	@Override
+	public boolean supportsLimit()
+	{
+		// do not add limit or offset to the sql, this may break the semantics when we have stuff like union.
+		return false;
 	}
 
 	///////// serialization ////////////////

@@ -20,13 +20,15 @@ import com.servoy.base.query.IQueryValues;
 
 /**
  * Common interface for all selects.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public interface ISQLSelect extends ISQLQuery, IQueryValues
 {
 	static final int LOCK_MODE_NONE = 0;
 	static final int LOCK_MODE_LOCK_BLOCK = 1;
 	static final int LOCK_MODE_LOCK_NOWAIT = 2;
+
+	boolean supportsLimit();
 }
