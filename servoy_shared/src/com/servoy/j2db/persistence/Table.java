@@ -125,7 +125,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	@Override
 	public int hashCode()
 	{
-		return (serverName.hashCode() / 2) + (plainSQLName.hashCode() / 2);
+		return (serverName.hashCode() / 2) + (plainSQLName.toLowerCase().hashCode() / 2);
 	}
 
 /*
