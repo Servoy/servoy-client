@@ -375,7 +375,17 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (conversionInfo && conversionInfo[property]) {
 				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], conversionInfo[property], undefined);
 			} else {
-				changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
+				var dpValue = null;
+				if (property.indexOf('.') > 0)
+				{
+					//nested property
+					dpValue = eval('formState.model[beanname].'+property)
+				}
+				else
+				{
+					dpValue = formState.model[beanname][property];
+				}	
+				changes[property] = $sabloUtils.convertClientObject(dpValue);
 			}
 			$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
 		}

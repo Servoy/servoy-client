@@ -42,6 +42,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
@@ -121,6 +122,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (component != null)
 		{
 			return (FoundsetTypeSabloValue)component.getProperty(forFoundsetPropertyName);
+		}
+		return null;
+	}
+
+	public IFoundSetInternal getFoundset()
+	{
+		if (component != null)
+		{
+			Object property = component.getProperty(forFoundsetPropertyName);
+			if (property instanceof FoundsetTypeSabloValue)
+			{
+				return ((FoundsetTypeSabloValue)property).getFoundset();
+			}
 		}
 		return null;
 	}
@@ -240,7 +254,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			((IDataLinkedPropertyValue)wrappedSabloValue).dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
 	}
 
-	protected YT getWrappedValue()
+	public YT getWrappedValue()
 	{
 		return wrappedSabloValue;
 	}
@@ -396,7 +410,15 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			Debug.error("Trying to update state for an uninitialized foundset linked property: " + wrappedPropertyDescription + " | " + component);
 			return;
 		}
-
+		if (!(newJSONValue instanceof JSONArray))
+		{
+			// is a data push
+			if (wrappedSabloValue instanceof DataproviderTypeSabloValue)
+			{
+				((DataproviderTypeSabloValue)wrappedSabloValue).browserUpdateReceived(newJSONValue, dataConverterContext);
+			}
+			return;
+		}
 		if ((wrappedPropertyDescription instanceof IPushToServerSpecialType &&
 			((IPushToServerSpecialType)wrappedPropertyDescription).shouldAlwaysAllowIncommingJSON()) || PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 		{

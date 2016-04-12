@@ -48,6 +48,8 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -655,6 +657,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		Object propertyValue = webComponent.getProperty(beanProperty);
 		if (propertyValue instanceof DataproviderTypeSabloValue) return ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
+		if (propertyValue instanceof FoundsetLinkedTypeSabloValue &&
+			((FoundsetLinkedTypeSabloValue)propertyValue).getWrappedValue() instanceof DataproviderTypeSabloValue)
+			return ((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)propertyValue).getWrappedValue()).getDataProviderID();
 		return null;
 	}
 
@@ -673,11 +678,24 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// Check security
 		webComponent.checkPropertyProtection(beanProperty);
 
+		IRecordInternal editingRecord = record;
+
+		if (newValue instanceof FoundsetLinkedTypeSabloValue)
+		{
+			int index = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getSelectedIndex();
+			if (beanProperty.endsWith("]"))
+			{
+				index = Utils.getAsInteger(beanProperty.substring(beanProperty.lastIndexOf('[') + 1, beanProperty.length() - 1));
+			}
+			editingRecord = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getRecord(index);
+
+			newValue = ((FoundsetLinkedTypeSabloValue)newValue).getWrappedValue();
+		}
 		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
 
 		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
 		// but what if it was a global or form variable?
-		if (record == null || record.startEditing())
+		if (editingRecord == null || editingRecord.startEditing())
 		{
 			Object v;
 			// if the value is a map, then it means, that a set of related properties needs to be updated,
@@ -692,7 +710,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					Entry< ? , ? > e = newValueIte.next();
 					if (!"".equals(e.getKey()))
 					{
-						com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), dataProviderID + e.getKey(),
+						com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID + e.getKey(),
 							e.getValue());
 					}
 				}
@@ -701,12 +719,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				v = newValue;
 			}
-			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), dataProviderID, v);
-			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
-				beanProperty).getConfig()).getOnDataChange();
+			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
+			Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
+			if (config instanceof FoundsetLinkedConfig)
+			{
+				config = ((FoundsetLinkedConfig)config).getWrappedPropertyDescription().getConfig();
+			}
+			String onDataChange = ((DataproviderConfig)config).getOnDataChange();
 			if (onDataChange != null && !Utils.equalObjects(oldValue, v) && webComponent.hasEvent(onDataChange))
 			{
-				JSONObject event = EventExecutor.createEvent(onDataChange, record.getParentFoundSet().getSelectedIndex());
+				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
 				Object returnValue = null;
 				Exception exception = null;
 				try
