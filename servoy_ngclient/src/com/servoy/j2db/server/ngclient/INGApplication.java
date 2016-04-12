@@ -18,7 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.sablo.IChangeListener;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 
 import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.util.Pair;
@@ -41,7 +41,7 @@ public interface INGApplication extends INGClientApplication
 
 	void changesWillBeSend();
 
-	Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] arguments);
+	Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments);
 
 	void onStopSubAction(Pair<UUID, UUID> perfId);
 }

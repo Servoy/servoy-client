@@ -65,7 +65,7 @@ public class JSNGWebComponent extends JSWebComponent
 			{
 				WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 				PropertyDescription pd = spec.getProperty(propertyName);
-				if (pd == null) pd = spec.getHandler(propertyName);
+				if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 				{
 					value = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, this);
@@ -113,7 +113,7 @@ public class JSNGWebComponent extends JSWebComponent
 		if (spec != null)
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
-			if (pd == null) pd = spec.getHandler(propertyName);
+			if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
 			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 			{
 				return ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);

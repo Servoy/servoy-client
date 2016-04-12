@@ -31,7 +31,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
@@ -300,7 +300,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	protected void focusField(String fieldName, boolean skipReadonly)
 	{
 		WebComponent component = null;
-		WebObjectApiDefinition apiFunction = null;
+		WebObjectFunctionDefinition apiFunction = null;
 		if (fieldName != null)
 		{
 			component = formUI.getComponent(fieldName);

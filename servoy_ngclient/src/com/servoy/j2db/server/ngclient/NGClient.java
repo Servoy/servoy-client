@@ -26,7 +26,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -572,7 +572,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
 			for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 			{
-				WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+				WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
 				if (apiFunction != null && getScriptEngine() != null)
 				{
 					PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
@@ -1388,7 +1388,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] arguments)
+	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
 	{
 		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),

@@ -27,7 +27,7 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
 import org.sablo.websocket.CurrentWindow;
@@ -97,7 +97,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	protected Object invokeApi(WebComponent receiver, WebObjectApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
+	protected Object invokeApi(WebComponent receiver, WebObjectFunctionDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
 		Map<String, Object> callContributions)
 	{
 		Map<String, Object> call = new HashMap<>();
@@ -355,7 +355,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments, WebObjectApiDefinition apiFunction,
+	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments, WebObjectFunctionDefinition apiFunction,
 		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
 	{
 		Pair<UUID, UUID> perfId = getClient().onStartSubAction(serviceName, functionName, apiFunction, arguments);

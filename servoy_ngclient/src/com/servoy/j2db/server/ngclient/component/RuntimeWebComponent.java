@@ -37,7 +37,7 @@ import org.mozilla.javascript.Undefined;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
@@ -97,7 +97,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		}
 		if (webComponentSpec != null)
 		{
-			for (WebObjectApiDefinition def : webComponentSpec.getApiFunctions().values())
+			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
 			{
 				Function func = null;
 				if (apiObject != null)
@@ -264,7 +264,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					Object retValue = func.call(cx, scope, thisObj, args);
 					if (!(func instanceof WebComponentFunction))
 					{
-						WebObjectApiDefinition def = webComponentSpec.getApiFunctions().get(name);
+						WebObjectFunctionDefinition def = webComponentSpec.getApiFunctions().get(name);
 						retValue = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(retValue, def.getReturnType(), component, null);
 					}
 					updateVisibleContainers(oldVisibleForms);

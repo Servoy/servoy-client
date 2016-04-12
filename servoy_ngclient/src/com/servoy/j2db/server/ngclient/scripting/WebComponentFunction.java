@@ -21,7 +21,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -36,7 +36,7 @@ public class WebComponentFunction extends WebBaseFunction
 {
 	private final WebFormComponent component;
 
-	public WebComponentFunction(WebFormComponent component, WebObjectApiDefinition definition)
+	public WebComponentFunction(WebFormComponent component, WebObjectFunctionDefinition definition)
 	{
 		super(definition);
 		this.component = component;

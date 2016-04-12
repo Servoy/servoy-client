@@ -19,7 +19,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
@@ -722,7 +722,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
-					WebObjectApiDefinition call = new WebObjectApiDefinition(onDataChangeCallback);
+					WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
 					call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
 					call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
 					call.addParameter(new PropertyDescription("exception", TypesRegistry.getType("object")));

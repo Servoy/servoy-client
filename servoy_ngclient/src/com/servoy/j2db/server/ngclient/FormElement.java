@@ -37,6 +37,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.BaseSpecProvider.ISpecReloadListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
@@ -197,7 +198,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	 * This is part of 'Conversion 1' (see {@link NGConversions})
 	 */
 	protected void convertFromJSONToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
-		Map<String, PropertyDescription> eventProperties, JSONObject propertyDesignJSONValues, PropertyPath propertyPath) throws JSONException
+		Map<String, WebObjectFunctionDefinition> eventProperties, JSONObject propertyDesignJSONValues, PropertyPath propertyPath) throws JSONException
 	{
 		Iterator keys = propertyDesignJSONValues.keys();
 		while (keys.hasNext())
@@ -219,7 +220,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	 * persist property values are always assumed to not need "Conversion 1"
 	 */
 	protected void convertFromPersistPrimitivesToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties,
-		Map<String, PropertyDescription> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
+		Map<String, WebObjectFunctionDefinition> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
 	{
 		Iterator<String> keys = properties.keySet().iterator();
 		while (keys.hasNext())
@@ -236,13 +237,13 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	}
 
 	protected PropertyDescription getPropertyOrEvent(String key, Map<String, PropertyDescription> specProperties,
-		Map<String, PropertyDescription> eventProperties)
+		Map<String, WebObjectFunctionDefinition> eventProperties)
 	{
 		PropertyDescription pd = specProperties.get(key);
 		if (pd == null && eventProperties != null)
 		{
 			// or an event
-			pd = eventProperties.get(key);
+			if (eventProperties.get(key) != null) pd = eventProperties.get(key).getAsPropertyDescription();
 		}
 		return pd;
 	}

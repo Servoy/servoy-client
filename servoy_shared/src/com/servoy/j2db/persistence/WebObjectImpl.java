@@ -231,8 +231,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		if (getPropertyDescription() != null)
 		{
 			PropertyDescription childPd = getChildPropertyDescription(propertyName);
-			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
-				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification &&
+				((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName) != null)
+				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName).getAsPropertyDescription();
 			if (childPd != null)
 			{
 				IPropertyType< ? > propertyType = childPd.getType();
@@ -279,7 +280,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			// depends on this in the end (the same for WebComponentPropertySource)
 			PropertyDescription childPd = getChildPropertyDescription(propertyName);
 			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
-				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
+			{
+				if (((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName) != null)
+					childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName).getAsPropertyDescription();
+			}
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
@@ -315,8 +319,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		if (getPropertyDescription() != null)
 		{
 			PropertyDescription childPd = getChildPropertyDescription(propertyName);
-			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
-				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName);
+			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification &&
+				((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName) != null)
+				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName).getAsPropertyDescription();
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist

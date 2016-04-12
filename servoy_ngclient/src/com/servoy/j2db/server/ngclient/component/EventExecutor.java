@@ -26,6 +26,12 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.util.ValueReference;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
@@ -42,6 +48,7 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -165,6 +172,20 @@ public class EventExecutor
 						Debug.error("error setting event properties from " + json + ", for component: " + componentName, ex);
 					}
 					args[i] = event;
+				}
+				else
+				{ //try to convert the received arguments
+					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
+					List<PropertyDescription> parameters = propertyDesc.getParameters();
+					PropertyDescription parameterPropertyDescription = parameters.get(i);
+
+
+					ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
+					args[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, args[i], parameterPropertyDescription,
+						new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
+						parameterPropertyDescription, component, null);
+					//TODO? if in propertyDesc.getAsPropertyDescription().getConfig() we have  "type":"${dataproviderType}" and parameterPropertyDescription.getType() is Object
+					//then get the type from the dataprovider and try to convert the json to that type instead of simply object
 				}
 			}
 		}

@@ -38,7 +38,7 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
 
@@ -223,7 +223,7 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null && apiObject != null)
 		{
 			Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
@@ -271,7 +271,7 @@ public class WebServiceScriptable implements Scriptable
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(service.getProperty(name), desc, service);
 		}
-		WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null) return true;
 		return application.getWebsocketSession().getClientService(serviceSpecification.getName()).getProperties().content.containsKey(name);
 	}
@@ -296,7 +296,7 @@ public class WebServiceScriptable implements Scriptable
 		}
 		else
 		{
-			WebObjectApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+			WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 			// don't allow api to be overwritten.
 			if (apiFunction != null) return;
 			// TODO conversion should happen from string (color representation) to Color object.

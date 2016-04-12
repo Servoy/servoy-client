@@ -26,7 +26,7 @@ import java.util.Set;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.WebObjectApiDefinition;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -337,7 +337,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	 * @see com.servoy.j2db.server.ngclient.NGClient#onStartSubAction(java.lang.String, java.lang.String, org.sablo.specification.WebObjectApiDefinition)
 	 */
 	@Override
-	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectApiDefinition apiFunction, Object[] args)
+	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
 	{
 
 		Pair<UUID, UUID> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
