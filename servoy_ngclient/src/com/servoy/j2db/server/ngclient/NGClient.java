@@ -823,7 +823,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
-		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty", new Object[] { name, val });
+		if (val == null || val instanceof Boolean || val instanceof Number || val instanceof String)
+		{
+			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty", new Object[] { name, val });
+		}
 		if (uiProperties == null)
 		{
 			uiProperties = new HashMap<Object, Object>();
