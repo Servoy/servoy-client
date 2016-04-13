@@ -62,9 +62,13 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 */
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = "TypeAhead.showPopupOnFocusGain"; //$NON-NLS-1$
 	/**
-	 * If Boolean.TRUE type-ahead fields will show the popup when they gain focus.
+	 * If Boolean.TRUE combobox fields will show the popup when they gain focus.
 	 */
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = "Combobox.showPopupOnFocusGain"; //$NON-NLS-1$
+	/**
+	 * If Boolean.FALSE, the combobox search box is hidden. NGClient only.
+	 */
+	public static final String COMBOBOX_ENABLE_FILTER = "Combobox.enableFilter"; //$NON-NLS-1$
 	/**
 	 * When Boolean.TRUE, only selected part of the date formatted field will be affected when using up/down keys to cycle through values. (for example, pressing up when cursor is on minutes and minutes shows 59 will not result in hour change)
 	 */

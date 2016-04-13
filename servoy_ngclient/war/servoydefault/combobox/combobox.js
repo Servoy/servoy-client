@@ -1,5 +1,5 @@
 angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
-.directive('servoydefaultCombobox', ['$timeout', '$apifunctions','$sabloConstants','$svyProperties', function ($timeout, $apifunctions,$sabloConstants,$svyProperties) {
+.directive('servoydefaultCombobox', ['$timeout', '$apifunctions','$sabloConstants','$svyProperties','$applicationService', function ($timeout, $apifunctions,$sabloConstants,$svyProperties,$applicationService) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -16,6 +16,8 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			};
 
 			$scope.findMode = false;
+			var enableFilter = $applicationService.getUIProperty('Combobox.enableFilter');
+			$scope.enablefilter = enableFilter !== undefined && enableFilter != null ? enableFilter : true;
 		},
 		link: function (scope, element, attrs) {
 

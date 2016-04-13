@@ -76,6 +76,21 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
+	 * Property that can be set using application.putClientProperty(). It is used only in NGClient.
+	 *
+	 * This is a global setting, it will affect all COMBOBOX fields. It must be set as soon as possible, ie. on solution open.
+	 * Value can be true/false/null.
+	 *
+	 * If set to false, ALL COMBOBOXes will hide the search box when gaining focus.
+	 * DEFAULT: null.
+	 *
+	 * @sample
+	 * // make all COMBOBOX fields hide the search box when gaining focus
+	 * application.putClientProperty(APP_UI_PROPERTY.COMBOBOX_ENABLE_FILTER, false);
+	 */
+	public static final String COMBOBOX_ENABLE_FILTER = IApplication.COMBOBOX_ENABLE_FILTER;
+
+	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
 	 *
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
