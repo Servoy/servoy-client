@@ -342,7 +342,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 		Pair<UUID, UUID> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
 		IExecutingEnviroment engine = getScriptEngine();
-		if (engine instanceof RemoteDebugScriptEngine)
+		if (engine instanceof RemoteDebugScriptEngine && ((RemoteDebugScriptEngine)engine).getDebugger() != null)
 		{
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
 			DBGPDebugFrame stackFrame = debugger.getStackManager().getStackFrame(0);
