@@ -447,7 +447,7 @@ public class ServoyStyleSheet implements IStyleSheet
 					{
 						if (selector instanceof Selector)
 						{
-							list.add(((Selector)selector).getSelectorText());
+							list.add(((Selector)selector).getSelectorText().replace("null.", ".").trim());
 						}
 					}
 				}
