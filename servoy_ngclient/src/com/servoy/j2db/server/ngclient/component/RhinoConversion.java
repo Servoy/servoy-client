@@ -23,6 +23,7 @@ import java.util.Map;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
 import org.sablo.BaseWebObject;
@@ -32,6 +33,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author emera
@@ -68,7 +70,8 @@ public class RhinoConversion
 			}
 			return map;
 		}
-		if (propertyValue instanceof FormScope && ((FormScope)propertyValue).getFormController() != null) return ((FormScope)propertyValue).getFormController().getName();
+		if (propertyValue instanceof FormScope && ((FormScope)propertyValue).getFormController() != null)
+			return ((FormScope)propertyValue).getFormController().getName();
 		if (propertyValue instanceof IFormController) return ((IFormController)propertyValue).getName();
 
 		if (propertyValue instanceof JSDataSet)
@@ -83,9 +86,31 @@ public class RhinoConversion
 	 * Default conversion used to convert to Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
 	 * Types that don't implement the sablo <-> rhino conversions are by default available and their value is accessible directly.
 	 */
-	public static Object defaultToRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public static Object defaultToRhino(final Object webComponentValue, final PropertyDescription pd, final BaseWebObject componentOrService,
+		Scriptable startScriptable)
 	{
 		// TODO shouldn't this method be the exact reverse of fromRhino(...)?
+		if (webComponentValue instanceof Map && !(webComponentValue instanceof NativeObject))
+		{
+			NativeObject nativeObject = new NativeObject()
+			{
+				@Override
+				public void put(String name, Scriptable start, Object value)
+				{
+					super.put(name, start, value);
+					if (!Utils.equalObjects(((Map)webComponentValue).get(name), value))
+					{
+						((Map)webComponentValue).put(name, value);
+						if (componentOrService != null) componentOrService.flagPropertyAsDirty(pd.getName(), true);
+					}
+				}
+			};
+			for (Object key : ((Map)webComponentValue).keySet())
+			{
+				nativeObject.defineProperty(key.toString(), ((Map)webComponentValue).get(key), ScriptableObject.EMPTY);
+			}
+			return nativeObject;
+		}
 		return webComponentValue;
 	}
 
