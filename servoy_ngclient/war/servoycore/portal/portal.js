@@ -1,4 +1,4 @@
-angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
+angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav','ui.grid.edit'])
 .directive('servoycorePortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
                                    '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
@@ -120,7 +120,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 
 			$scope.rowHeight = $scope.model.rowHeight;
 
-			var rowTemplate = ''
+			var rowTemplate = '';
+			var rowEditTemplate = '';
+			var isRowEditable = false;
 			var rowWidth = 0;
 
 			$scope.columnDefinitions = [];
@@ -184,24 +186,31 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					var columnTitle = getColumnTitle(idx);
-					var cellTemplate
-					if(readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {
+					var cellTemplate, editableCellTemplate;
+					var isEditable = false;
+
+					var portal_svy_name = $element[0].getAttribute('data-svy-name');
+					cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
+					+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
+					+ ', rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
+					+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
+					+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
+					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
+					cellTemplate += '/>';					
+					
+					
+					if(readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {						
+						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';
+						isEditable = true;
+						isRowEditable = true;
 						var handlers = ""
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
 						}
 						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex)"' + handlers + ' tabIndex="-1"></div>';
 					}
-					else {
-						var portal_svy_name = $element[0].getAttribute('data-svy-name');
-						cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
-							+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
-							+ ', rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
-							+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
-							+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
-						if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
-						cellTemplate += '/>';
-					}
+
+
 					if($scope.model.multiLine) {
 						if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
 							$scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
@@ -210,6 +219,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							rowWidth = elX + el.model.size.width;
 						}
 						rowTemplate = rowTemplate + '<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
+						rowEditTemplate = rowEditTemplate + '<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(' + idx + ')" >' + editableCellTemplate + '</div>';
 					}
 					else {
 						if($scope.rowHeight == undefined || ($scope.model.rowHeight == 0 && $scope.rowHeight < el.model.size.height)) {
@@ -247,7 +257,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							visible: el.model.visible,
 							width: el.model.size.width,
 //							minWidth: el.model.size.width,
-							cellEditableCondition: false,
+							cellEditableCondition: isEditable,
+							editableCellTemplate: editableCellTemplate,
 							enableColumnMoving: isMovable,
 							enableColumnResizing: isResizable,
 							enableColumnMenu: isSortable,
@@ -274,11 +285,15 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					// needed for anchoring
 					rowWidth = '100%';
 				}
+				rowEditTemplate = '<div svy-grid-row-editor style="width:100%; height:100%;" tabindex="-1">' + rowEditTemplate + '</div>';
+				if(isRowEditable) rowTemplate = '<div>' + rowTemplate + '</div>';
 				$scope.columnDefinitions.push({
 					width: rowWidth,
 					cellTemplate: rowTemplate,
 					name: "unique",
-					cellEditableCondition: false,
+					enableCellEdit: true,
+					cellEditableCondition: isRowEditable,
+					editableCellTemplate: rowEditTemplate,
 					type: "object", // just put a type here to avoid a console warning, we don't know the type and we dont use the edit feature of ui-grid
 					allowCellFocus: readOnlyOptimizedMode
 				});
@@ -1495,4 +1510,90 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 	    	}
 		}
 	}
-}]);
+}]).directive('svyGridEditor', ['uiGridConstants', 'uiGridEditConstants','$timeout', function (uiGridConstants, uiGridEditConstants, $timeout) {
+    return {
+      require: ['?^uiGrid', '?^uiGridRenderContainer'],
+      compile: function () {
+        return {
+          pre: function ($scope, $elm, $attrs) {
+
+          },
+          post: function ($scope, $elm, $attrs, controllers) {
+            //set focus at start of edit
+            $scope.$on(uiGridEditConstants.events.BEGIN_CELL_EDIT, function (evt,triggerEvent) {
+              $timeout(function () {
+            	$scope.oldValue = $elm.children(0).val(); 
+                $elm.children(0).focus();
+                $elm.children(0).select();
+                $elm.children(0).on('blur', function (evt) {
+                    $scope.stopEdit(evt);
+                });
+                
+                $elm.children(0).on('keydown', function (evt) {
+                    switch (evt.keyCode) {
+                      case uiGridConstants.keymap.ESC:
+                    	$elm.children(0).val($scope.oldValue);
+                    	$elm.children(0).trigger('change');
+                        evt.stopPropagation();
+                        $scope.$emit(uiGridEditConstants.events.CANCEL_CELL_EDIT);
+                        break;
+                      case uiGridConstants.keymap.ENTER: // Enter (Leave Field)
+                      case uiGridConstants.keymap.TAB:
+                    	$elm.children(0).trigger('change');
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        $scope.stopEdit(evt);
+                        break;
+                    }
+                    
+                    return true;
+                 });
+                
+              });
+            });
+
+            $scope.stopEdit = function (evt) {
+            	$scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
+            };
+
+          }
+        };
+      }
+    };
+ }]).directive('svyGridRowEditor', ['uiGridConstants', 'uiGridEditConstants', '$timeout', function (uiGridConstants, uiGridEditConstants, $timeout) {
+	 return {
+        require: ['?^uiGrid', '?^uiGridRenderContainer'],
+        compile: function () {
+          return {
+            pre: function ($scope, $elm, $attrs) {
+
+            },
+            post: function ($scope, $elm, $attrs, controllers) {
+            	$scope.$on(uiGridEditConstants.events.BEGIN_CELL_EDIT, function (evt,triggerEvent) {
+                    $timeout(function () {
+                      var focusEl = $elm.find('.svy-listviewwrapper').first();
+                      if(focusEl.length) {
+                    	  focusEl.children(0).focus();
+                    	  focusEl.children(0).select();
+                      }
+
+                      $elm.on('dblclick', function(evt) {
+                    	  $scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
+                    	  evt.stopPropagation();
+                      });
+                      $elm.on('keydown', function (evt) {
+                          switch (evt.keyCode) {
+                            case uiGridConstants.keymap.F2:
+                          	  $scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
+                        	  evt.stopPropagation();
+                              break;
+                          }
+                          return true;
+                      }); 
+                    });
+                });
+            }
+          };
+        }
+      };
+ }]);
