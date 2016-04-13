@@ -104,6 +104,14 @@ public class RhinoConversion
 						if (componentOrService != null) componentOrService.flagPropertyAsDirty(pd.getName(), true);
 					}
 				}
+
+				@Override
+				public void delete(String name)
+				{
+					super.delete(name);
+					((Map)webComponentValue).remove(name);
+					if (componentOrService != null) componentOrService.flagPropertyAsDirty(pd.getName(), true);
+				}
 			};
 			for (Object key : ((Map)webComponentValue).keySet())
 			{
