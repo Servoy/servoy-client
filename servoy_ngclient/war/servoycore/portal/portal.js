@@ -291,7 +291,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					width: rowWidth,
 					cellTemplate: rowTemplate,
 					name: "unique",
-					enableCellEdit: true,
+					enableCellEdit: isRowEditable,
 					cellEditableCondition: isRowEditable,
 					editableCellTemplate: rowEditTemplate,
 					type: "object", // just put a type here to avoid a console warning, we don't know the type and we dont use the edit feature of ui-grid
@@ -1558,6 +1558,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 
           }
         };
+      },
+      controller: function($scope) {
+    	var x = $scope; 
       }
     };
  }]).directive('svyGridRowEditor', ['uiGridConstants', 'uiGridEditConstants', '$timeout', function (uiGridConstants, uiGridEditConstants, $timeout) {
