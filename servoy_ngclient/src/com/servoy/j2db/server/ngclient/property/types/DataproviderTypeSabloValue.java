@@ -55,6 +55,7 @@ import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
@@ -524,6 +525,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			value = value.toString();
 		}
+		else if (value instanceof DbIdentValue)
+		{
+			value = ((DbIdentValue)value).getPkValue();
+		}
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (jsonValue == null)
 		{
