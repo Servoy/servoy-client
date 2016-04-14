@@ -26,7 +26,7 @@
 							 ]
 	        },
 	        "onDataChangeMethodID" : {
-	          "returns": "Boolean",
+	          "returns": "boolean",
 
 	        	"parameters":[
 								{
