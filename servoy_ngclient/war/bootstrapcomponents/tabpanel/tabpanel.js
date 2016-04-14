@@ -93,8 +93,8 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
 				}	
 		  });
 		  
-    	  $scope.getContainerHeight = function() {
-    		  return {minHeight:$scope.model.height+"px"};
+    	  $scope.getContainerStyle = function() {
+    		  return {position:"relative", minHeight:$scope.model.height+"px"};
     	  }
     	  
     	  $scope.showEditorHint = function()
