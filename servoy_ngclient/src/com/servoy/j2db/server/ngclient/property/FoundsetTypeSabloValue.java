@@ -52,6 +52,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -609,6 +610,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				//			}
 
 				clientConversionInfo.pushNode(entry.getKey());
+				if (value instanceof DbIdentValue)
+				{
+					value = ((DbIdentValue)value).getPkValue();
+				}
 				FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, browserConverterContext);
 				clientConversionInfo.popNode();
 			}
