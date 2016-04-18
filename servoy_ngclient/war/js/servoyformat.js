@@ -401,7 +401,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 						// problem is that then a dom onchange event will not happen..
 						// we must fire a change event then in the onblur.
 						if (currentData !== data) {
-							var caret = element[0].selectionStart;
+							var caret = element[0].selectionEnd;
 							if (!callChangeOnBlur) {
 								callChangeOnBlur = function() {
 									element.change();
