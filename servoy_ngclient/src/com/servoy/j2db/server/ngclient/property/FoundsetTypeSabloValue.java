@@ -591,8 +591,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo,
 		IBrowserConverterContext browserConverterContext) throws JSONException
 	{
-		Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
-		Iterator<Entry<String, String>> it = dp.entrySet().iterator();
+		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
 		while (it.hasNext())
 		{
 			Entry<String, String> entry = it.next();
