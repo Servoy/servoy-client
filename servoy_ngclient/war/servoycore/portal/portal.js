@@ -33,7 +33,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				i18nService.setCurrentLang(locale.language)
 			}
 			
-			$scope.columnMinWidth = 30;
+			$scope.columnMinWidth = (!$scope.model.multiLine && $scope.model.headerHeight != 0) ? 30 : 0;
 			
 			var pageSizeFactor = $applicationService.getUIProperty("ngClientPageSizeFactor");
 			if (!pageSizeFactor || pageSizeFactor <= 1) pageSizeFactor = 2;
