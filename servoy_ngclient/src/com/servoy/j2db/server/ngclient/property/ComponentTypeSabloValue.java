@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,14 +34,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
+import org.sablo.IllegalComponentAccessException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
+import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -79,6 +84,7 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class ComponentTypeSabloValue implements ISmartPropertyValue
 {
+	public static final Logger log = LoggerFactory.getLogger(ComponentTypeSabloValue.class.getCanonicalName());
 
 	public static final String NO_OP = "n";
 
@@ -724,7 +730,45 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 								args[j] = jsargs.get(j);
 							}
 
-							childComponent.executeEvent(eventType, args); // TODO HANDLE RETURN VALUE
+							Object result = null;
+							String error = null;
+							try
+							{
+								result = childComponent.executeEvent(eventType, args);
+							}
+							catch (ParseException pe)
+							{
+								log.warn("Warning: " + pe.getMessage(), pe);
+							}
+							catch (IllegalComponentAccessException ilcae)
+							{
+								log.warn("Warning: " + ilcae.getMessage());
+							}
+							catch (Exception e)
+							{
+								error = "Error: " + e.getMessage();
+								log.error(error, e);
+							}
+
+							String cmsid = update.optString("cmsid");
+							if (cmsid != null)
+							{
+								if (error == null)
+								{
+									Object resultObject = result;
+									PropertyDescription objectType = null;
+									if (result instanceof TypedData)
+									{
+										resultObject = ((TypedData< ? >)result).content;
+										objectType = ((TypedData< ? >)result).contentType;
+									}
+									CurrentWindow.get().getSession().getSabloService().resolveDeferedEvent(cmsid, true, resultObject, objectType);
+								}
+								else
+								{
+									CurrentWindow.get().getSession().getSabloService().resolveDeferedEvent(cmsid, false, error, null);
+								}
+							}
 						}
 					}
 				}

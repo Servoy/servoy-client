@@ -1,10 +1,10 @@
-angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property', 'foundset_viewport_module'])
+angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property', 'foundset_viewport_module','$sabloService'])
 //Component type ------------------------------------------
 .value("$componentTypeConstants", {
 	CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
 	CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry,$sabloService) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -152,15 +152,17 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						};
 						delete serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					}
-
 					var executeHandler = function(type,args,row) {
+						var promiseAndCmsid = $sabloService.createDeferedEvent();
 						var newargs = $sabloUtils.getEventArgs(args,type);
 						internalState.requests.push({ handlerExec: {
 							eventType: type,
 							args:newargs,
-							rowId : row
+							rowId : row,
+							cmsid: promiseAndCmsid.cmsgid
 						}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						return promiseAndCmsid.promise;
 					};
 
 					// implement what $sabloConverters need to make this work
