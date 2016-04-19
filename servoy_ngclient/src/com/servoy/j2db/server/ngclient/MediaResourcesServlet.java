@@ -419,7 +419,7 @@ public class MediaResourcesServlet extends HttpServlet
 									@Override
 									public void run()
 									{
-										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData);
+										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
 										wsSession.valueChanged();
 									}
 								});

@@ -50,6 +50,7 @@ import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -646,7 +647,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
 	{
-		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty));
+		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty), null);
+	}
+
+	@Override
+	public void pushChanges(WebFormComponent webComponent, String beanProperty, String rowID)
+	{
+		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty), rowID);
 	}
 
 	/**
@@ -663,7 +670,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return null;
 	}
 
-	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue)
+	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue, String rowID)
 	{
 		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of specialized calls?
 
@@ -683,7 +690,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (newValue instanceof FoundsetLinkedTypeSabloValue)
 		{
 			int index = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getSelectedIndex();
-			if (beanProperty.endsWith("]"))
+			if (rowID != null)
+			{
+				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowID);
+				index = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getRecordIndex(splitHashAndIndex.getLeft(),
+					splitHashAndIndex.getRight().intValue());
+			}
+			else if (beanProperty.endsWith("]"))
 			{
 				index = Utils.getAsInteger(beanProperty.substring(beanProperty.lastIndexOf('[') + 1, beanProperty.length() - 1));
 			}

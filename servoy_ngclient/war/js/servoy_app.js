@@ -13,7 +13,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
+}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils,$foundsetTypeConstants) {
 
 	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
@@ -371,7 +371,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			// default model, simple direct form child component
 			var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo()
 			var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
-
+			var rowid = null;
 			if (conversionInfo && conversionInfo[property]) {
 				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], conversionInfo[property], undefined);
 			} else {
@@ -380,6 +380,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				{
 					//nested property
 					dpValue = eval('formState.model[beanname].'+property)
+					if (property.endsWith("]"))
+					{
+						var index = parseInt(property.substring(property.lastIndexOf('[')+1,property.length-1));
+						var dpPath =  property.substring(0,property.lastIndexOf('['));
+						var dpArray = eval('formState.model[beanname].'+dpPath);
+						if (dpArray && dpArray[$sabloConverters.INTERNAL_IMPL] && dpArray[$sabloConverters.INTERNAL_IMPL][$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])
+						{
+							var foundset = dpArray[$sabloConverters.INTERNAL_IMPL][$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]();
+							if (foundset)
+							{
+								rowid = foundset.viewPort.rows[index][$foundsetTypeConstants.ROW_ID_COL_KEY];
+							}	
+						}	
+					}	
 				}
 				else
 				{
@@ -387,7 +401,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}	
 				changes[property] = $sabloUtils.convertClientObject(dpValue);
 			}
-			$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
+			var dpChange = {formname:formname,beanname:beanname,property:property,changes:changes};
+			if (rowid)
+			{
+				dpChange.rowid = rowid;
+			}	
+			$sabloApplication.callService('formService', 'svyPush', dpChange, true)
 		}
 	}
 }).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log) {

@@ -102,7 +102,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 					if (changes.length() > 0)
 					{
 						dataPush(args);
-						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"));
+						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"), args.optString("rowid",null));
 					}
 				}
 				break;

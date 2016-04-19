@@ -37,7 +37,9 @@ public interface IDataAdapterList extends ITagResolver
 
 	void pushChanges(WebFormComponent webComponent, String string);
 
-	void pushChanges(WebFormComponent webComponent, String string, Object newValue);
+	void pushChanges(WebFormComponent webComponent, String string, String rowID);
+
+	void pushChanges(WebFormComponent webComponent, String string, Object newValue, String rowID);
 
 	Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args);
 
