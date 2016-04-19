@@ -93,7 +93,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	public static final String VALUE_KEY = "v";
 	// END keys and values used in JSON
 
-	protected int uniqueId = 1;
+	protected long uniqueId = 1;
 
 	public ComponentPropertyType(PropertyDescription definition)
 	{
