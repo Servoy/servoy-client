@@ -74,6 +74,7 @@ import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -462,7 +463,15 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		String name = rawValue;
 		if (name == null)
 		{
-			name = SVY_NAME_PREFIX + uniqueIdWithinForm;
+			if (getPersistIfAvailable() != null && getPersistIfAvailable().getUUID() != null &&
+				Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+			{
+				name = SVY_NAME_PREFIX + getPersistIfAvailable().getUUID();
+			}
+			else
+			{
+				name = SVY_NAME_PREFIX + uniqueIdWithinForm;
+			}
 		}
 		if (Character.isDigit(name.charAt(0)))
 		{
