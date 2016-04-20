@@ -449,7 +449,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					if (!arrayReturnType)
 					{
 						IChildWebObject childWebObject;
-						boolean isNewChildWebObject = true;
+						IChildWebObject existingWebObject = null;
 						UUID childChildWebObjectUUID = null;
 						JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, -1, false);
 						if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
@@ -470,13 +470,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 									currentPersist = (IChildWebObject)persistMappedPropeties.get(beanJSONKey);
 									if (childChildWebObjectUUID.equals(currentPersist.getUUID()))
 									{
-										isNewChildWebObject = false;
+										existingWebObject = currentPersist;
 									}
 								}
 							}
 						}
 
-						if (isNewChildWebObject)
+						if (existingWebObject == null)
 						{
 							if (isComponent(propertyType))
 							{
@@ -491,6 +491,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 								persistMappedPropeties.put(beanJSONKey, childWebObject);
 								persistMappedPropetiesByUUID = null;
 							}
+						}
+						else
+						{
+							existingWebObject.setProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName(), object);
 						}
 					}
 					else if (object instanceof JSONArray)
@@ -511,7 +515,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
-									boolean isNewChildWebObject = true;
+									IChildWebObject existingWebObject = null;
 									UUID childChildWebObjectUUID = null;
 									JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, i, false);
 									if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
@@ -531,14 +535,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 												if (childChildWebObjectUUID.equals(wo.getUUID()))
 												{
 													persistMappedPropertyArray.add(wo);
-													isNewChildWebObject = false;
+													existingWebObject = wo;
 													break;
 												}
 											}
 										}
 									}
 
-									if (isNewChildWebObject)
+									if (existingWebObject == null)
 									{
 										if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
 										{
@@ -553,6 +557,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 												childChildWebObjectUUID);
 											persistMappedPropertyArray.add(childComponent);
 										}
+									}
+									else
+									{
+										existingWebObject.setProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName(), ((JSONArray)object).get(i));
 									}
 								}
 							}
@@ -577,8 +585,23 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public void setJson(JSONObject arg)
 	{
-		clearPersistMappedPropetiesLoaded(); // let them completely reload later when needed
 		setJsonInternal(arg);
+
+		if (arePersistMappedPropetiesLoaded)
+		{
+			if (arg != null)
+			{
+				for (String beanJSONKey : ServoyJSONObject.getNames(arg))
+				{
+					Object object = arg.get(beanJSONKey);
+					updatePersistMappedProperty(beanJSONKey, object);
+				}
+			}
+			else
+			{
+				persistMappedPropeties.clear();
+			}
+		}
 
 		// update JSON property of all parent web objects as all this web object hierarchy is actually described by top-most web object JSON property
 		// and the JSON of each web object should never get out-of-sync with the child web objects it contains
@@ -654,12 +677,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public boolean removeJsonSubproperty(String key)
 	{
 		return setOrRemoveJsonSubproperty(key, null, true);
-	}
-
-	protected void clearPersistMappedPropetiesLoaded()
-	{
-		arePersistMappedPropetiesLoaded = false;
-		//persistMappedPropeties.clear();
 	}
 
 	@Override
