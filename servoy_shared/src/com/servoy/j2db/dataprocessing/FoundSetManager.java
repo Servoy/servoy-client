@@ -77,6 +77,7 @@ import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SortedList;
@@ -84,6 +85,8 @@ import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
 import com.servoy.j2db.util.visitor.IVisitor;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
+import com.servoy.j2db.util.xmlxport.TableDef;
 
 /**
  * Manager for foundsets
@@ -996,43 +999,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					throw new RepositoryException(e);
 				}
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
-			{
-				// create it from the solution tables
-				FlattenedSolution s = application.getFlattenedSolution();
-				Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
-				if (tblIte.hasNext())
-				{
-					try
-					{
-						TableNode t = tblIte.next();
-						IServer server = application.getSolution().getServer(IServer.INMEM_SERVER);
-						table = server.getTable(t.getTableName() + "_" + application.getClientID());
-						if (table == null)
-						{
-							GlobalTransaction gt = getGlobalTransaction();
-							String tid = null;
-							if (gt != null)
-							{
-								tid = gt.getTransactionID(t.getServerName());
-							}
-
-							table = application.getDataServer().createTable(application.getClientID(), dataSource, IServer.INMEM_SERVER, t.getTableName(), tid,
-								t.getColumns());
-						}
-
-						inMemDataSources.put(dataSource, table);
-					}
-					catch (ServoyException e)
-					{
-						throw new RepositoryException(e);
-					}
-					catch (RemoteException e)
-					{
-						throw new RepositoryException(e);
-					}
-				}
-			}
 		}
 		return table;
 	}
@@ -1425,11 +1391,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (dataSource == null || !application.getFlattenedSolution().isMainSolutionLoaded())
 		{
 			return getNoTableFoundSet();
-		}
-		else
-		{
-			// make sure inmem table is created
-			getTable(dataSource);
 		}
 
 		FoundSet foundset = sharedDataSourceFoundSet.get(dataSource);
@@ -2482,15 +2443,53 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 
+		String dataSource = DataSourceUtils.createInmemDataSource(name);
+		FlattenedSolution s = application.getFlattenedSolution();
+		Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
+
+
+		IDataSet fixedDataSet = dataSet;
+		int[] fixedIntTypes = intTypes;
+
+		if (tblIte.hasNext())
+		{
+			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(tblIte.next().getColumns());
+			ArrayList<String> inmemColumnNames = new ArrayList<String>();
+			int[] inmemColumnTypes = null;
+			ArrayList<Integer> inmemColumnTypesA = new ArrayList<Integer>();
+			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
+			{
+				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
+				inmemColumnNames.add(cid.name);
+				inmemColumnTypesA.add(Integer.valueOf(cid.columnType.getSqlType()));
+			}
+
+			if (inmemColumnTypesA.size() > 0)
+			{
+				inmemColumnTypes = new int[inmemColumnTypesA.size()];
+				for (int i = 0; i < inmemColumnTypesA.size(); i++)
+					inmemColumnTypes[i] = inmemColumnTypesA.get(i).intValue();
+			}
+
+
+			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames.toArray(new String[inmemColumnNames.size()])) ||
+				!Arrays.equals(intTypes, inmemColumnTypes))
+			{
+				fixedIntTypes = inmemColumnTypes;
+				fixedDataSet = new BufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]), fixedIntTypes);
+				Debug.warn("Dataset definition does not match inmem table definition for datasource : " + dataSource);
+			}
+		}
+
+
 		// check if column names width matches rows
-		if (dataSet.getRowCount() > 0 && dataSet.getRow(0).length != dataSet.getColumnCount())
+		if (fixedDataSet.getRowCount() > 0 && fixedDataSet.getRow(0).length != fixedDataSet.getColumnCount())
 		{
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
 		}
 
 		try
 		{
-			String dataSource = DataSourceUtils.createInmemDataSource(name);
 			ITable table = inMemDataSources.get(dataSource);
 			if (table != null)
 			{
@@ -2507,15 +2506,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					table = null;
 				}
 			}
+
+
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
 			if (gt != null)
 			{
 				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
 			}
-			table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource,
+
+
+			table = application.getDataServer().insertDataSet(application.getClientID(), fixedDataSet, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-				intTypes /* inferred from dataset when null */, pkNames);
+				fixedIntTypes /* inferred from dataset when null */, pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
