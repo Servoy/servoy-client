@@ -870,6 +870,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 
 			if (getPreferedSolutionNameToLoadOnInit() == null && getMainApplicationFrame().isVisible())
 			{
+				isSelectAndOpenSolutionStarted = false;
 				invokeLater(new Runnable()
 				{
 					public void run()
@@ -878,7 +879,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 						{
 							public void run()
 							{
-								if (solutionRoot.getMainSolutionMetaData() == null)
+								if (!isSelectAndOpenSolutionStarted && solutionRoot.getMainSolutionMetaData() == null)
 								{
 									selectAndOpenSolution(); // automatically re-open solution in developer
 								}
@@ -889,6 +890,15 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			}
 		}
 		return b;
+	}
+
+	private boolean isSelectAndOpenSolutionStarted;
+
+	@Override
+	public void selectAndOpenSolution()
+	{
+		isSelectAndOpenSolutionStarted = true;
+		super.selectAndOpenSolution();
 	}
 
 	@Override
