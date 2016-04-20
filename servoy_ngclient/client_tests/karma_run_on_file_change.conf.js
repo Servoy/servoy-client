@@ -18,6 +18,8 @@ module.exports = function(config){
          // sablo and ngclient scripts
          '../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
          '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
+         '../../../sablo/sablo/META-INF/resources/sablo/*.js', /* use this when running from Git */
+         '../../sablo/META-INF/resources/sablo/*.js',  /* use this when running from SVN-git bridge */
          '../war/js/numeral.js',
          '../war/js/**/*.js',
          
