@@ -113,7 +113,7 @@ public class PartWrapper
 			}
 		};
 		layoutProvider.fillPartStyle(style, part);
-		if (FormLayoutGenerator.isTableOrListView(context))
+		if (!design && FormLayoutGenerator.isTableOrListView(context))
 		{
 			style.remove("overflow-x");
 			style.remove("overflow-y");
@@ -146,18 +146,15 @@ public class PartWrapper
 
 	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext, boolean isDesign)
 	{
-		if (part.getPartType() == Part.BODY)
+		if (!isDesign && part.getPartType() == Part.BODY)
 		{
 			switch (context.getView())
 			{
 				case FormController.TABLE_VIEW :
 				case FormController.LOCKED_TABLE_VIEW :
-					return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
 				case IForm.LIST_VIEW :
 				case FormController.LOCKED_LIST_VIEW :
-				{
-					if (!isDesign) return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
-				}
+					return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
 			}
 		}
 

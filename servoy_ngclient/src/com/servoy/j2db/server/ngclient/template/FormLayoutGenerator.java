@@ -160,7 +160,7 @@ public class FormLayoutGenerator
 		}
 		writer.print("svy-layout-update svy-autosave ");
 		// skip the scrollbars for forms in table or list view then the portal component does this.
-		if (!isTableOrListView(form))
+		if (design || !isTableOrListView(form))
 		{
 			writer.print(" svy-scrollbars='formProperties.scrollbars'");
 		}
