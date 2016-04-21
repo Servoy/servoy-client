@@ -265,7 +265,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					if (!(func instanceof WebComponentFunction))
 					{
 						WebObjectFunctionDefinition def = webComponentSpec.getApiFunctions().get(name);
-						retValue = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(retValue, def.getReturnType(), component, null);
+						retValue = NGConversions.INSTANCE.convertServerSideRhinoToRhinoValue(retValue, def.getReturnType(), component, null);
 					}
 					updateVisibleContainers(oldVisibleForms);
 					return retValue;

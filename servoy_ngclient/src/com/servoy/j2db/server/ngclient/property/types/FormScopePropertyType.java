@@ -32,6 +32,7 @@ import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IServerRhinoToRhino;
 
 /**
  * This is a special type that is used in api calls to let servoy know that the api should return a form server instance itself
@@ -40,7 +41,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  * @author jcompagner
  */
 public class FormScopePropertyType extends DefaultPropertyType<Object>
-	implements IRhinoToSabloComponent<Object>, ISabloComponentToRhino<Object>, IPropertyConverterForBrowser<FormScope>
+	implements IRhinoToSabloComponent<Object>, ISabloComponentToRhino<Object>, IPropertyConverterForBrowser<FormScope>, IServerRhinoToRhino<Object>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
@@ -115,6 +116,12 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 			return app.getFormManager().getForm((String)webComponentValue).getFormScope();
 		}
 		return webComponentValue;
+	}
+
+	@Override
+	public Object fromServerRhinoToRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		return toRhinoValue(webComponentValue, pd, componentOrService, startScriptable);
 	}
 
 }

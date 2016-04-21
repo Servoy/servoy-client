@@ -202,6 +202,22 @@ public class NGConversions
 
 	}
 
+	public static interface IServerRhinoToRhino<T> extends IPropertyType<T>
+	{
+
+		/**
+		 * Converts from a server Rhino value to a Rhino usable representation of the value.
+		 *
+		 * @param webComponentValue the server Rhino value
+		 * @param pd the spec description of the property/type
+		 * @param componentOrService the component or service to which the given value belongs to
+		 * @param startScriptable the Scriptable in Rhino that this value is requested for
+		 * @return the converted value, ready to be used in Rhino; can return Scriptable.NOT_FOUND if the property is not available in scripting.
+		 */
+		Object fromServerRhinoToRhinoValue(T webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable);
+
+	}
+
 	/**
 	 * Conversion 4.2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
@@ -397,6 +413,21 @@ public class NGConversions
 		else
 		{
 			return RhinoConversion.defaultToRhino(webComponentValue, pd, componentOrService, startScriptable);
+		}
+
+		return rhinoVal;
+	}
+
+	public Object convertServerSideRhinoToRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
+		Scriptable startScriptable)
+	{
+		if (pd == null) return webComponentValue;
+
+		Object rhinoVal = webComponentValue;
+		IPropertyType< ? > type = pd.getType();
+		if (type instanceof IServerRhinoToRhino< ? >)
+		{
+			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(webComponentValue, pd, componentOrService, startScriptable);
 		}
 
 		return rhinoVal;
