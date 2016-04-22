@@ -102,6 +102,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private final IPerfomanceRegistry perfRegistry;
 
+	private boolean registered = false;
+
 	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
 		super(new WebCredentials());
@@ -999,15 +1001,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	protected boolean registerClient(IUserClient uc) throws Exception
 	{
-		boolean registered = false;
+		registered = false;
 		try
 		{
 			registered = super.registerClient(uc);
 			ApplicationServerRegistry.get().setServerProcess(getClientID());
-			if (!registered)
-			{
-				showInfoPanel();
-			}
 		}
 		catch (final ApplicationException e)
 		{
@@ -1036,24 +1034,27 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	protected void showInfoPanel()
 	{
-		((NGClientWebsocketSession)wsSession).setClient(this);
-		invokeLater(new Runnable()
+		if (!registered)
 		{
-			@Override
-			public void run()
+			((NGClientWebsocketSession)wsSession).setClient(this);
+			invokeLater(new Runnable()
 			{
-				if (adsInfo == null) adsInfo = Ad.getAdInfo();
-				final int w = Utils.getAsInteger(adsInfo[1]);
-				final int h = Utils.getAsInteger(adsInfo[2]);
-				if (w > 50 && h > 50)
+				@Override
+				public void run()
 				{
-					final URL url = (URL)adsInfo[0];
-					final int t = Utils.getAsInteger(adsInfo[3]);
-					getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showInfoPanel",
-						new Object[] { url.toString(), w, h, t, getI18NMessage("servoy.button.close") });
+					if (adsInfo == null) adsInfo = Ad.getAdInfo();
+					final int w = Utils.getAsInteger(adsInfo[1]);
+					final int h = Utils.getAsInteger(adsInfo[2]);
+					if (w > 50 && h > 50)
+					{
+						final URL url = (URL)adsInfo[0];
+						final int t = Utils.getAsInteger(adsInfo[3]);
+						getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showInfoPanel",
+							new Object[] { url.toString(), w, h, t, getI18NMessage("servoy.button.close") });
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	private Map<String, Object> getLicenseAndMaintenanceDetail()
@@ -1113,6 +1114,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	private IMediaUploadCallback mediaUploadCallback;
+
 
 	public IMediaUploadCallback getMediaUploadCallback()
 	{

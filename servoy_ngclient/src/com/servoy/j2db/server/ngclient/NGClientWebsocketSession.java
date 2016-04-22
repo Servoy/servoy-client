@@ -198,6 +198,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							args);
 
 						client.loadSolution(solutionName);
+
+						client.showInfoPanel();
+
 					}
 					catch (RepositoryException e)
 					{
