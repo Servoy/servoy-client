@@ -79,6 +79,10 @@ public class RhinoConversion
 			return ((JSDataSet)propertyValue).getDataSet();
 		}
 
+		if (propertyValue instanceof RhinoMapOrArrayWrapper)
+		{
+			return ((RhinoMapOrArrayWrapper)propertyValue).getWrappedValue();
+		}
 		return propertyValue;
 	}
 
