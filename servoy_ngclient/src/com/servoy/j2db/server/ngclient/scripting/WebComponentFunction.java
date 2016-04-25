@@ -19,7 +19,7 @@ package com.servoy.j2db.server.ngclient.scripting;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.WebComponent;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 
@@ -48,12 +48,13 @@ public class WebComponentFunction extends WebBaseFunction
 		// first do rhino conversion on the types (form scope -> name, native object -> dimension, ...)
 		if (args != null && args.length > 0)
 		{
-			PropertyDescription parameterTypes = WebComponent.getParameterTypes(definition);
+			PropertyDescription parameterTypes = BaseWebObject.getParameterTypes(definition);
 			for (int i = 0; i < args.length; i++)
 			{
 				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getProperty(Integer.toString(i)), component);
 			}
 		}
-		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.invokeApi(definition, args), definition.getReturnType(), component, null);
+		return cx.getWrapFactory().wrap(cx, scope,
+			NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.invokeApi(definition, args), definition.getReturnType(), component, null), null);
 	}
 }
