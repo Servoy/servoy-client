@@ -710,7 +710,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	public String getSolutionName()
 	{
 		// return name of main solution, also when user is in login solution
-		return solutionRoot.getMainSolutionMetaData().getName();
+		return solutionRoot.getMainSolutionMetaData() != null ? solutionRoot.getMainSolutionMetaData().getName() : null;
 	}
 
 	/**
