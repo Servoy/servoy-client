@@ -94,7 +94,7 @@ public class ResourceProvider implements Filter
 		return name;
 	}
 
-	public static void updateComponentResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
+	public synchronized static void updateComponentResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
 	{
 		for (IPackageReader reader : toRemove)
 		{
@@ -110,7 +110,7 @@ public class ResourceProvider implements Filter
 		else initSpecProvider();
 	}
 
-	public static void updateServiceResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
+	public synchronized static void updateServiceResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
 	{
 		for (IPackageReader reader : toRemove)
 		{
@@ -141,7 +141,7 @@ public class ResourceProvider implements Filter
 		return result;
 	}
 
-	public static void setRemovedPackages(List<String> packageNames)
+	public synchronized static void setRemovedPackages(List<String> packageNames)
 	{
 		removePackageNames.clear();
 		removePackageNames.addAll(packageNames);
@@ -321,14 +321,7 @@ public class ResourceProvider implements Filter
 		return null;
 	}
 
-	/**
-	 * @param pathInfo
-	 * @param bundle
-	 * @return
-	 * @throws UnsupportedEncodingException
-	 * @throws MalformedURLException
-	 */
-	public static URL computeURL(String pathInfo, Bundle bundle) throws UnsupportedEncodingException, MalformedURLException
+	public synchronized static URL computeURL(String pathInfo, Bundle bundle) throws UnsupportedEncodingException, MalformedURLException
 	{
 		URL url = null;
 		try
