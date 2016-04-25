@@ -25,8 +25,6 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
@@ -287,6 +285,13 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (cloned instanceof WebComponent)
 			((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned) : new WebObjectBasicImpl((WebComponent)cloned);
 		super.fillClone(cloned);
+	}
+
+	@Override
+	public void setExtendsID(int arg)
+	{
+		super.setExtendsID(arg);
+		webObjectImpl.reload();
 	}
 
 	@Override

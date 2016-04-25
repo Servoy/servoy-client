@@ -147,4 +147,9 @@ public class WebObjectBasicImpl
 	{
 	}
 
+	public void reload()
+	{
+
+	}
+
 }

@@ -404,7 +404,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 			if (getPropertyDescription() != null && getJson() != null)
 			{
-				JSONObject beanJSON = getJson();
+				JSONObject beanJSON = webObject.getFlattenedJson();
 				try
 				{
 					for (String beanJSONKey : ServoyJSONObject.getNames(beanJSON))
@@ -580,6 +580,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		{
 			if (persistMappedPropeties.remove(beanJSONKey) != null) persistMappedPropetiesByUUID = null;
 		}
+	}
+
+	@Override
+	public void reload()
+	{
+		arePersistMappedPropetiesLoaded = false;
 	}
 
 	@Override
