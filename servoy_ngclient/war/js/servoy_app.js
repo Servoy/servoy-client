@@ -265,7 +265,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				webStorage.session.add("sessionid",msg.sessionid);
 				if (recordingPrefix) {
 					var btn = $window.document.createElement("A");        // Create a <button> element
-					btn.href = "/solutions/" + msg.sessionid + ".recording";
+					btn.href = "solutions/" + msg.sessionid + ".recording";
 					btn.target = "_blank";
 					btn.style.position= "absolute";
 					btn.style.right = "0px";
