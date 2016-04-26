@@ -46,6 +46,7 @@ import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.PropertyUtils;
@@ -97,6 +98,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	private final String uniqueIdWithinForm;
 
 	private final boolean inDesigner;
+	private boolean isVisible = true;
 
 	private FlattenedSolution fs;
 
@@ -328,6 +330,16 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 					catch (Exception e)
 					{
 						Debug.error(e);
+					}
+				}
+
+				if (inDesigner && pd.getType() == VisiblePropertyType.INSTANCE)
+				{
+					Object isVisibleObj = map.get(pd.getName());
+					if (isVisibleObj instanceof Boolean)
+					{
+						isVisible = isVisible && ((Boolean)isVisibleObj).booleanValue();
+						map.put(pd.getName(), Boolean.TRUE);
 					}
 				}
 			}
@@ -680,6 +692,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 			propertyWriter.object();
 			JSONUtils.writeDataWithConversions(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType,
 				context);
+			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)

@@ -200,7 +200,11 @@ public class FormLayoutGenerator
 			writer.print("<div ng-style=\"layout('");
 			writer.print(fe.getDesignId());
 			writer.print("')\"");
-			writer.print(" ng-class='design_highlight'");
+
+			JSONObject ngClass = new JSONObject();
+			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + fe.getDesignId() + "').svyVisible == false<".toString());
+			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 		}
 		else
 		{
@@ -357,6 +361,8 @@ public class FormLayoutGenerator
 				{
 					ngClass.put("inheritedElement", true);
 				}
+
+				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + fe.getDesignId() + "').svyVisible == false<".toString());
 				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			}
