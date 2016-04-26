@@ -420,16 +420,16 @@ public class NGConversions
 		return rhinoVal;
 	}
 
-	public Object convertServerSideRhinoToRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
 		Scriptable startScriptable)
 	{
-		if (pd == null) return webComponentValue;
+		if (pd == null) return serverSideScriptingReturnValue;
 
-		Object rhinoVal = webComponentValue;
+		Object rhinoVal = serverSideScriptingReturnValue;
 		IPropertyType< ? > type = pd.getType();
 		if (type instanceof IServerRhinoToRhino< ? >)
 		{
-			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(webComponentValue, pd, componentOrService, startScriptable);
+			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);
 		}
 
 		return rhinoVal;
