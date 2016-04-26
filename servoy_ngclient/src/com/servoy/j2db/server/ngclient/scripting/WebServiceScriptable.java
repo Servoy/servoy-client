@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
@@ -223,13 +224,23 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		final WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null && apiObject != null)
 		{
-			Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
+			final Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
 			if (serverSideFunction instanceof Function)
 			{
-				return serverSideFunction;
+				return new BaseFunction()
+				{
+					@Override
+					public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+					{
+						Object retValue = ((Function)serverSideFunction).call(cx, scope, thisObj, args);
+						retValue = NGConversions.INSTANCE.convertServerSideRhinoToRhinoValue(retValue, apiFunction.getReturnType(),
+							(BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName()), null);
+						return retValue;
+					}
+				};
 			}
 		}
 		if (apiFunction != null)

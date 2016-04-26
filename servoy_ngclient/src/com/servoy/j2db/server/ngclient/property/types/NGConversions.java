@@ -206,15 +206,17 @@ public class NGConversions
 	{
 
 		/**
-		 * Converts from a server Rhino value to a Rhino usable representation of the value.
+		 * Converts from a server-side scripting API (Rhino) return value value to a different Rhino value if needed
+		 * (maybe the conversion has more context info then the server-side scripting has and can translate some return values into something that is more useful for callers of the API).
 		 *
-		 * @param webComponentValue the server Rhino value
+		 * @param serverSideScriptingReturnValue the server Rhino value
 		 * @param pd the spec description of the property/type
 		 * @param componentOrService the component or service to which the given value belongs to
 		 * @param startScriptable the Scriptable in Rhino that this value is requested for
 		 * @return the converted value, ready to be used in Rhino; can return Scriptable.NOT_FOUND if the property is not available in scripting.
 		 */
-		Object fromServerRhinoToRhinoValue(T webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable);
+		Object fromServerRhinoToRhinoValue(T serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
+			Scriptable startScriptable);
 
 	}
 

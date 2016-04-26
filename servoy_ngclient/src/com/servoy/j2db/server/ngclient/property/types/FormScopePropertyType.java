@@ -119,9 +119,10 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object fromServerRhinoToRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object fromServerRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
+		Scriptable startScriptable)
 	{
-		return toRhinoValue(webComponentValue, pd, componentOrService, startScriptable);
+		return toRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);
 	}
 
 }
