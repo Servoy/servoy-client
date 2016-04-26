@@ -159,7 +159,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							eventType: type,
 							args:newargs,
 							rowId : row,
-							cmsid: promiseAndCmsid.cmsgid
+							defid: promiseAndCmsid.defid
 						}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 						return promiseAndCmsid.promise;

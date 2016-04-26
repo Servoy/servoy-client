@@ -750,7 +750,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 								log.error(error, e);
 							}
 
-							String cmsid = update.optString("cmsid");
+							String cmsid = update.optString("defid");
 							if (cmsid != null)
 							{
 								if (error == null)
