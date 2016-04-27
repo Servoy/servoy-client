@@ -18,6 +18,8 @@
 package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +27,10 @@ import java.util.Map;
 
 import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormManager;
@@ -143,7 +148,33 @@ public class FormLayoutGenerator
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
 	{
-		if (design) writer.print("<div ng-controller='DesignFormController' id='svyDesignForm' ");
+		if (design)
+		{
+			writer.print("<div ng-controller='DesignFormController' id='svyDesignForm' ");
+
+			if (form.isResponsiveLayout())
+			{
+				List<String> allowedChildren = new ArrayList<String>();
+				Collection<PackageSpecification<WebLayoutSpecification>> values = WebComponentSpecProvider.getInstance().getLayoutSpecifications().values();
+				for (PackageSpecification<WebLayoutSpecification> specifications : values)
+				{
+					for (WebLayoutSpecification specification : specifications.getSpecifications().values())
+					{
+						if (specification.isTopContainer())
+						{
+							allowedChildren.add(specification.getPackageName() + "." + specification.getName());
+						}
+					}
+				}
+				if (allowedChildren.size() > 0)
+				{
+					writer.print(" svy-allowed-children=\"");
+					writer.print(StringUtil.join(allowedChildren, ","));
+					writer.print("\"");
+				}
+			}
+
+		}
 		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
@@ -241,11 +272,11 @@ public class FormLayoutGenerator
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
-			List<String> typeNames = fe.getSvyTypesNames();
-			if (typeNames.size() > 0)
+			List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
+			if (typeAndPropertyNames[0].size() > 0)
 			{
 				writer.print(" svy-types='");
-				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+				writer.print("[" + StringUtil.join(typeAndPropertyNames[0], ",") + "]");
 				writer.print("'");
 			}
 			String directEditPropertyName = getDirectEditProperty(fe);
@@ -329,11 +360,15 @@ public class FormLayoutGenerator
 				writer.print(" svy-id='");
 				writer.print(getDesignId(fe));
 				writer.print("'");
-				List<String> typeNames = fe.getSvyTypesNames();
-				if (typeNames.size() > 0)
+				List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
+				if (typeAndPropertyNames[0].size() > 0)
 				{
 					writer.print(" svy-types='");
-					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+					writer.print("[" + StringUtil.join(typeAndPropertyNames[0], ",") + "]");
+					writer.print("'");
+
+					writer.print(" svy-types-properties='");
+					writer.print("[" + StringUtil.join(typeAndPropertyNames[1], ",") + "]");
 					writer.print("'");
 				}
 				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();

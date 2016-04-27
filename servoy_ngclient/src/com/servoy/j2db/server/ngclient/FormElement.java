@@ -788,10 +788,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	/**
 	 * @return a list of accepted type names when dropping from palette. Possible type names include the types defined in the specfile and the "component" type.
 	 */
-	public List<String> getSvyTypesNames()
+	public List<String>[] getSvyTypesAndPropertiesNames()
 	{
 		WebObjectSpecification spec = getWebComponentSpec(false);
-		ArrayList<String> result = new ArrayList<String>();
+		List<String> typeNamesA = new ArrayList<String>();
+		List<String> propertyNamesA = new ArrayList<String>();
 		Map<String, PropertyDescription> properties = spec.getProperties();
 		for (PropertyDescription propertyDescription : properties.values())
 		{
@@ -800,10 +801,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 			if (simpleTypeName.equals("component") || (configObject instanceof JSONObject && Boolean.TRUE.equals(((JSONObject)configObject).opt(DROPPABLE)) &&
 				PropertyUtils.isCustomJSONProperty(propertyDescription.getType())))
 			{
-				result.add(simpleTypeName);
+				typeNamesA.add(simpleTypeName);
+				propertyNamesA.add(propertyDescription.getName());
 			}
 		}
-		return result;
+		return new List[] { typeNamesA, propertyNamesA };
 	}
 
 	public List<String> getForbiddenComponentNames()
