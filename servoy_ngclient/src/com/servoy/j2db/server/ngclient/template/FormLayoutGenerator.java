@@ -311,10 +311,6 @@ public class FormLayoutGenerator
 		writer.print(" name='");
 		writer.print(fe.getName());
 		writer.print("'");
-		if (design && (fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null)
-		{
-			writer.print(" group-id='" + ((IFormElement)fe.getPersistIfAvailable()).getGroupID() + "'");
-		}
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
 			String elementName = fe.getName();
