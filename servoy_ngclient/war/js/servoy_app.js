@@ -279,6 +279,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				$solutionSettings.windowName = msg.windowid;
 				webStorage.session.add("windowid",msg.windowid);
 			}
+			if (msg.sessionid || msg.windowid) {
+				// update the arguments on the reconnection websocket..
+				$sabloApplication.updateConnectArguments('/solutions/'+$solutionSettings.solutionName, [$sabloApplication.getSessionId(), $sabloApplication.getWindowName(), $sabloApplication.getWindowId()], {solution:$solutionSettings.solutionName},recordingPrefix);
+			}
 		});
 
 		wsSession.onopen(function(evt) {
