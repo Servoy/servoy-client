@@ -108,7 +108,7 @@ public class FormLayoutStructureGenerator
 					writer.print("\"");
 				}
 				writer.print(" svy-layoutname='");
-				writer.print(spec.getName());
+				writer.print(spec.getPackageName() + "." + spec.getName());
 				writer.print("'");
 
 				ngClass.put("svy-layoutcontainer", true);

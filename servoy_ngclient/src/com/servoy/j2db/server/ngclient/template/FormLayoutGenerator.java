@@ -168,9 +168,24 @@ public class FormLayoutGenerator
 				}
 				if (allowedChildren.size() > 0)
 				{
+					String allowedChildrenJoin = StringUtil.join(allowedChildren, ",");
 					writer.print(" svy-allowed-children=\"");
-					writer.print(StringUtil.join(allowedChildren, ","));
+					writer.print(allowedChildrenJoin);
 					writer.print("\"");
+
+					JSONObject ngClass = new JSONObject();
+					String dropHighlightCondition = "<canContainDraggedElement(";
+					if (allowedChildren.size() > 1)
+					{
+						for (int i = 0; i < allowedChildren.size() - 1; i++)
+						{
+							dropHighlightCondition += "'" + allowedChildren.get(i) + "', ";
+						}
+					}
+					dropHighlightCondition += "'" + allowedChildren.get(allowedChildren.size() - 1) + "'";
+					dropHighlightCondition += ")<";
+					ngClass.put("drop_highlight", dropHighlightCondition);//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+					writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 				}
 			}
 
