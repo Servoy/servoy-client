@@ -70,6 +70,7 @@ import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.RendererParentWrapper;
@@ -83,7 +84,7 @@ import com.servoy.j2db.util.Utils;
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
 // then we can extend that one.
 @SuppressWarnings("nls")
-public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine
+public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1404,5 +1405,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
 		if (performanceData != null) performanceData.endSubAction(perfId);
 
+	}
+
+	@Override
+	public long getLastAccessedTime()
+	{
+		return getWebsocketSession().getLastAccessed();
 	}
 }

@@ -28,6 +28,7 @@ import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
 
 /**
@@ -128,8 +129,8 @@ public class ClientStub implements IUserClient
 								// map from real db server to server names from before switch-server
 								for (String srv : ((DataServerProxy)dataServer).getReverseMappedServerNames(dbServernameTablename[0]))
 								{
-									((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(DataSourceUtils.createDBTableDataSource(
-										srv, dbServernameTablename[1]));
+									((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(
+										DataSourceUtils.createDBTableDataSource(srv, dbServernameTablename[1]));
 								}
 								return;
 							}
@@ -200,8 +201,8 @@ public class ClientStub implements IUserClient
 										// possibly switched from multiple servers to the same destination server.
 										for (String srv : ((DataServerProxy)ds).getReverseMappedServerNames(sname))
 										{
-											((FoundSetManager)client.getFoundSetManager()).notifyDataChange(
-												DataSourceUtils.createDBTableDataSource(srv, tname), pksDataSet, action, insertColumndata);
+											((FoundSetManager)client.getFoundSetManager()).notifyDataChange(DataSourceUtils.createDBTableDataSource(srv, tname),
+												pksDataSet, action, insertColumndata);
 										}
 										return;
 									}
@@ -245,4 +246,16 @@ public class ClientStub implements IUserClient
 
 		return null;
 	}
+
+	public long getLastAccessedTime() throws RemoteException
+	{
+		if (client instanceof IGetLastAccessed)
+		{
+			return ((IGetLastAccessed)client).getLastAccessedTime();
+		}
+
+		return 0l;
+	}
+
+
 }

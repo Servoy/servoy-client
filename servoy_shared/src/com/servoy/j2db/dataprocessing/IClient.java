@@ -55,4 +55,9 @@ public interface IClient
 	 * Get a status line for the client to be displayed on the admin page; only when the client supports this.
 	 */
 	String getClientStatusLine() throws RemoteException;
+
+	/**
+	 * Return the last date and time when a user has physically accessed the application
+	 */
+	long getLastAccessedTime() throws RemoteException;
 }

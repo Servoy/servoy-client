@@ -94,4 +94,10 @@ public interface IClientInformation extends com.servoy.j2db.server.IClientInform
 	 * @return solution name, or null when no solution is open.
 	 */
 	String getOpenSolutionName();
+
+	/**
+	 * Gets the last date and time when a user has physically accessed the application. NGClient only!
+	 * @return a date object or null if the client doesn't support this
+	 */
+	Date getLastAccessedTime();
 }
