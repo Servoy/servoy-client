@@ -105,6 +105,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private boolean registered = false;
 
+	private volatile long lastAccessed;
+
 	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
 		super(new WebCredentials());
@@ -1116,7 +1118,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private IMediaUploadCallback mediaUploadCallback;
 
-
 	public IMediaUploadCallback getMediaUploadCallback()
 	{
 		return mediaUploadCallback;
@@ -1304,6 +1305,39 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return "Websockets disconnected since " + new SimpleDateFormat("EEE HH:mm:ss").format(new Date(lastAccessed));
 	}
 
+
+	@Override
+	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
+	{
+		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
+		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
+			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
+			getClientID());
+		return null;
+	}
+
+	@Override
+	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	{
+		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
+		if (performanceData != null) performanceData.endSubAction(perfId);
+
+	}
+
+	@Override
+	public void updateLastAccessed()
+	{
+		lastAccessed = System.currentTimeMillis();
+
+	}
+
+	@Override
+	public long getLastAccessedTime()
+	{
+		return lastAccessed;
+	}
+
+
 	/**
 	 * @author jcompagner
 	 *
@@ -1387,29 +1421,5 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			this.onRootFrame = onRootFrame;
 		}
 
-	}
-
-	@Override
-	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
-	{
-		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
-		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
-			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-			getClientID());
-		return null;
-	}
-
-	@Override
-	public void onStopSubAction(Pair<UUID, UUID> perfId)
-	{
-		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
-		if (performanceData != null) performanceData.endSubAction(perfId);
-
-	}
-
-	@Override
-	public long getLastAccessedTime()
-	{
-		return getWebsocketSession().getLastAccessed();
 	}
 }

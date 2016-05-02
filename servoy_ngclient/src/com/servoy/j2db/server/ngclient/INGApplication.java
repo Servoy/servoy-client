@@ -44,4 +44,6 @@ public interface INGApplication extends INGClientApplication
 	Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments);
 
 	void onStopSubAction(Pair<UUID, UUID> perfId);
+
+	void updateLastAccessed();
 }

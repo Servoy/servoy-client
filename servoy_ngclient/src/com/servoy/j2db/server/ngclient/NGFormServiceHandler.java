@@ -102,7 +102,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 					if (changes.length() > 0)
 					{
 						dataPush(args);
-						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"), args.optString("rowid",null));
+						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"), args.optString("rowid", null));
 					}
 				}
 				break;
@@ -128,6 +128,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 						formName = SecuritySupport.decrypt(Settings.getInstance(), formName);
 					}
 					IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
+					getApplication().updateLastAccessed();
 					return form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"), args.optJSONArray("params"));
 				}
 				catch (Exception ex)

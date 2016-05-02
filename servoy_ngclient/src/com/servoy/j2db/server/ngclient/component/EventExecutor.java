@@ -37,7 +37,6 @@ import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
-import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IPersist;
@@ -47,6 +46,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
@@ -59,9 +59,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class EventExecutor
 {
-	private final IFormController formController;
+	private final IWebFormController formController;
 
-	public EventExecutor(IFormController formController)
+	public EventExecutor(IWebFormController formController)
 	{
 		this.formController = formController;
 	}
@@ -205,6 +205,7 @@ public class EventExecutor
 
 		try
 		{
+			formController.getApplication().updateLastAccessed();
 			return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, args, false, false);
 		}
 		catch (Exception ex)
