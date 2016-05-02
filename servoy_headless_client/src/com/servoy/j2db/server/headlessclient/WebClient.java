@@ -229,7 +229,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			timeZone = ((WebClientInfo)webClientSession.getClientInfo()).getProperties().getTimeZone();
 			// if the timezone is really just the default of the server just use that one.
 			TimeZone dftZone = TimeZone.getDefault();
-			if (timeZone.getRawOffset() == dftZone.getRawOffset() && timeZone.getDSTSavings() == dftZone.getDSTSavings())
+			if (timeZone != null && (timeZone.getRawOffset() == dftZone.getRawOffset() && timeZone.getDSTSavings() == dftZone.getDSTSavings()))
 			{
 				timeZone = dftZone;
 			}
