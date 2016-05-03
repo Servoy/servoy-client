@@ -563,7 +563,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur');
+			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', null, null, false, true, attrs.ngModel);
 		}
 	};
 }).directive('svyBorder',  function ($svyProperties) {
