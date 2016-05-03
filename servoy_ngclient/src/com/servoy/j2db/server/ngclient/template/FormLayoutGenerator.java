@@ -38,6 +38,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -122,7 +123,7 @@ public class FormLayoutGenerator
 					writer.println("\">");
 				}
 
-				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context, design))
+				for (IFormElement bc : PartWrapper.getBaseComponents(part, form, context, design, false))
 				{
 					FormElement fe = null;
 					if (cachedElementsMap.containsKey(bc))
@@ -139,6 +140,43 @@ public class FormLayoutGenerator
 					generateEndDiv(writer);
 				}
 
+				Iterator<FormReference> formReferences = form.getFormReferences();
+				while (formReferences.hasNext())
+				{
+					FormReference formReference = formReferences.next();
+					if (PartWrapper.isSecurityVisible(formReference, context))
+					{
+						FormElement fe = null;
+						if (cachedElementsMap.containsKey(formReference))
+						{
+							fe = cachedElementsMap.get(formReference);
+						}
+						if (fe == null)
+						{
+							fe = FormElementHelper.INSTANCE.getFormElement(formReference, context.getSolution(), null, design);
+						}
+						generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
+						for (IFormElement element : formReference.getFlattenedObjects(FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR))
+						{
+							if (PartWrapper.isSecurityVisible(element, context))
+							{
+								fe = null;
+								if (cachedElementsMap.containsKey(element))
+								{
+									fe = cachedElementsMap.get(element);
+								}
+								if (fe == null)
+								{
+									fe = FormElementHelper.INSTANCE.getFormElement(element, context.getSolution(), null, design);
+								}
+								generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
+								generateFormElement(writer, fe, form, design);
+								generateEndDiv(writer);
+							}
+						}
+						generateEndDiv(writer);
+					}
+				}
 				if (!design) generateEndDiv(writer);
 			}
 		}
@@ -278,7 +316,14 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 		}
-		writer.print(" ng-class=\"'svy-wrapper'\" ");
+		if (fe.getPersistIfAvailable() instanceof FormReference)
+		{
+			writer.print(" ng-class=\"'svy-formreference'\" ");
+		}
+		else
+		{
+			writer.print(" ng-class=\"'svy-wrapper'\" ");
+		}
 		if (design)
 		{
 			writer.print(" svy-id='");

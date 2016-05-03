@@ -39,6 +39,7 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -146,9 +147,24 @@ public class FormWrapper
 		return parts;
 	}
 
-	public Collection<BaseComponent> getBaseComponents()
+	public Collection<IFormElement> getReferenceForms()
 	{
-		List<BaseComponent> baseComponents = new ArrayList<>();
+		List<IFormElement> referenceForms = new ArrayList<>();
+		Iterator<FormReference> it = form.getFormReferences();
+		while (it.hasNext())
+		{
+			FormReference formReference = it.next();
+			if (isSecurityVisible(formReference))
+			{
+				referenceForms.add(formReference);
+			}
+		}
+		return referenceForms;
+	}
+
+	public Collection<IFormElement> getBaseComponents()
+	{
+		List<IFormElement> baseComponents = new ArrayList<>();
 
 		Collection<BaseComponent> excludedComponents = null;
 
@@ -160,12 +176,12 @@ public class FormWrapper
 		List<IFormElement> persists = form.getFlattenedObjects(Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
-			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid(persist))
+			if (formElementValidator.isComponentSpecValid(persist))
 			{
-				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist)))
-					baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add(persist);
 			}
 		}
+		baseComponents.addAll(getReferenceForms());
 		if ((isListView && !design) || isTableView)
 		{
 			baseComponents.add(new BodyPortal(form));
@@ -236,10 +252,10 @@ public class FormWrapper
 	public String getContainerSizesString() throws JSONException, IllegalArgumentException, TemplateModelException
 	{
 		Map<String, Dimension> sizes = new HashMap<String, Dimension>();
-		Collection<BaseComponent> components = getBaseComponents();
+		Collection<IFormElement> components = getBaseComponents();
 		if (components != null)
 		{
-			for (BaseComponent component : components)
+			for (IFormElement component : components)
 			{
 				if (component.getParent() instanceof LayoutContainer)
 				{
@@ -257,6 +273,30 @@ public class FormWrapper
 					}
 
 				}
+				else if (component.getParent() instanceof FormReference && formElementValidator instanceof DefaultObjectWrapper)
+				{
+					Object wrappedComponent = ((DefaultObjectWrapper)formElementValidator).wrap(component);
+					Form designForm = context.getApplication().getFlattenedSolution().getForm(((FormReference)component.getParent()).getContainsFormID());
+					if (designForm != null)
+					{
+						sizes.put(((FormElementContext)(((StringModel)wrappedComponent).getWrappedObject())).getName(), designForm.getSize());
+					}
+				}
+				else if (component.getParent() instanceof Form && component.getParent() != form && formElementValidator instanceof DefaultObjectWrapper)
+				{
+					Iterator<FormReference> it = form.getFormReferences();
+					while (it.hasNext())
+					{
+						FormReference formReference = it.next();
+						if (formReference.getContainsFormID() == component.getParent().getID())
+						{
+							sizes.put(((FormElementContext)(((StringModel)((DefaultObjectWrapper)formElementValidator).wrap(
+								component)).getWrappedObject())).getName(), ((Form)component.getParent()).getSize());
+							break;
+						}
+					}
+				}
+
 			}
 		}
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), sizes, null, null).endObject().toString();

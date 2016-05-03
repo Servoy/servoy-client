@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -122,6 +123,123 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Create a new form reference.
+	 *
+	 * @sample
+	 * var formReference = form.newFormReference(100,100,200,200);
+	 * @param x location x
+	 * @param y location y
+	 * @return the new form reference
+	 */
+	@JSFunction
+	public JSFormReference newFormReference(int x, int y, int width, int height)
+	{
+		checkModification();
+		try
+		{
+			FormReference formReference = getContainer().createNewFormReference(new Point(x, y));
+			formReference.setSize(new Dimension(width, height));
+			return application.getScriptEngine().getSolutionModifier().createFormReference((IJSParent)this, formReference);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Returns all JSFormReferences objects of this container
+	 *
+	 * @sample
+	 * var frm = solutionModel.getForm("myForm");
+	 * var containers = frm.getFormReferences();
+	 * for (var c in containers)
+	 * {
+	 * 		var fname = containers[c].name;
+	 * 		application.output(fname);
+	 * }
+	 *
+	 * @return all JSFormReferences objects of this container
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSFormReference[] getFormReferences()
+	{
+		List<JSFormReference> containers = new ArrayList<JSFormReference>();
+		Iterator<FormReference> iterator = getContainer().getFormReferences();
+		while (iterator.hasNext())
+		{
+			containers.add(application.getScriptEngine().getSolutionModifier().createFormReference((IJSParent)this, iterator.next()));
+		}
+		return containers.toArray(new JSFormReference[containers.size()]);
+	}
+
+	/**
+	 * Returns a JSFormReference that has the given name.
+	 *
+	 * @sample
+	 * var container = myForm.getFormReference("myreference");
+	 * application.output(container.name);
+	 *
+	 * @param name the specified name of the form reference
+	 *
+	 * @return a JSFormReference object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSFormReference getFormReference(String name)
+	{
+		if (name == null) return null;
+
+		Iterator<FormReference> containers = getFlattenedContainer().getFormReferences();
+		while (containers.hasNext())
+		{
+			FormReference container = containers.next();
+			if (name.equals(container.getName()))
+			{
+				return application.getScriptEngine().getSolutionModifier().createFormReference((IJSParent)this, container);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a JSFormReference that has the given name throughout the whole form hierarchy.
+	 *
+	 * @sample
+	 * var container = myForm.findFormReference("myreference");
+	 * application.output(container.name);
+	 *
+	 * @param name the specified name of the container
+	 *
+	 * @return a JSFormReference object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSFormReference findFormReference(final String name)
+	{
+		if (name == null) return null;
+
+		return (JSFormReference)getFlattenedContainer().acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof FormReference && name.equals(((FormReference)o).getName()))
+				{
+					JSBaseContainer topContainer = JSBaseContainer.this;
+					FormReference lc = (FormReference)o;
+					topContainer = getParentContainer(topContainer, lc, application);
+
+					return application.getScriptEngine().getSolutionModifier().createFormReference((IJSParent< ? >)topContainer, lc);
+				}
+				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		});
 	}
 
 	/**

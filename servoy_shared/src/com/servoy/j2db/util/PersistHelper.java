@@ -40,10 +40,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -53,6 +55,8 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 
 /**
  * Helper class to the repository model persist side
@@ -868,6 +872,14 @@ public class PersistHelper
 			if (form != null)
 			{
 				form = form.getExtendsForm();
+				if (form == null && ((IPersist)persist).getParent() instanceof FormReference)
+				{
+					int formID = ((FormReference)((IPersist)persist).getParent()).getContainsFormID();
+					if (formID > 0)
+					{
+						form = getForm((IPersist)persist, formID);
+					}
+				}
 				while (form != null)
 				{
 					IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
@@ -890,6 +902,32 @@ public class PersistHelper
 			}
 		}
 		return null;
+	}
+
+	private static Form getForm(final IPersist persist, int formID)
+	{
+		Form form = ((Solution)persist.getRootObject()).getForm(formID);
+		if (form == null)
+		{
+			try
+			{
+				FlattenedSolution fs = new FlattenedSolution(((Solution)persist.getRootObject()).getSolutionMetaData(),
+					new AbstractActiveSolutionHandler(ApplicationServerRegistry.getService(IApplicationServer.class))
+					{
+						@Override
+						public IRepository getRepository()
+						{
+							return persist.getRootObject().getRepository();
+						}
+					});
+				form = fs.getForm(formID);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		return form;
 	}
 
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)

@@ -3,6 +3,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Point;
 import java.util.List;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.PersistHelper;
 
@@ -12,11 +13,13 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	private static final long serialVersionUID = 1L;
 
 	private final LayoutContainer layoutContainer;
+	private final FlattenedSolution flattenedSolution;
 
-	public FlattenedLayoutContainer(LayoutContainer layoutContainer)
+	public FlattenedLayoutContainer(FlattenedSolution flattenedSolution, LayoutContainer layoutContainer)
 	{
 		super(layoutContainer.getParent(), layoutContainer.getID(), layoutContainer.getUUID());
 		this.layoutContainer = layoutContainer;
+		this.flattenedSolution = flattenedSolution;
 		fill();
 	}
 
@@ -32,9 +35,13 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		List<IPersist> children = PersistHelper.getHierarchyChildren(layoutContainer);
 		for (IPersist child : children)
 		{
-			if (child instanceof LayoutContainer && ((LayoutContainer)child).getExtendsID() > 0)
+			if (child instanceof LayoutContainer && FlattenedSolution.containerNeedsFlatten((LayoutContainer)child))
 			{
-				internalAddChild(new FlattenedLayoutContainer((LayoutContainer)child));
+				internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)child));
+			}
+			else if (child instanceof FormReference)
+			{
+				internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)child));
 			}
 			else
 			{

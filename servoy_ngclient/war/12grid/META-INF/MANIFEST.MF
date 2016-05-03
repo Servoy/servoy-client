@@ -54,3 +54,6 @@ Web-Composite: True
 
 Name: clearfix.spec
 Web-Composite: True
+
+Name: formreference.spec
+Web-Layout: True

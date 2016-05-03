@@ -44,6 +44,7 @@ import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.LayoutContainer;
@@ -97,7 +98,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				JSList.class, JSInsetList.class, //
 				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
 				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class //
+				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSFormReference.class//
 				};
 			}
 		});
@@ -503,8 +504,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		{
 			try
 			{
-				if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(rel.getForeignDataSource()).getRelatedSQLDescription(
-					name) != null)
+				if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(
+					rel.getForeignDataSource()).getRelatedSQLDescription(name) != null)
 				{
 					return false;
 				}
@@ -2033,5 +2034,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSLayoutContainer createLayoutContainer(IJSParent< ? > parent, LayoutContainer container)
 	{
 		return new JSLayoutContainer(parent, application, container);
+	}
+
+	public JSFormReference createFormReference(IJSParent< ? > parent, FormReference formReference)
+	{
+		return new JSFormReference(parent, application, formReference);
 	}
 }

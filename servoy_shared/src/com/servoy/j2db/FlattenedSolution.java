@@ -39,6 +39,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.AggregateVariable;
@@ -51,6 +52,7 @@ import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.ICloneable;
 import com.servoy.j2db.persistence.IColumn;
@@ -832,7 +834,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			form = (Form)persist.getAncestor(IRepository.FORMS);
 		}
-		if (form == null || form.getExtendsID() <= 0)
+		if (form == null || !containerNeedsFlatten(form))
 		{
 			// no form or nothing to flatten
 			return form;
@@ -862,6 +864,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 			return flattedFormRef[0];
 		}
+	}
+
+	public static boolean containerNeedsFlatten(AbstractContainer container)
+	{
+		if (container.getExtendsID() > 0) return true;
+		return container.acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof FormReference) return Boolean.TRUE;
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		}) == Boolean.TRUE;
 	}
 
 	/*

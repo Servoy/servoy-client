@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -31,7 +30,6 @@ import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.JSONWrapperMap;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -41,8 +39,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok,jcompagner
  */
-public class Form extends AbstractContainer
-	implements ITableDisplay, ISupportScrollbars, ISupportSize, ISupportScriptProviders, ISupportExtendsID, ISupportEncapsulation, ISupportDeprecated
+public class Form extends AbstractContainer implements ITableDisplay, ISupportScrollbars, ISupportScriptProviders, ISupportEncapsulation, ISupportDeprecated
 {
 
 	private static final long serialVersionUID = 1L;
@@ -390,6 +387,7 @@ public class Form extends AbstractContainer
 		setExtendsID(arg);
 	}
 
+	@Override
 	public void setExtendsID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
@@ -1988,11 +1986,6 @@ public class Form extends AbstractContainer
 		if (size != null) ((Form)cloned).setSize(size);
 	}
 
-	public int getExtendsID()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
-	}
-
 	/*
 	 * @see com.servoy.j2db.persistence.ISupportDeprecated#getDeprecated()
 	 */
@@ -2009,12 +2002,6 @@ public class Form extends AbstractContainer
 	public void setDeprecated(String deprecatedInfo)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
-	}
-
-	@Override
-	public Map<String, Object> getFlattenedPropertiesMap()
-	{
-		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
 	/**
@@ -2048,6 +2035,18 @@ public class Form extends AbstractContainer
 	public void setNgReadOnlyMode(Boolean readOnly)
 	{
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE }, readOnly);
+	}
+
+	public Boolean getReferenceForm()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_REFERENCE_FORM });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return Boolean.FALSE;
+	}
+
+	public void setReferenceForm(Boolean referenceForm)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_REFERENCE_FORM }, referenceForm);
 	}
 
 	/**

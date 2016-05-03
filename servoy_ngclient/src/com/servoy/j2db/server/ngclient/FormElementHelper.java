@@ -87,15 +87,10 @@ public class FormElementHelper
 			IPersist persist = iterator.next();
 			if (persist instanceof IFormElement)
 			{
-				lst.add(getFormElement((IFormElement)persist, context, null));
+				lst.add(getFormElement((IFormElement)persist, context.getSolution(), null, false));
 			}
 		}
 		return lst;
-	}
-
-	public FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
-	{
-		return getFormElement(formElement, context.getSolution(), propertyPath, false);
 	}
 
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)

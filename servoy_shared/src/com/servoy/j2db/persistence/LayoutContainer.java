@@ -33,7 +33,7 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @SuppressWarnings("nls")
-public class LayoutContainer extends AbstractContainer implements ISupportBounds, ISupportExtendsID
+public class LayoutContainer extends AbstractContainer implements ISupportBounds
 {
 
 	private static final long serialVersionUID = 1L;
@@ -216,41 +216,6 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		return PersistHelper.getHierarchyChildren(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ISupportExtendsID#getExtendsID()
-	 */
-	@Override
-	public int getExtendsID()
-	{
-		if (getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID) != null)
-			return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
-		else return 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ISupportExtendsID#setExtendsID(int)
-	 */
-	@Override
-	public void setExtendsID(int arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ISupportExtendsID#getFlattenedPropertiesMap()
-	 */
-	@Override
-	public Map<String, Object> getFlattenedPropertiesMap()
-	{
-		return PersistHelper.getFlattenedPropertiesMap(this);
-	}
 
 	@Override
 	protected boolean validateName(String newName)

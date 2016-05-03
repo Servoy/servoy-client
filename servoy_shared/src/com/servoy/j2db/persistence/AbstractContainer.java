@@ -24,15 +24,18 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
  * @author lvostinar
  *
  */
-public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName, IPersistCloneable, ICloneable
+public abstract class AbstractContainer extends AbstractBase
+	implements ISupportFormElements, ISupportExtendsID, ISupportUpdateableName, IPersistCloneable, ICloneable
 {
 
 	private static final long serialVersionUID = 1L;
@@ -102,6 +105,37 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return size;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportExtendsID#getExtendsID()
+	 */
+	@Override
+	public int getExtendsID()
+	{
+		if (getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID) != null)
+			return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		else return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportExtendsID#setExtendsID(int)
+	 */
+	@Override
+	public void setExtendsID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
+
+	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return PersistHelper.getFlattenedPropertiesMap(this);
+	}
+
 	/**
 	 * Get the all the fields on a form.
 	 *
@@ -129,6 +163,17 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return obj;
 	}
 
+	public FormReference createNewFormReference(Point location) throws RepositoryException
+	{
+		FormReference obj = (FormReference)getSolution().getChangeHandler().createNewObject(this, IRepository.FORMREFERENCE);
+
+		//set all the required properties
+		obj.setLocation(location);
+
+		addChild(obj);
+		return obj;
+	}
+
 	/**
 	 * Get the all the child layout containers.
 	 *
@@ -137,6 +182,16 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	public Iterator<LayoutContainer> getLayoutContainers()
 	{
 		return getObjects(IRepository.LAYOUTCONTAINERS);
+	}
+
+	/**
+	 * Get the all the child form references.
+	 *
+	 * @return the form references elements
+	 */
+	public Iterator<FormReference> getFormReferences()
+	{
+		return getObjects(IRepository.FORMREFERENCE);
 	}
 
 	/**
@@ -370,9 +425,9 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		List<IPersist> children = getHierarchyChildren();
 		for (IPersist persist : children)
 		{
-			if (persist instanceof LayoutContainer)
+			if (persist instanceof AbstractContainer)
 			{
-				flattenedPersists.addAll(((LayoutContainer)persist).getFlattenedObjects(comparator));
+				flattenedPersists.addAll(((AbstractContainer)persist).getFlattenedObjects(comparator));
 			}
 			else if (persist instanceof IFormElement)
 			{

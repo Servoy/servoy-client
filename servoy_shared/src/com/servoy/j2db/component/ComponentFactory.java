@@ -85,6 +85,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -374,6 +375,9 @@ public class ComponentFactory
 				break;
 			case IRepository.WEBCOMPONENTS :
 				comp = createWebComponentPlaceholder(application, form, (WebComponent)meta);
+				break;
+			case IRepository.FORMREFERENCE :
+				comp = createFormReferencePlaceholder(application, form, (FormReference)meta);
 				break;
 			default :
 				Debug.error("ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
@@ -980,8 +984,8 @@ public class ComponentFactory
 			application = J2DBGlobals.getServiceProvider();
 		}
 		IValueList list = null;
-		if (valuelist != null &&
-				(valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES || (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
+		if (valuelist != null && (valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES ||
+			(valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
 			WeakHashMap<UUID, Object> hmValueLists = null;
 			if (application != null)
@@ -1053,18 +1057,19 @@ public class ComponentFactory
 					{
 						List<String> lst = ((CustomValueList)list).getDataProviders();
 
-						StringBuffer message = new StringBuffer("The valuelist was already created for type: " +
-								Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
-							message.append("\n for the dataproviders: ");
-							for (int i = 0; i < lst.size(); i++)
-							{
-								String previousProviders = lst.get(i);
-								message.append(previousProviders);
-								message.append(",");
-							}
-							message.setLength(message.length() - 1);
-							message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
-							message.append("\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
+						StringBuffer message = new StringBuffer(
+							"The valuelist was already created for type: " + Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
+						message.append("\n for the dataproviders: ");
+						for (int i = 0; i < lst.size(); i++)
+						{
+							String previousProviders = lst.get(i);
+							message.append(previousProviders);
+							message.append(",");
+						}
+						message.setLength(message.length() - 1);
+						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
+						message.append(
+							"\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
 								valuelist.getName() + " so that they have the same type.");
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
@@ -1423,8 +1428,8 @@ public class ComponentFactory
 			cmds = combineMethodsToCommands(form, form.getOnElementFocusLostMethodID(), "onElementFocusLostMethodID", field, field.getOnFocusLostMethodID(),
 				"onFocusLostMethodID");
 			if (cmds != null) fl.setLeaveCmds((String[])cmds[0], (Object[][])cmds[1]);
-			if (field.getOnActionMethodID() > 0) fl.setActionCmd(Integer.toString(field.getOnActionMethodID()),
-					Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
+			if (field.getOnActionMethodID() > 0)
+				fl.setActionCmd(Integer.toString(field.getOnActionMethodID()), Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
 			if (field.getOnDataChangeMethodID() > 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
 				Utils.parseJSExpressions(field.getInstanceMethodArguments("onDataChangeMethodID")));
 			if (field.getOnRightClickMethodID() > 0) fl.setRightClickCommand(Integer.toString(field.getOnRightClickMethodID()),
@@ -1511,10 +1516,11 @@ public class ComponentFactory
 		}
 		if (method1 > 0 && method2 > 0)
 		{
-			return new Object[] { new String[] { String.valueOf(method1), String.valueOf(method2) }, new Object[][] { Utils.parseJSExpressions(persist1.getInstanceMethodArguments(methodKey1)), Utils.parseJSExpressions(persist2.getInstanceMethodArguments(methodKey2)) } };
+			return new Object[] { new String[] { String.valueOf(method1), String.valueOf(method2) }, new Object[][] { Utils.parseJSExpressions(
+				persist1.getInstanceMethodArguments(methodKey1)), Utils.parseJSExpressions(persist2.getInstanceMethodArguments(methodKey2)) } };
 		}
-		return new Object[] { new String[] { String.valueOf(method1 <= 0 ? method2 : method1) }, new Object[][] { Utils.parseJSExpressions((method1 <= 0
-			? persist2 : persist1).getInstanceMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
+		return new Object[] { new String[] { String.valueOf(method1 <= 0 ? method2 : method1) }, new Object[][] { Utils.parseJSExpressions(
+			(method1 <= 0 ? persist2 : persist1).getInstanceMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
 	}
 
 	/**
@@ -1543,8 +1549,8 @@ public class ComponentFactory
 				try
 				{
 					IValueList secondLookup = getFallbackValueList(application, field.getDataProviderID(), type, format, valuelist);
-					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup, format != null ? format.getDisplayFormat()
-							: null);
+					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup,
+						format != null ? format.getDisplayFormat() : null);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
 				}
 				catch (Exception e1)
@@ -1586,8 +1592,8 @@ public class ComponentFactory
 			{
 				try
 				{
-					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, dataProviderID, type, format,
-							fallbackValueList), format != null ? format.getDisplayFormat() : null);
+					valueList = new LookupValueList(fallbackValueList, application,
+						getFallbackValueList(application, dataProviderID, type, format, fallbackValueList), format != null ? format.getDisplayFormat() : null);
 				}
 				catch (Exception e)
 				{
@@ -2435,6 +2441,16 @@ public class ComponentFactory
 		scriptable.setComponent(label, webComponent);
 		label.setName(webComponent.getName());
 		label.setText("WebComponent '" + webComponent.getName() + "' placeholder");
+		label.setSize(new Dimension(200, 20));
+		return label;
+	}
+
+	protected static IComponent createFormReferencePlaceholder(IApplication application, Form form, FormReference formReference)
+	{
+		RuntimeScriptLabel scriptable = new RuntimeScriptLabel(application.getItemFactory().createChangesRecorder(), application);
+		ILabel label = application.getItemFactory().createScriptLabel(scriptable, getWebID(form, formReference), false);
+		scriptable.setComponent(label, formReference);
+		label.setText("FormReference placeholder");
 		label.setSize(new Dimension(200, 20));
 		return label;
 	}

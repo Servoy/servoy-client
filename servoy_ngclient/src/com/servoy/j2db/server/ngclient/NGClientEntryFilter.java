@@ -255,9 +255,7 @@ public class NGClientEntryFilter extends WebEntry
 									if (html && form.isResponsiveLayout())
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form, formName,
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), w,
-											Utils.getAsBoolean(request.getParameter("design")));
+										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".html"))
 									{

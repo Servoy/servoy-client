@@ -21,7 +21,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FormController;
@@ -141,10 +143,11 @@ public class PartWrapper
 
 	public Collection<BaseComponent> getBaseComponents()
 	{
-		return getBaseComponents(part, context, converterContext, design);
+		return getBaseComponents(part, context, converterContext, design, true);
 	}
 
-	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext, boolean isDesign)
+	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext, boolean isDesign,
+		boolean flatten)
 	{
 		if (!isDesign && part.getPartType() == Part.BODY)
 		{
@@ -170,11 +173,29 @@ public class PartWrapper
 		{
 			comparator = FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR;
 		}
-		List<IFormElement> persists = context.getFlattenedObjects(comparator);
+		List<IFormElement> persists = null;
+		if (flatten)
+		{
+			persists = context.getFlattenedObjects(comparator);
+		}
+		else
+		{
+			persists = new ArrayList(context.getAllObjectsAsList());
+			Iterator<IFormElement> it = persists.iterator();
+			while (it.hasNext())
+			{
+				IPersist persist = it.next();
+				if (!(persist instanceof BaseComponent))
+				{
+					it.remove();
+				}
+			}
+			Collections.sort(persists, comparator);
+		}
 		for (IFormElement persist : persists)
 		{
 			Point location = persist.getLocation();
-			if (startPos <= location.y && endPos > location.y)
+			if (startPos <= location.y && endPos > location.y && persist instanceof BaseComponent)
 			{
 				if (isSecurityVisible(persist, converterContext)) baseComponents.add((BaseComponent)persist);
 			}

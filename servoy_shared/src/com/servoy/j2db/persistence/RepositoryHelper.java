@@ -212,7 +212,8 @@ public class RepositoryHelper
 			Solution sol = (Solution)developerRepository.getActiveRootObject(solutionId);
 			if (sol != null)
 			{
-				referencedModules.put(sol.getUUID(), new RootObjectReference(sol.getName(), sol.getUUID(), sol.getRootObjectMetaData(), sol.getReleaseNumber()));
+				referencedModules.put(sol.getUUID(),
+					new RootObjectReference(sol.getName(), sol.getUUID(), sol.getRootObjectMetaData(), sol.getReleaseNumber()));
 				loadObjectMetaDatas(sol.getModulesNames(), referencedModules, SolutionMetaData.isImportHook(sol.getSolutionMetaData()));
 			}
 		}
@@ -333,8 +334,7 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (persistClass.equals(Field.class) &&
-			name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
+		if (persistClass.equals(Field.class) && name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
 			(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
 				displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
 		{
@@ -414,7 +414,7 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$
+		if (name.equals("containsFormID") && !FormReference.class.isAssignableFrom(persistClass)) // handled in combined property table //$NON-NLS-1$
 		{
 			return true;
 		}
@@ -471,6 +471,10 @@ public class RepositoryHelper
 			{
 				return true;
 			}
+			if (Form.class.isAssignableFrom(persistClass) && IContentSpecConstants.PROPERTY_REFERENCE_FORM.equals(name))
+			{
+				return true;
+			}
 			return false;
 		}
 		else if (element.isDeprecated())
@@ -489,7 +493,8 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("relationName") && !(DocsInsetList.class.isAssignableFrom(persistClass) || Portal.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass))) //$NON-NLS-1$
+		if (name.equals("relationName") && //$NON-NLS-1$
+			!(DocsInsetList.class.isAssignableFrom(persistClass) || Portal.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}
@@ -593,16 +598,17 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (ValueList.class.isAssignableFrom(persistClass) &&
-			!"name".equals(name) && !StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) && !StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name)) //$NON-NLS-1$
+		if (ValueList.class.isAssignableFrom(persistClass) && !"name".equals(name) && //$NON-NLS-1$
+			!StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) &&
+			!StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name))
 		{
 			return false;
 		}
-		if (name.equals(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
-			(Portal.class.isAssignableFrom(persistClass) || TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) ||
-				WebComponent.class.isAssignableFrom(persistClass) || Field.class.isAssignableFrom(persistClass) ||
-				GraphicalComponent.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass) ||
-				Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
+		if (name.equals(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && (Portal.class.isAssignableFrom(persistClass) ||
+			TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) || WebComponent.class.isAssignableFrom(persistClass) ||
+			Field.class.isAssignableFrom(persistClass) || GraphicalComponent.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass) ||
+			Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass) ||
+			FormReference.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}
@@ -613,9 +619,8 @@ public class RepositoryHelper
 			return false;
 		}
 
-		if (name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
-			(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
-				displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
+		if (name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) && (displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR ||
+			displayType == Field.COMBOBOX || displayType == Field.PASSWORD || displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
 		{
 			return false;
 		}

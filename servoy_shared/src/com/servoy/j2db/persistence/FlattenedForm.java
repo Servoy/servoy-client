@@ -156,7 +156,11 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						}
 						else if (ip instanceof LayoutContainer)
 						{
-							internalAddChild(new FlattenedLayoutContainer((LayoutContainer)ip));
+							internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)ip));
+						}
+						else if (ip instanceof FormReference)
+						{
+							internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)ip));
 						}
 						else
 						{
@@ -248,7 +252,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		}
 		if (element.getFormIndex() == 0 || element.getExtendsID() <= 0)
 		{
-			return (Form)element.getParent();
+			return (Form)element.getAncestor(IRepository.FORMS);
 		}
 		IFormElement currentElement = element;
 		while (currentElement != null)
@@ -259,6 +263,6 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			}
 			currentElement = (IFormElement)PersistHelper.getSuperPersist(currentElement);
 		}
-		return (Form)element.getParent();
+		return (Form)element.getAncestor(IRepository.FORMS);
 	}
 }

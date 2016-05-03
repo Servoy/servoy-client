@@ -33,7 +33,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -41,7 +43,6 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
-import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 
@@ -52,7 +53,7 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class FormLayoutStructureGenerator
 {
-	public static void generateLayout(Form form, String realFormName, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+	public static void generateLayout(Form form, String realFormName, FlattenedSolution fs, PrintWriter writer, boolean design)
 	{
 		try
 		{
@@ -63,11 +64,15 @@ public class FormLayoutStructureGenerator
 				IPersist component = components.next();
 				if (component instanceof LayoutContainer)
 				{
-					generateLayoutContainer((LayoutContainer)component, form, context, writer, design);
+					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design);
+				}
+				else if (component instanceof FormReference)
+				{
+					generateFormReference((FormReference)component, form, fs, writer, design);
 				}
 				else if (component instanceof IFormElement)
 				{
-					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), form,
+					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form,
 						design);
 				}
 			}
@@ -79,7 +84,63 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	public static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+	public static void generateFormReference(FormReference formreference, Form form, FlattenedSolution fs, PrintWriter writer, boolean design)
+		throws IOException
+	{
+		Form referencedForm = fs.getForm(formreference.getContainsFormID());
+		writer.print("<div style='position:relative; ");
+		if (referencedForm != null && !referencedForm.isResponsiveLayout())
+		{
+			writer.print("min-height:" + referencedForm.getSize().height + "px");
+		}
+		writer.print("' ");
+		if (design)
+		{
+			writer.print(" svy-id='");
+			writer.print(formreference.getUUID().toString());
+			writer.print("'");
+		}
+		writer.print(" ng-class=\"'svy-formreference'\" ");
+		if (formreference.getName() != null)
+		{
+			writer.print(" svy-name='");
+			writer.print(formreference.getName());
+			writer.print("' ");
+		}
+		writer.print(">");
+		if (form.isResponsiveLayout())
+		{
+			Iterator<IPersist> components = formreference.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+			while (components.hasNext())
+			{
+				IPersist component = components.next();
+				if (component instanceof LayoutContainer)
+				{
+					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design);
+				}
+				else if (component instanceof FormReference)
+				{
+					generateFormReference((FormReference)component, form, fs, writer, design);
+				}
+				else if (component instanceof IFormElement)
+				{
+					FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, design);
+					if (referencedForm != null && !referencedForm.isResponsiveLayout())
+					{
+						FormLayoutGenerator.generateFormElementWrapper(writer, fe, design, form, referencedForm.isResponsiveLayout());
+					}
+					FormLayoutGenerator.generateFormElement(writer, fe, form, design);
+					if (referencedForm != null && !referencedForm.isResponsiveLayout())
+					{
+						FormLayoutGenerator.generateEndDiv(writer);
+					}
+				}
+			}
+		}
+		writer.println("</div>");
+	}
+
+	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design)
 		throws IOException
 	{
 		PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
@@ -194,11 +255,15 @@ public class FormLayoutStructureGenerator
 			IPersist component = components.next();
 			if (component instanceof LayoutContainer)
 			{
-				generateLayoutContainer((LayoutContainer)component, form, context, writer, design);
+				generateLayoutContainer((LayoutContainer)component, form, fs, writer, design);
+			}
+			else if (component instanceof FormReference)
+			{
+				generateFormReference((FormReference)component, form, fs, writer, design);
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context.getSolution(), null, design);
+				FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, design);
 				if (isAbsoluteLayoutDiv)
 				{
 					FormLayoutGenerator.generateFormElementWrapper(writer, fe, design, form, false);

@@ -107,7 +107,8 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 					}
 				}
 			}
-			wrapped = new FormElementContext(fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context, null), context);
+			wrapped = new FormElementContext(fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context.getSolution(), null, false),
+				context);
 		}
 		else
 		{
