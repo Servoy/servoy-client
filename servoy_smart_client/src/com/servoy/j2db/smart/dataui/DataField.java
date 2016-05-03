@@ -120,9 +120,9 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  * Runtime swing field
  * @author jblok, jcompagner
  */
-public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize,
-	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty, ISupportFormatter, IFormattingComponent,
-	ISupportPlaceholderText, ISupportOnRender
+public class DataField extends JFormattedTextField
+	implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList,
+	ISupportSpecialClientProperty, ISupportFormatter, IFormattingComponent, ISupportPlaceholderText, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -298,7 +298,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		@Override
 		public String valueToString(Object value) throws ParseException
 		{
-			if (value == null || value.toString().trim().equals("")) { //$NON-NLS-1$
+			if (value == null || value.toString().trim().equals("")) //$NON-NLS-1$
+			{
 				return ""; //$NON-NLS-1$
 			}
 			// if it is converted by a converter it could already be a string, then just display that.
@@ -476,8 +477,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 							{
 								public void actionPerformed(ActionEvent e)
 								{
-									if (Boolean.TRUE.equals(UIUtils.getUIProperty(DataField.this, IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD,
-										Boolean.FALSE)))
+									if (Boolean.TRUE.equals(
+										UIUtils.getUIProperty(DataField.this, IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, Boolean.FALSE)))
 									{
 										((StateFullSimpleDateFormat)getFormat()).setRollInsteadOfAdd(true);
 										try
@@ -592,7 +593,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			String pattern = ((StateFullSimpleDateFormat)getFormat()).toPattern();
 			String maskPattern = pattern.replace('y', '#').replace('M', '#').replace('w', '#').replace('W', '#').replace('D', '#').replace('d', '#').replace(
 				'F', '#').replace('a', '?').replace('H', '#').replace('k', '#').replace('K', '#').replace('h', '#').replace('m', '#').replace('s', '#').replace(
-				'S', '#');
+					'S', '#');
 			FixedMaskFormatter maskFormatter = new FixedMaskDateFormatter(maskPattern);
 			maskFormatter.setValueClass(String.class);
 			if (placeHolder != 0)
@@ -1271,8 +1272,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				undoManager.setIgnoreEdits(false);
 			}
-			setValueValid(true, null);
 		}
+		setValueValid(true, null);
 	}
 
 	protected boolean skipPropertyChange = false;
@@ -1483,8 +1484,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 								if (mask) editFormat = displayFormat;
 
 								displayFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(displayFormat, false));
-								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
-									IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE))), !mask);
+								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat,
+									Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE))), !mask);
 								if (mask)
 								{
 									editFormatter = ((NullDateFormatter)editFormatter).getMaskFormatter(placeHolder);
@@ -1675,8 +1676,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				AbstractFormatter formatter = ((DefaultFormatterFactory)ff).getEditFormatter();
 				if (formatter instanceof NullDateFormatter)
 				{
-					((NullDateFormatter)formatter).setLenient(Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT,
-						Boolean.TRUE)));
+					((NullDateFormatter)formatter).setLenient(
+						Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 				}
 			}
 		}
