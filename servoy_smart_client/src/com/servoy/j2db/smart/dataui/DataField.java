@@ -120,9 +120,9 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  * Runtime swing field
  * @author jblok, jcompagner
  */
-public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize,
-	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty, ISupportFormatter, IFormattingComponent,
-	ISupportPlaceholderText, ISupportOnRender
+public class DataField extends JFormattedTextField
+	implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList,
+	ISupportSpecialClientProperty, ISupportFormatter, IFormattingComponent, ISupportPlaceholderText, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -136,10 +136,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	/**
-	 * A formatter that extends our formatter to check for the valuelist 
+	 * A formatter that extends our formatter to check for the valuelist
 	 * If the valuelist is attached then the value -> string must first get from the list (and that will then be formatter by the mask)
 	 * for string -> value what is get out of the mask will be checked if it is in the list. as a display and then the real will be given.
-	 * 
+	 *
 	 */
 	private final class ValueListMaskFormatter extends ServoyMaskFormatter
 	{
@@ -154,7 +154,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#valueToString(java.lang.Object)
 		 */
 		@Override
@@ -187,7 +187,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#stringToValue(java.lang.String)
 		 */
 		@Override
@@ -234,9 +234,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/**
 		 * Constructor for NullNumberFormatter.
-		 * 
+		 *
 		 * @param format
-		 * 
+		 *
 		 */
 		public NullNumberFormatter(NumberFormat format)
 		{
@@ -252,7 +252,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#install(javax.swing.JFormattedTextField)
 		 */
 		@Override
@@ -292,13 +292,14 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#valueToString(java.lang.Object)
 		 */
 		@Override
 		public String valueToString(Object value) throws ParseException
 		{
-			if (value == null || value.toString().trim().equals("")) { //$NON-NLS-1$
+			if (value == null || value.toString().trim().equals("")) //$NON-NLS-1$
+			{
 				return ""; //$NON-NLS-1$
 			}
 			// if it is converted by a converter it could already be a string, then just display that.
@@ -404,7 +405,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	/**
 	 * Interface for setting initial value to formatter.
-	 * 
+	 *
 	 * @author rgansevles
 	 */
 	public interface ISetInitialValue<T>
@@ -422,7 +423,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/**
 		 * Constructor for NullNumberFormatter.
-		 * 
+		 *
 		 * @param format
 		 */
 		public NullDateFormatter(StateFullSimpleDateFormat format)
@@ -432,7 +433,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/**
 		 * Constructor for NullNumberFormatter.
-		 * 
+		 *
 		 * @param format
 		 */
 		public NullDateFormatter(StateFullSimpleDateFormat format, boolean editFormatter)
@@ -464,7 +465,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				Action[] superActions = super.getActions();
 
-				// be able to catch the "increment"/"decrement" actions (so we can restrain the changes to only the selected field) 
+				// be able to catch the "increment"/"decrement" actions (so we can restrain the changes to only the selected field)
 				if (superActions != null)
 				{
 					for (int i = 0; i < superActions.length; i++)
@@ -476,8 +477,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 							{
 								public void actionPerformed(ActionEvent e)
 								{
-									if (Boolean.TRUE.equals(UIUtils.getUIProperty(DataField.this, IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD,
-										Boolean.FALSE)))
+									if (Boolean.TRUE.equals(
+										UIUtils.getUIProperty(DataField.this, IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, Boolean.FALSE)))
 									{
 										((StateFullSimpleDateFormat)getFormat()).setRollInsteadOfAdd(true);
 										try
@@ -511,7 +512,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#install(javax.swing.JFormattedTextField)
 		 */
 		@Override
@@ -583,16 +584,16 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 
 		/**
-		 * @param placeHolder 
+		 * @param placeHolder
 		 * @return
-		 * @throws ParseException 
+		 * @throws ParseException
 		 */
 		public AbstractFormatter getMaskFormatter(char placeHolder) throws ParseException
 		{
 			String pattern = ((StateFullSimpleDateFormat)getFormat()).toPattern();
 			String maskPattern = pattern.replace('y', '#').replace('M', '#').replace('w', '#').replace('W', '#').replace('D', '#').replace('d', '#').replace(
 				'F', '#').replace('a', '?').replace('H', '#').replace('k', '#').replace('K', '#').replace('h', '#').replace('m', '#').replace('s', '#').replace(
-				'S', '#');
+					'S', '#');
 			FixedMaskFormatter maskFormatter = new FixedMaskDateFormatter(maskPattern);
 			maskFormatter.setValueClass(String.class);
 			if (placeHolder != 0)
@@ -673,7 +674,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#stringToValue(java.lang.String)
 		 */
 		@Override
@@ -713,7 +714,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#valueToString(java.lang.Object)
 		 */
 		@Override
@@ -1081,7 +1082,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	public void setMaxLength(int i)
 	{
-		// do not set max length check when it has been set in setFormat() 
+		// do not set max length check when it has been set in setFormat()
 		if (list == null && editorDocument.getValidator(MAX_LENGTH_VALIDATOR) == null)
 		{
 			editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(i));
@@ -1271,8 +1272,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				undoManager.setIgnoreEdits(false);
 			}
-			setValueValid(true, null);
 		}
+		setValueValid(true, null);
 	}
 
 	protected boolean skipPropertyChange = false;
@@ -1483,8 +1484,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 								if (mask) editFormat = displayFormat;
 
 								displayFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(displayFormat, false));
-								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
-									IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE))), !mask);
+								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat,
+									Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE))), !mask);
 								if (mask)
 								{
 									editFormatter = ((NullDateFormatter)editFormatter).getMaskFormatter(placeHolder);
@@ -1675,8 +1676,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				AbstractFormatter formatter = ((DefaultFormatterFactory)ff).getEditFormatter();
 				if (formatter instanceof NullDateFormatter)
 				{
-					((NullDateFormatter)formatter).setLenient(Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT,
-						Boolean.TRUE)));
+					((NullDateFormatter)formatter).setLenient(
+						Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 				}
 			}
 		}
