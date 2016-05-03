@@ -97,7 +97,7 @@ public abstract class AbstractSolutionTest
 			if (f.exists())
 			{
 				if (f.isDirectory()) readers.add(new Package.DirPackageReader(f));
-				else readers.add(new Package.JarPackageReader(f));
+				else readers.add(new Package.ZipPackageReader(f, f.getName().substring(0, f.getName().length() - 4)));
 			}
 			else
 			{
