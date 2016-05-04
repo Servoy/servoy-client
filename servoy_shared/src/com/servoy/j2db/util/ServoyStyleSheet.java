@@ -55,12 +55,20 @@ public class ServoyStyleSheet implements IStyleSheet
 
 	public ServoyStyleSheet(String cssContent, final String name)
 	{
+		this(cssContent, name, false);
+	}
+
+	public ServoyStyleSheet(String cssContent, final String name, final boolean ignoreParsingErrors)
+	{
 		this.errorHandler = new CSSErrorHandler()
 		{
 
 			public void error(String uri, String message)
 			{
-				Debug.error("Error at css parsing, " + name + ',' + uri + ':' + message); //$NON-NLS-1$
+				if (!ignoreParsingErrors)
+				{
+					Debug.error("Error at css parsing, " + name + ',' + uri + ':' + message); //$NON-NLS-1$
+				}
 			}
 		};
 		CSSParser parser = new CSSParser(errorHandler);
