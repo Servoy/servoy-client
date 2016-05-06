@@ -2762,7 +2762,7 @@ public class TemplateGenerator
 			{
 				applyScrolling(styleObj, field);
 				// in tableview position is not set
-				styleObj.setProperty("position", "absolute");
+				styleObj.setProperty("position", "relative");
 				html.append("<div ");
 				html.append(getWicketIDParameter(form, field));
 				//				html.append(getJavaScriptIDParameter(field));
