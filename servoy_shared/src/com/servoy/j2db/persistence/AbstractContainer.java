@@ -442,20 +442,46 @@ public abstract class AbstractContainer extends AbstractBase
 		return new ArrayList<IFormElement>(Arrays.<IFormElement> asList(array));
 	}
 
+	public List<IPersist> getFlattenedFormElementsAndLayoutContainers()
+	{
+		List<IPersist> flattenedPersists = new ArrayList<IPersist>();
+		List<IPersist> children = getHierarchyChildren();
+		for (IPersist persist : children)
+		{
+			if (persist instanceof AbstractContainer)
+			{
+				if (persist instanceof LayoutContainer) flattenedPersists.add(persist);
+				flattenedPersists.addAll(((AbstractContainer)persist).getFlattenedFormElementsAndLayoutContainers());
+			}
+			else if (persist instanceof IFormElement)
+			{
+				flattenedPersists.add(persist);
+			}
+		}
+
+		return flattenedPersists;
+	}
+
 	/**
 	 * Search this containers containment hierarchy recursively for the given uuid.
 	 * @param searchFor
 	 * @return
 	 */
+
 	public IPersist findChild(UUID searchFor)
+	{
+		return findChild(searchFor, false);
+	}
+
+	public IPersist findChild(UUID searchFor, boolean searchInFormReferences)
 	{
 		List<IPersist> children = getHierarchyChildren();
 		for (IPersist iPersist : children)
 		{
 			if (iPersist.getUUID().equals(searchFor)) return iPersist;
-			if (iPersist instanceof LayoutContainer)
+			if (iPersist instanceof LayoutContainer || (searchInFormReferences && iPersist instanceof FormReference))
 			{
-				IPersist result = ((LayoutContainer)iPersist).findChild(searchFor);
+				IPersist result = ((AbstractContainer)iPersist).findChild(searchFor, searchInFormReferences);
 				if (result != null) return result;
 			}
 		}

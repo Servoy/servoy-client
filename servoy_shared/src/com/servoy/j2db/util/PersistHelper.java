@@ -1098,4 +1098,24 @@ public class PersistHelper
 			buildOrderedModulesList(newParent, orderedModules, fsModules);
 		}
 	}
+
+	public static List<FormReference> getAllFormReferences(Form form)
+	{
+		final ArrayList<FormReference> allFormReferences = new ArrayList<FormReference>();
+
+		form.acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof FormReference)
+				{
+					allFormReferences.add((FormReference)o);
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+
+		return allFormReferences;
+	}
 }
