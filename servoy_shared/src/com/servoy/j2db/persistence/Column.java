@@ -441,6 +441,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			{
 				case NUMBER :
 					if (obj instanceof Double || obj instanceof BigDecimal) return obj;
+					if ("".equals(obj)) return null;
 					Double retValue = new Double(Utils.getAsDouble(obj, throwOnFail));
 					if (obj instanceof Long)
 					{
@@ -455,6 +456,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				case INTEGER :
 					if (obj instanceof Integer) return obj;
 					if (obj instanceof Long) return obj;
+					if ("".equals(obj)) return null;
 					return new Long(Utils.getAsLong(obj, throwOnFail));
 
 				case TEXT :
