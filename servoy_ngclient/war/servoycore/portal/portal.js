@@ -1499,6 +1499,15 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 	    	{
 	    		$svyProperties.setCssProperty($element,"backgroundColor",$scope.model.transparent?"transparent":$scope.model.background);
 	    	}
+	    	if ($scope.model.foreground)
+	    	{
+	    		$svyProperties.setCssProperty($element,"color",$scope.model.foreground);
+	    	}
+	    	if ($scope.model.fontType)
+	    	{
+	    		$svyProperties.setCssProperty($element,"font",$scope.model.fontType);
+	    	}
+	    	$svyProperties.setHorizontalAlignment($element,$scope.model.horizontalAlignment);
 	    	if ($scope.handlers) {
 		    	if ($scope.handlers.onActionMethodID) {
 		    		$element.on("click", function(event) {
