@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportFormElements;
 import com.servoy.j2db.persistence.LayoutContainer;
@@ -260,6 +261,41 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			LayoutContainer layoutContainer = getContainer().createNewLayoutContainer();
 			layoutContainer.setLocation(new Point(x, y));
 			return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, layoutContainer);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Create a new layout container. The position is used to determine the generated order in html markup.
+	 * This method can only be used in responsive forms.
+	 *
+	 * @sample
+	 * var container = form.newLayoutContainer(1);
+	 * @param position the position of JSWebComponent object in its parent container
+	 * @return the new layout container
+	 */
+	@JSFunction
+	public JSLayoutContainer newLayoutContainer(int position)
+	{
+		checkModification();
+		try
+		{
+			AbstractContainer container = getContainer();
+			Form form = (Form)container.getAncestor(IRepository.FORMS);
+			if (form.isResponsiveLayout())
+			{
+				LayoutContainer layoutContainer = getContainer().createNewLayoutContainer();
+				layoutContainer.setLocation(new Point(0, position));
+				return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, layoutContainer);
+			}
+			else
+			{
+				throw new RuntimeException(
+					"Form " + form.getName() + " is not responsive. Cannot create layout container without specifying the location and size.");
+			}
 		}
 		catch (RepositoryException e)
 		{
@@ -1915,6 +1951,46 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			webComponent.setSize(new Dimension(width, height));
 			webComponent.setLocation(new Point(x, y));
 			return createWebComponent((IJSParent)this, webComponent, application, true);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Creates a new JSWebComponent (spec based component) object on the RESPONSIVE form.
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var container = myForm.getLayoutContainer("row1")
+	 * var bean = container.newWebComponent('bean','mypackage-testcomponent',1);
+	 *
+	 * @param name the specified name of the JSWebComponent object
+	 * @param type the webcomponent name as it appears in the spec
+	 * @param position the position of JSWebComponent object in its parent container
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent newWebComponent(String name, String type, int position)
+	{
+		checkModification();
+		try
+		{
+			AbstractContainer container = getContainer();
+			Form form = (Form)container.getAncestor(IRepository.FORMS);
+			if (form.isResponsiveLayout())
+			{
+				WebComponent webComponent = container.createNewWebComponent(name, type);
+				webComponent.setLocation(new Point(0, position));
+				return createWebComponent((IJSParent)this, webComponent, application, true);
+			}
+			else
+			{
+				throw new RuntimeException("Form " + form.getName() + " is not responsive. Cannot create component without specifying the location and size.");
+			}
 		}
 		catch (RepositoryException e)
 		{
