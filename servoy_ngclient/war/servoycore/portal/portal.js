@@ -207,7 +207,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
 						}
-						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex)"' + handlers + ' tabIndex="-1"></div>';
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm svy-padding-xs" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex)"' + handlers + ' tabIndex="-1"></div>';
 					}
 
 
