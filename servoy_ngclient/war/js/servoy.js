@@ -144,7 +144,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			return null;
 		},
-		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout,returnFalse, doSvyApply, dataproviderString) {
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout,returnFalse, doSvyApply, dataproviderString, preHandlerCallback) {
 			var fn = this.getEventHandler($parse,scope,svyEventHandler)
 			if (fn)
 			{
@@ -152,6 +152,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					if (!filterFunction || filterFunction(event)) {
 						
 						function executeHandler(){
+							if(preHandlerCallback) {
+								preHandlerCallback();
+							}
 							//svyApply before calling the handler
 							if(doSvyApply && dataproviderString)
 							{
@@ -562,8 +565,23 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 }).directive('svyFocuslost',  function ($parse,$utils) {
 	return {
 		restrict: 'A',
-		link: function (scope, element, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', null, 20, false, true, attrs.ngModel);
+		require: '?ngModel', // get a hold of NgModelController
+		link: function (scope, element, attrs, ngModel) {
+			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', null, null, false, true, attrs.ngModel, function() {
+						var type = element[0].type;
+						if(type) {
+							type = type.toLowerCase();
+							if(type === 'text' || type === 'textarea' || type === 'password') {
+								var value = element.val();
+								if (typeof value === 'string' && type !== 'password' && (!attrs.ngTrim || attrs.ngTrim !== 'false')) {
+										value = value.trim();
+								}
+								if (ngModel.$viewValue !== value || (value === '' && ngModel.$$hasNativeValidators)) {
+										ngModel.$setViewValue(value, event);
+								}
+							}
+						}
+					});
 		}
 	};
 }).directive('svyBorder',  function ($svyProperties) {
