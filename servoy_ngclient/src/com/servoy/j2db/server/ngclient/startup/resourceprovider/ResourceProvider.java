@@ -94,11 +94,11 @@ public class ResourceProvider implements Filter
 		return name;
 	}
 
-	public synchronized static void updateComponentResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
+	public synchronized static void updateComponentResources(Collection<String> toRemove, Collection<IPackageReader> toAdd)
 	{
-		for (IPackageReader reader : toRemove)
+		for (String reader : toRemove)
 		{
-			componentReaders.remove(getName(reader));
+			componentReaders.remove(reader);
 		}
 		for (IPackageReader reader : toAdd)
 		{
@@ -110,11 +110,11 @@ public class ResourceProvider implements Filter
 		else initSpecProvider();
 	}
 
-	public synchronized static void updateServiceResources(Collection<IPackageReader> toRemove, Collection<IPackageReader> toAdd)
+	public synchronized static void updateServiceResources(Collection<String> toRemove, Collection<IPackageReader> toAdd)
 	{
-		for (IPackageReader reader : toRemove)
+		for (String reader : toRemove)
 		{
-			serviceReaders.remove(getName(reader));
+			serviceReaders.remove(reader);
 		}
 		for (IPackageReader reader : toAdd)
 		{
