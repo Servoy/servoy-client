@@ -496,6 +496,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		@Override
 		protected void processKeyEvent(KeyEvent e)
 		{
+
 			super.processKeyEvent(e);
 
 			//  Handle release of Insert key to toggle insert/overtype mode
@@ -540,7 +541,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 			}
 			catch (Exception e)
 			{
-//				Debug.trace(e);//is intenionaly trace, becouse fails before 1.4			
+//				Debug.trace(e);//is intenionaly trace, becouse fails before 1.4
 			}
 		}
 
@@ -1031,7 +1032,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#getToolTipText(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -1085,7 +1086,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		return cachedSize;
 	}
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;
@@ -1255,5 +1256,12 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		PromptSupport.uninstall(enclosedComponent);
 		PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(text), enclosedComponent);
 		repaint();
+	}
+
+	@Override
+	public void requestFocus()
+	{
+		// always focus the inner component
+		enclosedComponent.requestFocus();
 	}
 }
