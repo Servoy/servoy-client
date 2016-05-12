@@ -3269,6 +3269,26 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		form.setEncapsulation(arg);
 	}
 
+	/**
+	 * Get or set the ngReadonlyMode for the form. This flag is a performance optimization for tableview/listview to show labels instead of editable fields.
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.ngReadOnlyMode = true;
+	 */
+	@JSGetter
+	public boolean getNgReadOnlyMode()
+	{
+		return Utils.getAsBoolean(form.getNgReadOnlyMode());
+	}
+
+	@JSSetter
+	public void setNgReadOnlyMode(boolean arg)
+	{
+		checkModification();
+		form.setNgReadOnlyMode(Boolean.valueOf(arg));
+	}
+
 	/** Get a design-time property of a form.
 	 *
 	 * @sample
