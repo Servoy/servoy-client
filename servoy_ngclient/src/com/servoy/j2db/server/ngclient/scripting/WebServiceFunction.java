@@ -61,10 +61,19 @@ public class WebServiceFunction extends WebBaseFunction
 		try
 		{
 			PropertyDescription retPD = definition != null ? definition.getReturnType() : null;
-			return cx.getWrapFactory().wrap(cx, scope,
-				NGConversions.INSTANCE.convertSabloComponentToRhinoValue(session.getClientService(serviceName).executeServiceCall(definition.getName(), args),
-					retPD, (BaseWebObject)session.getClientService(serviceName), thisObj),
-				null);
+			if (retPD == null && definition != null && definition.isAsync())
+			{
+				session.getClientService(serviceName).executeAsyncServiceCall(definition.getName(), args);
+				return null;
+			}
+			else
+			{
+				return cx.getWrapFactory().wrap(cx, scope,
+					NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
+						session.getClientService(serviceName).executeServiceCall(definition.getName(), args), retPD,
+						(BaseWebObject)session.getClientService(serviceName), thisObj),
+					null);
+			}
 		}
 		catch (IOException e)
 		{
