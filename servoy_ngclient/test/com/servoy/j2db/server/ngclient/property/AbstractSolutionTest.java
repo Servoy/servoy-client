@@ -219,6 +219,12 @@ public abstract class AbstractSolutionTest
 			return Package.getPackageType(getManifest());
 		}
 
+		@Override
+		public File getResource()
+		{
+			return null;
+		}
+
 	}
 
 	@Before
