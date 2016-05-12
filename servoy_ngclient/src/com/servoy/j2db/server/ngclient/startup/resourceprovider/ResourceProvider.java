@@ -482,5 +482,11 @@ public class ResourceProvider implements Filter
 			return "Bundle ng package: " + getName();
 		}
 
+		@Override
+		public File getResource()
+		{
+			return null;
+		}
+
 	}
 }
