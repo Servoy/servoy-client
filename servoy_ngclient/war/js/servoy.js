@@ -568,16 +568,18 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		require: '?ngModel', // get a hold of NgModelController
 		link: function (scope, element, attrs, ngModel) {
 			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', null, null, false, true, attrs.ngModel, function() {
-						var type = element[0].type;
-						if(type) {
-							type = type.toLowerCase();
-							if(type === 'text' || type === 'textarea' || type === 'password') {
-								var value = element.val();
-								if (typeof value === 'string' && type !== 'password' && (!attrs.ngTrim || attrs.ngTrim !== 'false')) {
-										value = value.trim();
-								}
-								if (ngModel.$viewValue !== value || (value === '' && ngModel.$$hasNativeValidators)) {
-										ngModel.$setViewValue(value, event);
+						if(ngModel) {
+							var type = element[0].type;
+							if(type) {
+								type = type.toLowerCase();
+								if(type === 'text' || type === 'textarea' || type === 'password') {
+									var value = element.val();
+									if (typeof value === 'string' && type !== 'password' && (!attrs.ngTrim || attrs.ngTrim !== 'false')) {
+											value = value.trim();
+									}
+									if (ngModel.$viewValue !== value || (value === '' && ngModel.$$hasNativeValidators)) {
+											ngModel.$setViewValue(value, event);
+									}
 								}
 							}
 						}
