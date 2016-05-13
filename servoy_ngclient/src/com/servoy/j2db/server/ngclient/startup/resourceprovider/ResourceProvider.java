@@ -503,7 +503,7 @@ public class ResourceProvider implements Filter
 		return null;
 	}
 
-	public static String getComponnetPackageNameForFile(File file)
+	public static String getComponentPackageNameForFile(File file)
 	{
 		for (Entry<String, IPackageReader> entry : componentReaders.entrySet())
 		{
