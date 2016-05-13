@@ -27,6 +27,7 @@
   	 "tab": {
   	 	"active": {"type":"boolean","default": false,"tags": { "scope" :"private" }},
   		"containedForm": "form",
+  		"imageMediaID": "media",
   		"text": {"type":"tagstring","default":"tab"},
   		"relationName": "relation"
   		}
