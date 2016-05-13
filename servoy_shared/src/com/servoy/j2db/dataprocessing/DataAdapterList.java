@@ -860,7 +860,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	public static Object getValueObject(IRecord record, FormScope fs, String dataProviderID)
 	{
-		if (dataProviderID == null) return null;
+		if (dataProviderID == null || fs == null) return null;
 
 		Object value = null;
 		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
