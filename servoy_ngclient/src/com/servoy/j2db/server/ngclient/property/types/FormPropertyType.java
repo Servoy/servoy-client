@@ -100,7 +100,23 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (sabloValue instanceof String)
 		{
 			// form name
-			writer.value(sabloValue);
+			UUID uuid = Utils.getAsUUID(sabloValue, false);
+			boolean nameWritten = false;
+			if (uuid != null && dataConverterContext.getWebObject() instanceof IContextProvider)
+			{
+				Form form = (Form)((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution().searchPersist(
+					uuid);
+				if (form != null)
+				{
+					writer.value(form.getName());
+					nameWritten = true;
+				}
+			}
+
+			if (!nameWritten)
+			{
+				writer.value(sabloValue);
+			}
 		}
 		else if (sabloValue instanceof CharSequence)
 		{
