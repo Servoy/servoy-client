@@ -130,6 +130,33 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return retval;
 	}
 
+	public Iterator<Form> getAllNonReferenceForms(boolean sort)
+	{
+		return getAllReferenceNonReferenceForms(false, sort);
+	}
+
+	public Iterator<Form> getAllReferenceForms(boolean sort)
+	{
+		return getAllReferenceNonReferenceForms(true, sort);
+	}
+
+	private Iterator<Form> getAllReferenceNonReferenceForms(final boolean reference, boolean sort)
+	{
+		List<IPersist> childs = getAllObjectsAsList();
+		Iterator<Form> retval = new TypeIterator<Form>(childs, IRepository.FORMS, new IFilter<Form>()
+		{
+			public boolean match(Object f)
+			{
+				return (f instanceof Form && reference == ((Form)f).getReferenceForm().booleanValue());
+			}
+		});
+		if (sort)
+		{
+			return Utils.asSortedIterator(retval, NameComparator.INSTANCE);
+		}
+		return retval;
+	}
+
 	public Form getForm(String name)
 	{
 		return selectByName(getForms(null, false), name);
@@ -750,7 +777,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
