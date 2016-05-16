@@ -42,6 +42,7 @@ import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
@@ -288,6 +289,7 @@ public class FormLayoutGenerator
 			JSONObject ngClass = new JSONObject();
 			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + fe.getDesignId() + "').svyVisible == false<".toString());
 			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+			if (fe.getPersistIfAvailable() instanceof FormReference) ngClass.put("form_reference", "true");
 			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 		}
 		else
@@ -359,7 +361,16 @@ public class FormLayoutGenerator
 
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
-				writer.print(" class='inherited_element'");
+				writer.print(" class='inherited_element");
+				// is this part of a reference form ?
+				IPersist parentForm = fe.getPersistIfAvailable().getAncestor(IRepository.FORMS);
+				if (parentForm instanceof Form && ((Form)parentForm).getReferenceForm().booleanValue() ||
+					fe.getPersistIfAvailable().getAncestor(IRepository.FORMREFERENCE) != null)
+				{
+					writer.print(" form_reference_element");
+				}
+
+				writer.print("'");
 			}
 		}
 		writer.println(">");
@@ -451,6 +462,13 @@ public class FormLayoutGenerator
 				if (!fe.getForm().equals(form)) //is this inherited?
 				{
 					ngClass.put("inheritedElement", true);
+					// is this part of a reference form ?
+					IPersist parentForm = fe.getPersistIfAvailable().getAncestor(IRepository.FORMS);
+					if (parentForm instanceof Form && ((Form)parentForm).getReferenceForm().booleanValue() ||
+						fe.getPersistIfAvailable().getAncestor(IRepository.FORMREFERENCE) != null)
+					{
+						ngClass.put("form_reference_element", true);
+					}
 				}
 
 				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + fe.getDesignId() + "').svyVisible == false<".toString());

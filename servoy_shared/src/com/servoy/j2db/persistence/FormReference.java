@@ -25,7 +25,7 @@ import com.servoy.j2db.util.UUID;
  * @author lvostinar
  *
  */
-public class FormReference extends AbstractContainer implements IFormElement
+public class FormReference extends AbstractContainer implements IFormElement, IContainsFormID
 {
 
 	protected FormReference(ISupportChilds parent, int element_id, UUID uuid)

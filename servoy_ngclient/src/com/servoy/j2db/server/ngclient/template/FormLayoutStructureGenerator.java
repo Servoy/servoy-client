@@ -98,7 +98,7 @@ public class FormLayoutStructureGenerator
 		{
 			writer.print(" svy-id='");
 			writer.print(formreference.getUUID().toString());
-			writer.print("'");
+			writer.print("' class='form_reference'");
 		}
 		writer.print(" ng-class=\"'svy-formreference'\" ");
 		if (formreference.getName() != null)
