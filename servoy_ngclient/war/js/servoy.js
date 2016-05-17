@@ -631,12 +631,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyScrollbars',  function ($svyProperties,$parse) {
+.directive('svyScrollbars',  function ($svyProperties,$parse,$scrollbarConstants) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			var scrollbarsModelObj= $parse(attrs.svyScrollbars)(scope);
-			element.css($svyProperties.getScrollbarsStyleObj(scrollbarsModelObj));
+			if (scrollbarsModelObj === $scrollbarConstants.SCROLLBARS_WHEN_NEEDED || scrollbarsModelObj === null || scrollbarsModelObj === undefined)
+			{
+				// default value, add from css, not inline style
+				element.addClass('svy-overflow-auto');
+			}
+			else
+			{
+				element.css($svyProperties.getScrollbarsStyleObj(scrollbarsModelObj));
+			}	
 		}
 	}
 })

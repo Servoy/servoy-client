@@ -6,7 +6,9 @@
 .ng-invalid input{
 	background-color: #f90000;
 }
-
+.svy-overflow-auto {
+	overflow: auto;
+}
 .svy-padding-xs {
 	padding: 1px 5px;
 }
