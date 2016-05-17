@@ -48,6 +48,8 @@ public interface IBasicWebObject extends ISupportChilds
 
 	void updateJSON();
 
+	JSONObject getJson();
+
 	void clearChanged();
 
 }

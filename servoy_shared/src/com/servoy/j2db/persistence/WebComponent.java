@@ -195,9 +195,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		webObjectImpl.setJson(arg);
 	}
 
-	/**
-	 * DO NOT USE this method! Use getProperty instead.
-	 */
 	public JSONObject getJson()
 	{
 		JSONObject x = webObjectImpl.getJson();

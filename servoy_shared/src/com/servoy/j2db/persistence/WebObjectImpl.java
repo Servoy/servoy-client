@@ -626,7 +626,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		try
 		{
 			boolean removed = false;
-			JSONObject oldJson = getJson();
+			JSONObject oldJson = webObject.getJson();
 			// we can no longer check for differences here as we now reuse JSON objects/arrays
 			JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 
