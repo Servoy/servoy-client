@@ -34,20 +34,18 @@ import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
  */
 public class Types
 {
-	private static Types typesInstance = new Types();
+	private static final Types typesInstance = new Types();
+	private boolean registered = false;
 
 	public static Types getTypesInstance()
 	{
 		return typesInstance;
 	}
 
-	public static void setTypesInstance(Types typesInstance)
+	public synchronized void registerTypes()
 	{
-		Types.typesInstance = typesInstance;
-	}
-
-	public void registerTypes()
-	{
+		if (registered) return;
+		registered = true;
 		TypesRegistry.addType(BorderPropertyType.INSTANCE);
 		TypesRegistry.addType(DatasetPropertyType.INSTANCE);
 		TypesRegistry.addType(RelationPropertyType.INSTANCE);
@@ -59,10 +57,10 @@ public class Types
 		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
 		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
-		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(),
-			DataproviderPropertyType.INSTANCE));
-		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(),
-			TagStringPropertyType.INSTANCE));
+		TypesRegistry.addType(
+			new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(), DataproviderPropertyType.INSTANCE));
+		TypesRegistry.addType(
+			new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(), TagStringPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
