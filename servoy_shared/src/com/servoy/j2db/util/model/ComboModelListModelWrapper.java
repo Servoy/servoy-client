@@ -113,17 +113,17 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		int currentSize = getSize();
 		if (currentSize > prevSize)
 		{
-			this.fireIntervalAdded(this, prevSize, currentSize - 1);
-			this.fireContentsChanged(this, 0, prevSize - 1);
+			listener.intervalAdded(new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, prevSize, currentSize - 1));
+			listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, prevSize - 1));
 		}
 		else if (prevSize != currentSize)
 		{
-			this.fireIntervalRemoved(this, currentSize, prevSize - 1);
-			this.fireContentsChanged(this, 0, currentSize - 1);
+			listener.intervalRemoved(new ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, currentSize, prevSize - 1));
+			listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, currentSize - 1));
 		}
 		else
 		{
-			this.fireContentsChanged(this, 0, currentSize - 1);
+			listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, currentSize - 1));
 		}
 	}
 
@@ -212,7 +212,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IModificationListener#valueChanged(com.servoy.j2db.dataprocessing.ModificationEvent)
 	 */
 	public void valueChanged(ModificationEvent e)
@@ -297,7 +297,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.ListModel#getSize()
 	 */
 	public int getSize()
@@ -663,7 +663,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	/**
 	 * A wrapper for valuelists that helps combos deal with situations where "-" should be a valid value in the valuelist (not just a separator) and should also reach the dataprovider this way (and not as \-).
 	 * It converts the "-" that is interpreted as separator into a separator Object and the "\-" that is supposed to be interpreted as a real "-" to "-".
-	 * 
+	 *
 	 * "-" is only considered a separator if present as display value in the valuelist.
 	 */
 	private static class SeparatorProcessingValueList implements IValueList
