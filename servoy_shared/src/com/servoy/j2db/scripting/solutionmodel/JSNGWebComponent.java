@@ -150,10 +150,15 @@ public class JSNGWebComponent extends JSWebComponent
 		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
-			if (spec.getHandler(handlerName) != null)
+			String name = handlerName;
+			if (spec.getHandler(name) == null)
 			{
-				setJSONProperty(handlerName, value);
-				getBaseComponent(true).putInstanceMethodParameters(handlerName, new ArrayList(),
+				name = name + "MethodID";
+			}
+			if (spec.getHandler(name) != null)
+			{
+				setJSONProperty(name, value);
+				getBaseComponent(true).putInstanceMethodParameters(name, new ArrayList(),
 					value instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)value).getArguments()) : null);
 			}
 			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
@@ -167,9 +172,14 @@ public class JSNGWebComponent extends JSWebComponent
 		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
-			if (spec.getHandler(handlerName) != null)
+			String name = handlerName;
+			if (spec.getHandler(name) == null)
 			{
-				webComponent.clearProperty(handlerName);
+				name = name + "MethodID";
+			}
+			if (spec.getHandler(name) != null)
+			{
+				webComponent.clearProperty(name);
 			}
 			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
 		}
@@ -179,6 +189,10 @@ public class JSNGWebComponent extends JSWebComponent
 	public JSMethod getHandler(String handlerName)
 	{
 		Object jsonProperty = getJSONProperty(handlerName);
+		if (jsonProperty == null)
+		{
+			jsonProperty = getJSONProperty(handlerName + "MethodID");
+		}
 		if (jsonProperty instanceof JSMethod) return (JSMethod)jsonProperty;
 		else return null;
 	}
