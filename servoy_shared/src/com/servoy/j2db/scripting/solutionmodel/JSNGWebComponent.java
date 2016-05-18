@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -75,7 +76,20 @@ public class JSNGWebComponent extends JSWebComponent
 				}
 				else
 				{
-					value = defaultRhinoToDesignValue(value, application);
+					if (value instanceof Object[])
+					{
+						Object[] array = (Object[])value;
+						JSONArray values = new JSONArray();
+						for (Object element : array)
+						{
+							values.put(defaultRhinoToDesignValue(element, application));
+						}
+						value = values;
+					}
+					else
+					{
+						value = defaultRhinoToDesignValue(value, application);
+					}
 				}
 			}
 			webComponent.setProperty(propertyName, value);

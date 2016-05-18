@@ -40,6 +40,8 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -52,6 +54,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
@@ -63,7 +66,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
 public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT>
 	implements IDesignToFormElement<JSONArray, Object[], Object>, IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>,
 	ISabloComponentToRhino<Object>, IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>,
-	ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>, IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>
+	ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>, IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -308,4 +311,46 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		else return new TargetDataLinks(dps.toArray(new String[dps.size()]), recordLinked);
 	}
 
+	@Override
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		Object[] array = (Object[])value;
+		JSONArray values = new JSONArray();
+		PropertyDescription desc = getCustomJSONTypeDefinition();
+		for (Object element : array)
+		{
+			if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
+			{
+				values.put(((IRhinoDesignConverter)desc.getType()).fromRhinoToDesignValue(element, desc, application, webComponent));
+			}
+			else
+			{
+				values.put(JSWebComponent.defaultRhinoToDesignValue(element, application));
+			}
+		}
+		return values;
+	}
+
+	@Override
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof Object[])
+		{
+			JSONArray arr = new JSONArray();
+			PropertyDescription desc = getCustomJSONTypeDefinition();
+			for (Object v : (Object[])value)
+			{
+				if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
+				{
+					arr.put(((IRhinoDesignConverter)desc.getType()).fromDesignToRhinoValue(v, desc, application, webComponent));
+				}
+				else
+				{
+					arr.put(JSWebComponent.defaultRhinoToDesignValue(v, application));
+				}
+				return arr;
+			}
+		}
+		return value;
+	}
 }
