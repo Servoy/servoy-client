@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -150,6 +153,8 @@ public class JSNGWebComponent extends JSWebComponent
 			if (spec.getHandler(handlerName) != null)
 			{
 				setJSONProperty(handlerName, value);
+				getBaseComponent(true).putInstanceMethodParameters(handlerName, new ArrayList(),
+					value instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)value).getArguments()) : null);
 			}
 			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
 		}
