@@ -245,13 +245,14 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * If the handler is already set, it will be replaced with the new JSMethod.
 	 *
 	 * @param handlerName the name of the handler to get
+	 * @param method the JSMethod to attach to the handler (can be also JSMethod that has arguments)
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
 	 * wc.setHandler('onActionMethodID', form.getJSMethod('onAction'));
 	 */
 	@JSFunction
-	public void setHandler(String handlerName, JSMethod value)
+	public void setHandler(String handlerName, JSMethod method)
 	{
 	}
 
