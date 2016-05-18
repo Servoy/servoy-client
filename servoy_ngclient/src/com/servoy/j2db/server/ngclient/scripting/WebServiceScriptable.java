@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -66,7 +67,9 @@ public class WebServiceScriptable implements Scriptable
 	private static Script getScript(Context context, URL serverScript) throws URISyntaxException, IOException
 	{
 		Pair<Script, Long> pair = scripts.get(serverScript.toURI());
-		long lastModified = serverScript.openConnection().getLastModified();
+		URLConnection openConnection = serverScript.openConnection();
+		openConnection.setUseCaches(false);
+		long lastModified = openConnection.getLastModified();
 		if (pair == null || pair.getRight().longValue() < lastModified)
 		{
 			String name = "";

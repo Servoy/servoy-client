@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -37,7 +38,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -223,49 +226,44 @@ public class ResourceProvider implements Filter
 			{
 				URLConnection connection = url.openConnection();
 				connection.setUseCaches(false);
-				long lastModifiedTime = connection.getLastModified() / 1000 * 1000;
-				((HttpServletResponse)response).setDateHeader("Last-Modified", lastModifiedTime);
-				((HttpServletResponse)response).setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
-				long lm = ((HttpServletRequest)request).getDateHeader("If-Modified-Since");
-				if (lm != -1 && lm == lastModifiedTime)
+				if (connection instanceof JarURLConnection)
 				{
-					((HttpServletResponse)response).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-					return;
-				}
-
-				response.setContentLength(connection.getContentLength());
-				if (connection.getContentType() != null && connection.getContentType().indexOf("unknown") == -1)
-				{
-					response.setContentType(connection.getContentType());
+					JarFile jarFile = ((JarURLConnection)connection).getJarFile();
+					try
+					{
+						String file = ((JarURLConnection)connection).getEntryName();
+						ZipEntry entry = jarFile.getEntry(file);
+						if (testLastModified(request, response, entry.getTime() / 1000 * 1000)) return;
+						response.setContentLength((int)entry.getSize());
+						setContentType(response, file);
+						try (InputStream is = jarFile.getInputStream(entry))
+						{
+							streamContent(response, file, is);
+						}
+					}
+					finally
+					{
+						jarFile.close();
+					}
 				}
 				else
 				{
-					String file = url.getFile();
-					if (file.toLowerCase().endsWith(".js"))
-					{
-						response.setContentType("text/javascript");
-					}
-					else if (file.toLowerCase().endsWith(".css"))
-					{
-						response.setContentType("text/css");
-					}
-					else if (file.toLowerCase().endsWith(".html"))
-					{
-						response.setContentType("text/html");
-					}
-				}
-				String compileLessWithNashorn = null;
-				if (url.getFile().toLowerCase().endsWith(".less") && (compileLessWithNashorn = compileLessWithNashorn(url)) != null)
-				{
-					response.setContentType("text/css");
-					response.setContentLength(compileLessWithNashorn.length());
-					response.getWriter().print(compileLessWithNashorn);
-				}
-				else try (InputStream is = connection.getInputStream())
-				{
-					Utils.streamCopy(is, response.getOutputStream());
-				}
+					if (testLastModified(request, response, connection.getLastModified() / 1000 * 1000)) return;
+					response.setContentLength(connection.getContentLength());
 
+					if (connection.getContentType() != null && connection.getContentType().indexOf("unknown") == -1)
+					{
+						response.setContentType(connection.getContentType());
+					}
+					else
+					{
+						setContentType(response, url.getFile());
+					}
+					try (InputStream is = connection.getInputStream())
+					{
+						streamContent(response, url.getFile(), is);
+					}
+				}
 			}
 			else
 			{
@@ -278,11 +276,69 @@ public class ResourceProvider implements Filter
 		}
 	}
 
-
-	private static String getText(URL url) throws Exception
+	/**
+	 * @param response
+	 * @param url
+	 * @param is
+	 * @throws IOException
+	 */
+	private void streamContent(ServletResponse response, String file, InputStream is) throws IOException
 	{
-		URLConnection connection = url.openConnection();
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String compileLessWithNashorn = null;
+		if (file.toLowerCase().endsWith(".less") && (compileLessWithNashorn = compileLessWithNashorn(is)) != null)
+		{
+			response.setContentType("text/css");
+			response.setContentLength(compileLessWithNashorn.length());
+			response.getWriter().print(compileLessWithNashorn);
+		}
+		else
+		{
+			Utils.streamCopy(is, response.getOutputStream());
+		}
+	}
+
+	/**
+	 * @param response
+	 * @param file
+	 */
+	private void setContentType(ServletResponse response, String file)
+	{
+		if (file.toLowerCase().endsWith(".js"))
+		{
+			response.setContentType("text/javascript");
+		}
+		else if (file.toLowerCase().endsWith(".css"))
+		{
+			response.setContentType("text/css");
+		}
+		else if (file.toLowerCase().endsWith(".html"))
+		{
+			response.setContentType("text/html");
+		}
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param lastModifiedTime
+	 */
+	private boolean testLastModified(ServletRequest request, ServletResponse response, long lastModifiedTime)
+	{
+		((HttpServletResponse)response).setDateHeader("Last-Modified", lastModifiedTime);
+		((HttpServletResponse)response).setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
+		long lm = ((HttpServletRequest)request).getDateHeader("If-Modified-Since");
+		if (lm != -1 && lm == lastModifiedTime)
+		{
+			((HttpServletResponse)response).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+			return true;
+		}
+		return false;
+	}
+
+
+	private static String getText(InputStream is) throws IOException
+	{
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder result = new StringBuilder();
 		String inputLine;
 		while ((inputLine = bufferedReader.readLine()) != null)
@@ -292,7 +348,7 @@ public class ResourceProvider implements Filter
 	}
 
 
-	public static String compileLessWithNashorn(URL url)
+	public static String compileLessWithNashorn(InputStream is)
 	{
 		//we have to pass in null as classloader if we want to acess the java 8 nashorn
 		ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
@@ -304,7 +360,7 @@ public class ResourceProvider implements Filter
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-2.5.1.js"));
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-env-2.5.1.js"));
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/lessrunner.js"));
-				Object result = invocable.invokeFunction("convert", getText(url));
+				Object result = invocable.invokeFunction("convert", getText(is));
 				return result.toString();
 			}
 			catch (ScriptException e)
