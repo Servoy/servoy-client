@@ -114,17 +114,17 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		int currentSize = getSize();
 		if (currentSize > prevSize)
 		{
-			this.fireIntervalAdded(this, prevSize, currentSize - 1);
-			this.fireContentsChanged(this, 0, prevSize - 1);
+			listener.intervalAdded(new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, prevSize, currentSize - 1));
+			listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, prevSize - 1));
 		}
 		else if (prevSize != currentSize)
 		{
-			this.fireIntervalRemoved(this, currentSize, prevSize - 1);
-			this.fireContentsChanged(this, 0, currentSize - 1);
+			listener.intervalRemoved(new ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, currentSize, prevSize - 1));
+			listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, currentSize - 1));
 		}
 		else
 		{
-			this.fireContentsChanged(this, 0, currentSize - 1);
+			listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, currentSize - 1));
 		}
 	}
 
