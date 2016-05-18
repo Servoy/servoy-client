@@ -180,6 +180,7 @@ public class JSNGWebComponent extends JSWebComponent
 			if (spec.getHandler(name) != null)
 			{
 				webComponent.clearProperty(name);
+				getBaseComponent(true).putInstanceMethodParameters(name, null, null);
 			}
 			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
 		}
