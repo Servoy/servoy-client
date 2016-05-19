@@ -71,7 +71,11 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 			if (realChild instanceof IFormElement || realChild instanceof AbstractContainer)
 			{
 				children.add(realChild);
-				children.remove(PersistHelper.getSuperPersist((ISupportExtendsID)realChild));
+				IPersist p = realChild;
+				while ((p = PersistHelper.getSuperPersist((ISupportExtendsID)p)) != null)
+				{
+					children.remove(p);
+				}
 			}
 		}
 		for (IPersist child : children)

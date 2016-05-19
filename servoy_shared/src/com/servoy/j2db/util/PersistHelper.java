@@ -872,9 +872,19 @@ public class PersistHelper
 			if (form != null)
 			{
 				form = form.getExtendsForm();
-				if (form == null && ((IPersist)persist).getParent() instanceof FormReference)
+				if (((IPersist)persist).getParent() instanceof FormReference)
 				{
-					int formID = ((FormReference)((IPersist)persist).getParent()).getContainsFormID();
+					FormReference fr = (FormReference)((IPersist)persist).getParent();
+					while (PersistHelper.getSuperPersist(fr) != null)
+					{
+						fr = (FormReference)PersistHelper.getSuperPersist(fr);
+						for (IPersist frEl : fr.getAllObjectsAsList())
+						{
+							if (persist.getExtendsID() == frEl.getID()) return frEl;
+						}
+					}
+
+					int formID = fr.getContainsFormID();
 					if (formID > 0)
 					{
 						form = getForm((IPersist)persist, formID);
