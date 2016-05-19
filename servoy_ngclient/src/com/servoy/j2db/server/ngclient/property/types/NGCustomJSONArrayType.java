@@ -319,14 +319,12 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		PropertyDescription desc = getCustomJSONTypeDefinition();
 		for (Object element : array)
 		{
+			element = JSWebComponent.defaultRhinoToDesignValue(element, application);
 			if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
 			{
-				values.put(((IRhinoDesignConverter)desc.getType()).fromRhinoToDesignValue(element, desc, application, webComponent));
+				element = ((IRhinoDesignConverter)desc.getType()).fromRhinoToDesignValue(element, desc, application, webComponent);
 			}
-			else
-			{
-				values.put(JSWebComponent.defaultRhinoToDesignValue(element, application));
-			}
+			values.put(element);
 		}
 		return values;
 	}
@@ -334,10 +332,10 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
+		PropertyDescription desc = getCustomJSONTypeDefinition();
 		if (value instanceof Object[])
 		{
 			JSONArray arr = new JSONArray();
-			PropertyDescription desc = getCustomJSONTypeDefinition();
 			for (Object v : (Object[])value)
 			{
 				if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
@@ -346,10 +344,27 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				}
 				else
 				{
-					arr.put(JSWebComponent.defaultRhinoToDesignValue(v, application));
+					arr.put(v);
 				}
 				return arr;
 			}
+		}
+		if (value instanceof JSONArray)
+		{
+			JSONArray arr = (JSONArray)value;
+			for (int i = 0; i < arr.length(); i++)
+			{
+				Object v = arr.get(i);
+				if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
+				{
+					arr.put(i, ((IRhinoDesignConverter)desc.getType()).fromDesignToRhinoValue(v, desc, application, webComponent));
+				}
+				else
+				{
+					arr.put(v);
+				}
+			}
+			return arr;
 		}
 		return value;
 	}

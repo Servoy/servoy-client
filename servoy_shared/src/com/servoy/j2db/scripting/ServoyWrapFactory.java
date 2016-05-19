@@ -119,7 +119,7 @@ public final class ServoyWrapFactory extends WrapFactory
 				return newObject;
 			}
 
-			if (obj.getClass() == JSONObject.class)
+			if (obj instanceof JSONObject)
 			{
 				JSONObject json = (JSONObject)obj;
 				Scriptable newObject = cx.newObject(scope);
@@ -146,7 +146,7 @@ public final class ServoyWrapFactory extends WrapFactory
 				return newObject;
 			}
 
-			if (obj.getClass() == JSONArray.class)
+			if (obj instanceof JSONArray)
 			{
 				JSONArray array = (JSONArray)obj;
 				Scriptable newObject = cx.newObject(scope, "Array");
@@ -199,15 +199,15 @@ public final class ServoyWrapFactory extends WrapFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.mozilla.javascript.WrapFactory#wrapAsJavaObject(org.mozilla.javascript.Context, org.mozilla.javascript.Scriptable, java.lang.Object,
 	 * java.lang.Class)
 	 */
 	@Override
 	public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class< ? > staticType)
 	{
-		JavaMembers members = javaObject != null ? ScriptObjectRegistry.getJavaMembers(javaObject.getClass(), scope) : ScriptObjectRegistry.getJavaMembers(
-			staticType, scope);
+		JavaMembers members = javaObject != null ? ScriptObjectRegistry.getJavaMembers(javaObject.getClass(), scope)
+			: ScriptObjectRegistry.getJavaMembers(staticType, scope);
 		if (members != null)
 		{
 			return new NativeJavaObject(scope, javaObject, members);

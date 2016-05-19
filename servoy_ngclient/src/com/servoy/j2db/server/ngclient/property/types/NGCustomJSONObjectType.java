@@ -39,6 +39,9 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -54,6 +57,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
@@ -68,7 +72,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
 	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
 	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>, IFindModeAwareType<Map<String, FormElementT>, Map<String, SabloT>>,
-	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>
+	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -324,6 +328,57 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 		if (dps.size() == 0 && recordLinked == false) return TargetDataLinks.NOT_LINKED_TO_DATA;
 		else return new TargetDataLinks(dps.toArray(new String[dps.size()]), recordLinked);
+	}
+
+	@Override
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof JSONObject)
+		{
+			JSONObject obj = (JSONObject)value;
+			JSONObject result = new JSONObject();
+			for (String key : obj.keySet())
+			{
+				PropertyDescription p = pd.getProperty(key);
+				Object v = obj.get(key);
+				if (p != null && p.getType() instanceof IRhinoDesignConverter)
+				{
+					result.put(key, ((IRhinoDesignConverter)p.getType()).fromRhinoToDesignValue(v, p, application, webComponent));
+				}
+				else
+				{
+					result.put(key, JSWebComponent.defaultRhinoToDesignValue(v, application));
+				}
+			}
+			return result;
+		}
+		return value;
+	}
+
+	@Override
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof JSONObject)
+		{
+			JSONObject obj = (JSONObject)value;
+			JSONObject result = new JSONObject();
+			for (String key : obj.keySet())
+			{
+				if (IChildWebObject.UUID_KEY.equals(key)) continue;
+				PropertyDescription p = pd.getProperty(key);
+				Object v = obj.get(key);
+				if (p != null && p.getType() instanceof IRhinoDesignConverter)
+				{
+					result.put(key, ((IRhinoDesignConverter)p.getType()).fromDesignToRhinoValue(v, p, application, webComponent));
+				}
+				else
+				{
+					result.put(key, v);
+				}
+			}
+			return result;
+		}
+		return value;
 	}
 
 }
