@@ -31,7 +31,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
              for(var i=0;i< $scope.selection.length ;i++){
             	 if($scope.selection[i]==true) checkedTotal++;            	 
              }
-             var allowMultiselect = typeof $scope.model.dataProviderID ==="string";
+             var allowMultiselect = !$scope.model.format || $scope.model.format.type == "TEXT";
              if (!allowMultiselect && checkedTotal > 1)
              {
             	 for(var i=0;i< $scope.selection.length ;i++){
@@ -140,19 +140,19 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             
     /* helper functions*/
           function setSelectionFromDataprovider(){
-            if(!$scope.model.dataProviderID) return
-            $scope.selection =[]
+        	$scope.selection =[]  
+            if($scope.model.dataProviderID === null || $scope.model.dataProviderID === undefined) return;
             var arr = (typeof $scope.model.dataProviderID ==="string") ? $scope.model.dataProviderID.split('\n') : [$scope.model.dataProviderID];
             arr.forEach(function(element, index, array){
                 for(var i=0;i<$scope.model.valuelistID.length;i++){
                   var item= $scope.model.valuelistID[i];
-                    if(item.realValue && item.realValue==element && !isValueListNull(item)) $scope.selection[i-allowNullinc] = true;
+                    if(item.realValue==element && !isValueListNull(item)) $scope.selection[i-allowNullinc] = true;
                 }
             });
           }
           
           function getDataproviderFromSelection(){
-        	var allowMultiselect = typeof $scope.model.dataProviderID ==="string";
+        	var allowMultiselect = !$scope.model.format || $scope.model.format.type == "TEXT";
             var ret = allowMultiselect ? "" : null;
             $scope.selection.forEach(function(element, index, array){
                // if(index == array.length-allowNullinc) return;
