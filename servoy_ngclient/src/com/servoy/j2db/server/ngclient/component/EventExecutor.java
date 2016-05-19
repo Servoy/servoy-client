@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.awt.Point;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONException;
@@ -66,10 +67,12 @@ public class EventExecutor
 		this.formController = formController;
 	}
 
-	public Object executeEvent(WebComponent component, String eventType, int eventId, Object[] args)
+	public Object executeEvent(WebComponent component, String eventType, int eventId, Object[] eventArgs)
 	{
 		Scriptable scope = null;
 		Function f = null;
+
+		Object[] newargs = eventArgs != null ? Arrays.copyOf(eventArgs, eventArgs.length) : null;
 
 		if (eventId > 0)
 		{
@@ -119,13 +122,13 @@ public class EventExecutor
 		}
 		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null;
 
-		if (args != null)
+		if (newargs != null)
 		{
-			for (int i = 0; i < args.length; i++)
+			for (int i = 0; i < newargs.length; i++)
 			{
-				if (args[i] instanceof JSONObject && "event".equals(((JSONObject)args[i]).optString("type")))
+				if (newargs[i] instanceof JSONObject && "event".equals(((JSONObject)newargs[i]).optString("type")))
 				{
-					JSONObject json = (JSONObject)args[i];
+					JSONObject json = (JSONObject)newargs[i];
 					JSEvent event = new JSEvent();
 					event.setType(getEventType(eventType));
 					event.setFormName(formController.getName());
@@ -171,7 +174,7 @@ public class EventExecutor
 					{
 						Debug.error("error setting event properties from " + json + ", for component: " + componentName, ex);
 					}
-					args[i] = event;
+					newargs[i] = event;
 				}
 				else
 				{ //try to convert the received arguments
@@ -181,7 +184,7 @@ public class EventExecutor
 
 
 					ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
-					args[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, args[i], parameterPropertyDescription,
+					newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
 						new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
 						parameterPropertyDescription, component, null);
 					//TODO? if in propertyDesc.getAsPropertyDescription().getConfig() we have  "type":"${dataproviderType}" and parameterPropertyDescription.getType() is Object
@@ -198,7 +201,7 @@ public class EventExecutor
 				List<Object> instanceMethodArguments = ((AbstractBase)persist).getInstanceMethodArguments(eventType);
 				if (instanceMethodArguments != null && instanceMethodArguments.size() > 0)
 				{
-					args = Utils.arrayMerge(args, Utils.parseJSExpressions(instanceMethodArguments));
+					newargs = Utils.arrayMerge(newargs, Utils.parseJSExpressions(instanceMethodArguments));
 				}
 			}
 		}
@@ -206,7 +209,7 @@ public class EventExecutor
 		try
 		{
 			formController.getApplication().updateLastAccessed();
-			return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, args, false, false);
+			return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, newargs, false, false);
 		}
 		catch (Exception ex)
 		{
