@@ -7,7 +7,7 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
        	handlers: "=svyHandlers",
        	api: "=svyApi"
       },
-      controller: function($scope, $element, $attrs) {
+      controller: function($scope, $element, $attrs, webStorage) {
     	  
     	  var getTabIndex = function(tab)
     	  {
@@ -40,11 +40,28 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
 					})    		  
     		  }	  
     	  }
-    	  if ($scope.model.tabs && $scope.model.tabs.length >0 && $scope.model.tabs[0].containedForm)
+    	  if ($scope.model.tabs && $scope.model.tabs.length >0)
     	  {
-    	   	  $scope.model.tabIndex = 1;
-    		  $scope.model.tabs[0].active = true;
-    		  $scope.svyServoyapi.formWillShow($scope.model.tabs[0].containedForm, $scope.model.tabs[0].relationName); 
+    		  var index = 1;
+    		  if ($scope.$parent && $scope.$parent.formname)
+    		  {
+    			  var key = $scope.$parent.formname +"_" + $element.attr('name')+"_tabindex";
+    			  var storageValue= webStorage.session.get(key);
+    			  if (storageValue)
+    			  {
+    				  index = parseInt(storageValue);
+    				  if (index > $scope.model.tabs.length)
+    				  {
+    					  index = 1;
+    				  }	  
+    			  }	  
+    		  }
+    		  if ($scope.model.tabs[index-1].containedForm)
+    		  {
+    			  $scope.model.tabIndex = index;
+        		  $scope.model.tabs[index-1].active = true;
+        		  $scope.svyServoyapi.formWillShow($scope.model.tabs[index-1].containedForm, $scope.model.tabs[index-1].relationName);  
+    		  }	  
     	  }
     	  
     	  $scope.$watch("model.tabIndex", function(newValue,oldValue) {
@@ -59,6 +76,11 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
 					{ 
 						$scope.svyServoyapi.formWillShow($scope.model.tabs[newValue-1].containedForm,$scope.model.tabs[newValue-1].relationName);
 						$scope.model.tabs[newValue-1].active = true;
+					}
+					if ($scope.$parent && $scope.$parent.formname)
+					{
+						 var key = $scope.$parent.formname +"_" + $element.attr('name')+"_tabindex";
+						 webStorage.session.add(key,newValue);
 					}
 				}	
 		  });
