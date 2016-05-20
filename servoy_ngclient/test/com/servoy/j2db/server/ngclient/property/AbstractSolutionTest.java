@@ -214,9 +214,17 @@ public abstract class AbstractSolutionTest
 		}
 
 		@Override
-		public String getPackageType() throws IOException
+		public String getPackageType()
 		{
-			return Package.getPackageType(getManifest());
+			try
+			{
+				return Package.getPackageType(getManifest());
+			}
+			catch (IOException e)
+			{
+				Debug.log("Error getting package type." + getName(), e);
+			}
+			return null;
 		}
 
 		@Override

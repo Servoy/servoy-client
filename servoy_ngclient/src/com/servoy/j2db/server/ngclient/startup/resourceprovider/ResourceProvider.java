@@ -529,9 +529,17 @@ public class ResourceProvider implements Filter
 		}
 
 		@Override
-		public String getPackageType() throws IOException
+		public String getPackageType()
 		{
-			return Package.getPackageType(getManifest());
+			try
+			{
+				return Package.getPackageType(getManifest());
+			}
+			catch (IOException e)
+			{
+				log.error("Error getting package type." + getName(), e);
+			}
+			return null;
 		}
 
 		@Override
