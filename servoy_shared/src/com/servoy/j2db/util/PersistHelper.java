@@ -880,7 +880,7 @@ public class PersistHelper
 						fr = (FormReference)PersistHelper.getSuperPersist(fr);
 						for (IPersist frEl : fr.getAllObjectsAsList())
 						{
-							if (persist.getExtendsID() == frEl.getID()) return frEl;
+							if (frEl instanceof ISupportExtendsID && persist.getExtendsID() == ((ISupportExtendsID)frEl).getExtendsID()) return frEl;
 						}
 					}
 
