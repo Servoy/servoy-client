@@ -11,7 +11,7 @@
 			"tabs" : {"type":"tab[]", "pushToServer": "allow","droppable":true},
 			"styleClass" : { "type" :"styleclass"},
 			"height" : {"type":"int", "default":"500"},
-			"tabIndex" : {"type":"int", "pushToServer": "allow", "tags": { "scope" :"runtime" }},
+			"tabIndex" : {"type":"int", "pushToServer": "shallow", "tags": { "scope" :"runtime" }},
 			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
 	    	"visible" : "visible"
 	},

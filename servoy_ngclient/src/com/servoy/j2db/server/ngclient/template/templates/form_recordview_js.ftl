@@ -146,12 +146,8 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			}
 		}
 		else {
-		<#list parts as part>
-			<#if (part.baseComponents)??>
-				<#list part.baseComponents as bc>
-					watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes.${bc.name}, $scope.model.${bc.name}, wrapper('${bc.name}'));
-				</#list>
-			</#if>
+		<#list baseComponents as bc>
+			watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes.${bc.name}, $scope.model.${bc.name}, wrapper('${bc.name}'));
 		</#list>
 		}
 	}
