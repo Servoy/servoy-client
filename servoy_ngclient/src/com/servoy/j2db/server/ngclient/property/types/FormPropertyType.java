@@ -31,13 +31,16 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -45,7 +48,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class FormPropertyType extends DefaultPropertyType<Object>
-	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>
+	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
@@ -201,5 +204,30 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 			writer.value(form.getName());
 		}
 		return writer;
+	}
+
+	@Override
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof JSONObject)
+		{
+			return ((JSONObject)value).getString("name");
+		}
+		return value;
+	}
+
+	@Override
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof String)
+		{
+			Form form = application.getFlattenedSolution().getForm((String)value);
+			if (form != null)
+			{
+				return application.getScriptEngine().getSolutionModifier().instantiateForm(form, false);
+			}
+			return application.getScriptEngine().getSolutionModifier().instantiateForm(form, true);
+		}
+		return value;
 	}
 }

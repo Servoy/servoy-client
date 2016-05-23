@@ -91,14 +91,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, //
-				FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
-				SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
-				VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
-				JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
-				JSList.class, JSInsetList.class, //
-				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
-				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSFormReference.class//
+					FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
+					SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
+					VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
+					JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
+					JSList.class, JSInsetList.class, //
+					JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
+					JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
+					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSFormReference.class//
 				};
 			}
 		});
@@ -381,7 +381,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		return instantiateForm(clone, true);
 	}
 
-	protected JSForm instantiateForm(Form form, boolean isNew)
+	public JSForm instantiateForm(Form form, boolean isNew)
 	{
 		return new JSForm(application, form, isNew);
 	}
