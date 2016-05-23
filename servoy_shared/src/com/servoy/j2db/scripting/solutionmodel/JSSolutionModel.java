@@ -381,7 +381,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		return instantiateForm(clone, true);
 	}
 
-	public JSForm instantiateForm(Form form, boolean isNew)
+	protected JSForm instantiateForm(Form form, boolean isNew)
 	{
 		return new JSForm(application, form, isNew);
 	}

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -25,6 +26,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
+import org.sablo.specification.PropertyDescription;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
@@ -32,6 +34,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 
 /**
  * @author lvostinar
@@ -298,9 +301,22 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 		Context cx = Context.enter();
 		try
 		{
-			String stringified = (String)ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
-				new Object[] { value });
-			value = new JSONObject("{ \"a\" : " + stringified + " }").get("a");
+			if (value instanceof Object[])
+			{
+				Object[] array = (Object[])value;
+				JSONArray values = new JSONArray();
+				for (Object element : array)
+				{
+					values.put(defaultRhinoToDesignValue(element, application));
+				}
+				value = values;
+			}
+			else
+			{
+				String stringified = (String)ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
+					new Object[] { value });
+				value = new JSONObject("{ \"a\" : " + stringified + " }").get("a");
+			}
 		}
 		catch (JSONException e)
 		{
@@ -311,6 +327,20 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 			Context.exit();
 		}
 		return value;
+	}
+
+	public static Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		Object result = null;
+		if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
+		{
+			result = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, webComponent);
+		}
+		else
+		{
+			result = defaultRhinoToDesignValue(value, application);
+		}
+		return result;
 	}
 
 	/**

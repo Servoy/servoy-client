@@ -34,6 +34,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
@@ -209,9 +210,14 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	@Override
 	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
-		if (value instanceof JSONObject)
+		if (value instanceof String)
 		{
-			return ((JSONObject)value).getString("name");
+			Form f = application.getFlattenedSolution().getForm((String)value);
+			if (f != null) return f.getUUID();
+		}
+		else if (value instanceof JSForm)
+		{
+			return ((JSForm)value).getUUID();
 		}
 		return value;
 	}
@@ -219,15 +225,21 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	@Override
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
-		if (value instanceof String)
+		Form form = null;
+		UUID uuid = Utils.getAsUUID(value, false);
+		if (uuid != null)
 		{
-			Form form = application.getFlattenedSolution().getForm((String)value);
-			if (form != null)
-			{
-				return application.getScriptEngine().getSolutionModifier().instantiateForm(form, false);
-			}
-			return application.getScriptEngine().getSolutionModifier().instantiateForm(form, true);
+			form = (Form)application.getFlattenedSolution().searchPersist(uuid);
 		}
-		return value;
+		if (value instanceof String && form == null)
+		{
+			form = application.getFlattenedSolution().getForm((String)value);
+		}
+		if (form != null)
+		{
+			return application.getScriptEngine().getSolutionModifier().getForm(form.getName());
+		}
+
+		return null;
 	}
 }

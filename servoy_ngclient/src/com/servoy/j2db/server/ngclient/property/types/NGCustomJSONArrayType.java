@@ -27,9 +27,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
@@ -319,12 +321,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		PropertyDescription desc = getCustomJSONTypeDefinition();
 		for (Object element : array)
 		{
-			element = JSWebComponent.defaultRhinoToDesignValue(element, application);
-			if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
-			{
-				element = ((IRhinoDesignConverter)desc.getType()).fromRhinoToDesignValue(element, desc, application, webComponent);
-			}
-			values.put(element);
+			values.put(JSWebComponent.fromRhinoToDesignValue(element, desc, application, webComponent));
 		}
 		return values;
 	}
@@ -335,36 +332,43 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		PropertyDescription desc = getCustomJSONTypeDefinition();
 		if (value instanceof Object[])
 		{
-			JSONArray arr = new JSONArray();
-			for (Object v : (Object[])value)
+			Object[] obj = (Object[])value;
+			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
+			Context cx = Context.enter();
+			Scriptable result = cx.newObject(scope, "Array");
+			for (int i = 0; i < obj.length; i++)
 			{
+				Object v = obj[i];
 				if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
 				{
-					arr.put(((IRhinoDesignConverter)desc.getType()).fromDesignToRhinoValue(v, desc, application, webComponent));
+					result.put(i, result, ((IRhinoDesignConverter)desc.getType()).fromDesignToRhinoValue(v, desc, application, webComponent));
 				}
 				else
 				{
-					arr.put(v);
+					result.put(i, result, v);
 				}
-				return arr;
 			}
+			return result;
 		}
 		if (value instanceof JSONArray)
 		{
 			JSONArray arr = (JSONArray)value;
+			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
+			Context cx = Context.enter();
+			Scriptable result = cx.newObject(scope, "Array");
 			for (int i = 0; i < arr.length(); i++)
 			{
 				Object v = arr.get(i);
 				if (desc != null && desc.getType() instanceof IRhinoDesignConverter)
 				{
-					arr.put(i, ((IRhinoDesignConverter)desc.getType()).fromDesignToRhinoValue(v, desc, application, webComponent));
+					result.put(i, result, ((IRhinoDesignConverter)desc.getType()).fromDesignToRhinoValue(v, desc, application, webComponent));
 				}
 				else
 				{
-					arr.put(v);
+					result.put(i, result, v);
 				}
 			}
-			return arr;
+			return result;
 		}
 		return value;
 	}

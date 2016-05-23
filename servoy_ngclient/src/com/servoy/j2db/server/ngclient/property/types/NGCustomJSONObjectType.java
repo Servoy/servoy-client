@@ -27,8 +27,10 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap;
@@ -333,22 +335,15 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	@Override
 	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
-		if (value instanceof JSONObject)
+		if (value instanceof NativeObject)
 		{
-			JSONObject obj = (JSONObject)value;
+			NativeObject obj = (NativeObject)value;
 			JSONObject result = new JSONObject();
-			for (String key : obj.keySet())
+			for (Object key : obj.keySet())
 			{
-				PropertyDescription p = pd.getProperty(key);
+				PropertyDescription p = pd.getProperty((String)key);
 				Object v = obj.get(key);
-				if (p != null && p.getType() instanceof IRhinoDesignConverter)
-				{
-					result.put(key, ((IRhinoDesignConverter)p.getType()).fromRhinoToDesignValue(v, p, application, webComponent));
-				}
-				else
-				{
-					result.put(key, JSWebComponent.defaultRhinoToDesignValue(v, application));
-				}
+				result.put((String)key, JSWebComponent.fromRhinoToDesignValue(v, p, application, webComponent));
 			}
 			return result;
 		}
@@ -361,7 +356,9 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		if (value instanceof JSONObject)
 		{
 			JSONObject obj = (JSONObject)value;
-			JSONObject result = new JSONObject();
+			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
+			Context cx = Context.enter();
+			Scriptable result = cx.newObject(scope);
 			for (String key : obj.keySet())
 			{
 				if (IChildWebObject.UUID_KEY.equals(key)) continue;
@@ -369,11 +366,11 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				Object v = obj.get(key);
 				if (p != null && p.getType() instanceof IRhinoDesignConverter)
 				{
-					result.put(key, ((IRhinoDesignConverter)p.getType()).fromDesignToRhinoValue(v, p, application, webComponent));
+					result.put(key, result, ((IRhinoDesignConverter)p.getType()).fromDesignToRhinoValue(v, p, application, webComponent));
 				}
 				else
 				{
-					result.put(key, v);
+					result.put(key, result, v);
 				}
 			}
 			return result;

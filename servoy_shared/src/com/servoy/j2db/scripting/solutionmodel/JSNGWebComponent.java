@@ -20,7 +20,6 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -29,13 +28,10 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
-import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author gboros
@@ -70,27 +66,7 @@ public class JSNGWebComponent extends JSWebComponent
 				WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 				PropertyDescription pd = spec.getProperty(propertyName);
 				if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
-				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
-				{
-					value = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, this);
-				}
-				else
-				{
-					if (value instanceof Object[])
-					{
-						Object[] array = (Object[])value;
-						JSONArray values = new JSONArray();
-						for (Object element : array)
-						{
-							values.put(defaultRhinoToDesignValue(element, application));
-						}
-						value = values;
-					}
-					else
-					{
-						value = defaultRhinoToDesignValue(value, application);
-					}
-				}
+				value = fromRhinoToDesignValue(value, pd, application, this);
 			}
 			webComponent.setProperty(propertyName, value);
 		}
@@ -134,23 +110,6 @@ public class JSNGWebComponent extends JSWebComponent
 			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 			{
 				return ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
-			}
-			if (value != null && "form".equals(pd.getType().getName()))
-			{
-				Form form = null;
-				UUID uuid = Utils.getAsUUID(value, false);
-				if (uuid != null)
-				{
-					form = (Form)application.getFlattenedSolution().searchPersist(uuid);
-				}
-				if (value instanceof String && form == null)
-				{
-					form = application.getFlattenedSolution().getForm((String)value);
-				}
-				if (form != null)
-				{
-					return application.getScriptEngine().getSolutionModifier().instantiateForm(form, false);
-				}
 			}
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}
