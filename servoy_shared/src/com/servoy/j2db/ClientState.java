@@ -74,7 +74,7 @@ import com.servoy.j2db.util.serialize.JSONConverter;
 
 /**
  * Bare bone state and abstract base class for all client process instance
- * 
+ *
  * @author jblok
  */
 public abstract class ClientState extends ClientVersion implements IServiceProvider, Serializable
@@ -105,7 +105,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//holding the application setting
 	protected Properties settings;
 
-	//preferred solution (args) 
+	//preferred solution (args)
 	protected String preferredSolutionNameToLoadOnInit = null;
 	protected String preferredSolutionMethodNameToCall = null;
 	protected Object[] preferredSolutionMethodArguments = null;
@@ -122,13 +122,13 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//mode manager handling the application mode
 	protected transient volatile IModeManager modeManager;
 
-	//foundset manager handling the foundsets 
+	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
 
 	//plugin manager handling the (scriptable plugins)
 	protected transient volatile IPluginManagerInternal pluginManager;
 
-	//user manager, giving access to (other)user info 
+	//user manager, giving access to (other)user info
 	private transient volatile IUserManager userManager;
 
 	// does this client use the login solution when configured?
@@ -159,7 +159,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected void logStartUp()
 	{
 		Debug.log("Starting Servoy from " + System.getProperty("user.dir")); //$NON-NLS-1$//$NON-NLS-2$
-		Debug.log("Servoy " + getVersion() + " build-" + getReleaseNumber() + " on " + System.getProperty("os.name") + " using Java " + System.getProperty("java.version")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		Debug.log("Servoy " + getVersion() + " build-" + getReleaseNumber() + " on " + System.getProperty("os.name") + " using Java " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
+			System.getProperty("java.version")); //$NON-NLS-1$
 //		Debug.log("file.encoding " + System.getProperty("file.encoding"));
 	}
 
@@ -378,7 +379,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	/**
 	 * Handle client login/logout.
-	 * 
+	 *
 	 * @param userUidBefore
 	 * @param userUidAfter
 	 */
@@ -438,7 +439,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			Debug.error("Could not load solution " + (solutionMetaData == null ? "<none>" : solutionMetaData.getName()), e); //$NON-NLS-1$ //$NON-NLS-2$
 			reportError(
-				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), e); //$NON-NLS-1$ //$NON-NLS-2$
+				Messages.getString("servoy.client.error.loadingsolution", new Object[] { solutionMetaData == null ? "<none>" : solutionMetaData.getName() }), //$NON-NLS-1$//$NON-NLS-2$
+				e);
 		}
 	}
 
@@ -571,8 +573,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// do nothing here
 	}
 
-	public void logout(@SuppressWarnings("unused")
-	Object[] solution_to_open_args)
+	public void logout(@SuppressWarnings("unused") Object[] solution_to_open_args)
 	{
 		String userUid = null;
 		try
@@ -668,8 +669,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			else
 			{
-				if (retval != null && ((Integer)retval[1]).intValue() == IClientManager.REGISTER_FAILED_MAINTENANCE_MODE) throw new ApplicationException(
-					ServoyException.MAINTENANCE_MODE);
+				if (retval != null && ((Integer)retval[1]).intValue() == IClientManager.REGISTER_FAILED_MAINTENANCE_MODE)
+					throw new ApplicationException(ServoyException.MAINTENANCE_MODE);
 				else throw new ApplicationException(ServoyException.NO_LICENSE);
 			}
 		}
@@ -703,7 +704,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IServiceProvider#isSolutionLoaded()
 	 */
 	public boolean isSolutionLoaded()
@@ -771,7 +772,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			catch (Exception ex)
 			{
-				reportError("Cannot find dataservice, it may not be running on server", ex); //$NON-NLS-1$ 
+				reportError("Cannot find dataservice, it may not be running on server", ex); //$NON-NLS-1$
 			}
 		}
 		return dataServer;
@@ -790,7 +791,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			catch (Exception ex)
 			{
-				reportError("Cannot find client host, it may not be running on server", ex); //$NON-NLS-1$ 
+				reportError("Cannot find client host, it may not be running on server", ex); //$NON-NLS-1$
 			}
 		}
 		return clientHost;
@@ -870,7 +871,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		catch (RemoteException e)
 		{
-			Debug.error("Error getting the service " + name, e); //$NON-NLS-1$ 
+			Debug.error("Error getting the service " + name, e); //$NON-NLS-1$
 			reportJSError("Error getting the service " + name, e.getCause()); //$NON-NLS-1$
 		}
 		return null;
@@ -987,6 +988,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		Debug.log(s);
 	}
 
+	public void reportJSWarning(String s, Throwable t)
+	{
+		Debug.log(s, t);
+	}
+
 	public void reportJSInfo(String s)
 	{
 		Debug.debug(s);
@@ -1058,7 +1064,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public void shutDown(boolean force)
 	{
-		Debug.trace("shutDown"); //$NON-NLS-1$		
+		Debug.trace("shutDown"); //$NON-NLS-1$
 		try
 		{
 			if (solutionRoot.getSolution() != null)
@@ -1289,7 +1295,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	/**
 	 * Call the on-close0solution method (if defined)
-	 * 
+	 *
 	 * @param force passed onto method
 	 * @return
 	 */
@@ -1310,11 +1316,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			try
 			{
-				return !Boolean.FALSE.equals(getScriptEngine().getSolutionScope().getScopesScope().executeGlobalFunction(
-					sm.getScopeName(),
-					sm.getName(),
+				return !Boolean.FALSE.equals(getScriptEngine().getSolutionScope().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
 					Utils.arrayMerge((new Object[] { Boolean.valueOf(force) }),
-						Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), //$NON-NLS-1$
+					false, false));
 			}
 			catch (Exception e1)
 			{
@@ -1356,14 +1361,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		J2DBGlobals.removeAllPropertyChangeListeners(modeManager);
 	}
 
-	private void writeObject(@SuppressWarnings("unused")
-	ObjectOutputStream stream)
+	private void writeObject(@SuppressWarnings("unused") ObjectOutputStream stream)
 	{
 		//serialize is not implemented
 	}
 
-	private void readObject(@SuppressWarnings("unused")
-	ObjectInputStream stream)
+	private void readObject(@SuppressWarnings("unused") ObjectInputStream stream)
 	{
 		//serialize is not implemented
 	}
@@ -1467,7 +1470,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 				if (solutionRoot.getSolution() == null)
 				{
-					reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { (solutionMetaData.getName()) }), null); //$NON-NLS-1$ 
+					reportError(Messages.getString("servoy.client.error.loadingsolution", new Object[] { (solutionMetaData.getName()) }), null); //$NON-NLS-1$
 					return false;
 				}
 
@@ -1480,7 +1483,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			Debug.error(ex);
 			if (ex instanceof UnmarshalException && ex.getMessage().indexOf("java.io.NotSerializableException: com.servoy.j2db.server.persistence.Server") >= 0)
 			{
-				// this happens when the repository server is used in a solution while user tables in repository is disabled	
+				// this happens when the repository server is used in a solution while user tables in repository is disabled
 				if (dataServer != null)
 				{
 					try
@@ -1494,12 +1497,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						// bummer
 					}
 				}
-				reportError(Messages.getString("servoy.foundSet.error.noAccess"), ex); //$NON-NLS-1$ 
+				reportError(Messages.getString("servoy.foundSet.error.noAccess"), ex); //$NON-NLS-1$
 			}
 			else
 			{
-				reportError(Messages.getString(
-					"servoy.client.error.loadingsolution", new Object[] { (solutionMetaData != null ? solutionMetaData.getName() : "<unknown>") }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+				reportError(Messages.getString("servoy.client.error.loadingsolution", //$NON-NLS-1$
+					new Object[] { (solutionMetaData != null ? solutionMetaData.getName() : "<unknown>") }), ex); //$NON-NLS-1$
 			}
 			return false;
 		}
@@ -1558,7 +1561,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 			getScriptEngine().getScopesScope().reloadVariablesAndScripts(); // add variables for new solution
 
-			// These lines must be before other solutionLoaded call implementations, because a long running process 
+			// These lines must be before other solutionLoaded call implementations, because a long running process
 			// (solution startup method) will never update the status.
 			getClientInfo().setOpenSolutionId(s.getSolutionMetaData().getRootObjectId());
 			getClientInfo().setOpenSolutionTimestamp(System.currentTimeMillis());
@@ -1661,7 +1664,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	public static Object getScriptException(final Exception e)
 	{
 		Exception scriptException = e;
-		//verify whether e is not caused by a ServoyException (at runtime, exceptions thrown are wrapped in WrappedException, 
+		//verify whether e is not caused by a ServoyException (at runtime, exceptions thrown are wrapped in WrappedException,
 		// so we need to look for a ServoyException into the chain)
 		// first check for a javascript exception with its value
 		if (scriptException instanceof JavaScriptException)
@@ -1697,7 +1700,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	/**
 	 * @param exception The exception that should be tested.
 	 * @return true if the client is still just registered, false if the exception reports an unregistered client
-	 * 
+	 *
 	 */
 	protected boolean testClientRegistered(Object exception)
 	{
@@ -1741,8 +1744,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	protected void doInvokeLater(Runnable r, @SuppressWarnings("unused")
-	boolean immediate)
+	protected void doInvokeLater(Runnable r, @SuppressWarnings("unused") boolean immediate)
 	{
 		doInvokeLater(r);
 	}
@@ -1758,7 +1760,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		ValueList vl = getFlattenedSolution().getValueList(name);
 		if (vl != null && vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 		{
-			// TODO should getValueListItems not specify type and format??					
+			// TODO should getValueListItems not specify type and format??
 			IValueList valuelist = ComponentFactory.getRealValueList(this, vl, false, Types.OTHER, null, null);
 			if (valuelist instanceof CustomValueList)
 			{

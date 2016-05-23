@@ -275,31 +275,31 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				private void setUpFormWindow(final FormWindow window, InputMap im, ActionMap am)
 				{
 					am.put("CTRL+L", new AbstractAction() //$NON-NLS-1$
+					{
+						public void actionPerformed(ActionEvent e)
 						{
-							public void actionPerformed(ActionEvent e)
+							IMainContainer debugFormMainContainer = window.getMainContainer();
+							if (debugFormMainContainer != null)
 							{
-								IMainContainer debugFormMainContainer = window.getMainContainer();
-								if (debugFormMainContainer != null)
+								FormController fc = debugFormMainContainer.getController();
+								if (fc == null) return;
+								Form form = fc.getForm();
+								Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+								if (focusOwner != null)
 								{
-									FormController fc = debugFormMainContainer.getController();
-									if (fc == null) return;
-									Form form = fc.getForm();
-									Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+									while (!(focusOwner instanceof SwingForm) && focusOwner != null)
+									{
+										focusOwner = focusOwner.getParent();
+									}
 									if (focusOwner != null)
 									{
-										while (!(focusOwner instanceof SwingForm) && focusOwner != null)
-										{
-											focusOwner = focusOwner.getParent();
-										}
-										if (focusOwner != null)
-										{
-											form = ((SwingForm)focusOwner).getController().getForm();
-										}
+										form = ((SwingForm)focusOwner).getController().getForm();
 									}
-									DebugJ2DBClient.this.designerCallback.showFormInDesigner(form);
 								}
+								DebugJ2DBClient.this.designerCallback.showFormInDesigner(form);
 							}
-						});
+						}
+					});
 					im.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, J2DBClient.menuShortcutKeyMask), "CTRL+L"); //$NON-NLS-1$
 				}
 
@@ -492,27 +492,27 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		InputMap inputMap = mainPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		ActionMap actionMap = mainPanel.getActionMap();
 		actionMap.put("CTRL+L", new AbstractAction() //$NON-NLS-1$
+		{
+			public void actionPerformed(ActionEvent e)
 			{
-				public void actionPerformed(ActionEvent e)
+				FormController fc = (FormController)getFormManager().getCurrentForm();
+				if (fc == null) return;
+				Form form = fc.getForm();
+				Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+				if (focusOwner != null)
 				{
-					FormController fc = (FormController)getFormManager().getCurrentForm();
-					if (fc == null) return;
-					Form form = fc.getForm();
-					Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+					while (!(focusOwner instanceof SwingForm) && focusOwner != null)
+					{
+						focusOwner = focusOwner.getParent();
+					}
 					if (focusOwner != null)
 					{
-						while (!(focusOwner instanceof SwingForm) && focusOwner != null)
-						{
-							focusOwner = focusOwner.getParent();
-						}
-						if (focusOwner != null)
-						{
-							form = ((SwingForm)focusOwner).getController().getForm();
-						}
+						form = ((SwingForm)focusOwner).getController().getForm();
 					}
-					callback.showFormInDesigner(form);
 				}
-			});
+				callback.showFormInDesigner(form);
+			}
+		});
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, menuShortcutKeyMask), "CTRL+L");
 		Settings.getInstance().loadUserProperties(defaultUserProperties);
 	}
@@ -1045,6 +1045,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		errorToDebugger(s, null);
 		super.reportJSWarning(s);
+	}
+
+	@Override
+	public void reportJSWarning(String s, Throwable t)
+	{
+		errorToDebugger(s, t);
+		super.reportJSWarning(s, t);
 	}
 
 	@Override

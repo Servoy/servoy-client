@@ -432,8 +432,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, initialized ? IDataServer.FIND_BROWSER_QUERY
-					: IDataServer.FOUNDSET_LOAD_QUERY);
+				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve,
+					initialized ? IDataServer.FIND_BROWSER_QUERY : IDataServer.FOUNDSET_LOAD_QUERY);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -449,8 +449,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			if (Debug.tracing())
 			{
-				Debug.trace(Thread.currentThread().getName() +
-					": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + ", SQL: " + theQuery); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Debug.trace(Thread.currentThread().getName() + ": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + //$NON-NLS-1$//$NON-NLS-2$
+					", SQL: " + theQuery); //$NON-NLS-1$
 			}
 		}
 		catch (RemoteException e)
@@ -716,7 +716,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				TableFilter f = iterator.next();
 				if (filterName == null || filterName.equals(f.getName()))
 				{
-					result.add(new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
+					result.add(
+						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
 				}
 			}
 		}
@@ -1659,8 +1660,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (dynamicPKplaceholder != null && dynamicPKplaceholder.isSet() && dynamicPKplaceholder.getValue() instanceof Object[])
 		{
 			// loading from saved query, dynamic pk was replaced by array in serialization, make dynamic again
-			dynamicPKplaceholder.setValue(new DynamicPkValuesArray(getSQLSheet().getTable().getRowIdentColumns(), SQLGenerator.createPKValuesDataSet(
-				getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue())));
+			dynamicPKplaceholder.setValue(new DynamicPkValuesArray(getSQLSheet().getTable().getRowIdentColumns(),
+				SQLGenerator.createPKValuesDataSet(getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue())));
 		}
 
 		if (sqlSelect.getSorts() == null)
@@ -1748,8 +1749,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			throw new RepositoryException(e);
 		}
 
-		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length) throw new IllegalArgumentException(
-			fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
+		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
+			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
 
 		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
 		clearInternalState(true);
@@ -1766,8 +1767,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int order_by_index;
 
 		//check requirements
-		if (!SQLGenerator.isSelectQuery(query)) throw new IllegalArgumentException(fsm.getApplication().getI18NMessage(
-			"servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$
+		if (!SQLGenerator.isSelectQuery(query))
+			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$
 		String sql_lowercase = Utils.toEnglishLocaleLowerCase(query);
 
 		order_by_index = sql_lowercase.lastIndexOf("order by"); //$NON-NLS-1$
@@ -1777,8 +1778,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-				||
-				(sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
 			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
 			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
 			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
@@ -1862,9 +1862,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				customQuery = query.substring(0, order_by_index) + ((level > 0) ? "" : query.substring(i - 1)); //$NON-NLS-1$
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
-				new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
-					customQuery, whereArgs), true));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR,
+				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
 			List<IQuerySort> origSorts = originalQuery.getSorts();
@@ -2153,7 +2152,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (Debug.tracing())
 			{
-				Debug.trace("Query for PKs, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect.toString()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				Debug.trace("Query for PKs, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					sqlSelect.toString());
 			}
 
 			int offset = 0;
@@ -2176,7 +2176,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (offset == 0 && startRow > 0)
 				{
 					// not found, reselect from start
-					Debug.warn("Could not connect next foundset chunk (" + startRow + "," + correctedMaxResult + "), re-loading entire PK set of datasource: " + getDataSource()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Debug.warn("Could not connect next foundset chunk (" + startRow + "," + correctedMaxResult + "), re-loading entire PK set of datasource: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+						getDataSource());
 					pks.createPKCache(); // out-of-sync detected, this also flags that new PKS need to be matched against existing ones
 					startRow = 0;
 					time = System.currentTimeMillis();
@@ -2184,7 +2185,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 					if (Debug.tracing())
 					{
-						Debug.trace("RE-query for PKs, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect.toString()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+						Debug.trace("RE-query for PKs, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + //$NON-NLS-1$//$NON-NLS-2$
+							" SQL: " + sqlSelect.toString()); //$NON-NLS-1$
 					}
 				}
 			}
@@ -2298,7 +2300,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (Debug.tracing())
 		{
-			Debug.trace("BrowseAll time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + sqlSelect.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Debug.trace(
+				"BrowseAll time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + sqlSelect.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 		initialized = true;
@@ -3650,7 +3653,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (Debug.tracing())
 			{
-				Debug.trace("Aggregate query, time: " + (System.currentTimeMillis() - time) + ", thread: " + Thread.currentThread().getName() + ", SQL: " + select.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Debug.trace("Aggregate query, time: " + (System.currentTimeMillis() - time) + ", thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					select.toString());
 			}
 			fillAggregates(select, ds);
 		}
@@ -3686,7 +3690,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (relationSequence != null && relationSequence.length > 0 && !relationSequence[0].isGlobal() &&
 			!relationSequence[0].getPrimaryDataSource().equals(getDataSource()))
 		{
-			fsm.getApplication().reportJSError("An incorrect child relation (" + relationSequence[0].getName() +
+			fsm.getApplication().reportJSWarning("An incorrect child relation (" + relationSequence[0].getName() +
 				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation actually has '" +
 				relationSequence[0].getPrimaryDataSource() +
 				"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone.", new ServoyException());
@@ -3915,8 +3919,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public void deleteRecord(IRecordInternal record) throws ServoyException
 	{
-		if (record.getParentFoundSet() != this) throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException(
-			"Record not from this foundset")); //$NON-NLS-1$
+		if (record.getParentFoundSet() != this)
+			throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException("Record not from this foundset")); //$NON-NLS-1$
 		int recordIndex = getRecordIndex(record);
 		if (recordIndex == -1) throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException("Record pk not found in this foundset")); //$NON-NLS-1$
 		deleteRecord(record, recordIndex);
@@ -3990,9 +3994,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 						if (set != null && set.getSize() > 0)
 						{
-							fsm.getApplication().reportJSError(
-								"Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords size: " + set.getSize() + " from record with PK: " +
-									state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + rel.getName(), null);
+							fsm.getApplication().reportJSError("Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords size: " + set.getSize() +
+								" from record with PK: " + state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + rel.getName(),
+								null);
 							throw new ApplicationException(ServoyException.NO_PARENT_DELETE_WITH_RELATED_RECORDS, new Object[] { rel.getName() });
 						}
 					}
@@ -4011,7 +4015,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 							if (set != null)
 							{
-								Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + //$NON-NLS-1$//$NON-NLS-2$
+									state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$
 								set.deleteAllInternal();
 							}
 						}
@@ -4113,8 +4118,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					try
 					{
 						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
-							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getInstanceMethodArguments(property.getPropertyName()))), false, throwException)) &&
-							breakOnFalse)
+							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getInstanceMethodArguments(property.getPropertyName()))), false,
+							throwException)) && breakOnFalse)
 						{
 							// break on false return, do not execute remaining triggers.
 							return false;
@@ -4554,10 +4559,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation != null)
 			{
-				Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				Placeholder ph = creationSqlSelect.getPlaceholder(
+					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
 				if (ph == null || !ph.isSet() || ph.getValue() == null || ((Object[])ph.getValue()).length == 0)
 				{
-					Debug.trace("New record failed because related foundset had no parameters, or trying to make a new findstate when it is nested more then 2 deep"); //$NON-NLS-1$
+					Debug.trace(
+						"New record failed because related foundset had no parameters, or trying to make a new findstate when it is nested more then 2 deep"); //$NON-NLS-1$
 					return null;
 				}
 				if (!relation.getAllowCreationRelatedRecords())
@@ -4793,7 +4800,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			if (Debug.tracing())
 			{
-				Debug.trace("Find executed, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", sql: " + findSqlSelect.toString()); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+				Debug.trace("Find executed, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", sql: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					findSqlSelect.toString());
 			}
 
 			if (findPKs.getRowCount() == 0)
@@ -4816,11 +4824,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 
 			fireDifference(numberOfFindStates, getSize());
-			
-			if (getSelectedIndex() == -1 && getSize() > 0) {
-                setSelectedIndex(0);
-            }
-			
+
+			if (getSelectedIndex() == -1 && getSize() > 0)
+			{
+				setSelectedIndex(0);
+			}
+
 			int nfound = findPKs.getRowCount();
 			try
 			{
@@ -6093,7 +6102,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						if (!fs_sqlSelect.setPlaceholderValue(new TablePlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 						{
 							Debug.error(new RuntimeException(
-								"Could not set placeholder " + new TablePlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + " in query " + fs_sqlSelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+								"Could not set placeholder " + new TablePlaceholderKey(fs_sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+									" in query " + fs_sqlSelect + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						fs.pksAndRecords.getPks().setRow(0, pk);
 						fs.setSelectedIndex(0);
