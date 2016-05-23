@@ -465,6 +465,14 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public void reportJSWarning(String msg);
 
 	/**
+	 * Report a javascript warning with stack trace.
+	 *
+	 * @param msg the warning
+	 * @param t the stack to report
+	 */
+	public void reportJSWarning(String msg, Throwable t);
+
+	/**
 	 * Report a javascript info.
 	 *
 	 * @param msg the info

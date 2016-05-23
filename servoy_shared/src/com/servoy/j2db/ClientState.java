@@ -983,6 +983,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		Debug.log(s);
 	}
 
+	public void reportJSWarning(String s, Throwable t)
+	{
+		Debug.log(s, t);
+	}
+
 	public void reportJSInfo(String s)
 	{
 		Debug.debug(s);

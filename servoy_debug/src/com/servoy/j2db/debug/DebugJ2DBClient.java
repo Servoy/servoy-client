@@ -1047,6 +1047,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@Override
+	public void reportJSWarning(String s, Throwable t)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), s, t);
+		super.reportJSWarning(s, t);
+	}
+
+	@Override
 	public void reportJSInfo(String s)
 	{
 		DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);

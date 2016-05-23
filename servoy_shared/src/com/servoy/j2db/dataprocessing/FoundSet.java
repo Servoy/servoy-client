@@ -3721,7 +3721,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (relationSequence != null && relationSequence.length > 0 && !relationSequence[0].isGlobal() &&
 			!relationSequence[0].getPrimaryDataSource().equals(getDataSource()))
 		{
-			fsm.getApplication().reportJSError("An incorrect child relation (" + relationSequence[0].getName() +
+			fsm.getApplication().reportJSWarning("An incorrect child relation (" + relationSequence[0].getName() +
 				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation actually has '" +
 				relationSequence[0].getPrimaryDataSource() +
 				"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone.", new ServoyException());
