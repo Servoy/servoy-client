@@ -30,7 +30,6 @@ import org.sablo.specification.WebObjectSpecification;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
@@ -51,24 +50,11 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-
-			if (value instanceof JSValueList)
-			{
-				// should we move this into a IRhinoDesignConverter impl?
-				value = new Integer(((JSValueList)value).getValueList().getID());
-			}
-			else if (value instanceof JSForm)
-			{
-				value = ((JSForm)value).getName();
-			}
-			else
-			{
-				WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
-				PropertyDescription pd = spec.getProperty(propertyName);
-				if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
-				value = fromRhinoToDesignValue(value, pd, application, this);
-			}
-			webComponent.setProperty(propertyName, value);
+			WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+			PropertyDescription pd = spec.getProperty(propertyName);
+			if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
+			Object convertedValue = fromRhinoToDesignValue(value, pd, application, this);
+			webComponent.setProperty(propertyName, convertedValue);
 		}
 		catch (JSONException e)
 		{
@@ -107,10 +93,7 @@ public class JSNGWebComponent extends JSWebComponent
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
 			if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
-			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
-			{
-				return ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
-			}
+			return fromDesignToRhinoValue(value, pd, application, this);
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}
 		return value == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(value);

@@ -343,6 +343,16 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 		return result;
 	}
 
+	public static Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		Object result = value;
+		if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
+		{
+			result = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, webComponent);
+		}
+		return result;
+	}
+
 	/**
 	 * Get the design-time value of the given property.
 	 *

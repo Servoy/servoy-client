@@ -34,6 +34,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.CustomValueList;
@@ -47,6 +48,8 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.solutionmodel.JSValueList;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -62,6 +65,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -74,7 +78,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
 	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
-	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType
+	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType, IRhinoDesignConverter
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -341,6 +345,41 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public boolean shouldAlwaysAllowIncommingJSON()
 	{
 		return true; // fromJSON can only filter stuff so it shouldn't be a problem (it's not setting anything from client to server)
+	}
+
+	@Override
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof String)
+		{
+			ValueList vl = application.getFlattenedSolution().getValueList((String)value);
+			if (vl != null) return vl.getUUID();
+		}
+		else if (value instanceof JSValueList)
+		{
+			return ((JSValueList)value).getUUID();
+		}
+		return value;
+	}
+
+	@Override
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		ValueList list = null;
+		UUID uuid = Utils.getAsUUID(value, false);
+		if (uuid != null)
+		{
+			list = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+		}
+		if (value instanceof String && list == null)
+		{
+			list = application.getFlattenedSolution().getValueList((String)value);
+		}
+		if (list != null)
+		{
+			return application.getScriptEngine().getSolutionModifier().getValueList(list.getName());
+		}
+		return null;
 	}
 
 }

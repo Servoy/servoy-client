@@ -341,9 +341,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			JSONObject result = new JSONObject();
 			for (Object key : obj.keySet())
 			{
-				PropertyDescription p = pd.getProperty((String)key);
-				Object v = obj.get(key);
-				result.put((String)key, JSWebComponent.fromRhinoToDesignValue(v, p, application, webComponent));
+				result.put((String)key, JSWebComponent.fromRhinoToDesignValue(obj.get(key), pd.getProperty((String)key), application, webComponent));
 			}
 			return result;
 		}
@@ -362,16 +360,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			for (String key : obj.keySet())
 			{
 				if (IChildWebObject.UUID_KEY.equals(key)) continue;
-				PropertyDescription p = pd.getProperty(key);
-				Object v = obj.get(key);
-				if (p != null && p.getType() instanceof IRhinoDesignConverter)
-				{
-					result.put(key, result, ((IRhinoDesignConverter)p.getType()).fromDesignToRhinoValue(v, p, application, webComponent));
-				}
-				else
-				{
-					result.put(key, result, v);
-				}
+				result.put(key, result, JSWebComponent.fromDesignToRhinoValue(obj.get(key), pd.getProperty(key), application, webComponent));
 			}
 			return result;
 		}
