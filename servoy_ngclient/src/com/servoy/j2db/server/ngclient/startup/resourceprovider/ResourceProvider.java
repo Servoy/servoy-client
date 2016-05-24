@@ -572,7 +572,7 @@ public class ResourceProvider implements Filter
 		for (Entry<String, IPackageReader> entry : componentReaders.entrySet())
 		{
 			File resource = entry.getValue().getResource();
-			if (resource != null && resource.equals(file)) return entry.getKey();
+			if (resource != null && resource.equals(file)) return entry.getValue().getPackageName();
 		}
 		return null;
 	}
