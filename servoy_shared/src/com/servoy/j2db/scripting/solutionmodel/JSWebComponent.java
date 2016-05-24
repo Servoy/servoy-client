@@ -365,6 +365,11 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * application.output(JSON.stringify(wc.getJSONProperty('mycustomtype'), null, '  ')); // getter returns an object if present for custom types is spec files
 	 * application.output(JSON.stringify(wc.getJSONProperty('myarray'), null, '  ')); // getter returns an array type if present for array types
 	 * application.output(JSON.stringify(wc.getJSONProperty('myfoundset'), null, '  ')); // getter returns an object representing the design settings of the given property if present
+	 *
+	 * //In case you want to change a more complex property (e.g. tabs) obtained with getJSONProperty, setJSONProperty must be used:
+	 * var tabs = jsTabPanel.getJSONPRoperty("tabs");
+	 * tabs[0].containsFormId = jsForm;
+	 * jsTabPanel.setJSONProperty("tabs", tabs);
 	 */
 	@JSFunction
 	public Object getJSONProperty(String propertyName)
