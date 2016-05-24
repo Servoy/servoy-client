@@ -35,6 +35,7 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author lvostinar
@@ -350,7 +351,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 		{
 			result = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, webComponent);
 		}
-		return result;
+		return result == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(result);
 	}
 
 	/**
