@@ -749,7 +749,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 			if(isForm || compModel.anchors) {
 				var resizeTimeoutID = null;
-				$window.addEventListener('resize',function() { 
+				var onResize = function() {
 					if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
 					resizeTimeoutID = $timeout( function() {
 						// TODO: visibility must be based on properties of type visible, not on property name
@@ -764,7 +764,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							}
 						}
 					}, 1000);
-				});
+				}
+				$window.addEventListener('resize', onResize);
+				$scope.$on("$destroy", function() {
+					$window.removeEventListener('resize', onResize);
+				})
 			}
 		}
 	};   
