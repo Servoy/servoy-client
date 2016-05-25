@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -341,7 +342,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			JSONObject result = new JSONObject();
 			for (Object key : obj.keySet())
 			{
-				result.put((String)key, JSWebComponent.fromRhinoToDesignValue(obj.get(key), pd.getProperty((String)key), application, webComponent));
+				result.put((String)key, JSNGWebComponent.fromRhinoToDesignValue(obj.get(key), pd.getProperty((String)key), application, webComponent));
 			}
 			return result;
 		}
@@ -360,7 +361,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			for (String key : obj.keySet())
 			{
 				if (IChildWebObject.UUID_KEY.equals(key)) continue;
-				result.put(key, result, JSWebComponent.fromDesignToRhinoValue(obj.get(key), pd.getProperty(key), application, webComponent));
+				result.put(key, result, JSNGWebComponent.fromDesignToRhinoValue(obj.get(key), pd.getProperty(key), application, webComponent));
 			}
 			return result;
 		}

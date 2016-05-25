@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -321,7 +322,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		PropertyDescription desc = getCustomJSONTypeDefinition();
 		for (Object element : array)
 		{
-			values.put(JSWebComponent.fromRhinoToDesignValue(element, desc, application, webComponent));
+			values.put(JSNGWebComponent.fromRhinoToDesignValue(element, desc, application, webComponent));
 		}
 		return values;
 	}
@@ -338,7 +339,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			Scriptable result = cx.newObject(scope, "Array");
 			for (int i = 0; i < obj.length; i++)
 			{
-				result.put(i, result, JSWebComponent.fromDesignToRhinoValue(obj[i], desc, application, webComponent));
+				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(obj[i], desc, application, webComponent));
 			}
 			return result;
 		}
@@ -350,7 +351,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			Scriptable result = cx.newObject(scope, "Array");
 			for (int i = 0; i < arr.length(); i++)
 			{
-				result.put(i, result, JSWebComponent.fromDesignToRhinoValue(arr.get(i), desc, application, webComponent));
+				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(arr.get(i), desc, application, webComponent));
 			}
 			return result;
 		}

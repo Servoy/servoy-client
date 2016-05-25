@@ -30,6 +30,7 @@ import org.sablo.specification.WebObjectSpecification;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
@@ -152,6 +153,30 @@ public class JSNGWebComponent extends JSWebComponent
 		}
 		if (jsonProperty instanceof JSMethod) return (JSMethod)jsonProperty;
 		else return null;
+	}
+
+	public static Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		Object result = null;
+		if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
+		{
+			result = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, webComponent);
+		}
+		else
+		{
+			result = JSWebComponent.defaultRhinoToDesignValue(value, application);
+		}
+		return result;
+	}
+
+	public static Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		Object result = value;
+		if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
+		{
+			result = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, webComponent);
+		}
+		return result == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(result);
 	}
 
 }

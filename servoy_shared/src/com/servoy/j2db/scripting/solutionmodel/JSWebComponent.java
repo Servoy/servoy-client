@@ -26,7 +26,6 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
-import org.sablo.specification.PropertyDescription;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
@@ -34,8 +33,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IRhinoDesignConverter;
-import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author lvostinar
@@ -328,30 +325,6 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 			Context.exit();
 		}
 		return value;
-	}
-
-	public static Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
-	{
-		Object result = null;
-		if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
-		{
-			result = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, webComponent);
-		}
-		else
-		{
-			result = defaultRhinoToDesignValue(value, application);
-		}
-		return result;
-	}
-
-	public static Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
-	{
-		Object result = value;
-		if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
-		{
-			result = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, webComponent);
-		}
-		return result == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(result);
 	}
 
 	/**
