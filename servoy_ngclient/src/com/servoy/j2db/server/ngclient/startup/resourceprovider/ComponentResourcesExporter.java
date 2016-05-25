@@ -55,7 +55,7 @@ public class ComponentResourcesExporter
 	 * Used in war export to create a components.properties file which is needed to load the components specs in war.
 	 * @return the locations of components folders relative to the war dir.
 	 */
-	public static String getComponentDirectoryNames(List<String> excludedComponentPackages)
+	public static String getDefaultComponentDirectoryNames(List<String> excludedComponentPackages)
 	{
 		StringBuilder locations = new StringBuilder();
 		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
@@ -71,7 +71,6 @@ public class ComponentResourcesExporter
 				}
 			}
 		}
-		locations.deleteCharAt(locations.length() - 1);
 		return locations.toString();
 	}
 
@@ -79,7 +78,7 @@ public class ComponentResourcesExporter
 	 * Used in war export to create a services.properties file, which is needed to load services specs in the war.
 	 * @return the locations of services folders relative to the war dir.
 	 */
-	public static String getServicesDirectoryNames(List<String> excludedServicePackages)
+	public static String getDefaultServicesDirectoryNames(List<String> excludedServicePackages)
 	{
 		StringBuilder locations = new StringBuilder();
 		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
@@ -95,7 +94,6 @@ public class ComponentResourcesExporter
 				}
 			}
 		}
-		if (locations.length() > 0) locations.deleteCharAt(locations.length() - 1);
 		return locations.toString();
 	}
 
