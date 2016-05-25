@@ -250,7 +250,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * wc.setHandler('onActionMethodID', form.getJSMethod('onAction'));
+	 * wc.setHandler('onActionMethodID', form.getMethod('onAction'));
 	 */
 	@JSFunction
 	public void setHandler(String handlerName, JSMethod method)
@@ -264,7 +264,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'onActionMethodID' does something nice
-	 * wc.setHandler('onActionMethodID', form.getJSMethod('onCoolerAction'));
+	 * wc.setHandler('onActionMethodID', form.getMethod('onCoolerAction'));
 	 * // hmm, I changed my mind - I like 'nice' action better
 	 * wc.resetHandler('onActionMethodID');
 	 */
