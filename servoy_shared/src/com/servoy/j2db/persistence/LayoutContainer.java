@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
@@ -116,8 +117,8 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		String tag = getTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE);
 		if (tag == null)
 		{
-			if (WebComponentSpecProvider.getInstance().getLayoutSpecifications() != null &&
-				WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(getPackageName()) != null)
+			Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getInstance().getLayoutSpecifications();
+			if (layouts != null && getPackageName() != null && layouts.get(getPackageName()) != null)
 			{
 				WebLayoutSpecification spec = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(getPackageName()).getSpecification(
 					getSpecName());
