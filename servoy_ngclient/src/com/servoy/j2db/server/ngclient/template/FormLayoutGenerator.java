@@ -145,44 +145,73 @@ public class FormLayoutGenerator
 				while (formReferences.hasNext())
 				{
 					FormReference formReference = formReferences.next();
-					if (PartWrapper.isSecurityVisible(formReference, context))
-					{
-						FormElement fe = null;
-						if (cachedElementsMap.containsKey(formReference))
-						{
-							fe = cachedElementsMap.get(formReference);
-						}
-						if (fe == null)
-						{
-							fe = FormElementHelper.INSTANCE.getFormElement(formReference, context.getSolution(), null, design);
-						}
-						generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
-						for (IFormElement element : formReference.getFlattenedObjects(FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR))
-						{
-							if (PartWrapper.isSecurityVisible(element, context))
-							{
-								fe = null;
-								if (cachedElementsMap.containsKey(element))
-								{
-									fe = cachedElementsMap.get(element);
-								}
-								if (fe == null)
-								{
-									fe = FormElementHelper.INSTANCE.getFormElement(element, context.getSolution(), null, design);
-								}
-								generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
-								generateFormElement(writer, fe, form, design);
-								generateEndDiv(writer);
-							}
-						}
-						generateEndDiv(writer);
-					}
+
+					generateFormReference(writer, form, context, design, cachedElementsMap, formReference);
 				}
 				if (!design) generateEndDiv(writer);
 			}
 		}
 
 		generateFormEndTag(writer, design);
+	}
+
+	/**
+	 * @param writer
+	 * @param form
+	 * @param context
+	 * @param design
+	 * @param cachedElementsMap
+	 * @param formReference
+	 */
+	private static void generateFormReference(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean design,
+		Map<IPersist, FormElement> cachedElementsMap, FormReference formReference)
+	{
+		if (PartWrapper.isSecurityVisible(formReference, context))
+		{
+			FormElement fe = null;
+			if (cachedElementsMap.containsKey(formReference))
+			{
+				fe = cachedElementsMap.get(formReference);
+			}
+			if (fe == null)
+			{
+				fe = FormElementHelper.INSTANCE.getFormElement(formReference, context.getSolution(), null, design);
+			}
+			generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
+			Iterator<IPersist> allObjectsIterator = formReference.getAllObjects();
+			while (allObjectsIterator.hasNext())
+			{
+				IPersist next = allObjectsIterator.next();
+				if (next instanceof IFormElement)
+				{
+					IFormElement element = (IFormElement)next;
+					if (PartWrapper.isSecurityVisible(element, context))
+					{
+						if (next instanceof FormReference)
+						{
+							generateFormReference(writer, form, context, design, cachedElementsMap, (FormReference)next);
+						}
+						else
+						{
+							fe = null;
+							if (cachedElementsMap.containsKey(element))
+							{
+								fe = cachedElementsMap.get(element);
+							}
+							if (fe == null)
+							{
+								fe = FormElementHelper.INSTANCE.getFormElement(element, context.getSolution(), null, design);
+							}
+							generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
+							generateFormElement(writer, fe, form, design);
+							generateEndDiv(writer);
+						}
+					}
+				}
+
+			}
+			generateEndDiv(writer);
+		}
 	}
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)

@@ -18,11 +18,14 @@
 package com.servoy.j2db.persistence;
 
 import java.awt.Point;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author lvostinar
@@ -71,25 +74,12 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 						{
 							internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)originalElementFromReferencedForm));
 						}
-						else if (originalElementFromReferencedForm instanceof FormReference)
-						{
-							internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)originalElementFromReferencedForm));
-						}
 						else
 						{
 							IPersist newPersist;
 							try
 							{
-								String qualifier = formReference.getName();
-								if (qualifier == null)
-								{
 
-									qualifier = formReference.getUUID().toString().replaceAll("-", "_");
-									if (Character.isDigit(qualifier.charAt(0)))
-									{
-										qualifier = "_" + qualifier;
-									}
-								}
 								List<IPersist> allObjectsAsList = formReference.getAllObjectsAsList();
 								boolean alreadyAdded = false;
 								for (IPersist iPersist : allObjectsAsList)
@@ -106,11 +96,26 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 								}
 								if (!alreadyAdded)
 								{
+									String qualifier = formReference.getName();
+									if (qualifier == null)
+									{
+
+										qualifier = formReference.getUUID().toString().replaceAll("-", "_");
+										if (Character.isDigit(qualifier.charAt(0)))
+										{
+											qualifier = "_" + qualifier;
+										}
+									}
 									newPersist = ((AbstractBase)originalElementFromReferencedForm).cloneObj(formReference, false, null, false, false, false);
 									((AbstractBase)newPersist).copyPropertiesMap(null, true);
 									((ISupportExtendsID)newPersist).setExtendsID(originalElementFromReferencedForm.getID());
 									adjustName((AbstractBase)originalElementFromReferencedForm, (AbstractBase)newPersist, qualifier);
-									internalAddChild(newPersist);
+									if (newPersist instanceof FormReference)
+									{
+										internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)newPersist));
+									}
+									else internalAddChild(newPersist);
+
 								}
 							}
 							catch (RepositoryException e)

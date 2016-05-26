@@ -181,7 +181,6 @@ public class FormWrapper
 				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add(persist);
 			}
 		}
-		baseComponents.addAll(getReferenceForms());
 		if ((isListView && !design) || isTableView)
 		{
 			baseComponents.add(new BodyPortal(form));
