@@ -56,6 +56,8 @@ public interface IServerManagerInternal extends IServerManager
 	 */
 	Driver loadDriver(String driverClassName, String url) throws Exception;
 
+	void loadInstalledDrivers();
+
 	IServer getServer(String string);
 
 	IServer getLogServer();

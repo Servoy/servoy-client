@@ -19,6 +19,8 @@ package com.servoy.j2db.util;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.List;
 
 import com.tc.object.bytecode.hook.impl.ClassProcessorHelper;
 import com.tc.object.loaders.NamedClassLoader;
@@ -96,6 +98,12 @@ public class ExtendableURLClassLoader extends URLClassLoader
 		{
 			return new URL[0];
 		}
+	}
+
+	public boolean hasURL(URL url)
+	{
+		List<URL> urls = Arrays.asList(super.getURLs());
+		return urls.contains(url);
 	}
 
 	@Override

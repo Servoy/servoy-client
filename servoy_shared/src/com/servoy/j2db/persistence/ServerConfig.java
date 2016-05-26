@@ -21,6 +21,21 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.servoy.j2db.serverconfigtemplates.EmptyTemplate;
+import com.servoy.j2db.serverconfigtemplates.FilemakerTemplate;
+import com.servoy.j2db.serverconfigtemplates.FireBirdTemplate;
+import com.servoy.j2db.serverconfigtemplates.FoxProTemplate;
+import com.servoy.j2db.serverconfigtemplates.InMemoryTemplate;
+import com.servoy.j2db.serverconfigtemplates.InformixTemplate;
+import com.servoy.j2db.serverconfigtemplates.MSSQLFreeTDSTemplate;
+import com.servoy.j2db.serverconfigtemplates.MSSQLTemplate;
+import com.servoy.j2db.serverconfigtemplates.MySQLTemplate;
+import com.servoy.j2db.serverconfigtemplates.ODBCTemplate;
+import com.servoy.j2db.serverconfigtemplates.OpenbaseTemplate;
+import com.servoy.j2db.serverconfigtemplates.OracleTemplate;
+import com.servoy.j2db.serverconfigtemplates.PostgresTemplate;
+import com.servoy.j2db.serverconfigtemplates.ServerTemplateDefinition;
+import com.servoy.j2db.serverconfigtemplates.SybaseASATemplate;
 import com.servoy.j2db.util.Utils;
 
 
@@ -41,7 +56,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 
 	public static final int MAX_ACTIVE_DEFAULT = 30;
 
-	public static final Map<String, ServerConfig> TEMPLATES = createTemplates();
+	public static final Map<String, ServerTemplateDefinition> TEMPLATES = createTemplates();
 
 	// supported connection validation types
 	public static final int CONNECTION_EXCEPTION_VALIDATION = 0;
@@ -392,57 +407,26 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		}
 	}
 
-	protected static Map<String, ServerConfig> createTemplates()
+	protected static Map<String, ServerTemplateDefinition> createTemplates()
 	{
-		Map<String, ServerConfig> map = new LinkedHashMap<String, ServerConfig>();
+		Map<String, ServerTemplateDefinition> map = new LinkedHashMap<String, ServerTemplateDefinition>();
 
-		map.put(EMPTY_TEMPLATE_NAME, new ServerConfig("new_server", "", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			"", null, "", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$
+		map.put(EMPTY_TEMPLATE_NAME, new EmptyTemplate());
 
 		// Prepared statement pool should be disabled, see http://www.hxtt.com/support_view_issue.jsp?product=dbf&id=1340742013
-		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			"com.hxtt.sql.dbf.DBFDriver", null, null, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT, 0 /* disable PS pool */, VALIDATION_TYPE_DEFAULT, null, null, true, //$NON-NLS-1$
-			false, -1, null));
-
-		map.put("Filemaker", new ServerConfig("new_filemaker", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			"jdbc:hsqldb:mem:.;fmphost=http://localhost:<webcompanionport>;fmpversion=5.5", null, "org.hsqldb.jdbcDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$
-
-		map.put(
-			"FireBird", new ServerConfig("new_firebird", "sysdba", "masterkey", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"jdbc:firebirdsql:localhost/3050:%%user.dir%%/database/<database_name>.gdb?lc_ctype=WIN1252", null, "org.firebirdsql.jdbc.FBDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$
-
-		map.put("In Memory", new ServerConfig("new_inmem", "sa", "", "jdbc:hsqldb:mem:.", null, "org.hsqldb.jdbcDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-
-		map.put(
-			"Informix", new ServerConfig("new_informix", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"jdbc:informix-sqli://<server_host>:<port>:informixserver=<informix_server_name>;database=<database_name>", null, "com.informix.jdbc.IfxDriver", null, //$NON-NLS-1$ //$NON-NLS-2$
-				null, true, false, null));
-
-		map.put("MS SQL", new ServerConfig("new_mssql", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			"jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=cursor", null, "com.microsoft.sqlserver.jdbc.SQLServerDriver", null, //$NON-NLS-1$ //$NON-NLS-2$
-			null, true, false, null));
-
-		map.put("MS SQL (freetds)", new ServerConfig("new_mssql_freetds", "sa", "", "jdbc:jtds:sqlserver://<server_host>/Northwind", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			"net.sourceforge.jtds.jdbc.Driver", null, null, true, false, null)); //$NON-NLS-1$
-
-		map.put("MySQL", new ServerConfig("new_mysql", "root", "", "jdbc:mysql://localhost/<database_name>", null, "org.gjt.mm.mysql.Driver", null, null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-			true, false, null));
-
-		map.put("ODBC Datasource", new ServerConfig("new_ODBC_data_source_name", "sa", "", "jdbc:odbc:<odbc_DSN>", null, "sun.jdbc.odbc.JdbcOdbcDriver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-			null, null, true, false, null));
-
-		map.put("Openbase", new ServerConfig("new_openbase", "admin", "", "jdbc:openbase://localhost/<database_name>", null, "com.openbase.jdbc.ObDriver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-			null, null, true, false, null));
-
-		map.put("Oracle", new ServerConfig("new_oracle", "scott", "tiger", "jdbc:oracle:thin:@localhost:1521:<orcl_sid>", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			"oracle.jdbc.driver.OracleDriver", null, null, true, false, null)); //$NON-NLS-1$
-
-		map.put(POSTGRESQL_TEMPLATE_NAME, new ServerConfig(
-			"new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", null, "org.postgresql.Driver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			null, null, true, false, null));
-
-		map.put("Sybase ASA", new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			"com.sybase.jdbc3.jdbc.SybDriver", null, null, true, false, null)); //$NON-NLS-1$
+		map.put("FoxPro DBF", new FoxProTemplate());
+		map.put("Filemaker", new FilemakerTemplate());
+		map.put("FireBird", new FireBirdTemplate());
+		map.put("In Memory", new InMemoryTemplate());
+		map.put("Informix", new InformixTemplate());
+		map.put("MS SQL", new MSSQLTemplate());
+		map.put("MS SQL (freetds)", new MSSQLFreeTDSTemplate());
+		map.put("MySQL", new MySQLTemplate());
+		map.put("ODBC Datasource", new ODBCTemplate());
+		map.put("Openbase", new OpenbaseTemplate());
+		map.put("Oracle", new OracleTemplate());
+		map.put(POSTGRESQL_TEMPLATE_NAME, new PostgresTemplate());
+		map.put("Sybase ASA", new SybaseASATemplate());
 
 		return map;
 	}
@@ -454,5 +438,4 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	{
 		TEMPLATES.clear();
 	}
-
 }
