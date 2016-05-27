@@ -107,13 +107,13 @@ import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetListWrapper;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
-import com.servoy.j2db.dataprocessing.ISupportsNeedEntireState;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISupportsNeedEntireState;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.Record;
@@ -1654,7 +1654,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Portal p = (Portal)cellview;
 			isListViewMode = p.getMultiLine();
 
-			setRowBGColorScript(p.getRowBGColorCalculation(), p.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
+			setRowBGColorScript(p.getRowBGColorCalculation(), p.getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
 			onRenderMethodID = p.getOnRenderMethodID();
@@ -1675,7 +1675,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (onRenderMethodID > 0)
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
 

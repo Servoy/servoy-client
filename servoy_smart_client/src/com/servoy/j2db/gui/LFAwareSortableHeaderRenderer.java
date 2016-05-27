@@ -320,7 +320,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	{
 		if (methodKey != null && gc != null)
 		{
-			return gc.getInstanceMethodArguments(methodKey);
+			return gc.getFlattenedMethodArguments(methodKey);
 		}
 		return null;
 	}

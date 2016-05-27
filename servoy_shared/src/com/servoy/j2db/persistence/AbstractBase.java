@@ -82,7 +82,7 @@ public abstract class AbstractBase implements IPersist
 	/*
 	 * Attributes, do not change default values do to repository default_textual_classvalue
 	 */
-	protected transient JSONWrapperMap jsonCustomProperties = null;
+	private transient JSONWrapperMap jsonCustomProperties = null;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -862,7 +862,7 @@ public abstract class AbstractBase implements IPersist
 		IPersist persist = this;
 		while (persist instanceof AbstractBase)
 		{
-			Object customProperty = ((AbstractBase)persist).getCustomPropertyLocal(path);
+			Object customProperty = ((AbstractBase)persist).getCustomPropertyNonFlattened(path);
 			if (customProperty != null)
 			{
 				return customProperty;
@@ -881,7 +881,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Object getCustomPropertyLocal(String[] path)
+	protected Object getCustomPropertyNonFlattened(String[] path)
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 
@@ -1097,7 +1097,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object> getInstanceMethodArguments(String methodKey)
+	public List<Object> getFlattenedMethodArguments(String methodKey)
 	{
 		if (methodKey != null)
 		{
@@ -1107,7 +1107,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object> putInstanceMethodArguments(String methodKey, List<Object> args)
+	public List<Object> putMethodArguments(String methodKey, List<Object> args)
 	{
 		if (methodKey != null)
 		{
@@ -1118,18 +1118,18 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	public Pair<List<Object>, List<Object>> getInstanceMethodParametersLocal(String methodKey)
+	public Pair<List<String>, List<Object>> getFlattenedMethodParameters(String methodKey)
 	{
 		if (methodKey != null)
 		{
-			List<Object> params = (List<Object>)getCustomPropertyLocal(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
-			List<Object> args = (List<Object>)getCustomPropertyLocal(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
-			return new Pair<List<Object>, List<Object>>(params, args);
+			List<String> params = (List<String>)getCustomProperty(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
+			List<Object> args = (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
+			return new Pair<List<String>, List<Object>>(params, args);
 		}
 		return null;
 	}
 
-	public List<Object> putInstanceMethodParameters(String methodKey, List<Object> paramNames, List<Object> args)
+	public List<Object> putMethodParameters(String methodKey, List<String> paramNames, List<Object> args)
 	{
 		if (methodKey != null)
 		{

@@ -1429,11 +1429,11 @@ public class ComponentFactory
 				"onFocusLostMethodID");
 			if (cmds != null) fl.setLeaveCmds((String[])cmds[0], (Object[][])cmds[1]);
 			if (field.getOnActionMethodID() > 0)
-				fl.setActionCmd(Integer.toString(field.getOnActionMethodID()), Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
+				fl.setActionCmd(Integer.toString(field.getOnActionMethodID()), Utils.parseJSExpressions(field.getFlattenedMethodArguments("onActionMethodID")));
 			if (field.getOnDataChangeMethodID() > 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
-				Utils.parseJSExpressions(field.getInstanceMethodArguments("onDataChangeMethodID")));
+				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onDataChangeMethodID")));
 			if (field.getOnRightClickMethodID() > 0) fl.setRightClickCommand(Integer.toString(field.getOnRightClickMethodID()),
-				Utils.parseJSExpressions(field.getInstanceMethodArguments("onRightClickMethodID")));
+				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onRightClickMethodID")));
 		}
 
 		int onRenderMethodID = field.getOnRenderMethodID();
@@ -1447,7 +1447,7 @@ public class ComponentFactory
 		{
 			RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
 			renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 
 			IForm rendererForm = application.getFormManager().getForm(form.getName());
 			IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
@@ -1517,10 +1517,10 @@ public class ComponentFactory
 		if (method1 > 0 && method2 > 0)
 		{
 			return new Object[] { new String[] { String.valueOf(method1), String.valueOf(method2) }, new Object[][] { Utils.parseJSExpressions(
-				persist1.getInstanceMethodArguments(methodKey1)), Utils.parseJSExpressions(persist2.getInstanceMethodArguments(methodKey2)) } };
+				persist1.getFlattenedMethodArguments(methodKey1)), Utils.parseJSExpressions(persist2.getFlattenedMethodArguments(methodKey2)) } };
 		}
 		return new Object[] { new String[] { String.valueOf(method1 <= 0 ? method2 : method1) }, new Object[][] { Utils.parseJSExpressions(
-			(method1 <= 0 ? persist2 : persist1).getInstanceMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
+			(method1 <= 0 ? persist2 : persist1).getFlattenedMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
 	}
 
 	/**
@@ -1767,11 +1767,11 @@ public class ComponentFactory
 		{
 			l.addScriptExecuter(el);
 			if (label.getOnActionMethodID() > 0) l.setActionCommand(Integer.toString(label.getOnActionMethodID()),
-				Utils.parseJSExpressions(label.getInstanceMethodArguments("onActionMethodID")));
+				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onActionMethodID")));
 			if (label.getOnDoubleClickMethodID() > 0) l.setDoubleClickCommand(Integer.toString(label.getOnDoubleClickMethodID()),
-				Utils.parseJSExpressions(label.getInstanceMethodArguments("onDoubleClickMethodID")));
+				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onDoubleClickMethodID")));
 			if (label.getOnRightClickMethodID() > 0) l.setRightClickCommand(Integer.toString(label.getOnRightClickMethodID()),
-				Utils.parseJSExpressions(label.getInstanceMethodArguments("onRightClickMethodID")));
+				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onRightClickMethodID")));
 		}
 
 		if (label.getLabelFor() == null || (form.getView() != FormController.TABLE_VIEW && form.getView() != FormController.LOCKED_TABLE_VIEW))
@@ -1787,7 +1787,7 @@ public class ComponentFactory
 			{
 				RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
 				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-					Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+					Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 
 				IForm rendererForm = application.getFormManager().getForm(form.getName());
 				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
@@ -2033,7 +2033,7 @@ public class ComponentFactory
 		if (el != null && meta.getOnTabChangeMethodID() > 0)
 		{
 			tabs.setOnTabChangeMethodCmd(Integer.toString(meta.getOnTabChangeMethodID()),
-				Utils.parseJSExpressions(meta.getInstanceMethodArguments("onTabChangeMethodID")));
+				Utils.parseJSExpressions(meta.getFlattenedMethodArguments("onTabChangeMethodID")));
 			tabs.addScriptExecuter(el);
 		}
 

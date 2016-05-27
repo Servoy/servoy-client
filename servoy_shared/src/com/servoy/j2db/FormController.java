@@ -442,7 +442,7 @@ public class FormController extends BasicFormController
 				if (onRenderMethodID > 0)
 				{
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-						Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
+						Utils.parseJSExpressions(form.getFlattenedMethodArguments("onRenderMethodID")));
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 				}
 			}
@@ -462,7 +462,7 @@ public class FormController extends BasicFormController
 			if (onRenderMethodID > 0)
 			{
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-					Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
+					Utils.parseJSExpressions(form.getFlattenedMethodArguments("onRenderMethodID")));
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
 			//apply bgcolor to renderer
@@ -946,7 +946,7 @@ public class FormController extends BasicFormController
 		{
 			view.setModel(formModel);
 		}
-		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
+		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(stylesheet, styleOdd, styleEven, styleSelected, styleHeader);
 
 		if (formReadOnly)

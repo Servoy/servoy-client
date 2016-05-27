@@ -132,8 +132,8 @@ public class ComponentFactoryHelper
 			else if (currentBorder instanceof SpecialMatteBorder)
 			{
 				SpecialMatteBorder border = (SpecialMatteBorder)currentBorder;
-				retval = ((border instanceof RoundedBorder) ? ROUNDED_BORDER : SPECIAL_MATTE_BORDER) +
-					"," + border.getTop() + "," + border.getRight() + "," + border.getBottom() + "," + border.getLeft(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				retval = ((border instanceof RoundedBorder) ? ROUNDED_BORDER : SPECIAL_MATTE_BORDER) + "," + border.getTop() + "," + border.getRight() + "," + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					border.getBottom() + "," + border.getLeft(); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getTopColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getRightColor()); //$NON-NLS-1$
 				retval += "," + PersistHelper.createColorString(border.getBottomColor()); //$NON-NLS-1$
@@ -636,7 +636,7 @@ public class ComponentFactoryHelper
 			onRenderPersist = portal;
 		}
 		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-			Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID"))); //$NON-NLS-1$
+			Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID"))); //$NON-NLS-1$
 		else renderEventExecutor.setRenderCallback(null, null);
 
 		renderEventExecutor.setRenderScriptExecuter(se);

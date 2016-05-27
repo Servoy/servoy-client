@@ -2659,7 +2659,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 						scriptParent = getJSFormParent(parent);
 					}
 				}
-				List<Object> arguments = persist.getInstanceMethodArguments(propertyName);
+				List<Object> arguments = persist.getFlattenedMethodArguments(propertyName);
 				if (arguments == null || arguments.size() == 0)
 				{
 					return new JSMethod(scriptParent, scriptMethod, application, false);
@@ -2680,7 +2680,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
-		persist.putInstanceMethodParameters(methodProperty.getPropertyName(),
+		persist.putMethodParameters(methodProperty.getPropertyName(),
 			//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
 			new ArrayList(), method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
 	}

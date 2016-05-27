@@ -259,7 +259,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			try
 			{
 				application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getInstanceMethodArguments("onOpenMethodID"))), false, false);
+					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onOpenMethodID"))), false, false);
 				if (application.getSolution() == null) return;
 			}
 			catch (Exception e1)

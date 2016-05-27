@@ -2563,7 +2563,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Omit record under the given index, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-
+	
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sampleas js_omitRecord()
@@ -2591,7 +2591,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Omit current record, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-
+	
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sample var success = %%prefix%%foundset.omitRecord();
@@ -4152,7 +4152,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					try
 					{
 						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
-							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getInstanceMethodArguments(property.getPropertyName()))), false,
+							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getFlattenedMethodArguments(property.getPropertyName()))), false,
 							throwException)) && breakOnFalse)
 						{
 							// break on false return, do not execute remaining triggers.

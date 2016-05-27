@@ -258,7 +258,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			resizeble = meta.getResizable();
 			getTableHeader().setResizingAllowed(resizeble);
 			sortable = meta.getSortable();
-			setRowBGColorScript(meta.getRowBGColorCalculation(), meta.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
+			setRowBGColorScript(meta.getRowBGColorCalculation(), meta.getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 
 			onRenderMethodID = meta.getOnRenderMethodID();
 			onRenderPersist = meta;
@@ -294,7 +294,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		if (onRenderMethodID > 0)
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
 		initDragNDrop(fc, 0);

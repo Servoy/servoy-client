@@ -2222,7 +2222,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 								application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
 									Utils.arrayMerge(
 										new Object[] { ds, new Integer(action), new JSDataSet(application, fnewPks), Boolean.valueOf(didHaveDataCached) },
-										Utils.parseJSExpressions(solution.getInstanceMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
+										Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
 									false, false);
 							}
 							catch (Exception e1)

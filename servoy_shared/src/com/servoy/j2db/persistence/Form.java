@@ -94,19 +94,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		super(IRepository.FORMS, parent, element_id, uuid);
 	}
 
-	// only for use in FlattenedForm
-	protected JSONWrapperMap getCustomPropertiesMap()
-	{
-		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
-
-		if (customProperties == null) return null;
-		if (jsonCustomProperties == null)
-		{
-			jsonCustomProperties = new JSONWrapperMap(customProperties);
-		}
-		return jsonCustomProperties;
-	}
-
 	/*
 	 * _____________________________________________________________ Property Methods
 	 */

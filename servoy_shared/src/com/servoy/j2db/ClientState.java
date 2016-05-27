@@ -1315,7 +1315,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					sm.getScopeName(),
 					sm.getName(),
 					Utils.arrayMerge((new Object[] { Boolean.valueOf(force) }),
-						Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
+						Utils.parseJSExpressions(getSolution().getFlattenedMethodArguments("onCloseMethodID"))), false, false)); //$NON-NLS-1$
 			}
 			catch (Exception e1)
 			{
