@@ -1318,7 +1318,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				return !Boolean.FALSE.equals(getScriptEngine().getSolutionScope().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
 					Utils.arrayMerge((new Object[] { Boolean.valueOf(force) }),
-						Utils.parseJSExpressions(getSolution().getInstanceMethodArguments("onCloseMethodID"))), //$NON-NLS-1$
+						Utils.parseJSExpressions(getSolution().getFlattenedMethodArguments("onCloseMethodID"))), //$NON-NLS-1$
 					false, false));
 			}
 			catch (Exception e1)
@@ -1637,7 +1637,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				{
 					isHandlingError = true;
 					Object retval = getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-						Utils.arrayMerge((new Object[] { thrown }), Utils.parseJSExpressions(s.getInstanceMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { thrown }), Utils.parseJSExpressions(s.getFlattenedMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
 						false, false);
 					if (Utils.getAsBoolean(retval))
 					{

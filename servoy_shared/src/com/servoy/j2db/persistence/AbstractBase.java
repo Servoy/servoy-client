@@ -48,7 +48,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract base class used by all IPersist classes If a sub class implements ISupportChild\IPersistConeble more methods are already provided
- * 
+ *
  * @author jblok
  */
 @SuppressWarnings("nls")
@@ -80,7 +80,7 @@ public abstract class AbstractBase implements IPersist
 	/*
 	 * Attributes, do not change default values do to repository default_textual_classvalue
 	 */
-	protected transient JSONWrapperMap jsonCustomProperties = null;
+	private transient JSONWrapperMap jsonCustomProperties = null;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -113,7 +113,7 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(propertyName);
 		if (bufferPropertiesMap != null)
 		{
-			bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import 
+			bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import
 		}
 	}
 
@@ -208,8 +208,7 @@ public abstract class AbstractBase implements IPersist
 		else
 		{
 			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-				(this instanceof ISupportExtendsID && Utils.equalObjects(
-					Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+				(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
 					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
 			{
@@ -372,8 +371,8 @@ public abstract class AbstractBase implements IPersist
 				retval = it.next().acceptVisitor(visitor);
 			}
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-			? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
@@ -382,8 +381,8 @@ public abstract class AbstractBase implements IPersist
 		if (this instanceof ISupportChilds)
 		{
 			Iterator<IPersist> it = getAllObjects();
-			while (it.hasNext() &&
-				(retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
+			while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+				retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
 			{
 				IPersist visitee = it.next();
 				retval = visitee.acceptVisitorDepthFirst(visitor);
@@ -393,8 +392,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			retval = visitor.visit(this);
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-			? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
 	void clearParent()
@@ -681,7 +680,7 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Make a clone of the current obj (also makes new repository entry)
-	 * 
+	 *
 	 * @return a clone from this object
 	 */
 	public IPersist cloneObj(ISupportChilds newParent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames,
@@ -810,9 +809,9 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Set the customProperties
-	 * 
+	 *
 	 * <b>Note: this call is only for (de)serialisation, use putCustomProperty to set specific custom properties </b>
-	 * 
+	 *
 	 * @param arg the customProperties
 	 * @throws JSONException
 	 */
@@ -824,9 +823,9 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Get the customProperties
-	 * 
+	 *
 	 * <b>Note: this call is only for (de)serialisation, use getCustomProperty to get specific custom properties </b>
-	 * 
+	 *
 	 * @return the customProperties
 	 */
 	public String getCustomProperties()
@@ -843,7 +842,7 @@ public abstract class AbstractBase implements IPersist
 		IPersist persist = this;
 		while (persist instanceof AbstractBase)
 		{
-			Object customProperty = ((AbstractBase)persist).getCustomPropertyLocal(path);
+			Object customProperty = ((AbstractBase)persist).getCustomPropertyNonFlattened(path);
 			if (customProperty != null)
 			{
 				return customProperty;
@@ -862,7 +861,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Object getCustomPropertyLocal(String[] path)
+	protected Object getCustomPropertyNonFlattened(String[] path)
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 
@@ -1023,7 +1022,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return getCustomProperty(new String[] { "design", key }); //$NON-NLS-1$ //$NON-NLS-2$
+			return getCustomProperty(new String[] { "design", key }); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1032,7 +1031,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return putCustomProperty(new String[] { "design", key }, value); //$NON-NLS-1$ //$NON-NLS-2$
+			return putCustomProperty(new String[] { "design", key }, value); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1056,7 +1055,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return getCustomProperty(new String[] { "mobile", key }); //$NON-NLS-1$ //$NON-NLS-2$
+			return getCustomProperty(new String[] { "mobile", key }); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1065,13 +1064,13 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return putCustomProperty(new String[] { "mobile", key }, value); //$NON-NLS-1$ //$NON-NLS-2$
+			return putCustomProperty(new String[] { "mobile", key }, value); //$NON-NLS-1$
 		}
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object> getInstanceMethodArguments(String methodKey)
+	public List<Object> getFlattenedMethodArguments(String methodKey)
 	{
 		if (methodKey != null)
 		{
@@ -1081,28 +1080,29 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object> putInstanceMethodArguments(String methodKey, List<Object> args)
+	public List<Object> putMethodArguments(String methodKey, List<Object> args)
 	{
 		if (methodKey != null)
 		{
-			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args)); //$NON-NLS-1$ //$NON-NLS-2$
+			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, //$NON-NLS-1$//$NON-NLS-2$
+				args == null ? null : Collections.unmodifiableList(args));
 		}
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	public Pair<List<Object>, List<Object>> getInstanceMethodParametersLocal(String methodKey)
+	public Pair<List<String>, List<Object>> getFlattenedMethodParameters(String methodKey)
 	{
 		if (methodKey != null)
 		{
-			List<Object> params = (List<Object>)getCustomPropertyLocal(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
-			List<Object> args = (List<Object>)getCustomPropertyLocal(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
-			return new Pair<List<Object>, List<Object>>(params, args);
+			List<String> params = (List<String>)getCustomProperty(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
+			List<Object> args = (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
+			return new Pair<List<String>, List<Object>>(params, args);
 		}
 		return null;
 	}
 
-	public List<Object> putInstanceMethodParameters(String methodKey, List<Object> paramNames, List<Object> args)
+	public List<Object> putMethodParameters(String methodKey, List<String> paramNames, List<Object> args)
 	{
 		if (methodKey != null)
 		{

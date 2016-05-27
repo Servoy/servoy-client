@@ -151,7 +151,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @param name the specified name of the variable
 	 *
 	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -162,24 +162,24 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new form JSVariable - based on the name of the variable object , the  type  and it's default value , uses the SolutionModel JSVariable constants.
-	 * 
+	 *
 	 * This method does not require the form to be destroyed and recreated. Use this method if you want to change the form's model without destroying the runtime form</b>
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT , "'This is a default value (with triple quotes)!'");
 	 * //or variable = form.newVariable('myVar', JSVariable.TEXT)
 	 * //variable.defaultValue = "'This is a default value (with triple quotes)!'" // setting the default value after the variable is created requires form recreation
-	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"   
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param name the specified name of the variable
 	 *
 	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
-	 * 
+	 *
 	 * @param defaultValue the default value as a javascript expression string
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -202,7 +202,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Removes a form JSVariable - based on the name of the variable object.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
 	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
@@ -215,7 +215,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * forms['newForm1'].controller.recreateUI();
 	 *
 	 * @param name the specified name of the variable
-	 * 
+	 *
 	 * @return true if removed, false otherwise (ex: no var with that name)
 	 */
 	@JSFunction
@@ -245,13 +245,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Gets an existing form variable for the given name.
 	 *
-	 * @sample 
+	 * @sample
 	 * 	var frm = solutionModel.getForm("myForm");
 	 * 	var fvariable = frm.getVariable("myVarName");
 	 * 	application.output(fvariable.name + " has the default value of " + fvariable.defaultValue);
-	 * 
+	 *
 	 * @param name the specified name of the variable
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -267,16 +267,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * An array consisting of all form variables for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var variables = frm.getVariables();
 	 * for (var i in variables)
 	 * 	application.output(variables[i].name);
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
 	 * @return an array of all variables on this form
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSVariable[] getVariables(boolean returnInheritedElements)
@@ -293,15 +293,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * An array consisting of all form variables for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var variables = frm.getVariables();
 	 * for (var i in variables)
 	 * 	application.output(variables[i].name);
-	 * 
+	 *
 	 * @return an array of all variables on this form
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSVariable[] getVariables()
@@ -311,7 +311,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @param name the specified name of the variable
-	 * 
+	 *
 	 * @deprecated replaced by getVariable(String)
 	 */
 	@Deprecated
@@ -321,8 +321,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 *  
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
+	 *
 	 * @deprecated replaced by getVariables(boolean)
 	 */
 	@Deprecated
@@ -341,16 +341,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Creates a new form JSMethod - based on the specified code. 
+	 * Creates a new form JSMethod - based on the specified code.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var method = form.newMethod('function aMethod(event){application.output("Hello world!");}');
 	 * var button = myListViewForm.newButton('Show message!',50,50,100,30,method);
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param code the specified code for the new method
-	 * 
+	 *
 	 * @return a new JSMethod object for this form
 	 */
 	@JSFunction
@@ -373,9 +373,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a  form JSMethod - based on the specified code. 
+	 * Removes a  form JSMethod - based on the specified code.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
 	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
 	 * var removeMethod = form.newMethod('function removeMethod(event){ \
@@ -387,7 +387,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param name the specified name of the method
-	 * 
+	 *
 	 * @return true if method was removed successfully , false otherwise
 	 */
 	@JSFunction
@@ -422,9 +422,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var frm = solutionModel.getForm("myForm");
 	 * var method = frm.getMethod("myMethod");
 	 * application.output(method.code);
-	 * 
+	 *
 	 * @param name the specified name of the method
-	 * 
+	 *
 	 * @return a JSMethod object (or null if the method with the specified name does not exist)
 	 */
 	@JSFunction
@@ -440,7 +440,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @param name the specified name of the method
-	 * 
+	 *
 	 * @deprecated replaced by getMethod(String)
 	 */
 	@Deprecated
@@ -451,15 +451,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Returns all existing form methods for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var methods = frm.getMethods();
 	 * for (var m in methods)
 	 * 	application.output(methods[m].getName());
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 * @return all form methods for the form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
+	 * @return all form methods for the form
 	 */
 	@JSFunction
 	public JSMethod[] getMethods(boolean returnInheritedElements)
@@ -476,14 +476,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Returns all existing form methods for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var methods = frm.getMethods();
 	 * for (var m in methods)
 	 * 	application.output(methods[m].getName());
-	 * 
-	 * @return all form methods for the form 
+	 *
+	 * @return all form methods for the form
 	 */
 	@JSFunction
 	public JSMethod[] getMethods()
@@ -492,8 +492,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 * 
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
+	 *
 	 * @deprecated replaced by getMethods(boolean)
 	 */
 	@Deprecated
@@ -514,12 +514,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Creates a new JSField object on the form - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
 	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
@@ -532,8 +532,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @param width the width of the JSField object in pixels
 	 *
 	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object (of the specified display type) 
+	 *
+	 * @return a new JSField object (of the specified display type)
 	 */
 	@JSFunction
 	public JSField newField(Object dataprovider, int type, int x, int y, int width, int height)
@@ -575,14 +575,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Creates a new JSField object on the form with the displayType of TEXT_FIELD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600); 
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
 	 * //choose the dataprovider or jsvariable you want for the Text Field
 	 * var x = null;
-	 * //global jsvariable as the dataprovider 
+	 * //global jsvariable as the dataprovider
 	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
 	 * //x.defaultValue = "'Text from a global variable'";
-	 * //or a form jsvariable as the dataprovider 
+	 * //or a form jsvariable as the dataprovider
 	 * //x = form.newVariable('myFormVar',JSVariable.TEXT);
 	 * //x.defaultValue = "'Text from a form variable'";
 	 * var textField = form.newTextField(x,100,100,200,50);
@@ -595,7 +595,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a JSField object with the displayType of TEXT_FIELD
 	 */
 	@JSFunction
@@ -618,20 +618,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of TEXT_AREA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
 	 * var globalVar = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
 	 * globalVar.defaultValue = "'Type your text in here'";
 	 * var textArea = form.newTextArea(globalVar,100,100,300,150);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSTabPanel object in pixels
 	 * @param y the vertical "y" position of the JSTabPanel object in pixels
 	 * @param width the width of the JSTabPanel object in pixels
 	 * @param height the height of the JSTabPanel object in pixels
-	 * 
+	 *
 	 * @return a JSField object with the displayType of TEXT_AREA
 	 */
 	@JSFunction
@@ -654,18 +654,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of COMBOBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of COMBOBOX
 	 */
 	@JSFunction
@@ -688,18 +688,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of LISTBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * var list = form.newListBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of LISTBOX
 	 */
 	@JSFunction
@@ -710,18 +710,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of MULTISELECT_LISTBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * var calendar = form.newMultiSelectListBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
 	@JSFunction
@@ -732,18 +732,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of SPINNER - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
 	 * var spinner = form.newSpinner(myDataProvider, 10, 460, 100, 20);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of SPINNER
 	 */
 	@JSFunction
@@ -754,20 +754,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample	
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES); 
-	 * vlist.customValues = "value1\nvalue2\nvalue3"; 
+	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "value1\nvalue2\nvalue3";
 	 * var radios = form.newRadios('columnDataProvider',100,100,200,200);
 	 * radios.valuelist = vlist;
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a JSField object with the displayType of RADIOS (radio buttons)
 	 */
 	@JSFunction
@@ -790,18 +790,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var calendar = form.newCheck(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of CHECK (checkbox)
 	 */
 	@JSFunction
@@ -824,18 +824,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of CALENDAR - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var calendar = form.newCalendar(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels 
+	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of CALENDAR
 	 */
 	@JSFunction
@@ -858,18 +858,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of RTF_AREA (enables more than one line of text to be displayed in a field) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
 	 * var rtf_area = form.newRtfArea('columnDataProvider',100,100,100,100);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a JSField object with the displayType of RTF_AREA
 	 */
 	@JSFunction
@@ -880,21 +880,21 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of HTML_AREA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var textProvider = form.newVariable('myVar',JSVariable.TEXT);
 	 * textProvider.defaultValue = "'This is a triple quoted text!'";
 	 * var htmlArea = myListViewForm.newHtmlArea(textProvider,100,100,100,100);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a JSField object on the form with the displayType of HTML_AREA 
+	 *
+	 * @return a JSField object on the form with the displayType of HTML_AREA
 	 */
 	@JSFunction
 	public JSField newHtmlArea(Object dataprovider, int x, int y, int width, int height)
@@ -904,19 +904,19 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of IMAGE_MEDIA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var myMediaVar = form.newVariable("media", JSVariable.MEDIA);
 	 * var imageMedia = form.newImageMedia(myMediaVar,100,100,200,200)
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of IMAGE_MEDIA
 	 */
 	@JSFunction
@@ -927,7 +927,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of TYPE_AHEAD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
 	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES);
@@ -935,13 +935,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var typeAhead = form.newTypeAhead(columnTextDataProvider,100,100,300,200);
 	 * typeAhead.valuelist = vlist;
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a JSField object with the displayType of TYPE_AHEAD
 	 */
 	@JSFunction
@@ -952,18 +952,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSField object on the form with the displayType of PASSWORD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
-	 * 
+	 *
 	 * @return a new JSField object on the form with the displayType of PASSWORD
 	 */
 	@JSFunction
@@ -987,7 +987,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Creates a new button on the form with the given text, place, size and JSMethod as the onAction event triggered action.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var method = form.newMethod('function onAction(event) { application.output("onAction intercepted on " + event.getFormName()); }');
 	 * var button = form.newButton('myButton', 10, 10, 100, 30, method);
@@ -1000,11 +1000,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @param y the y coordinate of the button location on the form
 	 *
 	 * @param width the width of the button
-	 * 
-	 * @param height the height of the button 
+	 *
+	 * @param height the height of the button
 	 *
 	 * @param action the method assigned to handle an onAction event
-	 * 
+	 *
 	 * @return a new JSButton object
 	 */
 	@JSFunction
@@ -1045,10 +1045,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var label = form.newLabel('The text on the label', 140, 140, 50, 20);
-	 * forms['newForm1'].controller.show(); 
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param txt the specified text of the label object
 	 *
@@ -1059,7 +1059,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @param width the width of the label object in pixels
 	 *
 	 * @param height the height of the label object in pixels
-	 * 
+	 *
 	 * @return a JSLabel object
 	 */
 	@JSFunction
@@ -1071,10 +1071,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels and a JSMethod action such as the method for an onAction event.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var label = form.newLabel('The text on the label', 140, 140, 50, 20);
-	 * forms['newForm1'].controller.show(); 
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param txt the specified text of the label object
 	 *
@@ -1087,7 +1087,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @param height the height of the label object in pixels
 	 *
 	 * @param action the event action JSMethod of the label object
-	 * 
+	 *
 	 * @return a JSLabel object
 	 */
 	@JSFunction
@@ -1148,7 +1148,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 			}
 			else
 			{
-				throw new RuntimeException("method argument not a jsmethod"); //$NON-NLS-1$ 
+				throw new RuntimeException("method argument not a jsmethod"); //$NON-NLS-1$
 			}
 		}
 		return methodId;
@@ -1156,7 +1156,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSPortal object on the form - including the name of the JSPortal object; the relation the JSPortal object is based on, the "x" and "y" position of the JSPortal object in pixels, as well as the width and height of the JSPortal object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
 	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/table1','db:/server2/table2',JSRelation.INNER_JOIN);
@@ -1164,15 +1164,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var portal = form.newPortal('portal',relation,200,200,300,300);
 	 * portal.newField('someColumn',JSField.TEXT_FIELD,200,200,120);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param name the specified name of the JSPortal object
 	 * @param relation the relation of the JSPortal object
 	 * @param x the horizontal "x" position of the JSPortal object in pixels
 	 * @param y the vertical "y" position of the JSPortal object in pixels
 	 * @param width the width of the JSPortal object in pixels
 	 * @param height the height of the JSPortal object in pixels
-	 * 
-	 * @return a JSPortal object 
+	 *
+	 * @return a JSPortal object
 	 */
 	@JSFunction
 	public JSPortal newPortal(String name, Object relation, int x, int y, int width, int height)
@@ -1207,13 +1207,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns a JSPortal that has the given name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var portal = frm.getPortal("myPortal");
 	 * portal.initialSort = 'my_table_text desc';
 	 *
 	 * @param name the specified name of the portal
-	 * 
+	 *
 	 * @return a JSPortal object
 	 */
 	@JSFunction
@@ -1233,9 +1233,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSPortal that has the given name. Returns true if removal was successful, false otherwise. 
+	 * Removes a JSPortal that has the given name. Returns true if removal was successful, false otherwise.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
 	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/myTable','db:/server1/myOtherTable',JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
@@ -1245,9 +1245,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var removerButton = form.newButton('Click here to remove the portal',450,500,250,50,jsmethod);
 	 * removerButton.name = 'remover';
 	 * forms['newFormX'].controller.show();
-	 * 
+	 *
 	 * @param name the specified name of the JSPortal to be removed
-	 * 
+	 *
 	 * @return true if the JSPortal has successfully been removed; false otherwise
 	 */
 	@JSFunction
@@ -1271,7 +1271,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSPortal objects of this form (optionally also the ones from the parent form), including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var portals = frm.getPortals();
 	 * for (var i in portals)
@@ -1282,8 +1282,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	else
 	 * 		application.output("unnamed portal detected");
 	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
@@ -1303,7 +1303,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSPortal objects of this form (not including the ones from the parent form), including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var portals = frm.getPortals();
 	 * for (var i in portals)
@@ -1314,7 +1314,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	else
 	 * 		application.output("unnamed portal detected");
 	 * }
-	 * 
+	 *
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
@@ -1326,27 +1326,27 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSTabPanel object on the form - including the name of the JSTabPanel object, the "x" and "y" position of the JSTabPanel object in pixels, as well as the width and height of the JSTabPanel object in pixels.
-	 * 
+	 *
 	 * @sample
-	 * var form = solutionModel.newForm('parentForm','db:/server1/parent_table',null,false,640,480); 
+	 * var form = solutionModel.newForm('parentForm','db:/server1/parent_table',null,false,640,480);
 	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20); 
+	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20);
 	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
 	 * parentToChild.newRelationItem('parent_table_id','=','child_table_parent_id');
 	 * var childTwo = solutionModel.newForm('childTwo','db:/server1/my_table',null,false,400,300);
-	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA,10,10,100,100); 
+	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA,10,10,100,100);
 	 * var tabPanel = form.newTabPanel('tabs',10,10,620,460);
 	 * tabPanel.newTab('tab1','Child One',childOne,parentToChild);
 	 * tabPanel.newTab('tab2','Child Two',childTwo);
 	 * forms['parentForm'].controller.show();
-	 * 
+	 *
 	 * @param name the specified name of the JSTabPanel object
 	 * @param x the horizontal "x" position of the JSTabPanel object in pixels
 	 * @param y the vertical "y" position of the JSTabPanel object in pixels
 	 * @param width the width of the JSTabPanel object in pixels
 	 * @param height the height of the JSTabPanel object in pixels
-	 * 
-	 * @return a JSTabPanel object	
+	 *
+	 * @return a JSTabPanel object
 	 */
 	@JSFunction
 	public JSTabPanel newTabPanel(String name, int x, int y, int width, int height)
@@ -1370,13 +1370,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
-	 * var tabPanel = frm.getTabPanel("myTabPanel"); 
-	 * var tabs = tabPanel.getTabs(); 
-	 * for (var i=0; i<tabs.length; i++) 
-	 *	application.output("Tab " + i + " has text " + tabs[i].text);	 
-	 * 
+	 * var tabPanel = frm.getTabPanel("myTabPanel");
+	 * var tabs = tabPanel.getTabs();
+	 * for (var i=0; i<tabs.length; i++)
+	 *	application.output("Tab " + i + " has text " + tabs[i].text);
+	 *
 	 * @param name the specified name of the tabpanel
-	 * 
+	 *
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
@@ -1396,12 +1396,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSTabPanel that has the given name. Returns true if removal was successful, false otherwise. 
+	 * Removes a JSTabPanel that has the given name. Returns true if removal was successful, false otherwise.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,false,800,600);
 	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20); 
+	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20);
 	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
 	 * parentToChild.newRelationItem('parent_table_id','=','child_table_id');
 	 * var childTwo = solutionModel.newForm('childTwo','db:/server1/another_table',null,false,400,300);
@@ -1412,10 +1412,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jst') == true)\n application.output('TabPanel has been removed ok');\n else\n application.output('TabPanel could not be deleted');\n forms['newFormX'].controller.recreateUI();\n}");
 	 * var removerButton = form.newButton('Click here to remove the tab panel',450,500,250,50,jsmethod);
 	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show(); 
+	 * forms['newFormX'].controller.show();
 	 *
 	 * @param name the specified name of the JSTabPanel to be removed
-	 * 
+	 *
 	 * @return true is the JSTabPanel has been successfully removed, false otherwise
 	 */
 	@JSFunction
@@ -1439,7 +1439,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSTabPanels of this form (optionally the ones from the parent form), including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var tabPanels = frm.getTabPanels();
 	 * for (var i in tabPanels)
@@ -1452,8 +1452,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * }
 	 *
 	 * @param returnInheritedElements boolean true to also return the elements from parent form
-	 * @return an array of all JSTabPanel objects on this form			
-	 *		
+	 * @return an array of all JSTabPanel objects on this form
+	 *
 	 */
 	@JSFunction
 	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
@@ -1471,7 +1471,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSTabPanels of this form (not including the ones from the parent form), including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var tabPanels = frm.getTabPanels();
 	 * for (var i in tabPanels)
@@ -1483,8 +1483,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 *		application.output("Tab with text " + tp.text + " has no name");
 	 * }
 	 *
-	 * @return an array of all JSTabPanel objects on this form			
-	 *		
+	 * @return an array of all JSTabPanel objects on this form
+	 *
 	 */
 	@JSFunction
 	public JSTabPanel[] getTabPanels()
@@ -1574,8 +1574,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 					int test = p.getHeight();
 					if (test < testHeight)
 					{
-						throw new RuntimeException(
-							"Illegal lowerbound " + height + " for the part " + Part.getDisplayName(partType) + " it must be greater than the previous part lowerbound " + testHeight); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						throw new RuntimeException("Illegal lowerbound " + height + " for the part " + Part.getDisplayName(partType) + //$NON-NLS-1$//$NON-NLS-2$
+							" it must be greater than the previous part lowerbound " + testHeight); //$NON-NLS-1$
 					}
 					testHeight = test;
 				}
@@ -1597,7 +1597,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * Creates a new part on the form. The type of the new part (use one of the JSPart constants)
 	 * and its height must be specified.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('myForm', 'db:/example_data/my_table', null, false, 1200, 800);
 	 * var header = form.newPart(JSPart.HEADER, 100);
 	 * header.background = 'yellow';
@@ -1607,9 +1607,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * footer.background = 'orange';
 	 *
 	 * @param type The type of the new part.
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created form part.
 	 */
 	@JSFunction
@@ -1621,12 +1621,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Title Header part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var titleHeader = form.newTitleHeaderPart(40);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Title Header form part.
 	 */
 	@JSFunction
@@ -1637,12 +1637,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Header part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var header = form.newHeaderPart(80);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Header form part.
 	 */
 	@JSFunction
@@ -1721,12 +1721,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Leading Grand Summary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var leadingGrandSummary = form.newLeadingGrandSummaryPart(120);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Leading Grand Summary form part.
 	 */
 	@JSFunction
@@ -1737,12 +1737,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Leading Subsummary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var leadingSubsummary = form.newLeadingSubSummaryPart(160);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
 	@JSFunction
@@ -1754,12 +1754,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Trailing Subsummary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var trailingSubsummary = form.newTrailingSubSummaryPart(360);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Trailing Subsummary form part.
 	 */
 	@JSFunction
@@ -1770,12 +1770,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Trailing Grand Summary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var trailingGrandSummary = form.newTrailingGrandSummaryPart(400);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Trailing Grand Summary form part.
 	 */
 	@JSFunction
@@ -1787,11 +1787,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Creates a new Footer part on the form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var footer = form.newFooterPart(440);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSFooter instance corresponding to the newly created Footer form part.
 	 */
 	@JSFunction
@@ -1820,12 +1820,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new Title Footer part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var titleFooter = form.newTitleFooterPart(500);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Title Footer form part.
 	 */
 	@JSFunction
@@ -1837,13 +1837,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Gets all the parts from the form (optionally also from the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
 	 *
-	 * @sample 
+	 * @sample
 	 * var allParts = form.getParts()
 	 * for (var i=0; i<allParts.length; i++) {
 	 *	if (allParts[i].getPartType() == JSPart.BODY)
 	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
 	 * }
-	 * 
+	 *
 	 * @param returnInheritedElements boolean true to also return the parts from parent form
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
@@ -1864,7 +1864,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * Gets all the parts from the form (not including the parts of the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMPart#getPartYOffset()
-	 * 
+	 *
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
 	@JSFunction
@@ -1875,9 +1875,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 
 	/**
-	 * Gets a part of the form from the given type (see JSPart constants). 
+	 * Gets a part of the form from the given type (see JSPart constants).
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getPart(JSPart.HEADER).background = 'red';
 	 * form.getPart(JSPart.LEADING_SUBSUMMARY, 160).background = 'red';
 	 *
@@ -1892,10 +1892,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Gets a part of the form from the given type (see JSPart constants). 
+	 * Gets a part of the form from the given type (see JSPart constants).
 	 * Use the height if you want to get a specific LEADING_SUBSUMMARY or TRAILING_SUBSUMMARY.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getPart(JSPart.HEADER).background = 'red';
 	 * form.getPart(JSPart.LEADING_SUBSUMMARY, 160).background = 'red';
 	 *
@@ -1903,7 +1903,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 *
 	 * @param height The height of the part to retrieve. Use this parameter when retrieving one of multiple
 	 * 	                      Leading/Trailing Subsummary parts.
-	 * 
+	 *
 	 * @return A JSPart instance representing the retrieved form part.
 	 */
 	@JSFunction
@@ -1913,8 +1913,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Returns the Y offset of a given part (see JSPart) of the form. This will include 
-	 * all the super forms parts if this form extends a form. 
+	 * Returns the Y offset of a given part (see JSPart) of the form. This will include
+	 * all the super forms parts if this form extends a form.
 	 *
 	 * @sample
 	 * // get the subform
@@ -1935,8 +1935,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Returns the Y offset of a given part (see JSPart) of the form. This will include 
-	 * all the super forms parts if this form extends a form. Use the height parameter for 
+	 * Returns the Y offset of a given part (see JSPart) of the form. This will include
+	 * all the super forms parts if this form extends a form. Use the height parameter for
 	 * targetting one of multiple subsummary parts.
 	 *
 	 * @sample
@@ -1951,7 +1951,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 *
 	 * @param height The height of the part whose Y offset will be returned. This is used when
 	 *                        one of multiple Leading/Trailing Sumsummary parts is retrieved.
-	 *                        
+	 *
 	 * @return A number holding the Y offset of the specified form part.
 	 */
 	@JSFunction
@@ -1972,14 +1972,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSPart of the given type. 
+	 * Removes a JSPart of the given type.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.removePart(JSPart.HEADER);
 	 * form.removePart(JSPart.LEADING_SUBSUMMARY, 160);
 	 *
 	 * @param type The type of the part that should be removed.
-	 *                        
+	 *
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
 	@JSFunction
@@ -1991,15 +1991,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Removes a JSPart of the given type. The height parameter is for removing one of multiple subsummary parts.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.removePart(JSPart.HEADER);
 	 * form.removePart(JSPart.LEADING_SUBSUMMARY, 160);
 	 *
 	 * @param type The type of the part that should be removed.
 	 *
-	 * @param height The height of the part that should be removed. This parameter is for 
+	 * @param height The height of the part that should be removed. This parameter is for
 	 * 					removing one of multiple Leading/Trailing Subsummary parts.
-	 *                        
+	 *
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
 	@JSFunction
@@ -2022,9 +2022,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Retrieves the Body part of the form.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getBodyPart().background = 'blue';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Body part of the form.
 	 */
 	@JSFunction
@@ -2035,10 +2035,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Retrieves the Title Header part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getTitleHeaderPart().background = 'red';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Title Header part of the form.
 	 */
 	@JSFunction
@@ -2049,10 +2049,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Retrieves the Header part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getHeaderPart().background = 'orange';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Header part of the form.
 	 */
 	@JSFunction
@@ -2063,10 +2063,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Retrieves the Leading Grand Summary part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getLeadingGrandSummaryPart().background = 'yellow';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Leading Grand Summary part of the form.
 	 */
 	@JSFunction
@@ -2087,9 +2087,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Gets an array of the Leading Subsummary parts of the form, ordered by their height from top == 0 to bottom.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getLeadingSubSummaryParts()[0].background = 'green';
-	 * 
+	 *
 	 * @return An array of JSPart instances corresponding to the Leading Subsummary parts of the form.
 	 */
 	@JSFunction
@@ -2110,9 +2110,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Gets an array of the Trailing Subsummary parts of the form, ordered by their height from top == 0 to bottom.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getTrailingSubSummaryParts()[0].background = 'green';
-	 * 
+	 *
 	 * @return An array of JSPart instances corresponding to the Trailing Subsummary parts of the form.
 	 */
 	@JSFunction
@@ -2123,10 +2123,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Retrieves the Trailing Grand Summary part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getTrailingGrandSummaryPart().background = 'yellow';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Trailing Grand Summary part of the form.
 	 */
 	@JSFunction
@@ -2137,10 +2137,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Retrieves the Footer part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getFooterPart().background = 'magenta';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Footer part of the form.
 	 */
 	@JSFunction
@@ -2151,10 +2151,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Retrieves the Title Footer part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getTitleFooterPart().background = 'gray';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Title Footer part of the form.
 	 */
 	@JSFunction
@@ -2165,14 +2165,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * The field with the specified name.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("myForm");
 	 * var field = form.getField("myField");
 	 * application.output(field.dataProviderID);
-	 * 
+	 *
 	 * @param name the specified name of the field
-	 * 
+	 *
 	 * @return a JSField object
 	 */
 	@JSFunction
@@ -2193,9 +2193,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSField that has the given name. Returns true if removal was successful, false otherwise. 
+	 * Removes a JSField that has the given name. Returns true if removal was successful, false otherwise.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
 	 * var jsfield = form.newField(scopes.globals.myGlobalVariable,JSField.TEXT_FIELD,100,300,200,50);
 	 * jsfield.name = 'jsf';
@@ -2204,8 +2204,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * removerButton.name = 'remover';
 	 * forms['newFormX'].controller.show();
 	 *
-	 * @param name the specified name of the JSField to remove 
-	 * 
+	 * @param name the specified name of the JSField to remove
+	 *
 	 * @return true is the JSField has been successfully removed; false otherwise
 	 */
 	@JSFunction
@@ -2229,7 +2229,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSField objects of this form, including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var fields = frm.getFields();
 	 * for (var f in fields)
@@ -2238,8 +2238,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	if (fname != null)
 	 * 		application.output(fname);
 	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
 	 * @return all JSField objects of this form
 	 *
 	 */
@@ -2259,7 +2259,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSField objects of this form, including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var fields = frm.getFields();
 	 * for (var f in fields)
@@ -2268,7 +2268,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	if (fname != null)
 	 * 		application.output(fname);
 	 * }
-	 * 
+	 *
 	 * @return all JSField objects of this form
 	 *
 	 */
@@ -2281,13 +2281,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns a JSButton that has the given name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var btn = myForm.getButton("hello");
 	 * application.output(btn.text);
 	 *
 	 * @param name the specified name of the button
-	 * 
-	 * @return a JSButton object 
+	 *
+	 * @return a JSButton object
 	 */
 	@JSFunction
 	public JSButton getButton(String name)
@@ -2307,9 +2307,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSButton that has the specified name. Returns true if removal was successful, false otherwise. 
+	 * Removes a JSButton that has the specified name. Returns true if removal was successful, false otherwise.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
 	 * var b1 = form.newButton('This is button1',100,100,200,50,null);
 	 * b1.name = 'b1';
@@ -2318,8 +2318,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * b2.name = 'b2';
 	 * forms['newFormX'].controller.show();
 	 *
-	 * @param name the specified name of the JSButton to be removed 
-	 * 
+	 * @param name the specified name of the JSButton to be removed
+	 *
 	 * @return true if the JSButton has been removed; false otherwise
 	 */
 	@JSFunction
@@ -2343,16 +2343,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSButtons of this form, including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var buttons = myForm.getButtons();
 	 * for (var b in buttons)
 	 * {
-	 * 	if (buttons[b].name != null) 
+	 * 	if (buttons[b].name != null)
 	 * 		application.output(buttons[b].name);
 	 * 	else
 	 * 		application.output(buttons[b].text + " has no name ");
 	 * }
-	 * 
+	 *
 	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 * @return the list of all JSbuttons on this forms
 	 *
@@ -2377,16 +2377,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSButtons of this form, including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var buttons = myForm.getButtons();
 	 * for (var b in buttons)
 	 * {
-	 * 	if (buttons[b].name != null) 
+	 * 	if (buttons[b].name != null)
 	 * 		application.output(buttons[b].name);
 	 * 	else
 	 * 		application.output(buttons[b].text + " has no name ");
 	 * }
-	 * 
+	 *
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
@@ -2398,20 +2398,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Creates a new JSBean object on the form - including the name of the JSBean object; the classname the JSBean object is based on, the "x" and "y" position of the JSBean object in pixels, as well as the width and height of the JSBean object in pixels.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
 	 * var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
 	 * forms['newForm1'].controller.show();
-	 * 
+	 *
 	 * @param name the specified name of the JSBean object
 	 * @param className the class name of the JSBean object
 	 * @param x the horizontal "x" position of the JSBean object in pixels
 	 * @param y the vertical "y" position of the JSBean object in pixels
 	 * @param width the width of the JSBean object in pixels
 	 * @param height the height of the JSBean object in pixels
-	 * 
-	 * @return a JSBean object 
+	 *
+	 * @return a JSBean object
 	 */
 	@JSFunction
 	public JSBean newBean(String name, String className, int x, int y, int width, int height)
@@ -2440,13 +2440,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns a JSBean that has the given name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var btn = myForm.getBean("mybean");
 	 * application.output(mybean.className);
 	 *
 	 * @param name the specified name of the bean
-	 * 
-	 * @return a JSBean object 
+	 *
+	 * @return a JSBean object
 	 */
 	@JSFunction
 	@Override
@@ -2474,14 +2474,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSBean that has the specified name. Returns true if removal was successful, false otherwise. 
+	 * Removes a JSBean that has the specified name. Returns true if removal was successful, false otherwise.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * form.removeBean('mybean')
-	 *  
-	 * @param name the specified name of the JSBean to be removed 
-	 * 
+	 *
+	 * @param name the specified name of the JSBean to be removed
+	 *
 	 * @return true if the JSBean has been removed; false otherwise
 	 */
 	@JSFunction
@@ -2507,15 +2507,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSBeans of this form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var beans = myForm.getBeans();
 	 * for (var b in beans)
 	 * {
-	 * 	if (beans[b].name != null) 
+	 * 	if (beans[b].name != null)
 	 * 		application.output(beans[b].name);
 	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
@@ -2534,16 +2534,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Returns all JSBeans of this form. 
+	 * Returns all JSBeans of this form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var beans = myForm.getBeans();
 	 * for (var b in beans)
 	 * {
-	 * 	if (beans[b].name != null) 
+	 * 	if (beans[b].name != null)
 	 * 		application.output(beans[b].name);
 	 * }
-	 * 
+	 *
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
@@ -2557,13 +2557,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var cmp = frm.getComponent("componentName");
 	 * application.output("Component type and name: " + cmp);
 	 *
-	 * @param name the specified name of the component 
-	 * 
+	 * @param name the specified name of the component
+	 *
 	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel)
 	 */
 	@JSFunction
@@ -2586,7 +2586,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
-	 * Returns true if removal was successful, false otherwise.  
+	 * Returns true if removal was successful, false otherwise.
 	 *
 	 * @sample
 	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,true,1000,750);
@@ -2605,7 +2605,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
 	 * childOne.newField('child_table_id', JSField.TEXT_FIELD,10,10,100,20);
 	 * var childTwo = solutionModel.newForm('childTwo','server1','other_table',null,false,400,300);
-	 * childTwo.newField('some_table_id', JSField.TEXT_FIELD,10,10,100,100); 
+	 * childTwo.newField('some_table_id', JSField.TEXT_FIELD,10,10,100,100);
 	 * var jstabpanel = form.newTabPanel('jst',450,30,620,460);
 	 * jstabpanel.newTab('tab1','Child One',childOne,relation);
 	 * jstabpanel.newTab('tab2','Child Two',childTwo);
@@ -2615,7 +2615,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * forms['newFormX'].controller.show();
 	 *
 	 * @param name the specified name of the component to be deleted
-	 * 
+	 *
 	 * @return true if component has been successfully deleted; false otherwise
 	 */
 	@JSFunction
@@ -2638,9 +2638,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var form = solutionModel.getForm("myForm");
 	 * var components = form.getComponents();
 	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]); 
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
+	 * 	application.output("Component type and name: " + components[i]);
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
 	 * @return an array of all the JSComponents on the form.
 	 */
 	@JSFunction
@@ -2663,8 +2663,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var form = solutionModel.getForm("myForm");
 	 * var components = form.getComponents();
 	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]); 
-	 * 
+	 * 	application.output("Component type and name: " + components[i]);
+	 *
 	 * @return an array of all the JSComponents on the form.
 	 */
 	@JSFunction
@@ -2676,13 +2676,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns a JSLabel that has the given name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var label = frm.getLabel("myLabel");
-	 * application.output(label.text); 
+	 * application.output(label.text);
 	 *
 	 * @param name the specified name of the label
-	 * 
+	 *
 	 * @return a JSLabel object (or null if the label with the specified name does not exist)
 	 */
 	@JSFunction
@@ -2710,9 +2710,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * Removes a JSLabel that has the given name. Returns true if removal successful, false otherwise  
+	 * Removes a JSLabel that has the given name. Returns true if removal successful, false otherwise
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,1000,750);
 	 * var jslabel = form.newLabel('JSLabel to delete',100,200,200,50,null);
 	 * jslabel.name = 'jsl';
@@ -2722,9 +2722,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var removerButton = form.newButton('Click here to remove the green label',450,500,250,50,jsmethod);
 	 * removerButton.name = 'remover';
 	 * forms['newFormX'].controller.show();
-	 * 
+	 *
 	 * @param name the specified name of the JSLabel to be removed
-	 * 
+	 *
 	 * @return true if the JSLabel with the given name has successfully been removed; false otherwise
 	 */
 	@JSFunction
@@ -2748,7 +2748,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSLabels of this form (optionally including it super forms labels), including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var labels = frm.getLabels();
 	 * for (var i in labels)
@@ -2757,8 +2757,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	if (lname != null)
 	 * 		application.output(lname);
 	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 * @return all JSLabels on this form
 	 *
 	 */
@@ -2782,7 +2782,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns all JSLabels of this form (not including its super form), including the ones without a name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var labels = frm.getLabels();
 	 * for (var i in labels)
@@ -2791,7 +2791,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	if (lname != null)
 	 * 		application.output(lname);
 	 * }
-	 * 
+	 *
 	 * @return all JSLabels on this form
 	 *
 	 */
@@ -2819,11 +2819,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getDefaultPageFormat()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * application.output(form.defaultPageFormat);
-	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS) 
+	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS)
 	 */
 	@JSGetter
 	public String getDefaultPageFormat()
@@ -2839,13 +2839,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	/**
-	 * A JSForm instance representing the super form of this form, if this form has a super form. 
-	 * 
+	 * A JSForm instance representing the super form of this form, if this form has a super form.
+	 *
 	 * @sample
 	 * var subForm = solutionModel.newForm('childForm',myDatasource,null,true,800,600);
 	 * var superForm = solutionModel.newForm('childForm',myDatasource,null,true,800,600);
 	 * subForm.extendsForm = superForm;
-	 * 
+	 *
 	 */
 	@JSGetter
 	public JSForm getExtendsForm()
@@ -2899,11 +2899,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getInitialSort()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * form.initialSort = "column1 desc, column2 asc, column3 asc";
-	 * 
+	 *
 	 */
 	@JSGetter
 	public String getInitialSort()
@@ -2920,12 +2920,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getName()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * var formName = form.name;
 	 * application.output(formName);
-	 * 
+	 *
 	 */
 	@JSReadonlyProperty
 	public String getName()
@@ -2935,27 +2935,27 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getNavigatorID()
-	 * 
+	 *
 	 * @description-mc
-	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value NONE (no navigator) or IGNORE (reuse current form navigator). 
-	 * 
+	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value NONE (no navigator) or IGNORE (reuse current form navigator).
+	 *
 	 * @sample-mc
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource);
 	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set.
 	 * // here we assign an other new form as the navigator.
 	 * var aNavigator = solutionModel.newForm('navForm', myDatasource);
 	 * aForm.navigator = aNavigator;
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set, or SM_DEFAULTS.DEFAULT to have the default servoy navigator.
 	 * // here we assign an other new form as the navigator.
 	 * var aNavigator = solutionModel.newForm('navForm', myDatasource, null, false, 800, 600);
 	 * // set the navigators navigator to NONE
-	 * aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form. 
+	 * aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
 	 * myListViewForm.navigator = aNavigator;
 	 * application.output(myListViewForm.navigator.name);
-	 * 
+	 *
 	 */
 	@JSGetter
 	public Object getNavigator()
@@ -3008,12 +3008,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getPaperPrintScale()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * if (form.paperPrintScale < 100)
 	 * 	form.paperPrintScale = 100;
-	 * 
+	 *
 	 */
 	@JSGetter
 	public int getPaperPrintScale()
@@ -3030,12 +3030,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getRowBGColorCalculation()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * //assign the global method as a string. Or use a calculation name as the string.
 	 * form.rowBGColorCalculation = "scopes.globals.calculationDataProvider";
-	 * 
+	 *
 	 * @deprecated onRender event replaces rowBGColorCalculation functionality
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getOnRender()
 	 */
@@ -3048,9 +3048,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getScrollbars()
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,1000,600);
-	 * form.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER; 
+	 * form.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER;
 	 * forms['newForm1'].controller.show();
 	 */
 	@JSGetter
@@ -3068,8 +3068,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getServerName()
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * form.serverName = 'anotherServerName';
 	 * var theServerName = form.serverName;
@@ -3090,7 +3090,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getShowInMenu()
-	 * 
+	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var anotherForm= solutionModel.newForm('newForm2', myDatasource, null, true, 800, 600);
@@ -3099,7 +3099,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * anotherForm.navigator = null;
 	 * aForm.navigator = anotherForm;
 	 * application.output(aForm.navigator.name);
-	 * 
+	 *
 	 */
 	@JSGetter
 	public boolean getShowInMenu()
@@ -3119,13 +3119,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getStyleClass()
-	 * 
+	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * if (aForm.styleClass == null)
 	 * 	aForm.styleClass = someStyleClass;
 	 * else
-	 * 	application.output("The Cascading Style Sheet (CSS) class name applied to this form is " + aForm.styleClass); 
+	 * 	application.output("The Cascading Style Sheet (CSS) class name applied to this form is " + aForm.styleClass);
 	 */
 	@JSGetter
 	public String getStyleClass()
@@ -3148,8 +3148,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * if (aForm.styleName == null)
 	 * 	aForm.styleName = someServoyStyleName;
 	 * else
-	 * 	application.output("The name of the Servoy style that is being used on the form is " + aForm.styleName); 
-	 * 
+	 * 	application.output("The name of the Servoy style that is being used on the form is " + aForm.styleName);
+	 *
 	 */
 	@JSGetter
 	public String getStyleName()
@@ -3166,7 +3166,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTableName()
-	 * 
+	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * aForm.tableName = 'anotherTableOfMine'
@@ -3192,11 +3192,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getDataSource()
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
 	 * myForm.dataSource = 'db:/anotherServerName/anotherTableName'
-	 * 
+	 *
 	 */
 	@JSGetter
 	public String getDataSource()
@@ -3228,7 +3228,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTitleText()
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
 	 * forms['newForm'].controller.show();
@@ -3239,7 +3239,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * }
 	 * else
 	 * 	application.output("My text text is already cool");
-	 * 
+	 *
 	 */
 	@JSGetter
 	public String getTitleText()
@@ -3257,7 +3257,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTransparent()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,1000,800);
 	 * if (form.transparent == false)
@@ -3267,7 +3267,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 	form.styleName = 'myStyle';
 	 * }
 	 * var field = form.newField('columnTextDataProvider',JSField.TEXT_FIELD,100,100,100,50);
-	 * forms['myForm'].controller.show(); 
+	 * forms['myForm'].controller.show();
 	 */
 	@JSGetter
 	public boolean getTransparent()
@@ -3289,9 +3289,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * If two or more non-visible forms with non-default and different selectionMode values share the same foundset, one of them (always the same from a set of forms) decides.
 	 * If two or more visible forms with non-default and different selectionMode values share the same foundset, one of them (always the same from a set of forms) decides what the
 	 * foundset's selectionMode should be.
-	 * 
+	 *
 	 * Can be one of SELECTION_MODE_DEFAULT, SELECTION_MODE_SINGLE or SELECTION_MODE_MULTI.
-	 * 
+	 *
 	 * @since 6.1
 	 * @sample
 	 * var myForm = solutionModel.getForm('my_form_name');
@@ -3323,13 +3323,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * Property that tells the form to use a named foundset instead of the default foundset.
 	 * When JSForm.SEPARATE_FOUNDSET is specified the form will always create a copy of assigned foundset and therefore become separated from other foundsets.
 	 * When JSForm.EMPTY_FOUNDSET, the form will have an initially empty foundset.
-	 * 
+	 *
 	 * The namedFoundset can be based on a global relation; in this case namedFoundset is the relation's name.
 	 * You can also set the namedFoundset to a JSRelation object directly.
 	 * It will tell this form to initially load a global relation based foundset.
 	 * The global relation's foreign datasource must match the form's datasource.
 	 * Do not use relations named "empty" or "separate" to avoid confusions.
-	 * 
+	 *
 	 * @sample
 	 * // form with separate foundset
 	 * var frmSeparate = solutionModel.newForm('products_separate', 'db:/example_data/products', null, true, 640, 480);
@@ -3351,7 +3351,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * // form with an initial foundset based on a global relation
 	 * var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
 	 * frmGlobalRel.namedFoundSet = "g2_to_category_name";
-	 *  
+	 *
 	 * // form with an initial foundset based on a global relation
 	 * var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
 	 * frmGlobalRel.namedFoundSet = solutionModel.getRelation("g1_to_categories");
@@ -3434,7 +3434,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
 	 *
-	 * @sample 
+	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * myForm.view = JSForm.RECORD_VIEW;
 	 * forms['newForm1'].controller.show();
@@ -3472,7 +3472,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * forms['newForm1'].controller.show();
@@ -4124,7 +4124,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 				}
 				else if (parent instanceof JSForm && ((JSForm)parent).form.getDataSource() != null)
 				{
-					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).form.getDataSource(), false);
+					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).form.getDataSource(),
+						false);
 					scriptMethod = AbstractBase.selectById(foundsetMethods, methodid);
 					if (scriptMethod != null)
 					{
@@ -4158,7 +4159,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 						scriptParent = getJSFormParent(parent);
 					}
 				}
-				List<Object> arguments = persist.getInstanceMethodArguments(methodProperty.getPropertyName());
+				List<Object> arguments = persist.getFlattenedMethodArguments(methodProperty.getPropertyName());
 				if (arguments == null || arguments.size() == 0)
 				{
 					return new JSMethod(scriptParent, scriptMethod, application, false);
@@ -4179,8 +4180,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
-		persist.putInstanceMethodParameters(methodProperty.getPropertyName(),
-		//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
+		persist.putMethodParameters(methodProperty.getPropertyName(),
+			//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
 			new ArrayList(), method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
 	}
 
@@ -4253,7 +4254,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteRecordCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
@@ -4270,7 +4271,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onDrag = form.newMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
 	 * form.onDragEnd = form.newMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
@@ -4291,7 +4292,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragEndMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -4308,7 +4309,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragOverMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -4325,7 +4326,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDropMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -4342,7 +4343,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusGainedMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onElementFocusGained = form.newMethod('function onElementFocusGained(event) { application.output("onElementFocusGained intercepted from " + event.getSource()); }');
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
@@ -4361,7 +4362,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusLostMethodID()
-	 * 
+	 *
 	 * @sampleas getOnElementFocusGained()
 	 */
 	@JSGetter
@@ -4378,7 +4379,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDuplicateRecordCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
@@ -4395,7 +4396,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnFindCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onFindCmd = form.newMethod('function onFindCmd(event) { application.output("onFindCmd intercepted on " + event.getFormName()); }');
 	 * form.onSearchCmd = form.newMethod('function onSearchCmd(event) { application.output("onSearchCmd intercepted on " + event.getFormName()); }');
@@ -4432,7 +4433,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnInvertRecordsCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
@@ -4449,7 +4450,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnLoadMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onLoad = form.newMethod('function onLoad(event) { application.output("onLoad intercepted on " + event.getFormName()); }');
 	 * form.onUnLoad = form.newMethod('function onUnLoad(event) { application.output("onUnLoad intercepted on " + event.getFormName()); }');
@@ -4468,7 +4469,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNewRecordCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onNewRecordCmd = form.newMethod('function onNewRecordCmd(event) { application.output("onNewRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onDuplicateRecordCmd = form.newMethod('function onDuplicateRecordCmd(event) { application.output("onDuplicateRecordCmd intercepted on " + event.getFormName()); }');
@@ -4489,7 +4490,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNextRecordCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnPreviousRecordCmd()
 	 */
 	@JSGetter
@@ -4506,7 +4507,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnOmitRecordCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onOmitRecordCmd = form.newMethod('function onOmitRecordCmd(event) { application.output("onOmitRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onShowOmittedRecordsCmd = form.newMethod('function onShowOmittedRecordsCmd(event) { application.output("onShowOmittedRecordsCmd intercepted on " + event.getFormName()); }');
@@ -4526,7 +4527,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnPreviousRecordCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onPreviousRecordCmd = form.newMethod('function onPreviousRecordCmd(event) { application.output("onPreviousRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onNextRecordCmd = form.newMethod('function onNextRecordCmd(event) { application.output("onNextRecordCmd intercepted on " + event.getFormName()); }');
@@ -4545,7 +4546,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnPrintPreviewCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onPrintPreviewCmd = form.newMethod('function onPrintPreviewCmd(event) { application.output("onPrintPreviewCmd intercepted on " + event.getFormName()); }');
 	 */
@@ -4563,7 +4564,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStartMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onRecordEditStart = form.newMethod('function onRecordEditStart(event) { application.output("onRecordEditStart intercepted on " + event.getFormName()); }');
 	 * form.onRecordEditStop = form.newMethod('function onRecordEditStop(record, event) { application.output("onRecordEditStop intercepted on " + event.getFormName() + ". record is: " + record); }');
@@ -4583,7 +4584,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStopMethodID()
-	 * 
+	 *
 	 * @sampleas getOnRecordEditStart()
 	 */
 	@JSGetter
@@ -4600,7 +4601,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordSelectionMethodID()
-	 * 
+	 *
 	 * @sampleas getOnRecordEditStart()
 	 */
 	@JSGetter
@@ -4617,7 +4618,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSearchCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
@@ -4634,7 +4635,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowAllRecordsCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
@@ -4651,7 +4652,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
 	 * form.onHide = form.newMethod('function onHide(event) { application.output("onHide blocked on " + event.getFormName()); return false; }');
@@ -4670,7 +4671,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowOmittedRecordsCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
@@ -4687,7 +4688,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSortCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onSortCmd = form.newMethod('function onSortCmd(dataProviderID, asc, event) { application.output("onSortCmd intercepted on " + event.getFormName() + ". data provider: " + dataProviderID + ". asc: " + asc); }');
 	 */
@@ -4705,7 +4706,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnUnLoadMethodID()
-	 * 
+	 *
 	 * @sampleas getOnLoad()
 	 */
 	@JSGetter
@@ -4722,7 +4723,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnResizeMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
@@ -4740,7 +4741,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRenderMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
@@ -4758,11 +4759,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * Get or set the encapsulation level for the form.
-	 * 
+	 *
 	 * Encapsulation is one of constants JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION,
 	 * JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION or JSForm.HIDE_ELEMENTS_ENCAPSULATION
 	 *
-	 * @sample 
+	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
 	 */
@@ -4781,9 +4782,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/** Get a design-time property of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
-	 * var prop = frm.getDesignTimeProperty('myprop')	
+	 * var prop = frm.getDesignTimeProperty('myprop')
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key)
@@ -4793,9 +4794,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/** Set a design-time property of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
-	 * frm.putDesignTimeProperty('myprop', 'lemon')	
+	 * frm.putDesignTimeProperty('myprop', 'lemon')
 	 */
 	@JSFunction
 	public Object putDesignTimeProperty(String key, Object value)
@@ -4806,9 +4807,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/** Get the design-time properties of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
-	 * var propNames = frm.getDesignTimePropertyNames()	
+	 * var propNames = frm.getDesignTimePropertyNames()
 	 */
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
@@ -4824,7 +4825,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/** Clear a design-time property of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.removeDesignTimeProperty('myprop')
 	 */
@@ -4837,7 +4838,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Returns the UUID of this form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form_UUID = myForm.getUUID();
 	 * application.output(form_UUID.toString());
 	 */
@@ -4861,7 +4862,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -4875,7 +4876,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

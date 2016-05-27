@@ -149,7 +149,7 @@ public class FormController extends BasicFormController
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -206,7 +206,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
 	 */
 	@Override
@@ -438,7 +438,7 @@ public class FormController extends BasicFormController
 				if (onRenderMethodID > 0)
 				{
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-						Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
+						Utils.parseJSExpressions(form.getFlattenedMethodArguments("onRenderMethodID")));
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 				}
 			}
@@ -458,7 +458,7 @@ public class FormController extends BasicFormController
 			if (onRenderMethodID > 0)
 			{
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-					Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
+					Utils.parseJSExpressions(form.getFlattenedMethodArguments("onRenderMethodID")));
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
 			//apply bgcolor to renderer
@@ -740,7 +740,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#requestFocus()
 	 */
 	public void requestFocus()
@@ -963,7 +963,7 @@ public class FormController extends BasicFormController
 		{
 			view.setModel(formModel);
 		}
-		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
+		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(stylesheet, styleOdd, styleEven, styleSelected, styleHeader);
 
 		if (formReadOnly)
@@ -1412,8 +1412,8 @@ public class FormController extends BasicFormController
 			try
 			{
 				runningExecuteOnRecordEditStop = true;
-				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record },
-					Boolean.TRUE, true, true));
+				boolean ret = !Boolean.FALSE.equals(
+					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record }, Boolean.TRUE, true, true));
 				if (ret && getApplication().getFoundSetManager() != null)
 				{
 					// for this record, record edit saved is called successfully shouldn't happen the second time.
@@ -1592,7 +1592,8 @@ public class FormController extends BasicFormController
 	{
 		if (formModel != null)
 		{
-			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$
 		}
 		else
 		{

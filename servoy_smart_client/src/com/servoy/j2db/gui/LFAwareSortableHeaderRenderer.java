@@ -50,7 +50,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 
 /***
  * Header renderer for table component(tableview or portal); used for normal header and labelfor header
- * 
+ *
  *  @author lvostinar
  */
 public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer implements IComponent, UIResource
@@ -320,7 +320,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	{
 		if (methodKey != null && gc != null)
 		{
-			return gc.getInstanceMethodArguments(methodKey);
+			return gc.getFlattenedMethodArguments(methodKey);
 		}
 		return null;
 	}

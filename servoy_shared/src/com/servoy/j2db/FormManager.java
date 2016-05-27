@@ -80,7 +80,7 @@ import com.servoy.j2db.util.gui.AppletController;
 
 /**
  * This class keeps track of all the forms and handles the window menu
- * 
+ *
  * @author jblok, jcompagner
  */
 public abstract class FormManager implements PropertyChangeListener, IFormManagerInternal
@@ -92,6 +92,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		IApplication.FULL_SCREEN);
 
 	private static final int MAX_FORMS_LOADED;
+
 	static
 	{
 		// TODO web clients?? Can they also get 160 forms??
@@ -239,7 +240,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		if (f != null && form != f)
 		{
-			// replace all occurrences to the previous form to this new form (newFormInstances) 
+			// replace all occurrences to the previous form to this new form (newFormInstances)
 			Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
 			while (iterator.hasNext())
 			{
@@ -358,7 +359,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			try
 			{
 				application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getInstanceMethodArguments("onOpenMethodID"))), false, false);
+					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onOpenMethodID"))), false,
+					false);
 				if (application.getSolution() == null) return;
 			}
 			catch (Exception e1)
@@ -417,8 +419,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 			catch (Exception e1)
 			{
-				application.reportError(
-					Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), e1); //$NON-NLS-1$
+				application.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), //$NON-NLS-1$
+					e1);
 			}
 		}
 	}
@@ -438,7 +440,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				Map.Entry<String, IMainContainer> entry = it.next();
 				IMainContainer container = entry.getValue();
 				destroyContainer(container);
-				if (entry.getKey() != null) // remove all none null 
+				if (entry.getKey() != null) // remove all none null
 				{
 					it.remove();
 				}
@@ -608,7 +610,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		boolean containerSwitch = container != currentContainer;
 
-		if (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName()) && !containerSwitch && !design) return leaseFormPanel(currentMainShowingForm.getName());
+		if (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName()) && !containerSwitch && !design)
+			return leaseFormPanel(currentMainShowingForm.getName());
 
 		final Form f = possibleForms.get(formName);
 		if (f == null)
@@ -841,8 +844,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	{
 		FormController fp;
 		boolean hadFormPanels = false;
-		// also first try to get the lock on this, because destroy() call can result in that. 
-		// Then a deadlock will happen, so first get it before the leasHistory.. 
+		// also first try to get the lock on this, because destroy() call can result in that.
+		// Then a deadlock will happen, so first get it before the leasHistory..
 		synchronized (this)
 		{
 			synchronized (leaseHistory)
@@ -938,7 +941,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 					leaseHistory.add(fp);
 					if (Debug.tracing())
 					{
-						Debug.trace("FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						Debug.trace(
+							"FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					}
 				}
 				if (toBeRemoved != null)
@@ -982,7 +986,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	/**
 	 * Only to be used from printing, use leaseFormPanel or getFormPanel!
-	 * 
+	 *
 	 * @param f the form to check if there is a controller instance for
 	 * @return null if not found
 	 */
@@ -1151,7 +1155,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	/**
 	 * returns the history of the current container if set. Else it returns the history of the main container.
-	 * 
+	 *
 	 * @return
 	 */
 	public History getHistory()
@@ -1257,7 +1261,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		/**
 		 * Get the form name based on the specified absolute index in the history stack location.
-		 * 
+		 *
 		 * @sample var name = history.getFormName(history.getCurrentIndex());
 		 * @param i the absolute index
 		 * @return the formName
@@ -1271,7 +1275,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		/**
 		 * Navigates to the relative index based on current position in the history.
-		 * 
+		 *
 		 * @sample history.go(-3);
 		 * @param i the relative index
 		 */
@@ -1283,7 +1287,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 
 		/**
-		 * Navigates back in the history stack; shows the previous form (if present). 
+		 * Navigates back in the history stack; shows the previous form (if present).
 		 *
 		 * @sample history.back();
 		 */
@@ -1342,9 +1346,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * Removes an absolute index based history stack form item.
 		 *
 		 * @sample var done = history.removeIndex(history.getCurrentIndex()+1);
-		 * 
+		 *
 		 * @param index the index of the form to remove.
-		 * 
+		 *
 		 * @return true if successful
 		 */
 		@JSFunction
@@ -1356,16 +1360,16 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		/**
 		 * Removes the named form item from the history stack (and from memory) if not currently shown.
-		 * Will return false when the form can't be removed, this can happen in certain situations: 
-		 * 1> The form is visible, 
+		 * Will return false when the form can't be removed, this can happen in certain situations:
+		 * 1> The form is visible,
 		 * 2> The form is executing a function (is actively used),
-		 * 3> There are references to this form by a global variable/array, 
+		 * 3> There are references to this form by a global variable/array,
 		 * 4> If the form has a separate foundset with edited records that can't be saved (for example autosave is false)
 		 *
 		 * @sample var done = history.removeForm('mypreviousform');
-		 * 
+		 *
 		 * @param formName the name of the form to remove.
-		 * 
+		 *
 		 * @return true if successful
 		 */
 		@JSFunction
@@ -1501,7 +1505,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public boolean getButtonsEnabled()
 		{
@@ -1526,7 +1530,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public void clear()
 		{
@@ -1596,7 +1600,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	 * operations. In such a relation hierarchy, applying those operations on any other than the root node would result in problems: only a part of those forms
 	 * would exit find mode/perform search. (this can lead to future class cast exceptions when trying to get remaining forms out of find mode + user
 	 * confusion).
-	 * 
+	 *
 	 * @return an array containing forms that are the "root" of a form relation hierarchy in find mode.
 	 */
 	public IForm[] getVisibleRootFormsInFind()

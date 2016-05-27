@@ -764,7 +764,7 @@ public class ComponentFactory
 		if (dim != null) c.setSize(bc.getSize());
 
 		javax.swing.border.Border border = ComponentFactoryHelper.createBorder(bc.getBorderType());
-		if ((c instanceof JCheckBox/* DataCheckBox */|| c instanceof JRadioButton/* DataRadioButton */) && (border != null || isBorderStyle))
+		if ((c instanceof JCheckBox/* DataCheckBox */ || c instanceof JRadioButton/* DataRadioButton */) && (border != null || isBorderStyle))
 		{
 			((AbstractButton)c).setBorderPainted(true);
 			if (c instanceof JCheckBox)
@@ -970,8 +970,8 @@ public class ComponentFactory
 			application = J2DBGlobals.getServiceProvider();
 		}
 		IValueList list = null;
-		if (valuelist != null &&
-			(valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES || (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
+		if (valuelist != null && (valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES ||
+			(valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
 			WeakHashMap<UUID, Object> hmValueLists = null;
 			if (application != null)
@@ -1043,8 +1043,8 @@ public class ComponentFactory
 					{
 						List<String> lst = ((CustomValueList)list).getDataProviders();
 
-						StringBuffer message = new StringBuffer("The valuelist was already created for type: " +
-							Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
+						StringBuffer message = new StringBuffer(
+							"The valuelist was already created for type: " + Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
 						message.append("\n for the dataproviders: ");
 						for (int i = 0; i < lst.size(); i++)
 						{
@@ -1054,8 +1054,9 @@ public class ComponentFactory
 						}
 						message.setLength(message.length() - 1);
 						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
-						message.append("\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
-							valuelist.getName() + " so that they have the same type.");
+						message.append(
+							"\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
+								valuelist.getName() + " so that they have the same type.");
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
 				}
@@ -1318,7 +1319,7 @@ public class ComponentFactory
 				break;
 			}
 
-			// else treat as the default case: TEXT_FIELD
+				// else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD
 				if (field.getValuelistID() > 0)
 				{
@@ -1405,11 +1406,11 @@ public class ComponentFactory
 				"onFocusLostMethodID");
 			if (cmds != null) fl.setLeaveCmds((String[])cmds[0], (Object[][])cmds[1]);
 			if (field.getOnActionMethodID() > 0) fl.setActionCmd(Integer.toString(field.getOnActionMethodID()),
-				Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
+				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onActionMethodID")));
 			if (field.getOnDataChangeMethodID() > 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
-				Utils.parseJSExpressions(field.getInstanceMethodArguments("onDataChangeMethodID")));
+				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onDataChangeMethodID")));
 			if (field.getOnRightClickMethodID() > 0) fl.setRightClickCommand(Integer.toString(field.getOnRightClickMethodID()),
-				Utils.parseJSExpressions(field.getInstanceMethodArguments("onRightClickMethodID")));
+				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onRightClickMethodID")));
 		}
 
 		int onRenderMethodID = field.getOnRenderMethodID();
@@ -1423,7 +1424,7 @@ public class ComponentFactory
 		{
 			RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
 			renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 
 			IForm rendererForm = application.getFormManager().getForm(form.getName());
 			IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
@@ -1492,10 +1493,12 @@ public class ComponentFactory
 		}
 		if (method1 > 0 && method2 > 0)
 		{
-			return new Object[] { new String[] { String.valueOf(method1), String.valueOf(method2) }, new Object[][] { Utils.parseJSExpressions(persist1.getInstanceMethodArguments(methodKey1)), Utils.parseJSExpressions(persist2.getInstanceMethodArguments(methodKey2)) } };
+			return new Object[] { new String[] { String.valueOf(method1), String.valueOf(method2) }, new Object[][] { Utils.parseJSExpressions(
+				persist1.getFlattenedMethodArguments(methodKey1)), Utils.parseJSExpressions(
+					persist2.getFlattenedMethodArguments(methodKey2)) } };
 		}
-		return new Object[] { new String[] { String.valueOf(method1 <= 0 ? method2 : method1) }, new Object[][] { Utils.parseJSExpressions((method1 <= 0
-			? persist2 : persist1).getInstanceMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
+		return new Object[] { new String[] { String.valueOf(method1 <= 0 ? method2 : method1) }, new Object[][] { Utils.parseJSExpressions(
+			(method1 <= 0 ? persist2 : persist1).getFlattenedMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
 	}
 
 	/**
@@ -1524,8 +1527,8 @@ public class ComponentFactory
 				try
 				{
 					IValueList secondLookup = getFallbackValueList(application, field.getDataProviderID(), type, format, valuelist);
-					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup, format != null ? format.getDisplayFormat()
-						: null);
+					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup,
+						format != null ? format.getDisplayFormat() : null);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
 				}
 				catch (Exception e1)
@@ -1567,8 +1570,8 @@ public class ComponentFactory
 			{
 				try
 				{
-					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, dataProviderID, type, format,
-						fallbackValueList), format != null ? format.getDisplayFormat() : null);
+					valueList = new LookupValueList(fallbackValueList, application,
+						getFallbackValueList(application, dataProviderID, type, format, fallbackValueList), format != null ? format.getDisplayFormat() : null);
 				}
 				catch (Exception e)
 				{
@@ -1742,11 +1745,11 @@ public class ComponentFactory
 		{
 			l.addScriptExecuter(el);
 			if (label.getOnActionMethodID() > 0) l.setActionCommand(Integer.toString(label.getOnActionMethodID()),
-				Utils.parseJSExpressions(label.getInstanceMethodArguments("onActionMethodID")));
+				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onActionMethodID")));
 			if (label.getOnDoubleClickMethodID() > 0) l.setDoubleClickCommand(Integer.toString(label.getOnDoubleClickMethodID()),
-				Utils.parseJSExpressions(label.getInstanceMethodArguments("onDoubleClickMethodID")));
+				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onDoubleClickMethodID")));
 			if (label.getOnRightClickMethodID() > 0) l.setRightClickCommand(Integer.toString(label.getOnRightClickMethodID()),
-				Utils.parseJSExpressions(label.getInstanceMethodArguments("onRightClickMethodID")));
+				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onRightClickMethodID")));
 		}
 
 		if (label.getLabelFor() == null || (form.getView() != FormController.TABLE_VIEW && form.getView() != FormController.LOCKED_TABLE_VIEW))
@@ -1762,7 +1765,7 @@ public class ComponentFactory
 			{
 				RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
 				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-					Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+					Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 
 				IForm rendererForm = application.getFormManager().getForm(form.getName());
 				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
@@ -2008,7 +2011,7 @@ public class ComponentFactory
 		if (el != null && meta.getOnTabChangeMethodID() > 0)
 		{
 			tabs.setOnTabChangeMethodCmd(Integer.toString(meta.getOnTabChangeMethodID()),
-				Utils.parseJSExpressions(meta.getInstanceMethodArguments("onTabChangeMethodID")));
+				Utils.parseJSExpressions(meta.getFlattenedMethodArguments("onTabChangeMethodID")));
 			tabs.addScriptExecuter(el);
 		}
 

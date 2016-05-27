@@ -32,7 +32,6 @@ import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -93,19 +92,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	protected Form(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.FORMS, parent, element_id, uuid);
-	}
-
-	// only for use in FlattenedForm
-	protected JSONWrapperMap getCustomPropertiesMap()
-	{
-		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
-
-		if (customProperties == null) return null;
-		if (jsonCustomProperties == null)
-		{
-			jsonCustomProperties = new JSONWrapperMap(customProperties);
-		}
-		return jsonCustomProperties;
 	}
 
 	/*

@@ -145,7 +145,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			try
 			{
 				renderer = (DataRenderer)application.getDataRenderFactory().createPortalRenderer(app, meta, (Form)meta.getParent(), el, printing, null);
-				renderer.setRowBGColorProvider(meta.getRowBGColorCalculation(), meta.getInstanceMethodArguments("rowBGColorCalculation"));
+				renderer.setRowBGColorProvider(meta.getRowBGColorCalculation(), meta.getFlattenedMethodArguments("rowBGColorCalculation"));
 				editor = (DataRenderer)application.getDataRenderFactory().createPortalRenderer(app, meta, (Form)meta.getParent(), el, printing, null);
 				FormBodyEditor formEditor = new FormBodyEditor(editor);
 				dal = editor.getDataAdapterList();
@@ -428,7 +428,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 		IFoundSetInternal relatedFoundSet = state == null ? null : state.getRelatedFoundSet(relationName, getDefaultSort());
 
-		if (currentData == relatedFoundSet) return;//if is same changes are seen by model listener	
+		if (currentData == relatedFoundSet) return;//if is same changes are seen by model listener
 
 		if (currentData != null)
 		{
@@ -917,7 +917,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	@Override
 	public String toString()
 	{
-		return "PortalComponent[" + getName() + ":" + getBounds();//$NON-NLS-1$ //$NON-NLS-2$ 
+		return "PortalComponent[" + getName() + ":" + getBounds();//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getId()
@@ -1089,7 +1089,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			if (onRenderMethodID > 0)
 			{
 				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
-					Utils.parseJSExpressions(portal.getInstanceMethodArguments("onRenderMethodID")));
+					Utils.parseJSExpressions(portal.getFlattenedMethodArguments("onRenderMethodID")));
 				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(se);
 			}
 		}

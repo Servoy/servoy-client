@@ -323,7 +323,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					int modifier = 0;
 					if ((lastComponent instanceof TableView)) modifier = InputEvent.CTRL_DOWN_MASK;
-					if ((lastComponent instanceof DataComboBox) && ((DataComboBox)lastComponent).isEditable()) lastComponent = (JComponent)((DataComboBox)lastComponent).getEditor().getEditorComponent();
+					if ((lastComponent instanceof DataComboBox) && ((DataComboBox)lastComponent).isEditable())
+						lastComponent = (JComponent)((DataComboBox)lastComponent).getEditor().getEditorComponent();
 					addJumpOutActionToComponent(lastComponent, KeyStroke.getKeyStroke(KeyEvent.VK_TAB, modifier), ACTION_GO_OUT_TO_NEXT, false);
 				}
 				JComponent firstComponent = (JComponent)tabSeqComponentList.get(0);
@@ -331,7 +332,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					int modifier = 0;
 					if ((firstComponent instanceof TableView)) modifier = InputEvent.CTRL_DOWN_MASK;
-					if ((firstComponent instanceof DataComboBox) && ((DataComboBox)firstComponent).isEditable()) firstComponent = (JComponent)((DataComboBox)firstComponent).getEditor().getEditorComponent();
+					if ((firstComponent instanceof DataComboBox) && ((DataComboBox)firstComponent).isEditable())
+						firstComponent = (JComponent)((DataComboBox)firstComponent).getEditor().getEditorComponent();
 					addJumpOutActionToComponent(firstComponent, KeyStroke.getKeyStroke(KeyEvent.VK_TAB, modifier | InputEvent.SHIFT_DOWN_MASK),
 						ACTION_GO_OUT_TO_PREV, true);
 				}
@@ -405,7 +407,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		String currentBeanName = null;
 		SpecialSplitPane currentSplitPane = null;
 		IDataSet set = new BufferedDataSet(
-			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$
+			new ArrayList<Object[]>());
 		set.addRow(new Object[] { null, current.formController.getName(), null, null, null, null });
 		Container parent = getParent();
 		while (parent != null)
@@ -452,9 +455,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				else if (currentSplitPane != null)
 				{
 					int idx = currentLookupPanel != null && currentLookupPanel.equals(currentSplitPane.getLeftForm()) ? 0 : 1;
-					set.addRow(0,
-						new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(idx), new Integer(
-							idx + 1), new Integer(idx + 1) });
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(
+						idx), new Integer(idx + 1), new Integer(idx + 1) });
 				}
 				else
 				{
@@ -697,7 +699,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					{
 						//dr.setRowBGColorProvider(bgcolorCalc);
 						dr.setShowSelection(false);
-						((ListView)view).setRowBGColorScript(bgcolorCalc, fp.getForm().getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
+						((ListView)view).setRowBGColorScript(bgcolorCalc, fp.getForm().getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 						((DataRenderer)dataRenderers[FormController.FORM_EDITOR]).setShowSelection(false);
 					}
 					((ListView)view).setCellRenderer(dr);
@@ -1077,8 +1079,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							Object group = es.get(groupName, fs);
 							if (group == Scriptable.NOT_FOUND)
 							{
-								group = new NativeJavaObject(fs, new RuntimeGroup(groupName), ScriptObjectRegistry.getJavaMembers(RuntimeGroup.class,
-									ScriptableObject.getTopLevelScope(fs)));
+								group = new NativeJavaObject(fs, new RuntimeGroup(groupName),
+									ScriptObjectRegistry.getJavaMembers(RuntimeGroup.class, ScriptableObject.getTopLevelScope(fs)));
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
@@ -1211,9 +1213,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			{
 				if (showDialogs)
 				{
-					JOptionPane.showMessageDialog(
-						application.getMainApplicationFrame(),
-						Messages.getString("servoy.formPanel.error.noRecordsToPrint"), Messages.getString("servoy.general.warning"), JOptionPane.INFORMATION_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+					JOptionPane.showMessageDialog(application.getMainApplicationFrame(), Messages.getString("servoy.formPanel.error.noRecordsToPrint"), //$NON-NLS-1$
+						Messages.getString("servoy.general.warning"), JOptionPane.INFORMATION_MESSAGE); //$NON-NLS-1$
 				}
 				return;
 			}
@@ -1221,9 +1222,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			{
 				if (set.getSize() == 0)//test if foundset is zero. if so ask if really want to print/preview
 				{
-					int val = JOptionPane.showConfirmDialog(
-						application.getMainApplicationFrame(),
-						Messages.getString("servoy.formPanel.error.noRecordsToPrint"), Messages.getString("servoy.general.warning"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+					int val = JOptionPane.showConfirmDialog(application.getMainApplicationFrame(),
+						Messages.getString("servoy.formPanel.error.noRecordsToPrint"), Messages.getString("servoy.general.warning"), //$NON-NLS-1$//$NON-NLS-2$
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 					if (val != JOptionPane.OK_OPTION)
 					{
 						return;
@@ -1462,8 +1463,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					sf = (SwingForm)parent;
 					formDirectParent = sf.getParent();
 				}
-				while ((formDirectParent instanceof FormLookupPanel) &&
-					((lastSpecialTabPanel.equals(sf.getLastFocusableField()) && !moveBackward) || (lastSpecialTabPanel.equals(sf.getFirstFocusableField()) && moveBackward)));
+				while ((formDirectParent instanceof FormLookupPanel) && ((lastSpecialTabPanel.equals(sf.getLastFocusableField()) && !moveBackward) ||
+					(lastSpecialTabPanel.equals(sf.getFirstFocusableField()) && moveBackward)));
 				((ISupportFocusTransfer)lastSpecialTabPanel).setTransferFocusBackwards(moveBackward);
 				if (lastTabPanelAlike instanceof SplitPane && SwingForm.this.getParent().equals(((SplitPane)lastTabPanelAlike).getLeftComponent()))
 				{
@@ -1756,8 +1757,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	public boolean hasBackgroundImage()
 	{
-		return (formController != null && formController.getFormStyle() != null && formController.getFormStyle().hasAttribute(
-			CSS.Attribute.BACKGROUND_IMAGE.toString()));
+		return (formController != null && formController.getFormStyle() != null &&
+			formController.getFormStyle().hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()));
 	}
 
 	private static class LayeredPaneLayout implements LayoutManager2
