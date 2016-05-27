@@ -34,6 +34,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -57,6 +58,16 @@ public abstract class AbstractBase implements IPersist
 
 	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
 	public static final int DEFAULT_INT = ContentSpec.ZERO.intValue(); // == ContentSpec.getJavaClassMemberDefaultValue(IRepository.INTEGER)
+
+	private static final Object UNDEFINED = new Object()
+	{
+		@Override
+		public String toString()
+		{
+			return "-undefined-";
+		};
+	};
+
 
 	/*
 	 * Attributes for IPersist
@@ -207,10 +218,7 @@ public abstract class AbstractBase implements IPersist
 		}
 		else
 		{
-			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-				(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
-					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
-						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
+			if (isNotExtendingAnotherPersist())
 			{
 				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
 				if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
@@ -227,6 +235,14 @@ public abstract class AbstractBase implements IPersist
 
 			propertiesMap.put(propertyName, val);
 		}
+	}
+
+	private boolean isNotExtendingAnotherPersist()
+	{
+		return !hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
+			(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+				StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
+					StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue()));
 	}
 
 	public void startBufferUseForProperties()
@@ -842,11 +858,12 @@ public abstract class AbstractBase implements IPersist
 		IPersist persist = this;
 		while (persist instanceof AbstractBase)
 		{
-			Object customProperty = ((AbstractBase)persist).getCustomPropertyNonFlattened(path);
-			if (customProperty != null)
+			Object val = ((AbstractBase)persist).getCustomPropertyNonFlattenedInternal(path);
+			if (val != UNDEFINED) // we need the has check so not (get...() != null) because a null value could override a non-null value in case of inheritance; so we shouldn't go further in hierarchy if we find a null
 			{
-				return customProperty;
+				return val;
 			}
+
 			if (persist instanceof ISupportExtendsID)
 			{
 				persist = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
@@ -860,8 +877,23 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
+	/**
+	 * Gets the value of the custom property identified by path in the current persist's own properties (so it ignores inherited values).
+	 * It will return null both if the value is null or if the value is not present.
+	 */
 	@SuppressWarnings("unchecked")
 	protected Object getCustomPropertyNonFlattened(String[] path)
+	{
+		Object val = getCustomPropertyNonFlattenedInternal(path);
+		return val == UNDEFINED ? null : val;
+	}
+
+	/**
+	 * Identical to getCustomPropertyNonFlattened(...) but with one difference: if nothing is found at path it will return UNDEFINED instead of null.
+	 * This approach is meant to have both a "hasProperty" and a "getProperty" in one call so we don't have to iterate on path twice when this information is needed.
+	 */
+	@SuppressWarnings("unchecked")
+	private Object getCustomPropertyNonFlattenedInternal(String[] path)
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 
@@ -876,7 +908,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			if (map == null || !map.containsKey(path[i]))
 			{
-				return null;
+				return UNDEFINED;
 			}
 			Object node = ServoyJSONObject.toJava(map.get(path[i]));
 			if (i == path.length - 1)
@@ -893,8 +925,9 @@ public abstract class AbstractBase implements IPersist
 	public Object putCustomProperty(String[] path, Object value)
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+		boolean isNotExtendingAnotherPersist = isNotExtendingAnotherPersist();
 
-		if (customProperties == null && value == null) return null;
+		if (isNotExtendingAnotherPersist && customProperties == null && value == null) return null;
 
 		if (jsonCustomProperties == null)
 		{
@@ -913,18 +946,18 @@ public abstract class AbstractBase implements IPersist
 		{
 			if (!map.containsKey(path[i]))
 			{
-				if (value == null)
+				if (isNotExtendingAnotherPersist && value == null)
 				{
-					return null; // value not found
+					return null; // nothing to set there; it's already not there and it is not overriding any inherited value
 				}
 				map.put(path[i], new ServoyJSONObject());
 			}
 			map = (Map<String, Object>)map.get(path[i]);
-
 		}
+
 		String leaf = path[path.length - 1];
 		Object old = null;
-		if (value == null)
+		if (isNotExtendingAnotherPersist && value == null)
 		{
 			old = map.remove(leaf);
 			if (map.isEmpty() && path.length > 1)
@@ -935,8 +968,49 @@ public abstract class AbstractBase implements IPersist
 		}
 		else
 		{
-			old = map.put(leaf, value);
+			old = map.put(leaf, value != null ? value : JSONObject.NULL); // in case of inherited elements when put(key, null) is called we really need to write the null (which for JSONObject means writing JSONObject.NULL; if we would just put null it would be equivalent to a remove(key) which would not override key to remove parent value through inheritance)
 		}
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+		return old;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Object clearCustomProperty(String[] path)
+	{
+		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+		if (customProperties == null) return null;
+
+		if (jsonCustomProperties == null)
+		{
+			if (customProperties != null)
+			{
+				jsonCustomProperties = new JSONWrapperMap(customProperties);
+			}
+			else
+			{
+				jsonCustomProperties = new JSONWrapperMap(new ServoyJSONObject());
+			}
+		}
+
+		Map<String, Object> map = jsonCustomProperties;
+		for (int i = 0; i < path.length - 1; i++)
+		{
+			if (!map.containsKey(path[i]))
+			{
+				return null; // nothing to clear there; it's already not there
+			}
+			map = (Map<String, Object>)map.get(path[i]);
+		}
+
+		String leaf = path[path.length - 1];
+		Object old = null;
+		old = map.remove(leaf);
+		if (map.isEmpty() && path.length > 1)
+		{
+			// remove empty map
+			clearCustomProperty(Utils.arraySub(path, 0, path.length - 1));
+		}
+
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
 		return old;
 	}
