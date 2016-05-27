@@ -34,6 +34,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ISupportChilds;
@@ -49,7 +50,10 @@ import com.servoy.j2db.scripting.solutionmodel.JSBaseContainer;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
@@ -99,7 +103,44 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, DataConversion clientConversion,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
+		return toJSON(writer, key, object, pd, clientConversion,
+			dataConverterContext.getWebObject() instanceof IContextProvider
+				? ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution() : null,
+			dataConverterContext.getWebObject() instanceof WebFormComponent ? ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement() : null);
+	}
+
+	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, DataConversion clientConversion, FlattenedSolution fs,
+		FormElement fe) throws JSONException
+	{
 		Map<String, Object> map = new HashMap<>();
+		if (object != null && fs != null)
+		{
+			String[] components = object.toString().split("-"); //$NON-NLS-1$
+			if (components.length == 5)
+			{
+				String scriptString = null;
+				// this is a uuid
+				ScriptMethod sm = fs.getScriptMethod(object.toString());
+				if (sm != null)
+				{
+					ISupportChilds parent = sm.getParent();
+					if (parent instanceof Solution)
+					{
+						scriptString = "scopes." + sm.getScopeName() + "." + sm.getName();
+					}
+					else if (parent instanceof Form)
+					{
+						scriptString = ((Form)parent).getName() + "." + sm.getName();
+					}
+					else if (parent instanceof TableNode && fe != null)
+					{
+						scriptString = "entity." + fe.getForm().getName() + "." + sm.getName();
+					}
+					object = scriptString;
+				}
+				else Debug.log("can't find a scriptmethod for: " + object);
+			}
+		}
 		try
 		{
 			if (object instanceof String)
@@ -171,35 +212,9 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		if (formElementValue != null && formElementContext != null)
-		{
-			String[] components = formElementValue.toString().split("-"); //$NON-NLS-1$
-			if (components.length == 5)
-			{
-				String scriptString = null;
-				// this is a uuid
-				ScriptMethod sm = formElementContext.getFlattenedSolution().getScriptMethod(formElementValue.toString());
-				if (sm != null)
-				{
-					ISupportChilds parent = sm.getParent();
-					if (parent instanceof Solution)
-					{
-						scriptString = "scopes." + sm.getScopeName() + "." + sm.getName();
-					}
-					else if (parent instanceof Form)
-					{
-						scriptString = ((Form)parent).getName() + "." + sm.getName();
-					}
-					else if (parent instanceof TableNode)
-					{
-						scriptString = "entity." + formElementContext.getFormElement().getForm().getName() + "." + sm.getName();
-					}
-				}
-				else Debug.log("can't find a scriptmethod for: " + formElementValue);
-				return toJSON(writer, key, scriptString, pd, browserConversionMarkers, null);
-			}
-		}
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers,
+			formElementContext != null ? formElementContext.getFlattenedSolution() : null,
+			formElementContext != null ? formElementContext.getFormElement() : null);
 	}
 
 	@Override
