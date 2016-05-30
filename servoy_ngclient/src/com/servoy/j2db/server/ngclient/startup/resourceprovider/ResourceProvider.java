@@ -489,6 +489,19 @@ public class ResourceProvider implements Filter
 		}
 
 		@Override
+		public String getVersion()
+		{
+			try
+			{
+				return getManifest().getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+			}
+			catch (IOException e)
+			{
+			}
+			return null;
+		}
+
+		@Override
 		public Manifest getManifest() throws IOException
 		{
 			try (InputStream is = urlOfManifest.openStream())

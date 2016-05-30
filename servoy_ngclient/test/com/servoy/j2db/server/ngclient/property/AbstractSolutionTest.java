@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -183,6 +184,19 @@ public abstract class AbstractSolutionTest
 			{
 				return new Manifest(is);
 			}
+		}
+
+		@Override
+		public String getVersion()
+		{
+			try
+			{
+				return getManifest().getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+			}
+			catch (IOException e)
+			{
+			}
+			return null;
 		}
 
 		@Override
