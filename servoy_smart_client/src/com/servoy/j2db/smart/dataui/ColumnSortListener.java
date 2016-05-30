@@ -215,7 +215,7 @@ public class ColumnSortListener extends MouseAdapter
 									LFAwareSortableHeaderRenderer renderer = (LFAwareSortableHeaderRenderer)(((CellAdapter)column).getHeaderRenderer());
 									fc.executeFunction(String.valueOf(labelForOnActionMethodId),
 										Utils.arrayMerge((new Object[] { getJavaScriptEvent(e, JSEvent.EventType.action, renderer.getName()) }),
-											Utils.parseJSExpressions(renderer.getInstanceMethodArguments("onActionMethodID"))), //$NON-NLS-1$
+											Utils.parseJSExpressions(renderer.getFlattenedMethodArguments("onActionMethodID"))), //$NON-NLS-1$
 										true, null, false, "onActionMethodID"); //$NON-NLS-1$
 								}
 								else if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0)
