@@ -498,4 +498,22 @@ public abstract class AbstractContainer extends AbstractBase
 		}
 		return null;
 	}
+
+	public ArrayList<IPersist> getSortedChildren()
+	{
+		ArrayList<IPersist> children = new ArrayList<IPersist>();
+		Iterator<IPersist> it = getAllObjects();
+		while (it.hasNext())
+		{
+			IPersist p = it.next();
+			if (p instanceof ISupportBounds)
+			{
+				children.add(p);
+			}
+		}
+		IPersist[] sortedChildArray = children.toArray(new IPersist[0]);
+		Arrays.sort(sortedChildArray, PositionComparator.XY_PERSIST_COMPARATOR);
+		children = new ArrayList<IPersist>(Arrays.asList(sortedChildArray));
+		return children;
+	}
 }
