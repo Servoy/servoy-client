@@ -198,7 +198,7 @@ public class EventExecutor
 			IPersist persist = ((WebFormComponent)component).getFormElement().getPersistIfAvailable();
 			if (persist instanceof AbstractBase)
 			{
-				List<Object> instanceMethodArguments = ((AbstractBase)persist).getInstanceMethodArguments(eventType);
+				List<Object> instanceMethodArguments = ((AbstractBase)persist).getFlattenedMethodArguments(eventType);
 				if (instanceMethodArguments != null && instanceMethodArguments.size() > 0)
 				{
 					newargs = Utils.arrayMerge(newargs, Utils.parseJSExpressions(instanceMethodArguments));

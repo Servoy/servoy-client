@@ -34,6 +34,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -1210,6 +1211,17 @@ public abstract class AbstractBase implements IPersist
 		}
 
 		return null;
+	}
+
+	public boolean clearMethodParameters(String methodKey)
+	{
+		if (methodKey != null)
+		{
+			clearCustomProperty(new String[] { "methods", methodKey, "parameters" });
+			clearCustomProperty(new String[] { "methods", methodKey, "arguments" });
+			return true;
+		}
+		return false;
 	}
 
 	public boolean hasOverrideCustomProperty()

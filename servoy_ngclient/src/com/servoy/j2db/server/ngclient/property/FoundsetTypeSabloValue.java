@@ -679,7 +679,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							event.setFormName(fc.getName());
 							fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 								Utils.arrayMerge((new Object[] { dataProviderID, Boolean.valueOf(sortAscending), event }),
-									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
+									Utils.parseJSExpressions(fc.getForm().getFlattenedMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
 								true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
 						}
 						else

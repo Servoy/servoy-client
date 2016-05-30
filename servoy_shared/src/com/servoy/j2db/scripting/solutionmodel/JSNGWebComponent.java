@@ -115,7 +115,7 @@ public class JSNGWebComponent extends JSWebComponent
 			if (spec.getHandler(name) != null)
 			{
 				setJSONProperty(name, value);
-				getBaseComponent(true).putInstanceMethodParameters(name, new ArrayList(),
+				getBaseComponent(true).putMethodParameters(name, new ArrayList(),
 					value instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)value).getArguments()) : null);
 			}
 			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
@@ -137,7 +137,7 @@ public class JSNGWebComponent extends JSWebComponent
 			if (spec.getHandler(name) != null)
 			{
 				webComponent.clearProperty(name);
-				getBaseComponent(true).putInstanceMethodParameters(name, null, null);
+				getBaseComponent(true).putMethodParameters(name, null, null);
 			}
 			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
 		}

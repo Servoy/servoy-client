@@ -175,7 +175,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			try
 			{
 				application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getInstanceMethodArguments("onOpenMethodID"))), false, false);
+					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onOpenMethodID"))), false, false);
 				if (application.getSolution() == null) return;
 			}
 			catch (Exception e1)
@@ -207,8 +207,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			}
 			catch (Exception e1)
 			{
-				application.reportError(
-					Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), //$NON-NLS-1$
+				application.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), //$NON-NLS-1$
 					e1);
 			}
 		}
