@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,7 +46,6 @@ import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
@@ -61,7 +59,6 @@ import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -429,18 +426,6 @@ public class FormElementHelper
 			for (IPersist persist : changes)
 			{
 				persistWrappers.remove(persist);
-				//now search the persistWrappers for elements that extend this persist
-				Iterator<Entry<IPersist, FormElement>> iterator = persistWrappers.entrySet().iterator();
-				while (iterator.hasNext())
-				{
-					Entry<IPersist, FormElement> next = iterator.next();
-					IPersist currentPersist = next.getKey();
-					if (currentPersist instanceof ISupportExtendsID && PersistHelper.isOverrideElement((ISupportExtendsID)currentPersist) &&
-						(((ISupportExtendsID)currentPersist)).getExtendsID() == persist.getID())
-					{
-						persistWrappers.remove(currentPersist);
-					}
-				}
 			}
 		}
 	}

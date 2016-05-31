@@ -22,11 +22,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.PersistHelper;
@@ -423,29 +421,20 @@ public abstract class AbstractContainer extends AbstractBase
 	 */
 	public List<IFormElement> getFlattenedObjects(Comparator< ? super IFormElement> comparator)
 	{
-		Set<IFormElement> flattenedSet = new HashSet<IFormElement>();
+		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();
 		List<IPersist> children = getHierarchyChildren();
 		for (IPersist persist : children)
 		{
 			if (persist instanceof AbstractContainer)
 			{
-				List<IFormElement> flattenedObjects = ((AbstractContainer)persist).getFlattenedObjects(comparator);
-				for (IFormElement iFormElement : flattenedObjects)
-				{
-					if (!flattenedSet.contains(iFormElement)) flattenedSet.add(iFormElement);
-				}
-				if (persist instanceof FormReference)
-				{
-					if (!flattenedSet.contains(persist)) flattenedSet.add((IFormElement)persist);
-				}
+				flattenedPersists.addAll(((AbstractContainer)persist).getFlattenedObjects(comparator));
 			}
 			else if (persist instanceof IFormElement)
 			{
-				if (!flattenedSet.contains(persist)) flattenedSet.add((IFormElement)persist);
+				flattenedPersists.add((IFormElement)persist);
 			}
 		}
-
-		IFormElement[] array = flattenedSet.toArray(new IFormElement[flattenedSet.size()]);
+		IFormElement[] array = flattenedPersists.toArray(new IFormElement[flattenedPersists.size()]);
 		if (comparator != null)
 		{
 			Arrays.sort(array, comparator);

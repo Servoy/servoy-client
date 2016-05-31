@@ -18,14 +18,12 @@
 package com.servoy.j2db.persistence;
 
 import java.awt.Point;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author lvostinar
@@ -55,6 +53,7 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 	private void fill()
 	{
 		internalClearAllObjects();
+		List<IPersist> children = new ArrayList<IPersist>();//PersistHelper.getHierarchyChildren(formReference);
 		if (formReference.getContainsFormID() > 0)
 		{
 			Form referenceForm = flattenedSolution.getForm(formReference.getContainsFormID());
@@ -63,82 +62,36 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 				referenceForm = flattenedSolution.getFlattenedForm(referenceForm);
 				if (referenceForm != null)
 				{
-					for (IPersist originalElementFromReferencedForm : referenceForm.getAllObjectsAsList())
-					{
-						if (originalElementFromReferencedForm instanceof Part)
-						{
-							continue;
-						}
-						if (originalElementFromReferencedForm instanceof LayoutContainer &&
-							((LayoutContainer)originalElementFromReferencedForm).getExtendsID() > 0)
-						{
-							internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)originalElementFromReferencedForm));
-						}
-						else
-						{
-							IPersist newPersist;
-							try
-							{
-
-								List<IPersist> allObjectsAsList = formReference.getAllObjectsAsList();
-								boolean alreadyAdded = false;
-								for (IPersist iPersist : allObjectsAsList)
-								{
-									if (iPersist instanceof ISupportExtendsID)
-									{
-										if (((ISupportExtendsID)iPersist).getExtendsID() == originalElementFromReferencedForm.getID())
-										{
-											internalAddChild(iPersist);
-											alreadyAdded = true;
-											break;
-										}
-									}
-								}
-								if (!alreadyAdded)
-								{
-									String qualifier = formReference.getName();
-									if (qualifier == null)
-									{
-
-										qualifier = formReference.getUUID().toString().replaceAll("-", "_");
-										if (Character.isDigit(qualifier.charAt(0)))
-										{
-											qualifier = "_" + qualifier;
-										}
-									}
-									newPersist = ((AbstractBase)originalElementFromReferencedForm).cloneObj(formReference, false, null, false, false, false);
-									((AbstractBase)newPersist).copyPropertiesMap(null, true);
-									((ISupportExtendsID)newPersist).setExtendsID(originalElementFromReferencedForm.getID());
-									adjustName((AbstractBase)originalElementFromReferencedForm, (AbstractBase)newPersist, qualifier);
-									if (newPersist instanceof FormReference)
-									{
-										internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)newPersist));
-									}
-									else internalAddChild(newPersist);
-
-								}
-							}
-							catch (RepositoryException e)
-							{
-								Debug.error(e);
-							}
-						}
-					}
+					children.addAll(referenceForm.getAllObjectsAsList());
 				}
 			}
 		}
-	}
-
-	/**Adjusts the name of the element by prepending it with the name of the form reference
-	 * @param newPersist
-	 * @param newPersist2
-	 */
-	private void adjustName(AbstractBase originalElementFromReferencedForm, AbstractBase newPersist, String formReferenceName)
-	{
-		Object property = originalElementFromReferencedForm.getProperty(IContentSpecConstants.PROPERTY_NAME);
-		if (property != null)
+		for (IPersist realChild : formReference.getAllObjectsAsList())
 		{
-			newPersist.setProperty(IContentSpecConstants.PROPERTY_NAME, formReferenceName + "_" + property.toString());
+			if (realChild instanceof IFormElement || realChild instanceof AbstractContainer)
+			{
+				children.add(realChild);
+				IPersist p = realChild;
+				while ((p = PersistHelper.getSuperPersist((ISupportExtendsID)p)) != null)
+				{
+					children.remove(p);
+				}
+			}
+		}
+		for (IPersist child : children)
+		{
+			if (child instanceof LayoutContainer && ((LayoutContainer)child).getExtendsID() > 0)
+			{
+				internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)child));
+			}
+			else if (child instanceof FormReference)
+			{
+				internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)child));
+			}
+			else
+			{
+				internalAddChild(child);
+			}
 		}
 	}
 
@@ -189,7 +142,6 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 	@Override
 	public List<IPersist> getHierarchyChildren()
 	{
-		fill();
 		return getAllObjectsAsList();
 	}
 }
