@@ -455,6 +455,10 @@ public class RepositoryHelper
 			}
 			return rowBGColorCalculation == null;
 		}
+		if (name.equals("referenceForm")) //$NON-NLS-1$
+		{
+			return true;
+		}
 		return false;
 	}
 
