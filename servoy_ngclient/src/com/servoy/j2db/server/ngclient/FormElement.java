@@ -55,6 +55,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -755,6 +756,17 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	{
 		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportSize)
 		{
+			if (persistImpl.getPersist() instanceof FormReference)
+			{
+				FormReference fr = (FormReference)persistImpl.getPersist();
+				Form containedForm = fs.getForm(fr.getContainsFormID());
+				if (containedForm != null)
+				{
+					int w = Math.max((int)fr.getSize().getWidth(), (int)containedForm.getSize().getWidth());
+					int h = Math.max((int)fr.getSize().getHeight(), (int)containedForm.getSize().getHeight());
+					return new Dimension(w, h);
+				}
+			}
 			return ((ISupportSize)persistImpl.getPersist()).getSize();
 		}
 		return null;
