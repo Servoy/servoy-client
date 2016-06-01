@@ -31,6 +31,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
+import org.sablo.websocket.impl.ClientService;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.IBasicFormManager;
@@ -147,7 +148,11 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 		{
-			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, engine.getSolutionScope()));
+			if (serviceSpecification.getApiFunctions().size() != 0 || serviceSpecification.getAllPropertiesNames().size() != 0)
+			{
+				scope.put(ClientService.convertToJSName(serviceSpecification.getName()), scope,
+					new WebServiceScriptable(this, serviceSpecification, engine.getSolutionScope()));
+			}
 		}
 		scope.setLocked(true);
 		if (designerCallback != null)

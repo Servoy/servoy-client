@@ -32,6 +32,7 @@ import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.WebsocketSessionManager;
+import org.sablo.websocket.impl.ClientService;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -230,7 +231,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 		{
-			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, scriptEngine.getSolutionScope()));
+			if (serviceSpecification.getApiFunctions().size() != 0 || serviceSpecification.getAllPropertiesNames().size() != 0)
+			{
+				scope.put(ClientService.convertToJSName(serviceSpecification.getName()), scope,
+					new WebServiceScriptable(this, serviceSpecification, scriptEngine.getSolutionScope()));
+			}
 		}
 		scope.setLocked(true);
 		return scriptEngine;
