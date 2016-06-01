@@ -427,7 +427,11 @@ public abstract class AbstractContainer extends AbstractBase
 		{
 			if (persist instanceof AbstractContainer)
 			{
-				flattenedPersists.addAll(((AbstractContainer)persist).getFlattenedObjects(comparator));
+				List<IFormElement> flattenedObjects = ((AbstractContainer)persist).getFlattenedObjects(comparator);
+				for (IFormElement element : flattenedObjects)
+				{
+					if (!flattenedPersists.contains(element)) flattenedPersists.add(element);
+				}
 			}
 			else if (persist instanceof IFormElement)
 			{
