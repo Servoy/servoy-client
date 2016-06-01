@@ -44,8 +44,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  *
  */
 public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue> implements IConvertedPropertyType<ReadonlySabloValue>,
-	IFormElementDefaultValueToSabloComponent<JSONObject, ReadonlySabloValue>, ISabloComponentToRhino<ReadonlySabloValue>,
-	IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, ReadonlySabloValue>
+IFormElementDefaultValueToSabloComponent<JSONObject, ReadonlySabloValue>, ISabloComponentToRhino<ReadonlySabloValue>,
+IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, ReadonlySabloValue>
 {
 
 	public static final ReadonlyPropertyType INSTANCE = new ReadonlyPropertyType();
@@ -62,7 +62,12 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	@Override
 	public ReadonlyConfig parseConfig(JSONObject json)
 	{
-		return ReadonlyConfig.parse(json);
+		ReadonlyConfig config = ReadonlyConfig.parse(json);
+		if (config.getOppositeOf() == null)
+		{
+			throw new RuntimeException("Readonly property must also provide the 'oppositeOf' value. Please use type 'protected' instead.");
+		}
+		return config;
 	}
 
 	@Override
@@ -82,7 +87,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	@Override
 	public ReadonlySabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
-		WebFormComponent component, DataAdapterList dataAdapterList)
+			WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return new ReadonlySabloValue((ReadonlyConfig)pd.getConfig(), !(Boolean)formElement.getPropertyValue(((ReadonlyConfig)pd.getConfig()).getOppositeOf()));
 	}
