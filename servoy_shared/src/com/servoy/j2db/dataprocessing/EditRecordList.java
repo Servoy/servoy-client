@@ -461,7 +461,9 @@ public class EditRecordList
 							{
 								// create a new rowUpdate that contains both updates
 								RowUpdateInfo removed = rowUpdates.remove(j);
-								recordTested.remove(removed.getRecord());
+								recordTested.remove(record);
+								// do use the first record, that one must always be leading. (for fire of events)
+								record = removed.getRecord();
 								break;
 							}
 						}
