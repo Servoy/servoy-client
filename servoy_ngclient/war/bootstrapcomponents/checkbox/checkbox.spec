@@ -12,6 +12,7 @@
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default":"checkbox"},
 	        "text" : { "type" : "tagstring" ,"default": "Checkbox" },
 			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
+			"valuelistID" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataProviderID"},
 	        "visible" : "visible"
 	},
 	"handlers":
