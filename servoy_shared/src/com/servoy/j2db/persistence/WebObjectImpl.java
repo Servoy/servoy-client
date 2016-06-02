@@ -115,12 +115,16 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				Iterator<String> it = entireModel.keys();
 
 				// remove custom properties that were removed (be sure to keep any keys that do not map to custom properties or arrays of custom properties - for example ints, string arrays and so on)
+				List<String> toRemove = new ArrayList<String>();
 				while (it.hasNext())
 				{
 					String key = it.next();
-					if (isPersistMappedProperty(key) && !getPersistMappedProperties().containsKey(key)) entireModel.remove(key);
+					if (isPersistMappedProperty(key) && !getPersistMappedProperties().containsKey(key)) toRemove.add(key);
 				}
-
+				for (String key : toRemove)
+				{
+					entireModel.remove(key);
+				}
 				for (Map.Entry<String, Object> wo : getPersistMappedProperties().entrySet())
 				{
 					if (wo.getValue() == null) entireModel.put(wo.getKey(), JSONObject.NULL);
