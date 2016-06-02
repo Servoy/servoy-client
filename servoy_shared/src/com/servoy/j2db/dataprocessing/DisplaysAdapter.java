@@ -315,7 +315,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 					if (currState == null) return;
 				}
 
-				isColumn = currState.getParentFoundSet().getSQLSheet().getColumnIndex(parts[parts.length - 1]) != -1;
+				isColumn = currState.getParentFoundSet().getSQLSheet().getColumnIndex(parts[parts.length - 1]) != -1 ||
+					currState.getParentFoundSet().getSQLSheet().containsCalculation(dataProviderID);
 			}
 		}
 		if (isGlobal || !isColumn || state.startEditing()) //globals are always allowed to set in datarenderers
