@@ -305,6 +305,7 @@ public class FormLayoutGenerator
 			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 			if (fe.getPersistIfAvailable() instanceof FormReference) ngClass.put("form_reference", "true");
 			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
+			writer.print(" class=\"svy-wrapper\" ");
 		}
 		else
 		{
