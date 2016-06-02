@@ -68,7 +68,7 @@ public class FormLayoutStructureGenerator
 				}
 				else if (component instanceof FormReference)
 				{
-					generateFormReference((FormReference)component, form, fs, writer, design);
+					generateFormReference((FormReference)component, form, fs, writer, design, null);
 				}
 				else if (component instanceof IFormElement)
 				{
@@ -84,16 +84,43 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	public static void generateFormReference(FormReference formreference, Form form, FlattenedSolution fs, PrintWriter writer, boolean design)
+	public static void generateFormReference(FormReference formreference, Form form, FlattenedSolution fs, PrintWriter writer, boolean design, Form parentForm)
 		throws IOException
 	{
 		Form referencedForm = fs.getForm(formreference.getContainsFormID());
-		writer.print("<div style='position:relative; ");
-		if (referencedForm != null && !referencedForm.isResponsiveLayout())
+		boolean absolutePosition = false;
+		if (parentForm != null && !parentForm.isResponsiveLayout())
 		{
-			writer.print("min-height:" + referencedForm.getSize().height + "px");
+			absolutePosition = true;
 		}
-		writer.print("' ");
+		writer.print("<div ");
+		if (absolutePosition)
+		{
+			FormElement fe = FormElementHelper.INSTANCE.getFormElement(formreference, fs, null, design);
+			if (design)
+			{
+
+				writer.print("ng-style=\"layout('");
+				writer.print(fe.getDesignId());
+				writer.print("')\" ");
+			}
+			else
+			{
+				writer.print("ng-style=\"layout.");
+				writer.print(fe.getName());
+				writer.print("\" ");
+			}
+		}
+		else
+		{
+			writer.print("style='position:relative; ");
+			if (referencedForm != null && !referencedForm.isResponsiveLayout())
+			{
+				writer.print("min-height:" + referencedForm.getSize().height + "px");
+			}
+			writer.print("' ");
+		}
+
 		if (design)
 		{
 			writer.print(" svy-id='");
@@ -120,7 +147,7 @@ public class FormLayoutStructureGenerator
 				}
 				else if (component instanceof FormReference)
 				{
-					generateFormReference((FormReference)component, form, fs, writer, design);
+					generateFormReference((FormReference)component, form, fs, writer, design, referencedForm);
 				}
 				else if (component instanceof IFormElement)
 				{
@@ -259,7 +286,7 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof FormReference)
 			{
-				generateFormReference((FormReference)component, form, fs, writer, design);
+				generateFormReference((FormReference)component, form, fs, writer, design, null);
 			}
 			else if (component instanceof IFormElement)
 			{

@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.LayoutContainer;
@@ -149,16 +150,19 @@ public class FormWrapper
 
 	public Collection<IFormElement> getReferenceForms()
 	{
-		List<IFormElement> referenceForms = new ArrayList<>();
-		Iterator<FormReference> it = form.getFormReferences();
-		while (it.hasNext())
+		final List<IFormElement> referenceForms = new ArrayList<>();
+		form.acceptVisitor(new IPersistVisitor()
 		{
-			FormReference formReference = it.next();
-			if (isSecurityVisible(formReference))
+			@Override
+			public Object visit(IPersist o)
 			{
-				referenceForms.add(formReference);
+				if (o instanceof FormReference && isSecurityVisible(o) && !referenceForms.contains(o))
+				{
+					referenceForms.add((FormReference)o);
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
 			}
-		}
+		});
 		return referenceForms;
 	}
 

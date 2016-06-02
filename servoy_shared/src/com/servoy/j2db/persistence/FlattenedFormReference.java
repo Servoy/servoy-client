@@ -88,7 +88,7 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 			{
 				internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)child));
 			}
-			else
+			else if (child instanceof IFormElement || child instanceof AbstractContainer)
 			{
 				internalAddChild(child);
 			}
