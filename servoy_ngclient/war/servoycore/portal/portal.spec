@@ -52,7 +52,7 @@
 							 ]
 	        }, 
 	        "onDragMethodID" : {
-	          "returns": "Number", 
+	          "returns": "int", 
 	         	
 	        	"parameters":[
 								{
@@ -62,7 +62,7 @@
 							 ]
 	        }, 
 	        "onDragOverMethodID" : {
-	          "returns": "Boolean", 
+	          "returns": "boolean", 
 	         	
 	        	"parameters":[
 								{
@@ -72,7 +72,7 @@
 							 ]
 	        }, 
 	        "onDropMethodID" : {
-	          "returns": "Boolean", 
+	          "returns": "boolean", 
 	         	
 	        	"parameters":[
 								{

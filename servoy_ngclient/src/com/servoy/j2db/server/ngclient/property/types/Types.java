@@ -105,6 +105,7 @@ public class Types
 		});
 
 		TypesRegistry.addType(JSEventType.INSTANCE);
+		TypesRegistry.addType(JSDNDEventType.INSTANCE);
 		TypesRegistry.addType(JSNativeJavaObjectType.INSTANCE);
 		TypesRegistry.addType(FoundsetReferencePropertyType.INSTANCE);
 	}
