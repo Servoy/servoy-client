@@ -4,4 +4,5 @@
 	alt="{{model.alternate}}"
 	svy-click='handlers.onActionMethodID($event)'
  	svy-rightclick='handlers.onRightClickMethodID($event)'
+ 	ng-disabled='!model.enabled'
  	ng-if='model.visible'/>
