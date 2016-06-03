@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -495,7 +494,7 @@ public class ResourceProvider implements Filter
 		{
 			try
 			{
-				return getManifest().getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+				return getManifest().getMainAttributes().getValue("Bundle-Version");
 			}
 			catch (IOException e)
 			{
