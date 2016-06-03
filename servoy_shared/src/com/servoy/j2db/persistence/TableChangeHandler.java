@@ -18,6 +18,7 @@
 package com.servoy.j2db.persistence;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.servoy.j2db.util.Debug;
 
@@ -88,7 +89,8 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 			List<IItemChangeListener<ITable>> itemListeners = listeners.get(server);
 			if (itemListeners != null)
 			{
-				for (IItemChangeListener<ITable> listener : itemListeners)
+				List<IItemChangeListener<ITable>> itemListenersCopy = new CopyOnWriteArrayList<IItemChangeListener<ITable>>(itemListeners);
+				for (IItemChangeListener<ITable> listener : itemListenersCopy)
 				{
 					try
 					{
