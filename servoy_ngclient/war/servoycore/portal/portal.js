@@ -1281,32 +1281,34 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}	
 						testNumberOfRows();
 					});
-
-					$scope.$watch('foundset.sortColumns', function(newVal, oldVal) {
-						var uiSort = $scope.gridApi.grid.getColumnSorting();
-						var uiSortString = '';
-						for (var i = 0; i < uiSort.length; i++)
-						{
-							uiSortString += uiSort[i].name + " " + uiSort[i].sort.direction;
-							if (i < uiSort.length -1)
-							{
-								uiSortString +=","
-							}	
-						}
-						//check if we really received a new sort from the server
-						if (newVal !== oldVal && newVal != uiSortString)
-						{
-							var sorts = newVal.split(",");
-							if (sorts && sorts.length >0)
-							{
-								var sort = sorts[0].split(" ");
-								if (sort.length == 2)
-								{
-									$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
-								}	
-							}	
-						}	
-					});
+					
+					if (!$scope.model.multiLine) {
+        					$scope.$watch('foundset.sortColumns', function(newVal, oldVal) {
+        						var uiSort = $scope.gridApi.grid.getColumnSorting();
+        						var uiSortString = '';
+        						for (var i = 0; i < uiSort.length; i++)
+        						{
+        							uiSortString += uiSort[i].name + " " + uiSort[i].sort.direction;
+        							if (i < uiSort.length -1)
+        							{
+        								uiSortString +=","
+        							}	
+        						}
+        						//check if we really received a new sort from the server
+        						if (newVal !== oldVal && newVal != uiSortString)
+        						{
+        							var sorts = newVal.split(",");
+        							if (sorts && sorts.length >0)
+        							{
+        								var sort = sorts[0].split(" ");
+        								if (sort.length == 2)
+        								{
+        									$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
+        								}	
+        							}	
+        						}	
+        					});
+					}
 					
 					$scope.$watchCollection('foundset.viewPort.rows', function(newVal, oldVal) {
 						rowCache = {};

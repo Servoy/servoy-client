@@ -46,13 +46,15 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				else
 				{
 					var found = false;
-					for (var i = 0; i < $scope.model.valuelistID.length; i++) {
-						var item = $scope.model.valuelistID[i];
-						if (item.realValue === $scope.model.dataProviderID) {
-							$scope.value = item.displayValue;
-							found = true;
-							break;
-						}
+					if (angular.isDefined($scope.model.valuelistID)) {
+        					for (var i = 0; i < $scope.model.valuelistID.length; i++) {
+        						var item = $scope.model.valuelistID[i];
+        						if (item.realValue === $scope.model.dataProviderID) {
+        							$scope.value = item.displayValue;
+        							found = true;
+        							break;
+        						}
+        					}
 					}
 					if(!found)
 					{
