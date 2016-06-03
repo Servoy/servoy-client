@@ -70,7 +70,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 public class BorderPropertyType extends DefaultPropertyType<Border>
 	implements IConvertedPropertyType<Border>, IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>,
-	IRhinoToSabloComponent<Border>, ISabloComponentToRhino<Border>, IRhinoDesignConverter, IDesignValueConverter<Border>
+	IRhinoToSabloComponent<Border>, ISabloComponentToRhino<Border>, IRhinoDesignConverter, IDesignValueConverter<Object>
 {
 	private static final String TYPE = "type";
 	private static final String BORDER_RADIUS = "borderRadius";
@@ -490,18 +490,22 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
 	 */
 	@Override
-	public Border fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
-		try
+		if (!(Boolean)propertyDescription.getConfig())
 		{
-			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
-				propertyDescription, null, null);
+			try
+			{
+				return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+					propertyDescription, null, null);
+			}
+			catch (Exception e)
+			{
+				Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+				return null;
+			}
 		}
-		catch (Exception e)
-		{
-			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
-			return null;
-		}
+		return newValue;
 	}
 
 	/*
