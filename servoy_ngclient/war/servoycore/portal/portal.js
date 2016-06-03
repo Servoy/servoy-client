@@ -200,7 +200,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					
 					
 					if(readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {						
-						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';
+						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';						
 						isEditable = true;
 						isRowEditable = true;
 						var handlers = ""
@@ -257,6 +257,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							visible: el.model.visible,
 							width: el.model.size.width,
 //							minWidth: el.model.size.width,
+							enableCellEdit: el.model.editable,
+							enableCellEditOnFocus: true,
 							cellEditableCondition: isEditable,
 							editableCellTemplate: editableCellTemplate,
 							enableColumnMoving: isMovable,
@@ -1528,6 +1530,34 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 
           },
           post: function ($scope, $elm, $attrs, controllers) {
+        	var uiGridCtrl, renderContainerCtrl, ngModel;
+            if (controllers[0]) { uiGridCtrl = controllers[0]; }
+            if (controllers[1]) { renderContainerCtrl = controllers[1]; }
+            if (controllers[2]) { ngModel = controllers[2]; }        	  
+
+            $scope.deepEdit = false;
+
+            $scope.stopEdit = function (evt) {
+              if ($scope.inputForm && !$scope.inputForm.$valid) {
+                evt.stopPropagation();
+                $scope.$emit(uiGridEditConstants.events.CANCEL_CELL_EDIT);
+              }
+              else {
+                $scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
+              }
+              $scope.deepEdit = false;
+            };
+
+
+            $elm.on('click', function (evt) {
+              if ($elm[0].type !== 'checkbox') {
+                $scope.deepEdit = true;
+                $timeout(function () {
+                  $scope.grid.disableScrolling = true;
+                });
+              }
+            });
+            
             //set focus at start of edit
             $scope.$on(uiGridEditConstants.events.BEGIN_CELL_EDIT, function (evt,triggerEvent) {
               $timeout(function () {
@@ -1538,33 +1568,42 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
                     $scope.stopEdit(evt);
                 });
                 
-                $elm.children(0).on('keydown', function (evt) {
-                    switch (evt.keyCode) {
-                      case uiGridConstants.keymap.ESC:
+                $elm.children(0).on('keydown', function (evt) {                	
+                	if(evt.keyCode == uiGridConstants.keymap.ESC) {
                     	$elm.children(0).val($scope.oldValue);
                     	$elm.children(0).trigger('change');
                         evt.stopPropagation();
-                        $scope.$emit(uiGridEditConstants.events.CANCEL_CELL_EDIT);
-                        break;
-                      case uiGridConstants.keymap.ENTER: // Enter (Leave Field)
-                      case uiGridConstants.keymap.TAB:
-                    	$elm.children(0).trigger('change');
-                        evt.stopPropagation();
-                        evt.preventDefault();
-                        $scope.stopEdit(evt);
-                        break;
+                        $scope.$emit(uiGridEditConstants.events.CANCEL_CELL_EDIT);                		
+                	}
+                	else if ($scope.deepEdit &&
+                            (evt.keyCode === uiGridConstants.keymap.LEFT ||
+                             evt.keyCode === uiGridConstants.keymap.RIGHT ||
+                             evt.keyCode === uiGridConstants.keymap.UP ||
+                             evt.keyCode === uiGridConstants.keymap.DOWN)) {
+                            evt.stopPropagation();
+                	}                	
+                	else if (uiGridCtrl && uiGridCtrl.grid.api.cellNav) {
+                    	evt.uiGridTargetRenderContainerId = renderContainerCtrl.containerId;
+                        if (uiGridCtrl.cellNav.handleKeyDown(evt) !== null) {
+                          $scope.stopEdit(evt);
+                        }
                     }
-                    
+                	else {
+                        switch (evt.keyCode) {
+                        	case uiGridConstants.keymap.ENTER: // Enter (Leave Field)
+                        	case uiGridConstants.keymap.TAB:
+                        		$elm.children(0).trigger('change');
+                        		evt.stopPropagation();
+                        		evt.preventDefault();
+                        		$scope.stopEdit(evt);
+                        		break;
+                        }
+                	}
                     return true;
                  });
                 
               });
             });
-
-            $scope.stopEdit = function (evt) {
-            	$scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
-            };
-
           }
         };
       },
