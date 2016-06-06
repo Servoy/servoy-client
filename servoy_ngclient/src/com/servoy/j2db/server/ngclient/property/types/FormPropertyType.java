@@ -192,7 +192,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		{
 			form = fs.getForm(((Integer)formElementValue).intValue());
 		}
-		else if (formElementValue instanceof String)
+		else if (formElementValue instanceof String || formElementValue instanceof UUID)
 		{
 
 			UUID uuid = Utils.getAsUUID(formElementValue, false);
