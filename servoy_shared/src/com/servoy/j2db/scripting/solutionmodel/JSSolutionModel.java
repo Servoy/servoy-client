@@ -183,6 +183,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height)
 	{
+		return newForm(name, dataSource, styleName, show_in_menu, width, height, false);
+	}
+
+	protected JSForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height, boolean isResponsive)
+	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
 		{
@@ -192,7 +197,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				style = fs.getStyle(styleName);
 			}
 			Form form = createNewForm(style, name, dataSource, show_in_menu, new Dimension(width, height));
-			form.createNewPart(Part.BODY, height);
+			if (!isResponsive)
+			{
+				form.createNewPart(Part.BODY, height);
+			}
+			else
+			{
+				form.setResponsiveLayout(true);
+			}
 
 			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
 			{
@@ -256,13 +268,48 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public IBaseSMForm newForm(String name, String dataSource)
 	{
-		return newForm(name, dataSource, null, false, 0, 0);
+		return newForm(name, dataSource, null, false, 0, 0, false);
 	}
 
 	@JSFunction
 	public IBaseSMForm newForm(String name)
 	{
-		return newForm(name, null, null, false, 0, 0);
+		return newForm(name, null, null, false, 0, 0, false);
+	}
+
+	/**
+	 * Create a responsive form:
+	 * 
+	 * @sample
+	 * var frm = solutionModel.newForm('test','db:/my_server/my_table', true);
+	 * var c = frm.newLayoutContainer(1);
+	 * 
+	 * @param name The name of the new form
+	 * @param dataSource the form datasource
+	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
+	 * @return a new JSForm object
+	 */
+	@JSFunction
+	public IBaseSMForm newForm(String name, String dataSource, boolean isResponsive)
+	{
+		return newForm(name, dataSource, null, false, 0, 0, isResponsive);
+	}
+
+	/**
+	 * Create a responsive form:
+	 * 
+	 * @sample
+	 * var frm = solutionModel.newForm('test', true);
+	 * var c = frm.newLayoutContainer(1);
+	 * 
+	 * @param name The name of the new form
+	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
+	 * @return a new JSForm object
+	 */
+	@JSFunction
+	public IBaseSMForm newForm(String name, boolean isResponsive)
+	{
+		return newForm(name, null, null, false, 0, 0, isResponsive);
 	}
 
 	@JSFunction
