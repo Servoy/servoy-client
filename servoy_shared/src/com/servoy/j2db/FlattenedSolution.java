@@ -247,7 +247,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 
-		final Map<Integer, Integer> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
+		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
 
 		if (clone instanceof ISupportChilds)
 		{
@@ -260,8 +260,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						Map<String, Object> propertiesMap = ((AbstractBase)o).getPropertiesMap();
 						for (Map.Entry<String, Object> entry : propertiesMap.entrySet())
 						{
-							Integer elementId = updatedElementIds.get(entry.getValue());
-							if (elementId != null)
+							Object elementId = updatedElementIds.get(entry.getValue());
+							if (elementId instanceof Integer)
 							{
 								Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(o.getTypeID(), entry.getKey());
 								if (element.getTypeID() == IRepository.ELEMENTS) ((AbstractBase)o).setProperty(entry.getKey(), elementId);

@@ -445,19 +445,21 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	public abstract UUID resolveUUIDForElementId(int id) throws RepositoryException;
 
-	public static Map<Integer, Integer> resetUUIDSRecursively(IPersist persist, final IPersistFactory persistFactory, final boolean flagChanged)
+	public static Map<Object, Object> resetUUIDSRecursively(IPersist persist, final IPersistFactory persistFactory, final boolean flagChanged)
 	{
-		final Map<Integer, Integer> updatedElementIds = new HashMap<Integer, Integer>();
+		final Map<Object, Object> updatedElementIds = new HashMap<>();
 		persist.acceptVisitor(new IPersistVisitor()
 		{
 			public Object visit(IPersist o)
 			{
 				if (o instanceof AbstractBase)
 				{
+					UUID current = o.getUUID();
 					((AbstractBase)o).resetUUID();
 					try
 					{
 						int newElementID = persistFactory.getNewElementID(o.getUUID());
+						updatedElementIds.put(current.toString(), o.getUUID().toString());
 						updatedElementIds.put(Integer.valueOf(o.getID()), Integer.valueOf(newElementID));
 						((AbstractBase)o).setID(newElementID);
 						if (flagChanged) o.flagChanged();
