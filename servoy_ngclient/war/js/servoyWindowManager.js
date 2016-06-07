@@ -2,6 +2,21 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 .config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }])
+.directive('svyWindow', function () {
+	return {
+		restrict: 'A',
+        link: function (scope, element, attrs) {
+        	scope.lastElementFocused = function(e) {
+        		$('[tabindex=2]').focus();
+        	}
+
+        	scope.firstElementFocused = function(e) {
+        		var tabIndex = parseInt(element.find('#tabStop').attr('tabindex'));
+        		$('[tabindex=' + (tabIndex - 1) + ']').focus();
+        	}
+        }
+	};
+})
 .factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile','WindowType',
                                   function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
 	var WM = new WindowManager();
