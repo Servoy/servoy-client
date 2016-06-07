@@ -193,12 +193,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		this.changeMonitor = changeNotifier;
 
 		// register data link and find mode listeners as needed
-		dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, dpPD);
-		if (dataLinks == null)
-		{
-			// they weren't cached in form element; get them again
-			dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
-		}
+//		dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, dpPD);
+//		if (dataLinks == null)
+//		{
+//			// they weren't cached in form element; get them again
+//			dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
+//		}
+		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
 		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 
 		Boolean isFindModeAware = (Boolean)formElement.getPreprocessedPropertyInfo(IFindModeAwareType.class, dpPD);

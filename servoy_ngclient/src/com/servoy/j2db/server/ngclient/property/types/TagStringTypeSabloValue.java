@@ -51,16 +51,17 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		super(designValue, dataAdapterList);
 
 		this.dataConverterContext = dataConverterContext;
-		TargetDataLinks dl = null;
-		if (initialFormElementBasedValue)
-		{
-			dl = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd);
-		}
-		if (dl == null)
-		{
-			dl = ((TagStringPropertyType)pd.getType()).getDataLinks(getDesignValue(), pd, dataConverterContext.getSolution(), formElement);
-		}
-		dataLinks = dl;
+//		TargetDataLinks dl = null;
+//		if (initialFormElementBasedValue)
+//		{
+//			dl = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd);
+//		}
+//		if (dl == null)
+//		{
+//			dl = ((TagStringPropertyType)pd.getType()).getDataLinks(getDesignValue(), pd, dataConverterContext.getSolution(), formElement);
+//		}
+//		dataLinks = dl;
+		dataLinks = ((TagStringPropertyType)pd.getType()).getDataLinks(getDesignValue(), pd, dataConverterContext.getSolution(), formElement);
 
 		updateTagReplacedValue();
 	}
