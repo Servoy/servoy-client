@@ -75,10 +75,6 @@ div.svy-label-with-focus:focus{
 .svy-main-window-navigator-container {
 	z-index: 0;
 }
-.svy-absolutelayoutdiv
-{
-	position: relative;
-}
 
 /*BOOTSTRAP WINDOW CUSTOMIZATION*/
 .window .window-body,

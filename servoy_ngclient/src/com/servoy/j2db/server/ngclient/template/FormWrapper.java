@@ -30,9 +30,6 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
-import org.sablo.specification.PackageSpecification;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -46,7 +43,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
-import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -56,7 +52,6 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -261,23 +256,7 @@ public class FormWrapper
 		{
 			for (IFormElement component : components)
 			{
-				if (component.getParent() instanceof LayoutContainer)
-				{
-					LayoutContainer container = (LayoutContainer)component.getParent();
-					PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
-						container.getPackageName());
-					if (pkg != null)
-					{
-						WebLayoutSpecification spec = pkg.getSpecification(container.getSpecName());
-						if (NGUtils.isAbsoluteLayoutDiv(spec) && formElementValidator instanceof DefaultObjectWrapper)
-						{
-							Object wrappedComponent = ((DefaultObjectWrapper)formElementValidator).wrap(component);
-							sizes.put(((FormElementContext)(((StringModel)wrappedComponent).getWrappedObject())).getName(), container.getSize());
-						}
-					}
-
-				}
-				else if (component.getParent() instanceof FormReference && formElementValidator instanceof DefaultObjectWrapper)
+				if (component.getParent() instanceof FormReference && formElementValidator instanceof DefaultObjectWrapper)
 				{
 					Object wrappedComponent = ((DefaultObjectWrapper)formElementValidator).wrap(component);
 					Form designForm = context.getApplication().getFlattenedSolution().getForm(((FormReference)component.getParent()).getContainsFormID());

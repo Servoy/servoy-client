@@ -43,7 +43,6 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -170,13 +169,15 @@ public class FormLayoutStructureGenerator
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design)
 		throws IOException
 	{
-		PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
 		WebLayoutSpecification spec = null;
-		if (pkg != null)
+		if (container.getPackageName() != null)
 		{
-			spec = pkg.getSpecification(container.getSpecName());
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
+			if (pkg != null)
+			{
+				spec = pkg.getSpecification(container.getSpecName());
+			}
 		}
-		boolean isAbsoluteLayoutDiv = NGUtils.isAbsoluteLayoutDiv(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -247,20 +248,16 @@ public class FormLayoutStructureGenerator
 			writer.print("' ");
 		}
 		writer.print(" svy-autosave ");
-		if (isAbsoluteLayoutDiv)
-		{
-			// we need to specify the height
-			writer.print(" style='height:");
-			writer.print(container.getSize().height);
-			writer.print("px' ");
-		}
 		Map<String, String> attributes = new HashMap<String, String>(container.getAttributes());
-		for (String propertyName : spec.getAllPropertiesNames())
+		if (spec != null)
 		{
-			PropertyDescription pd = spec.getProperty(propertyName);
-			if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
+			for (String propertyName : spec.getAllPropertiesNames())
 			{
-				attributes.put(propertyName, pd.getDefaultValue().toString());
+				PropertyDescription pd = spec.getProperty(propertyName);
+				if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
+				{
+					attributes.put(propertyName, pd.getDefaultValue().toString());
+				}
 			}
 		}
 		for (Entry<String, String> entry : attributes.entrySet())
@@ -291,15 +288,7 @@ public class FormLayoutStructureGenerator
 			else if (component instanceof IFormElement)
 			{
 				FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, design);
-				if (isAbsoluteLayoutDiv)
-				{
-					FormLayoutGenerator.generateFormElementWrapper(writer, fe, design, form, false);
-				}
 				FormLayoutGenerator.generateFormElement(writer, fe, form, design);
-				if (isAbsoluteLayoutDiv)
-				{
-					FormLayoutGenerator.generateEndDiv(writer);
-				}
 			}
 		}
 		writer.print("</");

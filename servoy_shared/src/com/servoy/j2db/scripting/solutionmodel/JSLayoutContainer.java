@@ -38,7 +38,6 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
 public class JSLayoutContainer extends JSBaseContainer implements IJSParent<LayoutContainer>, IJavaScriptType
 {
-	private final IApplication application;
 	protected LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
 	private boolean isCopy = false;
@@ -46,7 +45,6 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public JSLayoutContainer(IJSParent< ? > parent, IApplication application, LayoutContainer layoutContainer)
 	{
 		super(application);
-		this.application = application;
 		this.layoutContainer = layoutContainer;
 		this.parent = parent;
 	}
