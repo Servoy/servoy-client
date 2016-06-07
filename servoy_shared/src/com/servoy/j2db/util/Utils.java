@@ -197,7 +197,8 @@ public final class Utils
 			throw new IllegalArgumentException("File Name == null"); //$NON-NLS-1$
 		}
 		String className = null;
-		if (name.toLowerCase().endsWith(".class")) { //$NON-NLS-1$
+		if (name.toLowerCase().endsWith(".class")) //$NON-NLS-1$
+		{
 			className = name.replace('/', '.');
 			className = className.replace('\\', '.');
 			className = className.substring(0, className.length() - 6);
@@ -1794,7 +1795,7 @@ public final class Utils
 
 	public static String calculateAndPrefixPBKDF2PasswordHash(String password)
 	{
-		return PBKDF2_PREFIX + calculatePBKDF2(password, 2000);
+		return PBKDF2_PREFIX + calculatePBKDF2(password, 9999);
 	}
 
 	/**
@@ -2611,7 +2612,8 @@ public final class Utils
 	public static boolean isValidEmailAddress(String email)
 	{
 		return (email != null
-			? (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,16})$", Pattern.CASE_INSENSITIVE).matcher(email).matches()) //$NON-NLS-1$
+			? (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,16})$", Pattern.CASE_INSENSITIVE).matcher( //$NON-NLS-1$
+				email).matches())
 			: false);
 	}
 

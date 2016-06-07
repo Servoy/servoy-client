@@ -862,7 +862,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Returns the PBKDF2 hash for specified text. This method is preferred above the old MD5 hash for enhanced security.
-	 * It uses a default of 2000 iterations. The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue)
+	 * It uses a default of 9999 iterations. The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue)
 	 * to check if this hash is a result of that password.
 	 * This will always be false: utils.stringPBKDF2Hash("test") == utils.stringPBKDF2Hash("test"). Because for the same string in multiply calls it will not generate the same hash.
 	 * So you can only check it like this: utils.validatePBKDF2Hash("test",utils.stringPBKDF2Hash("test"))
@@ -877,7 +877,7 @@ public class JSUtils implements IJSUtils
 	{
 		if (textString != null && !"".equals(textString))
 		{
-			return Utils.calculatePBKDF2(textString.toString(), 2000);
+			return Utils.calculatePBKDF2(textString.toString(), 9999);
 		}
 		return null;
 	}
@@ -1164,10 +1164,10 @@ public class JSUtils implements IJSUtils
 		else return text_to_format;
 	}
 
-	private final Character[] CONVERSIONS = new Character[] { Character.valueOf('b'), Character.valueOf('B'), Character.valueOf('h'), Character.valueOf('H'),//
-	Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'),//
-	Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
-	Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
+	private final Character[] CONVERSIONS = new Character[] { Character.valueOf('b'), Character.valueOf('B'), Character.valueOf('h'), Character.valueOf('H'), //
+		Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'), //
+		Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
+		Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
 
 	/**
 	 * Returns the number of words in the text string.
