@@ -18,7 +18,11 @@
 package com.servoy.j2db.persistence;
 
 import java.awt.Point;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -191,5 +195,58 @@ public class FormReference extends AbstractContainer implements IFormElement, IC
 	{
 		String name = getName();
 		return name == null ? "FormReference" : name;
+	}
+
+	public static Set<String> detectFormReferenceCycles(FlattenedSolution flattenedSolution, Form form)
+	{
+		if (form == null) return new HashSet<String>();
+		return detectFormReferenceCycles(flattenedSolution, form, new HashSet<Form>(), form.getName());
+	}
+
+	private static Set<String> detectFormReferenceCycles(FlattenedSolution flattenedSolution, Form form, Set<Form> forms, String path)
+	{
+		Set<String> paths = new HashSet<String>();
+		forms.add(form);
+		Iterator<FormReference> refs = form.getFormReferences();
+		while (refs.hasNext())
+		{
+			FormReference ref = refs.next();
+			if (ref.getContainsFormID() > 0)
+			{
+				Form containedForm = flattenedSolution.getForm(ref.getContainsFormID());
+				path = path + "-> references '" + containedForm.getName() + "'";
+				if (forms.contains(containedForm))
+				{
+					paths.add(path);
+					return paths;
+				}
+				else
+				{
+					paths.addAll(detectFormReferenceCycles(flattenedSolution, containedForm, new HashSet<Form>(forms), path));
+				}
+
+			}
+		}
+
+		Form f = form;
+		while (f.getExtendsForm() != null)
+		{
+			path = path + " ->extends '" + f.getExtendsForm().getName() + "'";
+			if (forms.contains(f))
+			{
+				if(form != f)
+				{
+					paths.add(path);
+					return paths;
+				}
+			}
+			else
+			{
+				paths.addAll(detectFormReferenceCycles(flattenedSolution, f.getExtendsForm(), new HashSet<Form>(forms), path));
+			}
+
+			f = f.getExtendsForm();
+		}
+		return paths;
 	}
 }

@@ -57,7 +57,7 @@ public class FlattenedFormReference extends FormReference implements IFlattenedP
 		if (formReference.getContainsFormID() > 0)
 		{
 			Form referenceForm = flattenedSolution.getForm(formReference.getContainsFormID());
-			if (referenceForm != null)
+			if (referenceForm != null && detectFormReferenceCycles(flattenedSolution, referenceForm).isEmpty())
 			{
 				referenceForm = flattenedSolution.getFlattenedForm(referenceForm);
 				if (referenceForm != null)
