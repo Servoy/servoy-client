@@ -45,17 +45,22 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
+import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.component.RuntimeFormReference;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
@@ -131,8 +136,14 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		dataAdapterList = new DataAdapterList(formController);
 
 		ElementScope elementsScope = initElementScope(formController);
+
+		initFormReferencesScripting(elementsScope, formController.getForm());
+
+		Map<String, RuntimeFormReference> runtimeFormReferences = new HashMap<String, RuntimeFormReference>();
+		extractFormReferences(getElementsScope(), runtimeFormReferences);
+		Map<IPersist, FormReference> childParentMap = extractChildParentMap();
+
 		List<FormElement> formElements = getFormElements();
-		int counter = 0;
 		for (FormElement fe : formElements)
 		{
 			// TODO do something similar for child elements (so properties of type 'components' which contain componentSpecs in them)
@@ -148,7 +159,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 			if (component != null)
 			{
-				counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
+				contributeComponentToElementsScope(elementsScope, fe, componentSpec, component, childParentMap, runtimeFormReferences);
 			}
 			if (fe.getPersistIfAvailable() instanceof TabPanel)
 			{
@@ -212,9 +223,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		ElementScope elementsScope = getElementsScope();
 		if (elementsScope != null)
 		{
-			Object tmp = elementsScope.get("length", elementsScope);
-			int counter = tmp instanceof Integer ? ((Integer)tmp).intValue() : 0;
-			contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
+			Map<String, RuntimeFormReference> runtimeFormReferences = new HashMap<String, RuntimeFormReference>();
+			extractFormReferences(getElementsScope(), runtimeFormReferences);
+			contributeComponentToElementsScope(elementsScope, fe, componentSpec, component, extractChildParentMap(), runtimeFormReferences);
 		}
 		else
 		{
@@ -222,10 +233,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 	}
 
-	private int contributeComponentToElementsScope(ElementScope elementsScope, int counterStart, FormElement fe, WebObjectSpecification componentSpec,
-		WebFormComponent component)
+	private void contributeComponentToElementsScope(ElementScope elementsScope, FormElement fe, WebObjectSpecification componentSpec,
+		WebFormComponent component, Map<IPersist, FormReference> childParentMap, Map<String, RuntimeFormReference> runtimeFormReferences)
 	{
-		int counter = counterStart;
 		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) && (!fe.getName().startsWith("svy_") ||
 			(fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
 		{
@@ -240,8 +250,28 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			}
 			if (!fe.getName().startsWith("svy_"))
 			{
-				elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
-				elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
+				DefaultScope parentScope = elementsScope;
+				FormReference formReference = null;
+				if (fe.getPersistIfAvailable() != null && childParentMap != null && childParentMap.containsKey(fe.getPersistIfAvailable()))
+				{
+					formReference = childParentMap.get(fe.getPersistIfAvailable());
+					if (formReference != null)
+					{
+						if (formReference.getName() != null && runtimeFormReferences != null && runtimeFormReferences.containsKey(formReference.getName()))
+						{
+							parentScope = runtimeFormReferences.get(formReference.getName());
+						}
+						else
+						{
+							parentScope = null;
+						}
+					}
+				}
+				if (parentScope != null)
+				{
+					parentScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
+					parentScope.put(elementsScope.getNextIndex(), formController.getFormScope(), runtimeComponent);
+				}
 			}
 
 			String groupID = fe.getPersistIfAvailable() instanceof IFormElement ? ((IFormElement)fe.getPersistIfAvailable()).getGroupID() : null;
@@ -259,7 +289,74 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				group.add(runtimeComponent);
 			}
 		}
-		return counter;
+	}
+
+	private void initFormReferencesScripting(DefaultScope parentScope, AbstractContainer container)
+	{
+		List<FormReference> formReferences = container.getFormReferencesWithoutNesting();
+		for (FormReference formReference : formReferences)
+		{
+			if (formReference.getName() != null)
+			{
+				RuntimeFormReference runtimeFormReference = new RuntimeFormReference();
+				parentScope.put(formReference.getName(), formController.getFormScope(), runtimeFormReference);
+				parentScope.put(parentScope.getNextIndex(), formController.getFormScope(), runtimeFormReference);
+				initFormReferencesScripting(runtimeFormReference, formReference);
+			}
+		}
+	}
+
+	private void extractFormReferences(DefaultScope parentScope, Map<String, RuntimeFormReference> runtimeFormReferences)
+	{
+		if (parentScope != null)
+		{
+			String[] keys = parentScope.getKeys();
+			if (keys != null)
+			{
+				for (String key : keys)
+				{
+					Object value = parentScope.get(key, null);
+					if (value instanceof RuntimeFormReference)
+					{
+						runtimeFormReferences.put(key, (RuntimeFormReference)value);
+						extractFormReferences((RuntimeFormReference)value, runtimeFormReferences);
+					}
+				}
+			}
+		}
+	}
+
+	private Map<IPersist, FormReference> extractChildParentMap()
+	{
+		final Map<IPersist, FormReference> childParentMap = new HashMap<IPersist, FormReference>();
+		formController.getForm().acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(final IPersist o)
+			{
+				if (o instanceof FormReference)
+				{
+					o.acceptVisitor(new IPersistVisitor()
+					{
+						@Override
+						public Object visit(IPersist o2)
+						{
+							if (o2 instanceof FormReference && o2 != o)
+							{
+								return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+							}
+							if (o2 instanceof IFormElement)
+							{
+								childParentMap.put(o2, (FormReference)o);
+							}
+							return IPersistVisitor.CONTINUE_TRAVERSAL;
+						}
+					});
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+		return childParentMap;
 	}
 
 	public IServoyDataConverterContext getDataConverterContext()

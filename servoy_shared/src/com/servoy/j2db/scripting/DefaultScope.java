@@ -138,8 +138,8 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	 */
 	public void put(int index, Scriptable start, Object value)
 	{
-		if (locked) throw new WrappedException(new RuntimeException(Messages.getString(
-			"servoy.javascript.error.lockedForIndex", new Object[] { new Integer(index), value }))); //$NON-NLS-1$
+		if (locked) throw new WrappedException(
+			new RuntimeException(Messages.getString("servoy.javascript.error.lockedForIndex", new Object[] { new Integer(index), value }))); //$NON-NLS-1$
 		allIndex.put(new Integer(index), value);
 	}
 
@@ -157,8 +157,8 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	 */
 	public void delete(int index)
 	{
-		if (locked) throw new WrappedException(new RuntimeException(Messages.getString(
-			"servoy.javascript.error.lockedForDeleteIndex", new Object[] { new Integer(index) }))); //$NON-NLS-1$
+		if (locked) throw new WrappedException(
+			new RuntimeException(Messages.getString("servoy.javascript.error.lockedForDeleteIndex", new Object[] { new Integer(index) }))); //$NON-NLS-1$
 		allIndex.remove(new Integer(index));
 	}
 
@@ -218,6 +218,11 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	public Object[] getValues()
 	{
 		return allVars.values().toArray();
+	}
+
+	public String[] getKeys()
+	{
+		return allVars.keySet().toArray(new String[0]);
 	}
 
 	/**
@@ -315,6 +320,11 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 				Utils.mapRemoveByValue(name, allIndex);
 			}
 		}
+	}
+
+	public int getNextIndex()
+	{
+		return allIndex.size();
 	}
 
 }
