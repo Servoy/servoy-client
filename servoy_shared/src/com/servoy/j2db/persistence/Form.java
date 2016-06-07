@@ -29,7 +29,6 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -1994,7 +1993,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * Returns true if this form is in responsive layout
 	 * Currently its always in responsive layout when it has layout containers
-	 * or if it is an form that has no parts and no elements.
 	 *
 	 * @return true if in responsive layout
 	 */
@@ -2003,6 +2001,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		Object customProperty = getCustomProperty(new String[] { "layout", "responsive" });
 		if (customProperty instanceof Boolean) return ((Boolean)customProperty).booleanValue();
+		if (getExtendsForm() != null && getExtendsForm().isResponsiveLayout()) return true;
 		// backwards, always just return true if it has layout containers.
 		return getLayoutContainers().hasNext();
 	}
