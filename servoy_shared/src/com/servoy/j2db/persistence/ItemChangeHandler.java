@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.WeakHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.servoy.j2db.util.Debug;
 
@@ -44,7 +45,7 @@ public class ItemChangeHandler<E, I>
 			List<IItemChangeListener<I>> itemListeners = listeners.get(element);
 			if (itemListeners == null)
 			{
-				itemListeners = new ArrayList<IItemChangeListener<I>>();
+				itemListeners = new CopyOnWriteArrayList<IItemChangeListener<I>>();
 				listeners.put(element, itemListeners);
 			}
 			if (!itemListeners.contains(listener))
