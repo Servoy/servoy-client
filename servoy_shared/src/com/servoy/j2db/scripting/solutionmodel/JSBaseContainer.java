@@ -298,6 +298,10 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * Create a new layout container. The position is used to determine the generated order in html markup.
 	 * This method can only be used in responsive forms.
 	 *
+	 * If you want to use default values and so on from a layout package (like 12grid) or if you use the solution model
+	 * to create a form that is saved back into the workspace (servoyDeveloper.save(form)) then you have to set the
+	 * packageName and specName properties. So that it works later on in the designer.
+	 *
 	 * @sample
 	 * var container = form.newLayoutContainer(1);
 	 * @param position the position of JSWebComponent object in its parent container
