@@ -40,6 +40,12 @@ public class MSSQLTemplate extends ServerTemplateDefinition
 	}
 
 	@Override
+	public String[] getUrlKeyDescriptions()
+	{
+		return new String[] { "The host name where your MS SQL DB server can be found.", "MS SQL database name to connect to." };
+	}
+
+	@Override
 	public String[] getUrlValues(String url)
 	{
 		String server = "";
@@ -90,6 +96,6 @@ public class MSSQLTemplate extends ServerTemplateDefinition
 	@Override
 	public String getDriverDownloadURL()
 	{
-		return "https://msdn.microsoft.com/en-us/library/mt683470(v=sql.110).aspx";
+		return "https://msdn.microsoft.com/en-us/library/ms378526%28v=sql.110%29.aspx";
 	}
 }

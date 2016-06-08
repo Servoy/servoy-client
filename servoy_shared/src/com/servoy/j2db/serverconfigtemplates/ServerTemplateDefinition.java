@@ -20,11 +20,15 @@ package com.servoy.j2db.serverconfigtemplates;
 import com.servoy.j2db.persistence.ServerConfig;
 
 /**
- * @author gboros
+ * Base class and generic implementation for a type of DB server's connection attributes.
+ * It is meant to be extended per DB type to split URL into multiple simpler fields and be able to suggest driver download page/other details.
  *
+ * @author gboros
  */
 public class ServerTemplateDefinition
 {
+	public static final String JDBC_URL_DESCRIPTION = "URL of the JDBC connection to the DB.\nPlease see the documentation of the specific JDBC driver used to connect to your database (advanced -> driver).";
+
 	protected ServerConfig template;
 
 	public ServerTemplateDefinition(ServerConfig template)
@@ -42,6 +46,11 @@ public class ServerTemplateDefinition
 		return new String[] { "URL" };
 	}
 
+	public String[] getUrlKeyDescriptions()
+	{
+		return new String[] { JDBC_URL_DESCRIPTION };
+	}
+
 	public String[] getUrlValues(String url)
 	{
 		return new String[] { url };
@@ -49,11 +58,12 @@ public class ServerTemplateDefinition
 
 	public String getUrlForValues(String[] values)
 	{
-		return values != null && values.length > 0 ? values[0] : null;
+		return values != null && values.length == 1 ? values[0] : null;
 	}
 
 	public String getDriverDownloadURL()
 	{
 		return null;
 	}
+
 }

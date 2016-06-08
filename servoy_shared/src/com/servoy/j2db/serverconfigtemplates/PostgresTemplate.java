@@ -40,6 +40,12 @@ public class PostgresTemplate extends ServerTemplateDefinition
 	}
 
 	@Override
+	public String[] getUrlKeyDescriptions()
+	{
+		return new String[] { "The host name where your Postgres server can be found.", "Postgres database name to connect to." };
+	}
+
+	@Override
 	public String[] getUrlValues(String url)
 	{
 		String server = "";
@@ -77,4 +83,5 @@ public class PostgresTemplate extends ServerTemplateDefinition
 
 		return urlPattern.replace("<host_name>", server).replace("<database_name>", db);
 	}
+
 }
