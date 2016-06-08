@@ -98,7 +98,12 @@ public class JSFormReference implements IJSParent<FormReference>
 		}
 		else
 		{
-			formReference.setContainsFormID(((JSForm)form).getSupportChild().getID());
+			JSForm jsForm = (JSForm)form;
+			if (!formReference.canAddFormReference(application.getFlattenedSolution(), jsForm.form))
+			{
+				throw new RuntimeException("Cannot set contains form to " + form.getName() + ", it leads to form reference cycle.");
+			}
+			formReference.setContainsFormID(jsForm.getSupportChild().getID());
 		}
 	}
 

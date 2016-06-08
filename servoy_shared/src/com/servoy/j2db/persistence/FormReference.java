@@ -234,7 +234,7 @@ public class FormReference extends AbstractContainer implements IFormElement, IC
 			path = path + " ->extends '" + f.getExtendsForm().getName() + "'";
 			if (forms.contains(f))
 			{
-				if(form != f)
+				if (form != f)
 				{
 					paths.add(path);
 					return paths;
@@ -248,5 +248,35 @@ public class FormReference extends AbstractContainer implements IFormElement, IC
 			f = f.getExtendsForm();
 		}
 		return paths;
+	}
+
+	public boolean canAddFormReference(final FlattenedSolution flattenedSolution, Form toAdd)
+	{
+		Form form = (Form)getAncestor(IRepository.FORMS);
+		final Set<Form> exclude = new HashSet<Form>();
+		form.acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof FormReference && ((FormReference)o).getContainsFormID() > 0)
+				{
+					Form containedForm = flattenedSolution.getForm(((FormReference)o).getContainsFormID());
+					exclude.add(containedForm);
+
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+		Iterator<Form> forms = flattenedSolution.getForms(false);
+		while (forms.hasNext())
+		{
+			Form possibleParentForm = forms.next();
+			if (flattenedSolution.getFormHierarchy(possibleParentForm).contains(form))
+			{
+				exclude.add(possibleParentForm);
+			}
+		}
+		return !exclude.contains(toAdd);
 	}
 }
