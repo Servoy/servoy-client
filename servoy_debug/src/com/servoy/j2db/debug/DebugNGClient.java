@@ -309,15 +309,18 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
-		refreshForms(scopesAndFormsToReload[1]);
-
-		for (IFormController controller : scopesAndFormsToReload[0])
+		for (IFormController controller : scopesAndFormsToReload[1])
 		{
 			if (controller.getForm() instanceof FlattenedForm)
 			{
 				FlattenedForm ff = (FlattenedForm)controller.getForm();
 				ff.reload();
 			}
+		}
+		refreshForms(scopesAndFormsToReload[1]);
+
+		for (IFormController controller : scopesAndFormsToReload[0])
+		{
 			controller.getFormScope().reload();
 		}
 
