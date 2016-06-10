@@ -44,6 +44,8 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	 */
 	private long leastSignificantBits;
 
+	private boolean lowerCase = false;
+
 	/*
 	 * The random number generator used by this class to create random based UUIDs.
 	 */
@@ -81,6 +83,12 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	{
 		this.mostSignificantBits = mostSigBits;
 		this.leastSignificantBits = leastSigBits;
+	}
+
+	private UUID(long mostSigBits, long leastSigBits, boolean lowerCase)
+	{
+		this(mostSigBits, leastSigBits);
+		this.lowerCase = lowerCase;
 	}
 
 	/**
@@ -131,7 +139,9 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 		leastSigBits <<= 48;
 		leastSigBits |= Long.decode(components[4]).longValue();
 
-		return new UUID(mostSigBits, leastSigBits);
+		// Keep the original casing, when we do not keep that lots of issues arise, see SVY-10002.
+		// Also internally (like for security settings) we try to match UUIDs with lowercase value.
+		return new UUID(mostSigBits, leastSigBits, name.toLowerCase().equals(name));
 	}
 
 	// Field Accessor Methods
@@ -328,7 +338,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 		sb.append(digits(leastSignificantBits >> 48, 4));
 		sb.append('-');
 		sb.append(digits(leastSignificantBits, 12));
-		return sb.toString().toUpperCase();
+		return lowerCase ? sb.toString() : sb.toString().toUpperCase();
 	}
 
 	/** Returns val represented by the specified number of hex digits. */
