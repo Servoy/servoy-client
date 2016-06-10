@@ -190,10 +190,6 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}, 500);
 	});
 
-	$window.addEventListener('unload', function(event) {
-		$sabloApplication.disconnect();
-	});
-
 	function getFormUrl(formName) {
 		var realFormUrl = formTemplateUrls[formName];
 		if (realFormUrl == null || realFormUrl == undefined) {
