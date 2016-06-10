@@ -279,11 +279,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a responsive form:
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.newForm('test','db:/my_server/my_table', true);
 	 * var c = frm.newLayoutContainer(1);
-	 * 
+	 *
 	 * @param name The name of the new form
 	 * @param dataSource the form datasource
 	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
@@ -297,11 +297,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a responsive form:
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.newForm('test', true);
 	 * var c = frm.newLayoutContainer(1);
-	 * 
+	 *
 	 * @param name The name of the new form
 	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
 	 * @return a new JSForm object
@@ -530,7 +530,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	}
 
 	/**
-	 * Removes the relation specified by name. You cannot remove the the relation if it is touched within the application.
+	 * Removes the relation specified by name. You cannot remove the relation if it is touched within the application.
 	 * So even if you remove all the ui elements using it, like tabs, it still can't be removed, because of underlying created and cached data.
 	 *
 	 * @sample
