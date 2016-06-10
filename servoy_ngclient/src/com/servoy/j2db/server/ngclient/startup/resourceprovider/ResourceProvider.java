@@ -100,35 +100,61 @@ public class ResourceProvider implements Filter
 		return name;
 	}
 
-	public synchronized static void updateComponentResources(Collection<String> toRemove, Collection<IPackageReader> toAdd)
+	public synchronized static void setPackages(Collection<IPackageReader> newPackages)
 	{
-		for (String reader : toRemove)
+		List<String> toRemoveComponentNames = new ArrayList<String>();
+		List<String> toRemoveServiceNames = new ArrayList<String>();
+		for (String iPackageReaderName : componentReaders.keySet())
+		{
+			toRemoveComponentNames.add(iPackageReaderName);
+		}
+		for (String iPackageReaderName : serviceReaders.keySet())
+		{
+			toRemoveServiceNames.add(iPackageReaderName);
+		}
+		componentReaders.clear();
+		serviceReaders.clear();
+		for (IPackageReader reader : newPackages)
+		{
+			if (reader.getPackageType().equals(IPackageReader.WEB_SERVICE)) serviceReaders.put(getName(reader), reader);
+			else componentReaders.put(getName(reader), reader);
+		}
+
+		WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
+		WebServiceSpecProvider webServiceSpecProvider = WebServiceSpecProvider.getInstance();
+		if (webComponentSpecProvider == null || webServiceSpecProvider == null) initSpecProvider();
+		if (webComponentSpecProvider != null) webComponentSpecProvider.updatePackages(toRemoveComponentNames, componentReaders.values());
+		if (webServiceSpecProvider != null) webServiceSpecProvider.updatePackages(toRemoveServiceNames, serviceReaders.values());
+
+	}
+
+	public synchronized static void updatePackageResources(Collection<String> componentsToRemove, Collection<IPackageReader> componentsToAdd,
+		Collection<String> servicesToRemove, Collection<IPackageReader> servicesToAdd)
+	{
+		for (String reader : componentsToRemove)
 		{
 			componentReaders.remove(reader);
 		}
-		for (IPackageReader reader : toAdd)
+		for (IPackageReader reader : componentsToAdd)
 		{
 			componentReaders.put(getName(reader), reader);
 		}
 
-		WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
-		if (webComponentSpecProvider != null) webComponentSpecProvider.updatePackages(toRemove, toAdd);
-		else initSpecProvider();
-	}
-
-	public synchronized static void updateServiceResources(Collection<String> toRemove, Collection<IPackageReader> toAdd)
-	{
-		for (String reader : toRemove)
+		for (String reader : servicesToRemove)
 		{
 			serviceReaders.remove(reader);
 		}
-		for (IPackageReader reader : toAdd)
+		for (IPackageReader reader : servicesToAdd)
 		{
 			serviceReaders.put(getName(reader), reader);
 		}
 
-		WebServiceSpecProvider webServiceSpecProvider = WebServiceSpecProvider.getInstance();
-		if (webServiceSpecProvider != null) webServiceSpecProvider.updatePackages(toRemove, toAdd);
+		WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
+		if (webComponentSpecProvider != null)
+		{
+			WebServiceSpecProvider.getInstance().updatePackages(servicesToRemove, servicesToAdd);
+			webComponentSpecProvider.updatePackages(componentsToRemove, componentsToAdd);
+		}
 		else initSpecProvider();
 	}
 
