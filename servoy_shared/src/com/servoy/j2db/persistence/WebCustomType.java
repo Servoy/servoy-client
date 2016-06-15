@@ -293,4 +293,14 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		return webObjectImpl.getJson();
 	}
 
+	@Override
+	public void resetUUID(UUID uuidParam)
+	{
+		super.resetUUID(uuidParam);
+
+		JSONObject fullJSONInFrmFile = WebObjectImpl.getFullJSONInFrmFile(this, false);
+		if (fullJSONInFrmFile == null) fullJSONInFrmFile = new ServoyJSONObject();
+		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
+		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
+	}
 }

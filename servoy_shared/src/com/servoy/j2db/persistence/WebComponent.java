@@ -285,6 +285,30 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
+	public IPersist cloneObj(ISupportChilds newParent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames,
+		boolean flattenOverrides) throws RepositoryException
+	{
+		IPersist clone = super.cloneObj(newParent, deep, validator, changeName, changeChildNames, flattenOverrides);
+		if (deep && clone instanceof WebComponent)
+		{
+			clone.acceptVisitor(new IPersistVisitor()
+			{
+				@Override
+				public Object visit(IPersist o)
+				{
+					if (o instanceof WebCustomType)
+					{
+						((WebCustomType)o).resetUUID();
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
+			((WebComponent)clone).updateJSON();
+		}
+		return clone;
+	}
+
+	@Override
 	public void setExtendsID(int arg)
 	{
 		super.setExtendsID(arg);
