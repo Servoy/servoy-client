@@ -189,10 +189,6 @@ public abstract class AbstractBase implements IPersist
 		}
 	}
 
-	/**
-	 * @param propertyName
-	 * @param val
-	 */
 	private void setPropertyInternal(String propertyName, Object val)
 	{
 		Boolean newPropAndWasChanged = null;
@@ -897,7 +893,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 
-		if (customProperties == null) return null;
+		if (customProperties == null) return UNDEFINED;
 
 		if (jsonCustomProperties == null)
 		{
