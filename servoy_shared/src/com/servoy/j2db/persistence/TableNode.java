@@ -22,8 +22,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.servoy.base.util.DataSourceUtilsBase;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
@@ -198,7 +200,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
 			if (inmemDataSourceName != null)
 			{
-				return getRootObject().getServer(IServer.INMEM_SERVER).getTable(inmemDataSourceName);
+				if (J2DBGlobals.getServiceProvider() != null)
+				{
+					return J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
+				}
+				else
+				{
+					Debug.warn("Cannot retrieve in memory datasource: " + dataSource + ", there is no application available.");
+				}
 			}
 		}
 		catch (RemoteException e)
