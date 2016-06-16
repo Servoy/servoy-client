@@ -1106,6 +1106,15 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
+	public Object clearCustomDesignTimeProperty(String key)
+	{
+		if (key != null)
+		{
+			return clearCustomProperty(new String[] { "design", key }); //$NON-NLS-1$
+		}
+		return null;
+	}
+
 	public Map<String, Object> getCustomMobileProperties()
 	{
 		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { "mobile" });

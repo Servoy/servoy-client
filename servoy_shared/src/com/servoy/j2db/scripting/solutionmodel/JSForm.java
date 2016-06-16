@@ -4832,7 +4832,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)
 	{
-		return putDesignTimeProperty(key, null);
+		checkModification();
+		return Utils.parseJSExpression(form.clearCustomDesignTimeProperty(key));
 	}
 
 	/**
