@@ -783,15 +783,11 @@ public class WebDataField extends TextField<Object>
 
 		if (list != null)
 		{
-			if (!(list instanceof GlobalMethodValueList) && list instanceof CustomValueList && converter == null)
+			if (converter == null && mappedType == IColumnTypes.TEXT && list instanceof GlobalMethodValueList)
 			{
-				converter = new ValuelistValueConverter(list, this, converter);
+				converter = getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID());
 			}
-			else
-			{
-				converter = new ValuelistValueConverter(list, this, (converter == null && mappedType == IColumnTypes.TEXT)
-					? getTextConverter(parsedFormat, getLocale(), getName(), getDataProviderID()) : converter);
-			}
+			converter = new ValuelistValueConverter(list, this, converter);
 		}
 
 		if (converter == null) converter = super.getConverter(cls);
