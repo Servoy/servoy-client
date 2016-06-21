@@ -109,6 +109,20 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				refresh();
 			});        
 
+			$scope.$watch("model.visible", function(newValue,oldValue) {
+	    	  		if ($scope.model.selectedTab && newValue !== oldValue && $scope.model.selectedTab.containsFormId)
+	    	  		{
+	    	  			if (newValue)
+	    	  			{
+	    	  				$scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName);
+	    	  			}
+	    	  			else
+	    	  			{
+	    	  				$scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
+	    	  			}	
+	  			}	
+	  		  });
+			 
 			$scope.getTemplateUrl = function() {
 				if ($scope.model.tabOrientation == -1 || ($scope.model.tabOrientation == 0 && $scope.model.tabs.length == 1)) return "servoydefault/tabpanel/tablesspanel.html";
 				else if($scope.model.tabOrientation == -4) return "servoydefault/tabpanel/accordionpanel.html"

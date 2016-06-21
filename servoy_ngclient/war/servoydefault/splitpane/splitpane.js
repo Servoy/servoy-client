@@ -173,10 +173,34 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			});
 			$scope.$watch("model.tabs[1].containsFormId", function(newValue, oldValue) {
 				if (newValue) {
-					$scope.svyServoyapi.formWillShow(newValue, $scope.model.tabs[1].relationName, 0);
+					$scope.svyServoyapi.formWillShow(newValue, $scope.model.tabs[1].relationName, 1);
 				}
 			});
 
+			$scope.$watch("model.visible", function(newValue,oldValue) {
+    	  		if (newValue !== oldValue)
+    	  		{
+    	  			if (newValue)
+    	  			{
+    	  				if ($scope.model.tabs && $scope.model.tabs[0] && $scope.model.tabs[0].containsFormId) {
+    	  					$scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId, $scope.model.tabs[0].relationName,0);
+    	  				}
+    	  				if ($scope.model.tabs && $scope.model.tabs[1] && $scope.model.tabs[1].containsFormId) {
+    	  					$scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);
+    	  				}
+    	  			}
+    	  			else
+    	  			{
+    	  				if ($scope.model.tabs && $scope.model.tabs[0] && $scope.model.tabs[0].containsFormId) {
+    	  					$scope.svyServoyapi.hideForm($scope.model.tabs[0].containsFormId);
+    	  				}
+    	  				if ($scope.model.tabs && $scope.model.tabs[1] && $scope.model.tabs[1].containsFormId) {
+    	  					$scope.svyServoyapi.hideForm($scope.model.tabs[1].containsFormId);
+    	  				}
+    	  			}	
+  			}	
+  		  });
+			
 			$scope.api.getWidth = function() {
 				return $scope.model.anchors ? $apifunctions.getWidth($element[0])() : $scope.model.size.width;
 			}
