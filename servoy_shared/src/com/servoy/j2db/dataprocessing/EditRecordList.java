@@ -446,7 +446,7 @@ public class EditRecordList
 						{
 							if (editedRecords.get(j).getRawData() == toTest)
 							{
-								editedRecords.remove(j);
+								removeEditedRecord(editedRecords.get(j));
 							}
 						}
 					}
