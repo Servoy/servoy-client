@@ -435,6 +435,22 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
+				if (recordsToSave == null)
+				{
+					// if it is a save all, then first filter out all the duplicate rows.
+					for (int i = 0; i < editedRecords.size(); i++)
+					{
+						Row toTest = editedRecords.get(i).getRawData();
+						for (int j = editedRecords.size(); --j > i;)
+						{
+							if (editedRecords.get(j).getRawData() == toTest)
+							{
+								editedRecords.remove(j);
+							}
+						}
+					}
+				}
+
 				Map<IRecordInternal, Integer> processed = new HashMap<IRecordInternal, Integer>();
 				for (IRecordInternal tmp = getFirstElement(editedRecords, recordsToSave); tmp != null; tmp = getFirstElement(editedRecords, recordsToSave))
 				{
