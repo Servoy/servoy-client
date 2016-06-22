@@ -83,11 +83,6 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 		return (Color)(rhinoValue instanceof Color ? rhinoValue : null);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Color fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
@@ -103,11 +98,6 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Object toDesignValue(Object value, PropertyDescription pd)
 	{

@@ -129,11 +129,6 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 		return windowId != null ? getWindow(windowId) : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.RuntimeWindowManager#getWindow(java.lang.String)
-	 */
 	@Override
 	public NGRuntimeWindow getWindow(String windowName)
 	{

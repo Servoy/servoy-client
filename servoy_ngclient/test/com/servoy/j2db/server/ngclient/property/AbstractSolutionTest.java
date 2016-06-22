@@ -348,7 +348,7 @@ public abstract class AbstractSolutionTest
 				public boolean isOpen()
 				{
 					// TODO Auto-generated method stub
-					return false;
+					return true;
 				}
 
 				@Override
