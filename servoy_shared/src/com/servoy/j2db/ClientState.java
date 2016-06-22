@@ -148,7 +148,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		//security check:all subclasses should be signed by same certificateS, this way unsigned subclasses are impossible to run
 		if (!Utils.equalObjects(this.getClass().getSigners(), ClientState.class.getSigners()))
 		{
-			throw new IllegalStateException();
+			throw new IllegalStateException(
+				"The following classes need to be signed by the same certificates: " + this.getClass().getName() + " and " + ClientState.class.getName() + ".");
 		}
 		clientInfo = new ClientInfo();
 
