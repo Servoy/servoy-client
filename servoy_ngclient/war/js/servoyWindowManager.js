@@ -316,10 +316,6 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		show: function(name,form, title) {
 			var instance = instances[name];
 			if (instance) {
-				if(instance.bsWindowInstance){
-					// do nothing switchform will switch the form.
-					return;
-				}
 				if($(document).find('[svy-window]').length < 1) {
 					$("#mainForm").trigger("disableTabseq");
 				}
