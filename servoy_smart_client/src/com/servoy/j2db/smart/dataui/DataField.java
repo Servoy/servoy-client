@@ -1272,8 +1272,8 @@ public class DataField extends JFormattedTextField
 			{
 				undoManager.setIgnoreEdits(false);
 			}
+			setValueValid(true, null);
 		}
-		setValueValid(true, null);
 	}
 
 	protected boolean skipPropertyChange = false;
