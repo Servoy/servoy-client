@@ -174,9 +174,10 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 				} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 					// granular updates received;
 					
-					if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an object value was set completely in browser and the child values need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child values
+					if (serverJSONValue[INITIALIZE] || !currentClientValue[$sabloConverters.INTERNAL_IMPL]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an object value was set completely in browser and the child values need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child values
 					
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					if (typeof serverJSONValue[PUSH_TO_SERVER] !== 'undefined') internalState[PUSH_TO_SERVER] = serverJSONValue[PUSH_TO_SERVER];
 
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
 					// we ignore this update and expect a fresh full copy of the object from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)

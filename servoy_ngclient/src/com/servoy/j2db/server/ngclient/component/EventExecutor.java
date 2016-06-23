@@ -198,6 +198,7 @@ public class EventExecutor
 			IPersist persist = ((WebFormComponent)component).getFormElement().getPersistIfAvailable();
 			if (persist instanceof AbstractBase)
 			{
+				// TODO for FormComponents this goes back the the persist itself of the form component not the button on the form.
 				List<Object> instanceMethodArguments = ((AbstractBase)persist).getFlattenedMethodArguments(eventType);
 				if (instanceMethodArguments != null && instanceMethodArguments.size() > 0)
 				{

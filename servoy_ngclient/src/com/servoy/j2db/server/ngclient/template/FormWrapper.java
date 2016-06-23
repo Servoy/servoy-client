@@ -30,6 +30,8 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -48,6 +50,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -246,6 +249,58 @@ public class FormWrapper
 			properties.put(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName(), BorderPropertyType.writeBorderToJson(border));
 		}
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
+	}
+
+	public String getHandlers()
+	{
+
+		StringBuilder sb = new StringBuilder(200);
+		sb.append('{');
+
+		for (FormElement fe : FormElementHelper.INSTANCE.getFormElements((Iterator)getBaseComponents().iterator(), context))
+		{
+			generateFormElementHandlers(sb, fe, fe.getName(), "");
+			sb.append(',');
+		}
+		sb.append('}');
+		return sb.toString();
+	}
+
+	/**
+	 * @param sb
+	 * @param fe
+	 */
+	private void generateFormElementHandlers(StringBuilder sb, FormElement fe, String topLevelName, String prefix)
+	{
+		sb.append('\'');
+		sb.append(fe.getName());
+		sb.append("': {svy_servoyApi:servoyApi('");
+		sb.append(topLevelName);
+		sb.append("','");
+		sb.append(prefix);
+		sb.append("')");
+		for (String handler : fe.getHandlers())
+		{
+			sb.append(",'");
+			sb.append(handler);
+			sb.append("':getExecutor('");
+			sb.append(topLevelName);
+			sb.append("','");
+			sb.append(prefix);
+			sb.append(handler);
+			sb.append("')");
+		}
+		Collection<PropertyDescription> properties = fe.getWebComponentSpec().getProperties(new CustomJSONObjectType<>(null, null));
+		for (PropertyDescription pd : properties)
+		{
+			Object propertyValue = fe.getPropertyValue(pd.getName());
+			if (propertyValue instanceof FormElement)
+			{
+				sb.append(',');
+				generateFormElementHandlers(sb, (FormElement)propertyValue, topLevelName, prefix + ((FormElement)propertyValue).getName() + '.');
+			}
+		}
+		sb.append('}');
 	}
 
 	public String getContainerSizesString() throws JSONException, IllegalArgumentException, TemplateModelException

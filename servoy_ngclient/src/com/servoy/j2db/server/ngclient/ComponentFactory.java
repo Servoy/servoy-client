@@ -17,9 +17,13 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.CustomJSONObjectType;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IPersist;
@@ -61,10 +65,10 @@ public class ComponentFactory
 			for (String propName : fe.getRawPropertyValues().keySet())
 			{
 				//TODO this if should not be necessary. currently in the case of "printable" hidden property
-				if (componentSpec.getProperty(propName) == null) continue;
+				if (componentSpec.getProperty(propName) == null || fe.getPropertyValue(propName) instanceof FormElement) continue;
 				Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
 				if (value == null) continue;
-				fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent);
+				fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent, "");
 			}
 
 			// overwrite accessible
@@ -95,41 +99,25 @@ public class ComponentFactory
 
 
 			// TODO should this be a part of type conversions for handlers instead?
-			for (String eventName : componentSpec.getHandlers().keySet())
+			addAllEvents(webComponent, componentSpec, fe, application, "");
+
+			// now fill all the properties and events of the FormComponent fields
+			Collection<PropertyDescription> properties = componentSpec.getProperties(new CustomJSONObjectType<>(null, null));
+			for (PropertyDescription pd : properties)
 			{
-				Object eventValue = fe.getPropertyValue(eventName);
-				if (eventValue instanceof String)
+				String prefix = pd.getName() + '.';
+				WebObjectSpecification spec = (WebObjectSpecification)pd;
+				FormElement feValue = (FormElement)fe.getPropertyValue(pd.getName());
+				webComponent.setProperty(pd.getName(), new HashMap<>());
+				for (String propName : feValue.getRawPropertyValues().keySet())
 				{
-					UUID uuid = UUID.fromString((String)eventValue);
-					IPersist function = application.getFlattenedSolution().searchPersist(uuid);
-					if (function != null)
-					{
-						webComponent.add(eventName, function.getID());
-					}
-					else
-					{
-						Debug.warn("Event handler for " + eventName + " not found (form " + fe.getForm().getName() + ", form element " + fe.getName() + ")");
-					}
+					//TODO this if should not be necessary. currently in the case of "printable" hidden property
+					if (spec.getProperty(propName) == null) continue;
+					Object value = feValue.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
+					if (value == null) continue;
+					fillProperty(value, feValue.getPropertyValue(propName), spec.getProperty(propName), webComponent, prefix);
 				}
-				else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
-				{
-					webComponent.add(eventName, ((Number)eventValue).intValue());
-				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-					(fe.getForm().getOnElementFocusGainedMethodID() > 0))
-				{
-					webComponent.add(eventName, fe.getForm().getOnElementFocusGainedMethodID());
-				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-					(fe.getForm().getOnElementFocusLostMethodID() > 0))
-				{
-					webComponent.add(eventName, fe.getForm().getOnElementFocusLostMethodID());
-				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-					(fe.getForm().getOnElementDataChangeMethodID() > 0))
-				{
-					webComponent.add(eventName, fe.getForm().getOnElementDataChangeMethodID());
-				}
+				addAllEvents(webComponent, spec, feValue, application, prefix);
 			}
 			// just created, it should have no changes.
 			webComponent.clearChanges();
@@ -138,7 +126,56 @@ public class ComponentFactory
 		return null;
 	}
 
-	protected static void fillProperty(Object propertyValue, Object formElementValue, PropertyDescription propertySpec, WebFormComponent component)
+	/**
+	 * @param webComponent
+	 * @param componentSpec
+	 * @param fe
+	 * @param application
+	 */
+	private static void addAllEvents(WebFormComponent webComponent, WebObjectSpecification componentSpec, FormElement fe, IApplication application,
+		String prefix)
+	{
+		for (String eventName : componentSpec.getHandlers().keySet())
+		{
+			Object eventValue = fe.getPropertyValue(eventName);
+			if (eventValue == null) continue;
+			if (eventValue instanceof String)
+			{
+				UUID uuid = UUID.fromString((String)eventValue);
+				IPersist function = application.getFlattenedSolution().searchPersist(uuid);
+				if (function != null)
+				{
+					webComponent.add(prefix + eventName, function.getID());
+				}
+				else
+				{
+					Debug.warn("Event handler for " + eventName + " not found (form " + fe.getForm().getName() + ", form element " + fe.getName() + ")");
+				}
+			}
+			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
+			{
+				webComponent.add(prefix + eventName, ((Number)eventValue).intValue());
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+				(fe.getForm().getOnElementFocusGainedMethodID() > 0))
+			{
+				webComponent.add(prefix + eventName, fe.getForm().getOnElementFocusGainedMethodID());
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+				(fe.getForm().getOnElementFocusLostMethodID() > 0))
+			{
+				webComponent.add(prefix + eventName, fe.getForm().getOnElementFocusLostMethodID());
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+				(fe.getForm().getOnElementDataChangeMethodID() > 0))
+			{
+				webComponent.add(prefix + eventName, fe.getForm().getOnElementDataChangeMethodID());
+			}
+		}
+	}
+
+	protected static void fillProperty(Object propertyValue, Object formElementValue, PropertyDescription propertySpec, WebFormComponent component,
+		String prefix)
 	{
 		String propName = propertySpec.getName();
 		if (propertyValue != null)
@@ -151,11 +188,11 @@ public class ComponentFactory
 			}
 			if (templatevalue)
 			{
-				component.setDefaultProperty(propName, propertyValue);
+				component.setDefaultProperty(prefix + propName, propertyValue);
 			}
 			else
 			{
-				component.setProperty(propName, propertyValue);
+				component.setProperty(prefix + propName, propertyValue);
 			}
 		}
 	}

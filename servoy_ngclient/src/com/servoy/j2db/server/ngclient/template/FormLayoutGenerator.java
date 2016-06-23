@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +35,7 @@ import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormManager;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -43,7 +45,9 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -58,6 +62,32 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class FormLayoutGenerator
 {
+
+	public static void generateFormComponent(Form form, FlattenedSolution fs, PrintWriter writer) throws IOException
+	{
+		Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (components.hasNext())
+		{
+			IPersist component = components.next();
+			if (component instanceof LayoutContainer)
+			{
+				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false);
+			}
+			else if (component instanceof IFormElement)
+			{
+				FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false);
+				if (form != null && !form.isResponsiveLayout())
+				{
+					FormLayoutGenerator.generateFormElementWrapper(writer, fe, false, form, form.isResponsiveLayout());
+				}
+				FormLayoutGenerator.generateFormElement(writer, fe, form, false);
+				if (form != null && !form.isResponsiveLayout())
+				{
+					FormLayoutGenerator.generateEndDiv(writer);
+				}
+			}
+		}
+	}
 
 	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design)
 	{

@@ -32,6 +32,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -307,7 +308,12 @@ public class NGConversions
 			if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || type instanceof IFormElementDefaultValueToSabloComponent)
 			{
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
-				if (type instanceof IFormElementToTemplateJSON)
+				if (value instanceof FormElement)
+				{
+					JSONUtils.addKeyIfPresent(writer, key);
+					return ((FormElement)value).propertiesAsTemplateJSON(writer, new FormElementContext((FormElement)value, formElementContext.getContext()));
+				}
+				else if (type instanceof IFormElementToTemplateJSON)
 				{
 					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, formElementContext);
 				}

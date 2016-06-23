@@ -245,31 +245,40 @@ public class NGClientEntryFilter extends WebEntry
 								Form form = (f != null ? fs.getFlattenedForm(f) : null);
 								if (form != null)
 								{
-									if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
-										fs.getLastModifiedTime())) return;
+//									if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
+//										fs.getLastModifiedTime())) return;
 
 									HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
 
-									boolean html = uri.endsWith(".html");
 									PrintWriter w = servletResponse.getWriter();
-									if (html && form.isResponsiveLayout())
+									if (Utils.getAsBoolean(request.getParameter("formcomponent")))
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design")));
+										FormLayoutGenerator.generateFormComponent(form, fs, w);
 									}
-									else if (uri.endsWith(".html"))
+									else
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutGenerator.generateRecordViewForm(w, form, formName,
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-											Utils.getAsBoolean(request.getParameter("design")));
-									}
-									else if (uri.endsWith(".js"))
-									{
-										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
-										new FormTemplateGenerator(
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-											false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl", w);
+										boolean html = uri.endsWith(".html");
+										if (html && form.isResponsiveLayout())
+										{
+											((HttpServletResponse)servletResponse).setContentType("text/html");
+											FormLayoutStructureGenerator.generateLayout(form, formName, fs, w,
+												Utils.getAsBoolean(request.getParameter("design")));
+										}
+										else if (uri.endsWith(".html"))
+										{
+											((HttpServletResponse)servletResponse).setContentType("text/html");
+											FormLayoutGenerator.generateRecordViewForm(w, form, formName,
+												wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+												Utils.getAsBoolean(request.getParameter("design")));
+										}
+										else if (uri.endsWith(".js"))
+										{
+											((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+											new FormTemplateGenerator(
+												wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+												false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl",
+													w);
+										}
 									}
 									w.flush();
 									return;

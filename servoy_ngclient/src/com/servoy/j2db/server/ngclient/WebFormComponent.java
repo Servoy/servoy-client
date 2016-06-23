@@ -12,7 +12,6 @@ import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
@@ -42,7 +41,7 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
-		super(name, WebComponentSpecProvider.getInstance().getWebComponentSpecification(fe.getTypeName()));
+		super(name, fe.getWebComponentSpec());
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 
@@ -266,7 +265,8 @@ public class WebFormComponent extends Container implements IContextProvider
 					!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
 				if (isValueValid)
 				{
-					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementDataChangeMethodID(), args);
+					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementDataChangeMethodID(),
+						args);
 				}
 			}
 

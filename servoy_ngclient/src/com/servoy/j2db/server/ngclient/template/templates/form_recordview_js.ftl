@@ -96,7 +96,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		return wrapper;
 	}
 
-	var servoyApi = function(beanname) {
+	var servoyApi = function(beanname, propertyPrefix) {
 		return {
 			formWillShow: function(formname,relationname,formIndex) {
 				$formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
@@ -108,10 +108,10 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				return $windowService.getFormUrl(formUrl);
 			},
 			startEdit: function(propertyName) {
-				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
+				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyPrefix + propertyName},true)
 			},
 			apply: function(propertyName) {
-				$servoyInternal.pushDPChange("${name}", beanname, propertyName);
+				$servoyInternal.pushDPChange("${name}", beanname, propertyPrefix + propertyName);
 			},
 			callServerSideApi: function(methodName,args) {
 				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
@@ -119,11 +119,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		}
 	}
 
-	$scope.handlers = {
-	<#list baseComponents as bc>
-		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
-	</#list>
-	}
+	$scope.handlers = ${handlers}
 
 
 	var wrapper = function(beanName) {

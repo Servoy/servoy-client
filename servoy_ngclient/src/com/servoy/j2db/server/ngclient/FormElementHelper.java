@@ -96,7 +96,7 @@ public class FormElementHelper
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (designer || (fs.getSolutionCopy(false) != null))
+		if (designer || (fs.getSolutionCopy(false) != null) || true)
 		{
 			if (propertyPath == null)
 			{

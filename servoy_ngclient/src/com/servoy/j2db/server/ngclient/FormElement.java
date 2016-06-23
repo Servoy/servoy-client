@@ -62,8 +62,10 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -128,13 +130,15 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		propertyValues = new HashMap<String, Object>();
 		propertyValues.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), persist.getName());
-		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
+		WebObjectSpecification webComponentSpec = getWebComponentSpec();
+		Map<String, PropertyDescription> specProperties = webComponentSpec.getProperties();
 		boolean addNameToPath = propertyPath.shouldAddElementNameAndClearFlag();
 		if (addNameToPath) propertyPath.add(getName());
 		Map<String, Object> map = persistImpl.getFormElementPropertyValues(fs, specProperties, propertyPath);
 
 		adjustLocationRelativeToPart(fs, map);
 		initTemplateProperties(specProperties, map, fs, propertyPath);
+		initFormComponnets(webComponentSpec, map);
 
 		if (willTurnIntoErrorBean)
 		{
@@ -347,6 +351,33 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		}
 	}
 
+	WebObjectSpecification cachedFormComponentSpec = null;
+
+	private void initFormComponnets(WebObjectSpecification spec, Map<String, Object> map)
+	{
+		Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+		if (properties.size() > 0)
+		{
+			cachedFormComponentSpec = new WebObjectSpecification(spec, spec.getName());
+			for (PropertyDescription pd : properties)
+			{
+				Object pv = map.get(pd.getName());
+				Form f = FormComponentPropertyType.INSTANCE.getForm(pv, fs);
+				if (f == null) continue;
+
+				List<IFormElement> formelements = f.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				for (IFormElement fe : formelements)
+				{
+					FormElement formElement = FormElementHelper.INSTANCE.getFormElement(fe, fs, null, false);
+					String propname = pd.getName() + '.' + formElement.getName();
+					cachedFormComponentSpec.putProperty(propname,
+						new WebObjectSpecification(formElement.getWebComponentSpec(), propname));
+					map.put(propname, formElement);
+				}
+			}
+		}
+	}
+
 	/**
 	 * Get some standard info that was pre-processed at template stage but is needed at runtime.
 	 *
@@ -437,6 +468,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 	public WebObjectSpecification getWebComponentSpec(boolean throwException)
 	{
+		if (cachedFormComponentSpec != null) return cachedFormComponentSpec;
 		WebObjectSpecification spec = null;
 		try
 		{
@@ -861,6 +893,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		return false;
 	}
 
+
 	private static class ClearFormElementCacheWhenSpecChanges implements ISpecReloadListener
 	{
 
@@ -873,5 +906,4 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		}
 
 	}
-
 }
