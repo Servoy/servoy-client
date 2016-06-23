@@ -2159,7 +2159,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		return getWebComponents(false);
 	}
 
-	private static JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	public static JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
 	{
 		if (application.getApplicationType() == IApplication.NG_CLIENT)
 		{
