@@ -737,11 +737,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					unselectedBackground = background;
 					lastEditorBgColor = background;
 				}
-				Color foreground = editor.getForeground();
-				if (foreground != null && !foreground.equals(lastEditorFgColor))
-				{
-					unselectedForeground = foreground;
-				}
 				Font editorFont = editor.getFont();
 				if (editorFont != null && !editorFont.equals(lastEditorFont))
 				{
@@ -750,6 +745,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 				if (editor instanceof IDisplayData && ((IDisplayData)editor).isValueValid() || !(editor instanceof IDisplayData))
 				{
+					Color foreground = editor.getForeground();
+					if (foreground != null && !foreground.equals(lastEditorFgColor))
+					{
+						unselectedForeground = foreground;
+					}
+
 					Color currentForeground = (fgColor != null ? fgColor : (unselectedForeground != null) ? unselectedForeground : jtable.getForeground());
 					renderer.setForeground(currentForeground);
 				}
