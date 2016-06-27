@@ -868,6 +868,32 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return true;
 	}
 
+	public boolean containsGlobal()
+	{
+		if (isValid())
+		{
+			List<IPersist> allobjects = getAllObjectsAsList();
+			if (allobjects.size() == 0) return false;
+			for (IPersist ri : allobjects)
+			{
+				String primaryDataProviderID = ((RelationItem)ri).getPrimaryDataProviderID();
+				if (primaryDataProviderID != null)
+				{
+					if (ScopesUtils.isVariableScope(primaryDataProviderID) || primaryDataProviderID.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+					{
+						return true;
+					}
+				}
+				else
+				{
+					Debug.error("Relation '" + getName() + "' has NULL primary dataprovider in a relation item. Solution: " + getRootObject()); //$NON-NLS-1$//$NON-NLS-2$
+					throw new NullPointerException();
+				}
+			}
+		}
+		return false;
+	}
+
 	public boolean isLiteral()
 	{
 		if (isLiteral == null)
