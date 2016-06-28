@@ -91,7 +91,12 @@ public class FoundsetTypeViewport
 		int oldStartIndex = this.startIndex;
 		int oldSize = this.size;
 
-		if (foundset != null) foundset.removeFoundSetEventListener(getFoundsetEventListener());
+		int oldFoundsetSize = 0;
+		if (foundset != null)
+		{
+			foundset.removeFoundSetEventListener(getFoundsetEventListener());
+			oldFoundsetSize = foundset.getSize();
+		}
 		if (positiveOrNegativeRecordNo >= 0)
 		{
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
@@ -105,7 +110,11 @@ public class FoundsetTypeViewport
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
-		if (foundset != null) foundset.addFoundSetEventListener(getFoundsetEventListener());
+		if (foundset != null)
+		{
+			if (foundset.getSize() != oldFoundsetSize) changeMonitor.foundSetSizeChanged();
+			foundset.addFoundSetEventListener(getFoundsetEventListener());
+		}
 	}
 
 	/**
