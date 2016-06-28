@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -238,6 +239,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (client != null) sendSolutionCSSURL(client.getSolution());
 	}
 
+	private List<String> lastSentStyleSheets;
+
 	protected void sendSolutionCSSURL(Solution solution)
 	{
 		Map<String, String> overrideStyleSheets = client != null ? client.getOverrideStyleSheets() : null;
@@ -254,17 +257,37 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 				}
 			}
+			if (compareList(lastSentStyleSheets, styleSheets)) return;
+			lastSentStyleSheets = new ArrayList<String>(styleSheets);
 			Collections.reverse(styleSheets);
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i));
 			}
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets",
+				new Object[] { styleSheets.toArray(new String[0]), false });
 		}
 		else
 		{
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
+			if (lastSentStyleSheets != null && lastSentStyleSheets.size() > 0)
+			{
+				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
+			}
+			lastSentStyleSheets = null;
 		}
+	}
+
+	private boolean compareList(List<String> list1, List<String> list2)
+	{
+		if (list1 == null) return list2 == null || list2.size() == 0;
+		if (list2 == null) return list1 == null || list1.size() == 0;
+		if (list1.size() == list2.size())
+		{
+			List<String> list1Copy = new ArrayList<String>(list1);
+			list1Copy.retainAll(list2);
+			return list1Copy.size() == list2.size();
+		}
+		return false;
 	}
 
 	@Override
