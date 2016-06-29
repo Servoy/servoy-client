@@ -93,6 +93,10 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 				},
 				init: function() {
 		      		if(theTree) theTreeDefer.resolve(theTree);
+				},
+				lazyLoad: function(event, data){
+					var nodeChildrenInfo = data.node.data.getChildren;				      
+					data.result = getChildren(nodeChildrenInfo.foundset, nodeChildrenInfo.foundsethash, nodeChildrenInfo.foundsetpk, nodeChildrenInfo.binding, nodeChildrenInfo.level);
 				}
  			});
       		theTree = theTree.fancytree("getTree");
@@ -170,10 +174,19 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 											if(jQuery.contains(document.documentElement, $element.get(0)) && ($scope.pendingChildrenRequests < 1)) {
 												refresh();
 											}
-										});									
-										item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource), level);
-										if(item.children.length > 0) {
-											item.folder = "true";
+										});
+										
+										if(rfoundset && rfoundset.viewPort.rows.length > 0) {
+											item.folder = true;
+											item.lazy = true;
+											
+											item.data.getChildren = {
+													foundset: rfoundset,
+													foundsethash: rfoundsetinfo.foundsethash,
+													foundsetpk: rfoundsetinfo.foundsetpk,
+													binding: getBinding(rfoundsetinfo.foundsetdatasource),
+													level: level
+											}
 										}
 										$scope.pendingChildrenRequests = $scope.pendingChildrenRequests - 1;
 									});
@@ -226,8 +239,9 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 	    					item.data.methodToCallOnDoubleClickParamValue = foundset.viewPort.rows[i][binding.methodToCallOnDoubleClick.param];
 	    				}    				    				
 	    			}
-	
+	    			
 	    			returnChildren.push(item);
+	    			
 	    			if(binding.nrelationname) {
 	    				$scope.pendingChildrenRequests = $scope.pendingChildrenRequests + 1; 
 	    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
@@ -293,8 +307,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
   		}
   		
       	function refresh() {
-			if($scope.pendingChildrenRequests < 1 && $scope.model.roots && $scope.model.roots.length > 0) {
-			
+			if($scope.pendingChildrenRequests < 1 && $scope.model.roots && $scope.model.roots.length > 0) {	
 				for(var wKey in foundsetChangeWatches) {
 					// foundset_manager.removeFoundSetFromCache(wKey);
 					if(foundsetChangeWatches[wKey]) {
@@ -390,11 +403,11 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     			}
       		}
       	}
-
+      	
       	$scope.api.getSelectionPath = function() {
       		return $scope.model.selection;
       	}
-
+      	
   		$scope.$watch('model.roots', function(newValue) {
   			$scope.api.refresh();
 		})
