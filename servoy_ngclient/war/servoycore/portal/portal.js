@@ -989,7 +989,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					},
 					infiniteScrollRowsFromEnd: $scope.pageSize
 			};
-
+			
 			if ($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
 					$scope.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.ALWAYS;
 			else if ( $scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER)
@@ -1049,6 +1049,21 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				});
 				
 				$scope.gridApi.core.on.scrollEnd($scope, function (e) {
+					// check if we need to load extra records for infinite scroll
+					if(!$scope.gridApi.grid.infiniteScroll.dataLoading) {
+						var targetPercentage = $scope.gridApi.grid.options.infiniteScrollRowsFromEnd / $scope.gridApi.grid.renderContainers.body.visibleRowCache.length;
+			            var percentage = 1 - e.y.percentage;
+			            if (percentage <= targetPercentage){
+			              var extraSize = Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size);
+			              if (extraSize !== 0)
+			              {
+			            	  	$scope.gridApi.infiniteScroll.saveScrollPercentage();
+								shouldCallDataLoaded = true;
+								$scope.foundset.loadExtraRecordsAsync(extraSize);
+			              }
+			            }						
+					}
+
 					if(e.source == "ViewPortScroll" && focusedRowId) {
 						for (var renderRowIndex in cellAPICaches) {
 							if (cellAPICaches[renderRowIndex].rowId == focusedRowId) {
