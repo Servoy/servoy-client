@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.sablo.eventthread.IEventDispatcher;
@@ -47,6 +48,7 @@ import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
@@ -360,8 +362,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		super.updateLastAccessed(window);
 
+		// see that the app server is still running
+		IApplicationServerSingleton as = ApplicationServerRegistry.get();
+		ScheduledExecutorService ee = (as != null ? as.getExecutor() : null);
+
 		// check for window activity each time a window is closed, after the timeout period
-		ApplicationServerRegistry.get().getExecutor().schedule(new Runnable()
+		if (ee != null) ee.schedule(new Runnable()
 		{
 			@Override
 			public void run()
