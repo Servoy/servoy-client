@@ -1050,6 +1050,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				
 				$scope.gridApi.core.on.scrollEnd($scope, function (e) {
 					// check if we need to load extra records for infinite scroll
+					// this is needed because Safari's elastic scrolling : when scrolling down and reaching the bottom,
+					// the scroll bounces up, firing a 'scroll up' event, that is not handled by ui-grid, those not loading
+					// possible additional rows
 					if(!$scope.gridApi.grid.infiniteScroll.dataLoading) {
 						var targetPercentage = $scope.gridApi.grid.options.infiniteScrollRowsFromEnd / $scope.gridApi.grid.renderContainers.body.visibleRowCache.length;
 			            var percentage = 1 - e.y.percentage;
