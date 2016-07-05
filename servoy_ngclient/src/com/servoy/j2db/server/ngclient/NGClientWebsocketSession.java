@@ -285,9 +285,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (list2 == null) return list1 == null || list1.size() == 0;
 		if (list1.size() == list2.size())
 		{
-			List<String> list1Copy = new ArrayList<String>(list1);
-			list1Copy.retainAll(list2);
-			return list1Copy.size() == list2.size();
+			return list1.containsAll(list2) && list2.containsAll(list1);
 		}
 		return false;
 	}
