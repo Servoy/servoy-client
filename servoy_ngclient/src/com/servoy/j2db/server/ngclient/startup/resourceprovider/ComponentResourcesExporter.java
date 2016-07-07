@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -42,13 +43,13 @@ public class ComponentResourcesExporter
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public static void copyDefaultComponentsAndServices(File tmpWarDir, List<String> excludedComponentPackages, List<String> excludedServicePackages)
-		throws IOException
+	public static void copyDefaultComponentsAndServices(File tmpWarDir, List<String> excludedComponentPackages, List<String> excludedServicePackages,
+		Map<String, File> allTemplates) throws IOException
 	{
 		List<String> excludedPackages = new ArrayList<String>();
 		if (excludedComponentPackages != null) excludedPackages.addAll(excludedComponentPackages);
 		if (excludedServicePackages != null) excludedPackages.addAll(excludedServicePackages);
-		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir, excludedPackages);
+		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir, excludedPackages, allTemplates);
 	}
 
 	/**
@@ -102,7 +103,7 @@ public class ComponentResourcesExporter
 	 * @param tmpWarDir
 	 * @throws IOException
 	 */
-	private static void copy(Enumeration<String> paths, File destDir, List<String> excludedPackages) throws IOException
+	private static void copy(Enumeration<String> paths, File destDir, List<String> excludedPackages, Map<String, File> allTemplates) throws IOException
 	{
 		if (paths != null)
 		{
@@ -115,13 +116,18 @@ public class ComponentResourcesExporter
 					if (excludedPackages == null || excludedPackages.indexOf(packageName) == -1)
 					{
 						File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
-						copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir, null);
+						copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir, null, allTemplates);
 					}
 				}
 				else
 				{
 					URL entry = Activator.getContext().getBundle().getEntry(path);
-					FileUtils.copyInputStreamToFile(entry.openStream(), new File(destDir, FilenameUtils.getName(path)));
+					File newFile = new File(destDir, FilenameUtils.getName(path));
+					FileUtils.copyInputStreamToFile(entry.openStream(), newFile);
+					if (newFile.getName().endsWith(".html"))
+					{
+						allTemplates.put(path.substring("war/".length()), newFile);
+					}
 				}
 			}
 		}

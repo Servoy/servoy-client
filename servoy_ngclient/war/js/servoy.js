@@ -1,4 +1,4 @@
-angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','ui.bootstrap'])
+angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {
 	var decorator = function($delegate,$injector) {
 		$delegate.callServerSideApi = function(serviceName,methodName,args) {

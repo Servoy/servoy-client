@@ -93,6 +93,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/servoytooltip.js", //
 		"js/fileupload.js", //
 		"js/servoy-components.js", //
+		"js/servoy_alltemplates.js", //
 		"js/servoy_app.js" };
 
 	private String[] locations;
