@@ -513,7 +513,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)
 	{
-		return putDesignTimeProperty(key, null);
+		return Utils.parseJSExpression(getBaseComponent(true).clearCustomDesignTimeProperty(key));
 	}
 
 	/** Get the design-time properties of an element.

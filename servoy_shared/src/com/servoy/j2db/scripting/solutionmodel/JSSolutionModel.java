@@ -40,16 +40,22 @@ import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractContainer;
+import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormReference;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -58,8 +64,10 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.solutionmodel.ISMForm;
@@ -72,6 +80,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
@@ -91,14 +100,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, //
-					FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
-					SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
-					VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
-					JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
-					JSList.class, JSInsetList.class, //
-					JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
-					JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSFormReference.class//
+				FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
+				SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
+				VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
+				JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
+				JSList.class, JSInsetList.class, //
+				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
+				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
+				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSFormReference.class//
 				};
 			}
 		});
@@ -2086,5 +2095,126 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSFormReference createFormReference(IJSParent< ? > parent, FormReference formReference)
 	{
 		return new JSFormReference(parent, application, formReference);
+	}
+
+	/**
+	 * Retrieves an element by its uuid.
+	 * @sample
+	 * solutionModel.getObjectByUUID(uuid)
+	 * @param uuid element uuid
+	 * @return found element
+	 */
+	@JSFunction
+	public Object getObjectByUUID(Object uuid)
+	{
+		UUID parsedUUID = Utils.getAsUUID(uuid, false);
+		if (parsedUUID != null)
+		{
+			IPersist persist = application.getFlattenedSolution().searchPersist(parsedUUID);
+			if (persist instanceof ValueList)
+			{
+				return new JSValueList((ValueList)persist, application, false);
+			}
+			if (persist instanceof Form)
+			{
+				return instantiateForm((Form)persist, false);
+			}
+			if (persist instanceof Media)
+			{
+				return new JSMedia((Media)persist, application.getFlattenedSolution(), false);
+			}
+			if (persist instanceof Relation)
+			{
+				return new JSRelation((Relation)persist, application, false);
+			}
+			if (persist instanceof ScriptVariable)
+			{
+				return new JSVariable(application, (ScriptVariable)persist, false);
+			}
+			if (persist instanceof ScriptMethod)
+			{
+				return new JSMethod((ScriptMethod)persist, application, false);
+			}
+			if (persist instanceof Style)
+			{
+				return new JSStyle(application, (Style)persist, false);
+			}
+			if (persist instanceof Part)
+			{
+				return JSPart.createPart((JSForm)getParentContainer(persist), (Part)persist, false);
+			}
+			if (persist instanceof LayoutContainer)
+			{
+				return new JSLayoutContainer(getParentContainer(persist), application, (LayoutContainer)persist);
+			}
+			if (persist instanceof FormReference)
+			{
+				return new JSFormReference(getParentContainer(persist), application, (FormReference)persist);
+			}
+			if (persist instanceof Field)
+			{
+				return JSField.createField(getParentContainer(persist), (Field)persist, application, false);
+			}
+			if (persist instanceof TabPanel)
+			{
+				return new JSTabPanel(getParentContainer(persist), (TabPanel)persist, application, false);
+			}
+			if (persist instanceof Portal)
+			{
+				return new JSPortal(getParentContainer(persist), (Portal)persist, application, false);
+			}
+			if (persist instanceof Bean)
+			{
+				return new JSBean(getParentContainer(persist), (Bean)persist, false);
+			}
+			if (persist instanceof GraphicalComponent)
+			{
+				if (ComponentFactory.isButton((GraphicalComponent)persist))
+				{
+					return new JSButton(getParentContainer(persist), (GraphicalComponent)persist, application, false);
+				}
+				else
+				{
+					return new JSLabel(getParentContainer(persist), (GraphicalComponent)persist, application, false);
+				}
+			}
+			if (persist instanceof WebComponent)
+			{
+				return JSBaseContainer.createWebComponent(getParentContainer(persist), (WebComponent)persist, application, false);
+			}
+		}
+		return null;
+	}
+
+	private IJSParent< ? > getParentContainer(IPersist persist)
+	{
+		IJSParent< ? > parent = null;
+		List<AbstractContainer> parentHierarchy = new ArrayList<AbstractContainer>();
+		IPersist currentParent = persist.getParent();
+		while (currentParent != null)
+		{
+			if (currentParent instanceof AbstractContainer)
+			{
+				parentHierarchy.add(0, (AbstractContainer)currentParent);
+			}
+			if (currentParent instanceof Form) break;
+			currentParent = currentParent.getParent();
+		}
+		for (AbstractContainer container : parentHierarchy)
+		{
+			if (container instanceof LayoutContainer)
+			{
+				parent = new JSLayoutContainer(parent, application, (LayoutContainer)persist);
+			}
+			if (container instanceof FormReference)
+			{
+				parent = new JSFormReference(parent, application, (FormReference)persist);
+			}
+			if (container instanceof Form)
+			{
+				parent = instantiateForm((Form)container, false);
+			}
+		}
+		return parent;
 	}
 }

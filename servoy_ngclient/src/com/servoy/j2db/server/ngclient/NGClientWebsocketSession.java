@@ -19,12 +19,14 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.sablo.eventthread.IEventDispatcher;
@@ -46,6 +48,7 @@ import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
@@ -238,6 +241,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (client != null) sendSolutionCSSURL(client.getSolution());
 	}
 
+	private List<String> lastSentStyleSheets;
+
 	protected void sendSolutionCSSURL(Solution solution)
 	{
 		Map<String, String> overrideStyleSheets = client != null ? client.getOverrideStyleSheets() : null;
@@ -254,17 +259,35 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 				}
 			}
+			if (compareList(lastSentStyleSheets, styleSheets)) return;
+			lastSentStyleSheets = new ArrayList<String>(styleSheets);
 			Collections.reverse(styleSheets);
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i));
 			}
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets",
+				new Object[] { styleSheets.toArray(new String[0]), false });
 		}
 		else
 		{
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
+			if (lastSentStyleSheets != null && lastSentStyleSheets.size() > 0)
+			{
+				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
+			}
+			lastSentStyleSheets = null;
 		}
+	}
+
+	private boolean compareList(List<String> list1, List<String> list2)
+	{
+		if (list1 == null) return list2 == null || list2.size() == 0;
+		if (list2 == null) return list1 == null || list1.size() == 0;
+		if (list1.size() == list2.size())
+		{
+			return list1.containsAll(list2) && list2.containsAll(list1);
+		}
+		return false;
 	}
 
 	@Override
@@ -337,8 +360,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		super.updateLastAccessed(window);
 
+		// see that the app server is still running
+		IApplicationServerSingleton as = ApplicationServerRegistry.get();
+		ScheduledExecutorService ee = (as != null ? as.getExecutor() : null);
+
 		// check for window activity each time a window is closed, after the timeout period
-		ApplicationServerRegistry.get().getExecutor().schedule(new Runnable()
+		if (ee != null) ee.schedule(new Runnable()
 		{
 			@Override
 			public void run()

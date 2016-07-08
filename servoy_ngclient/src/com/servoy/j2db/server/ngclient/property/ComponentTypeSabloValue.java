@@ -75,6 +75,7 @@ import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Value used at runtime in Sablo component.
@@ -314,7 +315,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		childComponent.setComponentContext(new ComponentContext(formElementValue.propertyPath));
-		formUI.contributeComponentToElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
+		if (componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag("addToElementsScope")))
+		{
+			formUI.contributeComponentToElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
+		}
 		for (String handler : childComponent.getFormElement().getHandlers())
 		{
 			Object value = childComponent.getFormElement().getPropertyValue(handler);

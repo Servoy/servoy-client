@@ -446,6 +446,9 @@ public class FormLayoutGenerator
 				writer.print(" svy-id='");
 				writer.print(getDesignId(fe));
 				writer.print("'");
+				writer.print(" svy-formelement-type='");
+				writer.print(fe.getTypeName());
+				writer.print("'");
 				List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
 				if (typeAndPropertyNames[0].size() > 0)
 				{

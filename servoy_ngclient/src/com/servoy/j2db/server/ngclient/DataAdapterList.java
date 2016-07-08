@@ -302,7 +302,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (!isGlobalScopeListener)
 			{
 				Relation relationObj = formController.getApplication().getFlattenedSolution().getRelation(relation);
-				if (relationObj != null && relationObj.isGlobal())
+				if (relationObj != null && relationObj.containsGlobal())
 				{
 					formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 					isGlobalScopeListener = true;

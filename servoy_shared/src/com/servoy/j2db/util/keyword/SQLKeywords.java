@@ -52,6 +52,7 @@ public class SQLKeywords
 	"longvarchar", 
 	"object", 
 	"other", 
+	"row", 
 	"temp", 
 	"text", 
 	"varchar_ignorecase", 
@@ -576,7 +577,7 @@ public class SQLKeywords
 	"xmltest", 
 	"xmlvalidate" 
 	};
-
+	
 	public static boolean checkIfKeyword(String name)
 	{
 		if (name == null) return false;

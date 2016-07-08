@@ -436,7 +436,23 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
-				Map<IRecordInternal, Integer> processed = new HashMap<>();
+				if (recordsToSave == null)
+				{
+					// if it is a save all, then first filter out all the duplicate rows.
+					for (int i = 0; i < editedRecords.size(); i++)
+					{
+						Row toTest = editedRecords.get(i).getRawData();
+						for (int j = editedRecords.size(); --j > i;)
+						{
+							if (editedRecords.get(j).getRawData() == toTest)
+							{
+								removeEditedRecord(editedRecords.get(j));
+							}
+						}
+					}
+				}
+
+				Map<IRecordInternal, Integer> processed = new HashMap<IRecordInternal, Integer>();
 				for (IRecordInternal tmp = getFirstElement(editedRecords, recordsToSave); tmp != null; tmp = getFirstElement(editedRecords, recordsToSave))
 				{
 					// check if we do not have an infinite recursive loop

@@ -392,7 +392,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		ScriptMethod method = form.getScriptMethod(name);
 		if (method != null)
 		{ // first remove from scopes , then remove from model copy - !important
-			//removeMethodFromScopes(method);
+				//removeMethodFromScopes(method);
 			form.removeChild(method);
 			refreshFromScopes();
 			return true;
@@ -1387,6 +1387,19 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 //			{
 //				throw new RuntimeException("Cant set an extends form with table: " + f.getTableName() + " on a form with table : " + form.getTableName());
 //			}
+			if (f.isResponsiveLayout() != form.isResponsiveLayout())
+			{
+				if (form.isResponsiveLayout())
+				{
+					throw new RuntimeException("Form '" + form.getName() + "' is a responsive layout form, it cannot extend form '" + f.getName() +
+						"' which is an absolute layout form.");
+				}
+				else
+				{
+					throw new RuntimeException("Form '" + form.getName() + "' is an absolute layout form, it cannot extend form '" + f.getName() +
+						"' which is a responsive layout form.");
+				}
+			}
 			form.setExtendsID(f.getID());
 		}
 	}
@@ -3341,7 +3354,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)
 	{
-		return putDesignTimeProperty(key, null);
+		checkModification();
+		return Utils.parseJSExpression(form.clearCustomDesignTimeProperty(key));
 	}
 
 	/**

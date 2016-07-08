@@ -33,7 +33,7 @@
 	        	"parameters":[
 								{
 						          "name":"previousIndex",
-								  "type":"Number"
+								  "type":"int"
 								}, 
 								{
 						          "name":"event",

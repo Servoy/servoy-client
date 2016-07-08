@@ -21,13 +21,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
-import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -189,13 +187,6 @@ public class FormLayoutStructureGenerator
 			JSONObject ngClass = new JSONObject();
 			if (spec != null)
 			{
-				List<String> allowedChildren = spec.getAllowedChildren();
-				if (allowedChildren.size() > 0)
-				{
-					writer.print(" svy-allowed-children=\"");
-					writer.print(StringUtil.join(allowedChildren, ","));
-					writer.print("\"");
-				}
 				writer.print(" svy-layoutname='");
 				writer.print(spec.getPackageName() + "." + spec.getName());
 				writer.print("'");
@@ -211,19 +202,9 @@ public class FormLayoutStructureGenerator
 					ngClass.put(spec.getDesignStyleClass(), "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 					ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
-				if (allowedChildren.size() > 0)
+				if (spec.getAllowedChildren().size() > 0 || spec.getExcludedChildren().size() > 0)
 				{
-					String dropHighlightCondition = "<canContainDraggedElement(";
-					if (allowedChildren.size() > 1)
-					{
-						for (int i = 0; i < allowedChildren.size() - 1; i++)
-						{
-							dropHighlightCondition += "'" + allowedChildren.get(i) + "', ";
-						}
-					}
-					dropHighlightCondition += "'" + allowedChildren.get(allowedChildren.size() - 1) + "'";
-					dropHighlightCondition += ")<";
-					ngClass.put("drop_highlight", dropHighlightCondition);//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+					ngClass.put("drop_highlight", "<canContainDraggedElement('" + spec.getPackageName() + "." + spec.getName() + "')<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
 
 			}

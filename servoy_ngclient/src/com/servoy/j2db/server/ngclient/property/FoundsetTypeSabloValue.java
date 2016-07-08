@@ -937,25 +937,28 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		if (getFoundset() != null)
 		{
 			List<SortColumn> sortColumns = getFoundset().getSortColumns();
-			for (int j = 0; j < sortColumns.size(); j++)
+			if (sortColumns != null)
 			{
-				String elementName = getComponentName(sortColumns.get(j).getDataProviderID());
-				if (elementName != null)
+				for (int j = 0; j < sortColumns.size(); j++)
 				{
-					sortString += elementName + " " + ((sortColumns.get(j).getSortOrder() == SortColumn.DESCENDING) ? "desc" : "asc");
-					if (j < sortColumns.size() - 1)
+					String elementName = getComponentName(sortColumns.get(j).getDataProviderID());
+					if (elementName != null)
 					{
-						sortString += ",";
+						sortString += elementName + " " + ((sortColumns.get(j).getSortOrder() == SortColumn.DESCENDING) ? "desc" : "asc");
+						if (j < sortColumns.size() - 1)
+						{
+							sortString += ",";
+						}
 					}
-				}
-				else
-				{
-					// not found, stop
-					if (sortString.endsWith(","))
+					else
 					{
-						sortString = sortString.substring(0, sortString.length() - 1);
+						// not found, stop
+						if (sortString.endsWith(","))
+						{
+							sortString = sortString.substring(0, sortString.length() - 1);
+						}
+						break;
 					}
-					break;
 				}
 			}
 		}

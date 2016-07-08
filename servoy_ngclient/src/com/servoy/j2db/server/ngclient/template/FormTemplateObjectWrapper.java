@@ -19,8 +19,6 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.util.List;
 
-import org.sablo.specification.WebComponentSpecProvider;
-
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.Form;
@@ -34,7 +32,6 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 import freemarker.template.DefaultObjectWrapper;
@@ -47,7 +44,7 @@ import freemarker.template.TemplateModelException;
  * @author rgansevles
  *
  */
-public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements IFormElementValidator
+public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 {
 	private final IServoyDataConverterContext context;
 	private final boolean useControllerProvider;
@@ -115,20 +112,5 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 			wrapped = obj;
 		}
 		return super.wrap(wrapped);
-	}
-
-	@Override
-	public boolean isComponentSpecValid(IFormElement formElement)
-	{
-		String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
-		try
-		{
-			return WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType) != null;
-		}
-		catch (Exception re)
-		{
-			Debug.error(re);
-		}
-		return false;
 	}
 }

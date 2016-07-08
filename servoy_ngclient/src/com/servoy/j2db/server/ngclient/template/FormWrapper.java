@@ -56,7 +56,6 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Utils;
 
 import freemarker.ext.beans.StringModel;
-import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateModelException;
 
 /**
@@ -72,17 +71,17 @@ public class FormWrapper
 	private final boolean isListView;
 	private final boolean useControllerProvider;
 	private final String realName;
-	private final IFormElementValidator formElementValidator;
 	private final IServoyDataConverterContext context;
 	private final boolean design;
+	private final FormTemplateObjectWrapper formTemplateObjectWrapper;
 
-	public FormWrapper(Form form, String realName, boolean useControllerProvider, IFormElementValidator formElementValidator,
+	public FormWrapper(Form form, String realName, boolean useControllerProvider, FormTemplateObjectWrapper formTemplateObjectWrapper,
 		IServoyDataConverterContext context, boolean design)
 	{
 		this.form = form;
 		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
-		this.formElementValidator = formElementValidator;
+		this.formTemplateObjectWrapper = formTemplateObjectWrapper;
 		this.context = context;
 		this.design = design;
 		isTableView = !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
@@ -175,10 +174,7 @@ public class FormWrapper
 		List<IFormElement> persists = form.getFlattenedObjects(Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
-			if (formElementValidator.isComponentSpecValid(persist))
-			{
-				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add(persist);
-			}
+			if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add(persist);
 		}
 		baseComponents.addAll(getReferenceForms());
 		if ((isListView && !design) || isTableView)
@@ -213,13 +209,10 @@ public class FormWrapper
 		for (IFormElement persist : persists)
 		{
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (formElementValidator.isComponentSpecValid(persist))
+			Point location = persist.getLocation();
+			if (startPos <= location.y && endPos > location.y)
 			{
-				Point location = persist.getLocation();
-				if (startPos <= location.y && endPos > location.y)
-				{
-					if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
-				}
+				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
 			}
 		}
 		return baseComponents;
@@ -256,16 +249,16 @@ public class FormWrapper
 		{
 			for (IFormElement component : components)
 			{
-				if (component.getParent() instanceof FormReference && formElementValidator instanceof DefaultObjectWrapper)
+				if (component.getParent() instanceof FormReference && formTemplateObjectWrapper != null)
 				{
-					Object wrappedComponent = ((DefaultObjectWrapper)formElementValidator).wrap(component);
+					Object wrappedComponent = formTemplateObjectWrapper.wrap(component);
 					Form designForm = context.getApplication().getFlattenedSolution().getForm(((FormReference)component.getParent()).getContainsFormID());
 					if (designForm != null)
 					{
 						sizes.put(((FormElementContext)(((StringModel)wrappedComponent).getWrappedObject())).getName(), designForm.getSize());
 					}
 				}
-				else if (component.getParent() instanceof Form && component.getParent() != form && formElementValidator instanceof DefaultObjectWrapper)
+				else if (component.getParent() instanceof Form && component.getParent() != form && formTemplateObjectWrapper != null)
 				{
 					Iterator<FormReference> it = form.getFormReferences();
 					while (it.hasNext())
@@ -273,8 +266,8 @@ public class FormWrapper
 						FormReference formReference = it.next();
 						if (formReference.getContainsFormID() == component.getParent().getID())
 						{
-							sizes.put(((FormElementContext)(((StringModel)((DefaultObjectWrapper)formElementValidator).wrap(
-								component)).getWrappedObject())).getName(), ((Form)component.getParent()).getSize());
+							sizes.put(((FormElementContext)(((StringModel)formTemplateObjectWrapper.wrap(component)).getWrappedObject())).getName(),
+								((Form)component.getParent()).getSize());
 							break;
 						}
 					}

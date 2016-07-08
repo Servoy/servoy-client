@@ -1,7 +1,10 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MessagesResourceBundle;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -89,6 +93,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/servoytooltip.js", //
 		"js/fileupload.js", //
 		"js/servoy-components.js", //
+		"js/servoy_alltemplates.js", //
 		"js/servoy_app.js" };
 
 	private String[] locations;
@@ -301,7 +306,47 @@ public class NGClientEntryFilter extends WebEntry
 										formScripts.addAll(entry.getJsClientLibrary());
 									}
 								}
-								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, variableSubstitution);
+								List<String> extraMeta = new ArrayList<String>();
+								if (fs.getMedia("manifest.json") != null)
+								{
+									String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + fs.getName() + "/manifest.json";
+									extraMeta.add("<link rel=\"manifest\" href=\"" + url + "\">");
+								}
+								Media headExtension = fs.getMedia("head-index-contributions.html");
+								if (headExtension != null)
+								{
+									BufferedReader reader = null;
+									try
+									{
+										reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8"));
+										String line;
+										for (int count = 0; count < 1000 && (line = reader.readLine()) != null; count++)
+										{
+											if (line.trim().startsWith("<meta") || line.trim().startsWith("<link"))
+											{
+												extraMeta.add(line);
+											}
+										}
+									}
+									catch (Exception e)
+									{
+										Debug.error(e);
+									}
+									finally
+									{
+										if (reader != null)
+										{
+											try
+											{
+												reader.close();
+											}
+											catch (IOException e)
+											{
+											}
+										}
+									}
+								}
+								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, extraMeta, variableSubstitution);
 								return;
 							}
 						}
@@ -327,7 +372,7 @@ public class NGClientEntryFilter extends WebEntry
 
 			}
 			Debug.log("No solution found for this request, calling the default filter: " + uri);
-			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null);
+			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
 		{

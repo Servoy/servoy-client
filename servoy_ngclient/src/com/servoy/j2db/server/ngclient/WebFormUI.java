@@ -215,6 +215,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
 				if (nav != null) nav.newFoundset(record.getParentFoundSet());
 			}
+			previousDataAdapterList.destroy();
 		}
 	}
 

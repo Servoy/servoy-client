@@ -50,12 +50,19 @@ public class JSNGWebComponent extends JSWebComponent
 	{
 		try
 		{
+			String name = propertyName;
 			WebComponent webComponent = getBaseComponent(true);
 			WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
-			PropertyDescription pd = spec.getProperty(propertyName);
-			if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
+			PropertyDescription pd = spec.getProperty(name);
+			if (pd == null && spec.getHandler(name) != null) pd = spec.getHandler(name).getAsPropertyDescription();
+			if (pd == null)
+			{
+				// now try it if it is a more legacy name where the id is stripped from
+				pd = spec.getProperty(name + "ID");
+				if (pd != null) name = name + "ID";
+			}
 			Object convertedValue = fromRhinoToDesignValue(value, pd, application, this);
-			webComponent.setProperty(propertyName, convertedValue);
+			webComponent.setProperty(name, convertedValue);
 		}
 		catch (JSONException e)
 		{
@@ -88,15 +95,21 @@ public class JSNGWebComponent extends JSWebComponent
 		//TODO for now this works because it is stored as a json;
 		//this needs to be changed to getProperty when SVY-9365 is done
 		//then we will also need special conversions for rhino
-		Object value = json.opt(propertyName);
 		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
-			PropertyDescription pd = spec.getProperty(propertyName);
-			if (pd == null && spec.getHandler(propertyName) != null) pd = spec.getHandler(propertyName).getAsPropertyDescription();
-			return fromDesignToRhinoValue(value, pd, application, this);
+			String name = propertyName;
+			PropertyDescription pd = spec.getProperty(name);
+			if (pd == null && spec.getHandler(name) != null) pd = spec.getHandler(name).getAsPropertyDescription();
+			if (pd == null)
+			{
+				pd = spec.getProperty(name + "ID");
+				if (pd != null) name = name + "ID";
+			}
+			return fromDesignToRhinoValue(json.opt(name), pd, application, this);
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}
+		Object value = json.opt(propertyName);
 		return value == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(value);
 	}
 
