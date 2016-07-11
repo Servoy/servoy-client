@@ -46,20 +46,26 @@ public class ComponentsModuleGenerator extends HttpServlet
 	{
 		resp.setContentType("text/javascript");
 		HTTPUtils.checkAndSetUnmodified(req, resp, System.currentTimeMillis());
+		StringBuilder sb = generateComponentsModule();
+		resp.setContentLength(sb.length());
+		resp.getWriter().write(sb.toString());
+	}
+
+	public static StringBuilder generateComponentsModule()
+	{
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
 		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
 		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
-		resp.setContentLength(sb.length());
-		resp.getWriter().write(sb.toString());
+		return sb;
 	}
 
 	/**
 	 * @param sb
 	 * @param webComponentDescriptions
 	 */
-	protected void generateModules(StringBuilder sb, WebObjectSpecification[] webComponentDescriptions)
+	protected static void generateModules(StringBuilder sb, WebObjectSpecification[] webComponentDescriptions)
 	{
 		for (WebObjectSpecification webComponentSpec : webComponentDescriptions)
 		{
@@ -68,7 +74,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 		}
 	}
 
-	protected void generateModule(StringBuilder sb, String name)
+	protected static void generateModule(StringBuilder sb, String name)
 	{
 		StringBuilder nameSb = new StringBuilder();
 		boolean upperNext = false;

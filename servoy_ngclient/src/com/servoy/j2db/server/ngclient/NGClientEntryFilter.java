@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -60,15 +62,20 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
+	public static final String SERVOY_CONTRIBUTIONS_SVYGRP = "servoy_contributions_svygrp";
+	public static final String SERVOY_APP_SVYGRP = "servoy_app_svygrp";
+	public static final String SERVOY_THIRDPARTY_SVYGRP = "servoy_thirdparty_svygrp";
+	public static final String SERVOY_CSS_CONTRIBUTIONS_SVYGRP = "servoy_css_contributions_svygrp";
+	public static final String SERVOY_CSS_THIRDPARTY_SVYGRP = "servoy_css_thirdparty_svygrp";
 	public static final String SOLUTIONS_PATH = "solutions/";
 	public static final String FORMS_PATH = "forms/";
 
 	public static final String ANGULAR_JS = "js/angular_1.5.5.js";
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
-	private static final String[] INDEX_3TH_PARTY_CSS = { //
+	public static final String[] INDEX_3TH_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
-	private static final String[] INDEX_3TH_PARTY_JS = { //
+	public static final String[] INDEX_3TH_PARTY_JS = { //
 		"js/jquery-2.2.3.min.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
@@ -85,8 +92,9 @@ public class NGClientEntryFilter extends WebEntry
 	private static final String[] INDEX_SABLO_JS = { //
 		"sablo/lib/reconnecting-websocket.js", //
 		"sablo/js/websocket.js", //
-		"sablo/js/sablo_app.js" };
-	private static final String[] INDEX_SERVOY_JS = { //
+		"sablo/js/sablo_app.js", //
+		"sablo/sabloService.js" };
+	public static final String[] INDEX_SERVOY_JS = { //
 		"js/servoy.js", //
 		"js/servoyWindowManager.js", //
 		"js/servoyformat.js", //
@@ -100,6 +108,7 @@ public class NGClientEntryFilter extends WebEntry
 	private String[] services;
 
 	private FilterConfig filterConfig;
+	private String group_id;
 
 	public NGClientEntryFilter()
 	{
@@ -114,10 +123,8 @@ public class NGClientEntryFilter extends WebEntry
 		//when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
-			InputStream is = null;
-			try
+			try (InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties"))
 			{
-				is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties");
 				Properties properties = new Properties();
 				properties.load(is);
 				locations = properties.getProperty("locations").split(";");
@@ -126,13 +133,8 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Debug.error("Exception during init components.properties reading", e);
 			}
-			finally
+			try (InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/services.properties"))
 			{
-				Utils.closeInputStream(is);
-			}
-			try
-			{
-				is = fc.getServletContext().getResourceAsStream("/WEB-INF/services.properties");
 				Properties properties = new Properties();
 				properties.load(is);
 				services = properties.getProperty("locations").split(";");
@@ -141,11 +143,37 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Debug.error("Exception during init services.properties reading", e);
 			}
-			finally
-			{
-				Utils.closeInputStream(is);
-			}
+
 			Types.getTypesInstance().registerTypes();
+
+			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "false")))
+			{
+				try
+				{
+					URL url = fc.getServletContext().getResource("/WEB-INF/groupid.properties");
+					if (url != null)
+					{
+						try (InputStream is = url.openStream())
+						{
+							Properties properties = new Properties();
+							properties.load(is);
+							group_id = properties.getProperty("groupid");
+						}
+						catch (Exception e)
+						{
+							Debug.error("Exception during init groupid.properties reading", e);
+						}
+					}
+					else
+					{
+						Debug.warn("Cannot use the optimized resources, the groupid.properties file was not found.");
+					}
+				}
+				catch (MalformedURLException e)
+				{
+					Debug.error(e);
+				}
+			}
 
 			super.init(fc);
 		}
@@ -466,12 +494,11 @@ public class NGClientEntryFilter extends WebEntry
 	public List<String> filterCSSContributions(List<String> cssContributions)
 	{
 		ArrayList<String> allIndexCSS;
-		NGWroFilter wroFilter = (NGWroFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
-		if (wroFilter != null)
+		if (group_id != null)
 		{
 			allIndexCSS = new ArrayList<String>();
-			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_thirdparty.css", Arrays.asList(INDEX_3TH_PARTY_CSS)));
-			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_contributions.css", cssContributions));
+			allIndexCSS.add("wro/" + SERVOY_CSS_THIRDPARTY_SVYGRP + group_id + ".css");
+			allIndexCSS.add("wro/" + SERVOY_CSS_CONTRIBUTIONS_SVYGRP + group_id + ".css");
 		}
 		else
 		{
@@ -485,15 +512,13 @@ public class NGClientEntryFilter extends WebEntry
 	public List<String> filterJSContributions(List<String> jsContributions)
 	{
 		ArrayList<String> allIndexJS;
-		NGWroFilter wroFilter = (NGWroFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
-		if (wroFilter != null)
+		if (group_id != null)
 		{
 			allIndexJS = new ArrayList<String>();
-			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_thirdparty.js", Arrays.asList(INDEX_3TH_PARTY_JS)));
+			allIndexJS.add("wro/" + SERVOY_THIRDPARTY_SVYGRP + group_id + ".js");
 			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
-			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_app.js", Arrays.asList(INDEX_SERVOY_JS)));
-			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_contributions.js", jsContributions));
-
+			allIndexJS.add("wro/" + SERVOY_APP_SVYGRP + group_id + ".js");
+			allIndexJS.add("wro/" + SERVOY_CONTRIBUTIONS_SVYGRP + group_id + ".js");
 		}
 		else
 		{
