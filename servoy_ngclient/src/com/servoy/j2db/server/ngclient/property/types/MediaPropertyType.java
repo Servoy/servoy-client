@@ -31,9 +31,12 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.scripting.solutionmodel.JSMedia;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
@@ -42,6 +45,7 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -50,7 +54,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class MediaPropertyType extends DefaultPropertyType<Object>
-	implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>, IFormElementToTemplateJSON<Object, Object>
+	implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
@@ -194,5 +198,40 @@ public class MediaPropertyType extends DefaultPropertyType<Object>
 		}
 
 		return writer;
+	}
+
+	@Override
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (value instanceof String)
+		{
+			Media media = application.getFlattenedSolution().getMedia((String)value);
+			if (media != null) return media.getUUID();
+		}
+		else if (value instanceof JSMedia)
+		{
+			return ((JSMedia)value).getUUID();
+		}
+		return value;
+	}
+
+	@Override
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		Media media = null;
+		UUID uuid = Utils.getAsUUID(value, false);
+		if (uuid != null)
+		{
+			media = (Media)application.getFlattenedSolution().searchPersist(uuid);
+		}
+		if (value instanceof String && media == null)
+		{
+			media = application.getFlattenedSolution().getMedia((String)value);
+		}
+		if (media != null)
+		{
+			return application.getScriptEngine().getSolutionModifier().getMedia(media.getName());
+		}
+		return null;
 	}
 }
