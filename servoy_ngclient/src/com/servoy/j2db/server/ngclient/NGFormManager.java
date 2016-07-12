@@ -381,7 +381,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 		IFormController currentMainShowingForm = container.getController();
 
-		if (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName())) return leaseFormPanel(currentMainShowingForm.getName());
+		boolean sameForm = (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName()));
+		if (sameForm && currentMainShowingForm.isFormVisible()) return leaseFormPanel(currentMainShowingForm.getName());
 
 		final Form f = possibleForms.get(formName);
 		if (f == null)
@@ -411,7 +412,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 					application.getModeManager().setMode(IModeManager.EDIT_MODE);
 				}
 				IWebFormController fp = leaseFormPanel(currentMainShowingForm.getName());
-				if (fp != null)
+				if (fp != null && !sameForm)
 				{
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 					boolean ok = fp.notifyVisible(false, invokeLaterRunnables);
@@ -456,30 +457,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				container.setTitle(titleText);
 
 				fp.getFormUI().setParentWindowName(container.getContainerName());
-//				if (isNewUser)
-//				{
-//					final IMainContainer showContainer = currentContainer;
-//					currentContainer.showBlankPanel();//to overcome paint problem in swing...
-//					invokeLaterRunnables.add(new Runnable()
-//					{
-//						public void run()
-//						{
-//							// only call show if it is still the right form.
-//							FormController currentController = showContainer.getController();
-//							if (currentController != null && fp.getName().equals(currentController.getName()))
-//							{
-//								showContainer.show(fp.getName());
-//								application.getRuntimeWindowManager().setCurrentWindowName(dialogName);
-//							}
-//						}
-//					});
-//				}
-//				else
-//				{
-//					currentContainer.show(fp.getName());
-//					application.getRuntimeWindowManager().setCurrentWindowName(dialogName);
-//				}
-//				invokeLaterRunnables.add(title_focus);
+
 				Utils.invokeLater(application, invokeLaterRunnables);
 			}
 			else
