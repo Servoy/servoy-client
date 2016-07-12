@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
+import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -518,6 +519,8 @@ public class NGClientEntryFilter extends WebEntry
 			allIndexJS.add("wro/" + SERVOY_THIRDPARTY_SVYGRP + group_id + ".js");
 			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
 			allIndexJS.add("wro/" + SERVOY_APP_SVYGRP + group_id + ".js");
+			//get all contributions which do not support grouping
+			allIndexJS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE)[1]);
 			allIndexJS.add("wro/" + SERVOY_CONTRIBUTIONS_SVYGRP + group_id + ".js");
 		}
 		else
