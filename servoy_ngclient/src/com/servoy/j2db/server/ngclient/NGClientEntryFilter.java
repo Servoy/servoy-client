@@ -60,6 +60,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
+	public static final String SVYGRP = "svygrp";
 	public static final String SERVOY_CONTRIBUTIONS_SVYGRP = "servoy_contributions_svygrp";
 	public static final String SERVOY_APP_SVYGRP = "servoy_app_svygrp";
 	public static final String SERVOY_THIRDPARTY_SVYGRP = "servoy_thirdparty_svygrp";
@@ -156,6 +157,7 @@ public class NGClientEntryFilter extends WebEntry
 							Properties properties = new Properties();
 							properties.load(is);
 							group_id = properties.getProperty("groupid");
+							fc.getServletContext().setAttribute(SVYGRP, group_id);
 						}
 						catch (Exception e)
 						{
