@@ -42,6 +42,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.StartupArguments;
@@ -118,6 +119,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void onOpen(final Map<String, List<String>> requestParams)
 	{
 		super.onOpen(requestParams);
+
+		lastSentStyleSheets = null;
 
 		if (requestParams == null)
 		{
@@ -262,12 +265,20 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
 			lastSentStyleSheets = new ArrayList<String>(styleSheets);
 			Collections.reverse(styleSheets);
+			List<Long> timestamps = new ArrayList<Long>();
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
+				long timestamp = 0;
+				Media media = client.getFlattenedSolution().getMedia(styleSheets.get(i));
+				if (media != null && media.getLastModifiedTime() > 0)
+				{
+					timestamp = media.getLastModifiedTime();
+				}
+				timestamps.add(Long.valueOf(timestamp));
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i));
 			}
 			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets",
-				new Object[] { styleSheets.toArray(new String[0]), false });
+				new Object[] { styleSheets.toArray(new String[0]), timestamps.toArray(new Long[0]) });
 		}
 		else
 		{

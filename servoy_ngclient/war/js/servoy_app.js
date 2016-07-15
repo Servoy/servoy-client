@@ -1071,13 +1071,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		});				
 	}
 	return {
-		setStyleSheets: function(paths) {
+		setStyleSheets: function(paths,timestamps) {
 			var links = [];
 			
 			if (angular.isDefined(paths)) {
 				for (var i =0;i<paths.length;i++)
 				{
-					links[i] = paths[i] +"?t="+Date.now();
+					links[i] = paths[i] + "?t="+((timestamps && timestamps[i]) ? timestamps[i] : Date.now());
 				}	
 			}
 			$solutionSettings.styleSheetPaths = links;
