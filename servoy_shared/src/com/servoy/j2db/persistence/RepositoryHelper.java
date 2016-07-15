@@ -69,6 +69,26 @@ public class RepositoryHelper
 	 * @param the object
 	 * @return a map with name -> java.lang.reflect.Method
 	 */
+	public static Map<String, Method> getSetters(Object obj)
+	{
+		if (obj == null) return Collections.<String, Method> emptyMap();
+		try
+		{
+			return getSettersViaIntrospection(obj.getClass());
+		}
+		catch (IntrospectionException e)
+		{
+			Debug.error(e);
+		}
+		return Collections.<String, Method> emptyMap();
+	}
+
+	/**
+	 * Get all the setMethods on the specified object via introspection
+	 *
+	 * @param the object
+	 * @return a map with name -> java.lang.reflect.Method
+	 */
 	static Map<String, Method> getSettersViaIntrospection(Object obj) throws IntrospectionException
 	{
 		if (obj == null) return Collections.<String, Method> emptyMap();
