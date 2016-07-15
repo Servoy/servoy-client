@@ -52,6 +52,7 @@ public class Types
 		TypesRegistry.addType(MediaPropertyType.INSTANCE);
 		TypesRegistry.addType(LabelForPropertyType.INSTANCE);
 		TypesRegistry.addType(FormPropertyType.INSTANCE);
+		TypesRegistry.addType(FormComponentPropertyType.INSTANCE);
 		TypesRegistry.addType(RuntimeComponentPropertyType.INSTANCE);
 		TypesRegistry.addType(FormatPropertyType.INSTANCE);
 		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
