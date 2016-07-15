@@ -46,7 +46,6 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.scripting.solutionmodel.IJSParent;
-import com.servoy.j2db.scripting.solutionmodel.JSBaseContainer;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -222,7 +221,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	{
 		if (value instanceof JSMethod)
 		{
-			return new Integer(JSBaseContainer.getMethodId(application, webComponent.getBaseComponent(false), ((JSMethod)value).getScriptMethod()));
+			return ((JSMethod)value).getUUID();
+//			return new Integer(JSBaseContainer.getMethodId(application, webComponent.getBaseComponent(false), ((JSMethod)value).getScriptMethod()));
 		}
 		return value;
 	}
