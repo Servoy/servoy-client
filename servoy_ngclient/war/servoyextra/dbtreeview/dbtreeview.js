@@ -245,19 +245,34 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 	    			
 	    			returnChildren.push(item);
 	    			
-	    			if(binding.nrelationname) {
-	    				item.lazy = true;
-	    				item.folder = true;
-	    				
-	    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
-	    						
-	    				item.data.getChildren = {
-								foundsethash: foundsethash,
-								sort: sort,
-								rowid: foundset.viewPort.rows[i]._svyRowId,
-								relation: binding.nrelationname,
-								level: level+1
-						}
+	    			if(binding.nrelationname) 
+	    			{
+	    				if (item.expanded)
+		    			{
+		    				//we have to load it, library doesn't lazy load
+		    				// see also https://github.com/mar10/fancytree/issues/609
+	    					$scope.pendingChildrenRequests = $scope.pendingChildrenRequests + 1; 
+		    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
+							foundset_manager.getRelatedFoundSetHash(
+									foundsethash,
+									foundset.viewPort.rows[i]._svyRowId,
+									binding.nrelationname).then(getRelatedFoundSetCallback(item, sort, level + 1));
+		    			}
+		    			else
+	    				{
+		    				item.lazy = true;
+		    				item.folder = true;
+		    				
+		    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
+		    						
+		    				item.data.getChildren = {
+									foundsethash: foundsethash,
+									sort: sort,
+									rowid: foundset.viewPort.rows[i]._svyRowId,
+									relation: binding.nrelationname,
+									level: level+1
+							}
+	    				}
 	    			}
 	    		} 
 	    	}
