@@ -52,6 +52,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -497,6 +498,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	{
 		if (inDesigner && getPersistIfAvailable() != null && getPersistIfAvailable().getUUID() != null)
 		{
+			// if this is a form component element just return the name
+			if (((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT) != null)
+			{
+				return getName();
+			}
 			return getPersistIfAvailable().getUUID().toString();
 		}
 		return null;
