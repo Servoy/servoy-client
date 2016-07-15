@@ -136,7 +136,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
-		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		Object property = wc.getProperty("valuelistID");
 		Assert.assertTrue(property != null ? property.getClass().getName() : "null",
 			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
@@ -158,7 +158,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
-		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
 		Assert.assertEquals(2, tabs.size());
 		Map<String, Object> map = tabs.get(1);
@@ -180,7 +180,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
-		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		TypedData<Map<String, Object>> changes = wc.getAndClearChanges();
 		Assert.assertEquals(0, changes.content.size());
 
@@ -212,7 +212,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		bean.setProperty("atype", new ServoyJSONObject("{name:'name',text:'i18n:servoy.button.ok'}", false));
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
-		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
@@ -262,7 +262,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		webComponent.setProperty("atype", new ServoyJSONObject("{name:'name',form:'tabform'}", false));
 		formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
-		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
 		Assert.assertEquals("name", type.get("name"));

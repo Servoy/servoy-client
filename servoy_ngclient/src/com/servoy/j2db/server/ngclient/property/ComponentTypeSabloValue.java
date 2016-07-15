@@ -228,7 +228,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			((FoundsetDataAdapterList)dal).addDataLinkedPropertyRegistrationListener(createDataLinkedPropertyRegistrationListener());
 		}
 
-		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent);
+		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent,
+			formUI.getController().getForm());
 
 		if (foundsetPropValue != null)
 		{
