@@ -29,7 +29,10 @@ import java.util.Map;
 import javax.swing.border.Border;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONStringer;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -48,10 +51,12 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -74,6 +79,7 @@ public class FormWrapper
 	private final IServoyDataConverterContext context;
 	private final boolean design;
 	private final FormTemplateObjectWrapper formTemplateObjectWrapper;
+	private Collection<IFormElement> baseComponents;
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, FormTemplateObjectWrapper formTemplateObjectWrapper,
 		IServoyDataConverterContext context, boolean design)
@@ -162,7 +168,8 @@ public class FormWrapper
 
 	public Collection<IFormElement> getBaseComponents()
 	{
-		List<IFormElement> baseComponents = new ArrayList<>();
+		if (this.baseComponents != null) return this.baseComponents;
+		List<IFormElement> components = new ArrayList<>();
 
 		Collection<BaseComponent> excludedComponents = null;
 
@@ -174,18 +181,51 @@ public class FormWrapper
 		List<IFormElement> persists = form.getFlattenedObjects(Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
-			if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add(persist);
+			if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
+			checkFormComponents(components, excludedComponents, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
 		}
-		baseComponents.addAll(getReferenceForms());
+		components.addAll(getReferenceForms());
 		if ((isListView && !design) || isTableView)
 		{
-			baseComponents.add(new BodyPortal(form));
+			components.add(new BodyPortal(form));
 		}
 		if (form.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{
-			baseComponents.add(DefaultNavigator.INSTANCE);
+			components.add(DefaultNavigator.INSTANCE);
 		}
-		return baseComponents;
+
+		this.baseComponents = components;
+		return components;
+	}
+
+	/**
+	 * @param components
+	 * @param excludedComponents
+	 * @param persist
+	 */
+	private void checkFormComponents(List<IFormElement> components, Collection<BaseComponent> excludedComponents, FormElement formElement)
+	{
+		WebObjectSpecification spec = formElement.getWebComponentSpec();
+		if (spec != null)
+		{
+			Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+			if (properties.size() > 0)
+			{
+				for (PropertyDescription pd : properties)
+				{
+					Object propertyValue = formElement.getPropertyValue(pd.getName());
+					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
+					if (frm == null) continue;
+					List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentElements(formElement, pd, (JSONObject)propertyValue, frm,
+						context.getSolution(), excludedComponents);
+					for (FormElement element : elements)
+					{
+						components.add((IFormElement)element.getPersistIfAvailable());
+						checkFormComponents(components, excludedComponents, element);
+					}
+				}
+			}
+		}
 	}
 
 	public boolean isSecurityVisible(IPersist persist)
@@ -247,8 +287,10 @@ public class FormWrapper
 		Collection<IFormElement> components = getBaseComponents();
 		if (components != null)
 		{
-			for (IFormElement component : components)
+			for (Object comp : components)
 			{
+				if (!(comp instanceof IFormElement)) continue;
+				IFormElement component = (IFormElement)comp;
 				if (component.getParent() instanceof FormReference && formTemplateObjectWrapper != null)
 				{
 					Object wrappedComponent = formTemplateObjectWrapper.wrap(component);
