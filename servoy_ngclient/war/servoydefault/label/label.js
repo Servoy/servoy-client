@@ -1,5 +1,5 @@
 angular.module('servoydefaultLabel',['servoy'])
-.directive('servoydefaultLabel', ['$parse','$http','$templateCache','$compile','$apifunctions','$sabloConstants','$svyProperties',function($parse,$http,$templateCache,$compile,$apifunctions,$sabloConstants,$svyProperties) {
+.directive('servoydefaultLabel', ['$http','$templateCache','$compile','$apifunctions','$sabloConstants','$svyProperties',function($http,$templateCache,$compile,$apifunctions,$sabloConstants,$svyProperties) {
     return {
       restrict: 'E',
       scope: {
