@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -104,6 +105,18 @@ public class FormTemplateGenerator
 			return FormElement.ERROR_BEAN;
 		}
 		return component_type;
+	}
+
+	public static WebObjectSpecification getWebObjectSpecification(IFormElement persist)
+	{
+		String component_type = getPersistComponentTypeName(persist);
+		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type);
+		if (spec == null)
+		{
+			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
+			return WebComponentSpecProvider.getInstance().getWebComponentSpecification(FormElement.ERROR_BEAN);
+		}
+		return spec;
 	}
 
 	public static String getTagName(String componentType)
