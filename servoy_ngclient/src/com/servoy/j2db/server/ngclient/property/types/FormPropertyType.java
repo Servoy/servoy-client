@@ -213,11 +213,11 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (value instanceof String)
 		{
 			Form f = application.getFlattenedSolution().getForm((String)value);
-			if (f != null) return f.getUUID();
+			if (f != null) return f.getUUID().toString();
 		}
 		else if (value instanceof JSForm)
 		{
-			return ((JSForm)value).getUUID();
+			return ((JSForm)value).getUUID().toString();
 		}
 		return value;
 	}

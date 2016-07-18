@@ -269,7 +269,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				}
 				else
 				{
-					currentValue.put(SVY_FORM, form.getUUID());
+					currentValue.put(SVY_FORM, form.getUUID().toString());
 				}
 			}
 			else

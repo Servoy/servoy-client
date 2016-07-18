@@ -206,11 +206,11 @@ public class MediaPropertyType extends DefaultPropertyType<Object>
 		if (value instanceof String)
 		{
 			Media media = application.getFlattenedSolution().getMedia((String)value);
-			if (media != null) return media.getUUID();
+			if (media != null) return media.getUUID().toString();
 		}
 		else if (value instanceof JSMedia)
 		{
-			return ((JSMedia)value).getUUID();
+			return ((JSMedia)value).getUUID().toString();
 		}
 		return value;
 	}

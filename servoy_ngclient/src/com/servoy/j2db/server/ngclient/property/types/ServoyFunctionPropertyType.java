@@ -221,7 +221,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	{
 		if (value instanceof JSMethod)
 		{
-			return ((JSMethod)value).getUUID();
+			return ((JSMethod)value).getUUID().toString();
 //			return new Integer(JSBaseContainer.getMethodId(application, webComponent.getBaseComponent(false), ((JSMethod)value).getScriptMethod()));
 		}
 		return value;

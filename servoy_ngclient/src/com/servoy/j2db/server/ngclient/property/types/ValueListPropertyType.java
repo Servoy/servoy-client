@@ -353,11 +353,11 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		if (value instanceof String)
 		{
 			ValueList vl = application.getFlattenedSolution().getValueList((String)value);
-			if (vl != null) return vl.getUUID();
+			if (vl != null) return vl.getUUID().toString();
 		}
 		else if (value instanceof JSValueList)
 		{
-			return ((JSValueList)value).getUUID();
+			return ((JSValueList)value).getUUID().toString();
 		}
 		return value;
 	}
