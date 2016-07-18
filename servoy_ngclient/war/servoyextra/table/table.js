@@ -45,7 +45,7 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', func
     		 if (column && row)
     		 {
     			 var index = $scope.model.foundset.viewPort.rows.indexOf(row)
-    			if (index >= 0 && column.dataprovider[index] && column.dataprovider[index].url)
+    			if (index >= 0 && column.dataprovider && column.dataprovider[index] && column.dataprovider[index].url)
     			{
     				 return column.dataprovider[index].url;
     			}	 
