@@ -145,8 +145,7 @@ public class NGClientEntryFilter extends WebEntry
 
 			Types.getTypesInstance().registerTypes();
 
-			if (!ApplicationServerRegistry.get().isDeveloperStartup() &&
-				Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")))
+			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")))
 			{
 				try
 				{
