@@ -20,9 +20,9 @@ package com.servoy.j2db.persistence;
 
 /**
  * Models an argument of a method template. Is defined by name, type and a description.
- * 
+ *
  * @see com.servoy.j2db.persistence.IMethodTemplate
- * 
+ *
  * @author gerzse
  */
 public interface IMethodArgument
@@ -32,4 +32,6 @@ public interface IMethodArgument
 	ArgumentType getType();
 
 	String getDescription();
+
+	boolean isOptional();
 }
