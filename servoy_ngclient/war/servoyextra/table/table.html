@@ -1,5 +1,5 @@
 <div class="table-responsive tablewrapper" ng-if='model.visible'>
-	<table class='svy-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq'>
+	<table class='svy-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq' ng-keydown="keyPressed($event)">
 	  <tr>
 	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns" svy-click="headerClicked(model.columns.indexOf(column))"><div ng-bind='column.headerText'></div></th>
 	  </tr>

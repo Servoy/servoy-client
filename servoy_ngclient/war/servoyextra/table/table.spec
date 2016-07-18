@@ -31,6 +31,7 @@
 	"handlers":
 	{
 		"onCellClick" : {
+				"description": "Called when the mouse is clicked on a row/cell (row and column are given) or\nwhen the ENTER key is used then only the selected row is given",
 	        	"parameters":[
 					{
 						"name":"row",
@@ -38,7 +39,8 @@
 					},
 					{
 						"name":"column",
-						"type":"int"
+						"type":"int",
+						"optional":true
 					}
 				]
 		},

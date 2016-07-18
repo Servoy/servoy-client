@@ -99,6 +99,29 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', func
     		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf($scope.getRealRow(row)) != -1; 
     		  return  isSelected ? $scope.model.selectionClass : "";
     	  }
+    	  
+    	  $scope.keyPressed = function(event) {
+    		  if ($scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.length > 0) {
+    			  var selection = $scope.model.foundset.selectedRowIndexes[0];
+	    		  if (event.keyCode == 38) {
+	    			  if (selection > 0) {
+	    				  $scope.model.foundset.selectedRowIndexes = [selection-1];
+	    			  }
+	    			  event.preventDefault();
+	    		  }
+	    		  else if (event.keyCode == 40) {
+	    			  if (selection < $scope.model.foundset.viewPort.size-1) {
+	    				  $scope.model.foundset.selectedRowIndexes = [selection+1];
+	    			  }
+	    			  event.preventDefault();
+	    		  } 
+	    		  else if (event.keyCode == 13) {
+	    			 if ($scope.handlers.onCellClick) {
+	    				 $scope.handlers.onCellClick(selection+1)
+	    			 }
+	    		  }
+    		  }
+    	  }
       },
       templateUrl: 'servoyextra/table/table.html'
     };
