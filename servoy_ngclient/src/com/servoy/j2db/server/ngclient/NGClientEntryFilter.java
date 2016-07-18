@@ -145,7 +145,8 @@ public class NGClientEntryFilter extends WebEntry
 
 			Types.getTypesInstance().registerTypes();
 
-			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")))
+			if (!ApplicationServerRegistry.get().isDeveloperStartup() &&
+				Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")))
 			{
 				try
 				{
@@ -164,7 +165,7 @@ public class NGClientEntryFilter extends WebEntry
 							Debug.error("Exception during init groupid.properties reading", e);
 						}
 					}
-					else if (!ApplicationServerRegistry.get().isDeveloperStartup())
+					else
 					{
 						Debug.warn("Cannot use the optimized resources, the groupid.properties file was not found.");
 					}
