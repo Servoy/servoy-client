@@ -15,7 +15,14 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', func
     			  }
     			  else
     			  {
-    				  $scope.model.foundset.loadRecordsAsync($scope.model.pageSize * ($scope.model.currentPage -1), $scope.model.pageSize);
+    				  if ($scope.model.pageSize * ($scope.model.currentPage -1) > newValue)
+    				  {
+    					  $scope.model.currentPage =  Math.floor(newValue / $scope.model.pageSize) + 1;
+    				  }
+    				  else
+    				  {
+    					  $scope.model.foundset.loadRecordsAsync($scope.model.pageSize * ($scope.model.currentPage -1), $scope.model.pageSize);
+    				  }
     			  }	  
     		  }	  
           });
