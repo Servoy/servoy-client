@@ -265,7 +265,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
 			lastSentStyleSheets = new ArrayList<String>(styleSheets);
 			Collections.reverse(styleSheets);
-			List<Long> timestamps = new ArrayList<Long>();
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
 				long timestamp = 0;
@@ -274,11 +273,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					timestamp = media.getLastModifiedTime();
 				}
-				timestamps.add(Long.valueOf(timestamp));
-				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i));
+				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i) +
+					"?t=" + Long.toHexString(timestamp == 0 ? System.currentTimeMillis() : timestamp));
 			}
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets",
-				new Object[] { styleSheets.toArray(new String[0]), timestamps.toArray(new Long[0]) });
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}
 		else
 		{

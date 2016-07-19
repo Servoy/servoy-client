@@ -1071,16 +1071,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		});				
 	}
 	return {
-		setStyleSheets: function(paths,timestamps) {
-			var links = [];
-			
-			if (angular.isDefined(paths)) {
-				for (var i =0;i<paths.length;i++)
-				{
-					links[i] = paths[i] + "?t="+((timestamps && timestamps[i]) ? timestamps[i] : Date.now());
-				}	
-			}
-			$solutionSettings.styleSheetPaths = links;
+		setStyleSheets: function(paths) {
+			$solutionSettings.styleSheetPaths = paths;
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		getUserProperty: function(key) {
