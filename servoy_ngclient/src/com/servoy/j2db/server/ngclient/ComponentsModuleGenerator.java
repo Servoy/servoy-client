@@ -54,7 +54,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 		resp.getWriter().write(sb.toString());
 	}
 
-	private Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications)
+	private static Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications)
 	{
 		Set<String> names = new HashSet<>();
 		for (WebObjectSpecification webSpec : allWebSpecifications)
@@ -67,8 +67,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 	public static StringBuilder generateComponentsModule(Set<String> services, Set<String> components)
 	{
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, services);
-		generateModules(sb, components);
+		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications()));
+		generateModules(sb, components != null ? components : getAllNames(WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications()));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		return sb;
