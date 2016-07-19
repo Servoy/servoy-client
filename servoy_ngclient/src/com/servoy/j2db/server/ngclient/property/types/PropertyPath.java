@@ -54,9 +54,10 @@ public class PropertyPath
 		return tmp;
 	}
 
-	public void setShouldAddElementName()
+	public PropertyPath setShouldAddElementName()
 	{
 		this.shouldAddElementName = true;
+		return this;
 	}
 
 	public Object[] currentPathCopy()

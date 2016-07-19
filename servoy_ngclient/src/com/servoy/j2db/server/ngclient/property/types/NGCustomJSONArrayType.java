@@ -322,7 +322,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		PropertyDescription desc = getCustomJSONTypeDefinition();
 		for (Object element : array)
 		{
-			values.put(JSNGWebComponent.fromRhinoToDesignValue(element, desc, application, webComponent));
+			values.put(JSNGWebComponent.fromRhinoToDesignValue(element, desc, application, webComponent, desc.getName()));
 		}
 		return values;
 	}
@@ -339,7 +339,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			Scriptable result = cx.newObject(scope, "Array");
 			for (int i = 0; i < obj.length; i++)
 			{
-				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(obj[i], desc, application, webComponent));
+				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(obj[i], desc, application, webComponent, Integer.toString(i)));
 			}
 			return result;
 		}
@@ -351,7 +351,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			Scriptable result = cx.newObject(scope, "Array");
 			for (int i = 0; i < arr.length(); i++)
 			{
-				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(arr.get(i), desc, application, webComponent));
+				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(arr.get(i), desc, application, webComponent, Integer.toString(i)));
 			}
 			return result;
 		}

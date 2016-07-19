@@ -155,7 +155,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				continue;
 			}
 
-			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dataAdapterList, fe, this);
+			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dataAdapterList, fe, this, getController().getForm());
 
 			if (component != null)
 			{

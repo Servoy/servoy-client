@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -61,7 +62,7 @@ public class FormLayoutStructureGenerator
 				IPersist component = components.next();
 				if (component instanceof LayoutContainer)
 				{
-					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design);
+					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, FormElementHelper.INSTANCE);
 				}
 				else if (component instanceof FormReference)
 				{
@@ -69,8 +70,7 @@ public class FormLayoutStructureGenerator
 				}
 				else if (component instanceof IFormElement)
 				{
-					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form,
-						design);
+					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form);
 				}
 			}
 			FormLayoutGenerator.generateFormEndTag(writer, design);
@@ -82,7 +82,6 @@ public class FormLayoutStructureGenerator
 	}
 
 	public static void generateFormReference(FormReference formreference, Form form, FlattenedSolution fs, PrintWriter writer, boolean design, Form parentForm)
-		throws IOException
 	{
 		Form referencedForm = fs.getForm(formreference.getContainsFormID());
 		boolean absolutePosition = false;
@@ -140,7 +139,7 @@ public class FormLayoutStructureGenerator
 				IPersist component = components.next();
 				if (component instanceof LayoutContainer)
 				{
-					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design);
+					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, FormElementHelper.INSTANCE);
 				}
 				else if (component instanceof FormReference)
 				{
@@ -151,9 +150,9 @@ public class FormLayoutStructureGenerator
 					FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, design);
 					if (referencedForm != null && !referencedForm.isResponsiveLayout())
 					{
-						FormLayoutGenerator.generateFormElementWrapper(writer, fe, design, form, referencedForm.isResponsiveLayout());
+						FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, referencedForm.isResponsiveLayout());
 					}
-					FormLayoutGenerator.generateFormElement(writer, fe, form, design);
+					FormLayoutGenerator.generateFormElement(writer, fe, form);
 					if (referencedForm != null && !referencedForm.isResponsiveLayout())
 					{
 						FormLayoutGenerator.generateEndDiv(writer);
@@ -161,11 +160,11 @@ public class FormLayoutStructureGenerator
 				}
 			}
 		}
-		writer.println("</div>");
+		writer.print("</div>");
 	}
 
-	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design)
-		throws IOException
+	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
+		IFormElementCache cache)
 	{
 		WebLayoutSpecification spec = null;
 		if (container.getPackageName() != null)
@@ -244,15 +243,22 @@ public class FormLayoutStructureGenerator
 		for (Entry<String, String> entry : attributes.entrySet())
 		{
 			writer.print(" ");
-			StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
-			if (entry.getValue() != null && entry.getValue().length() > 0)
+			try
 			{
-				writer.print("=\"");
-				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
-				writer.print("\"");
+				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
+				if (entry.getValue() != null && entry.getValue().length() > 0)
+				{
+					writer.print("=\"");
+					StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
+					writer.print("\"");
+				}
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
 			}
 		}
-		writer.println(">");
+		writer.print(">");
 
 		Iterator<IPersist> components = container.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		while (components.hasNext())
@@ -260,7 +266,7 @@ public class FormLayoutStructureGenerator
 			IPersist component = components.next();
 			if (component instanceof LayoutContainer)
 			{
-				generateLayoutContainer((LayoutContainer)component, form, fs, writer, design);
+				generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, cache);
 			}
 			else if (component instanceof FormReference)
 			{
@@ -268,8 +274,8 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, design);
-				FormLayoutGenerator.generateFormElement(writer, fe, form, design);
+				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design);
+				FormLayoutGenerator.generateFormElement(writer, fe, form);
 			}
 		}
 		writer.print("</");

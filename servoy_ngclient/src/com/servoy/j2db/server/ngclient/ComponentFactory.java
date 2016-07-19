@@ -22,6 +22,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
@@ -38,104 +39,111 @@ import com.servoy.j2db.util.Utils;
  */
 public class ComponentFactory
 {
-	public static WebFormComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, Container parentToAddTo)
+	/**
+	 * @param application
+	 * @param dataAdapterList
+	 * @param fe
+	 * @param parentToAddTo
+	 * @param form
+	 * @param name
+	 * @return
+	 */
+	public static WebFormComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, Container parentToAddTo,
+		Form form)
 	{
 		String name = fe.getName();
-		if (name != null)
+		IPersist persist = fe.getPersistIfAvailable();
+		int access = 0;
+		if (persist != null)
 		{
-			IPersist persist = fe.getPersistIfAvailable();
-			int access = 0;
-			if (persist != null)
+			// don't add the component to the form ui if component is not visible due to security settings
+			access = application.getFlattenedSolution().getSecurityAccess(persist.getUUID());
+			if (!((access & IRepository.VIEWABLE) != 0)) return null;
+		}
+
+		// TODO anything to do here for custom special types?
+		WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList);
+		if (parentToAddTo != null) parentToAddTo.add(webComponent);
+
+		WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
+
+		for (String propName : fe.getRawPropertyValues().keySet())
+		{
+			//TODO this if should not be necessary. currently in the case of "printable" hidden property
+			if (componentSpec.getProperty(propName) == null) continue;
+			Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
+			if (value == null) continue;
+			fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent);
+		}
+
+		// overwrite accessible
+		if (persist != null)
+		{
+			int elementSecurity;
+			if (persist.getParent() instanceof Portal)
 			{
-				// don't add the component to the form ui if component is not visible due to security settings
-				access = application.getFlattenedSolution().getSecurityAccess(persist.getUUID());
-				if (!((access & IRepository.VIEWABLE) != 0)) return null;
+				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID());
 			}
-
-			// TODO anything to do here for custom special types?
-			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList);
-			if (parentToAddTo != null) parentToAddTo.add(webComponent);
-
-			WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
-
-			for (String propName : fe.getRawPropertyValues().keySet())
+			else
 			{
-				//TODO this if should not be necessary. currently in the case of "printable" hidden property
-				if (componentSpec.getProperty(propName) == null) continue;
-				Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
-				if (value == null) continue;
-				fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent);
+				elementSecurity = access;
 			}
-
-			// overwrite accessible
-			if (persist != null)
+			if (!((elementSecurity & IRepository.ACCESSIBLE) != 0)) // element not accessible
 			{
-				int elementSecurity;
-				if (persist.getParent() instanceof Portal)
-				{
-					elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID());
-				}
-				else
-				{
-					elementSecurity = access;
-				}
-				if (!((elementSecurity & IRepository.ACCESSIBLE) != 0)) // element not accessible
+				webComponent.setProperty("enabled", false);
+			}
+			else
+			{
+				int formSecurity = application.getFlattenedSolution().getSecurityAccess(form);
+				if (!((formSecurity & IRepository.ACCESSIBLE) != 0)) // form not accessible
 				{
 					webComponent.setProperty("enabled", false);
 				}
+			}
+		}
+
+
+		// TODO should this be a part of type conversions for handlers instead?
+		for (String eventName : componentSpec.getHandlers().keySet())
+		{
+			Object eventValue = fe.getPropertyValue(eventName);
+			if (eventValue instanceof String)
+			{
+				UUID uuid = UUID.fromString((String)eventValue);
+				IPersist function = application.getFlattenedSolution().searchPersist(uuid);
+				if (function != null)
+				{
+					webComponent.add(eventName, function.getID());
+				}
 				else
 				{
-					int formSecurity = application.getFlattenedSolution().getSecurityAccess(fe.getForm().getUUID());
-					if (!((formSecurity & IRepository.ACCESSIBLE) != 0)) // form not accessible
-					{
-						webComponent.setProperty("enabled", false);
-					}
+					Debug.warn("Event handler for " + eventName + " not found (form " + form + ", form element " + name + ")");
 				}
 			}
-
-
-			// TODO should this be a part of type conversions for handlers instead?
-			for (String eventName : componentSpec.getHandlers().keySet())
+			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
 			{
-				Object eventValue = fe.getPropertyValue(eventName);
-				if (eventValue instanceof String)
-				{
-					UUID uuid = UUID.fromString((String)eventValue);
-					IPersist function = application.getFlattenedSolution().searchPersist(uuid);
-					if (function != null)
-					{
-						webComponent.add(eventName, function.getID());
-					}
-					else
-					{
-						Debug.warn("Event handler for " + eventName + " not found (form " + fe.getForm().getName() + ", form element " + fe.getName() + ")");
-					}
-				}
-				else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
-				{
-					webComponent.add(eventName, ((Number)eventValue).intValue());
-				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-					(fe.getForm().getOnElementFocusGainedMethodID() > 0))
-				{
-					webComponent.add(eventName, fe.getForm().getOnElementFocusGainedMethodID());
-				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-					(fe.getForm().getOnElementFocusLostMethodID() > 0))
-				{
-					webComponent.add(eventName, fe.getForm().getOnElementFocusLostMethodID());
-				}
-				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-					(fe.getForm().getOnElementDataChangeMethodID() > 0))
-				{
-					webComponent.add(eventName, fe.getForm().getOnElementDataChangeMethodID());
-				}
+				webComponent.add(eventName, ((Number)eventValue).intValue());
 			}
-			// just created, it should have no changes.
-			webComponent.clearChanges();
-			return webComponent;
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+				(form.getOnElementFocusGainedMethodID() > 0))
+			{
+				webComponent.add(eventName, form.getOnElementFocusGainedMethodID());
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+				(form.getOnElementFocusLostMethodID() > 0))
+			{
+				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+				(form.getOnElementDataChangeMethodID() > 0))
+			{
+				webComponent.add(eventName, form.getOnElementDataChangeMethodID());
+			}
 		}
-		return null;
+
+		// just created, it should have no changes.
+		webComponent.clearChanges();
+		return webComponent;
 	}
 
 	protected static void fillProperty(Object propertyValue, Object formElementValue, PropertyDescription propertySpec, WebFormComponent component)

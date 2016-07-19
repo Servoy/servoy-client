@@ -26,7 +26,6 @@ Require-Bundle: servoy_shared,
  org.apache.commons.io,
  org.jsoup,
  org.freemarker.freemarker,
- wro4j-core,
  commons-lang3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .

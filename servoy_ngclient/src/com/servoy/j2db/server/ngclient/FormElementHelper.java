@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.awt.Point;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -38,6 +39,7 @@ import org.sablo.specification.property.CustomJSONArrayType;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -50,6 +52,9 @@ import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.RepositoryHelper;
+import com.servoy.j2db.persistence.RuntimeProperty;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
@@ -69,15 +74,19 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-public class FormElementHelper
+public class FormElementHelper implements IFormElementCache
 {
-
+	public final static RuntimeProperty<Boolean> FORM_COMPONENT_ELEMENT = new RuntimeProperty<Boolean>()
+	{
+	};
 	public final static FormElementHelper INSTANCE = new FormElementHelper();
 
 	// todo identity key? SolutionModel persist shouldn't be cached at all?
 	private final ConcurrentMap<String, FlattenedSolution> globalFlattendSolutions = new ConcurrentHashMap<>();
 	private final ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<>();
 	private final ConcurrentMap<UUID, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
+
+	private final ConcurrentMap<UUID, Map<String, List<FormElement>>> formComponentElements = new ConcurrentHashMap<>();
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -93,18 +102,98 @@ public class FormElementHelper
 		return lst;
 	}
 
+	public List<FormElement> getFormComponentElements(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs,
+		Collection<BaseComponent> excludedComponents)
+	{
+		// for designer always just generate it
+		if (parentElement.getDesignId() != null) return generateFormComponentElements(parentElement, pd, json, frm, fs, excludedComponents);
+
+		// if the form of the main form component is a soluton copy then don't cache.
+		Solution solutionCopy = fs.getSolutionCopy(false);
+		if (solutionCopy != null && solutionCopy.getForm(parentElement.getForm().getName()) != null)
+			return generateFormComponentElements(parentElement, pd, json, frm, fs, excludedComponents);
+		Map<String, List<FormElement>> map = formComponentElements.get(parentElement.getPersistIfAvailable().getUUID());
+		if (map == null)
+		{
+			map = new ConcurrentHashMap<>();
+			formComponentElements.put(parentElement.getPersistIfAvailable().getUUID(), map);
+		}
+		List<FormElement> list = map.get(pd.getName());
+		if (list == null)
+		{
+			list = generateFormComponentElements(parentElement, pd, json, frm, fs, excludedComponents);
+			map.put(pd.getName(), list);
+		}
+		return list;
+	}
+
+	/**
+	 * @param parentElement
+	 * @param pd
+	 * @param json
+	 * @param frm
+	 * @param fs
+	 * @param excludedComponents
+	 * @return
+	 */
+	public List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs,
+		Collection<BaseComponent> excludedComponents)
+	{
+		List<FormElement> elements = new ArrayList<>();
+		List<IFormElement> formelements = frm.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		for (IFormElement element : formelements)
+		{
+			if (isSecurityVisible(element, fs) && (excludedComponents == null || !excludedComponents.contains(element)))
+			{
+				element = (IFormElement)((AbstractBase)element).clonePersist();
+				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_ELEMENT, Boolean.TRUE);
+				JSONObject elementJson = json.optJSONObject(element.getName());
+				if (elementJson != null)
+				{
+					Map<String, Method> methods = FormTemplateGenerator.isWebcomponentBean(element) ? null : RepositoryHelper.getSetters(element);
+					for (String key : elementJson.keySet())
+					{
+						Object val = elementJson.get(key);
+						if (methods != null && val != null)
+						{
+							Method method = methods.get(key);
+							Class< ? > paramType = method.getParameterTypes()[0];
+							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
+							{
+								// will not fit, very likely a uuid that should be an int.
+								UUID uuid = Utils.getAsUUID(val, false);
+								if (uuid != null)
+								{
+									IPersist found = fs.searchPersist(uuid);
+									if (found != null) val = Integer.valueOf(found.getID());
+								}
+							}
+						}
+						((AbstractBase)element).setProperty(key, val);
+					}
+				}
+				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
+				element.setName(name != null ? (name + '$' + pd.getName() + '$' + element.getName()) : element.getName());
+				elements.add(new FormElement(element, fs, new PropertyPath(), parent.getDesignId() != null));
+			}
+		}
+		return elements;
+	}
+
+	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs)
+	{
+		int access = fs.getSecurityAccess(persist.getUUID());
+		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
+		return b_visible;
+	}
+
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (designer || (fs.getSolutionCopy(false) != null))
+		if (designer || (fs.getSolutionCopy(false) != null) || ((AbstractBase)formElement).getRuntimeProperty(FORM_COMPONENT_ELEMENT) != null)
 		{
-			if (propertyPath == null)
-			{
-				propertyPath = new PropertyPath();
-				propertyPath.setShouldAddElementName();
-			}
 			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
-			else return new FormElement(formElement, fs, propertyPath, designer);
+			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)

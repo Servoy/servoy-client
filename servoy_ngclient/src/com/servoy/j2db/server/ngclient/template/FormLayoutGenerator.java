@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormManager;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -43,9 +45,12 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.util.Settings;
@@ -58,6 +63,35 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class FormLayoutGenerator
 {
+
+	public static String generateFormComponent(Form form, FlattenedSolution fs, IFormElementCache cache)
+	{
+		StringWriter out = new StringWriter();
+		PrintWriter writer = new PrintWriter(out);
+		Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (components.hasNext())
+		{
+			IPersist component = components.next();
+			if (component instanceof LayoutContainer)
+			{
+				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false, cache);
+			}
+			else if (component instanceof IFormElement)
+			{
+				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, false);
+				if (form != null && !form.isResponsiveLayout())
+				{
+					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
+				}
+				FormLayoutGenerator.generateFormElement(writer, fe, form);
+				if (form != null && !form.isResponsiveLayout())
+				{
+					FormLayoutGenerator.generateEndDiv(writer);
+				}
+			}
+		}
+		return out.getBuffer().toString();
+	}
 
 	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design)
 	{
@@ -81,7 +115,7 @@ public class FormLayoutGenerator
 					}
 					writer.print(" class=\"");
 					writer.print(partClass);
-					writer.println("\">");
+					writer.print("\">");
 					generateEndDiv(writer);
 				}
 			}
@@ -121,7 +155,7 @@ public class FormLayoutGenerator
 					}
 					writer.print(" class=\"");
 					writer.print(partClass);
-					writer.println("\">");
+					writer.print("\">");
 				}
 
 				for (IFormElement bc : PartWrapper.getBaseComponents(part, form, context, design, false))
@@ -136,8 +170,8 @@ public class FormLayoutGenerator
 						fe = FormElementHelper.INSTANCE.getFormElement(bc, context.getSolution(), null, design);
 					}
 
-					generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
-					generateFormElement(writer, fe, form, design);
+					generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
+					generateFormElement(writer, fe, form);
 					generateEndDiv(writer);
 				}
 
@@ -168,7 +202,7 @@ public class FormLayoutGenerator
 			{
 				fe = FormElementHelper.INSTANCE.getFormElement(formReference, context.getSolution(), null, design);
 			}
-			generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
+			generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
 			for (IPersist persist : formReference.getAllObjectsAsList())
 			{
 				if (persist instanceof FormReference)
@@ -189,8 +223,8 @@ public class FormLayoutGenerator
 						{
 							fe = FormElementHelper.INSTANCE.getFormElement(element, context.getSolution(), null, design);
 						}
-						generateFormElementWrapper(writer, fe, design, form, form.isResponsiveLayout());
-						generateFormElement(writer, fe, form, design);
+						generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
+						generateFormElement(writer, fe, form);
 						generateEndDiv(writer);
 					}
 				}
@@ -271,7 +305,7 @@ public class FormLayoutGenerator
 		writer.print(" class=\"");
 		writer.print(formClass);
 		writer.print("\"");
-		writer.println(">");
+		writer.print(">");
 	}
 
 	public static boolean isTableOrListView(Form form)
@@ -282,26 +316,27 @@ public class FormLayoutGenerator
 
 	public static void generateEndDiv(PrintWriter writer)
 	{
-		writer.println("</div>");
+		writer.print("</div>");
 	}
 
 	public static void generateFormEndTag(PrintWriter writer, boolean design)
 	{
 		generateEndDiv(writer);
-		if (!design) writer.println("</svy-formload>");
+		if (!design) writer.print("</svy-formload>");
 	}
 
-	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form, boolean isResponsive)
+	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, Form form, boolean isResponsive)
 	{
-		if (design)
+		String designId = fe.getDesignId();
+		if (designId != null)
 		{
 
 			writer.print("<div ng-style=\"layout('");
-			writer.print(fe.getDesignId());
+			writer.print(designId);
 			writer.print("')\"");
 
 			JSONObject ngClass = new JSONObject();
-			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + fe.getDesignId() + "').svyVisible == false<".toString());
+			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
 			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 			if (fe.getPersistIfAvailable() instanceof FormReference) ngClass.put("form_reference", "true");
 			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
@@ -341,7 +376,7 @@ public class FormLayoutGenerator
 		{
 			writer.print(" ng-class=\"'svy-wrapper'\" ");
 		}
-		if (design)
+		if (designId != null)
 		{
 			writer.print(" svy-id='");
 			writer.print(getDesignId(fe));
@@ -388,7 +423,7 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 		}
-		writer.println(">");
+		writer.print(">");
 	}
 
 //	private static boolean canContainComponents(WebComponentSpecification spec)
@@ -421,7 +456,7 @@ public class FormLayoutGenerator
 //		return false;
 //	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form)
 	{
 		writer.print("<");
 		writer.print(fe.getTagname());
@@ -439,7 +474,8 @@ public class FormLayoutGenerator
 			writer.print(form.getName() + "." + elementName);
 			writer.print("'");
 		}
-		if (design)
+		String designId = fe.getDesignId();
+		if (designId != null)
 		{
 			if (form.isResponsiveLayout())
 			{
@@ -489,21 +525,21 @@ public class FormLayoutGenerator
 					}
 				}
 
-				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + fe.getDesignId() + "').svyVisible == false<".toString());
+				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
 				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			}
 			writer.print(" svy-model=\"model('");
-			writer.print(fe.getDesignId());
+			writer.print(designId);
 			writer.print("')\"");
 			writer.print(" svy-api=\"api('");
-			writer.print(fe.getDesignId());
+			writer.print(designId);
 			writer.print("')\"");
 			writer.print(" svy-handlers=\"handlers('");
-			writer.print(fe.getDesignId());
+			writer.print(designId);
 			writer.print("')\"");
 			writer.print(" svy-servoyApi=\"servoyApi('");
-			writer.print(fe.getDesignId());
+			writer.print(designId);
 			writer.print("')\"");
 			if (fe.getPersistIfAvailable() instanceof IFormElement)
 			{
@@ -526,10 +562,10 @@ public class FormLayoutGenerator
 			writer.print(".svy_servoyApi'");
 		}
 
-		writer.println(">");
+		writer.print(">");
 		writer.print("</");
 		writer.print(fe.getTagname());
-		writer.println(">");
+		writer.print(">");
 	}
 
 	/**

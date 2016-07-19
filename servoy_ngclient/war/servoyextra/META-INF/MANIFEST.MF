@@ -16,3 +16,6 @@ Web-Component: True
 
 Name: onrenderlabel/onrenderlabel.spec
 Web-Component: True
+
+Name: table/table.spec
+Web-Component: True

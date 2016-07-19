@@ -115,6 +115,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			},
 			callServerSideApi: function(methodName,args) {
 				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
+			},
+			getFormState: function() {
+				return $scope;
 			}
 		}
 	}
@@ -147,7 +150,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		}
 		else {
 		<#list baseComponents as bc>
-			watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes.${bc.name}, $scope.model.${bc.name}, wrapper('${bc.name}'));
+			watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes['${bc.name}'], $scope.model['${bc.name}'], wrapper('${bc.name}'));
 		</#list>
 		}
 	}

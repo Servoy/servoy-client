@@ -1,0 +1,27 @@
+<div class="table-responsive tablewrapper" ng-if='model.visible'>
+	<table class='svy-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq'>
+	  <tr>
+	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns" svy-click="headerClicked(model.columns.indexOf(column))"><div ng-bind='column.headerText'></div></th>
+	  </tr>
+	  <tr ng-repeat="row in model.foundset.viewPort.rows"
+	  	  ng-click="rowClicked(model.foundset.viewPort.rows.indexOf(row))"
+	  	  ng-class='getRowStyle(model.foundset.viewPort.rows.indexOf(row))'>
+	    <td ng-class="column.styleClass" ng-repeat="column in model.columns" svy-click="cellClicked(model.foundset.viewPort.rows.indexOf(row), model.columns.indexOf(column))">
+	    	<img ng-show="getUrl(column,row) != null" 
+	    		ng-src="{{getUrl(column,row)}}"></img>
+	    	<div ng-bind='column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]| getDisplayValue:column.valuelist | formatFilter:column.format.display:column.format.type'
+	    	ng-show="getUrl(column,row) === null">
+	    	</div></td>
+	  </tr>
+	</table>
+	<ul class="svy-pagination pagination svy-nomargin" ng-if="showPagination()">
+	  <li ng-class="model.currentPage == 1 ? 'disabled' : ''"><a href="#" ng-click="modifyPage(-1)">&laquo;</a></li>
+	  <li class="disabled"><a href="#">{{model.currentPage}}</a></li>
+	  <li ng-class="hasNext() ? '' : 'disabled'"><a href="#" ng-click="modifyPage(1)">&raquo;</a></li>
+	</ul>
+</div>
+<div ng-class='model.styleClass' ng-if='model.visible && (!model.columns || model.columns.length == 0)'>
+	  <label>
+	  	 <span>Drop table columns from palette</span>
+	  </label>
+</div>
