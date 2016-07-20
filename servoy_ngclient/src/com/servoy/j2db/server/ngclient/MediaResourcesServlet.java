@@ -285,10 +285,24 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			response.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate");
 		}
+		else
+		{
+			String param = request.getParameter("t");
+			try
+			{
+				if (param != null && Long.parseLong(param, 16) > 0)
+				{
+					response.addHeader("Cache-Control", "public, max-age=" + NGCachingFilter.ONE_YEAR_MAX_AGE);
+				}
+			}
+			catch (Exception e)
+			{
+				// ignore, the "t" is not a hex value.
+			}
+		}
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-
 		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
 	}
 

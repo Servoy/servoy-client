@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 public class NGCachingFilter implements Filter
 {
 	private String group_id;
-	private static final int ONE_YEAR_MAX_AGE = 60 * 60 * 24 * 30 * 12;
+	public static final int ONE_YEAR_MAX_AGE = 60 * 60 * 24 * 30 * 12;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException
@@ -55,21 +55,6 @@ public class NGCachingFilter implements Filter
 			if (uri != null && (uri.endsWith(group_id + ".js") || uri.endsWith(group_id + ".css")))
 			{
 				resp.addHeader("Cache-Control", "public, max-age=" + ONE_YEAR_MAX_AGE);
-			}
-			else
-			{
-				String param = request.getParameter("t");
-				try
-				{
-					if (param != null && Integer.parseInt(param, 16) > 0)
-					{
-						resp.addHeader("Cache-Control", "public, max-age=" + ONE_YEAR_MAX_AGE);
-					}
-				}
-				catch (Exception e)
-				{
-					// ignore, the "t" is not a hex value.
-				}
 			}
 		}
 		chain.doFilter(request, response);
