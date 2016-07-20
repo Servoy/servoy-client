@@ -60,6 +60,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
+	public static final String SERVOY_CSS = "css/servoy.css";
 	public static final String SVYGRP = "svygrp";
 	public static final String SERVOY_CONTRIBUTIONS_SVYGRP = "servoy_contributions_svygrp";
 	public static final String SERVOY_APP_SVYGRP = "servoy_app_svygrp";
@@ -322,7 +323,7 @@ public class NGClientEntryFilter extends WebEntry
 								variableSubstitution.put("defaultTranslations", defaultTranslations.toString());
 
 								List<String> css = new ArrayList<String>();
-								css.add("css/servoy.css");
+								css.add(SERVOY_CSS);
 								List<String> formScripts = new ArrayList<String>(getFormScriptReferences(fs));
 								List<String> extraMeta = new ArrayList<String>();
 								if (fs.getMedia("manifest.json") != null)
