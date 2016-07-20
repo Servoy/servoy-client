@@ -29,7 +29,7 @@
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 
-	        "valuelistID" : { "type" : "valuelist", "tags": { "scope" :"design", "logWhenOverMax":false}, "for": "dataProviderID", "default":"autoVL", "max":50}, 
+	        "valuelistID" : { "type" : "valuelist", "tags": { "scope" :"design", "logWhenOverMax":false}, "for": "dataProviderID", "default":"autoVL", "max":100}, 
 	        "visible" : "visible" 
 	},
 	"handlers":
