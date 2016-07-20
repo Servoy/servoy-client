@@ -206,7 +206,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 		return false;
 	}
 
-	private transient long lastModifiedTime = System.currentTimeMillis();
+	private long lastModifiedTime = System.currentTimeMillis();
 
 	public synchronized void updateLastModifiedTime()
 	{

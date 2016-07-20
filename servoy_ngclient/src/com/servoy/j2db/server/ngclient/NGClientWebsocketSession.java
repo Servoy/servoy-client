@@ -274,7 +274,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					timestamp = media.getLastModifiedTime();
 				}
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i) +
-					"?t=" + Long.toHexString(timestamp == 0 ? System.currentTimeMillis() : timestamp));
+					"?t=" + Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
 			}
 			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}

@@ -56,6 +56,21 @@ public class NGCachingFilter implements Filter
 			{
 				resp.addHeader("Cache-Control", "public, max-age=" + ONE_YEAR_MAX_AGE);
 			}
+			else
+			{
+				String param = request.getParameter("t");
+				try
+				{
+					if (param != null && Integer.parseInt(param, 16) > 0)
+					{
+						resp.addHeader("Cache-Control", "public, max-age=" + ONE_YEAR_MAX_AGE);
+					}
+				}
+				catch (Exception e)
+				{
+					// ignore, the "t" is not a hex value.
+				}
+			}
 		}
 		chain.doFilter(request, response);
 	}
