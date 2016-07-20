@@ -185,34 +185,34 @@ public class ComponentFactoryHelper
 			{
 				try
 				{
-					String type = tk.nextToken();
+					String type = tk.nextToken().trim();
 					if (type.equals(COMPOUND_BORDER))
 					{
 						StringTokenizer tk2 = new StringTokenizer(s, ";"); //$NON-NLS-1$
-						tk2.nextToken();//skip 'CompoundBorder,' token
-						String s_oborder = tk2.nextToken();
+						tk2.nextToken().trim();//skip 'CompoundBorder,' token
+						String s_oborder = tk2.nextToken().trim();
 						Border oborder = createBorder(s_oborder);
-						String s_iborder = tk2.nextToken();
+						String s_iborder = tk2.nextToken().trim();
 						Border iborder = createBorder(s_iborder);
 						currentBorder = BorderFactory.createCompoundBorder(oborder, iborder);
 					}
 					else if (type.equals(EMPTY_BORDER))
 					{
-						int top = Utils.getAsInteger(tk.nextToken());
-						int right = Utils.getAsInteger(tk.nextToken());
-						int bottom = Utils.getAsInteger(tk.nextToken());
-						int left = Utils.getAsInteger(tk.nextToken());
+						int top = Utils.getAsInteger(tk.nextToken().trim());
+						int right = Utils.getAsInteger(tk.nextToken().trim());
+						int bottom = Utils.getAsInteger(tk.nextToken().trim());
+						int left = Utils.getAsInteger(tk.nextToken().trim());
 						currentBorder = BorderFactory.createEmptyBorder(top, left, bottom, right);
 					}
 					else if (type.equals(BEVEL_BORDER))
 					{
-						int beveltype = Utils.getAsInteger(tk.nextToken());
+						int beveltype = Utils.getAsInteger(tk.nextToken().trim());
 						if (tk.hasMoreTokens())
 						{
-							Color highlightO = PersistHelper.createColor(tk.nextToken());
-							Color highlightI = PersistHelper.createColor(tk.nextToken());
-							Color shadowO = PersistHelper.createColor(tk.nextToken());
-							Color shadowI = PersistHelper.createColor(tk.nextToken());
+							Color highlightO = PersistHelper.createColor(tk.nextToken().trim());
+							Color highlightI = PersistHelper.createColor(tk.nextToken().trim());
+							Color shadowO = PersistHelper.createColor(tk.nextToken().trim());
+							Color shadowI = PersistHelper.createColor(tk.nextToken().trim());
 
 							currentBorder = BorderFactory.createBevelBorder(beveltype, highlightO, highlightI, shadowO, shadowI);
 						}
@@ -223,19 +223,19 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(ETCHED_BORDER))
 					{
-						int beveltype = Utils.getAsInteger(tk.nextToken());
-						Color highlight = PersistHelper.createColor(tk.nextToken());
-						Color shadow = PersistHelper.createColor(tk.nextToken());
+						int beveltype = Utils.getAsInteger(tk.nextToken().trim());
+						Color highlight = PersistHelper.createColor(tk.nextToken().trim());
+						Color shadow = PersistHelper.createColor(tk.nextToken().trim());
 						currentBorder = BorderFactory.createEtchedBorder(beveltype, highlight, shadow);
 					}
 					else if (type.equals(LINE_BORDER))
 					{
-						int thick = Utils.getAsInteger(tk.nextToken());
-						currentBorder = BorderFactory.createLineBorder(PersistHelper.createColor(tk.nextToken()), thick);
+						int thick = Utils.getAsInteger(tk.nextToken().trim());
+						currentBorder = BorderFactory.createLineBorder(PersistHelper.createColor(tk.nextToken().trim()), thick);
 					}
 					else if (type.equals(TITLED_BORDER))
 					{
-						String title = tk.nextToken();
+						String title = tk.nextToken().trim();
 						title = Utils.stringReplace(title, "|", ",");//unescape //$NON-NLS-1$ //$NON-NLS-2$
 						int justification = 0;
 						int position = 0;
@@ -243,14 +243,14 @@ public class ComponentFactoryHelper
 						Color color = null;
 						if (tk.hasMoreTokens())
 						{
-							justification = Utils.getAsInteger(tk.nextToken());
-							position = Utils.getAsInteger(tk.nextToken());
+							justification = Utils.getAsInteger(tk.nextToken().trim());
+							position = Utils.getAsInteger(tk.nextToken().trim());
 							if (tk.hasMoreTokens())
 							{
-								font = PersistHelper.createFont(tk.nextToken() + "," + tk.nextToken() + "," + tk.nextToken());//we know a font has 3 parameters ALSO separated with ',' //$NON-NLS-1$ //$NON-NLS-2$
+								font = PersistHelper.createFont(tk.nextToken().trim() + "," + tk.nextToken().trim() + "," + tk.nextToken().trim());//we know a font has 3 parameters ALSO separated with ',' //$NON-NLS-1$ //$NON-NLS-2$
 								if (tk.hasMoreTokens())
 								{
-									color = PersistHelper.createColor(tk.nextToken());
+									color = PersistHelper.createColor(tk.nextToken().trim());
 								}
 							}
 						}
@@ -261,8 +261,8 @@ public class ComponentFactoryHelper
 						}
 						else
 						{
-							currentBorder = BorderFactory.createTitledBorder(J2DBGlobals.getServiceProvider() != null
-								? J2DBGlobals.getServiceProvider().getI18NMessageIfPrefixed(title) : title);
+							currentBorder = BorderFactory.createTitledBorder(
+								J2DBGlobals.getServiceProvider() != null ? J2DBGlobals.getServiceProvider().getI18NMessageIfPrefixed(title) : title);
 						}
 						((TitledBorder)currentBorder).setTitleJustification(justification);
 						((TitledBorder)currentBorder).setTitlePosition(position);
@@ -287,24 +287,24 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(MATTE_BORDER))
 					{
-						int top = Utils.getAsInteger(tk.nextToken());
-						int right = Utils.getAsInteger(tk.nextToken());
-						int bottom = Utils.getAsInteger(tk.nextToken());
-						int left = Utils.getAsInteger(tk.nextToken());
+						int top = Utils.getAsInteger(tk.nextToken().trim());
+						int right = Utils.getAsInteger(tk.nextToken().trim());
+						int bottom = Utils.getAsInteger(tk.nextToken().trim());
+						int left = Utils.getAsInteger(tk.nextToken().trim());
 						Color color = Color.black;
-						if (tk.hasMoreElements()) color = PersistHelper.createColor(tk.nextToken());
+						if (tk.hasMoreElements()) color = PersistHelper.createColor(tk.nextToken().trim());
 						currentBorder = BorderFactory.createMatteBorder(top, left, bottom, right, color);
 					}
 					else if (type.equals(SPECIAL_MATTE_BORDER) || type.equals(ROUNDED_BORDER))
 					{
-						float top = Utils.getAsFloat(tk.nextToken());
-						float right = Utils.getAsFloat(tk.nextToken());
-						float bottom = Utils.getAsFloat(tk.nextToken());
-						float left = Utils.getAsFloat(tk.nextToken());
-						Color topColor = PersistHelper.createColor(tk.nextToken());
-						Color rightColor = PersistHelper.createColor(tk.nextToken());
-						Color bottomColor = PersistHelper.createColor(tk.nextToken());
-						Color leftColor = PersistHelper.createColor(tk.nextToken());
+						float top = Utils.getAsFloat(tk.nextToken().trim());
+						float right = Utils.getAsFloat(tk.nextToken().trim());
+						float bottom = Utils.getAsFloat(tk.nextToken().trim());
+						float left = Utils.getAsFloat(tk.nextToken().trim());
+						Color topColor = PersistHelper.createColor(tk.nextToken().trim());
+						Color rightColor = PersistHelper.createColor(tk.nextToken().trim());
+						Color bottomColor = PersistHelper.createColor(tk.nextToken().trim());
+						Color leftColor = PersistHelper.createColor(tk.nextToken().trim());
 						if (type.equals(SPECIAL_MATTE_BORDER))
 						{
 							currentBorder = new SpecialMatteBorder(top, left, bottom, right, topColor, leftColor, bottomColor, rightColor);
@@ -317,22 +317,22 @@ public class ComponentFactoryHelper
 						{
 							if (type.equals(SPECIAL_MATTE_BORDER))
 							{
-								((SpecialMatteBorder)currentBorder).setRoundingRadius(Utils.getAsFloat(tk.nextToken()));
+								((SpecialMatteBorder)currentBorder).setRoundingRadius(Utils.getAsFloat(tk.nextToken().trim()));
 							}
 							else
 							{
-								((RoundedBorder)currentBorder).setRoundingRadius(tk.nextToken());
+								((RoundedBorder)currentBorder).setRoundingRadius(tk.nextToken().trim());
 							}
 						}
 						if (tk.hasMoreTokens())
 						{
 							if (type.equals(SPECIAL_MATTE_BORDER))
 							{
-								((SpecialMatteBorder)currentBorder).setDashPattern(SpecialMatteBorder.createDash(tk.nextToken()));
+								((SpecialMatteBorder)currentBorder).setDashPattern(SpecialMatteBorder.createDash(tk.nextToken().trim()));
 							}
 							else
 							{
-								((RoundedBorder)currentBorder).setBorderStyles(tk.nextToken());
+								((RoundedBorder)currentBorder).setBorderStyles(tk.nextToken().trim());
 							}
 						}
 					}
@@ -369,20 +369,20 @@ public class ComponentFactoryHelper
 			{
 				try
 				{
-					String type = tk.nextToken();
+					String type = tk.nextToken().trim();
 					if (type.equals(COMPOUND_BORDER))
 					{
 						StringTokenizer tk2 = new StringTokenizer(s, ";"); //$NON-NLS-1$
-						tk2.nextToken();//skip 'CompoundBorder,' token
-						String s_oborder = tk2.nextToken();
+						tk2.nextToken().trim();//skip 'CompoundBorder,' token
+						String s_oborder = tk2.nextToken().trim();
 						return createBorderCSSProperties(s_oborder, style);
 					}
 					else if (type.equals(EMPTY_BORDER))
 					{
-						int top = Utils.getAsInteger(tk.nextToken());
-						int right = Utils.getAsInteger(tk.nextToken());
-						int bottom = Utils.getAsInteger(tk.nextToken());
-						int left = Utils.getAsInteger(tk.nextToken());
+						int top = Utils.getAsInteger(tk.nextToken().trim());
+						int right = Utils.getAsInteger(tk.nextToken().trim());
+						int bottom = Utils.getAsInteger(tk.nextToken().trim());
+						int left = Utils.getAsInteger(tk.nextToken().trim());
 						if (top != 0 && right != 0 && bottom != 0 && left != 0)
 						{
 							StringBuffer pad = new StringBuffer();
@@ -401,7 +401,7 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(BEVEL_BORDER) || type.equals(ETCHED_BORDER))
 					{
-						int beveltype = Utils.getAsInteger(tk.nextToken());
+						int beveltype = Utils.getAsInteger(tk.nextToken().trim());
 						if (tk.hasMoreTokens())
 						{
 							Color highlightO = null;
@@ -410,16 +410,16 @@ public class ComponentFactoryHelper
 							Color shadowI = null;
 							if (type.equals(BEVEL_BORDER))
 							{
-								highlightO = PersistHelper.createColor(tk.nextToken());
-								highlightI = PersistHelper.createColor(tk.nextToken());
-								shadowO = PersistHelper.createColor(tk.nextToken());
-								shadowI = PersistHelper.createColor(tk.nextToken());
+								highlightO = PersistHelper.createColor(tk.nextToken().trim());
+								highlightI = PersistHelper.createColor(tk.nextToken().trim());
+								shadowO = PersistHelper.createColor(tk.nextToken().trim());
+								shadowI = PersistHelper.createColor(tk.nextToken().trim());
 							}
 							else
 							{
-								highlightO = PersistHelper.createColor(tk.nextToken());
+								highlightO = PersistHelper.createColor(tk.nextToken().trim());
 								highlightI = highlightO;
-								shadowO = PersistHelper.createColor(tk.nextToken());
+								shadowO = PersistHelper.createColor(tk.nextToken().trim());
 								shadowI = shadowO;
 							}
 							if (beveltype == BevelBorder.LOWERED)
@@ -481,10 +481,10 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(LINE_BORDER))
 					{
-						int thick = Utils.getAsInteger(tk.nextToken());
+						int thick = Utils.getAsInteger(tk.nextToken().trim());
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
 						style.setProperty("border-width", thick + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-						style.setProperty("border-color", tk.nextToken()); //$NON-NLS-1$
+						style.setProperty("border-color", tk.nextToken().trim()); //$NON-NLS-1$
 						return new Insets(thick, thick, thick, thick);
 					}
 					else if (type.equals(TITLED_BORDER))
@@ -494,15 +494,15 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(MATTE_BORDER))
 					{
-						int top = Utils.getAsInteger(tk.nextToken());
-						int right = Utils.getAsInteger(tk.nextToken());
-						int bottom = Utils.getAsInteger(tk.nextToken());
-						int left = Utils.getAsInteger(tk.nextToken());
+						int top = Utils.getAsInteger(tk.nextToken().trim());
+						int right = Utils.getAsInteger(tk.nextToken().trim());
+						int bottom = Utils.getAsInteger(tk.nextToken().trim());
+						int left = Utils.getAsInteger(tk.nextToken().trim());
 						Color c = Color.black;
 						String colorString = null;
 						if (tk.hasMoreElements())
 						{
-							colorString = tk.nextToken();
+							colorString = tk.nextToken().trim();
 							c = PersistHelper.createColor(colorString);
 						}
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -521,10 +521,10 @@ public class ComponentFactoryHelper
 					}
 					else if (type.equals(SPECIAL_MATTE_BORDER) || type.equals(ROUNDED_BORDER))
 					{
-						float top = Utils.getAsFloat(tk.nextToken());
-						float right = Utils.getAsFloat(tk.nextToken());
-						float bottom = Utils.getAsFloat(tk.nextToken());
-						float left = Utils.getAsFloat(tk.nextToken());
+						float top = Utils.getAsFloat(tk.nextToken().trim());
+						float right = Utils.getAsFloat(tk.nextToken().trim());
+						float bottom = Utils.getAsFloat(tk.nextToken().trim());
+						float left = Utils.getAsFloat(tk.nextToken().trim());
 
 						StringBuffer tmp = new StringBuffer();
 						tmp.append(Math.round(top));
@@ -537,10 +537,10 @@ public class ComponentFactoryHelper
 						tmp.append("px"); //$NON-NLS-1$
 						style.setProperty("border-width", tmp.toString()); //$NON-NLS-1$
 
-						String topColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
-						String rightColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
-						String bottomColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
-						String leftColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
+						String topColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken().trim()));
+						String rightColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken().trim()));
+						String bottomColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken().trim()));
+						String leftColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken().trim()));
 
 //						style.setProperty(CSSName.BORDER_TOP_COLOR.toString(), topColor);
 //						style.setProperty(CSSName.BORDER_RIGHT_COLOR.toString(), rightColor);
@@ -561,13 +561,13 @@ public class ComponentFactoryHelper
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (tk.hasMoreTokens())
 						{
-							String roundedBorder = tk.nextToken();
+							String roundedBorder = tk.nextToken().trim();
 							String[] styles = new String[4];
 							int index = 0;
 							StringTokenizer roundedTokenizer = new StringTokenizer(roundedBorder, ";"); //$NON-NLS-1$
 							while (roundedTokenizer.hasMoreTokens())
 							{
-								int width = Utils.getAsInteger(roundedTokenizer.nextToken());
+								int width = Utils.getAsInteger(roundedTokenizer.nextToken().trim());
 								styles[index] = (styles[index] != null ? (styles[index] + " " + width + "px") : (width + "px")); //$NON-NLS-1$
 								index = (index + 1) % 4;
 							}
