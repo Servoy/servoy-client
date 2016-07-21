@@ -1,4 +1,4 @@
-angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', function() {  
+angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$timeout",function($timeout) {  
     return {
       restrict: 'E',
       scope: {
@@ -40,6 +40,47 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', func
     			  $scope.model.foundset.loadRecordsAsync($scope.model.pageSize * ($scope.model.currentPage -1), $scope.model.pageSize);
     		  }	  
           });
+    	  var toBottom = false;
+    	  var tbody = null;
+    	  var wrapper = null;
+    	  $scope.$watch('model.visible', function(newValue) {
+    		  if (!newValue) {
+    			   toBottom = false;
+    			   tbody = null;
+    			   wrapper = null;
+    		  }
+    	  })
+    	  function scrollIntoView() {
+    		  var firstSelected = $scope.model.foundset.selectedRowIndexes[0];
+    		  var child = null;
+    		  if (firstSelected == 0) {
+    			  child= $element.find("thead");
+    		  } 
+    		  else child = tbody.children().eq(firstSelected)
+			  if (child.length > 0) {
+				  console.log(child[0])
+				  var wrapperRect = wrapper.getBoundingClientRect();
+				  var childRect =child[0].getBoundingClientRect();
+				  if (childRect.top < wrapperRect.top || childRect.bottom > wrapperRect.bottom) {
+					  child[0].scrollIntoView(!toBottom);
+				  }
+			  }
+    	  }
+    	  $scope.$watch('model.foundset.selectedRowIndexes', function (newValue,oldValue) {
+    		  if ( $scope.model.foundset.selectedRowIndexes.length > 0) {
+    			  if (tbody == null || tbody.length == 0) {
+    				  wrapper = $element.find(".tablewrapper")[0];
+    				  tbody= $element.find("tbody");
+    			  }
+    			  if(tbody.children().length > 1) {
+    				  scrollIntoView();
+    			  }
+    			  else {
+    				  $timeout(scrollIntoView, 200)
+    			  }
+    			 
+    		  }
+    	  },true)
     	  
     	  $scope.getUrl = function(column,row) {
     		 if (column && row)
@@ -106,12 +147,14 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', func
 	    		  if (event.keyCode == 38) {
 	    			  if (selection > 0) {
 	    				  $scope.model.foundset.selectedRowIndexes = [selection-1];
+	    				  toBottom = false;
 	    			  }
 	    			  event.preventDefault();
 	    		  }
 	    		  else if (event.keyCode == 40) {
 	    			  if (selection < $scope.model.foundset.viewPort.size-1) {
 	    				  $scope.model.foundset.selectedRowIndexes = [selection+1];
+	    				  toBottom = true;
 	    			  }
 	    			  event.preventDefault();
 	    		  } 
@@ -125,7 +168,7 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', func
       },
       templateUrl: 'servoyextra/table/table.html'
     };
-  })
+  }])
   .filter('getDisplayValue', function () { // filter that takes the realValue as an input and returns the displayValue
 	return function (input, valuelist) {
 		if (valuelist) {
