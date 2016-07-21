@@ -22,9 +22,10 @@
 		{
 			"dataprovider": {	"type": "dataprovider",	"forFoundset": "foundset" },
 			"format" : {"for":["valuelist","dataprovider"] , "type" :"format"},
-			"headerStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }}, 
+			"headerStyleClass" : { "type" :"styleclass"}, 
 			"headerText": {"type" :"string", "default" : "header", "tags": { "showInOutlineView" :true }},
-			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"styleClass" : { "type" :"styleclass"},
+			"styleClassDataprovider" : { "type": "dataprovider",	"forFoundset": "foundset"},
 			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"}
 		}
 	},
