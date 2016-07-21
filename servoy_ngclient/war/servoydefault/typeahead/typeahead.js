@@ -59,9 +59,12 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					if(!found)
 					{
 						$scope.value = null;
-						$sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:$scope.model.dataProviderID,valuelist: $scope.model.valuelistID.valuelistid}).then(function(displayValue) {
-							$scope.value = displayValue;
-						});
+						if ($scope.model.dataProviderID !== null)
+						{
+							$sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:$scope.model.dataProviderID,valuelist: $scope.model.valuelistID.valuelistid}).then(function(displayValue) {
+								$scope.value = displayValue;
+							});
+						}	
 					}	
 				}	 
 			}
