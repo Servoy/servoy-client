@@ -138,7 +138,7 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
 
     	  $scope.getRowStyle = function(row) {
     		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf($scope.getRealRow(row)) != -1; 
-    		  return  isSelected ? $scope.model.selectionClass : "";
+    		  return  isSelected ? $scope.model.selectionClass : " ";
     	  }
     	  
     	  $scope.keyPressed = function(event) {
