@@ -126,12 +126,15 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void setProperty(String propertyName, Object val)
 	{
-		if (webObjectImpl.setProperty(propertyName, val))
-		{
-			// see if it's not a direct persist property as well such as size, location, anchors... if it is set it here as well anyway so that they are in sync with spec properties
-			if (hasPersistProperty(propertyName)) super.setProperty(propertyName, val);
-		}
-		else super.setProperty(propertyName, val);
+		if (hasPersistProperty(propertyName)) super.setProperty(propertyName, val);
+		else webObjectImpl.setProperty(propertyName, val);
+	}
+
+	@Override
+	protected void setPropertyInternal(String propertyName, Object val)
+	{
+		super.setPropertyInternal(propertyName, val);
+		webObjectImpl.setProperty(propertyName, val);
 	}
 
 	@Override
