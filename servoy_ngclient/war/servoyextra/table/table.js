@@ -52,13 +52,13 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     	  })
     	  function scrollIntoView() {
     		  var firstSelected = $scope.model.foundset.selectedRowIndexes[0];
+    		  firstSelected = firstSelected - ($scope.model.pageSize * ($scope.model.currentPage -1));
     		  var child = null;
     		  if (firstSelected == 0) {
     			  child= $element.find("thead");
     		  } 
     		  else child = tbody.children().eq(firstSelected)
 			  if (child.length > 0) {
-				  console.log(child[0])
 				  var wrapperRect = wrapper.getBoundingClientRect();
 				  var childRect =child[0].getBoundingClientRect();
 				  if (childRect.top < wrapperRect.top || childRect.bottom > wrapperRect.bottom) {
@@ -142,19 +142,26 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     	  }
     	  
     	  $scope.keyPressed = function(event) {
-    		  if ($scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.length > 0) {
-    			  var selection = $scope.model.foundset.selectedRowIndexes[0];
+    		  var fs = $scope.model.foundset;
+    		  if (fs.selectedRowIndexes && fs.selectedRowIndexes.length > 0) {
+    			  var selection = fs.selectedRowIndexes[0];
 	    		  if (event.keyCode == 38) {
 	    			  if (selection > 0) {
-	    				  $scope.model.foundset.selectedRowIndexes = [selection-1];
-	    				  toBottom = false;
+	    				  fs.selectedRowIndexes = [selection-1];
+	    				  if ( (fs.viewPort.startIndex) <=  selection-1){
+	    					  toBottom = false;
+	    				  }
+	    				  else $scope.modifyPage(-1);
 	    			  }
 	    			  event.preventDefault();
 	    		  }
 	    		  else if (event.keyCode == 40) {
-	    			  if (selection < $scope.model.foundset.viewPort.size-1) {
-	    				  $scope.model.foundset.selectedRowIndexes = [selection+1];
-	    				  toBottom = true;
+	    			  if (selection < fs.serverSize-1) {
+	    				  fs.selectedRowIndexes = [selection+1];
+	    				  if ( (fs.viewPort.startIndex + fs.viewPort.size) >  selection+1){
+	    					  toBottom = true;
+	    				  }
+	    				  else $scope.modifyPage(1);
 	    			  }
 	    			  event.preventDefault();
 	    		  } 
