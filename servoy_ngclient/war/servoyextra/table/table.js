@@ -132,7 +132,7 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     	  
     	  if ($scope.handlers.onCellClick) {
     		  $scope.cellClicked = function(row, column) {
-    			  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column + 1);
+    			  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column + 1, $scope.model.foundset.viewPort.rows[row]);
     		  }
     	  }
 
@@ -167,7 +167,7 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
 	    		  } 
 	    		  else if (event.keyCode == 13) {
 	    			 if ($scope.handlers.onCellClick) {
-	    				 $scope.handlers.onCellClick(selection+1)
+	    				 $scope.handlers.onCellClick(selection+1, null,fs.viewPort.rows[selection])
 	    			 }
 	    		  }
     		  }
