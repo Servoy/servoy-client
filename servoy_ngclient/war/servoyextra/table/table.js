@@ -126,13 +126,13 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     	  
     	  if ($scope.handlers.onHeaderClick) {
     		  $scope.headerClicked = function(column) {
-    			  $scope.handlers.onHeaderClick(column + 1);
+    			  $scope.handlers.onHeaderClick(column);
     		  }
     	  }
     	  
     	  if ($scope.handlers.onCellClick) {
     		  $scope.cellClicked = function(row, column) {
-    			  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column + 1, $scope.model.foundset.viewPort.rows[row]);
+    			  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column, $scope.model.foundset.viewPort.rows[row]);
     		  }
     	  }
 
