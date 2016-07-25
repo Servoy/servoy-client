@@ -120,8 +120,29 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     		  return realRow;
     	  }
     	  
-    	  $scope.rowClicked = function(row) {
-    		  $scope.model.foundset.selectedRowIndexes = [$scope.getRealRow(row)];
+    	  $scope.tableClicked = function(event, type) {
+    		 var elements = document.querySelectorAll(':hover');
+    		 for(var i=elements.length;--i>0;) {
+    			 var row_column = $(elements[i]).data("row_column");
+    			 if (row_column) {
+    				 var rowIndex = $scope.model.foundset.viewPort.rows.indexOf(row_column.row); 
+    				 var columnIndex = $scope.model.columns.indexOf(row_column.column);
+    				 var realRow = $scope.getRealRow(rowIndex);
+    				 $scope.model.foundset.selectedRowIndexes = [realRow];
+    				 if (type == 1 && $scope.handlers.onCellClick) {
+    					 $scope.handlers.onCellClick(realRow + 1, columnIndex, $scope.model.foundset.viewPort.rows[rowIndex]);
+    		    	 }
+    		    	  
+    		    	 if ( type == 2 && $scope.handlers.onCellRightClick) {
+    		    		 $scope.handlers.onCellRightClick(realRow + 1, columnIndex, $scope.model.foundset.viewPort.rows[rowIndex]);
+    		    	 }
+    			 }
+    		 }
+    	  }
+    	  if ($scope.handlers.onCellRightClick) {
+    		  $scope.tableRightClick = function(event) {
+    			  $scope.tableClicked(event,2);
+    		  }
     	  }
     	  
     	  if ($scope.handlers.onHeaderClick) {
@@ -130,11 +151,6 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     		  }
     	  }
     	  
-    	  if ($scope.handlers.onCellClick) {
-    		  $scope.cellClicked = function(row, column) {
-    			  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column, $scope.model.foundset.viewPort.rows[row]);
-    		  }
-    	  }
 
     	  $scope.getRowStyle = function(row) {
     		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf($scope.getRealRow(row)) != -1; 
@@ -187,6 +203,14 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
 		}
 		return input;
 	};
+}).directive('modelInData', function($parse) {
+	   return {
+		     restrict: 'A',
+		     link: function($scope, $element, $attrs) {
+		       var model = $parse($attrs.modelInData)($scope);
+		       $element.data('row_column', model);
+		     }
+		   }
 });
 
   
