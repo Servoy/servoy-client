@@ -3302,6 +3302,19 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		form.setNgReadOnlyMode(Boolean.valueOf(arg));
 	}
 
+	/**
+	 * Returns true if this form is in responsive mode
+	 *
+	 * @sample
+	 * var myForm = solutionModel.getForm('myform');
+	 * if (myForm.isResponsive()) {}
+	 */
+	@JSGetter
+	public boolean isResponsiveLayout()
+	{
+		return form.isResponsiveLayout();
+	}
+
 	/** Get a design-time property of a form.
 	 *
 	 * @sample
