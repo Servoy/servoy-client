@@ -128,13 +128,13 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
     				 var rowIndex = $scope.model.foundset.viewPort.rows.indexOf(row_column.row); 
     				 var columnIndex = $scope.model.columns.indexOf(row_column.column);
     				 var realRow = $scope.getRealRow(rowIndex);
-    				 $scope.model.foundset.selectedRowIndexes = [realRow];
+    				 $scope.model.foundset.requestSelectionUpdate([realRow]);
     				 if (type == 1 && $scope.handlers.onCellClick) {
-    					 $scope.handlers.onCellClick(realRow + 1, columnIndex, $scope.model.foundset.viewPort.rows[rowIndex]);
+    					$scope.handlers.onCellClick(realRow + 1, columnIndex, $scope.model.foundset.viewPort.rows[rowIndex]);
     		    	 }
     		    	  
     		    	 if ( type == 2 && $scope.handlers.onCellRightClick) {
-    		    		 $scope.handlers.onCellRightClick(realRow + 1, columnIndex, $scope.model.foundset.viewPort.rows[rowIndex]);
+    					$scope.handlers.onCellRightClick(realRow + 1, columnIndex, $scope.model.foundset.viewPort.rows[rowIndex]);
     		    	 }
     			 }
     		 }
