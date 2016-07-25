@@ -118,6 +118,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			},
 			getFormState: function() {
 				return $scope;
+			},
+			isInDesigner: function() {
+				return false;
 			}
 		}
 	}
