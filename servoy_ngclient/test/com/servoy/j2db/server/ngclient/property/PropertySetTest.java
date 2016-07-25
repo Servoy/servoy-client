@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,15 +52,7 @@ public class PropertySetTest extends AbstractSolutionTest
 		Form form = solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
 		form.setNavigatorID(-2);
 		com.servoy.j2db.persistence.WebComponent bean = form.createNewWebComponent("mycustombean", "mycomponent");
-		try
-		{
-			// TODO what is this supposed to do? it will always print an exception in error console (in some nested call catch) here because it expects a Color not a string here (we are in java code not SolutionModel code or deserialize code)
-			bean.setProperty("background", "#000000");
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+		bean.setProperty("background", Color.black);
 	}
 
 	@Override
