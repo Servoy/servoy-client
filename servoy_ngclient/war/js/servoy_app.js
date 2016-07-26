@@ -1282,3 +1282,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)
 	}
 })
+.factory('$formcomponentCache',['$compile',function($compile){
+	var cache = {};
+	return {
+		get: function(key) {
+			return cache[key];
+		},
+		put: function(key, value) {
+			if(!cache[key]) {
+				cache[key] = $compile(value);
+			}
+		}
+	}
+}]);

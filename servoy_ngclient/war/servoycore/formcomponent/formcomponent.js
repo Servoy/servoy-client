@@ -11,9 +11,8 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
            {
         	   $scope.$watch("model.containedForm", function(newValue) { 
         		   if (newValue) {
-					  	$element.html(newValue);
-					  	var formScope = $scope.svyServoyapi.getFormState();
-					    $compile($element.contents())(formScope);
+        			   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue);
+					   $element.append(elements);
         		   }
         		   else {
         			   $element.html("<div></div>");

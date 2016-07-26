@@ -47,13 +47,11 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
-import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
-import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFormComponentRhinoConverter;
@@ -130,29 +128,11 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, fs);
 		if (form != null)
 		{
-			// TODO now we generated the the full template per property
-			// so for more then 1 property of the same formcomp (over multiply forms or the same form) this is a lot of duplication.
-			// problem is that the JSON definition can change per form component so it could be different for any property...
-			// but only for special case like a legacy Field if that gets a valuelist then it maps to a typeahead instead of a textfied...
+			// we output here a uuid that is a uuid that must be used to get the compiled template from the $formcomponentCache
 			writer.key(key);
-			final List<FormElement> list = FormElementHelper.INSTANCE.generateFormComponentElements(formElementContext.getFormElement(), pd,
-				(JSONObject)formElementValue, form, fs, null);
-			IFormElementCache cache = new IFormElementCache()
-			{
-				@Override
-				public FormElement getFormElement(IFormElement component, FlattenedSolution flattendSol, PropertyPath path, boolean design)
-				{
-					for (FormElement formElement : list)
-					{
-						if (component.getUUID().equals(formElement.getPersistIfAvailable().getUUID()))
-						{
-							return formElement;
-						}
-					}
-					return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
-				}
-			};
-			writer.value(FormLayoutGenerator.generateFormComponent(form, fs, cache));
+			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
+				fs).getCacheUUID();
+			writer.value(uuid);
 		}
 		return writer;
 	}
@@ -196,8 +176,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, dataAdapterList.getApplication().getFlattenedSolution());
 		if (form != null)
 		{
-			List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentElements(formElement, pd, (JSONObject)formElementValue, form,
-				dataAdapterList.getApplication().getFlattenedSolution(), null);
+			List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
+				dataAdapterList.getApplication().getFlattenedSolution()).getFormComponentElements();
 			for (FormElement element : elements)
 			{
 				WebFormComponent comp = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, null,

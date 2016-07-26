@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$formcomponentCache) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -116,8 +116,34 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			callServerSideApi: function(methodName,args) {
 				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
 			},
-			getFormState: function() {
-				return $scope;
+			getFormComponentElements: function(propertyName, templateUUID) {
+				var newScope = $scope.$new(false,$scope);
+				newScope.model = {}
+				newScope.api = {};
+				newScope.layout = {};
+				newScope.handlers = {}
+				var prefix = beanname + '$' + propertyName + '$';
+				for(var key in $scope.model) {
+					if (key.substr(0, prefix.length) === prefix) {
+						newScope.model[key.substr(prefix.length)] = $scope.model[key];
+					}
+				}
+				for(var key in $scope.api) {
+					if (key.substr(0, prefix.length) === prefix) {
+						newScope.api[key.substr(prefix.length)] = $scope.api[key];
+					}
+				}
+				for(var key in $scope.layout) {
+					if (key.substr(0, prefix.length) === prefix) {
+						newScope.layout[key.substr(prefix.length)] = $scope.layout[key];
+					}
+				}
+				for(var key in $scope.handlers) {
+					if (key.substr(0, prefix.length) === prefix) {
+						newScope.handlers[key.substr(prefix.length)] = $scope.handlers[key];
+					}
+				}
+				return $formcomponentCache.get(templateUUID)(newScope);
 			},
 			isInDesigner: function() {
 				return false;
@@ -203,4 +229,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		}
 		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);
 	});
+	
+	
+	<#list templates?keys as prop>
+   		$formcomponentCache.put('${prop}',"${templates[prop]}"); 
+	</#list> 
 });

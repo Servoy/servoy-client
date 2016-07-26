@@ -37,6 +37,7 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -327,7 +328,10 @@ public class FormLayoutGenerator
 
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, Form form, boolean isResponsive)
 	{
-		String designId = fe.getDesignId();
+		String designId = getDesignId(fe);
+		String name = fe.getPersistIfAvailable() instanceof AbstractBase
+			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
+		if (name == null) name = fe.getName();
 		if (designId != null)
 		{
 
@@ -345,7 +349,7 @@ public class FormLayoutGenerator
 		else
 		{
 			writer.print("<div ng-style=\"layout.");
-			writer.print(fe.getName());
+			writer.print(name);
 			writer.print("\"");
 		}
 		if (!isResponsive && fe.getPersistIfAvailable() instanceof BaseComponent)
@@ -379,10 +383,10 @@ public class FormLayoutGenerator
 		if (designId != null)
 		{
 			writer.print(" svy-id='");
-			writer.print(getDesignId(fe));
+			writer.print(designId);
 			writer.print("'");
 			writer.print(" name='");
-			writer.print(fe.getName());
+			writer.print(name);
 			writer.print("'");
 			List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
 			if (typeAndPropertyNames[0].size() > 0)
@@ -458,14 +462,17 @@ public class FormLayoutGenerator
 
 	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form)
 	{
+		String name = fe.getPersistIfAvailable() instanceof AbstractBase
+			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
+		if (name == null) name = fe.getName();
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
-		writer.print(fe.getName());
+		writer.print(name);
 		writer.print("'");
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
-			String elementName = fe.getName();
+			String elementName = name;
 			if (elementName.startsWith("svy_") && fe.getPersistIfAvailable() != null)
 			{
 				elementName = "svy_" + fe.getPersistIfAvailable().getUUID().toString();
@@ -474,13 +481,13 @@ public class FormLayoutGenerator
 			writer.print(form.getName() + "." + elementName);
 			writer.print("'");
 		}
-		String designId = fe.getDesignId();
+		String designId = getDesignId(fe);
 		if (designId != null)
 		{
 			if (form.isResponsiveLayout())
 			{
 				writer.print(" svy-id='");
-				writer.print(getDesignId(fe));
+				writer.print(designId);
 				writer.print("'");
 				writer.print(" svy-formelement-type='");
 				writer.print(fe.getTypeName());
@@ -549,16 +556,16 @@ public class FormLayoutGenerator
 		else
 		{
 			writer.print(" svy-model='model.");
-			writer.print(fe.getName());
+			writer.print(name);
 			writer.print("'");
 			writer.print(" svy-api='api.");
-			writer.print(fe.getName());
+			writer.print(name);
 			writer.print("'");
 			writer.print(" svy-handlers='handlers.");
-			writer.print(fe.getName());
+			writer.print(name);
 			writer.print("'");
 			writer.print(" svy-servoyApi='handlers.");
-			writer.print(fe.getName());
+			writer.print(name);
 			writer.print(".svy_servoyApi'");
 		}
 
@@ -575,7 +582,7 @@ public class FormLayoutGenerator
 	 */
 	public static String getDesignId(FormElement fe)
 	{
-		return (fe.getDesignId() == null && fe.getTypeName().equals("servoycore-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
+		return (fe.getDesignId() != null && fe.getTypeName().equals("servoycore-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
 	}
 
 	private static String getDirectEditProperty(FormElement fe)

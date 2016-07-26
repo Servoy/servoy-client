@@ -54,6 +54,7 @@ import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -80,6 +81,7 @@ public class FormWrapper
 	private final boolean design;
 	private final FormTemplateObjectWrapper formTemplateObjectWrapper;
 	private Collection<IFormElement> baseComponents;
+	private final Map<String, String> formComponentTemplates = new HashMap<>();
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, FormTemplateObjectWrapper formTemplateObjectWrapper,
 		IServoyDataConverterContext context, boolean design)
@@ -133,6 +135,12 @@ public class FormWrapper
 		return part;
 	}
 
+	public Map<String, String> getTemplates()
+	{
+		if (this.baseComponents == null) getBaseComponents();
+		return formComponentTemplates;
+	}
+
 	public Collection<Part> getParts()
 	{
 		List<Part> parts = new ArrayList<>();
@@ -182,7 +190,7 @@ public class FormWrapper
 		for (IFormElement persist : persists)
 		{
 			if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
-			checkFormComponents(components, excludedComponents, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
+			checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
 		}
 		components.addAll(getReferenceForms());
 		if ((isListView && !design) || isTableView)
@@ -203,7 +211,7 @@ public class FormWrapper
 	 * @param excludedComponents
 	 * @param persist
 	 */
-	private void checkFormComponents(List<IFormElement> components, Collection<BaseComponent> excludedComponents, FormElement formElement)
+	private void checkFormComponents(List<IFormElement> components, FormElement formElement)
 	{
 		WebObjectSpecification spec = formElement.getWebComponentSpec();
 		if (spec != null)
@@ -216,13 +224,14 @@ public class FormWrapper
 					Object propertyValue = formElement.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;
-					List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentElements(formElement, pd, (JSONObject)propertyValue, frm,
-						context.getSolution(), excludedComponents);
-					for (FormElement element : elements)
+					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)propertyValue, frm,
+						context.getSolution());
+					for (FormElement element : cache.getFormComponentElements())
 					{
 						components.add((IFormElement)element.getPersistIfAvailable());
-						checkFormComponents(components, excludedComponents, element);
+						checkFormComponents(components, element);
 					}
+					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
 				}
 			}
 		}

@@ -499,7 +499,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (inDesigner && getPersistIfAvailable() != null && getPersistIfAvailable().getUUID() != null)
 		{
 			// if this is a form component element just return the name
-			if (((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT) != null)
+			if (((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) != null)
 			{
 				return getName();
 			}
