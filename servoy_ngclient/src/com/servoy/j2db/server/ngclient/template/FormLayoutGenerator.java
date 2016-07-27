@@ -278,7 +278,8 @@ public class FormLayoutGenerator
 		String designId = getDesignId(fe);
 		String name = fe.getPersistIfAvailable() instanceof AbstractBase
 			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-		if (name == null) name = fe.getName();
+		boolean emptyName = "".equals(name);
+		if (name == null || emptyName) name = fe.getName();
 		if (designId != null)
 		{
 
@@ -321,9 +322,12 @@ public class FormLayoutGenerator
 		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (designId != null)
 		{
-			writer.print(" svy-id='");
-			writer.print(designId);
-			writer.print("'");
+			if (!emptyName)
+			{
+				writer.print(" svy-id='");
+				writer.print(designId);
+				writer.print("'");
+			}
 			writer.print(" name='");
 			writer.print(name);
 			writer.print("'");
@@ -394,7 +398,8 @@ public class FormLayoutGenerator
 	{
 		String name = fe.getPersistIfAvailable() instanceof AbstractBase
 			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-		if (name == null) name = fe.getName();
+		boolean emptyName = "".equals(name);
+		if (name == null || emptyName) name = fe.getName();
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -416,9 +421,12 @@ public class FormLayoutGenerator
 		{
 			if (form.isResponsiveLayout())
 			{
-				writer.print(" svy-id='");
-				writer.print(designId);
-				writer.print("'");
+				if (!emptyName)
+				{
+					writer.print(" svy-id='");
+					writer.print(designId);
+					writer.print("'");
+				}
 				writer.print(" svy-formelement-type='");
 				writer.print(fe.getTypeName());
 				writer.print("'");
