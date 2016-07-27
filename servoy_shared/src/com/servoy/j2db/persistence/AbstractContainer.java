@@ -21,7 +21,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -164,17 +163,6 @@ public abstract class AbstractContainer extends AbstractBase
 		return obj;
 	}
 
-	public FormReference createNewFormReference(Point location) throws RepositoryException
-	{
-		FormReference obj = (FormReference)getSolution().getChangeHandler().createNewObject(this, IRepository.FORMREFERENCE);
-
-		//set all the required properties
-		obj.setLocation(location);
-
-		addChild(obj);
-		return obj;
-	}
-
 	/**
 	 * Get the all the child layout containers.
 	 *
@@ -183,16 +171,6 @@ public abstract class AbstractContainer extends AbstractBase
 	public Iterator<LayoutContainer> getLayoutContainers()
 	{
 		return getObjects(IRepository.LAYOUTCONTAINERS);
-	}
-
-	/**
-	 * Get the all the child form references.
-	 *
-	 * @return the form references elements
-	 */
-	public Iterator<FormReference> getFormReferences()
-	{
-		return getObjects(IRepository.FORMREFERENCE);
 	}
 
 	/**
@@ -475,18 +453,13 @@ public abstract class AbstractContainer extends AbstractBase
 
 	public IPersist findChild(UUID searchFor)
 	{
-		return findChild(searchFor, false);
-	}
-
-	public IPersist findChild(UUID searchFor, boolean searchInFormReferences)
-	{
 		List<IPersist> children = getHierarchyChildren();
 		for (IPersist iPersist : children)
 		{
 			if (iPersist.getUUID().equals(searchFor)) return iPersist;
-			if (iPersist instanceof LayoutContainer || (searchInFormReferences && iPersist instanceof FormReference))
+			if (iPersist instanceof AbstractContainer)
 			{
-				IPersist result = ((AbstractContainer)iPersist).findChild(searchFor, searchInFormReferences);
+				IPersist result = ((AbstractContainer)iPersist).findChild(searchFor);
 				if (result != null) return result;
 			}
 		}
@@ -509,25 +482,5 @@ public abstract class AbstractContainer extends AbstractBase
 		Arrays.sort(sortedChildArray, PositionComparator.XY_PERSIST_COMPARATOR);
 		children = new ArrayList<IPersist>(Arrays.asList(sortedChildArray));
 		return children;
-	}
-
-	public List<FormReference> getFormReferencesWithoutNesting()
-	{
-		final List<FormReference> formReferences = new ArrayList<>();
-		this.acceptVisitor(new IPersistVisitor()
-		{
-			@Override
-			public Object visit(IPersist o)
-			{
-				if (o instanceof FormReference && o != AbstractContainer.this)
-				{
-					formReferences.add((FormReference)o);
-					return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-				}
-				return IPersistVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
-		Collections.sort(formReferences, NameComparator.INSTANCE);
-		return formReferences;
 	}
 }

@@ -884,14 +884,6 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(435, IRepository.TABLENODES, PROPERTY_COLUMNS.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(436, IRepository.WEBCOMPONENTS, PROPERTY_GROUPID.getPropertyName(), IRepository.STRING);
 			cs.new Element(437, IRepository.FORMS, PROPERTY_ONELEMENTDATACHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(438, IRepository.FORMREFERENCE, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
-			cs.new Element(439, IRepository.FORMREFERENCE, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
-			cs.new Element(440, IRepository.FORMREFERENCE, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(441, IRepository.FORMREFERENCE, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(442, IRepository.FORMREFERENCE, PROPERTY_CONTAINSFORMID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(443, IRepository.FORMREFERENCE, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
-			cs.new Element(444, IRepository.FORMREFERENCE, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
-
 		}
 		//##add property adds here
 		return cs;

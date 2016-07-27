@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IPersist;
@@ -107,7 +106,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				JSList.class, JSInsetList.class, //
 				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
 				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSFormReference.class//
+				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class//
 				};
 			}
 		});
@@ -2092,11 +2091,6 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		return new JSLayoutContainer(parent, application, container);
 	}
 
-	public JSFormReference createFormReference(IJSParent< ? > parent, FormReference formReference)
-	{
-		return new JSFormReference(parent, application, formReference);
-	}
-
 	/**
 	 * Retrieves an element by its uuid.
 	 * @sample
@@ -2146,10 +2140,6 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			if (persist instanceof LayoutContainer)
 			{
 				return new JSLayoutContainer(getParentContainer(persist), application, (LayoutContainer)persist);
-			}
-			if (persist instanceof FormReference)
-			{
-				return new JSFormReference(getParentContainer(persist), application, (FormReference)persist);
 			}
 			if (persist instanceof Field)
 			{
@@ -2205,10 +2195,6 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			if (container instanceof LayoutContainer)
 			{
 				parent = new JSLayoutContainer(parent, application, (LayoutContainer)persist);
-			}
-			if (container instanceof FormReference)
-			{
-				parent = new JSFormReference(parent, application, (FormReference)persist);
 			}
 			if (container instanceof Form)
 			{

@@ -125,7 +125,6 @@ public interface IRepository
 	public static final int SOLUTIONS = IRepositoryConstants.SOLUTIONS;
 	public static final int TABLES = IRepositoryConstants.TABLES;
 	public static final int STATS = IRepositoryConstants.STATS;
-	public static final int FORMREFERENCE = IRepositoryConstants.FORMREFERENCE;
 
 	/**
 	 * Get all the defined server interfaces.

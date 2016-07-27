@@ -31,5 +31,4 @@ public interface ISupportFormElements extends ISupportChilds
 
 	public RectShape createNewRectangle(Point location) throws RepositoryException;
 
-	public FormReference createNewFormReference(Point location) throws RepositoryException;
 }

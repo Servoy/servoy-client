@@ -41,11 +41,9 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -176,62 +174,11 @@ public class FormLayoutGenerator
 					generateEndDiv(writer);
 				}
 
-				Iterator<FormReference> formReferences = form.getFormReferences();
-				while (formReferences.hasNext())
-				{
-					FormReference formReference = formReferences.next();
-					generateFormReference(formReference, writer, form, context, design, cachedElementsMap);
-				}
 				if (!design) generateEndDiv(writer);
 			}
 		}
 
 		generateFormEndTag(writer, design);
-	}
-
-	public static void generateFormReference(FormReference formReference, PrintWriter writer, Form form, IServoyDataConverterContext context, boolean design,
-		Map<IPersist, FormElement> cachedElementsMap)
-	{
-		if (PartWrapper.isSecurityVisible(formReference, context))
-		{
-			FormElement fe = null;
-			if (cachedElementsMap.containsKey(formReference))
-			{
-				fe = cachedElementsMap.get(formReference);
-			}
-			if (fe == null)
-			{
-				fe = FormElementHelper.INSTANCE.getFormElement(formReference, context.getSolution(), null, design);
-			}
-			generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
-			for (IPersist persist : formReference.getAllObjectsAsList())
-			{
-				if (persist instanceof FormReference)
-				{
-					generateFormReference((FormReference)persist, writer, form, context, design, cachedElementsMap);
-				}
-				else if (persist instanceof IFormElement)
-				{
-					IFormElement element = (IFormElement)persist;
-					if (PartWrapper.isSecurityVisible(element, context))
-					{
-						fe = null;
-						if (cachedElementsMap.containsKey(element))
-						{
-							fe = cachedElementsMap.get(element);
-						}
-						if (fe == null)
-						{
-							fe = FormElementHelper.INSTANCE.getFormElement(element, context.getSolution(), null, design);
-						}
-						generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
-						generateFormElement(writer, fe, form);
-						generateEndDiv(writer);
-					}
-				}
-			}
-			generateEndDiv(writer);
-		}
 	}
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
@@ -342,7 +289,6 @@ public class FormLayoutGenerator
 			JSONObject ngClass = new JSONObject();
 			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
 			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
-			if (fe.getPersistIfAvailable() instanceof FormReference) ngClass.put("form_reference", "true");
 			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			writer.print(" class=\"svy-wrapper\" ");
 		}
@@ -372,14 +318,7 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 		}
-		if (fe.getPersistIfAvailable() instanceof FormReference)
-		{
-			writer.print(" ng-class=\"'svy-formreference'\" ");
-		}
-		else
-		{
-			writer.print(" ng-class=\"'svy-wrapper'\" ");
-		}
+		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (designId != null)
 		{
 			writer.print(" svy-id='");
@@ -415,16 +354,7 @@ public class FormLayoutGenerator
 
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
-				writer.print(" class='inherited_element");
-				// is this part of a reference form ?
-				IPersist parentForm = fe.getPersistIfAvailable().getAncestor(IRepository.FORMS);
-				if (parentForm instanceof Form && ((Form)parentForm).getReferenceForm().booleanValue() ||
-					fe.getPersistIfAvailable().getAncestor(IRepository.FORMREFERENCE) != null)
-				{
-					writer.print(" form_reference_element");
-				}
-
-				writer.print("'");
+				writer.print(" class='inherited_element'");
 			}
 		}
 		writer.print(">");
@@ -523,13 +453,6 @@ public class FormLayoutGenerator
 				if (!fe.getForm().equals(form)) //is this inherited?
 				{
 					ngClass.put("inheritedElement", true);
-					// is this part of a reference form ?
-					IPersist parentForm = fe.getPersistIfAvailable().getAncestor(IRepository.FORMS);
-					if (parentForm instanceof Form && ((Form)parentForm).getReferenceForm().booleanValue() ||
-						fe.getPersistIfAvailable().getAncestor(IRepository.FORMREFERENCE) != null)
-					{
-						ngClass.put("form_reference_element", true);
-					}
 				}
 
 				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
