@@ -214,16 +214,16 @@ public class FormElementHelper implements IFormElementCache
 			if (isSecurityVisible(element, fs))
 			{
 				element = (IFormElement)((AbstractBase)element).clonePersist();
-				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, element.getName());
+				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, element.getName() == null ? "" : element.getName());
 				JSONObject elementJson = json.optJSONObject(element.getName());
 				if (elementJson != null)
 				{
-					Map<String, Method> methods = FormTemplateGenerator.isWebcomponentBean(element) ? null : RepositoryHelper.getSetters(element);
-					WebObjectSpecification legacySpec = methods != null ? FormTemplateGenerator.getWebObjectSpecification(element) : null;
+					Map<String, Method> methods = RepositoryHelper.getSetters(element);
+					WebObjectSpecification legacySpec = FormTemplateGenerator.getWebObjectSpecification(element);
 					for (String key : elementJson.keySet())
 					{
 						Object val = elementJson.get(key);
-						if (methods != null && val != null)
+						if (val != null && methods.get(key) != null)
 						{
 							Method method = methods.get(key);
 							Class< ? > paramType = method.getParameterTypes()[0];
@@ -246,8 +246,12 @@ public class FormElementHelper implements IFormElementCache
 								}
 							}
 						}
-
-						((AbstractBase)element).setProperty(key, val);
+						if (val instanceof JSONObject && ((AbstractBase)element).getProperty(key) instanceof JSONObject)
+						{
+							// if both are json (like a nested form) then merge it in.
+							mergeJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
+						}
+						else((AbstractBase)element).setProperty(key, val);
 					}
 				}
 				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
@@ -256,6 +260,24 @@ public class FormElementHelper implements IFormElementCache
 			}
 		}
 		return elements;
+	}
+
+	/**
+	 * @param val
+	 * @param property
+	 */
+	private void mergeJSON(JSONObject newValue, JSONObject existing)
+	{
+		for (String key : newValue.keySet())
+		{
+			Object current = existing.opt(key);
+			Object toCopy = newValue.get(key);
+			if (current instanceof JSONObject && toCopy instanceof JSONObject)
+			{
+				mergeJSON((JSONObject)toCopy, (JSONObject)current);
+			}
+			else existing.put(key, toCopy);
+		}
 	}
 
 	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs)

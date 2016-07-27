@@ -15,6 +15,7 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONException;
@@ -36,6 +37,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -180,9 +182,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				dataAdapterList.getApplication().getFlattenedSolution()).getFormComponentElements();
 			for (FormElement element : elements)
 			{
-				WebFormComponent comp = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, null,
+				ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
 					dataAdapterList.getForm().getForm());
-				component.getParent().add(comp);
 			}
 		}
 		return formElementValue;
@@ -210,7 +211,24 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				{
 					WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(
 						FormTemplateGenerator.getComponentTypeName(element));
-					pd.putProperty(element.getName(), spec);
+					Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+					if (properties.size() > 0)
+					{
+						PropertyDescription nestedFormComponent = new PropertyDescription(element.getName(), null);
+						pd.putProperty(element.getName(), nestedFormComponent);
+						for (PropertyDescription nestedFormComponentPD : properties)
+						{
+							Object object = ((AbstractBase)element).getProperty(nestedFormComponentPD.getName());
+							if (object instanceof JSONObject)
+							{
+								nestedFormComponent.putProperty(nestedFormComponentPD.getName(), getPropertyDescription((JSONObject)object, fs));
+							}
+						}
+					}
+					else
+					{
+						pd.putProperty(element.getName(), spec);
+					}
 				}
 			}
 		}
