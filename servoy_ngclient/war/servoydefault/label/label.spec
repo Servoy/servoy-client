@@ -29,7 +29,7 @@
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" , "tags": { "directEdit" : "true" } }, 
-	        "textRotation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[0,90,180,270]}, 
+	        "textRotation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[0,90,180,270], "default" : 0}, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 
 	        "verticalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"TOP":1}, {"CENTER":0} ,{"BOTTOM":3}], "default" : 0}, 
