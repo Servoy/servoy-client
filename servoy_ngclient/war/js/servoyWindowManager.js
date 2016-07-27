@@ -521,6 +521,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		destroyController : function(formName){
 			$sabloApplication.clearFormState(formName);
+			delete formTemplateUrls[formName]
 		},
 		getFormUrl: getFormUrl
 	}
