@@ -49,8 +49,11 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -112,8 +115,28 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	@Override
 	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
+		Scriptable newObject = Context.getCurrentContext().newObject(startScriptable);
 		// TODO return here a NativeScriptable object that understand the full hiearchy?
-		return webComponentValue;
+		WebFormComponent webFormComponent = (WebFormComponent)componentOrService;
+		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
+		FlattenedSolution fs = webFormComponent.getDataConverterContext().getSolution();
+		Form form = getForm(webComponentValue, fs);
+		FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form,
+			fs);
+		for (FormElement fe : cache.getFormComponentElements())
+		{
+			String name = fe.getPersistIfAvailable() instanceof AbstractBase
+				? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : null;
+			if (name != null && !name.startsWith(FormElement.SVY_NAME_PREFIX))
+			{
+				RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(fe.getRawName());
+				if (webComponent != null)
+				{
+					newObject.put(name, newObject, webComponent);
+				}
+			}
+		}
+		return newObject;
 	}
 
 	@Override
@@ -178,12 +201,14 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, dataAdapterList.getApplication().getFlattenedSolution());
 		if (form != null)
 		{
+			IWebFormUI formUI = component.findParent(IWebFormUI.class);
 			List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
 				dataAdapterList.getApplication().getFlattenedSolution()).getFormComponentElements();
 			for (FormElement element : elements)
 			{
-				ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
+				WebFormComponent child = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
 					dataAdapterList.getForm().getForm());
+				formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
 			}
 		}
 		return formElementValue;

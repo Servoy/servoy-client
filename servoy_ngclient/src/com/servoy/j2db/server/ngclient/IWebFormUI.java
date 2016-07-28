@@ -31,6 +31,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 import com.servoy.j2db.IBasicFormUI;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 
 /**
  * @author jcompagner
@@ -62,6 +63,8 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	public IServoyDataConverterContext getDataConverterContext();
 
 	public void contributeComponentToElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component);
+
+	public RuntimeWebComponent getRuntimeWebComponent(String name);
 
 	void refreshValueList(IValueList valuelist);
 
