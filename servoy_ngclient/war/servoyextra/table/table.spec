@@ -22,30 +22,57 @@
 		{
 			"dataprovider": {	"type": "dataprovider",	"forFoundset": "foundset" },
 			"format" : {"for":["valuelist","dataprovider"] , "type" :"format"},
-			"headerStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }}, 
+			"headerStyleClass" : { "type" :"styleclass"}, 
 			"headerText": {"type" :"string", "default" : "header", "tags": { "showInOutlineView" :true }},
-			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"styleClass" : { "type" :"styleclass"},
+			"styleClassDataprovider" : { "type": "dataprovider",	"forFoundset": "foundset"},
 			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"}
 		}
 	},
 	"handlers":
 	{
 		"onCellClick" : {
+				"description": "Called when the mouse is clicked on a row/cell (foundset and column indexes are given) or\nwhen the ENTER key is used then only the selected foundset index is given\nUse the record to exactly match where the user clicked on",
 	        	"parameters":[
 					{
-						"name":"row",
+						"name":"foundsetindex",
 						"type":"int"
 					},
 					{
-						"name":"column",
-						"type":"int"
+						"name":"columnindex",
+						"type":"int",
+						"optional":true
+					},
+					{
+						"name":"record",
+						"type":"record",
+						"optional":true
 					}
 				]
+		},
+		"onCellRightClick" : {
+			"description": "Called when the right mouse button is clicked on a row/cell (foundset and column indexes are given) or\nwhen the ENTER key is used then only the selected foundset index is given\nUse the record to exactly match where the user clicked on",
+        	"parameters":[
+				{
+					"name":"foundsetindex",
+					"type":"int"
+				},
+				{
+					"name":"columnindex",
+					"type":"int",
+					"optional":true
+				},
+				{
+					"name":"record",
+					"type":"record",
+					"optional":true
+				}
+			]
 		},
 		"onHeaderClick" : {
 	        	"parameters":[
 					{
-						"name":"column",
+						"name":"columnindex",
 						"type":"int"
 					}
 				]

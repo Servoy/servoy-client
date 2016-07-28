@@ -203,7 +203,7 @@ public abstract class AbstractBase implements IPersist
 		}
 	}
 
-	private void setPropertyInternal(String propertyName, Object val)
+	protected void setPropertyInternal(String propertyName, Object val)
 	{
 		Boolean newPropAndWasChanged = null;
 		if (propertiesMap.containsKey(propertyName))

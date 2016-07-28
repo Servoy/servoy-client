@@ -220,11 +220,6 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 		return allVars.values().toArray();
 	}
 
-	public String[] getKeys()
-	{
-		return allVars.keySet().toArray(new String[0]);
-	}
-
 	/**
 	 * @see org.mozilla.javascript.Scriptable#getDefaultValue(java.lang.Class)
 	 */
@@ -321,10 +316,4 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 			}
 		}
 	}
-
-	public int getNextIndex()
-	{
-		return allIndex.size();
-	}
-
 }

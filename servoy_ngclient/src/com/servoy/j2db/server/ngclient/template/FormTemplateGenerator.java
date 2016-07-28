@@ -29,7 +29,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFormElement;
@@ -199,10 +198,6 @@ public class FormTemplateGenerator
 			if (persist instanceof RectShape)
 			{
 				return "servoydefault-rectangle";
-			}
-			if (persist instanceof FormReference)
-			{
-				return "servoydefault-formreference";
 			}
 		}
 		return FormElement.ERROR_BEAN;

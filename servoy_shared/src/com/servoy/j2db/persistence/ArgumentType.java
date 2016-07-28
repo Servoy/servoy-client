@@ -20,7 +20,7 @@ package com.servoy.j2db.persistence;
 
 /**
  * Models a datatype used especially with method templates.
- * 
+ *
  * @see com.servoy.j2db.persistence.MethodTemplate
  */
 public class ArgumentType
@@ -69,6 +69,7 @@ public class ArgumentType
 		if (type == null || Object.getName().equals(type)) return Object;
 		if (String.getName().equals(type)) return String;
 		if (Number.getName().equals(type)) return Number;
+		if ("int".equals(type)) return Number;
 		if (Boolean.getName().equals(type)) return Boolean;
 		if (Color.getName().equals(type)) return Color;
 		if (Exception.getName().equals(type)) return Exception;

@@ -2,11 +2,12 @@
 <html ng-app="servoyApp" ng-controller="MainController">
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<link rel="icon" href="favicon75x75.png" sizes="32x32" />
+		<link rel="icon" href="favicon200x200.png" sizes="192x192" />
 		<title ng-bind="solutionSettings.solutionTitle"></title>
 	
 		<!-- component_contributions -->
 		<link ng-repeat="path in solutionSettings.styleSheetPaths" rel="stylesheet" ng-href='{{path}}'>
-	</head>
 	<script type="text/javascript">
 		var isOldBrowser = function(){
 			// code from http://www.javascripter.net/faq/browsern.htm
@@ -129,6 +130,8 @@
             $svyI18NService.addDefaultTranslations(##defaultTranslations##);
 		});
 	</script>
+	</head>
+	
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
 	
 	     <div sablo-reconnecting-feedback class="svy-reconnecting ng-cloak" >{{'servoy.ngclient.reconnecting' | translate}}</div>

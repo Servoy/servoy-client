@@ -34,7 +34,10 @@ angular.module('valuelist_property', ['webSocketModule'])
 						
 						return deferred.promise;
 					}, enumerable: false });
-
+				if (serverJSONValue.valuelistid)
+				{
+					Object.defineProperty(newValue, 'valuelistid', {value: serverJSONValue.valuelistid , enumerable: false });
+				}	
 				// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 				// $sabloConverters setup
 				internalState.setChangeNotifier = function(changeNotifier) {

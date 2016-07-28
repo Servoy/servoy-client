@@ -18,6 +18,8 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -46,30 +48,36 @@ public class ComponentsModuleGenerator extends HttpServlet
 	{
 		resp.setContentType("text/javascript");
 		HTTPUtils.checkAndSetUnmodified(req, resp, System.currentTimeMillis());
-		StringBuilder sb = generateComponentsModule();
+		StringBuilder sb = generateComponentsModule(getAllNames(WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications()),
+			getAllNames(WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications()));
 		resp.setContentLength(sb.length());
 		resp.getWriter().write(sb.toString());
 	}
 
-	public static StringBuilder generateComponentsModule()
+	private static Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications)
+	{
+		Set<String> names = new HashSet<>();
+		for (WebObjectSpecification webSpec : allWebSpecifications)
+		{
+			names.add(webSpec.getName());
+		}
+		return names;
+	}
+
+	public static StringBuilder generateComponentsModule(Set<String> services, Set<String> components)
 	{
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
-		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
+		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications()));
+		generateModules(sb, components != null ? components : getAllNames(WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications()));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		return sb;
 	}
 
-	/**
-	 * @param sb
-	 * @param webComponentDescriptions
-	 */
-	protected static void generateModules(StringBuilder sb, WebObjectSpecification[] webComponentDescriptions)
+	protected static void generateModules(StringBuilder sb, Set<String> names)
 	{
-		for (WebObjectSpecification webComponentSpec : webComponentDescriptions)
+		for (String name : names)
 		{
-			String name = webComponentSpec.getName();
 			generateModule(sb, name);
 		}
 	}

@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead', ['servoy'])
-.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants) {
+.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants','$sabloApplication', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$sabloApplication) {
 	return {
 		restrict: 'E',
 		require: 'ngModel',
@@ -59,6 +59,12 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					if(!found)
 					{
 						$scope.value = null;
+						if ($scope.model.dataProviderID !== null)
+						{
+							$sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:$scope.model.dataProviderID,valuelist: $scope.model.valuelistID.valuelistid}).then(function(displayValue) {
+								$scope.value = displayValue;
+							});
+						}	
 					}	
 				}	 
 			}

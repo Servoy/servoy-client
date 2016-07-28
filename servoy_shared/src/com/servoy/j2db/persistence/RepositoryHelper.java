@@ -430,11 +430,24 @@ public class RepositoryHelper
 	// Some properties should be created(for undo/redo) but not visible in the properties view
 	public static boolean hideForProperties(String name, Class< ? > persistClass, IPersist persist)
 	{
+		if (persist instanceof Form && Utils.getAsBoolean(((Form)persist).getReferenceForm()) &&
+			(name.equals("borderType") || name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
+				name.equals("namedFoundSet") || name.equals("paperPrintScale") || name.equals("scrollbars") || name.equals("selectionMode") ||
+				name.equals("styleName") || name.equals("styleClass") || name.equals("titleText") || name.equals("transparent") || name.equals("view") ||
+				name.equals("showInMenu") || name.equals("encapsulation")))
+		{
+			return true;
+		}
+		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).getReferenceForm()) &&
+			!name.equals("height"))
+		{
+			return true;
+		}
 		if (name.equals("groupbyDataProviderIDs") && Part.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
 		{
 			return true;
 		}
-		if (name.equals("containsFormID") && !FormReference.class.isAssignableFrom(persistClass)) // handled in combined property table //$NON-NLS-1$
+		if (name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$
 		{
 			return true;
 		}
@@ -631,8 +644,7 @@ public class RepositoryHelper
 		if (name.equals(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && (Portal.class.isAssignableFrom(persistClass) ||
 			TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) || WebComponent.class.isAssignableFrom(persistClass) ||
 			Field.class.isAssignableFrom(persistClass) || GraphicalComponent.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass) ||
-			Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass) ||
-			FormReference.class.isAssignableFrom(persistClass)))
+			Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}

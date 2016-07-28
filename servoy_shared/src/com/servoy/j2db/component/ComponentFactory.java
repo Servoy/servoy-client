@@ -85,7 +85,6 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -375,9 +374,6 @@ public class ComponentFactory
 				break;
 			case IRepository.WEBCOMPONENTS :
 				comp = createWebComponentPlaceholder(application, form, (WebComponent)meta);
-				break;
-			case IRepository.FORMREFERENCE :
-				comp = createFormReferencePlaceholder(application, form, (FormReference)meta);
 				break;
 			default :
 				Debug.error("ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
@@ -2441,16 +2437,6 @@ public class ComponentFactory
 		scriptable.setComponent(label, webComponent);
 		label.setName(webComponent.getName());
 		label.setText("WebComponent '" + webComponent.getName() + "' placeholder");
-		label.setSize(new Dimension(200, 20));
-		return label;
-	}
-
-	protected static IComponent createFormReferencePlaceholder(IApplication application, Form form, FormReference formReference)
-	{
-		RuntimeScriptLabel scriptable = new RuntimeScriptLabel(application.getItemFactory().createChangesRecorder(), application);
-		ILabel label = application.getItemFactory().createScriptLabel(scriptable, getWebID(form, formReference), false);
-		scriptable.setComponent(label, formReference);
-		label.setText("FormReference placeholder");
 		label.setSize(new Dimension(200, 20));
 		return label;
 	}

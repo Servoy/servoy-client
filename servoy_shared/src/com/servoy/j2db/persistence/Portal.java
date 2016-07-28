@@ -370,13 +370,6 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 		return obj;
 	}
 
-	@Override
-	public FormReference createNewFormReference(Point location) throws RepositoryException
-	{
-		// not supported
-		return null;
-	}
-
 	/**
 	 * The calculation dataprovider (such as servoy_row_bgcolor) used to add background
 	 * color and highlight selected or alternate portal rows.

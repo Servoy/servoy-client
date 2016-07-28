@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -45,6 +46,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IBasicWebComponent;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -60,10 +62,12 @@ import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -76,7 +80,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormElementHelper implements IFormElementCache
 {
-	public final static RuntimeProperty<Boolean> FORM_COMPONENT_ELEMENT = new RuntimeProperty<Boolean>()
+	public final static RuntimeProperty<String> FORM_COMPONENT_TEMPLATE_NAME = new RuntimeProperty<String>()
 	{
 	};
 	public final static FormElementHelper INSTANCE = new FormElementHelper();
@@ -86,7 +90,7 @@ public class FormElementHelper implements IFormElementCache
 	private final ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<>();
 	private final ConcurrentMap<UUID, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
 
-	private final ConcurrentMap<UUID, Map<String, List<FormElement>>> formComponentElements = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -102,29 +106,73 @@ public class FormElementHelper implements IFormElementCache
 		return lst;
 	}
 
-	public List<FormElement> getFormComponentElements(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs,
-		Collection<BaseComponent> excludedComponents)
+	/**
+	 * @param formElement
+	 * @param pd
+	 * @param formElementValue
+	 * @param form
+	 * @param fs
+	 * @return
+	 */
+	public FormComponentCache getFormComponentCache(INGFormElement formElement, PropertyDescription pd, JSONObject formElementValue, Form form,
+		FlattenedSolution fs)
 	{
-		// for designer always just generate it
-		if (parentElement.getDesignId() != null) return generateFormComponentElements(parentElement, pd, json, frm, fs, excludedComponents);
+		final List<FormElement> noneCacheableElements = testForDesignAndSolutionModel(formElement, pd, formElementValue, form, fs);
+		if (noneCacheableElements != null)
+		{
+			return generateFormComponentCacheObject(formElement, pd, form, fs, noneCacheableElements);
+		}
 
-		// if the form of the main form component is a soluton copy then don't cache.
-		Solution solutionCopy = fs.getSolutionCopy(false);
-		if (solutionCopy != null && solutionCopy.getForm(parentElement.getForm().getName()) != null)
-			return generateFormComponentElements(parentElement, pd, json, frm, fs, excludedComponents);
-		Map<String, List<FormElement>> map = formComponentElements.get(parentElement.getPersistIfAvailable().getUUID());
+		return getFormComponentFromCache(formElement, pd, formElementValue, form, fs);
+	}
+
+
+	private FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
+	{
+		Map<String, FormComponentCache> map = formComponentElements.get(parentElement.getName());
 		if (map == null)
 		{
 			map = new ConcurrentHashMap<>();
-			formComponentElements.put(parentElement.getPersistIfAvailable().getUUID(), map);
+			formComponentElements.put(parentElement.getName(), map);
 		}
-		List<FormElement> list = map.get(pd.getName());
-		if (list == null)
+		FormComponentCache fcCache = map.get(pd.getName());
+		if (fcCache == null)
 		{
-			list = generateFormComponentElements(parentElement, pd, json, frm, fs, excludedComponents);
-			map.put(pd.getName(), list);
+			final List<FormElement> list = generateFormComponentElements(parentElement, pd, json, frm, fs);
+			fcCache = generateFormComponentCacheObject(parentElement, pd, frm, fs, list);
+			map.put(pd.getName(), fcCache);
 		}
-		return list;
+		return fcCache;
+	}
+
+	/**
+	 * @param pd
+	 * @param parentElement
+	 * @param frm
+	 * @param fs
+	 * @param list
+	 * @return
+	 */
+	private FormComponentCache generateFormComponentCacheObject(INGFormElement parentElement, PropertyDescription pd, Form frm, FlattenedSolution fs,
+		final List<FormElement> list)
+	{
+		IFormElementCache cache = new IFormElementCache()
+		{
+			@Override
+			public FormElement getFormElement(IFormElement component, FlattenedSolution flattendSol, PropertyPath path, boolean design)
+			{
+				for (FormElement formElement : list)
+				{
+					if (component.getUUID().equals(formElement.getPersistIfAvailable().getUUID()))
+					{
+						return formElement;
+					}
+				}
+				return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
+			}
+		};
+		String template = FormLayoutGenerator.generateFormComponent(frm, fs, cache);
+		return new FormComponentCache(parentElement, pd, list, template);
 	}
 
 	/**
@@ -136,44 +184,84 @@ public class FormElementHelper implements IFormElementCache
 	 * @param excludedComponents
 	 * @return
 	 */
-	public List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs,
-		Collection<BaseComponent> excludedComponents)
+	private List<FormElement> testForDesignAndSolutionModel(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
+		FlattenedSolution fs)
+	{
+		// for designer always just generate it
+		if (parentElement.getDesignId() != null) return generateFormComponentElements(parentElement, pd, json, frm, fs);
+
+		// if the form of the main form component is a solution copy then don't cache.
+		Solution solutionCopy = fs.getSolutionCopy(false);
+		if (solutionCopy != null && solutionCopy.getForm(parentElement.getForm().getName()) != null)
+			return generateFormComponentElements(parentElement, pd, json, frm, fs);
+		return null;
+	}
+
+	/**
+	 * @param parentElement
+	 * @param pd
+	 * @param json
+	 * @param frm
+	 * @param fs
+	 * @param excludedComponents
+	 * @return
+	 */
+	private List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
 		List<IFormElement> formelements = frm.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement element : formelements)
 		{
-			if (isSecurityVisible(element, fs) && (excludedComponents == null || !excludedComponents.contains(element)))
+			if (isSecurityVisible(element, fs))
 			{
 				element = (IFormElement)((AbstractBase)element).clonePersist();
-				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_ELEMENT, Boolean.TRUE);
-				JSONObject elementJson = json.optJSONObject(element.getName());
+				String elementName = element.getName();
+				if (elementName == null)
+				{
+					elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
+				}
+				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, elementName);
+				JSONObject elementJson = json.optJSONObject(elementName);
 				if (elementJson != null)
 				{
-					Map<String, Method> methods = FormTemplateGenerator.isWebcomponentBean(element) ? null : RepositoryHelper.getSetters(element);
+					Map<String, Method> methods = RepositoryHelper.getSetters(element);
+					WebObjectSpecification legacySpec = FormTemplateGenerator.getWebObjectSpecification(element);
 					for (String key : elementJson.keySet())
 					{
 						Object val = elementJson.get(key);
-						if (methods != null && val != null)
+						if (val != null && methods.get(key) != null)
 						{
 							Method method = methods.get(key);
 							Class< ? > paramType = method.getParameterTypes()[0];
 							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
 							{
-								// will not fit, very likely a uuid that should be an int.
-								UUID uuid = Utils.getAsUUID(val, false);
-								if (uuid != null)
+								PropertyDescription property = legacySpec.getProperty(key);
+								if (property != null && property.getType() instanceof IDesignValueConverter)
 								{
-									IPersist found = fs.searchPersist(uuid);
-									if (found != null) val = Integer.valueOf(found.getID());
+									val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property);
+								}
+								else
+								{
+									// will not fit, very likely a uuid that should be an int.
+									UUID uuid = Utils.getAsUUID(val, false);
+									if (uuid != null)
+									{
+										IPersist found = fs.searchPersist(uuid);
+										if (found != null) val = Integer.valueOf(found.getID());
+									}
 								}
 							}
 						}
-						((AbstractBase)element).setProperty(key, val);
+						if (val instanceof JSONObject && ((AbstractBase)element).getProperty(key) instanceof JSONObject)
+						{
+							// if both are json (like a nested form) then merge it in.
+							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
+						}
+						else((AbstractBase)element).setProperty(key, val);
 					}
 				}
 				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
-				element.setName(name != null ? (name + '$' + pd.getName() + '$' + element.getName()) : element.getName());
+				element.setName(name != null ? (name + '$' + pd.getName() + '$' + elementName) : elementName);
 				elements.add(new FormElement(element, fs, new PropertyPath(), parent.getDesignId() != null));
 			}
 		}
@@ -190,7 +278,7 @@ public class FormElementHelper implements IFormElementCache
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (designer || (fs.getSolutionCopy(false) != null) || ((AbstractBase)formElement).getRuntimeProperty(FORM_COMPONENT_ELEMENT) != null)
+		if (designer || (fs.getSolutionCopy(false) != null) || ((AbstractBase)formElement).getRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME) != null)
 		{
 			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
 			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer);
@@ -501,6 +589,8 @@ public class FormElementHelper implements IFormElementCache
 	{
 		persistWrappers.clear();
 		formTabSequences.clear();
+		formComponentElements.clear();
+		FormComponentCache.templateCache.clear();
 		for (FlattenedSolution fs : globalFlattendSolutions.values())
 		{
 			fs.close(null);
@@ -665,4 +755,62 @@ public class FormElementHelper implements IFormElementCache
 			return result;
 		}
 	}
+
+	public static class FormComponentCache
+	{
+		private static final ConcurrentHashMap<String, String> templateCache = new ConcurrentHashMap<>();
+
+		private final List<FormElement> list;
+		private final String template;
+
+		private final String uuid;
+
+		/**
+		 * @param pd
+		 * @param parentElement
+		 * @param list
+		 * @param template
+		 */
+		public FormComponentCache(INGFormElement parentElement, PropertyDescription pd, List<FormElement> list, String template)
+		{
+			this.list = list;
+			String templateHit = template.replace("\"", "\\\"");
+			String uuidHit = null;
+			// first look if the template cache has entries for this
+			for (Entry<String, String> entry : templateCache.entrySet())
+			{
+				if (entry.getValue().equals(templateHit))
+				{
+					templateHit = entry.getValue();
+					uuidHit = entry.getKey();
+					break;
+				}
+			}
+			if (uuidHit == null)
+			{
+				// if it is not hit, just always put this in the template cache,
+				// it is very unlikely that the template is constant unique over all clients even with solution model..
+				uuidHit = UUID.randomUUID().toString();
+				templateCache.put(uuidHit, templateHit);
+			}
+			this.template = templateHit;
+			this.uuid = uuidHit;
+		}
+
+		public String getCacheUUID()
+		{
+			return uuid;
+		}
+
+		public String getTemplate()
+		{
+			return template;
+		}
+
+		public List<FormElement> getFormComponentElements()
+		{
+			return list;
+		}
+	}
+
 }

@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,11 +38,9 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.Part;
@@ -52,16 +49,13 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Utils;
-
-import freemarker.ext.beans.StringModel;
-import freemarker.template.TemplateModelException;
 
 /**
  * Wrapper around form for use in templates.
@@ -80,6 +74,7 @@ public class FormWrapper
 	private final boolean design;
 	private final FormTemplateObjectWrapper formTemplateObjectWrapper;
 	private Collection<IFormElement> baseComponents;
+	private final Map<String, String> formComponentTemplates = new HashMap<>();
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, FormTemplateObjectWrapper formTemplateObjectWrapper,
 		IServoyDataConverterContext context, boolean design)
@@ -133,6 +128,12 @@ public class FormWrapper
 		return part;
 	}
 
+	public Map<String, String> getTemplates()
+	{
+		if (this.baseComponents == null) getBaseComponents();
+		return formComponentTemplates;
+	}
+
 	public Collection<Part> getParts()
 	{
 		List<Part> parts = new ArrayList<>();
@@ -146,24 +147,6 @@ public class FormWrapper
 			}
 		}
 		return parts;
-	}
-
-	public Collection<IFormElement> getReferenceForms()
-	{
-		final List<IFormElement> referenceForms = new ArrayList<>();
-		form.acceptVisitor(new IPersistVisitor()
-		{
-			@Override
-			public Object visit(IPersist o)
-			{
-				if (o instanceof FormReference && isSecurityVisible(o) && !referenceForms.contains(o))
-				{
-					referenceForms.add((FormReference)o);
-				}
-				return IPersistVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
-		return referenceForms;
 	}
 
 	public Collection<IFormElement> getBaseComponents()
@@ -182,9 +165,8 @@ public class FormWrapper
 		for (IFormElement persist : persists)
 		{
 			if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
-			checkFormComponents(components, excludedComponents, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
+			checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
 		}
-		components.addAll(getReferenceForms());
 		if ((isListView && !design) || isTableView)
 		{
 			components.add(new BodyPortal(form));
@@ -203,7 +185,7 @@ public class FormWrapper
 	 * @param excludedComponents
 	 * @param persist
 	 */
-	private void checkFormComponents(List<IFormElement> components, Collection<BaseComponent> excludedComponents, FormElement formElement)
+	private void checkFormComponents(List<IFormElement> components, FormElement formElement)
 	{
 		WebObjectSpecification spec = formElement.getWebComponentSpec();
 		if (spec != null)
@@ -216,13 +198,14 @@ public class FormWrapper
 					Object propertyValue = formElement.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;
-					List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentElements(formElement, pd, (JSONObject)propertyValue, frm,
-						context.getSolution(), excludedComponents);
-					for (FormElement element : elements)
+					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)propertyValue, frm,
+						context.getSolution());
+					for (FormElement element : cache.getFormComponentElements())
 					{
 						components.add((IFormElement)element.getPersistIfAvailable());
-						checkFormComponents(components, excludedComponents, element);
+						checkFormComponents(components, element);
 					}
+					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
 				}
 			}
 		}
@@ -279,45 +262,6 @@ public class FormWrapper
 			properties.put(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName(), BorderPropertyType.writeBorderToJson(border));
 		}
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
-	}
-
-	public String getContainerSizesString() throws JSONException, IllegalArgumentException, TemplateModelException
-	{
-		Map<String, Dimension> sizes = new HashMap<String, Dimension>();
-		Collection<IFormElement> components = getBaseComponents();
-		if (components != null)
-		{
-			for (Object comp : components)
-			{
-				if (!(comp instanceof IFormElement)) continue;
-				IFormElement component = (IFormElement)comp;
-				if (component.getParent() instanceof FormReference && formTemplateObjectWrapper != null)
-				{
-					Object wrappedComponent = formTemplateObjectWrapper.wrap(component);
-					Form designForm = context.getApplication().getFlattenedSolution().getForm(((FormReference)component.getParent()).getContainsFormID());
-					if (designForm != null)
-					{
-						sizes.put(((FormElementContext)(((StringModel)wrappedComponent).getWrappedObject())).getName(), designForm.getSize());
-					}
-				}
-				else if (component.getParent() instanceof Form && component.getParent() != form && formTemplateObjectWrapper != null)
-				{
-					Iterator<FormReference> it = form.getFormReferences();
-					while (it.hasNext())
-					{
-						FormReference formReference = it.next();
-						if (formReference.getContainsFormID() == component.getParent().getID())
-						{
-							sizes.put(((FormElementContext)(((StringModel)formTemplateObjectWrapper.wrap(component)).getWrappedObject())).getName(),
-								((Form)component.getParent()).getSize());
-							break;
-						}
-					}
-				}
-
-			}
-		}
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), sizes, null, null).endObject().toString();
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

@@ -33,7 +33,6 @@ import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormReference;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -64,10 +63,6 @@ public class FormLayoutStructureGenerator
 				{
 					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, FormElementHelper.INSTANCE);
 				}
-				else if (component instanceof FormReference)
-				{
-					generateFormReference((FormReference)component, form, fs, writer, design, null);
-				}
 				else if (component instanceof IFormElement)
 				{
 					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form);
@@ -79,88 +74,6 @@ public class FormLayoutStructureGenerator
 		{
 			Debug.error(e);
 		}
-	}
-
-	public static void generateFormReference(FormReference formreference, Form form, FlattenedSolution fs, PrintWriter writer, boolean design, Form parentForm)
-	{
-		Form referencedForm = fs.getForm(formreference.getContainsFormID());
-		boolean absolutePosition = false;
-		if (parentForm != null && !parentForm.isResponsiveLayout())
-		{
-			absolutePosition = true;
-		}
-		writer.print("<div ");
-		if (absolutePosition)
-		{
-			FormElement fe = FormElementHelper.INSTANCE.getFormElement(formreference, fs, null, design);
-			if (design)
-			{
-
-				writer.print("ng-style=\"layout('");
-				writer.print(fe.getDesignId());
-				writer.print("')\" ");
-			}
-			else
-			{
-				writer.print("ng-style=\"layout.");
-				writer.print(fe.getName());
-				writer.print("\" ");
-			}
-		}
-		else
-		{
-			writer.print("style='position:relative; ");
-			if (referencedForm != null && !referencedForm.isResponsiveLayout())
-			{
-				writer.print("min-height:" + referencedForm.getSize().height + "px");
-			}
-			writer.print("' ");
-		}
-
-		if (design)
-		{
-			writer.print(" svy-id='");
-			writer.print(formreference.getUUID().toString());
-			writer.print("' class='form_reference'");
-		}
-		writer.print(" ng-class=\"'svy-formreference'\" ");
-		if (formreference.getName() != null)
-		{
-			writer.print(" svy-name='");
-			writer.print(formreference.getName());
-			writer.print("' ");
-		}
-		writer.print(">");
-		if (form.isResponsiveLayout())
-		{
-			Iterator<IPersist> components = formreference.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-			while (components.hasNext())
-			{
-				IPersist component = components.next();
-				if (component instanceof LayoutContainer)
-				{
-					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, FormElementHelper.INSTANCE);
-				}
-				else if (component instanceof FormReference)
-				{
-					generateFormReference((FormReference)component, form, fs, writer, design, referencedForm);
-				}
-				else if (component instanceof IFormElement)
-				{
-					FormElement fe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, design);
-					if (referencedForm != null && !referencedForm.isResponsiveLayout())
-					{
-						FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, referencedForm.isResponsiveLayout());
-					}
-					FormLayoutGenerator.generateFormElement(writer, fe, form);
-					if (referencedForm != null && !referencedForm.isResponsiveLayout())
-					{
-						FormLayoutGenerator.generateEndDiv(writer);
-					}
-				}
-			}
-		}
-		writer.print("</div>");
 	}
 
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
@@ -267,10 +180,6 @@ public class FormLayoutStructureGenerator
 			if (component instanceof LayoutContainer)
 			{
 				generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, cache);
-			}
-			else if (component instanceof FormReference)
-			{
-				generateFormReference((FormReference)component, form, fs, writer, design, null);
 			}
 			else if (component instanceof IFormElement)
 			{

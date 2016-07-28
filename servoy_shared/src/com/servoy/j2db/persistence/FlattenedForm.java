@@ -158,10 +158,6 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						{
 							internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)ip));
 						}
-						else if (ip instanceof FormReference)
-						{
-							internalAddChild(new FlattenedFormReference(flattenedSolution, (FormReference)ip));
-						}
 						else
 						{
 							internalAddChild(ip);

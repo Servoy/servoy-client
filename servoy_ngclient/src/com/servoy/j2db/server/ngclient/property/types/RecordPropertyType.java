@@ -17,9 +17,12 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Collection;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
@@ -29,7 +32,10 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.util.Pair;
 
 /**
  * @author lvostinar
@@ -54,12 +60,33 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 	public Record fromJSON(Object newJSONValue, Record previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
+		Record record = null;
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonRecord = (JSONObject)newJSONValue;
-			return getReference(jsonRecord.optInt("recordhash"));
+			BaseWebObject webObject = dataConverterContext.getWebObject();
+			if (jsonRecord.has("recordhash"))
+			{
+				record = getReference(jsonRecord.optInt("recordhash"));
+			}
+			if (record == null && webObject != null && jsonRecord.has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
+			{
+				String rowIDValue = jsonRecord.optString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
+				Collection<PropertyDescription> properties = webObject.getSpecification().getProperties(FoundsetPropertyType.INSTANCE);
+				for (PropertyDescription foundsetPd : properties)
+				{
+					FoundsetTypeSabloValue fsSablo = (FoundsetTypeSabloValue)webObject.getProperty(foundsetPd.getName());
+					int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+					if (recordIndex != -1)
+					{
+						record = (Record)fsSablo.getFoundset().getRecord(recordIndex);
+						break;
+					}
+				}
+			}
 		}
-		return null;
+		return record;
 	}
 
 	@Override
@@ -69,6 +96,8 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
 		writer.key("recordhash").value(addReference(sabloValue));
+		if (sabloValue != null) writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
+			sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
 		writer.key("svyType").value(getName());
 		writer.endObject();
 		return writer;

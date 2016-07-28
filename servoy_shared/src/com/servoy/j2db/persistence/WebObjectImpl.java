@@ -63,6 +63,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	private boolean gettingTypeName;
 
+	private boolean skipPersistMappedPropertiesUpdate = false;
+
 	/**
 	 * This constructor is to be used if getTypeName is the name of a WebComponent. (so it can be used to get the component spec)
 	 */
@@ -106,7 +108,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public void updatePersistMappedPropeties()
 	{
-		if (arePersistMappedPropetiesLoaded)
+		if (arePersistMappedPropetiesLoaded && !skipPersistMappedPropertiesUpdate)
 		{
 			JSONObject old = getJson();
 			try
@@ -601,10 +603,19 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		{
 			if (arg != null)
 			{
-				for (String beanJSONKey : ServoyJSONObject.getNames(arg))
+				try
 				{
-					Object object = arg.get(beanJSONKey);
-					updatePersistMappedProperty(beanJSONKey, object);
+					skipPersistMappedPropertiesUpdate = true;
+					for (String beanJSONKey : ServoyJSONObject.getNames(arg))
+					{
+						Object object = arg.get(beanJSONKey);
+						updatePersistMappedProperty(beanJSONKey, object);
+					}
+				}
+				finally
+				{
+					skipPersistMappedPropertiesUpdate = false;
+
 				}
 			}
 			else

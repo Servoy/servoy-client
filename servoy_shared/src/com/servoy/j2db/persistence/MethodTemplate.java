@@ -65,56 +65,43 @@ public class MethodTemplate implements IMethodTemplate
 		Map<String, MethodTemplate> calculationTemplates = new HashMap<String, MethodTemplate>();
 		CLASS_TEMPLATES.put(ScriptCalculation.class, calculationTemplates);
 		calculationTemplates.put("rowBGColorCalculation", //$NON-NLS-1$
-			new MethodTemplate("Calculate the row background color",
-				new MethodArgument("rowBGColorCalc", ArgumentType.Color, "row background color"), //
+			new MethodTemplate("Calculate the row background color", new MethodArgument("rowBGColorCalc", ArgumentType.Color, "row background color"), //
 				new MethodArgument[] { new MethodArgument("index", ArgumentType.Number, "row index"), //
-				new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
-				new MethodArgument("elementType", ArgumentType.String, "element type"), //
-				new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
-				new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
+					new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
+					new MethodArgument("elementType", ArgumentType.String, "element type"), //
+					new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
+					new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
 				"\tif (selected)\n\t\treturn '#c4ffff';\n\telse if (index % 2)\n\t\treturn '#f4ffff';\n\telse\n\t\treturn '#FFFFFF';", true));
 
 		// Common method templates
 
 		// valuelist global method
 
-		COMMON_TEMPLATES.put(
-			"valueListGlobalMethod",
-			new MethodTemplate(
-				"Called when the valuelist needs data, it has 3 modes\nreal and display params both null: return the whole list\nonly display is specified, called by a typeahead, return a filtered list\nonly real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list\n",
-				new MethodArgument("getDataSetForValueList", ArgumentType.JSDataSet, //$NON-NLS-1$
-					"A dataset with 1 or 2 columns display[,real]"),
-				new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String, "The value of a lookupfield that a user types"), new MethodArgument(
-					"realValue", ArgumentType.Object, "The real value for a lookupfield where a display value should be get for"), new MethodArgument("record",
-					ArgumentType.JSRecord, "The current record for the valuelist."), new MethodArgument(
-					"valueListName",
-					ArgumentType.String,
-					"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
-					"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode"), new MethodArgument("rawDisplayValue",
-					ArgumentType.Boolean, "The raw displayValue without being converted to lower case") },
-				"var args = null;\n"
-					+ "var query = datasources.db.example_data.employees.createSelect();\n"
-					+ "/** @type  {JSDataSet} */\n"
-					+ "var result = null;\n"
-					+ "if (displayValue == null && realValue == null)\n"
-					+ "{\n// TODO think about caching this result. can be called often!\n"
-					+ "// return the complete list\n"
-					+ "query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);\n"
-					+ "result = databaseManager.getDataSetByQuery(query,100);\n"
-					+ "}\n"
-					+ "else if (displayValue != null)\n"
-					+ "{\n"
-					+ "// TYPE_AHEAD filter call, return a filtered list\n"
-					+ "args = [displayValue + \"%\", displayValue + \"%\"];\n"
-					+ "query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n"
-					+ "root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));\n"
-					+ "result = databaseManager.getDataSetByQuery(query,100);\n" + "}\n" + "else if (realValue != null)\n" + "{\n"
-					+ "// TODO think about caching this result. can be called often!\n"
-					+ "// real object not found in the current list, return 1 row with display,realvalue that will be added to the current list\n"
-					+ "// dont return a complete list in this mode because that will be added to the list that is already there\n" + "args = [realValue];\n"
-					+ "query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n"
-					+ "root.where.add(query.columns.employeeid.eq(args[0]));\n" + "result = databaseManager.getDataSetByQuery(query,1);\n"
-					+ "}\nreturn result;\n", false));
+		COMMON_TEMPLATES.put("valueListGlobalMethod", new MethodTemplate(
+			"Called when the valuelist needs data, it has 3 modes\nreal and display params both null: return the whole list\nonly display is specified, called by a typeahead, return a filtered list\nonly real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list\n",
+			new MethodArgument("getDataSetForValueList", ArgumentType.JSDataSet, //$NON-NLS-1$
+				"A dataset with 1 or 2 columns display[,real]"),
+			new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String, "The value of a lookupfield that a user types"), new MethodArgument(
+				"realValue", ArgumentType.Object, "The real value for a lookupfield where a display value should be get for"), new MethodArgument("record",
+					ArgumentType.JSRecord, "The current record for the valuelist."), new MethodArgument("valueListName", ArgumentType.String,
+						"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
+							"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode"), new MethodArgument("rawDisplayValue",
+								ArgumentType.Boolean, "The raw displayValue without being converted to lower case") },
+			"var args = null;\n" + "var query = datasources.db.example_data.employees.createSelect();\n" + "/** @type  {JSDataSet} */\n" +
+				"var result = null;\n" + "if (displayValue == null && realValue == null)\n" +
+				"{\n// TODO think about caching this result. can be called often!\n" + "// return the complete list\n" +
+				"query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);\n" +
+				"result = databaseManager.getDataSetByQuery(query,100);\n" + "}\n" + "else if (displayValue != null)\n" + "{\n" +
+				"// TYPE_AHEAD filter call, return a filtered list\n" + "args = [displayValue + \"%\", displayValue + \"%\"];\n" +
+				"query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n" +
+				"root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));\n" +
+				"result = databaseManager.getDataSetByQuery(query,100);\n" + "}\n" + "else if (realValue != null)\n" + "{\n" +
+				"// TODO think about caching this result. can be called often!\n" +
+				"// real object not found in the current list, return 1 row with display,realvalue that will be added to the current list\n" +
+				"// dont return a complete list in this mode because that will be added to the list that is already there\n" + "args = [realValue];\n" +
+				"query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n" +
+				"root.where.add(query.columns.employeeid.eq(args[0]));\n" + "result = databaseManager.getDataSetByQuery(query,1);\n" + "}\nreturn result;\n",
+			false));
 	}
 
 	private final MethodArgument signature;
@@ -223,7 +210,9 @@ public class MethodTemplate implements IMethodTemplate
 						sb.append('{').append(typeString).append("} "); //$NON-NLS-1$
 					}
 				}
+				if (element.isOptional()) sb.append("[");
 				sb.append(element.getName());
+				if (element.isOptional()) sb.append("]");
 				if (element.getDescription() != null)
 				{
 					sb.append(' ').append(element.getDescription());
@@ -358,8 +347,9 @@ public class MethodTemplate implements IMethodTemplate
 					sb.append("return _super.").append(name);
 					if (getArguments() == null || getArguments().length == 0)
 					{
-						sb.append(".apply(this, arguments); \n/** When the number of arguments that ought to be send into the _super call are known,\n the _super call can also be made like this: _super." +
-							name + "(arg1,arg2)*/");
+						sb.append(
+							".apply(this, arguments); \n/** When the number of arguments that ought to be send into the _super call are known,\n the _super call can also be made like this: _super." +
+								name + "(arg1,arg2)*/");
 					}
 					else
 					{

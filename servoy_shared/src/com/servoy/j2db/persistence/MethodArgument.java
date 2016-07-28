@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 @SuppressWarnings("nls")
 public class MethodArgument implements IMethodArgument
@@ -50,7 +50,7 @@ public class MethodArgument implements IMethodArgument
 
 	public MethodArgument(IMethodArgument arg)
 	{
-		this(arg.getName(), arg.getType(), arg.getDescription());
+		this(arg.getName(), arg.getType(), arg.getDescription(), arg.isOptional());
 	}
 
 	public String getName()

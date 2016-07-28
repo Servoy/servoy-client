@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 public class NGCachingFilter implements Filter
 {
 	private String group_id;
-	private static final int ONE_YEAR_MAX_AGE = 60 * 60 * 24 * 31 * 12;
+	public static final int ONE_YEAR_MAX_AGE = 60 * 60 * 24 * 30 * 12;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException

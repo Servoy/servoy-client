@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,9 +31,14 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.IBasicFormManager.History;
+import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
@@ -249,6 +255,32 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				break;
 			}
+			case "getValuelistDisplayValue" :
+				Object realValue = args.get("realValue");
+				Object valuelistID = args.get("valuelist");
+				int id = Utils.getAsInteger(valuelistID);
+				ValueList val = getApplication().getFlattenedSolution().getValueList(id);
+				if (val != null)
+				{
+					IValueList realValueList = ComponentFactory.getRealValueList(getApplication(), val, true, Types.OTHER, null, null);
+					if (realValueList.realValueIndexOf(realValue) != -1)
+					{
+						return realValueList.getElementAt(realValueList.realValueIndexOf(realValue));
+					}
+					if (realValueList instanceof DBValueList)
+					{
+						LookupValueList lookup = new LookupValueList(val, getApplication(),
+							ComponentFactory.getFallbackValueList(getApplication(), null, Types.OTHER, null, val), null);
+						Object displayValue = null;
+						if (lookup.realValueIndexOf(realValue) != -1)
+						{
+							displayValue = lookup.getElementAt(lookup.realValueIndexOf(realValue));
+						}
+						lookup.deregister();
+						return displayValue;
+					}
+				}
+				break;
 			case "callServerSideApi" :
 			{
 				String formName = args.getString("formname");

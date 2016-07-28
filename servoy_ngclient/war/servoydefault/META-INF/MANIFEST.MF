@@ -66,5 +66,3 @@ Web-Component: True
 Name: rectangle/rectangle.spec
 Web-Component: True
 
-Name: formreference/formreference.spec
-Web-Component: True

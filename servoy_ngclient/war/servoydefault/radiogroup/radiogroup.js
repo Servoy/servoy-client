@@ -11,6 +11,15 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 			$scope.notNullOrEmpty = $utils.notNullOrEmpty // TODO remove the need for this
 			$element.children().first().css($svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
 //			angular.extend($scope.style, $svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
+			
+	        if ($scope.svyServoyapi.isInDesigner()) {
+	          $scope.$watch('model.valuelistID',function() {
+	            if (!$scope.model.valuelistID) {
+	             $scope.model.valuelistID = [{realValue:1,displayValue:"Item1"},{realValue:2,displayValue:"Item2"},{realValue:3,displayValue:"Item3"}];
+	            }
+	          });
+	        }
+	          
 
 			/**
 			 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content

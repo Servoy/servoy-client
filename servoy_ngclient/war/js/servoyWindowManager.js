@@ -265,6 +265,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 								delete this.location;
 								delete this.size;
 							}
+							delete win.bsWindowInstance
 							if (win.$scope) win.$scope.$destroy();
 						},
 						setLocation:function(location){
@@ -316,10 +317,14 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		show: function(name,form, title) {
 			var instance = instances[name];
 			if (instance) {
+				instance.title = title;
+				if(instance.bsWindowInstance){
+					// already showing
+					return;
+				} 
 				if($(document).find('[svy-window]').length < 1) {
 					$("#mainForm").trigger("disableTabseq");
 				}
-				instance.title = title;
 				if(instance.storeBounds){
 					instance.size = storage.get(sol+name+'.storedBounds.size')
 					instance.location =  storage.get(sol+name+'.storedBounds.location')
@@ -516,6 +521,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		destroyController : function(formName){
 			$sabloApplication.clearFormState(formName);
+			delete formTemplateUrls[formName]
 		},
 		getFormUrl: getFormUrl
 	}
