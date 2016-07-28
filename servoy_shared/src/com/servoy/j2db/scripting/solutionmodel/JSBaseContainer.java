@@ -2063,7 +2063,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		ArrayList<ISupportChilds> parentHierarchy = new ArrayList<>();
 		ISupportChilds parent = lc.getParent();
-		while (parent != topContainer.getContainer())
+		while (parent != topContainer.getContainer() && !(parent instanceof Form))
 		{
 			parentHierarchy.add(parent);
 			parent = parent.getParent();
