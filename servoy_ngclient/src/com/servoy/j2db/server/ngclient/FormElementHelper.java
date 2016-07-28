@@ -67,6 +67,7 @@ import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -254,7 +255,7 @@ public class FormElementHelper implements IFormElementCache
 						if (val instanceof JSONObject && ((AbstractBase)element).getProperty(key) instanceof JSONObject)
 						{
 							// if both are json (like a nested form) then merge it in.
-							mergeJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
+							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
 						}
 						else((AbstractBase)element).setProperty(key, val);
 					}
@@ -265,24 +266,6 @@ public class FormElementHelper implements IFormElementCache
 			}
 		}
 		return elements;
-	}
-
-	/**
-	 * @param val
-	 * @param property
-	 */
-	private void mergeJSON(JSONObject newValue, JSONObject existing)
-	{
-		for (String key : newValue.keySet())
-		{
-			Object current = existing.opt(key);
-			Object toCopy = newValue.get(key);
-			if (current instanceof JSONObject && toCopy instanceof JSONObject)
-			{
-				mergeJSON((JSONObject)toCopy, (JSONObject)current);
-			}
-			else existing.put(key, toCopy);
-		}
 	}
 
 	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs)
