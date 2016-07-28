@@ -430,6 +430,18 @@ public class RepositoryHelper
 	// Some properties should be created(for undo/redo) but not visible in the properties view
 	public static boolean hideForProperties(String name, Class< ? > persistClass, IPersist persist)
 	{
+		if ((name.equals("borderType") || name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
+			name.equals("namedFoundSet") || name.equals("paperPrintScale") || name.equals("scrollbars") || name.equals("selectionMode") ||
+			name.equals("styleName") || name.equals("styleClass") || name.equals("titleText") || name.equals("transparent") || name.equals("view") ||
+			name.equals("showInMenu")) && persist instanceof Form && Utils.getAsBoolean(((Form)persist).getReferenceForm()))
+		{
+			return true;
+		}
+		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).getReferenceForm()) &&
+			!name.equals("height"))
+		{
+			return true;
+		}
 		if (name.equals("groupbyDataProviderIDs") && Part.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
 		{
 			return true;
