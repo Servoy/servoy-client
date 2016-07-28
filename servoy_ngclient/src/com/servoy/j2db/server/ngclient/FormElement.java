@@ -60,6 +60,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -262,7 +263,23 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			formElementValues.put(key, NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath));
+			Object convertedValue = NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath);
+			if (convertedValue instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
+			{
+				// this is a json object, look for super persist for this property to get those values.
+				IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)getPersistIfAvailable());
+				if (superPersist instanceof IFormElement)
+				{
+					Object propertyValue = FormElementHelper.INSTANCE.getFormElement((IFormElement)superPersist, fs, new PropertyPath(),
+						inDesigner).getPropertyValue(pd.getName());
+					if (propertyValue instanceof JSONObject)
+					{
+						JSONObject copy = new JSONObject(propertyValue.toString());
+						convertedValue = ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)convertedValue, copy);
+					}
+				}
+			}
+			formElementValues.put(key, convertedValue);
 			propertyPath.backOneLevel();
 		}
 		else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
