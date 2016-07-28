@@ -81,6 +81,7 @@ public class ResourceProvider implements Filter
 {
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
 
+	// TODO add comment; what is the key? resource name, package name, ...?
 	private static final Map<String, IPackageReader> componentReaders = new ConcurrentHashMap<>();
 	private static final Map<String, IPackageReader> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
