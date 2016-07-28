@@ -278,9 +278,9 @@ public class FormLayoutGenerator
 		String designId = getDesignId(fe);
 		String name = fe.getPersistIfAvailable() instanceof AbstractBase
 			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-		boolean emptyName = false;
+		boolean selectable = false;
 		if (name == null) name = fe.getName();
-		else emptyName = name.startsWith(FormElement.SVY_NAME_PREFIX);
+		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);
 		if (designId != null)
 		{
 
@@ -326,7 +326,7 @@ public class FormLayoutGenerator
 			writer.print(" svy-id='");
 			writer.print(designId);
 			writer.print("'");
-			if (emptyName)
+			if (selectable)
 			{
 				writer.print(" svy-non-selectable");
 			}
@@ -400,9 +400,9 @@ public class FormLayoutGenerator
 	{
 		String name = fe.getPersistIfAvailable() instanceof AbstractBase
 			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-		boolean emptyName = false;
+		boolean selectable = false;
 		if (name == null) name = fe.getName();
-		else emptyName = name.startsWith(FormElement.SVY_NAME_PREFIX);
+		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -427,7 +427,7 @@ public class FormLayoutGenerator
 				writer.print(" svy-id='");
 				writer.print(designId);
 				writer.print("'");
-				if (emptyName)
+				if (selectable)
 				{
 					writer.print(" svy-non-selectable");
 				}
