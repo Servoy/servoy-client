@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$formcomponentCache) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$templateCache,$compile) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -142,7 +142,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 						newScope.handlers[key.substr(prefix.length)] = $scope.handlers[key];
 					}
 				}
-				return $formcomponentCache.get(templateUUID)(newScope);
+				return $compile($templateCache.get(templateUUID))(newScope);
 			},
 			isInDesigner: function() {
 				return false;
@@ -231,6 +231,6 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	
 	
 	<#list templates?keys as prop>
-   		$formcomponentCache.put('${prop}',"${templates[prop]}"); 
+   		$templateCache.put('${prop}',"${templates[prop]}"); 
 	</#list> 
 });
