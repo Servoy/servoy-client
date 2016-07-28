@@ -214,8 +214,13 @@ public class FormElementHelper implements IFormElementCache
 			if (isSecurityVisible(element, fs))
 			{
 				element = (IFormElement)((AbstractBase)element).clonePersist();
-				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, element.getName() == null ? "" : element.getName());
-				JSONObject elementJson = json.optJSONObject(element.getName());
+				String elementName = element.getName();
+				if (elementName == null)
+				{
+					elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
+				}
+				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, elementName);
+				JSONObject elementJson = json.optJSONObject(elementName);
 				if (elementJson != null)
 				{
 					Map<String, Method> methods = RepositoryHelper.getSetters(element);
@@ -255,7 +260,7 @@ public class FormElementHelper implements IFormElementCache
 					}
 				}
 				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
-				element.setName(name != null ? (name + '$' + pd.getName() + '$' + element.getName()) : element.getName());
+				element.setName(name != null ? (name + '$' + pd.getName() + '$' + elementName) : elementName);
 				elements.add(new FormElement(element, fs, new PropertyPath(), parent.getDesignId() != null));
 			}
 		}

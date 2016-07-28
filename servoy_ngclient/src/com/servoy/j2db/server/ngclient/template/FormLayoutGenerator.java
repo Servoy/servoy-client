@@ -278,8 +278,9 @@ public class FormLayoutGenerator
 		String designId = getDesignId(fe);
 		String name = fe.getPersistIfAvailable() instanceof AbstractBase
 			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-		boolean emptyName = "".equals(name);
-		if (name == null || emptyName) name = fe.getName();
+		boolean emptyName = false;
+		if (name == null) name = fe.getName();
+		else emptyName = name.startsWith(FormElement.SVY_NAME_PREFIX);
 		if (designId != null)
 		{
 
@@ -398,8 +399,9 @@ public class FormLayoutGenerator
 	{
 		String name = fe.getPersistIfAvailable() instanceof AbstractBase
 			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-		boolean emptyName = "".equals(name);
-		if (name == null || emptyName) name = fe.getName();
+		boolean emptyName = false;
+		if (name == null) name = fe.getName();
+		else emptyName = name.startsWith(FormElement.SVY_NAME_PREFIX);
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
