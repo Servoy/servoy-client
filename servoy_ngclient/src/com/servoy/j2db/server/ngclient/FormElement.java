@@ -263,22 +263,25 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			Object convertedValue = NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath);
-			if (convertedValue instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
+			if (value instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
 			{
 				// this is a json object, look for super persist for this property to get those values.
-				IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)getPersistIfAvailable());
-				if (superPersist instanceof IFormElement)
+				List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)getPersistIfAvailable());
+				if (hierarchy.size() > 1)
 				{
-					Object propertyValue = FormElementHelper.INSTANCE.getFormElement((IFormElement)superPersist, fs, new PropertyPath(),
-						inDesigner).getPropertyValue(pd.getName());
-					if (propertyValue instanceof JSONObject)
+					// there is a super element (or more) so make a copy and copy everything in that.
+					value = new JSONObject();
+					for (int i = hierarchy.size(); --i >= 0;)
 					{
-						JSONObject copy = new JSONObject(propertyValue.toString());
-						convertedValue = ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)convertedValue, copy);
+						Object property = hierarchy.get(i).getProperty(key);
+						if (property instanceof JSONObject)
+						{
+							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)property, (JSONObject)value);
+						}
 					}
 				}
 			}
+			Object convertedValue = NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath);
 			formElementValues.put(key, convertedValue);
 			propertyPath.backOneLevel();
 		}
