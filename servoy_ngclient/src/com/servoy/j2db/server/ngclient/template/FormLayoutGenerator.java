@@ -323,11 +323,12 @@ public class FormLayoutGenerator
 		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (designId != null)
 		{
-			if (!emptyName)
+			writer.print(" svy-id='");
+			writer.print(designId);
+			writer.print("'");
+			if (emptyName)
 			{
-				writer.print(" svy-id='");
-				writer.print(designId);
-				writer.print("'");
+				writer.print(" svy-non-selectable");
 			}
 			writer.print(" name='");
 			writer.print(name);
@@ -423,11 +424,12 @@ public class FormLayoutGenerator
 		{
 			if (form.isResponsiveLayout())
 			{
-				if (!emptyName)
+				writer.print(" svy-id='");
+				writer.print(designId);
+				writer.print("'");
+				if (emptyName)
 				{
-					writer.print(" svy-id='");
-					writer.print(designId);
-					writer.print("'");
+					writer.print(" svy-non-selectable");
 				}
 				writer.print(" svy-formelement-type='");
 				writer.print(fe.getTypeName());
