@@ -430,10 +430,11 @@ public class RepositoryHelper
 	// Some properties should be created(for undo/redo) but not visible in the properties view
 	public static boolean hideForProperties(String name, Class< ? > persistClass, IPersist persist)
 	{
-		if ((name.equals("borderType") || name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
-			name.equals("namedFoundSet") || name.equals("paperPrintScale") || name.equals("scrollbars") || name.equals("selectionMode") ||
-			name.equals("styleName") || name.equals("styleClass") || name.equals("titleText") || name.equals("transparent") || name.equals("view") ||
-			name.equals("showInMenu")) && persist instanceof Form && Utils.getAsBoolean(((Form)persist).getReferenceForm()))
+		if (persist instanceof Form && Utils.getAsBoolean(((Form)persist).getReferenceForm()) &&
+			(name.equals("borderType") || name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
+				name.equals("namedFoundSet") || name.equals("paperPrintScale") || name.equals("scrollbars") || name.equals("selectionMode") ||
+				name.equals("styleName") || name.equals("styleClass") || name.equals("titleText") || name.equals("transparent") || name.equals("view") ||
+				name.equals("showInMenu") || name.equals("encapsulation")))
 		{
 			return true;
 		}
