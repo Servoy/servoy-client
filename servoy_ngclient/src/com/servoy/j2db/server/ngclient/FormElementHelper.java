@@ -89,7 +89,7 @@ public class FormElementHelper implements IFormElementCache
 	private final ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<>();
 	private final ConcurrentMap<UUID, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
 
-	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -128,11 +128,11 @@ public class FormElementHelper implements IFormElementCache
 
 	private FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
-		Map<String, FormComponentCache> map = formComponentElements.get(parentElement.getPersistIfAvailable().getUUID());
+		Map<String, FormComponentCache> map = formComponentElements.get(parentElement.getName());
 		if (map == null)
 		{
 			map = new ConcurrentHashMap<>();
-			formComponentElements.put(parentElement.getPersistIfAvailable().getUUID(), map);
+			formComponentElements.put(parentElement.getName(), map);
 		}
 		FormComponentCache fcCache = map.get(pd.getName());
 		if (fcCache == null)
