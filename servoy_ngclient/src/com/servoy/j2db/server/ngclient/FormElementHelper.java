@@ -257,6 +257,14 @@ public class FormElementHelper implements IFormElementCache
 							// if both are json (like a nested form) then merge it in.
 							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
 						}
+						else if (val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key) &&
+							((AbstractBase)element).getCustomProperties() != null)
+						{
+							// custom properties needs to be merged in..
+							JSONObject original = new ServoyJSONObject(((AbstractBase)element).getCustomProperties(), true);
+							ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, true), original);
+							((AbstractBase)element).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
+						}
 						else((AbstractBase)element).setProperty(key, val);
 					}
 				}
