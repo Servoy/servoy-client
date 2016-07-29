@@ -313,10 +313,10 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						break;
 					case "styleClass":
 						if (className)
-							element.removeClass(className);
+							inputElement.removeClass(className);
 						className = value;
 						if (className)
-							element.addClass(className);
+							inputElement.addClass(className);
 						break;
 					case "format":
 						setDateFormat($scope.model.format, 'display');
