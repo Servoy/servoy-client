@@ -60,8 +60,10 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
@@ -199,7 +201,7 @@ public class DebugUtils
 		Set<IFormController> scopesToReload = new HashSet<IFormController>();
 		final Set<IFormController> formsToReload = new HashSet<IFormController>();
 
-		Set<Form> formsUpdated = new HashSet<Form>();
+		final Set<Form> formsUpdated = new HashSet<Form>();
 		for (IPersist persist : changes)
 		{
 
@@ -254,8 +256,49 @@ public class DebugUtils
 			}
 			else if (persist.getAncestor(IRepository.FORMS) != null)
 			{
-				Form form = (Form)persist.getAncestor(IRepository.FORMS);
-				if (!formsUpdated.contains(form))
+				final Form form = (Form)persist.getAncestor(IRepository.FORMS);
+				if (form != null && form.getReferenceForm().booleanValue())
+				{
+					// if the changed form is a reference form we need to check if that is referenced by a loaded form..
+					List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
+					for (IFormController fc : cachedFormControllers)
+					{
+						fc.getForm().acceptVisitor(new IPersistVisitor()
+						{
+							@Override
+							public Object visit(IPersist o)
+							{
+								if (o instanceof WebComponent)
+								{
+									WebComponent wc = (WebComponent)o;
+									WebObjectSpecification spec = FormTemplateGenerator.getWebObjectSpecification(wc);
+									Collection<PropertyDescription> properties = spec != null ? spec.getProperties(FormComponentPropertyType.INSTANCE) : null;
+									if (properties != null && properties.size() > 0)
+									{
+										Form persistForm = (Form)wc.getAncestor(IRepository.FORMS);
+										for (PropertyDescription pd : properties)
+										{
+											Form frm = FormComponentPropertyType.INSTANCE.getForm(wc.getProperty(pd.getName()),
+												clientState.getFlattenedSolution());
+											if (form.equals(frm) && !formsUpdated.contains(persistForm))
+											{
+												formsUpdated.add(persistForm);
+												List<IFormController> cfc = clientState.getFormManager().getCachedFormControllers(persistForm);
+
+												for (IFormController formController : cfc)
+												{
+													formsToReload.add(formController);
+												}
+											}
+										}
+									}
+								}
+								return IPersistVisitor.CONTINUE_TRAVERSAL;
+							}
+						});
+					}
+				}
+				else if (!formsUpdated.contains(form))
 				{
 					formsUpdated.add(form);
 					List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers(form);
