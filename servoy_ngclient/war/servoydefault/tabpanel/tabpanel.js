@@ -202,7 +202,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 					{
 						var formInWait = $scope.model.selectedTab.containsFormId;
 						$scope.waitingForServerVisibility[formInWait] = true;
-						var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
+						var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId,null,null,tab.containsFormId, tab.relationName);
 						if ($log.debugEnabled) $log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
 						promise.then(function(ok) {
 							if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);

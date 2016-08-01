@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.json.JSONString;
 import org.sablo.services.server.FormServiceHandler;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
@@ -210,6 +211,21 @@ public class NGFormServiceHandler extends FormServiceHandler
 					{
 						// was hidden
 						parentForm.getFormUI().getDataAdapterList().removeVisibleChildForm(controller, true);
+					}
+
+					// if this call has an show object, then we need to directly show that form right away
+					if (ok && args.has("show"))
+					{
+						JSONObject showing = args.getJSONObject("show");
+						showing.put("visible", true);
+						if (args.has("parentForm")) {
+							showing.put("parentForm", args.getString("parentForm"));
+							showing.put("bean", args.getString("bean"));
+						}
+						executeMethod("formvisibility", showing);
+						// send the changes before returning the value, because else the values will be still
+						// a bit later then the "ok" of the form can be hidden.
+						CurrentWindow.get().sendChanges();
 					}
 				}
 				Utils.invokeLater(getApplication(), invokeLaterRunnables);

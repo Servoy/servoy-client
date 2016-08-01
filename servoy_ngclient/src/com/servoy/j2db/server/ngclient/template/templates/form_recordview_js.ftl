@@ -100,8 +100,8 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			formWillShow: function(formname,relationname,formIndex) {
 				$formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
 			},
-			hideForm: function(formname,relationname,formIndex) {
-				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex);
+			hideForm: function(formname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown) {
+				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown);
 			},
 			getFormUrl: function(formUrl) {
 				return $windowService.getFormUrl(formUrl);
