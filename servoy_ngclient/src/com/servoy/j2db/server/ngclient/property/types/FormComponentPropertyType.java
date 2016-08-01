@@ -215,14 +215,15 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	}
 
 	@Override
-	public IFormComponentRhinoConverter getFormComponentRhinoConverter(final Object currentValue, final IApplication application, JSWebComponent webComponnent)
+	public IFormComponentRhinoConverter getFormComponentRhinoConverter(String property, final Object currentValue, final IApplication application,
+		JSWebComponent webComponnent)
 	{
-		return new FormComponentValue((JSONObject)currentValue, application, webComponnent);
+		return new FormComponentValue(property, (JSONObject)currentValue, application, webComponnent);
 	}
 
-	public PropertyDescription getPropertyDescription(JSONObject currentValue, FlattenedSolution fs)
+	public PropertyDescription getPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs)
 	{
-		PropertyDescription pd = new PropertyDescription("formcomponent", null);
+		PropertyDescription pd = new PropertyDescription(property, FormComponentPropertyType.INSTANCE);
 		PropertyDescription formDesc = new PropertyDescription(SVY_FORM, StringPropertyType.INSTANCE);
 		pd.putProperty(SVY_FORM, formDesc);
 		String formName = currentValue.optString(SVY_FORM);
@@ -246,7 +247,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 							Object object = ((AbstractBase)element).getProperty(nestedFormComponentPD.getName());
 							if (object instanceof JSONObject)
 							{
-								nestedFormComponent.putProperty(nestedFormComponentPD.getName(), getPropertyDescription((JSONObject)object, fs));
+								nestedFormComponent.putProperty(nestedFormComponentPD.getName(),
+									getPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs));
 							}
 						}
 					}
@@ -267,12 +269,12 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		private final JSONObject currentValue;
 		private final JSWebComponent webComponent;
 
-		public FormComponentValue(JSONObject currentValue, IApplication application, JSWebComponent webComponent)
+		public FormComponentValue(String property, JSONObject currentValue, IApplication application, JSWebComponent webComponent)
 		{
 			this.webComponent = webComponent;
 			this.currentValue = currentValue == null ? new JSONObject() : currentValue;
 			this.application = application;
-			this.pd = getPropertyDescription(currentValue, application.getFlattenedSolution());
+			this.pd = getPropertyDescription(property, currentValue, application.getFlattenedSolution());
 		}
 
 		public JSONObject setRhinoToDesignValue(String property, Object value)

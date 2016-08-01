@@ -78,7 +78,7 @@ public class JSNGWebComponent extends JSWebComponent
 			PropertyDescription pd = propAndName.getLeft();
 			if (pd != null && pd.getType() instanceof IFormComponentType)
 			{
-				IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(
+				IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(pd.getName(),
 					webComponent.getProperty(pd.getName()), application, this);
 				// undefined means remove the property
 				Object convertedValue = fromRhinoToDesignValue(Context.getUndefinedValue(), propAndName.getLeft(), application, this, propertyName);
@@ -243,7 +243,7 @@ public class JSNGWebComponent extends JSWebComponent
 			{
 				firstPart = firstPart.substring(0, i);
 			}
-			IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(
+			IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(firstPart,
 				webComponent.getBaseComponent(true).getProperty(firstPart), application, webComponent);
 			result = converter.setRhinoToDesignValue(firstPart == propertyName ? "" : propertyName.substring(firstPart.length() + 1), value);
 		}
@@ -270,7 +270,8 @@ public class JSNGWebComponent extends JSWebComponent
 			{
 				firstPart = firstPart.substring(0, i);
 			}
-			IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(value, application, webComponent);
+			IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(firstPart, value, application,
+				webComponent);
 			result = converter.getDesignToRhinoValue(firstPart == propertyName ? "" : propertyName.substring(firstPart.length() + 1));
 		}
 		else if (pd != null && pd.getType() instanceof IRhinoDesignConverter)

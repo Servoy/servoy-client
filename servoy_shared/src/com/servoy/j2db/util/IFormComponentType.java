@@ -30,6 +30,6 @@ public interface IFormComponentType
 	 * @param property
 	 * @param application
 	 */
-	IFormComponentRhinoConverter getFormComponentRhinoConverter(Object property, IApplication application, JSWebComponent webComponent);
+	IFormComponentRhinoConverter getFormComponentRhinoConverter(String property, Object propertyValue, IApplication application, JSWebComponent webComponent);
 
 }
