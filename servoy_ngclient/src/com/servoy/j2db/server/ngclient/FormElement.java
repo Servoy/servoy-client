@@ -104,10 +104,18 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 	private FlattenedSolution fs;
 
+	private final boolean isFormComponentChild;
+
 	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner)
+	{
+		this(persist, fs, propertyPath, inDesigner, false);
+	}
+
+	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner, boolean isFormCompnentChild)
 	{
 		this.fs = fs;
 		this.inDesigner = inDesigner;
+		this.isFormComponentChild = isFormCompnentChild;
 		this.persistImpl = new PersistBasedFormElementImpl(persist, this);
 		Form f = persistImpl.getForm();
 		if (f instanceof FlattenedForm) this.form = f;
@@ -156,6 +164,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		boolean inDesigner)
 	{
 		this.inDesigner = inDesigner;
+		this.isFormComponentChild = false;
 		this.persistImpl = null;
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
@@ -643,6 +652,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	public boolean isLegacy()
 	{
 		return persistImpl != null && persistImpl.isLegacy();
+	}
+
+	public boolean isFormComponentChild()
+	{
+		return isFormComponentChild;
 	}
 
 	public String getTagname()

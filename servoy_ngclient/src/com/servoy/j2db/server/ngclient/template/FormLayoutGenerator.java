@@ -291,6 +291,10 @@ public class FormLayoutGenerator
 			JSONObject ngClass = new JSONObject();
 			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
 			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+			if (fe.isFormComponentChild())
+			{
+				ngClass.put("formComponentChild", true);
+			}
 			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			writer.print(" class=\"svy-wrapper\" ");
 		}
@@ -465,6 +469,11 @@ public class FormLayoutGenerator
 				if (!fe.getForm().equals(form)) //is this inherited?
 				{
 					ngClass.put("inheritedElement", true);
+				}
+
+				if (fe.isFormComponentChild())
+				{
+					ngClass.put("formComponentChild", true);
 				}
 
 				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
