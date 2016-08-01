@@ -70,7 +70,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SOLUTIONS_PATH = "solutions/";
 	public static final String FORMS_PATH = "forms/";
 
-	public static final String ANGULAR_JS = "js/angular_1.5.5.js";
+	public static final String ANGULAR_JS = "js/angular_1.5.8.js";
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3TH_PARTY_CSS = { //
@@ -79,7 +79,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/jquery-2.2.3.min.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
-		"js/angular-sanitize_1.5.5.js", //
+		"js/angular-sanitize_1.5.8.js", //
 		"js/angular-translate-2.8.1.js", //
 		"js/angular-webstorage.js", //
 		"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
