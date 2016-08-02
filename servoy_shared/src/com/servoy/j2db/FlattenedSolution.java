@@ -206,6 +206,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			throw new RuntimeException("Persist " + persist + " already a clone"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		if (persist instanceof Form && ((Form)persist).getReferenceForm().booleanValue())
+		{
+			throw new RuntimeException("Form " + persist + " can not be altered by solution model because it is a reference form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		copy = (T)persist.clonePersist();
 		copy.setRuntimeProperty(CLONE_PROPERTY, persist);
