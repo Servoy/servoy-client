@@ -270,7 +270,7 @@ public class FormElementHelper implements IFormElementCache
 				}
 				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
 				element.setName(name != null ? (name + '$' + pd.getName() + '$' + elementName) : elementName);
-				elements.add(new FormElement(element, fs, new PropertyPath(), parent.getDesignId() != null, true));
+				elements.add(new FormElement(element, fs, new PropertyPath(), parent.getDesignId() != null));
 			}
 		}
 		return elements;
