@@ -829,7 +829,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							apply: function(property)
 							{
 								return columnServoyApi.apply(property,cellProxies.mergedCellModel,rowId);
-							}
+							},
+							callServerSideApi: $scope.servoyApi.callServerSideApi,
+							getFormComponentElements: $scope.servoyApi.getFormComponentElements,
+							isInDesigner: $scope.servoyApi.isInDesigner
 					}
 				}
 				return cellProxies.cellServoyApi;
