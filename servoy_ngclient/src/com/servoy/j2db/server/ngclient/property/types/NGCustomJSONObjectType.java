@@ -124,6 +124,12 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 							flattenedSolution, formElement, propertyPath));
 						propertyPath.backOneLevel();
 					}
+					else if (pd.getType().defaultValue(pd) != null)
+					{
+						propertyPath.add(pd.getName());
+						formElementValues.put(pd.getName(), (FormElementT)NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
+						propertyPath.backOneLevel();
+					}
 				}
 			}
 			return formElementValues;
