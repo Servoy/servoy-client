@@ -159,7 +159,15 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 					break;
 				}
 			}
-			if (hasRealValues || valuelist.length == 0) return null;
+			if (hasRealValues) {
+				var diplayValue = null;
+				// this then function will resolve right away if the value is already cached on the client.
+				valuelist.getDisplayValue(realValue).then(function(val){
+					diplayValue = val;
+				})
+				return diplayValue;
+			}
+			if (valuelist.length == 0) return null;
 		}
 		return input;
 	};

@@ -1,6 +1,6 @@
 angular.module('valuelist_property', ['webSocketModule'])
 // Valuelist type -------------------------------------------
-.run(function ($sabloConverters, $sabloUtils, $q, $sabloTestability) {
+.run(function ($sabloConverters, $sabloUtils, $q, $sabloTestability,$sabloApplication) {
 	$sabloConverters.registerCustomPropertyHandler('valuelist', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			if (currentClientValue && angular.isDefined(currentClientValue[$sabloConverters.INTERNAL_IMPL].deferredFilter) &&
@@ -34,10 +34,30 @@ angular.module('valuelist_property', ['webSocketModule'])
 						
 						return deferred.promise;
 					}, enumerable: false });
-				if (serverJSONValue.valuelistid)
-				{
-					Object.defineProperty(newValue, 'valuelistid', {value: serverJSONValue.valuelistid , enumerable: false });
-				}	
+				// TODO caching this value means for this specific valuelist instance that the display value will not be updated if that would be changed on the server end..
+				internalState.realToDisplayCache = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL])?currentClientValue[$sabloConverters.INTERNAL_IMPL].realToDisplayCache:{};
+				Object.defineProperty(newValue, 'getDisplayValue', {
+					value: function(realValue) {
+						if (realValue) {
+							var key = realValue + '';
+							if (internalState.realToDisplayCache[key] != undefined)
+							{
+								// if this is a promise return that.
+								if (angular.isFunction(internalState.realToDisplayCache[key].then)) return internalState.realToDisplayCache[key]; 
+								// if the value is in the cache then return a promise like object 
+								// that has a then function that will be resolved right away when called. So that it is more synch api. 
+								return {then:function(then){then(internalState.realToDisplayCache[key])}}
+							}
+							internalState.realToDisplayCache[key] = $sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:realValue,valuelist: internalState.valuelistid}).then(function(val) {
+								console.log("setting the actual value form server"  + val)
+								internalState.realToDisplayCache[key] = val;
+								return val;
+							});
+							return internalState.realToDisplayCache[key];
+						}
+					    return $q.when(null);
+					}, enumerable: false });
+				internalState.valuelistid = serverJSONValue.valuelistid 
 				// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 				// $sabloConverters setup
 				internalState.setChangeNotifier = function(changeNotifier) {
