@@ -438,6 +438,8 @@ public class FormLayoutGenerator
 				writer.print(" svy-formelement-type='");
 				writer.print(fe.getTypeName());
 				writer.print("'");
+				JSONObject ngClass = new JSONObject();
+
 				List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
 				if (typeAndPropertyNames[0].size() > 0)
 				{
@@ -448,6 +450,9 @@ public class FormLayoutGenerator
 					writer.print(" svy-types-properties='");
 					writer.print("[" + StringUtil.join(typeAndPropertyNames[1], ",") + "]");
 					writer.print("'");
+
+					ngClass.put("drop_highlight",
+						"<canContainDraggedElement('" + fe.getTypeName() + "',['" + StringUtil.join(typeAndPropertyNames[0], "','") + "'])<");
 				}
 				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
 				if (forbiddenComponentNames.size() > 0)
@@ -464,7 +469,6 @@ public class FormLayoutGenerator
 					writer.print("'");
 				}
 
-				JSONObject ngClass = new JSONObject();
 
 				if (!fe.getForm().equals(form)) //is this inherited?
 				{
