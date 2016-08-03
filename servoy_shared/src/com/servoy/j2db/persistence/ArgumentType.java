@@ -74,6 +74,7 @@ public class ArgumentType
 		if (Color.getName().equals(type)) return Color;
 		if (Exception.getName().equals(type)) return Exception;
 		if (JSRecord.getName().equals(type)) return JSRecord;
+		if ("record".equals(type)) return JSRecord;
 		if (JSEvent.getName().equals(type)) return JSEvent;
 		if (JSDataSet.getName().equals(type)) return JSDataSet;
 		if (Date.getName().equals(type)) return Date;
