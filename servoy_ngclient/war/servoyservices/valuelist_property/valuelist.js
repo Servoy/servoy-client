@@ -49,7 +49,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 								return {then:function(then){then(internalState.realToDisplayCache[key])}}
 							}
 							internalState.realToDisplayCache[key] = $sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:realValue,valuelist: internalState.valuelistid}).then(function(val) {
-								console.log("setting the actual value form server"  + val)
 								internalState.realToDisplayCache[key] = val;
 								return val;
 							});
