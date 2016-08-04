@@ -4,10 +4,11 @@
 	"version": 1,
 	"icon": "servoycore/portal/portal.gif",
 	"definition": "servoyextra/table/table.js",
-	"libraries": [{"name":"servoyextra-table-css", "version":"1.0", "url":"servoyextra/table/table.css", "mimetype":"text/css"}],
+	"libraries": [{"name":"servoyextra-table-css", "version":"1.0", "url":"servoyextra/table/table.css", "mimetype":"text/css"},
+				{"name":"colResizable", "version":"1.6", "url":"servoyextra/table/js/colResizable-1.6.min.js", "mimetype":"text/javascript"}],
 	"model":
 	{
-		"columns":  { "type":"column[]", "droppable": true },
+		"columns":  { "type":"column[]", "droppable": true, "pushToServer": "shallow", "elementConfig" : {"pushToServer": "shallow"}},
 		"currentPage":  { "type":"int", "default" : 1, "tags": { "scope": "runtime" } },
 		"foundset": { "type": "foundset", "pushToServer": "allow" },
 		"pageSize" : { "type":"int", "default" : 20},
@@ -26,7 +27,8 @@
 			"headerText": {"type" :"string", "default" : "header", "tags": { "showInOutlineView" :true }},
 			"styleClass" : { "type" :"styleclass"},
 			"styleClassDataprovider" : { "type": "dataprovider",	"forFoundset": "foundset"},
-			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"}
+			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"},
+			"width" : {"type" : "int"}
 		}
 	},
 	"handlers":

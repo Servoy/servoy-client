@@ -1,4 +1,4 @@
-angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$timeout",function($timeout) {  
+angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$timeout","$sabloConstants", function($timeout, $sabloConstants) {  
     return {
       restrict: 'E',
       scope: {
@@ -6,6 +6,57 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
        	handlers: "=svyHandlers"
       },
       link: function($scope, $element, $attrs) {
+    	  
+    	  function addColResizable(cleanPrevious) {
+    		  var tbl = $element.find("table:first");
+    		  if(cleanPrevious) {
+        		  tbl.colResizable({
+        			  disable:true
+        		  });  
+    		  }
+    		  tbl.colResizable({
+    			  liveDrag:false,
+    			  resizeMode:"fit",
+    			  onResize:function(e) {
+    				  var table = $(e.currentTarget); //reference to the resized table
+    				  var headers = table.find("th");
+    				  $scope.$apply(function(){    	                	
+        				  for(var i = 0; i < headers.length; i++) {
+        					  $scope.model.columns[i].width = $(headers.get(i)).outerWidth(false);
+        				  }
+    				  })    	                
+    			  }
+    		  });    		  
+    	  }
+    	  
+    	  function calculateTableWidth() {
+    		  var tableWidth = 0;
+    		  for(var i = 0; i < $scope.model.columns.length; i++) {
+    			  tableWidth += $scope.model.columns[i].width;
+    		  }
+    		  return tableWidth;
+    	  }
+
+    	  $scope.tableWidth = calculateTableWidth();
+    	  
+    	  $scope.$on('ngRowsRenderRepeatFinished', function(ngRepeatFinishedEvent) {
+    		  addColResizable(false);
+        	  Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
+        		  configurable : true,
+        		  value : function(property, value) {
+        			  switch (property) {
+        			  	case "columns":
+        			  		$scope.tableWidth = calculateTableWidth();
+        			  		$timeout(function() {
+        			  			addColResizable(true);
+        			  		}, 0);
+        			  		break;
+        			  }
+        		  }
+        	  });
+
+    	  });
+
     	  $scope.$watch('model.foundset.serverSize', function (newValue) {
     		  if (newValue)
     		  {
@@ -188,6 +239,23 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
 	    		  }
     		  }
     	  }
+    	  
+    	  $scope.getTableStyle = function () {
+    		  var tableStyle = {};
+    		  if($scope.tableWidth > 0) {
+    			  tableStyle.width = $scope.tableWidth + "px";
+    		  }
+    		  return tableStyle;
+    	  }
+    	  
+    	  $scope.getColumnStyle = function (column) {
+        	  var columnStyle = {};
+        	  if($scope.model.columns[column].width > 0) {
+        		  columnStyle.width = $scope.model.columns[column].width + "px";
+        	  }
+        	  return columnStyle;
+    	  }
+
       },
       templateUrl: 'servoyextra/table/table.html'
     };
@@ -211,6 +279,17 @@ angular.module('servoyextraTable',['servoy']).directive('servoyextraTable', ["$t
 		       $element.data('row_column', model);
 		     }
 		   }
+}).directive('onFinishRenderRows', function ($timeout) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attr) {
+            if (scope.$last === true) {
+                $timeout(function () {
+                    scope.$emit(attr.onFinishRenderRows);
+                });
+            }
+        }
+    }
 });
 
   

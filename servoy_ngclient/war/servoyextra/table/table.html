@@ -1,13 +1,13 @@
-<div class="table-responsive tablewrapper" ng-if='model.visible'>
-	<table class='svy-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq' ng-keydown="keyPressed($event)" ng-click="tableClicked($event,1)" svy-rightclick="tableRightClick($event)">
-	 <thead>
-	  <tr>
-	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns" svy-click="headerClicked(model.columns.indexOf(column))"><div ng-bind='column.headerText'></div></th>
-	  </tr>
+<div class="tablewrapper" ng-if='model.visible'>
+	<table ng-style="getTableStyle()" class='svy-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq' ng-keydown="keyPressed($event)" ng-click="tableClicked($event,1)" svy-rightclick="tableRightClick($event)">
+	   <thead>
+	  	<tr>
+	    	<th ng-style="getColumnStyle(model.columns.indexOf(column))" ng-class="column.headerStyleClass" ng-repeat="column in model.columns" svy-click="headerClicked(model.columns.indexOf(column))"><div ng-bind='column.headerText'></div></th>
+		</tr>	   
 	   </thead>
-	   <tbody>
+	   <tbody>	   
 	  <tr ng-repeat="row in model.foundset.viewPort.rows"
-	  	  ng-class='getRowStyle(model.foundset.viewPort.rows.indexOf(row))'>
+	  	  ng-class='getRowStyle(model.foundset.viewPort.rows.indexOf(row))' on-finish-render-rows="ngRowsRenderRepeatFinished">
 	    <td model-in-data="{row:row,column:column}" ng-class="column.styleClass + ' ' + column.styleClassDataprovider[model.foundset.viewPort.rows.indexOf(row)]" ng-repeat="column in model.columns" >
 	    	<img ng-show="getUrl(column,row) != null" 
 	    		ng-src="{{getUrl(column,row)}}"></img>
