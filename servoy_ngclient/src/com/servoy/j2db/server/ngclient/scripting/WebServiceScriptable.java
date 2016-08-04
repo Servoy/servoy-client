@@ -24,10 +24,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
@@ -36,7 +36,6 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
@@ -118,9 +117,6 @@ public class WebServiceScriptable implements Scriptable
 	/**
 	 * Compiles the server side script, enabled debugging if possible.
 	 * It returns the $scope object
-	 *
-	 * @param serverScript
-	 * @param app
 	 */
 	public static Scriptable compileServerScript(URL serverScript, Scriptable model, IApplication app)
 	{
@@ -167,11 +163,6 @@ public class WebServiceScriptable implements Scriptable
 	private Scriptable apiObject;
 	private Scriptable scopeObject;
 
-	/**
-	 * @param ngClient
-	 * @param serviceSpecification
-	 * @param solutionScope
-	 */
 	public WebServiceScriptable(INGApplication application, WebObjectSpecification serviceSpecification, SolutionScope solutionScope)
 	{
 		this.application = application;
@@ -185,21 +176,44 @@ public class WebServiceScriptable implements Scriptable
 		}
 	}
 
-	public Object executeScopeFunction(String function, JSONArray args)
+	public WebObjectSpecification getServiceSpecification()
 	{
-		Object object = scopeObject.get(function, scopeObject);
+		return serviceSpecification;
+	}
+
+	/**
+	 * Executes a (server side) scope API method with the given sablo webObject java arguments.<br/>
+	 * It will convert the arguments to Rhino and return the result value converted already from Rhino to sablo webObject java value.
+	 *
+	 * @param methodName the name of the method to call
+	 * @param arrayOfSabloJavaMethodArgs the arguments for that method - they will be converted to Rhino
+	 *
+	 * @return the return value of the method converted back from Rhino to sablo webObject java value.
+	 */
+	public Object executeScopeFunction(String methodName, Object[] arrayOfSabloJavaMethodArgs)
+	{
+		Object object = scopeObject.get(methodName, scopeObject);
 		if (object instanceof Function)
 		{
 			Context context = Context.enter();
 			try
 			{
-				Object[] array = new Object[args.length()];
-				for (int i = 0; i < args.length(); i++)
+				// find spec for method
+				BaseWebObject serviceWebObject = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+				WebObjectFunctionDefinition functionSpec = serviceSpecification.getApiFunction(methodName);
+				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+				// convert arguments to Rhino
+				Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
+				for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
 				{
-					array[i] = args.get(i);
+					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
+						(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, serviceWebObject, this);
 				}
 				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
-				return retValue == Undefined.instance ? null : retValue;
+
+				PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
+				return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, serviceWebObject);
 			}
 			catch (JSONException e)
 			{
@@ -214,7 +228,7 @@ public class WebServiceScriptable implements Scriptable
 		else
 		{
 			throw new RuntimeException(
-				"trying to call a function '" + function + "' that does not exists on a the service with spec: " + serviceSpecification.getName());
+				"trying to call a function '" + methodName + "' that does not exists on a the service with spec: " + serviceSpecification.getName());
 		}
 	}
 

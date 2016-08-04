@@ -26,14 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
@@ -124,21 +122,29 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		}
 	}
 
-	public Object executeScopeFunction(String function, JSONArray args)
+	public Object executeScopeFunction(String methodName, Object[] arrayOfSabloJavaMethodArgs)
 	{
-		Object object = scopeObject.get(function, scopeObject);
+		Object object = scopeObject.get(methodName, scopeObject);
 		if (object instanceof Function)
 		{
 			Context context = Context.enter();
 			try
 			{
-				Object[] array = new Object[args.length()];
-				for (int i = 0; i < args.length(); i++)
+				// find spec for method
+				WebObjectFunctionDefinition functionSpec = webComponentSpec.getApiFunction(methodName);
+				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+				// convert arguments to Rhino
+				Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
+				for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
 				{
-					array[i] = args.get(i);
+					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
+						(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, component, this);
 				}
 				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
-				return retValue == Undefined.instance ? null : retValue;
+
+				PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
+				return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, component);
 			}
 			catch (JSONException e)
 			{
@@ -152,7 +158,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		}
 		else
 		{
-			throw new RuntimeException("trying to call a function '" + function + "' that does not exists on a component '" + component.getName() +
+			throw new RuntimeException("trying to call a function '" + methodName + "' that does not exists on a component '" + component.getName() +
 				" with spec: " + webComponentSpec.getName());
 		}
 	}

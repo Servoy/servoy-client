@@ -403,11 +403,10 @@ public class NGConversions
 	public Object convertSabloComponentToRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
 		Scriptable startScriptable)
 	{
-		if (pd == null) return webComponentValue;
 		if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 
 		Object rhinoVal;
-		IPropertyType< ? > type = pd.getType();
+		IPropertyType< ? > type = (pd != null ? pd.getType() : null);
 		if (type instanceof ISabloComponentToRhino< ? >)
 		{
 			rhinoVal = ((ISabloComponentToRhino)type).toRhinoValue(webComponentValue, pd, componentOrService, startScriptable);
@@ -415,21 +414,6 @@ public class NGConversions
 		else
 		{
 			return RhinoConversion.defaultToRhino(webComponentValue, pd, componentOrService, startScriptable);
-		}
-
-		return rhinoVal;
-	}
-
-	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
-		Scriptable startScriptable)
-	{
-		if (pd == null) return serverSideScriptingReturnValue;
-
-		Object rhinoVal = serverSideScriptingReturnValue;
-		IPropertyType< ? > type = pd.getType();
-		if (type instanceof IServerRhinoToRhino< ? >)
-		{
-			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);
 		}
 
 		return rhinoVal;
@@ -454,4 +438,21 @@ public class NGConversions
 		}
 		return sabloVal;
 	}
+
+	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
+		Scriptable startScriptable)
+	{
+		if (pd == null) return serverSideScriptingReturnValue;
+
+		Object rhinoVal = serverSideScriptingReturnValue;
+		IPropertyType< ? > type = pd.getType();
+		if (type instanceof IServerRhinoToRhino< ? >)
+		{
+			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);
+		}
+
+		return rhinoVal;
+	}
+
 }
+

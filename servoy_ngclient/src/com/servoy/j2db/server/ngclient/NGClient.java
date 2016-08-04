@@ -24,15 +24,22 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.eventthread.WebsocketSessionWindows;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -1203,9 +1210,37 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				String serviceName = args.getString("service");
 				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
 				Object service = scope.get(serviceName, scope);
+
 				if (service instanceof WebServiceScriptable)
 				{
-					return ((WebServiceScriptable)service).executeScopeFunction(args.getString("methodName"), args.getJSONArray("args"));
+					WebServiceScriptable webServiceScriptable = (WebServiceScriptable)service;
+					JSONArray methodArguments = args.getJSONArray("args");
+					String serviceMethodName = args.getString("methodName");
+
+					// apply browser to sablo java value conversion - using server-side-API definition from the service's spec file if available (otherwise use default conversion)
+					// the call to webServiceScriptable.executeScopeFunction will do the java to Rhino one
+
+					// find spec for method
+					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceName);
+					WebObjectSpecification serviceSpec = webServiceScriptable.getServiceSpecification();
+					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
+					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+					// apply conversion
+					Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+					for (int i = 0; i < methodArguments.length(); i++)
+					{
+						arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+					}
+
+					Object retVal = webServiceScriptable.executeScopeFunction(serviceMethodName, arrayOfJavaConvertedMethodArgs);
+					if (functionSpec != null && functionSpec.getReturnType() != null)
+					{
+						retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+					}
+					return retVal;
 				}
 				else
 				{

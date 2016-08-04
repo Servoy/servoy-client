@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -30,6 +31,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -93,7 +95,23 @@ public class RhinoConversion
 	public static Object defaultToRhino(final Object webComponentValue, final PropertyDescription pd, final BaseWebObject componentOrService,
 		Scriptable startScriptable)
 	{
-		// TODO shouldn't this method be the exact reverse of fromRhino(...)?
+		// convert simple json values to Rhino values
+		// this tries to reverse the conversion from #defaultFromRhino(...) where possible and needed (for example there's no use converting Date because Rhino will know how to handle them anyway)
+
+		if (webComponentValue == null)
+		{
+			return null; // here we don't know if it's supposed to be null or undefined because for example if value comes from browser to sablo value null (undefined in JSON) will be null but JSONObject.NULL will also be converted into null
+		}
+		if (webComponentValue == JSONObject.NULL)
+		{
+			return null; // will probably never happen as you don't usually have JSONObject.NULL as a sablo java value; see comment above
+		}
+
+		if (webComponentValue instanceof IDataSet)
+		{
+			return new JSDataSet((IDataSet)webComponentValue);
+		}
+
 		if (webComponentValue instanceof Map && !(webComponentValue instanceof NativeObject))
 		{
 			NativeObject nativeObject = new NativeObject()
@@ -123,6 +141,7 @@ public class RhinoConversion
 			}
 			return nativeObject;
 		}
+
 		return webComponentValue;
 	}
 

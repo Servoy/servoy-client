@@ -22,12 +22,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.sablo.services.server.FormServiceHandler;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.TypedData;
+import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
@@ -41,6 +50,7 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
@@ -136,7 +146,10 @@ public class NGFormServiceHandler extends FormServiceHandler
 					}
 					IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
 					getApplication().updateLastAccessed();
-					return form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"), args.optJSONArray("params"));
+					Object retVal = form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"),
+						args.optJSONArray("params"));
+					// convert it from Rhino to sablo value; it will use the default conversion as we don't provide a PD/context/webobject
+					return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retVal, null, null, null); // we don't return TypedData here as we rely on default to browser JSON conversion as well
 				}
 				catch (Exception ex)
 				{
@@ -218,7 +231,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 					{
 						JSONObject showing = args.getJSONObject("show");
 						showing.put("visible", true);
-						if (args.has("parentForm")) {
+						if (args.has("parentForm"))
+						{
 							showing.put("parentForm", args.getString("parentForm"));
 							showing.put("bean", args.getString("bean"));
 						}
@@ -319,7 +333,33 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 						if (runtimeComponent != null)
 						{
-							return runtimeComponent.executeScopeFunction(args.getString("methodName"), args.getJSONArray("args"));
+							JSONArray methodArguments = args.getJSONArray("args");
+							String componentMethodName = args.getString("methodName");
+
+							// apply browser to sablo java value conversion - using server-side-API definition from the component's spec file if available (otherwise use default conversion)
+							// the call to runtimeComponent.executeScopeFunction will do the java to Rhino one
+
+							// find spec for method
+							WebObjectSpecification componentSpec = webComponent.getSpecification();
+							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
+							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+							// apply conversion
+							Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+							for (int i = 0; i < methodArguments.length(); i++)
+							{
+								arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+									(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+									new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+							}
+
+							Object retVal = runtimeComponent.executeScopeFunction(componentMethodName, arrayOfJavaConvertedMethodArgs);
+
+							if (functionSpec != null && functionSpec.getReturnType() != null)
+							{
+								retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+							}
+							return retVal;
 						}
 						else
 						{
