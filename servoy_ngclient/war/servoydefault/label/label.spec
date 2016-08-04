@@ -28,7 +28,7 @@
 	        "size" : {"type" :"dimension",  "default" : {"width":80, "height":20}, "pushToServer": "deep"}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
-	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" , "tags": { "directEdit" : "true" } }, 
+	        "text" : { "type" : "tagstring", "initialValue":"label", "displayTagsPropertyName" : "displaysTags" , "tags": { "directEdit" : "true" } }, 
 	        "textRotation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[0,90,180,270], "default" : 0}, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 

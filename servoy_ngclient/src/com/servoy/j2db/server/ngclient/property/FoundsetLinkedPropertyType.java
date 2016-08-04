@@ -70,12 +70,12 @@ import com.servoy.j2db.util.Pair;
  *
  * @author acostescu
  */
-public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<FoundsetLinkedTypeSabloValue<YF, YT>, YT>,
-	IFormElementToTemplateJSON<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, ISupportTemplateValue<YF>,
-	IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>, IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
-	ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>, IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>
+public class FoundsetLinkedPropertyType<YF, YT>
+	implements IYieldingType<FoundsetLinkedTypeSabloValue<YF, YT>, YT>, IFormElementToTemplateJSON<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
+	ISupportTemplateValue<YF>, IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
+	IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>,
+	IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>,
+	IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>, ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>
 {
 
 	protected static final String SINGLE_VALUE = "sv"; //$NON-NLS-1$
@@ -113,8 +113,9 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		}
 
 		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
-		config.setWrappedPropertyDescription(new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig,
-			parameters.defaultValue, parameters.defaultValue != null, parameters.values, parameters.pushToServer, parameters.tags, parameters.optional));
+		config.setWrappedPropertyDescription(
+			new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig, parameters.defaultValue,
+				parameters.initialValue, parameters.defaultValue != null, parameters.values, parameters.pushToServer, parameters.tags, parameters.optional));
 		return this;
 	}
 
@@ -234,8 +235,9 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	@Override
 	public boolean isValueAvailableInRhino(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		if (wrappedType instanceof ISabloComponentToRhino) return ((ISabloComponentToRhino<YT>)wrappedType).isValueAvailableInRhino(
-			webComponentValue.getWrappedValue(), getConfig(pd).wrappedPropertyDescription, componentOrService);
+		if (wrappedType instanceof ISabloComponentToRhino)
+			return ((ISabloComponentToRhino<YT>)wrappedType).isValueAvailableInRhino(webComponentValue.getWrappedValue(),
+				getConfig(pd).wrappedPropertyDescription, componentOrService);
 
 		return true;
 	}
@@ -277,8 +279,8 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	public Pair<IDataLinkedPropertyValue, PropertyDescription> getWrappedDataLinkedValue(FoundsetLinkedTypeSabloValue<YF, YT> propertyValue,
 		PropertyDescription pd)
 	{
-		if (propertyValue != null && propertyValue.wrappedSabloValue instanceof IDataLinkedPropertyValue) return new Pair(propertyValue.wrappedSabloValue,
-			getConfig(pd).wrappedPropertyDescription);
+		if (propertyValue != null && propertyValue.wrappedSabloValue instanceof IDataLinkedPropertyValue)
+			return new Pair(propertyValue.wrappedSabloValue, getConfig(pd).wrappedPropertyDescription);
 		return null;
 	}
 

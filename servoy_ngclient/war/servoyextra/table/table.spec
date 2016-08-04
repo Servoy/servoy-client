@@ -24,7 +24,7 @@
 			"dataprovider": {	"type": "dataprovider",	"forFoundset": "foundset" },
 			"format" : {"for":["valuelist","dataprovider"] , "type" :"format"},
 			"headerStyleClass" : { "type" :"styleclass"}, 
-			"headerText": {"type" :"string", "default" : "header", "tags": { "showInOutlineView" :true }},
+			"headerText": {"type" :"string", "initialValue" : "header", "tags": { "showInOutlineView" :true }},
 			"styleClass" : { "type" :"styleclass"},
 			"styleClassDataprovider" : { "type": "dataprovider",	"forFoundset": "foundset"},
 			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"},
