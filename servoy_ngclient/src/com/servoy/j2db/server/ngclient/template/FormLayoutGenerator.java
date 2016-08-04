@@ -523,14 +523,9 @@ public class FormLayoutGenerator
 		writer.print(">");
 	}
 
-	/**
-	 * When the formElement represents a portal of a list / table view form, we should return the uuid of the form.
-	 * @param fe
-	 * @return
-	 */
 	public static String getDesignId(FormElement fe)
 	{
-		return (fe.getDesignId() != null && fe.getTypeName().equals("servoycore-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
+		return fe.getDesignId();
 	}
 
 	private static String getDirectEditProperty(FormElement fe)
