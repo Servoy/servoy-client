@@ -7,6 +7,6 @@
 	"libraries": [],	
 	"model":
 	{
-		"containedForm": "formcomponent",
-	},
+		"containedForm": "formcomponent"
+	}
 }

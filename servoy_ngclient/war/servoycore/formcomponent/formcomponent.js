@@ -1,4 +1,4 @@
-angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormcomponent', ['$http','$templateCache','$compile','$servoyInternal',function($http,$templateCache,$compile,$servoyInternal) {
+angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormcomponent', [function() {
     return {
            restrict : 'E',
            scope : {
@@ -10,12 +10,13 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
            controller: function($scope, $element, $attrs)
            {
         	   $scope.$watch("model.containedForm", function(newValue) { 
+        		   $element.empty();
         		   if (newValue) {
         			   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue);
 					   $element.append(elements);
         		   }
         		   else {
-        			   $element.html("<div></div>");
+        			   $element.html("<div>FormComponent, select a form</div>");
         		   }
         	   });
         }
