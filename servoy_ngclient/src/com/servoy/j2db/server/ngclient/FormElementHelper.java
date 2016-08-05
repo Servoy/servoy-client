@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -91,6 +92,8 @@ public class FormElementHelper implements IFormElementCache
 	private final ConcurrentMap<UUID, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
 
 	private final ConcurrentMap<String, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
+
+	private final Map<IPersist, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -163,7 +166,7 @@ public class FormElementHelper implements IFormElementCache
 			{
 				for (FormElement formElement : list)
 				{
-					if (component.getUUID().equals(formElement.getPersistIfAvailable().getUUID()))
+					if (component.getID() == formElement.getPersistIfAvailable().getID())
 					{
 						return formElement;
 					}
@@ -215,6 +218,24 @@ public class FormElementHelper implements IFormElementCache
 			if (isSecurityVisible(element, fs))
 			{
 				element = (IFormElement)((AbstractBase)element).clonePersist();
+				// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
+				UUID newElementUUID = null;
+				synchronized (formComponentElementsUUIDS)
+				{
+					Map<UUID, UUID> map = formComponentElementsUUIDS.get(parent.getPersistIfAvailable());
+					if (map == null)
+					{
+						map = new HashMap<>();
+						formComponentElementsUUIDS.put(parent.getPersistIfAvailable(), map);
+					}
+					newElementUUID = map.get(element.getUUID());
+					if (newElementUUID == null)
+					{
+						newElementUUID = UUID.randomUUID();
+						map.put(element.getUUID(), newElementUUID);
+					}
+				}
+				((AbstractBase)element).resetUUID(newElementUUID);
 				String elementName = element.getName();
 				if (elementName == null)
 				{
