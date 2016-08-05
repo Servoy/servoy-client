@@ -357,4 +357,11 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	{
 		return false;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "RhinoMapOrArrayWrapper: " + wrappedValue;
+	}
+
 }

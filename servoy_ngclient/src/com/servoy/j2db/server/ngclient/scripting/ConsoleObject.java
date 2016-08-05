@@ -30,9 +30,6 @@ public class ConsoleObject
 {
 	private final IApplication app;
 
-	/**
-	 * @param app
-	 */
 	public ConsoleObject(IApplication app)
 	{
 		this.app = app;
@@ -41,20 +38,21 @@ public class ConsoleObject
 	@JSFunction
 	public void log(Object value)
 	{
-		app.reportJSInfo(value.toString());
+		app.reportJSInfo(value != null ? value.toString() : "null");
 	}
 
 	@JSFunction
 	public void warn(Object value)
 	{
-		app.reportJSWarning(value.toString());
+		app.reportJSWarning(value != null ? value.toString() : "null");
 	}
 
 	@JSFunction
 	public void error(Object value)
 	{
-		EvaluatorException e = new EvaluatorException(value.toString());
+		EvaluatorException e = new EvaluatorException(value != null ? value.toString() : "null");
 		app.reportJSWarning(e.getMessage());
 		app.reportJSWarning(e.getScriptStackTrace());
 	}
+
 }

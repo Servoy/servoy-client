@@ -1,7 +1,12 @@
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {
-	var decorator = function($delegate,$injector) {
-		$delegate.callServerSideApi = function(serviceName,methodName,args) {
+	var decorator = function($delegate, $injector) {
+		// this call can modify "args" (it converts them to be sent to server)
+		$delegate.callServerSideApi = function(serviceName, methodName, args) {
+			// it would be nice to know here the argument and return types; for now just do default conversion (so that dates work correctly)
+			if (args && args.length) for (var i = 0; i < args.length; i++) {
+				args[i] = $injector.get("$sabloUtils").convertClientObject(args[i]); // TODO should be $sabloConverters.convertFromClientToServer(now, beanConversionInfo[property] ?, undefined);
+			}
         	return $injector.get("$sabloApplication").callService('applicationServerService', 'callServerSideApi', {service:serviceName,methodName:methodName,args:args})
         };
         return $delegate;
