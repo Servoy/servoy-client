@@ -43,6 +43,8 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.FlattenedForm;
+import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
@@ -50,6 +52,7 @@ import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -670,22 +673,22 @@ public class PersistHelper
 	private static boolean isStyle(String value)
 	{
 		String[] styles = { "bold", //$NON-NLS-1$
-		"italic", //$NON-NLS-1$
-		"regular", //$NON-NLS-1$
-		"medium", //$NON-NLS-1$
-		"oblique", //$NON-NLS-1$
-		"semi", //$NON-NLS-1$
-		"narrow", //$NON-NLS-1$
-		"black", //$NON-NLS-1$
-		"light", //$NON-NLS-1$
-		"extra", //$NON-NLS-1$
-		"condensed", //$NON-NLS-1$
-		"cond", //$NON-NLS-1$
-		"ultra", //$NON-NLS-1$
-		"demi", //$NON-NLS-1$
-		"thin", //$NON-NLS-1$
-		"wide", //$NON-NLS-1$
-		"rounded" }; //$NON-NLS-1$
+			"italic", //$NON-NLS-1$
+			"regular", //$NON-NLS-1$
+			"medium", //$NON-NLS-1$
+			"oblique", //$NON-NLS-1$
+			"semi", //$NON-NLS-1$
+			"narrow", //$NON-NLS-1$
+			"black", //$NON-NLS-1$
+			"light", //$NON-NLS-1$
+			"extra", //$NON-NLS-1$
+			"condensed", //$NON-NLS-1$
+			"cond", //$NON-NLS-1$
+			"ultra", //$NON-NLS-1$
+			"demi", //$NON-NLS-1$
+			"thin", //$NON-NLS-1$
+			"wide", //$NON-NLS-1$
+			"rounded" }; //$NON-NLS-1$
 		for (String element : styles)
 		{
 			if (element.equalsIgnoreCase(value)) return true;
@@ -1059,5 +1062,21 @@ public class PersistHelper
 		{
 			buildOrderedModulesList(newParent, orderedModules, fsModules);
 		}
+	}
+
+	public static ISupportChilds getFlattenedPersist(FlattenedSolution flattenedSolution, Form parent, ISupportChilds persist)
+	{
+		ISupportChilds flattenedPersist = persist;
+		if (flattenedPersist instanceof Form)
+		{
+			flattenedPersist = flattenedSolution.getFlattenedForm(flattenedPersist);
+		}
+		if (flattenedPersist instanceof LayoutContainer && !(flattenedPersist instanceof FlattenedLayoutContainer))
+		{
+			FlattenedForm ff = flattenedSolution.getFlattenedForm(parent) instanceof FlattenedForm ? (FlattenedForm)flattenedSolution.getFlattenedForm(parent)
+				: flattenedSolution.createFlattenedForm(parent);
+			flattenedPersist = new FlattenedLayoutContainer(ff, flattenedSolution, (LayoutContainer)flattenedPersist);
+		}
+		return flattenedPersist;
 	}
 }

@@ -2,10 +2,12 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Point;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.UUID;
 
 public class FlattenedLayoutContainer extends LayoutContainer implements IFlattenedPersistWrapper<LayoutContainer>
 {
@@ -14,12 +16,14 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 
 	private final LayoutContainer layoutContainer;
 	private final FlattenedSolution flattenedSolution;
+	private final FlattenedForm flattenedForm;
 
-	public FlattenedLayoutContainer(FlattenedSolution flattenedSolution, LayoutContainer layoutContainer)
+	public FlattenedLayoutContainer(FlattenedForm flattenedForm, FlattenedSolution flattenedSolution, LayoutContainer layoutContainer)
 	{
 		super(layoutContainer.getParent(), layoutContainer.getID(), layoutContainer.getUUID());
 		this.layoutContainer = layoutContainer;
 		this.flattenedSolution = flattenedSolution;
+		this.flattenedForm = flattenedForm;
 		fill();
 	}
 
@@ -32,16 +36,19 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	private void fill()
 	{
 		internalClearAllObjects();
+		getAncestor(IRepository.FORMS);
 		List<IPersist> children = PersistHelper.getHierarchyChildren(layoutContainer);
+		Map<UUID, IPersist> extendsMap = flattenedForm.getExtendsMap();
 		for (IPersist child : children)
 		{
-			if (child instanceof LayoutContainer && ((LayoutContainer)child).getExtendsID() > 0)
+			if (child instanceof LayoutContainer)
 			{
-				internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)child));
+				internalAddChild(new FlattenedLayoutContainer(flattenedForm, flattenedSolution,
+					(LayoutContainer)(extendsMap.containsKey(child.getUUID()) ? extendsMap.get(child.getUUID()) : child)));
 			}
 			else
 			{
-				internalAddChild(child);
+				internalAddChild(extendsMap.containsKey(child.getUUID()) ? extendsMap.get(child.getUUID()) : child);
 			}
 		}
 	}

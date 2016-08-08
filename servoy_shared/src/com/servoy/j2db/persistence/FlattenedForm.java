@@ -19,14 +19,17 @@ package com.servoy.j2db.persistence;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 
@@ -37,6 +40,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 {
 
 	private static final long serialVersionUID = 1L;
+
+	private final Map<UUID, IPersist> extendsMap = new HashMap<>();
 
 	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
 	{
@@ -72,7 +77,6 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		super(form.getParent(), form.getID(), form.getUUID());
 		this.flattenedSolution = flattenedSolution;
 		this.form = form;
-
 		fill();
 	}
 
@@ -131,8 +135,22 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		List<Integer> existingIDs = new ArrayList<Integer>();
 		for (Form f : allForms)
 		{
-			for (IPersist ip : f.getAllObjectsAsList())
+			for (IPersist persist : f.getAllObjectsAsList())
 			{
+				if (persist instanceof ISupportExtendsID)
+				{
+					if (((ISupportExtendsID)persist).getExtendsID() > 0)
+					{
+						IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
+						extendsMap.put(p.getUUID(), persist);
+						if (!p.getParent().getUUID().equals(getUUID()))
+						{
+							continue;
+						}
+					}
+
+				}
+				IPersist ip = extendsMap.containsKey(persist.getUUID()) ? extendsMap.get(persist.getUUID()) : persist;
 				Integer extendsID = (ip instanceof ISupportExtendsID) ? new Integer(((ISupportExtendsID)ip).getExtendsID()) : Integer.valueOf(-1);
 				if (!existingIDs.contains(new Integer(ip.getID())) && !existingIDs.contains(extendsID))
 				{
@@ -156,7 +174,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						}
 						else if (ip instanceof LayoutContainer)
 						{
-							internalAddChild(new FlattenedLayoutContainer(flattenedSolution, (LayoutContainer)ip));
+							internalAddChild(new FlattenedLayoutContainer(this, flattenedSolution, (LayoutContainer)ip));
 						}
 						else
 						{
@@ -260,5 +278,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			currentElement = (IFormElement)PersistHelper.getSuperPersist(currentElement);
 		}
 		return (Form)element.getAncestor(IRepository.FORMS);
+	}
+
+	Map<UUID, IPersist> getExtendsMap()
+	{
+		return extendsMap;
 	}
 }
