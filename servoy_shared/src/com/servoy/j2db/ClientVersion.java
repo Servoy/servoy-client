@@ -45,6 +45,11 @@ public abstract class ClientVersion
 		return version;
 	}
 
+	public static String getPureVersion()
+	{
+		return majorVersion + "." + middleVersion + "." + minorVersion;
+	}
+
 	public static String getBundleVersion()
 	{
 		return majorVersion + "." + middleVersion + "." + minorVersion + "." + releaseNumber;
