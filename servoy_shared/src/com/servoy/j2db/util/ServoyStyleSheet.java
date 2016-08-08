@@ -58,14 +58,14 @@ public class ServoyStyleSheet implements IStyleSheet
 		this(cssContent, name, false);
 	}
 
-	public ServoyStyleSheet(String cssContent, final String name, final boolean ignoreParsingErrors)
+	public ServoyStyleSheet(String cssContent, final String name, final boolean skipSwingStyleSheetIgnoringErrors)
 	{
 		this.errorHandler = new CSSErrorHandler()
 		{
 
 			public void error(String uri, String message)
 			{
-				if (!ignoreParsingErrors)
+				if (!skipSwingStyleSheetIgnoringErrors)
 				{
 					Debug.error("Error at css parsing, " + name + ',' + uri + ':' + message); //$NON-NLS-1$
 				}
@@ -84,13 +84,18 @@ public class ServoyStyleSheet implements IStyleSheet
 			}
 		}
 		ss = new FixedStyleSheet();
-		try
+		// if this is ignoring parsign errors then don't try to fill a swing stylesheet at all, this is very likely a
+		// full css3 file.
+		if (!skipSwingStyleSheetIgnoringErrors)
 		{
-			ss.addRule(cssContent);
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
+			try
+			{
+				ss.addRule(cssContent);
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
