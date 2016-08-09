@@ -130,24 +130,24 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return retval;
 	}
 
-	public Iterator<Form> getAllNonReferenceForms(boolean sort)
+	public Iterator<Form> getAllNormalForms(boolean sort)
 	{
-		return getAllReferenceNonReferenceForms(false, sort);
+		return getForms(false, sort);
 	}
 
-	public Iterator<Form> getAllReferenceForms(boolean sort)
+	public Iterator<Form> getAllComponentForms(boolean sort)
 	{
-		return getAllReferenceNonReferenceForms(true, sort);
+		return getForms(true, sort);
 	}
 
-	private Iterator<Form> getAllReferenceNonReferenceForms(final boolean reference, boolean sort)
+	private Iterator<Form> getForms(final boolean reference, boolean sort)
 	{
 		List<IPersist> childs = getAllObjectsAsList();
 		Iterator<Form> retval = new TypeIterator<Form>(childs, IRepository.FORMS, new IFilter<Form>()
 		{
 			public boolean match(Object f)
 			{
-				return (f instanceof Form && reference == ((Form)f).getReferenceForm().booleanValue());
+				return (f instanceof Form && reference == ((Form)f).isFormComponent().booleanValue());
 			}
 		});
 		if (sort)
