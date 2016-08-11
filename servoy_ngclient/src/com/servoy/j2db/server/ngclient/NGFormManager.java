@@ -82,7 +82,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	}
 
 	@Override
-	public IFormController getCachedFormController(String formName)
+	public IWebFormController getCachedFormController(String formName)
 	{
 		return createdFormControllers.get(formName);
 	}
