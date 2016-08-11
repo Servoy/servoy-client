@@ -119,7 +119,7 @@ public final class ServoyWrapFactory extends WrapFactory
 				return newObject;
 			}
 
-			if (obj instanceof JSONObject)
+			if (obj.getClass() == JSONObject.class)
 			{
 				JSONObject json = (JSONObject)obj;
 				Scriptable newObject = cx.newObject(scope);
@@ -146,7 +146,7 @@ public final class ServoyWrapFactory extends WrapFactory
 				return newObject;
 			}
 
-			if (obj instanceof JSONArray)
+			if (obj.getClass() == JSONObject.class)
 			{
 				JSONArray array = (JSONArray)obj;
 				Scriptable newObject = cx.newObject(scope, "Array");
