@@ -5594,7 +5594,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 				int cellHeight = getCellHeight();
-				int cellScroll = cellHeight * (selectedIndex.intValue());
+				int cellScroll = cellHeight * (table.getStartIndex() + selectedIndex.intValue());
 				sb.append("Servoy.TableView.scrollIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScroll + ");");
 				target.appendJavascript(sb.toString());
 			}
