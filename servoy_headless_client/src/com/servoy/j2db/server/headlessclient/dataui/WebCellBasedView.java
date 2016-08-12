@@ -5675,32 +5675,34 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return WebCellBasedView.this.formBodySize.height;
 			}
 
-			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
 			int maxHeight = -1;
-
-			Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
-			for (Component c : it)
+			ListItem<IRecordInternal> startListItem = table.size() > 0 ? (ListItem<IRecordInternal>)table.get(0) : null;
+			if (startListItem != null)
 			{
-				if (c instanceof CellContainer)
+				Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
+				for (Component c : it)
 				{
-					CellContainer cell = (CellContainer)c;
-					Component cellContents = cell.iterator().next();
-					if (cellContents instanceof IScriptableProvider)
+					if (c instanceof CellContainer)
 					{
-						IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
-						if (scriptableComponent instanceof IRuntimeComponent)
+						CellContainer cell = (CellContainer)c;
+						Component cellContents = cell.iterator().next();
+						if (cellContents instanceof IScriptableProvider)
 						{
-							IRuntimeComponent runtimeComp = (IRuntimeComponent)scriptableComponent;
-							maxHeight = runtimeComp.getHeight();
-							break;
+							IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
+							if (scriptableComponent instanceof IRuntimeComponent)
+							{
+								IRuntimeComponent runtimeComp = (IRuntimeComponent)scriptableComponent;
+								maxHeight = runtimeComp.getHeight();
+								break;
+							}
 						}
 					}
-				}
-				else if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
-				{
-					IRuntimeComponent runtimeComp = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
-					maxHeight = runtimeComp.getHeight();
-					break;
+					else if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
+					{
+						IRuntimeComponent runtimeComp = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
+						maxHeight = runtimeComp.getHeight();
+						break;
+					}
 				}
 			}
 			return maxHeight;
