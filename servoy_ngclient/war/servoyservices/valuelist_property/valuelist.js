@@ -40,10 +40,10 @@ angular.module('valuelist_property', ['webSocketModule'])
 					value: function(realValue) {
 						if (realValue) {
 							var key = realValue + '';
-							if (internalState.realToDisplayCache[key] != undefined)
+							if (internalState.realToDisplayCache[key] !== undefined)
 							{
 								// if this is a promise return that.
-								if (angular.isFunction(internalState.realToDisplayCache[key].then)) return internalState.realToDisplayCache[key]; 
+								if (internalState.realToDisplayCache[key] && angular.isFunction(internalState.realToDisplayCache[key].then)) return internalState.realToDisplayCache[key]; 
 								// if the value is in the cache then return a promise like object 
 								// that has a then function that will be resolved right away when called. So that it is more synch api. 
 								return {then:function(then){then(internalState.realToDisplayCache[key])}}
