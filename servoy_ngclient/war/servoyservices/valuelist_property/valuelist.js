@@ -54,7 +54,8 @@ angular.module('valuelist_property', ['webSocketModule'])
 							});
 							return internalState.realToDisplayCache[key];
 						}
-					    return $q.when(null);
+						// the real value == null return a promise like function so that not constantly promises are made.
+						return {then:function(then) {then("")}}
 					}, enumerable: false });
 				internalState.valuelistid = serverJSONValue.valuelistid 
 				// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
