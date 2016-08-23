@@ -612,7 +612,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (record != null && e != null && e.getName() != null)
 		{
-			for (Entry<IWebFormController, String> relatedFormEntry : visibleChildForms.entrySet())
+			HashMap<IWebFormController, String> visibleChildFormsCopy = new HashMap<>(visibleChildForms);
+			for (Entry<IWebFormController, String> relatedFormEntry : visibleChildFormsCopy.entrySet())
 			{
 				IWebFormController relatedForm = relatedFormEntry.getKey();
 				String relatedFormRelation = relatedFormEntry.getValue();
