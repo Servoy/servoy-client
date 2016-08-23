@@ -447,6 +447,10 @@ public class RepositoryHelper
 		{
 			return true;
 		}
+		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		{
+			return true;
+		}
 		if (name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$
 		{
 			return true;
