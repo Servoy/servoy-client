@@ -847,7 +847,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
 							dal = formUI.getDataAdapterList();
 						}
-
+						if (forFoundsetTypedPropertyName != null && !recordBasedProperties.contains(propertyName))
+						{
+							childComponent.flagPropertyAsDirty(propertyName, true);
+						}
 						// apply change to record/dp
 						dal.pushChanges(childComponent, propertyName);
 					}
