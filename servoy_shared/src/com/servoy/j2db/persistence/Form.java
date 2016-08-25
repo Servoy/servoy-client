@@ -2023,16 +2023,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE }, readOnly);
 	}
 
-	public Boolean getReferenceForm()
+	public Boolean isFormComponent()
 	{
-		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_REFERENCE_FORM });
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_FORM_COMPONENT });
 		if (customProperty instanceof Boolean) return (Boolean)customProperty;
 		return Boolean.FALSE;
 	}
 
-	public void setReferenceForm(Boolean referenceForm)
+	public void setFormComponent(Boolean formAsComponent)
 	{
-		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_REFERENCE_FORM }, referenceForm);
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_FORM_COMPONENT }, formAsComponent);
 	}
 
 	/**

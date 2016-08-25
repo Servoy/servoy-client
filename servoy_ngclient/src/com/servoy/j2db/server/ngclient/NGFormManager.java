@@ -82,7 +82,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	}
 
 	@Override
-	public IFormController getCachedFormController(String formName)
+	public IWebFormController getCachedFormController(String formName)
 	{
 		return createdFormControllers.get(formName);
 	}
@@ -189,7 +189,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			showFormInMainPanel(first.getName()); //we only set if the solution startup did not yet show a form already
 		}
 
-		if (preferedSolutionMethodName != null && application.getFlattenedSolution().isMainSolutionLoaded())
+		if (preferedSolutionMethodName != null &&
+			(application.getFlattenedSolution().isMainSolutionLoaded() || solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION))
 		{
 			try
 			{

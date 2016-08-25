@@ -3175,7 +3175,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					jsHeadScrollViewport.append(javascript);
 				}
-			}, false);
+			});
 		}
 	}
 
@@ -4632,13 +4632,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
 		boolean isAjaxRequest = requestTarget instanceof AjaxRequestTarget;
 
-
-		if (jsHeadScrollViewport != null && jsHeadScrollViewport.length() > 0)
-		{
-			container.getHeaderResponse().renderOnDomReadyJavascript(jsHeadScrollViewport.toString());
-			jsHeadScrollViewport = null;
-		}
-
 		if ((!isAjaxRequest || !labelsCssRendered) && labelsCSSClasses.size() > 0)
 		{
 			boolean isStyleSheetLimitForIE = WebEventExecutor.isStyleSheetLimitForIE(getSession());
@@ -5388,7 +5381,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	public void scrollViewPort(final AjaxRequestTarget target, boolean appendMissingRows)
+	public void scrollViewPort(final AjaxRequestTarget target)
 	{
 		scrollViewPort(new JSAppendTarget()
 		{
@@ -5397,14 +5390,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				target.appendJavascript(javascript);
 			}
-		}, appendMissingRows);
+		});
 	}
 
-	private void scrollViewPort(JSAppendTarget target, boolean appendMissingRows)
+	private void scrollViewPort(JSAppendTarget target)
 	{
 		if (selectionChanged && !isScrollFirstShow)
 		{
-			scrollBehavior.scrollViewPort(target, appendMissingRows);
+			scrollBehavior.scrollViewPort(target);
 			selectionChanged = false;
 			nrUpdatedListItems = 0;
 		}
@@ -5446,6 +5439,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			response.renderOnLoadJavascript(sb.toString());
+
+			if (jsHeadScrollViewport != null && jsHeadScrollViewport.length() > 0)
+			{
+				response.renderOnLoadJavascript(jsHeadScrollViewport.toString());
+				jsHeadScrollViewport = null;
+			}
 		}
 
 		public void appendRows(AjaxRequestTarget target, int scrollDiff, boolean doNotRemoveHeadRows)
@@ -5536,7 +5535,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
 		 */
-		public void scrollViewPort(JSAppendTarget target, boolean appendMissingRows)
+		public void scrollViewPort(JSAppendTarget target)
 		{
 			if (currentData == null) return;
 			Collection<ListItem< ? >> newRows = null;
@@ -5563,7 +5562,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 			}
-			if ((selectedIndex == null && table.size() == 0) || (selectedIndex != null && selectedIndex >= table.size() && appendMissingRows))
+			if ((selectedIndex == null && table.size() == 0))
 			{
 				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
 				return;
@@ -5636,28 +5635,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (rowsBuffer != null)
 			{
 				StringBuffer sb = new StringBuffer();
-				if (appendMissingRows)
+
+				hasTopBuffer = table.getStartIndex() > 0;
+				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+
+				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+				sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
+				sb.append(newRowsCount).append(","); //$NON-NLS-1$
+				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+				sb.append(1).append(", "); //$NON-NLS-1$
+				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+				sb.append(hasBottomBuffer).append(",");
+				sb.append(!isKeepLoadedRowsInScrollMode).append(");");
+
+				if (rowsBuffer[0].length() > 0)
 				{
-					hasTopBuffer = table.getStartIndex() > 0;
-					hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
-
-					sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
-					sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
-					sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
-					sb.append(newRowsCount).append(","); //$NON-NLS-1$
-					sb.append(rowsToRemove).append(","); //$NON-NLS-1$
-					sb.append(1).append(", "); //$NON-NLS-1$
-					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
-					sb.append(hasBottomBuffer).append(",");
-					sb.append(!isKeepLoadedRowsInScrollMode).append(");");
-
-					if (rowsBuffer[0].length() > 0)
-					{
-						sb.append('\n').append(rowsBuffer[0]);
-					}
+					sb.append('\n').append(rowsBuffer[0]);
 				}
+
 				int cellHeight = getCellHeight();
-				int cellScroll = cellHeight * (selectedIndex.intValue());
+				int cellScroll = cellHeight * (table.getStartIndex() + selectedIndex.intValue());
 				sb.append("Servoy.TableView.scrollIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScroll + ");");
 				target.appendJavascript(sb.toString());
 			}
@@ -5675,32 +5673,34 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return WebCellBasedView.this.formBodySize.height;
 			}
 
-			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
 			int maxHeight = -1;
-
-			Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
-			for (Component c : it)
+			ListItem<IRecordInternal> startListItem = table.size() > 0 ? (ListItem<IRecordInternal>)table.get(0) : null;
+			if (startListItem != null)
 			{
-				if (c instanceof CellContainer)
+				Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
+				for (Component c : it)
 				{
-					CellContainer cell = (CellContainer)c;
-					Component cellContents = cell.iterator().next();
-					if (cellContents instanceof IScriptableProvider)
+					if (c instanceof CellContainer)
 					{
-						IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
-						if (scriptableComponent instanceof IRuntimeComponent)
+						CellContainer cell = (CellContainer)c;
+						Component cellContents = cell.iterator().next();
+						if (cellContents instanceof IScriptableProvider)
 						{
-							IRuntimeComponent runtimeComp = (IRuntimeComponent)scriptableComponent;
-							maxHeight = runtimeComp.getHeight();
-							break;
+							IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
+							if (scriptableComponent instanceof IRuntimeComponent)
+							{
+								IRuntimeComponent runtimeComp = (IRuntimeComponent)scriptableComponent;
+								maxHeight = runtimeComp.getHeight();
+								break;
+							}
 						}
 					}
-				}
-				else if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
-				{
-					IRuntimeComponent runtimeComp = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
-					maxHeight = runtimeComp.getHeight();
-					break;
+					else if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
+					{
+						IRuntimeComponent runtimeComp = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
+						maxHeight = runtimeComp.getHeight();
+						break;
+					}
 				}
 			}
 			return maxHeight;

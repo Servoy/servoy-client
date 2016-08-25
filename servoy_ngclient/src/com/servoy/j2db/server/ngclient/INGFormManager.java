@@ -30,6 +30,8 @@ public interface INGFormManager extends IBasicFormManager
 
 	IWebFormController getForm(String name);
 
+	IWebFormController getCachedFormController(String formName);
+
 	IWebFormController getCurrentForm();
 
 	void setCurrentControllerJS(IWebFormController currentController);

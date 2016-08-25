@@ -138,8 +138,9 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
-			IWebFormUI formUI = (IWebFormUI)getForm(form.getName());
-			if (formUI.getParentContainer() == null)
+			IWebFormController cachedFormController = getSession().getClient().getFormManager().getCachedFormController(formName);
+			IWebFormUI formUI = cachedFormController != null ? cachedFormController.getFormUI() : null;
+			if (formUI != null && formUI.getParentContainer() == null)
 			{
 				String currentWindowName = getCurrentWindow().getName();
 				if (currentWindowName == null)

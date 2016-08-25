@@ -45,6 +45,7 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
@@ -150,7 +151,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				else
 				{
-					if (solution.isMainSolutionLoaded())
+					if (solution.isMainSolutionLoaded() ||
+						solution.getSolution() != null && solution.getSolution().getSolutionType() == SolutionMetaData.LOGIN_SOLUTION)
 					{
 						//this is needed for the situation when the solution is already loaded and the deeplink url was changed (different arg values for instance)
 						String method = args.getMethodName();

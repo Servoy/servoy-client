@@ -257,7 +257,7 @@ public class DebugUtils
 			else if (persist.getAncestor(IRepository.FORMS) != null)
 			{
 				final Form form = (Form)persist.getAncestor(IRepository.FORMS);
-				if (form != null && form.getReferenceForm().booleanValue())
+				if (form != null && form.isFormComponent().booleanValue())
 				{
 					// if the changed form is a reference form we need to check if that is referenced by a loaded form..
 					List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();

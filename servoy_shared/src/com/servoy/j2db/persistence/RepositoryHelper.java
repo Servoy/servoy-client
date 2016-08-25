@@ -430,7 +430,7 @@ public class RepositoryHelper
 	// Some properties should be created(for undo/redo) but not visible in the properties view
 	public static boolean hideForProperties(String name, Class< ? > persistClass, IPersist persist)
 	{
-		if (persist instanceof Form && Utils.getAsBoolean(((Form)persist).getReferenceForm()) &&
+		if (persist instanceof Form && Utils.getAsBoolean(((Form)persist).isFormComponent()) &&
 			(name.equals("borderType") || name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
 				name.equals("namedFoundSet") || name.equals("paperPrintScale") || name.equals("scrollbars") || name.equals("selectionMode") ||
 				name.equals("styleName") || name.equals("styleClass") || name.equals("titleText") || name.equals("transparent") || name.equals("view") ||
@@ -438,12 +438,16 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).getReferenceForm()) &&
+		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).isFormComponent()) &&
 			!name.equals("height"))
 		{
 			return true;
 		}
 		if (name.equals("groupbyDataProviderIDs") && Part.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		{
+			return true;
+		}
+		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
 		{
 			return true;
 		}
@@ -508,7 +512,7 @@ public class RepositoryHelper
 			{
 				return true;
 			}
-			if (Form.class.isAssignableFrom(persistClass) && IContentSpecConstants.PROPERTY_REFERENCE_FORM.equals(name))
+			if (Form.class.isAssignableFrom(persistClass) && IContentSpecConstants.PROPERTY_FORM_COMPONENT.equals(name))
 			{
 				return true;
 			}

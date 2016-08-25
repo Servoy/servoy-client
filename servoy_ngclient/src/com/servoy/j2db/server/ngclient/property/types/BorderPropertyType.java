@@ -452,7 +452,11 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	@Override
 	public Object toRhinoValue(Border webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
-		return webComponentValue; // TODO any conversion needed here?
+		if (webComponentValue != null)
+		{
+			return ComponentFactoryHelper.createBorderString(webComponentValue);
+		}
+		return webComponentValue;
 	}
 
 	@Override

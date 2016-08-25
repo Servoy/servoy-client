@@ -117,7 +117,7 @@ public class ResourceProvider implements Filter
 		serviceReaders.clear();
 		for (IPackageReader reader : newPackages)
 		{
-			if (reader.getPackageType().equals(IPackageReader.WEB_SERVICE)) serviceReaders.put(getName(reader), reader);
+			if (IPackageReader.WEB_SERVICE.equals(reader.getPackageType())) serviceReaders.put(getName(reader), reader);
 			else componentReaders.put(getName(reader), reader);
 		}
 
