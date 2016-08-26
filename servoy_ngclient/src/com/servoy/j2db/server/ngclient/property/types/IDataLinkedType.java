@@ -22,6 +22,7 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 
 /**
  * Interface for types that can have their value linked to data in a record or in a form/global variable.
@@ -30,12 +31,12 @@ import com.servoy.j2db.server.ngclient.FormElement;
  * The type can report whether or not a (runtime - sablo component property) value is or is not dependent on the foundset's record.
  * This way components that are linked to foundsets can know what to send for all records and what to send for each record to the browser.<br/><br/>
  *
- * Usually this type of property also uses {@link IServoyAwarePropertyValue} as a runtime (sablo) property value.<br/><br/>
+ * Usually this type of property also uses {@link IDataLinkedPropertyValue} as a runtime (sablo) property value.<br/><br/>
  *
  * By default, types that do not implement this interface are considered to not depend on (record or variables) data.
  *
  * @author acostescu
- * @see IServoyAwarePropertyValue
+ * @see IDataLinkedPropertyValue
  */
 public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 {

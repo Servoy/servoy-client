@@ -167,13 +167,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		FormElement formElement = ((WebFormComponent)component).getFormElement();
 		// register data link and find mode listeners as needed
-//		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, vlPD);
-//		if (dataLinks == null)
-//		{
-//			// they weren't cached in form element; get them again
-//			dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD,
-//				((WebFormComponent)component).getDataConverterContext().getSolution(), formElement);
-//		}
 		TargetDataLinks dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD,
 			((WebFormComponent)component).getDataConverterContext().getSolution(), formElement);
 

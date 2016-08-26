@@ -65,8 +65,6 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
-import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
@@ -93,7 +91,6 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 	private final Form form;
 	private Map<String, Object> propertyValues;
-	private Map<Class< ? >, Map<PropertyDescription, Object>> preprocessedPropertyInfo; // standard information that can be computed in template about some properties and will be needed at runtime; (infoType, (propertyName, infoObject))
 	private final String componentType;
 
 	private final PersistBasedFormElementImpl persistImpl;
@@ -330,30 +327,6 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 				Object formElementValue = map.get(pd.getName());
 
-				// check find mode aware and data linked properties and remember/cache what they will need at runtime
-				if (formElementValue != NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
-				{
-					// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
-					try
-					{
-						if (pd.getType() instanceof IDataLinkedType)
-						{
-							getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd,
-								((IDataLinkedType)pd.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
-						}
-
-						if (pd.getType() instanceof IFindModeAwareType)
-						{
-							getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd,
-								((IFindModeAwareType)pd.getType()).isFindModeAware(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
-						}
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-					}
-				}
-
 				if (inDesigner && pd.getType() == VisiblePropertyType.INSTANCE)
 				{
 					Object isVisibleObj = map.get(pd.getName());
@@ -365,33 +338,6 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 				}
 			}
 		}
-	}
-
-	/**
-	 * Get some standard info that was pre-processed at template stage but is needed at runtime.
-	 *
-	 * @param propertyInfoType for example {@link IFindModeAwareType}.class or {@link IDataLinkedType}.class.
-	 * @return the pre-processed information object (it's type and meaning depends on propertyInfoType).
-	 */
-	public Object getPreprocessedPropertyInfo(Class< ? > propertyInfoType, PropertyDescription key)
-	{
-		if (preprocessedPropertyInfo == null) return null;
-		Map<PropertyDescription, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
-		if (m == null) return null;
-
-		return m.get(key);
-	}
-
-	public Map<PropertyDescription, Object> getOrCreatePreprocessedPropertyInfoMap(Class< ? > propertyInfoType)
-	{
-		if (preprocessedPropertyInfo == null) preprocessedPropertyInfo = new HashMap<>();
-		Map<PropertyDescription, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
-		if (m == null)
-		{
-			m = new HashMap<>();
-			preprocessedPropertyInfo.put(propertyInfoType, m);
-		}
-		return m;
 	}
 
 	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map)

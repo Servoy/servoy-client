@@ -168,8 +168,6 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	{
 		if (formElementValue == null) return false;
 
-//		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd);
-//		if (dataLinks == null) dataLinks = getDataLinks(formElementValue, pd, flattenedSolution, formElement); // if it was not yet processed by formElement
 		TargetDataLinks dataLinks = getDataLinks(formElementValue, pd, flattenedSolution, formElement);
 		return dataLinks.recordLinked;
 	}

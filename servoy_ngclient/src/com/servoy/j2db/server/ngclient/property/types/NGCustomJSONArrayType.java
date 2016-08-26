@@ -296,8 +296,6 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		PropertyDescription entryPD = getCustomJSONTypeDefinition();
 		for (Object value : formElementValue)
 		{
-			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those;
-			// if we ever need to cache these for performance we have to use something more unique (like property path) for formElement.getOrCreatePreprocessedPropertyInfoMap(...).put(...) and cache them for arrays as well
 			if (entryPD.getType() instanceof IDataLinkedType)
 			{
 				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,

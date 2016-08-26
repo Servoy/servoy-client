@@ -157,8 +157,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						var newargs = $sabloUtils.getEventArgs(args,type);
 						internalState.requests.push({ handlerExec: {
 							eventType: type,
-							args:newargs,
-							rowId : row,
+							args: newargs,
+							rowId: row,
 							defid: promiseAndCmsid.defid
 						}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
@@ -188,83 +188,82 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							$sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : 
 								$sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 
-							$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifierGenerator,
-									currentConversionInfo, beanModel[CONVERSIONS], componentScope);
-							delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
+					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifierGenerator,
+							currentConversionInfo, beanModel[CONVERSIONS], componentScope);
+					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
 
-							// component property is now be able to send itself entirely at runtime; we need to handle viewport conversions here as well
-							var wholeViewport = serverJSONValue[MODEL_VIEWPORT_KEY];
-							delete serverJSONValue[MODEL_VIEWPORT_KEY];
-							serverJSONValue[MODEL_VIEWPORT] = [];
+					// component property is now be able to send itself entirely at runtime; we need to handle viewport conversions here as well
+					var wholeViewport = serverJSONValue[MODEL_VIEWPORT_KEY];
+					delete serverJSONValue[MODEL_VIEWPORT_KEY];
+					serverJSONValue[MODEL_VIEWPORT] = [];
 
-							if (wholeViewport) {
-								$viewportModule.updateWholeViewport(serverJSONValue, MODEL_VIEWPORT,
-										internalState, wholeViewport, serverJSONValue[CONVERSIONS] ?
-												serverJSONValue[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined, componentScope, function() {
-													return serverJSONValue[MODEL_KEY]
-												});
-							}
-							if (angular.isDefined(serverJSONValue[CONVERSIONS])) delete serverJSONValue[CONVERSIONS];
+					if (wholeViewport) {
+						$viewportModule.updateWholeViewport(serverJSONValue, MODEL_VIEWPORT,
+								internalState, wholeViewport, serverJSONValue[CONVERSIONS] ?
+										serverJSONValue[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined, componentScope, function() {
+											return serverJSONValue[MODEL_KEY]
+										});
+					}
+					if (angular.isDefined(serverJSONValue[CONVERSIONS])) delete serverJSONValue[CONVERSIONS];
 
-							if (!serverJSONValue.api) serverJSONValue.api = {};
-							if (serverJSONValue.handlers)
-							{
-								for (var key in serverJSONValue.handlers) 
+					if (!serverJSONValue.api) serverJSONValue.api = {};
+					if (serverJSONValue.handlers)
+					{
+						for (var key in serverJSONValue.handlers) 
+						{
+							var handler = serverJSONValue.handlers[key];
+							(function(key) {
+								var eventHandler = function (args,rowId)
 								{
-									var handler = serverJSONValue.handlers[key];
-									(function(key) {
-										var eventHandler = function (args,rowId)
-										{
-											return executeHandler(key,args,rowId);
-										}
-										var wrapper = function() {
-											return eventHandler(arguments, null);
-										}
-										wrapper.selectRecordHandler = function(rowId){
-											return function () { return eventHandler(arguments,rowId) }
-										};
-										serverJSONValue.handlers[key] = wrapper;
-									})(key);
+									return executeHandler(key,args,rowId);
 								}
+								var wrapper = function() {
+									return eventHandler(arguments, null);
+								}
+								wrapper.selectRecordHandler = function(rowId){
+									return function () { return eventHandler(arguments,rowId) }
+								};
+								serverJSONValue.handlers[key] = wrapper;
+							})(key);
+						}
+					}
+
+					// here we don't specify any of the following as all those can be forwarded by the parent component from it's own servoyApi:
+					// formWillShow, hideForm, getFormUrl
+					serverJSONValue.servoyApi = {
+						/** rowId is only needed if the component is linked to a foundset */
+						startEdit: function(property, rowId) {
+							var req = { svyStartEdit: {} };
+
+							if (rowId) req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+							req.svyStartEdit[PROPERTY_NAME_KEY] = property;
+
+							internalState.requests.push(req);
+							if (internalState.changeNotifier) internalState.changeNotifier();
+						},
+
+						apply: function(property, modelOfComponent, rowId) {
+							/** rowId is only needed if the component is linked to a foundset */
+							var conversionInfo = internalState[CONVERSIONS];
+							if (!modelOfComponent) modelOfComponent = serverJSONValue[MODEL_KEY]; // if it's not linked to foundset componentModel will be undefined
+							var propertyValue = modelOfComponent[property];
+
+							if (conversionInfo && conversionInfo[property]) {
+								propertyValue = $sabloConverters.convertFromClientToServer(propertyValue, conversionInfo[property], undefined);
+							} else {
+								propertyValue = $sabloUtils.convertClientObject(propertyValue);
 							}
 
-							// here we don't specify any of the following as all those can be forwarded by the parent component from it's own servoyApi:
-							// formWillShow, hideForm, getFormUrl
-							serverJSONValue.servoyApi = {
-									/** rowId is only needed if the component is linked to a foundset */
-									startEdit: function(property, rowId) {
-										var req = { svyStartEdit: {} };
+							var req = { svyApply: {} };
 
-										if (rowId) req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
-										req.svyStartEdit[PROPERTY_NAME_KEY] = property;
+							if (rowId) req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+							req.svyApply[PROPERTY_NAME_KEY] = property;
+							req.svyApply[VALUE_KEY] = propertyValue;
 
-										internalState.requests.push(req);
-										if (internalState.changeNotifier) internalState.changeNotifier();
-									},
-
-									apply: function(property, modelOfComponent, rowId) {
-										/** rowId is only needed if the component is linked to a foundset */
-										var conversionInfo = internalState[CONVERSIONS];
-										if (!modelOfComponent) modelOfComponent = serverJSONValue[MODEL_KEY]; // if it's not linked to foundset componentModel will be undefined
-										var propertyValue = modelOfComponent[property];
-
-										if (conversionInfo && conversionInfo[property]) {
-											propertyValue = $sabloConverters.convertFromClientToServer(propertyValue, conversionInfo[property], undefined);
-										} else {
-											propertyValue = $sabloUtils.convertClientObject(propertyValue);
-										}
-
-										var req = { svyApply: {} };
-
-										if (rowId) req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
-										req.svyApply[PROPERTY_NAME_KEY] = property;
-										req.svyApply[VALUE_KEY] = propertyValue;
-
-										internalState.requests.push(req);
-										if (internalState.changeNotifier) internalState.changeNotifier();
-									}
-							}
-
+							internalState.requests.push(req);
+							if (internalState.changeNotifier) internalState.changeNotifier();
+						}
+					}
 				}
 			}
 
