@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,9 +73,9 @@ public class FormWrapper
 	private final String realName;
 	private final IServoyDataConverterContext context;
 	private final boolean design;
-	private final FormTemplateObjectWrapper formTemplateObjectWrapper;
 	private Collection<IFormElement> baseComponents;
 	private final Map<String, String> formComponentTemplates = new HashMap<>();
+	private final Map<String, Dimension> formComponentParentSizes = new HashMap<String, Dimension>();
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, FormTemplateObjectWrapper formTemplateObjectWrapper,
 		IServoyDataConverterContext context, boolean design)
@@ -82,7 +83,6 @@ public class FormWrapper
 		this.form = form;
 		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
-		this.formTemplateObjectWrapper = formTemplateObjectWrapper;
 		this.context = context;
 		this.design = design;
 		isTableView = !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
@@ -200,9 +200,11 @@ public class FormWrapper
 					if (frm == null) continue;
 					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)propertyValue, frm,
 						context.getSolution());
+					Dimension frmSize = frm.getSize();
 					for (FormElement element : cache.getFormComponentElements())
 					{
 						components.add((IFormElement)element.getPersistIfAvailable());
+						formComponentParentSizes.put(element.getName(), frmSize);
 						checkFormComponents(components, element);
 					}
 					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
@@ -271,5 +273,11 @@ public class FormWrapper
 		properties.remove(StaticContentSpecLoader.PROPERTY_SHOWINMENU.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName());
+	}
+
+	public String getContainerSizesString() throws JSONException, IllegalArgumentException
+	{
+		getBaseComponents();
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), formComponentParentSizes, null, null).endObject().toString();
 	}
 }

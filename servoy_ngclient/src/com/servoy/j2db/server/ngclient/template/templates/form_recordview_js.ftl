@@ -31,9 +31,10 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			}
 	var executingEvents = [];
 	
+	var parentSizes = ${containerSizesString}
 	var formProperties = ${propertiesString}
 
-	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false);
+	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
 	formState.resolving = true;
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving form = ${name}");
 

@@ -193,23 +193,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		this.changeMonitor = changeNotifier;
 
 		// register data link and find mode listeners as needed
-//		dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, dpPD);
-//		if (dataLinks == null)
-//		{
-//			// they weren't cached in form element; get them again
-//			dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
-//		}
 		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
 		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 
-		Boolean isFindModeAware = (Boolean)formElement.getPreprocessedPropertyInfo(IFindModeAwareType.class, dpPD);
-		if (isFindModeAware == null)
-		{
-			// they weren't cached in form element; get them again
-			isFindModeAware = ((DataproviderPropertyType)dpPD.getType()).isFindModeAware(dataProviderID, dpPD, servoyDataConverterContext.getSolution(),
-				formElement);
-		}
-		if (isFindModeAware != null && isFindModeAware.booleanValue() == true) dataAdapterList.addFindModeAwareProperty(this);
+		// they weren't cached in form element; get them again
+		boolean isFindModeAware = ((DataproviderPropertyType)dpPD.getType()).isFindModeAware(dataProviderID, dpPD, servoyDataConverterContext.getSolution(),
+			formElement);
+		if (isFindModeAware) dataAdapterList.addFindModeAwareProperty(this);
 
 		DataproviderConfig config = (DataproviderConfig)dpPD.getConfig();
 		String dtpn = config.getDisplayTagsPropertyName();

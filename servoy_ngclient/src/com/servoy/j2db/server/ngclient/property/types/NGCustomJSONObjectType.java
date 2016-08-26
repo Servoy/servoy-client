@@ -294,13 +294,11 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			FormElementT value = formElementValue.get(entry.getKey());
 			PropertyDescription entryPD = entry.getValue();
-			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
 			if (entryPD.getType() instanceof IFindModeAwareType)
 			{
 				boolean b = ((IFindModeAwareType)entryPD.getType()).isFindModeAware(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,
 					formElement);
 				isFindModeAware |= b;
-				formElement.getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(entryPD, Boolean.valueOf(b));
 			}
 		}
 
@@ -321,12 +319,11 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			FormElementT value = formElementValue.get(entry.getKey());
 			PropertyDescription entryPD = entry.getValue();
-			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
+
 			if (entryPD.getType() instanceof IDataLinkedType)
 			{
 				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,
 					formElement);
-				formElement.getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(entryPD, entryDPs);
 				if (entryDPs != null && entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{
 					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));
