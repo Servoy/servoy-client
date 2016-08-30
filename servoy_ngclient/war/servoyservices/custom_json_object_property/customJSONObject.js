@@ -95,43 +95,60 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 				// get changed completely by reference
 				internalState.objStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
 					if (newWVal === oldWVal) return;
-					var sendAllNeeded = (newWVal === null || oldWVal === null);
-					if (!sendAllNeeded) {
-						// see if the two objects have the same keys
-						var tmp = [];
-						var tzi;
-						for (var tz in newWVal) if (angularAutoAddedKeys.indexOf(tz) === -1) tmp.push(tz);
-						for (var tz in oldWVal) {
-							if (angularAutoAddedKeys.indexOf(tz) !== -1) continue;
-
-							if ((tzi = tmp.indexOf(tz)) != -1) tmp.splice(tzi, 1);
-							else {
-								sendAllNeeded = true;
-								break;
-							}
-						}
-						sendAllNeeded = (tmp.length != 0);
-					}
-
-					if (sendAllNeeded) {
+					
+					if (newWVal === null || oldWVal === null) {
+						// send new value entirely
 						internalState.allChanged = true;
 						internalState.notifier();
 					} else {
-						// some elements changed by reference; we only need to handle this for smart element values,
-						// as the others will be handled by the separate 'dumb' watches
+						// search for differences between properties of the old and new objects
+						var changed = false;
 
-						// we already checked that length and keys are the same above
-						var referencesChanged = false;
-						for (var j in newWVal) {
-							if (angularAutoAddedKeys.indexOf(j) !== -1) continue;
+						var tmp = [];
+						var idx;
+						for (var key in newWVal) if (angularAutoAddedKeys.indexOf(key) === -1) tmp.push(key);
+						for (var key in oldWVal) {
+							if (angularAutoAddedKeys.indexOf(key) !== -1) continue;
 
-							if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-								changed = true;
-								internalState.changedIndexes[j] = { old: true };
+							if ((idx = tmp.indexOf(key)) != -1) {
+								tmp.splice(idx, 1); // this will be dealt with here; remove it from tmp
+								
+								// key in both old and new; check for difference in value
+								if (newWVal[key] !== oldWVal[key] && oldWVal[key] && oldWVal[key][$sabloConverters.INTERNAL_IMPL] && oldWVal[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+									// some elements changed by reference; we only need to handle this for old smart element values,
+									// as the others will be handled by the separate 'dumb' watches
+									changed = true;
+									internalState.changedKeys[key] = { old: oldWVal[key] }; // just in case new value is not smart; otherwise we could just put true there for example - that is enough for smart values
+
+									// if new value is smart as well we have to give it the according change notifier
+									if (newWVal[key] && newWVal[key][$sabloConverters.INTERNAL_IMPL] && newWVal[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier)
+										newWVal[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(newWVal, key));
+								}
+							} else {
+								// old has a key that is no longer present in new one; for 'dumb' properties this will be handled by already added dumb watches;
+								// so here we need to see if old value was smart, then we need to send updates to the server
+								if (oldWVal[key] && oldWVal[key][$sabloConverters.INTERNAL_IMPL] && oldWVal[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+									changed = true;
+									internalState.changedKeys[key] = { old: oldWVal[key] };
+								}
 							}
 						}
-
-						if (referencesChanged) internalState.notifier();
+						// any keys left in tmp are keys that are in new value but are not in old value; handle those
+						for (var idx in tmp) {
+							var key = tmp[idx];
+							// if a dumb watch is already present for this key let that watch handle the change (could happen for example if a property is initially set with a 'dumb' value then cleared then set again)
+							if (!internalState.elUnwatch[key]) {
+								// so we were not previously aware of this new key; send it to server
+								changed = true;
+								internalState.changedKeys[key] = { old: undefined };
+								
+								// if new value is smart we have to give it the according change notifier; if it's 'dumb' and it was not watched before add a 'dumb' watch on it
+								if (newWVal[key] && newWVal[key][$sabloConverters.INTERNAL_IMPL] && newWVal[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier)
+									newWVal[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(newWVal, key));
+								else internalState.elUnwatch[key] = watchDumbElementForChanges(newWVal, key, componentScope, internalState[PUSH_TO_SERVER]);
+							} // TODO do we need to handle unlikely situation where the value for a key would switch from dumb in the past to smart?
+						}
+						if (changed) internalState.notifier();
 					}
 				});
 			}
@@ -261,7 +278,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 							else toBeSentObj[key] = $sabloUtils.convertClientObject(val);
 						}
 						internalState.allChanged = false;
-						internalState.changedIndexes = {};
+						internalState.changedKeys = {};
 						return changes;
 					} else {
 						// send only changed keys
