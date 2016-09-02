@@ -525,6 +525,10 @@ public abstract class AbstractBase implements IPersist
 		{
 			allobjects = Collections.synchronizedList(new ArrayList<IPersist>(3));
 		}
+		if (allobjects.contains(obj))
+		{
+			internalRemoveChild(obj);
+		}
 		allobjects.add(obj);
 		if (allobjectsMap != null && obj != null)
 		{

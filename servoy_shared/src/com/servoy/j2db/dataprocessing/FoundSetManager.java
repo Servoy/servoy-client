@@ -80,6 +80,7 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
@@ -2445,15 +2446,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		String dataSource = DataSourceUtils.createInmemDataSource(name);
 		FlattenedSolution s = application.getFlattenedSolution();
-		Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
-
 
 		IDataSet fixedDataSet = dataSet;
 		int[] fixedIntTypes = intTypes;
 
-		if (tblIte.hasNext())
+		// get column def from the first in-mem datasource found
+		ServoyJSONObject columnsDef = null;
+		Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
+		while (tblIte.hasNext() && columnsDef == null)
 		{
-			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(tblIte.next().getColumns());
+			TableNode tn = tblIte.next();
+			columnsDef = tn.getColumns();
+		}
+
+		if (columnsDef != null)
+		{
+			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
 			ArrayList<String> inmemColumnNames = new ArrayList<String>();
 			int[] inmemColumnTypes = null;
 			ArrayList<Integer> inmemColumnTypesA = new ArrayList<Integer>();

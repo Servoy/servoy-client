@@ -70,6 +70,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	 * When non-null then the wrapped property is not yet initialized - waiting for forFoundset property's DAL to be available
 	 */
 	protected InitializingState initializingState;
+	protected boolean initialized = false;
 
 	protected YT wrappedSabloValue;
 	protected WebFormComponent component;
@@ -139,9 +140,29 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return null;
 	}
 
-	protected void createWrappedSabloValueNeededAndPossible()
+	@Override
+	public void attachToBaseObject(final IChangeListener monitor, @SuppressWarnings("hiding")
+	final BaseWebObject component)
 	{
-		if (initializingState == null) return;
+
+		this.component = (WebFormComponent)component;
+		this.changeMonitor = monitor;
+
+		// in case the linked foundSet property is not yet initialized or it changes, we must call attach again to prepare what's needed
+		this.component.addPropertyChangeListener(forFoundsetPropertyName, forFoundsetPropertyListener = new PropertyChangeListener()
+		{
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if (evt.getNewValue() != null)
+				{
+					// detach first if needed so that we don't add listeners twice (the method can be called as well when for example the linked foundset value changes or if value is in arrays/custom objects and those get completely replaced with browser sent value)
+					detach();
+
+					attachToBaseObject(monitor, component);
+				}
+			}
+		});
 
 		final FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
 
@@ -151,44 +172,43 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		idForFoundset = null;
 		dal.addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener(changeMonitor, foundsetPropValue));
 
-		this.wrappedSabloValue = (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
-			initializingState.wrappedPropertyDescription, initializingState.formElement, component, dal); // this conversion also adds dal data listeners when needed and will trigger dataLinkedPropertyRegistrationListener above which updates the record-linked or not state
-		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, component);
-
-		initializingState = null;
-	}
-
-	@Override
-	public void attachToBaseObject(final IChangeListener monitor, @SuppressWarnings("hiding") BaseWebObject component)
-	{
-		this.component = (WebFormComponent)component;
-		this.changeMonitor = monitor;
-
-		createWrappedSabloValueNeededAndPossible();
-		this.component.addPropertyChangeListener(forFoundsetPropertyName, forFoundsetPropertyListener = new PropertyChangeListener()
+		if (!initialized)
 		{
-			@Override
-			public void propertyChange(PropertyChangeEvent evt)
-			{
-				if (evt.getNewValue() != null) createWrappedSabloValueNeededAndPossible();
-			}
-		});
+			// the following conversion also adds dal data listeners when needed and will trigger dataLinkedPropertyRegistrationListener above which updates the record-linked or not state
+			this.wrappedSabloValue = (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
+				initializingState.wrappedPropertyDescription, initializingState.formElement, (WebFormComponent)component, dal);
+			initialized = true;
+		}
+		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, component);
 	}
 
 	@Override
 	public void detach()
 	{
-		if (forFoundsetPropertyListener != null)
+		// this wrapped detach() should normally trigger unregister idForFoundset and remove viewPortChangeMonitor as well if needed - in dataLinkedPropertyUnregistered() below
+		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
+
+		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+
+		if (forFoundsetPropertyListener != null && component != null)
 		{
 			component.removePropertyChangeListener(forFoundsetPropertyName, forFoundsetPropertyListener);
+			forFoundsetPropertyListener = null;
+		}
 
-			FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-			if (foundsetPropValue != null && viewPortChangeMonitor != null)
+		if (foundsetPropValue != null)
+		{
+			FoundsetDataAdapterList dal = foundsetPropValue.getDataAdapterList();
+
+			if (dataLinkedPropertyRegistrationListener != null)
 			{
-				foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+				dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
+				dataLinkedPropertyRegistrationListener = null;
 			}
 		}
-		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
+
+		component = null;
+		changeMonitor = null;
 	}
 
 	protected IDataLinkedPropertyRegistrationListener getDataLinkedPropertyRegistrationListener(final IChangeListener changeMonitor,
@@ -278,7 +298,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	public JSONWriter fullToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (initializingState != null)
+		if (!initialized)
 		{
 			Debug.warn("Trying to get full value from an uninitialized foundset linked property: " + wrappedPropertyDescription);
 			return writer;
@@ -338,7 +358,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	public JSONWriter changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (initializingState != null)
+		if (!initialized)
 		{
 			Debug.warn("Trying to get changes from an uninitialized foundset linked property: " + wrappedPropertyDescription);
 			return writer;
@@ -405,7 +425,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 
-		if (initializingState != null)
+		if (!initialized)
 		{
 			Debug.error("Trying to update state for an uninitialized foundset linked property: " + wrappedPropertyDescription + " | " + component);
 			return;
