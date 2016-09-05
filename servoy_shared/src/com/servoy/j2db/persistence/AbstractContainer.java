@@ -475,7 +475,7 @@ public abstract class AbstractContainer extends AbstractBase
 			IPersist p = it.next();
 			if (p instanceof ISupportBounds)
 			{
-				children.add(p);
+				children.add(p instanceof IFlattenedPersistWrapper ? ((IFlattenedPersistWrapper< ? >)p).getWrappedPersist() : p);
 			}
 		}
 		IPersist[] sortedChildArray = children.toArray(new IPersist[0]);
