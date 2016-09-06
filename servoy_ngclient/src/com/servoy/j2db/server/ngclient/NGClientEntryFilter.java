@@ -402,26 +402,8 @@ public class NGClientEntryFilter extends WebEntry
 
 	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
-		if (ApplicationServerRegistry.get().isDeveloperStartup())
-		{
-			// do not cache in the solution, it may change in developer
-			return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
-		}
-
-		Map<String, String> solutionDefaultMessages = solution.getRuntimeProperty(Solution.DEFAULT_MESSAGES);
-		if (solutionDefaultMessages == null)
-		{
-			solution.setRuntimeProperty(Solution.DEFAULT_MESSAGES, solutionDefaultMessages = new HashMap<>());
-		}
-		String value = solutionDefaultMessages.get(key);
-
-		if (value == null)
-		{
-			value = getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
-			solutionDefaultMessages.put(key, value);
-		}
-
-		return value;
+		// removed the cache, if this gets called more often we may add it again
+		return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
 	}
 
 	private String getSolutionDefaultMessageNotCached(int solutionId, Locale locale, String key)
