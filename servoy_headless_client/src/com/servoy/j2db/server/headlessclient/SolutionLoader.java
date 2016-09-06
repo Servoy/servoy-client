@@ -95,9 +95,9 @@ public class SolutionLoader extends WebPage
 			IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 			SolutionMetaData smd = (SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
 			if (smd == null ||
-				smd.getSolutionType() == SolutionMetaData.SOLUTION ||
-				smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY ||
-				((smd.getSolutionType() == SolutionMetaData.MOBILE || smd.getSolutionType() == SolutionMetaData.MODULE) && ApplicationServerRegistry.get().isDeveloperStartup()))
+					smd.getSolutionType() == SolutionMetaData.SOLUTION ||
+					smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY ||
+					((smd.getSolutionType() == SolutionMetaData.MOBILE || smd.getSolutionType() == SolutionMetaData.MODULE) && ApplicationServerRegistry.get().isDeveloperStartup()))
 			{
 				theReq = smd;
 			}
@@ -183,7 +183,7 @@ public class SolutionLoader extends WebPage
 							try
 							{
 								sc.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
-									(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
+									(argumentsScope.toJSMap().isEmpty() ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
 							}
 							catch (Exception e1)
 							{

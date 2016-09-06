@@ -162,8 +162,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	private void appendArgumentsScopeToPreferedSolutionMethodArguments(StartupArguments argumentsScope)
 	{
-		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length == 1)
+		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length == 1 || preferredSolutionMethodNameToCall != null)
 		{
+			if (preferredSolutionMethodArguments == null)
+			{
+				preferredSolutionMethodArguments = new Object[] { argumentsScope.getFirstArgument() };
+			}
 			Object[] new_preferedSolutionMethodArguments = new Object[preferredSolutionMethodArguments.length + 1];
 			System.arraycopy(preferredSolutionMethodArguments, 0, new_preferedSolutionMethodArguments, 0, preferredSolutionMethodArguments.length);
 			new_preferedSolutionMethodArguments[preferredSolutionMethodArguments.length] = argumentsScope.toJSMap();
