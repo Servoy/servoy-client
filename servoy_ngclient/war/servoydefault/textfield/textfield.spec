@@ -126,13 +126,13 @@
 			            		"optional":true
 			            		}             
 							 ],
-				"delayUntilFormLoad": true,
-			"globalExclusive": true
+				"delayUntilFormLoads": true,
+			"discardPreviouslyQueuedSimilarCalls": true
 
 	        },
 	        "selectAll": {
-				"delayUntilFormLoad": true,
-			"globalExclusive": true
+				"delayUntilFormLoads": true,
+			"discardPreviouslyQueuedSimilarCalls": true
 
 	        }
 	}
