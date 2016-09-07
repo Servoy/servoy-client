@@ -194,7 +194,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		var realFormUrl = formTemplateUrls[formName];
 		if (realFormUrl == null || realFormUrl == undefined) {
 			formTemplateUrls[formName] = "";
-			$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
+			$sabloApplication.callService("$windowService", "touchForm", { name: formName }, true);
 		}
 		else if (realFormUrl.length == 0)
 		{
@@ -205,19 +205,22 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	}
 
 	function prepareFormForUseInHiddenDiv(formName) {
-		// the code should work even if we remove all the following timeouts, just execute directly - but these are mean as an optimization for the common cases
+		// the code should work even if we remove all the following timeouts, just execute directly - but these are meant as an optimization for the common cases
 		$timeout(function() { // $timeout (a random number of multiple ones) are used to try to avoid cases in which a component already will use the template URL in which case we avoid loading it in hidden div unnecessarily
 			$timeout(function() {
 				$timeout(function() {
 					$timeout(function() {
-						if ($log.debugEnabled) $log.debug("svy * checking if prepareFormForUseInHiddenDiv needs to do something: " + formName);
+						if ($log.debugEnabled) $log.debug("svy * checking if prepareFormForUseInHiddenDiv still needs to do something (form isn't already loaded elsewhere): " + formName);
 						if (!$sabloApplication.hasResolvedFormState(formName)) {
 							// in order to call web component API's for example we will create appropriate DOM and create the directives/scopes (but hidden) so that API call doesn't go to destroyed web component...
 							var formURL = formTemplateUrls[formName];
-							if (formURL && formURL.length > 0) $rootScope.updatingFormUrl = formURL; // normally the form URL is already there
+							
+							// the form URL should be already there (sync/async api calls or other things that require forms to be loaded somewhere usually also do touchForm which populates the URL beforehand);
+							// the exception here is delayed-until-form-load API calls (like requestFocus) that will not do touchForm but those shouldn't call prepareFormForUseInHiddenDiv anyway, they just wait for the form to get loaded by someone else
+							if (formURL && formURL.length > 0) $rootScope.updatingFormUrl = formURL;
 							else {
-								$log.error("svy * Trying to reload hidden form, but rel URL is empty; forcing reload... " + formName);
-								$rootScope.updatingFormUrl = getFormUrl(formName);
+								$log.error("svy * Trying to load form in hidden, but form URL is empty (not yet prepared); forcing reload... " + formName);
+								$rootScope.updatingFormUrl = getFormUrl(formName); // will still be null, but it will call a force touch on server that should end up loading it in hidden... see updateController
 							}
 							if ($log.debugEnabled) $log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [prepareFormForUseInHiddenDiv - " + formName + "]");
 							$rootScope.updatingFormName = formName;
@@ -501,7 +504,8 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					});
 				}
 				// TODO can this be an else if the above if? will it always force load anyway?
-				if(forceLoad) {
+				// getFormURL can force a touch when it needs to be shown in hidden div - that is why we put it in updatingFormUrl here; otherwise we'd need a promise-based formURL impl
+				if (forceLoad) {
 					$rootScope.updatingFormUrl = realFormUrl;
 					$rootScope.updatingFormName = formName;
 					if ($log.debugEnabled) $log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [updateController FORCED - " + formName + "]");
