@@ -830,10 +830,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}
 					if ($log.debugEnabled) $log.debug("svy * svyFormload will resolve = " + formName);
 
-					// some info about why I suspect this timeout was added: normally this post link impl was intendended to mean "all directives below the form are linked/ready"; but
+					// TODO some info about why I suspect this timeout was added: normally this post link impl was intendended to mean "all directives below the form are linked/ready"; but
 					// when directives in angular use template reference instead of inline html template this is not true; so the timeout was added I think just to postpone
 					// resolving a form some more to avoid trouble; normally we should implement a way of really detecting when all child directives are linked and removing this timeout
 					$timeout(function() {
+						if ($log.debugEnabled) $log.debug("svy * svyFormload is now resolving = " + formName);
+
 						// check again (because of the use of $timeout above) if the form was shown in a real location meanwhile in which case we must not resolve it from hidden div
 						if (inHiddenDiv && formState && formState.blockPostLinkInHidden) {
 							delete formState.blockPostLinkInHidden; // the form began to load in a real location; don't resolve it in hidden div anymore
