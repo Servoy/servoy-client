@@ -5473,20 +5473,21 @@ angular.module('ui.grid')
     }
 
     if (!direction) {
-      // Figure out the sort direction
-      if (column.sort.direction && column.sort.direction === uiGridConstants.ASC) {
-        column.sort.direction = uiGridConstants.DESC;
-      }
-      else if (column.sort.direction && column.sort.direction === uiGridConstants.DESC) {
-        if ( column.colDef && column.suppressRemoveSort ){
-          column.sort.direction = uiGridConstants.ASC;
-        } else {
-          column.sort = {};
-        }
-      }
-      else {
-        column.sort.direction = uiGridConstants.ASC;
-      }
+        // Find the current position in the cycle (or -1).
+    	var i = column.sortDirectionCycle.indexOf(column.sort.direction ? column.sort.direction : null);
+    	// Proceed to the next position in the cycle (or start at the beginning).
+    	i = (i+1) % column.sortDirectionCycle.length;
+    	// If suppressRemoveSort is set, and the next position in the cycle would
+    	// remove the sort, skip it.
+    	if (column.colDef && column.suppressRemoveSort && !column.sortDirectionCycle[i]) {
+    	       i = (i+1) % column.sortDirectionCycle.length;
+    	}
+	    if (column.sortDirectionCycle[i]) {
+	    	column.sort.direction = column.sortDirectionCycle[i];
+	    }
+	    else {
+	    	 column.sort = {};
+	    }
     }
     else {
       column.sort.direction = direction;
@@ -7076,6 +7077,23 @@ angular.module('ui.grid')
     if ( typeof(self.suppressRemoveSort) === 'undefined'){
       self.suppressRemoveSort = typeof(colDef.suppressRemoveSort) !== 'undefined' ? colDef.suppressRemoveSort : false;
     }
+    
+    /**
+     * @ngdoc property
+     * @name sortDirectionCycle
+     * @propertyOf ui.grid.class:GridOptions.columnDef
+     * @description (optional) An array of sort directions, specifying the order that they
+     * should cycle through as the user repeatedly clicks on the column heading.
+     * The default is `[null, uiGridConstants.ASC, uiGridConstants.DESC]`. Null
+     * refers to the unsorted state. This does not affect the initial sort
+     * direction; use the {@link ui.grid.class:GridOptions.columnDef#sort sort}
+     * property for that. If
+     * {@link ui.grid.class:GridOptions.columnDef#suppressRemoveSort suppressRemoveSort}
+     * Each direction may not appear in the list more than once (e.g. `[ASC,
+     * DESC, DESC]` is not allowed), and the list may not be empty.
+     */
+    self.sortDirectionCycle = typeof(colDef.sortDirectionCycle) !== 'undefined' ?
+      colDef.sortDirectionCycle : [null, uiGridConstants.ASC, uiGridConstants.DESC];
 
     /**
      * @ngdoc property
