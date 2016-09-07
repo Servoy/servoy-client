@@ -51,6 +51,8 @@ public interface IObjectDocumentation
 
 	public String[] getParentClasses();
 
+	public String getExtendsClass();
+
 	public void addFunction(IFunctionDocumentation function);
 
 	public void setHide(boolean hide);
