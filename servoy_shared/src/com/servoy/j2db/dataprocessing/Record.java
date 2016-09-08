@@ -917,6 +917,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/**
 	 * Returns true or false if the record is being edited or not.
 	 *
+	 * This will not check if the record doesn't really have any changes, it just returns the edit state.
+	 * So this can return true but databaseManager.getEditedRecord() will not return this record because that
+	 * call will check if the record has really any changed values compared to the stored database values.
+	 *
 	 * @sample
 	 * var isEditing = foundset.getSelectedRecord().isEditing() // also foundset.getRecord can be used
 	 *
