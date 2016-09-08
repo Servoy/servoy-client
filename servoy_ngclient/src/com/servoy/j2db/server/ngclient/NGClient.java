@@ -7,6 +7,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -122,7 +123,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		this.wsSession = wsSession;
 		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		getWebsocketSession().registerServerService(I18NService.NAME, new I18NService(this));
-		settings = Settings.getInstance();
 		getClientInfo().setApplicationType(getApplicationType());
 		try
 		{
@@ -901,6 +901,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public String getUserProperty(String name)
 	{
+		String defaultUserProperty = getDefaultUserProperties().get(name);
+		if (defaultUserProperty != null) return defaultUserProperty;
 		try
 		{
 			return (String)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperty", new Object[] { name });
@@ -915,6 +917,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public void setUserProperty(String name, String value)
 	{
+		getDefaultUserProperties().remove(name);
 		try
 		{
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("setUserProperty", new Object[] { name, value });
@@ -934,12 +937,19 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		try
 		{
 			result = (JSONArray)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserPropertyNames", null);
-			String[] names = new String[result.length()];
-			for (int i = 0; i < names.length; i++)
+			List<String> names = new ArrayList<String>();
+			for (int i = 0; i < result.length(); i++)
 			{
-				names[i] = result.optString(i);
+				names.add(result.optString(i));
 			}
-			return names;
+			for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
+			{
+				if (names.indexOf(defaultUserPropertyKey) == -1)
+				{
+					names.add(defaultUserPropertyKey);
+				}
+			}
+			return names.toArray(new String[0]);
 		}
 		catch (IOException e)
 		{

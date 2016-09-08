@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -59,6 +60,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -78,11 +80,14 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	protected final WebCredentials credentials;
 	private transient IBeanManager beanManager;
 
+	private final HashMap<String, String> defaultUserProperties = new HashMap<String, String>();
 
 	public AbstractApplication(WebCredentials credentials)
 	{
 		super();
 		this.credentials = credentials;
+		settings = Settings.getInstance();
+		((Settings)settings).loadUserProperties(defaultUserProperties);
 	}
 
 	/*
@@ -590,5 +595,19 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	public ImageIcon loadImage(String name)
 	{
 		return null;
+	}
+
+	public Map<String, String> getDefaultUserProperties()
+	{
+		return defaultUserProperties;
+	}
+
+	/**
+	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close.
+	 */
+	protected void reinitializeDefaultProperties()
+	{
+		defaultUserProperties.clear();
+		((Settings)settings).loadUserProperties(defaultUserProperties);
 	}
 }
