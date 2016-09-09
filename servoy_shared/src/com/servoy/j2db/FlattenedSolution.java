@@ -226,6 +226,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
 		T clone = (T)persist.clonePersist();
+		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
 		if (newParent != null)
 		{
 			newParent.addChild(clone);
@@ -248,9 +249,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					"name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " + e.getMessage());
 			}
 		}
-
-		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
-
 		if (clone instanceof ISupportChilds)
 		{
 			clone.acceptVisitor(new IPersistVisitor()
