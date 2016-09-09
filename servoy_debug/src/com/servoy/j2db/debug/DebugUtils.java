@@ -41,6 +41,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.DebugJ2DBClient.DebugSwingFormMananger;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -321,7 +322,8 @@ public class DebugUtils
 										{
 											Form frm = FormComponentPropertyType.INSTANCE.getForm(wc.getProperty(pd.getName()),
 												clientState.getFlattenedSolution());
-											if ((form.equals(frm) || isReferenceFormUsedInForm(clientState, form, frm)) && !formsUpdated.contains(persistForm))
+											if (frm != null && (form.equals(frm) || FlattenedForm.hasFormInHierarchy(frm, form) ||
+												isReferenceFormUsedInForm(clientState, form, frm)) && !formsUpdated.contains(persistForm))
 											{
 												formsUpdated.add(persistForm);
 												List<IFormController> cfc = clientState.getFormManager().getCachedFormControllers(persistForm);

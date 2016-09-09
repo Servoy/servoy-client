@@ -229,7 +229,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		fill();
 	}
 
-	private static boolean hasFormInHierarchy(Form form1, Form form2)
+	public static boolean hasFormInHierarchy(Form form1, Form form2)
 	{
 		Form superForm = form1.getExtendsForm();
 		while (superForm != null)
