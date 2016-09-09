@@ -627,6 +627,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		boolean isCloseSolution = super.closeSolution(force, args);
 		if (isCloseSolution)
 		{
+			getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
+
 			if (args == null || args.length < 1)
 			{
 				if (!force && showUrl == null)
