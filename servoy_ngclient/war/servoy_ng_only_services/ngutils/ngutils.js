@@ -19,9 +19,11 @@ angular.module('ngclientutils', [ 'servoy' ])
 
 		/**
 		 * Set the message that will be shown when the browser tab is closed or the users navigates away, 
-		 * this can be used to let users know they have data modifications that are not yet saved.
+		 * this can be used to let users know they have data modifications that are not yet saved. 
+		 * Note: We deprecated this api because browsers removed support for custom messages of beforeunload event. Now most browsers display a standard message.
 		 *
 		 * @param {string} message the message to show when the user navigates away, null if nothing should be shown anymore.
+		 * @deprecated
 		 */
 		setOnUnloadConfirmationMessage: function(message)
 		{
