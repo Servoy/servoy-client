@@ -359,8 +359,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			try
 			{
 				application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onOpenMethodID"))), false,
-					false);
+					Utils.arrayMerge(solutionOpenMethodArgs, Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onOpenMethodID"))), false, false);
 				if (application.getSolution() == null) return;
 			}
 			catch (Exception e1)
@@ -1652,6 +1651,12 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 		}
 		return result;
+	}
+
+
+	public void setMainContainer(IMainContainer mainContainer)
+	{
+		this.mainContainer = mainContainer;
 	}
 
 	/**
