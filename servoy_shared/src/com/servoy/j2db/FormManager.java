@@ -78,6 +78,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		IApplication.FULL_SCREEN);
 
 	private static final int MAX_FORMS_LOADED;
+
 	static
 	{
 		// TODO web clients?? Can they also get 160 forms??
@@ -318,8 +319,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			}
 			catch (Exception e1)
 			{
-				application.reportError(
-					Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), e1); //$NON-NLS-1$
+				application.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), //$NON-NLS-1$
+					e1);
 			}
 		}
 	}
@@ -522,7 +523,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 		boolean containerSwitch = container != currentContainer;
 
-		if (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName()) && !containerSwitch && !design) return leaseFormPanel(currentMainShowingForm.getName());
+		if (currentMainShowingForm != null && formName.equals(currentMainShowingForm.getName()) && !containerSwitch && !design)
+			return leaseFormPanel(currentMainShowingForm.getName());
 
 		final Form f = possibleForms.get(formName);
 		if (f == null)
@@ -852,7 +854,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 					leaseHistory.add(fp);
 					if (Debug.tracing())
 					{
-						Debug.trace("FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						Debug.trace(
+							"FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					}
 				}
 				if (toBeRemoved != null)
@@ -1286,6 +1289,11 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			}
 		}
 		return result;
+	}
+
+	public void setMainContainer(IMainContainer mainContainer)
+	{
+		this.mainContainer = mainContainer;
 	}
 
 	/**
