@@ -32,6 +32,7 @@ public interface HasRuntimeStyleClass
 	/**
 	 * Adds a style to the styleClass property. This works only for NGClient where multiple styles are supported.
 	 *
+	 * @param styleName the name of the style class to add
 	 *
 	 * @sample
 	 * %%prefix%%%%elementName%%.addStyleClass('redbg');
@@ -43,6 +44,7 @@ public interface HasRuntimeStyleClass
 	/**
 	 * Removes a style from the styleClass property. This works only for NGClient where multiple styles are supported.
 	 *
+	 * @param styleName the name of the style class to remove
 	 *
 	 * @sample
 	 *  %%prefix%%%%elementName%%.removeStyleClass('redbg');

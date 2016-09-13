@@ -492,6 +492,9 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/** Set a design-time property of an element.
 	 *
+	 * @param key the name of the property
+	 * @param value the value to store
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
@@ -504,6 +507,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	/** Clear a design-time property of an element.
+	 *
+	 * @param key the name of the property
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
