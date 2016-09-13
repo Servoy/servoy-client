@@ -60,6 +60,7 @@ import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -237,8 +238,12 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
 					(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
 				{
-					format = (String)formElement.getPropertyValue(formatPd.getName());
-					break;
+					Object formatValue = formElement.getPropertyValue(formatPd.getName());
+					if (formatValue != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+					{
+						format = (String)formElement.getPropertyValue(formatPd.getName());
+						break;
+					}
 				}
 			}
 		}
