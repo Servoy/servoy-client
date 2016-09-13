@@ -25,7 +25,7 @@ import com.servoy.j2db.persistence.IServer;
 /**
  * Scriptable column object used when new columns are created.
  * The column can be modified, changes are applied in the server.synchronizeWithDB() call.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -50,11 +50,11 @@ public class JSColumnObject extends JSColumn
 	 * Get or set the allow-null flag of a new column.
 	 * Note that when a column is added to an existing table, allowNull will always be set.
 	 * For a primary key column, the allowNull flag will be always off, for other columns the flag is set by default.
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 */
 	@Override
-	public boolean js_getAllowNull() // override for jsdoc 
+	public boolean js_getAllowNull() // override for jsdoc
 	{
 		return super.js_getAllowNull();
 	}
@@ -64,9 +64,9 @@ public class JSColumnObject extends JSColumn
 	 * The flags are a bit pattern consisting of 1 or more of the following bits:
 	 *  - JSColumn.UUID_COLUMN;
 	 *  - JSColumn.EXCLUDED_COLUMN;
-	 *  
+	 *
 	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(String, Number, Number, Boolean, Boolean)
-	 * 
+	 *
 	 * @param flag the flag to set
 	 * @param set true for set flag, false for clear flag
 	 */
@@ -126,7 +126,7 @@ public class JSColumnObject extends JSColumn
 	 * 		if (result) application.output("Table users successfully created.");
 	 * 		else application.output("Table users not created.");
 	 * 	}
-	 * 
+	 *
 	 * 	// groups has database sequence pk
 	 * 	table = server.createNewTable("groups");
 	 * 	if (table)
@@ -143,7 +143,7 @@ public class JSColumnObject extends JSColumn
 	 * }
 	 */
 	@Override
-	public int js_getSequenceType() // override for jsdoc 
+	public int js_getSequenceType() // override for jsdoc
 	{
 		return super.js_getSequenceType();
 	}
@@ -171,6 +171,8 @@ public class JSColumnObject extends JSColumn
 
 	/**
 	 * Set the database sequence name of the column, used for columns with sequence type JSColumn.DATABASE_SEQUENCE.
+	 *
+	 * @param sequenceName the sequence name
 	 *
 	 * @sampleas js_getSequenceType()
 	 */

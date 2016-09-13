@@ -156,6 +156,8 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	 *  q.where.add(q.columns.label_text.isin('select comment_text from book_text t where t.note_text = ? and t.node_id = b.node_id', ['test']))
 	 *  datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
 	 *
+	 *  @param tableAlias the table alias to use
+	 *
 	 *  @return query builder
 	 *
 	 */

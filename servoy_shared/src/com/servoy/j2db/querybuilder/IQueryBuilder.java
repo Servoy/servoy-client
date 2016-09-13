@@ -30,7 +30,7 @@ import com.servoy.j2db.query.ISQLSelect;
  * 		IQueryBuilder query = pluginAccess.getDatabaseManager().getQueryFactory().createSelect(dataSource);
  * 		query.result().add("order_date").getParent().where().add(query.getColumn("custid").eq(new Integer(99)));
  * 	</pre>
- * 
+ *
  * <p>Example with join:
  * <pre>
  * 		// select pk from main
@@ -45,7 +45,7 @@ import com.servoy.j2db.query.ISQLSelect;
  * 		      .add(query.getColumn("detail", "value").le(new Integer(88)))
  * 		      .add(query.getColumn("detail", "value").between(new Integer(7), new Integer(88)));
  * 	</pre>
- * 
+ *
  * <p>Example with subquery
  * <pre>
  * 		// select pk
@@ -70,7 +70,7 @@ import com.servoy.j2db.query.ISQLSelect;
  * 		   )
  * 		   );
  * 	</pre>
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -137,6 +137,8 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 * query.where().add(query.getColumn("flag").eq(query.getParameter("myvar"));
 	 * query.getParameter("myvar").setvalue(new Integer(1));
 	 * </pre>
+	 *
+	 * @param name The name of the parameter
 	 */
 	IQueryBuilderParameter getParameter(String name) throws RepositoryException;
 
@@ -170,7 +172,7 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 *	        .add(query.getColumn("flag").eq(new Integer(2)))
 	 *	        .add(query.getColumn("order_date").gt(new Date()))
 	 *	     )
-	 *	);	
+	 *	);
 	 * </pre>
 	 */
 	IQueryBuilderLogicalCondition and();
@@ -194,10 +196,12 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 * <pre>
 	 *  // where exists (select 1 from tab where flag = ?)
 	 *  query.where().add(query.exists(subQuery.result().addValue(new Integer(1)).getParent().where().add(subQuery.getColumn("flag").eq("T")).getRoot()));
-	 *  
+	 *
 	 *  // or simple variant: adds 'select 1' and calls getRoot()
 	 *  query.where().add(query.exists(subQuery.where().add(subQuery.getColumn("flag").eq("T"))));
 	 * </pre>
+	 *
+	 * @param query
 	 */
 	IQueryBuilderCondition exists(IQueryBuilder query) throws RepositoryException;
 

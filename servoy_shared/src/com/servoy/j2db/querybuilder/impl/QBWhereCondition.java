@@ -107,6 +107,9 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 
 	/**
 	 * Remove a named condition from the AND or OR condition list.
+	 *
+	 * @param name The condition name.
+	 *
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.remove("mycond")
@@ -141,6 +144,9 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 
 	/**
 	 * Get a named condition in the query where-clause.
+	 *
+	 * @param name The condition name.
+	 *
 	 * @sampleas conditionnames()
 	 */
 	@JSFunction

@@ -66,4 +66,6 @@ public interface IObjectDocumentation
 	public Element toXML(IDocumentationManager docManager, boolean hideDeprecated, boolean pretty);
 
 	public ClientSupport getClientSupport();
+
+	public boolean isDeprecated();
 }
