@@ -47,7 +47,6 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
-import com.servoy.j2db.dataprocessing.datasource.JSDataSources;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -123,7 +122,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSDataSources.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };
@@ -778,7 +777,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -867,7 +866,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2669,7 +2668,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2696,7 +2695,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3863,7 +3862,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException
