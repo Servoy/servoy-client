@@ -297,6 +297,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Get or create a parameter for the query, this used to parameterize queries.
 	 * @sampleas params()
+	 *
+	 * @param name the name of the parameter
 	 */
 	@JSFunction
 	public QBParameter getParameter(String name) throws RepositoryException
@@ -369,10 +371,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @sample
 	 * foundset.query.where.add(query.exists(query2))
 	 *
+	 * @param query the sub query
+	 *
 	 */
-	public QBCondition js_exists(QBSelect q) throws RepositoryException
+	public QBCondition js_exists(QBSelect query) throws RepositoryException
 	{
-		return exists(q);
+		return exists(query);
 	}
 
 	public QBCondition exists(IQueryBuilder q) throws RepositoryException
