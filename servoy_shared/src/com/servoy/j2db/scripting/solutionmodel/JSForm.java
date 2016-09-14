@@ -3370,6 +3370,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.removeDesignTimeProperty('myprop')
+	 *
+	 * @param key the property name
 	 */
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)

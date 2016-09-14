@@ -770,7 +770,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1129,7 +1129,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatedescription Callback method for when an error occurred (the error can be a JavaScript or Servoy Java error).
 	 * @templatename onError
 	 * @templatetype Boolean
-	 * @templateparam * ex exception to handle
+	 * @templateparam Object ex exception to handle
 	 * @templateaddtodo
 	 * @templatecode
 	 * application.output('Exception Object: '+ex)
