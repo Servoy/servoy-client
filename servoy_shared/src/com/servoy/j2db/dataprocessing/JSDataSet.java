@@ -71,42 +71,55 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+	private Map<String, NativeJavaMethod> jsFunctions;
 
-	static
+	@SuppressWarnings("unchecked")
+	private void initJSFunctions(IServiceProvider serviceProvider)
 	{
-		try
+		if (serviceProvider != null)
 		{
-			Method[] methods = JSDataSet.class.getMethods();
-			for (Method m : methods)
+			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSDATASET_FUNCTIONS);
+		}
+		if (jsFunctions == null)
+		{
+			jsFunctions = new HashMap<String, NativeJavaMethod>();
+			try
 			{
-				String name = null;
-				if (m.getName().startsWith("js_")) //$NON-NLS-1$
+				Method[] methods = JSDataSet.class.getMethods();
+				for (Method m : methods)
 				{
-					name = m.getName().substring(3);
-				}
-				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, JSDataSet.class, JSFunction.class))
-				{
-					name = m.getName();
-				}
-				if (name != null)
-				{
-					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
-					if (nativeJavaMethod == null)
+					String name = null;
+					if (m.getName().startsWith("js_")) //$NON-NLS-1$
 					{
-						nativeJavaMethod = new NativeJavaMethod(m, name);
+						name = m.getName().substring(3);
 					}
-					else
+					else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, JSDataSet.class, JSFunction.class))
 					{
-						nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+						name = m.getName();
 					}
-					jsFunctions.put(name, nativeJavaMethod);
+					if (name != null)
+					{
+						NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
+						if (nativeJavaMethod == null)
+						{
+							nativeJavaMethod = new NativeJavaMethod(m, name);
+						}
+						else
+						{
+							nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+						}
+						jsFunctions.put(name, nativeJavaMethod);
+					}
+				}
+				if (serviceProvider != null)
+				{
+					serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSDATASET_FUNCTIONS, jsFunctions);
 				}
 			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -120,6 +133,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet() //only for use JS engine
 	{
 		this.application = null;
+		initJSFunctions(application);
 		this.set = new DataSetWithIndex(new BufferedDataSet());
 	}
 
@@ -131,6 +145,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(IServiceProvider application, int rows, String[] cols)
 	{
 		this.application = application;
+		initJSFunctions(application);
 		if (rows >= 0 && cols.length >= 0)
 		{
 			List<Object[]> emptyRows = new ArrayList<Object[]>(rows);
@@ -154,6 +169,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(IServiceProvider application, IDataSet set)
 	{
 		this.application = application;
+		initJSFunctions(application);
 		if (set instanceof IDataSetWithIndex)
 		{
 			this.set = (IDataSetWithIndex)set;
@@ -175,6 +191,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(ServoyException e)
 	{
 		application = null;
+		initJSFunctions(application);
 		set = null;
 		exception = e;
 	}
