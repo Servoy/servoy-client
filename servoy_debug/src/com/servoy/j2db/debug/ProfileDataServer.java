@@ -41,6 +41,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * A wrapper/proxy around the actual {@link IDataServer} to profile queries to the database.
@@ -731,6 +732,27 @@ public class ProfileDataServer implements IDataServer
 		return dataserver.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
 	}
 
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#createTable(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+	 * com.servoy.j2db.util.ServoyJSONObject)
+	 */
+	@Override
+	public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
+		throws ServoyException, RemoteException
+	{
+		long startTime = System.currentTimeMillis();
+		try
+		{
+			return dataserver.createTable(client_id, dataSource, serverName, tableName, tid, tableJSON);
+		}
+		finally
+		{
+			informListeners("CreateDataSource", dataSource, null, null, startTime, null);
+		}
+	}
 
 	public void addDataCallListener(IDataCallListener listener)
 	{

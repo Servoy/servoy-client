@@ -28,6 +28,7 @@ import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * Interface for manipulation database data
@@ -224,4 +225,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
 		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
+
+	public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
+		throws ServoyException, RemoteException;
 }
