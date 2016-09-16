@@ -100,7 +100,7 @@ public class ContentSpec
 
 		/**
 		 * Constructs a new element with the specified values.
-		 * 
+		 *
 		 * @param contentID the content id
 		 * @param objectTypeID the object type id
 		 * @param name the property name
@@ -268,11 +268,11 @@ public class ContentSpec
 
 	/**
 	 * Get a content spec element by content_id.
-	 * 
+	 *
 	 * @param id the content id
-	 * 
+	 *
 	 * @return the content spec element with the specified content id
-	 * 
+	 *
 	 * @throws RepositoryException if the content spec is not loaded or no element with the specified id exists
 	 */
 	public Element getElementByContentID(int content_id) throws RepositoryException
@@ -291,12 +291,12 @@ public class ContentSpec
 
 	/**
 	 * Gets a property for the specified object type by name and returns the meta data as a content spec element.
-	 * 
+	 *
 	 * @param objectTypeID the object type id
 	 * @param name the name of the property
-	 * 
+	 *
 	 * @return the element of the specified object type with the specified name or <code>null</code> if no such property of the object type exists.
-	 * 
+	 *
 	 */
 	public Element getPropertyForObjectTypeByName(int objectTypeID, String name)
 	{
@@ -310,12 +310,12 @@ public class ContentSpec
 
 	/**
 	 * Gets all properties for the specified object type.
-	 * 
+	 *
 	 * @param objectTypeID the object type id
-	 * 
+	 *
 	 * @return an iterator which iterates over all elements belonging to the specified object type, or an iterator over an empty list if no such object type
 	 *         exists.
-	 * 
+	 *
 	 */
 	public Iterator<Element> getPropertiesForObjectType(int objectTypeID)
 	{
@@ -382,5 +382,11 @@ public class ContentSpec
 			}
 			elements.put(element.getName(), element);
 		}
+	}
+
+	public void clear()
+	{
+		objectTypes.clear();
+		contentSpecElements.clear();
 	}
 }
