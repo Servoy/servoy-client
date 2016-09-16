@@ -244,7 +244,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition like(String pattern)
 	{
-		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
+		return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
 	}
 
 	/**
