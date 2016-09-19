@@ -1728,6 +1728,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		final IPageMap map = getSession().createAutoPageMap();
 		FormManager fm = (FormManager)client.getFormManager();
 		MainPage page = (MainPage)fm.getOrCreateMainContainer(map.getName());
+
+		if (fm.getMainContainer(null) == this)
+		{
+			fm.setMainContainer(page);
+		}
 		fm.setCurrentContainer(page, map.getName());
 		fm.showFormInCurrentContainer(getController().getName());
 		if (page.getController() == null)

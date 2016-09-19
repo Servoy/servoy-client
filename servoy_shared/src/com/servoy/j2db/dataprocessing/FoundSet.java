@@ -54,6 +54,7 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -126,46 +127,59 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/*
 	 * _____________________________________________________________ JavaScript stuff
 	 */
-	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+	private Map<String, NativeJavaMethod> jsFunctions;
 
-	static
+	@SuppressWarnings("unchecked")
+	private void initJSFunctions(IServiceProvider serviceProvider)
 	{
-		try
+		if (serviceProvider != null)
 		{
-			Method[] methods = FoundSet.class.getMethods();
-			for (Method m : methods)
+			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS);
+		}
+		if (jsFunctions == null)
+		{
+			jsFunctions = new HashMap<String, NativeJavaMethod>();
+			try
 			{
-				String name = null;
-				if (m.getName().startsWith("js_")) //$NON-NLS-1$
+				Method[] methods = FoundSet.class.getMethods();
+				for (Method m : methods)
 				{
-					name = m.getName().substring(3);
-				}
-				else if (m.getName().startsWith("jsFunction_")) //$NON-NLS-1$
-				{
-					name = m.getName().substring(11);
-				}
-				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, FoundSet.class, JSFunction.class))
-				{
-					name = m.getName();
-				}
-				if (name != null)
-				{
-					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
-					if (nativeJavaMethod == null)
+					String name = null;
+					if (m.getName().startsWith("js_")) //$NON-NLS-1$
 					{
-						nativeJavaMethod = new NativeJavaMethod(m, name);
+						name = m.getName().substring(3);
 					}
-					else
+					else if (m.getName().startsWith("jsFunction_")) //$NON-NLS-1$
 					{
-						nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+						name = m.getName().substring(11);
 					}
-					jsFunctions.put(name, nativeJavaMethod);
+					else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, FoundSet.class, JSFunction.class))
+					{
+						name = m.getName();
+					}
+					if (name != null)
+					{
+						NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
+						if (nativeJavaMethod == null)
+						{
+							nativeJavaMethod = new NativeJavaMethod(m, name);
+						}
+						else
+						{
+							nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+						}
+						jsFunctions.put(name, nativeJavaMethod);
+					}
+				}
+				if (serviceProvider != null)
+				{
+					serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, jsFunctions);
 				}
 			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -223,6 +237,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		fsm = (FoundSetManager)app;
+		initJSFunctions(fsm.getApplication());
 		if (sheet == null)
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$

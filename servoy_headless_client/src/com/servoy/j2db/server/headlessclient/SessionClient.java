@@ -27,10 +27,8 @@ import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
@@ -119,8 +117,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	private transient InfoChannel outputChannel;
 	private RuntimeWindowManager jsWindowManager;
 
-	private final HashMap<String, String> defaultUserProperties = new HashMap<String, String>();
-
 	private volatile boolean shuttingDown = false;
 
 	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
@@ -143,9 +139,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		IServiceProvider prev = testThreadLocals();
 		try
 		{
-			settings = Settings.getInstance();
-			((Settings)settings).loadUserProperties(defaultUserProperties);
-
 			this.preferredSolutionMethodNameToCall = method;
 			this.preferredSolutionMethodArguments = methodArgs;
 
@@ -1035,15 +1028,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return retval.toArray(new String[retval.size()]);
 	}
 
-	/**
-	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close.
-	 */
-	protected void reinitializeDefaultProperties()
-	{
-		defaultUserProperties.clear();
-		((Settings)settings).loadUserProperties(defaultUserProperties);
-	}
-
 	public void setUserProperty(String a_name, String value)
 	{
 		if (a_name == null) return;
@@ -1070,11 +1054,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 				getDefaultUserProperties().put(name.toString(), Utils.stringLimitLenght(value, 255).toString()); // clear
 			}
 		}
-	}
-
-	public Map<String, String> getDefaultUserProperties()
-	{
-		return defaultUserProperties;
 	}
 
 	public boolean putClientProperty(Object name, Object val)
@@ -1231,7 +1210,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
@@ -1241,7 +1220,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override

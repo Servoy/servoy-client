@@ -18,7 +18,8 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					useStrict : true,
 					showClear : true,
 					ignoreReadonly : true,
-					showTodayButton: true
+					showTodayButton: true,
+					calendarWeeks: true
 				};
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -157,7 +158,9 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						useCurrent : false,
 						useStrict : true,
 						showClear : true,
-						ignoreReadonly : true
+						ignoreReadonly : true,
+						showTodayButton: true,
+						calendarWeeks: true
 					});
 					var x = child.data('DateTimePicker');
 					x.format(dateFormat);

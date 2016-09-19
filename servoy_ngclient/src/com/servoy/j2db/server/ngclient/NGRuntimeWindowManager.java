@@ -23,7 +23,8 @@ import java.util.Map.Entry;
 
 import org.json.JSONObject;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IEventDispatchAwareServerService;
+import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.persistence.Form;
@@ -35,7 +36,7 @@ import com.servoy.j2db.scripting.RuntimeWindow;
  *
  */
 @SuppressWarnings("nls")
-public class NGRuntimeWindowManager extends RuntimeWindowManager implements IServerService
+public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEventDispatchAwareServerService
 {
 	public static final String WINDOW_SERVICE = "$windowService";
 
@@ -117,11 +118,6 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.RuntimeWindowManager#getMainApplicationWindow()
-	 */
 	@Override
 	protected RuntimeWindow getMainApplicationWindow()
 	{
@@ -155,11 +151,6 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 		return super.getCurrentWindowName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.RuntimeWindowManager#setCurrentWindowName(java.lang.String)
-	 */
 	@Override
 	public void setCurrentWindowName(String currentWindowName)
 	{
@@ -221,6 +212,13 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 			}
 			windows.remove(we.getKey());
 		}
+	}
+
+	@Override
+	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
+	{
+		// sync api calls to client might need to touch forms... allow that even if event thread is currently blocked on that API call
+		return "touchForm".equals(methodName) ? IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL : dontCareLevel;
 	}
 
 }

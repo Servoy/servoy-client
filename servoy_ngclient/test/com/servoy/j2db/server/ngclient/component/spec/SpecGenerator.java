@@ -458,8 +458,8 @@ public class SpecGenerator
 	private static final Map<String, List<String>> metaDataForApi = new HashMap<>();
 	static
 	{
-		overriddenClientSideApi.put("requestFocus", new ApiMethod("requestFocus", "void", Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}),  Arrays.asList(new String[]{"boolean"}), Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}), Arrays.asList(new String[]{"\"delayUntilFormLoad\": true","\"globalExclusive\": true"})));
-		overriddenClientSideApi.put("selectAll", new ApiMethod("selectAll", "void", null,  null, null, Arrays.asList(new String[]{"\"delayUntilFormLoad\": true","\"globalExclusive\": true"})));
+		overriddenClientSideApi.put("requestFocus", new ApiMethod("requestFocus", "void", Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}),  Arrays.asList(new String[]{"boolean"}), Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}), Arrays.asList(new String[]{"\"delayUntilFormLoads\": true","\"discardPreviouslyQueuedSimilarCalls\": true"})));
+		overriddenClientSideApi.put("selectAll", new ApiMethod("selectAll", "void", null,  null, null, Arrays.asList(new String[]{"\"delayUntilFormLoads\": true","\"discardPreviouslyQueuedSimilarCalls\": true"})));
 
 		// general type mappings
 		repoTypeMapping.put(IRepository.BOOLEAN, "boolean");

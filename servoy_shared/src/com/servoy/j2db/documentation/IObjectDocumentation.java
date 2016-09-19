@@ -51,6 +51,8 @@ public interface IObjectDocumentation
 
 	public String[] getParentClasses();
 
+	public String getExtendsClass();
+
 	public void addFunction(IFunctionDocumentation function);
 
 	public void setHide(boolean hide);
@@ -64,4 +66,6 @@ public interface IObjectDocumentation
 	public Element toXML(IDocumentationManager docManager, boolean hideDeprecated, boolean pretty);
 
 	public ClientSupport getClientSupport();
+
+	public boolean isDeprecated();
 }

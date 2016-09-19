@@ -22,7 +22,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  *  Where clause for a query, conditions can be added by name.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -49,6 +49,8 @@ public interface IQueryBuilderWhereCondition extends IQueryBuilderLogicalConditi
 	 * <pre>
 	 * query.where().remove("mycond");
 	 * </pre>
+	 *
+	 * @param name The condition name
 	 */
 	IQueryBuilderWhereCondition remove(String name);
 
@@ -59,6 +61,8 @@ public interface IQueryBuilderWhereCondition extends IQueryBuilderLogicalConditi
 
 	/**
 	 * Get a named condition in the query where-clause.
+	 *
+	 * @param name The condition name
 	 */
 	IQueryBuilderCondition getCondition(String name);
 }

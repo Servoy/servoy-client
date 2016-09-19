@@ -162,8 +162,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	private void appendArgumentsScopeToPreferedSolutionMethodArguments(StartupArguments argumentsScope)
 	{
-		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length == 1)
+		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length == 1 || preferredSolutionMethodNameToCall != null)
 		{
+			if (preferredSolutionMethodArguments == null)
+			{
+				preferredSolutionMethodArguments = new Object[] { argumentsScope.getFirstArgument() };
+			}
 			Object[] new_preferedSolutionMethodArguments = new Object[preferredSolutionMethodArguments.length + 1];
 			System.arraycopy(preferredSolutionMethodArguments, 0, new_preferedSolutionMethodArguments, 0, preferredSolutionMethodArguments.length);
 			new_preferedSolutionMethodArguments[preferredSolutionMethodArguments.length] = argumentsScope.toJSMap();
@@ -1268,6 +1272,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				scriptEngine.destroy();
 				scriptEngine = null;// delete current script engine
 			}
+
+			getRuntimeProperties().put(IServiceProvider.RT_JSDATASET_FUNCTIONS, null);
+			getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, null);
+			getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, null);
+
 			// drop any temp tables for this client
 			IDataServer ds = getDataServer();
 			if (ds != null)

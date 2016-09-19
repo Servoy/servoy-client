@@ -35,7 +35,7 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 
 /**
  * Interface for minimal service provider.
- * 
+ *
  * @author jblok
  */
 public interface IServiceProvider extends IEventDelegator, I18NProvider
@@ -48,10 +48,13 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	public static final String RT_OPEN_METHOD_RESULT = "openMethodResult";
 
+	public static final String RT_JSDATASET_FUNCTIONS = "JSDataSetFunctions";
+	public static final String RT_JSFOUNDSET_FUNCTIONS = "JSFoundSetFunctions";
+	public static final String RT_JSRECORD_FUNCTIONS = "JSRecordFunctions";
 
 	/**
 	 * Get the repository interface.
-	 * 
+	 *
 	 * @return IRepository
 	 */
 	public IRepository getRepository();
@@ -63,14 +66,14 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * Get the application server interface.
-	 * 
+	 *
 	 * @return IApplicationServer
 	 */
 	public IApplicationServer getApplicationServer();
 
 	/**
 	 * Get the data server interface.
-	 * 
+	 *
 	 * @return IDataServer
 	 */
 
@@ -78,14 +81,14 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * Get the client host interface.
-	 * 
+	 *
 	 * @return IClientHost
 	 */
 	public IClientHost getClientHost();
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @return Solution
 	 * @exclude
 	 */
@@ -93,7 +96,7 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @return boolean
 	 * @exclude
 	 */
@@ -101,7 +104,7 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @return Root
 	 * @exclude
 	 */
@@ -114,7 +117,7 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * Report an error.
-	 * 
+	 *
 	 * @param msg
 	 * @param detail
 	 */
@@ -122,35 +125,35 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * Report an info.
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void reportInfo(String msg);
 
 	/**
 	 * Report a warning
-	 * 
+	 *
 	 * @param msg the warning
 	 */
 	public void reportWarning(String msg);
 
 	/**
 	 * Get the script engine
-	 * 
+	 *
 	 * @return IExecutingEnviroment
 	 */
 	public IExecutingEnviroment getScriptEngine();
 
 	/**
 	 * Get the scheduled executor.
-	 * 
+	 *
 	 * @return ScheduledExecutorService
 	 */
 	public ScheduledExecutorService getScheduledExecutor();
 
 	/** TODO: move to IApplication
 	 * Report a javascript error.
-	 * 
+	 *
 	 * @param msg the error
 	 * @param detail the detail (can be exception obj)
 	 */
@@ -158,77 +161,77 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	/**
 	 * Get the userID.
-	 * 
+	 *
 	 * @return String the user uid, null if not logged in
 	 */
 	public String getUserUID();
 
 	/**
 	 * Get the userName.
-	 * 
+	 *
 	 * @return int the user name, null if not logged in
 	 */
 	public String getUserName();
 
 	/**
 	 * Get the clientID.
-	 * 
+	 *
 	 * @return String the client id, for use in dataserver.
 	 */
 	public String getClientID();
 
 	/**
 	 * Get the client's locale.
-	 * 
+	 *
 	 * @return
 	 */
 	public Locale getLocale();
 
 	/**
 	 * Get the client's timezone.
-	 * 
+	 *
 	 * @return String the client id, for use in dataserver.
 	 */
 	public TimeZone getTimeZone();
 
 	/**
 	 * Get the user properties.
-	 * 
+	 *
 	 * @return Properties
 	 */
 	public Properties getSettings();
 
 	/**
 	 * Get non stored properties, specific to a client.
-	 * 
+	 *
 	 * @return Properties
 	 */
 	public Map getRuntimeProperties();
 
 	/**
 	 * Get the foundset manager (used to control the forms datasets).
-	 * 
+	 *
 	 * @return IFoundSetManager
 	 */
 	public IFoundSetManagerInternal getFoundSetManager();
 
 	/**
 	 * Tells if this process is running on the server or remote.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isRunningRemote();
 
 	/**
 	 * Get the server url, returns localhost URL is not running remote.
-	 * 
+	 *
 	 * @return
 	 */
 	public URL getServerURL();
 
 	/**
 	 * Set the locale.
-	 * 
+	 *
 	 * @param locale The locale to set.
 	 */
 	public void setLocale(Locale locale);

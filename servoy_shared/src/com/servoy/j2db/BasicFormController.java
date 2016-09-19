@@ -780,8 +780,8 @@ public abstract class BasicFormController
 						testFindMode = Boolean.valueOf(!Utils.getAsBoolean(((Function)function).get("_AllowToRunInFind_", (Function)function))); //$NON-NLS-1$
 					}
 					ret = executeFunction((Function)function,
-						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))), scope,
-						scope, saveData, null, testFindMode.booleanValue(), false, methodProperty.getPropertyName(), false, true, false);
+						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))), scope, scope,
+						saveData, null, testFindMode.booleanValue(), false, methodProperty.getPropertyName(), false, true, false);
 				}
 			}
 			catch (Exception ex)
@@ -960,7 +960,7 @@ public abstract class BasicFormController
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-			throws Exception
+		throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
@@ -4224,7 +4224,7 @@ public abstract class BasicFormController
 		}
 
 		/**
-		 * Sorts the form foundset based on the given sort string. 
+		 * Sorts the form foundset based on the given sort string.
 		 * Tries to preserve selection based on primary key. If first record is selected or cannot select old record it will select first record after sort.
 		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 		 *
@@ -4491,6 +4491,8 @@ public abstract class BasicFormController
 		 *
 		 * @sample
 		 * var prop = forms.orders.controller.getDesignTimeProperty('myprop')
+		 *
+		 * @param key the property name
 		 */
 		public Object js_getDesignTimeProperty(String key)
 		{

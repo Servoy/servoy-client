@@ -44,6 +44,7 @@ import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
@@ -71,43 +72,56 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/*
 	 * _____________________________________________________________ JavaScript stuff
 	 */
-	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+	private Map<String, NativeJavaMethod> jsFunctions;
 
-	static
+	@SuppressWarnings("unchecked")
+	private void initJSFunctions(IServiceProvider serviceProvider)
 	{
-		try
+		if (serviceProvider != null)
 		{
-			Method[] methods = Record.class.getMethods();
-			for (Method m : methods)
+			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSRECORD_FUNCTIONS);
+		}
+		if (jsFunctions == null)
+		{
+			jsFunctions = new HashMap<String, NativeJavaMethod>();
+			try
 			{
-				String name = null;
-				if (m.getName().startsWith("js_")) //$NON-NLS-1$
+				Method[] methods = Record.class.getMethods();
+				for (Method m : methods)
 				{
-					name = m.getName().substring(3);
-				}
-				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSFunction.class) ||
-					AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSReadonlyProperty.class))
-				{
-					name = m.getName();
-				}
-				if (name != null)
-				{
-					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
-					if (nativeJavaMethod == null)
+					String name = null;
+					if (m.getName().startsWith("js_")) //$NON-NLS-1$
 					{
-						nativeJavaMethod = new NativeJavaMethod(m, name);
+						name = m.getName().substring(3);
 					}
-					else
+					else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSFunction.class) ||
+						AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSReadonlyProperty.class))
 					{
-						nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+						name = m.getName();
 					}
-					jsFunctions.put(name, nativeJavaMethod);
+					if (name != null)
+					{
+						NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
+						if (nativeJavaMethod == null)
+						{
+							nativeJavaMethod = new NativeJavaMethod(m, name);
+						}
+						else
+						{
+							nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
+						}
+						jsFunctions.put(name, nativeJavaMethod);
+					}
+				}
+				if (serviceProvider != null)
+				{
+					serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, jsFunctions);
 				}
 			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -136,6 +150,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	Record(IFoundSetInternal parent)
 	{
 		this.parent = parent;
+		initJSFunctions(parent.getFoundSetManager().getApplication());
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
 	}
@@ -916,6 +931,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Returns true or false if the record is being edited or not.
+	 *
+	 * This will not check if the record doesn't really have any changes, it just returns the edit state.
+	 * So this can return true but databaseManager.getEditedRecord() will not return this record because that
+	 * call will check if the record has really any changed values compared to the stored database values.
 	 *
 	 * @sample
 	 * var isEditing = foundset.getSelectedRecord().isEditing() // also foundset.getRecord can be used

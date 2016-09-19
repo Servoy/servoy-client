@@ -265,6 +265,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							enableColumnResizing: isResizable,
 							enableColumnMenu: isSortable,
 							enableSorting:isSortable,
+							sortDirectionCycle: [uiGridConstants.ASC, uiGridConstants.DESC],
 							enableHiding: false,
 							allowCellFocus: readOnlyOptimizedMode,
 							headerCellClass: headerCellClass,

@@ -212,7 +212,7 @@ public class FormElementHelper implements IFormElementCache
 	private List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
-		List<IFormElement> formelements = frm.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement element : formelements)
 		{
 			if (isSecurityVisible(element, fs))

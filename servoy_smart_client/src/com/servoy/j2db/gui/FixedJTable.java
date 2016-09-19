@@ -117,9 +117,11 @@ public class FixedJTable extends JTable
 	@Override
 	protected void processMouseEvent(MouseEvent e)
 	{
-		if (e.getID() == MouseEvent.MOUSE_PRESSED &&
-			((getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) || ((getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) &&
-				!UIUtils.isCommandKeyDown(e) && !e.isShiftDown())) && isEnabled())
+
+		boolean changeSelection = e.getID() == MouseEvent.MOUSE_PRESSED || (e.getID() == MouseEvent.MOUSE_RELEASED && e.isPopupTrigger()); // mouse_released and popup trigger is a special case for windows lnf
+		if (((changeSelection && getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) || (changeSelection &&
+			getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION && !UIUtils.isCommandKeyDown(e) && !e.isShiftDown())) &&
+			isEnabled())
 		{
 			Point p = e.getPoint();
 			int row = rowAtPoint(p);

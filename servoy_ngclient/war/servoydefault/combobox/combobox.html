@@ -5,12 +5,12 @@
 		svy-tooltip='model.toolTipText'
 		class='{{(model.styleClass ? model.styleClass : "")  + " svy-combobox"}}'
 		tabindex='-1'
+		sablo-tabseq='model.tabSeq'
 		on-select='onItemSelect($event)'>
  			<ui-select-match  placeholder="{{model.placeholderText}}" 
  				svy-focusgained='handlers.onFocusGainedMethodID($event)' 	
  				svy-focuslost='handlers.onFocusLostMethodID($event)'
  				svy-rightclick='handlers.onRightClickMethodID($event)'
- 				sablo-tabseq='model.tabSeq'
  				ng-style="style"
  				svy-margin='model.margin'>{{($select.selected ? $select.selected : model.dataProviderID) | showDisplayValue:model.valuelistID | formatFilter:model.format.display:model.format.type}}</ui-select-match>
             <ui-select-choices repeat="item.realValue as item in model.valuelistID | filter: $select.search" append-to-body='true'>

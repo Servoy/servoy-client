@@ -226,35 +226,38 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		PropertyDescription pd = new PropertyDescription(property, FormComponentPropertyType.INSTANCE);
 		PropertyDescription formDesc = new PropertyDescription(SVY_FORM, StringPropertyType.INSTANCE);
 		pd.putProperty(SVY_FORM, formDesc);
-		String formName = currentValue.optString(SVY_FORM);
-		Form form = getForm(formName, fs);
-		if (form != null)
+		if (currentValue != null)
 		{
-			List<IFormElement> formelements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-			for (IFormElement element : formelements)
+			String formName = currentValue.optString(SVY_FORM);
+			Form form = getForm(formName, fs);
+			if (form != null)
 			{
-				if (element.getName() != null)
+				List<IFormElement> formelements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				for (IFormElement element : formelements)
 				{
-					WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(
-						FormTemplateGenerator.getComponentTypeName(element));
-					Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
-					if (properties.size() > 0)
+					if (element.getName() != null)
 					{
-						PropertyDescription nestedFormComponent = new PropertyDescription(element.getName(), null);
-						pd.putProperty(element.getName(), nestedFormComponent);
-						for (PropertyDescription nestedFormComponentPD : properties)
+						WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(
+							FormTemplateGenerator.getComponentTypeName(element));
+						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+						if (properties.size() > 0)
 						{
-							Object object = ((AbstractBase)element).getProperty(nestedFormComponentPD.getName());
-							if (object instanceof JSONObject)
+							PropertyDescription nestedFormComponent = new PropertyDescription(element.getName(), null);
+							pd.putProperty(element.getName(), nestedFormComponent);
+							for (PropertyDescription nestedFormComponentPD : properties)
 							{
-								nestedFormComponent.putProperty(nestedFormComponentPD.getName(),
-									getPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs));
+								Object object = ((AbstractBase)element).getProperty(nestedFormComponentPD.getName());
+								if (object instanceof JSONObject)
+								{
+									nestedFormComponent.putProperty(nestedFormComponentPD.getName(),
+										getPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs));
+								}
 							}
 						}
-					}
-					else
-					{
-						pd.putProperty(element.getName(), spec);
+						else
+						{
+							pd.putProperty(element.getName(), spec);
+						}
 					}
 				}
 			}

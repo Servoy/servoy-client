@@ -73,6 +73,7 @@ import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author Johan
@@ -440,6 +441,14 @@ public class TestNGClient extends NGClient
 			{
 				// TODO Auto-generated method stub
 
+			}
+
+			@Override
+			public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
+				throws ServoyException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 	}

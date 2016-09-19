@@ -21,7 +21,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 /**
  * Runtime property interface for design time properties.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -30,8 +30,10 @@ public interface HasRuntimeDesignTimeProperty
 {
 	/** Get a design-time property of an element.
 	 *
-	 * @sample 
-	 * var prop = forms.orders.elements.mylabel.getDesignTimeProperty('myprop')	
+	 * @param key the name of the property
+	 *
+	 * @sample
+	 * var prop = forms.orders.elements.mylabel.getDesignTimeProperty('myprop')
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key);

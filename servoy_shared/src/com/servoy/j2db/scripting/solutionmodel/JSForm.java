@@ -3315,7 +3315,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		return form.isResponsiveLayout();
 	}
 
-	/** Get a design-time property of a form.
+	/**
+	 * Get a design-time property of a form.
+	 *
+	 * @param key the property name
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
@@ -3327,7 +3330,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		return Utils.parseJSExpression(form.getCustomDesignTimeProperty(key));
 	}
 
-	/** Set a design-time property of a form.
+	/**
+	 * Set a design-time property of a form.
+	 *
+	 * @param key the property name
+	 * @param value the value to set
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
@@ -3363,6 +3370,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.removeDesignTimeProperty('myprop')
+	 *
+	 * @param key the property name
 	 */
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)

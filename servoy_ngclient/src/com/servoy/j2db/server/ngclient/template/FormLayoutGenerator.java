@@ -69,7 +69,7 @@ public class FormLayoutGenerator
 	{
 		StringWriter out = new StringWriter();
 		PrintWriter writer = new PrintWriter(out);
-		Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		Iterator<IPersist> components = fs.getFlattenedForm(form).getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		while (components.hasNext())
 		{
 			IPersist component = components.next();

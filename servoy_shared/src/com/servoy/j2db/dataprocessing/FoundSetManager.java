@@ -1000,6 +1000,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					throw new RepositoryException(e);
 				}
 			}
+			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+			{
+				// create it from the solution tables
+				FlattenedSolution s = application.getFlattenedSolution();
+				Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
+				if (tblIte.hasNext())
+				{
+					try
+					{
+						TableNode t = tblIte.next();
+						IServer server = application.getSolution().getServer(IServer.INMEM_SERVER);
+						table = server.getTable(t.getTableName() + "_" + application.getClientID());
+						if (table == null)
+						{
+							GlobalTransaction gt = getGlobalTransaction();
+							String tid = null;
+							if (gt != null)
+							{
+								tid = gt.getTransactionID(t.getServerName());
+							}
+
+							table = application.getDataServer().createTable(application.getClientID(), dataSource, IServer.INMEM_SERVER, t.getTableName(), tid,
+								t.getColumns());
+						}
+
+						inMemDataSources.put(dataSource, table);
+					}
+					catch (ServoyException e)
+					{
+						throw new RepositoryException(e);
+					}
+					catch (RemoteException e)
+					{
+						throw new RepositoryException(e);
+					}
+				}
+			}
 		}
 		return table;
 	}
@@ -1392,6 +1429,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (dataSource == null || !application.getFlattenedSolution().isMainSolutionLoaded())
 		{
 			return getNoTableFoundSet();
+		}
+		else
+		{
+			// make sure inmem table is created
+			getTable(dataSource);
 		}
 
 		FoundSet foundset = sharedDataSourceFoundSet.get(dataSource);

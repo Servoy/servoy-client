@@ -29,7 +29,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Interface for manipulating a form
- * 
+ *
  * @author jblok
  */
 public interface IForm
@@ -67,7 +67,7 @@ public interface IForm
 
 	/**
 	 * Eval a javascript
-	 * 
+	 *
 	 * @since Servoy 3.5
 	 */
 	public Object eval(String javascript);
@@ -75,10 +75,10 @@ public interface IForm
 	/**
 	 * When using a form as an external component, this flag has to be set and cleared when done with it.
 	 * If you call this in the webclient then the returning component will be a FormUI wicket component with the wicket:id of "webform"
-	 * So you have to add a placeholder in your bean html file like: &lt;div wicket:id="webform"&gt;&lt;/div&gt; 
-	 * 
+	 * So you have to add a placeholder in your bean html file like: &lt;div wicket:id="webform"&gt;&lt;/div&gt;
+	 *
 	 * @param visibleExternal boolean if it will be showing external or not
-	 * 
+	 *
 	 * @since Servoy 2.2
 	 */
 	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException;
@@ -90,7 +90,7 @@ public interface IForm
 
 	/**
 	 * Method to check if this form had record data.
-	 * 
+	 *
 	 * @return boolean normally returs true, if not use loadAllRecords().
 	 */
 	public boolean isShowingData();
@@ -132,7 +132,7 @@ public interface IForm
 
 	/**
 	 * Perform a find (called search() in javascript).
-	 * 
+	 *
 	 * @param reduce true if find in find, otherwise it is expand search
 	 * @param showDialogOnNoResults true shows dialog
 	 */
@@ -155,7 +155,7 @@ public interface IForm
 
 	/**
 	 * Show the sort dialog.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void showSortDialog() throws Exception;
@@ -167,7 +167,7 @@ public interface IForm
 
 	/**
 	 * Store changes in DB.
-	 * 
+	 *
 	 * @deprecated
 	 */
 	@Deprecated
@@ -185,14 +185,14 @@ public interface IForm
 
 	/**
 	 * get the current view (see constants).
-	 * 
+	 *
 	 * @return the view type
 	 */
 	public int getView();
 
 	/**
 	 * Set the current view (see constants).
-	 * 
+	 *
 	 * @param v
 	 */
 	public void setView(int v);
@@ -207,7 +207,7 @@ public interface IForm
 
 	/**
 	 * Get the form name
-	 * 
+	 *
 	 * @since 3.5
 	 */
 	public String getName();
@@ -221,36 +221,39 @@ public interface IForm
 
 	/**
 	 * Gets the read-only state of a form; also known as "editable".
-	 * Note: The field(s) in a form set as read-only can be selected and the field data can be copied to clipboard. 
-	 * 
+	 * Note: The field(s) in a form set as read-only can be selected and the field data can be copied to clipboard.
+	 *
 	 * @since 6.1
 	 */
 	public boolean isReadOnly();
 
 	/**
 	 * @return the ui component of this form.
-	 * 
+	 *
 	 * @since 6.1
 	 */
 	public IFormUI getFormUI();
 
 	/**
 	 * @return the named elements of this form.
-	 * 
+	 *
 	 * @since 6.1
 	 */
 	public IRuntimeComponent[] getElements();
 
 	/**
 	 * @return Load the controller with the foundset.
-	 * 
+	 *
 	 * @param foundSet foundset to load
-	 * 
+	 *
 	 * @since 6.1
 	 */
 	public boolean loadRecords(IFoundSet foundSet);
 
-	/** @return Get a design-time property of a form.
+	/**
+	 * @param key the design time property name
+	 *
+	 * @return Get a design-time property of a form.
 	 *
 	 * @since 6.1
 	 */

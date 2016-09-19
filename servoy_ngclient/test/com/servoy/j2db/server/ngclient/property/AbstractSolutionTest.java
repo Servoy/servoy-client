@@ -49,6 +49,7 @@ import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -155,7 +156,7 @@ public abstract class AbstractSolutionTest
 			}
 
 			// fall back to symbolic name
-			return getName();
+			return FilenameUtils.getBaseName(getName());
 		}
 
 		@Override

@@ -41,6 +41,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.DebugJ2DBClient.DebugSwingFormMananger;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -196,6 +197,47 @@ public class DebugUtils
 		}
 	}
 
+	private static boolean isReferenceFormUsedInForm(final ClientState clientState, final Form referenceForm, Form form)
+	{
+		final boolean[] isReferenceFormUsedInForm = { false };
+		form.acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof WebComponent)
+				{
+					WebComponent wc = (WebComponent)o;
+					WebObjectSpecification spec = FormTemplateGenerator.getWebObjectSpecification(wc);
+					Collection<PropertyDescription> properties = spec != null ? spec.getProperties(FormComponentPropertyType.INSTANCE) : null;
+					if (properties != null && properties.size() > 0)
+					{
+						for (PropertyDescription pd : properties)
+						{
+							Form frm = FormComponentPropertyType.INSTANCE.getForm(wc.getProperty(pd.getName()), clientState.getFlattenedSolution());
+							if (referenceForm.equals(frm))
+							{
+								isReferenceFormUsedInForm[0] = true;
+								return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+							}
+							else
+							{
+								isReferenceFormUsedInForm[0] = isReferenceFormUsedInForm(clientState, referenceForm, frm);
+								if (isReferenceFormUsedInForm[0])
+								{
+									return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+								}
+							}
+						}
+					}
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+
+		return isReferenceFormUsedInForm[0];
+	}
+
 	public static Set<IFormController>[] getScopesAndFormsToReload(final ClientState clientState, Collection<IPersist> changes)
 	{
 		Set<IFormController> scopesToReload = new HashSet<IFormController>();
@@ -280,7 +322,8 @@ public class DebugUtils
 										{
 											Form frm = FormComponentPropertyType.INSTANCE.getForm(wc.getProperty(pd.getName()),
 												clientState.getFlattenedSolution());
-											if (form.equals(frm) && !formsUpdated.contains(persistForm))
+											if (frm != null && (form.equals(frm) || FlattenedForm.hasFormInHierarchy(frm, form) ||
+												isReferenceFormUsedInForm(clientState, form, frm)) && !formsUpdated.contains(persistForm))
 											{
 												formsUpdated.add(persistForm);
 												List<IFormController> cfc = clientState.getFormManager().getCachedFormControllers(persistForm);

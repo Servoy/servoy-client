@@ -184,6 +184,8 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getAttribute()
 	 *
+	 * @param name the attributes name
+	 *
 	 * @sample
 	 * layoutContainer.getAttribute('class');
 	 */

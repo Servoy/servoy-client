@@ -103,8 +103,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		Map<String, Object> call = new HashMap<>();
 		if (callContributions != null) call.putAll(callContributions);
 
-		boolean delayedCall = isDelayedApiCall(receiver, apiFunction);
-		if (!delayedCall)
+		if (!isDelayedApiCall(receiver, apiFunction))
 		{
 			IWebFormController form = getSession().getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
 			touchForm(form.getForm(), form.getName(), false);

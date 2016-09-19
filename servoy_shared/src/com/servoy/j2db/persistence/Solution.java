@@ -66,13 +66,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 	};
 
-	/**
-	 * Key for caching default messages defined for the solution.
-	 */
-	public static final RuntimeProperty<Map<String, String>> DEFAULT_MESSAGES = new RuntimeProperty<Map<String, String>>()
-	{
-	};
-
 	public static final long serialVersionUID = 7758101764309127685L;
 
 	public final static int TEXT_ORIENTATION_DEFAULT = 0;
@@ -777,7 +770,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1136,7 +1129,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatedescription Callback method for when an error occurred (the error can be a JavaScript or Servoy Java error).
 	 * @templatename onError
 	 * @templatetype Boolean
-	 * @templateparam * ex exception to handle
+	 * @templateparam Object ex exception to handle
 	 * @templateaddtodo
 	 * @templatecode
 	 * application.output('Exception Object: '+ex)

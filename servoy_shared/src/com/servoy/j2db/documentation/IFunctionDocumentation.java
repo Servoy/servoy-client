@@ -63,6 +63,8 @@ public interface IFunctionDocumentation
 
 	public void addSummary(IDescriptionDocumentation summary);
 
+	public String getSummary(ClientSupport csp);
+
 	public String getMainName();
 
 	public Class< ? >[] getArgumentsTypes();
