@@ -69,7 +69,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param dm
 	 */
 	public FixedJTable(IApplication application, TableModel dm)
@@ -80,7 +80,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param dm
 	 * @param cm
 	 */
@@ -92,7 +92,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param dm
 	 * @param cm
 	 * @param sm
@@ -117,10 +117,9 @@ public class FixedJTable extends JTable
 	@Override
 	protected void processMouseEvent(MouseEvent e)
 	{
-		if (((e.getID() == MouseEvent.MOUSE_PRESSED && (getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION)) ||
-			((e.getID() == MouseEvent.MOUSE_PRESSED || e.getID() == MouseEvent.MOUSE_RELEASED) &&
-				(getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) && !UIUtils.isCommandKeyDown(e) &&
-				!e.isShiftDown())) &&
+		boolean changeSelection = e.getID() == MouseEvent.MOUSE_PRESSED || (e.getID() == MouseEvent.MOUSE_RELEASED && e.isPopupTrigger()); // mouse_released and popup trigger is a special case for windows lnf
+		if (((changeSelection && getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) || (changeSelection &&
+			getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION && !UIUtils.isCommandKeyDown(e) && !e.isShiftDown())) &&
 			isEnabled())
 		{
 			Point p = e.getPoint();
@@ -178,8 +177,8 @@ public class FixedJTable extends JTable
 		if (model instanceof FoundSet) ((FoundSet)model).getRecord(rowIndex);
 
 		changeSelectionModel(csm, columnIndex, toggle, extend, false, false);
-		changeSelectionModel(rsm, rowIndex, toggle, extend, rsm.getSelectionMode() != ListSelectionModel.SINGLE_SELECTION ? rsm.isSelectedIndex(rowIndex)
-			: false, true);
+		changeSelectionModel(rsm, rowIndex, toggle, extend,
+			rsm.getSelectionMode() != ListSelectionModel.SINGLE_SELECTION ? rsm.isSelectedIndex(rowIndex) : false, true);
 
 		// Scroll after changing the selection as blit scrolling is immediate,
 		// so that if we cause the repaint after the scroll we end up painting
@@ -397,7 +396,7 @@ public class FixedJTable extends JTable
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#paintImmediately(int, int, int, int)
 	 */
 	@Override
@@ -525,7 +524,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param numRows
 	 * @param numColumns
 	 */
@@ -537,7 +536,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param rowData
 	 * @param columnNames
 	 */
@@ -549,7 +548,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param rowData
 	 * @param columnNames
 	 */
@@ -580,7 +579,7 @@ public class FixedJTable extends JTable
 					{
 						((JComboBox)comp).setPopupVisible(true);
 					}
-					// If we have a button inside the cell, fire its action, don't waste 
+					// If we have a button inside the cell, fire its action, don't waste
 					// the first VK_ENTER for just starting the edit.
 					else if (comp instanceof JButton)
 					{
@@ -651,8 +650,8 @@ public class FixedJTable extends JTable
 		bounds.x = bounds.y = 0;
 
 		if (this.getRowCount() <= 0 || this.getColumnCount() <= 0 ||
-		// this check prevents us from painting
-		// when the clip doesn't intersect our bounds at all
+			// this check prevents us from painting
+			// when the clip doesn't intersect our bounds at all
 			!bounds.intersects(clip))
 		{
 			return;
