@@ -104,7 +104,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					}	
 					$scope.svyServoyapi.apply('dataProviderID');
 				} 
-				else if (!hasRealValues)
+				else if (!hasRealValues && ($scope.model.dataProviderID != $scope.value))
 				{
 					editing = false;
 					$scope.model.dataProviderID = $scope.value;
