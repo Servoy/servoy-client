@@ -8,8 +8,6 @@
 		sablo-tabseq='model.tabSeq'
 		on-select='onItemSelect($event)'>
  			<ui-select-match  placeholder="{{model.placeholderText}}" 
- 				svy-focusgained='handlers.onFocusGainedMethodID($event)' 	
- 				svy-focuslost='handlers.onFocusLostMethodID($event)'
  				svy-rightclick='handlers.onRightClickMethodID($event)'
  				ng-style="style"
  				svy-margin='model.margin'>{{($select.selected ? $select.selected : model.dataProviderID) | showDisplayValue:model.valuelistID | formatFilter:model.format.display:model.format.type}}</ui-select-match>

@@ -39,24 +39,55 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				}	
 			});
 			
+			var skipFocusGained = false;
 			/**
 	    	* Request the focus to this combobox.
 	    	* @example %%prefix%%%%elementName%%.requestFocus();
 	    	* @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
 	    	*/
 			scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
-				var input = element.find('.ui-select-match');
-				if (mustExecuteOnFocusGainedMethod === false && scope.handlers.onFocusGainedMethodID)
-				{
-					input.unbind('focus');
-					input[0].focus();
-					input.bind('focus', scope.handlers.onFocusGainedMethodID)
-				}
-				else
-				{
-					input[0].focus();
-				}
+				var input = element.find('.ui-select-focusser');
+				skipFocusGained = mustExecuteOnFocusGainedMethod === false && scope.handlers.onFocusGainedMethodID;
+				input[0].focus();
 			}
+			if (scope.handlers.onFocusGainedMethodID || scope.handlers.onFocusLostMethodID) {
+				var dereg = scope.$watch(function() {
+					return element.find('.ui-select-search')[0];
+				}, function(value) {
+					if (!value) return;
+					dereg();
+					var hasFocus = false;
+					var searchBox = element.find('.ui-select-search');
+					var focusElement = element.find('.ui-select-focusser');
+					if (scope.handlers.onFocusGainedMethodID) {
+						function focus(e) {
+							if (!hasFocus) {
+								hasFocus = true;
+								if (!skipFocusGained) scope.handlers.onFocusGainedMethodID(e);
+							}
+							skipFocusGained = false;
+						}
+						searchBox.on('focus', focus);
+						focusElement.on('focus', focus);
+					}
+					if (scope.handlers.onFocusLostMethodID) {
+						function blur(e) {
+							$timeout(function () {
+								var currentElement = $(":focus")
+								if (currentElement.parents(".ui-select-container,.ui-select-choices").length == 0) {
+									hasFocus = false;
+									scope.handlers.onFocusLostMethodID(e);
+								}
+								 
+							
+							});
+							
+						}
+						searchBox.on('blur', blur);
+						focusElement.on('blur', blur);
+					}
+				})
+			} 	
 
 			var storedTooltip = false;
 			scope.api.onDataChangeCallback = function(event, returnval) {
