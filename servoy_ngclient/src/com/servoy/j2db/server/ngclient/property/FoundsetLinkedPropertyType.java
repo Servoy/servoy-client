@@ -248,8 +248,17 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(Object rhinoValue, FoundsetLinkedTypeSabloValue<YF, YT> previousComponentValue,
 		PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		previousComponentValue.rhinoToSablo(rhinoValue, getConfig(pd).wrappedPropertyDescription, componentOrService);
-		return previousComponentValue;
+		if (previousComponentValue == null)
+		{
+			FoundsetLinkedTypeSabloValue<YF, YT> flts = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, (YF)rhinoValue,
+				getConfig(pd).wrappedPropertyDescription, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService);
+			return flts;
+		}
+		else
+		{
+			previousComponentValue.rhinoToSablo(rhinoValue, getConfig(pd).wrappedPropertyDescription, componentOrService);
+			return previousComponentValue;
+		}
 	}
 
 	@Override
