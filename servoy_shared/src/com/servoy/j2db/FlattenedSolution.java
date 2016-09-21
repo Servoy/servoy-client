@@ -601,6 +601,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			user_created_styles = null;
 			all_styles = null;
 			mainSolutionMetaData = sol;
+			formCacheByName = null;
+			formCacheById = null;
 
 			if (loadLoginSolution)
 			{
