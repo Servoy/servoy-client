@@ -140,10 +140,13 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 				if (f.isResponsiveLayout() && persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
-					extendsMap.put(p.getUUID(), persist);
-					if (!p.getParent().getUUID().equals(getUUID()))
+					if (p != null)
 					{
-						continue;
+						extendsMap.put(p.getUUID(), persist);
+						if (!p.getParent().getUUID().equals(getUUID()))
+						{
+							continue;
+						}
 					}
 				}
 				IPersist ip = extendsMap.containsKey(persist.getUUID()) ? extendsMap.get(persist.getUUID()) : persist;
