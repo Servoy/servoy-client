@@ -1002,40 +1002,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 			{
-				// create it from the solution tables
-				FlattenedSolution s = application.getFlattenedSolution();
-				Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
-				if (tblIte.hasNext())
+				if (!inMemDataSources.containsKey(dataSource))
 				{
 					try
 					{
-						TableNode t = tblIte.next();
-						IServer server = application.getSolution().getServer(IServer.INMEM_SERVER);
-						table = server.getTable(t.getTableName() + "_" + application.getClientID());
-						if (table == null)
-						{
-							GlobalTransaction gt = getGlobalTransaction();
-							String tid = null;
-							if (gt != null)
-							{
-								tid = gt.getTransactionID(t.getServerName());
-							}
-
-							table = application.getDataServer().createTable(application.getClientID(), dataSource, IServer.INMEM_SERVER, t.getTableName(), tid,
-								t.getColumns());
-						}
-
-						inMemDataSources.put(dataSource, table);
+						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null);
 					}
-					catch (ServoyException e)
+					catch (Exception e)
 					{
-						throw new RepositoryException(e);
-					}
-					catch (RemoteException e)
-					{
-						throw new RepositoryException(e);
+						Debug.error(e);
 					}
 				}
+				return inMemDataSources.get(dataSource);
 			}
 		}
 		return table;
@@ -2505,6 +2483,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
 			ArrayList<String> inmemColumnNames = new ArrayList<String>();
+			ArrayList<String> inmemPKs = new ArrayList<String>();
 			int[] inmemColumnTypes = null;
 			ArrayList<Integer> inmemColumnTypesA = new ArrayList<Integer>();
 			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
@@ -2512,8 +2491,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
 				inmemColumnNames.add(cid.name);
 				inmemColumnTypesA.add(Integer.valueOf(cid.columnType.getSqlType()));
+				if ((cid.flags & Column.IDENT_COLUMNS) > 0)
+				{
+					inmemPKs.add(cid.name);
+				}
 			}
-
+			if (pkNames == null && inmemPKs.size() > 0)
+			{
+				pkNames = inmemPKs.toArray(new String[0]);
+			}
 			if (inmemColumnTypesA.size() > 0)
 			{
 				inmemColumnTypes = new int[inmemColumnTypesA.size()];
@@ -2527,7 +2513,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				fixedIntTypes = inmemColumnTypes;
 				fixedDataSet = new BufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]), fixedIntTypes);
-				Debug.warn("Dataset definition does not match inmem table definition for datasource : " + dataSource);
+				if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames.toArray(new String[inmemColumnNames.size()])) && dataSet.getColumnCount() > 0)
+				{
+					Debug.warn("Dataset column names definition does not match inmem table definition for datasource : " + dataSource);
+				}
+				if (!Arrays.equals(intTypes, inmemColumnTypes) && intTypes != null)
+				{
+					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource);
+				}
 			}
 		}
 

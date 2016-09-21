@@ -35,7 +35,6 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * Proxy class around a {@link IDataServer} instance for switchServer support.
@@ -307,16 +306,4 @@ public class DataServerProxy implements IDataServer
 		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#createTable(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-	 * com.servoy.j2db.util.ServoyJSONObject)
-	 */
-	@Override
-	public ITable createTable(String client_id, String dataSource, String serverName, String tableName, String tid, ServoyJSONObject tableJSON)
-		throws ServoyException, RemoteException
-	{
-		return ds.createTable(client_id, dataSource, serverName, tableName, tid, tableJSON);
-	}
 }
