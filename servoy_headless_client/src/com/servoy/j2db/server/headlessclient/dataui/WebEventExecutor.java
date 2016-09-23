@@ -975,7 +975,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					adminInfo = Utils.stringReplace(adminInfo, "\r", "");
 					adminInfo = Utils.stringReplace(adminInfo, "\n", "\\n");
-					target.appendJavascript("alert('Servoy admin info : " + adminInfo + "');");
+					target.appendJavascript("alert('" + adminInfo + "');");
 				}
 
 				// If we have a status text, set it.
