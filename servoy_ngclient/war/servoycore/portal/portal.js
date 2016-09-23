@@ -1237,7 +1237,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}
 						$scope.$watch(function() {
 							if (timeoutPromise) $timeout.cancel(timeoutPromise);
-							timeoutPromise = $timeout(getNewSize,500, false);
+							timeoutPromise = $timeout(getNewSize,200, false);
 							return elementSize;
 						  },
 							function(oldV, newV) {
