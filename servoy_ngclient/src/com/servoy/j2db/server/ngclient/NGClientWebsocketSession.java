@@ -40,6 +40,7 @@ import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Media;
@@ -198,6 +199,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					try
 					{
+						sendUIProperties();
+
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
 						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
 						client.handleArguments(
@@ -227,6 +230,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(null);
 		}
+	}
+
+	private void sendUIProperties()
+	{
+		// set default trustDataAsHtml based on system setting
+		Boolean trustDataAsHtml = Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString()));
+		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty",
+			new Object[] { IApplication.TRUST_DATA_AS_HTML, trustDataAsHtml });
 	}
 
 	@Override

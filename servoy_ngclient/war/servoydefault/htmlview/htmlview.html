@@ -3,7 +3,7 @@
 	 class='svy-htmlview'
      id="{{::model.svyMarkupId}}">
 <span  style="left:0; right:0; top:0; height:100%; position:relative; display:block" 
-	   ng-bind-html='(model.dataProviderID == null && model.text || model.dataProviderID )| htmlFilter'
+	   ng-bind-html='(model.dataProviderID == null && model.text || model.dataProviderID) | htmlFilter | trustAsHtml:servoyApi.trustAsHtml()'
 	   sablo-tabseq='model.tabSeq'
  	   ></span>
  </div>

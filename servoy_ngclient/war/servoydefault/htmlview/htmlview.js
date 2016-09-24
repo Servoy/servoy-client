@@ -4,7 +4,8 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
       scope: {
       	model: "=svyModel",
       	api: "=svyApi",
-      	handlers: "=svyHandlers"
+      	handlers: "=svyHandlers",
+		servoyApi: "=svyServoyapi"
       },
       link: function($scope, $element, $attrs,ngModelController) {
 //       $scope.style = {width:'100%',height:'100%',overflow:'auto'}

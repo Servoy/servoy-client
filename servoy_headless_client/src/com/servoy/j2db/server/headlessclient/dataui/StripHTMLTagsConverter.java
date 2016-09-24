@@ -50,8 +50,8 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Converts full html text, to html that can be inlined in the main html.
- * Has support for tranfering styles,javascripts and javascript urls to the head tag of the main html in the browser. 
- * 
+ * Has support for tranfering styles,javascripts and javascript urls to the head tag of the main html in the browser.
+ *
  * @author jcompagner
  */
 public class StripHTMLTagsConverter implements IConverter
@@ -60,7 +60,7 @@ public class StripHTMLTagsConverter implements IConverter
 
 	/**
 	 * @author jcompagner
-	 * 
+	 *
 	 */
 	public static class StrippedText
 	{
@@ -162,8 +162,10 @@ public class StripHTMLTagsConverter implements IConverter
 	 * @return
 	 */
 	@SuppressWarnings("nls")
-	public static StrippedText convertBodyText(Component component, CharSequence bodyText, FlattenedSolution solutionRoot)
+	public static StrippedText convertBodyText(Component component, CharSequence unsanitizedbodyText, boolean trustDataAsHtml, FlattenedSolution solutionRoot)
 	{
+		CharSequence bodyText = WebBaseButton.sanitize(unsanitizedbodyText, trustDataAsHtml);
+
 		StrippedText st = new StrippedText();
 		if (RequestCycle.get() == null)
 		{
@@ -175,7 +177,7 @@ public class StripHTMLTagsConverter implements IConverter
 		String solutionName = solutionRoot.getSolution().getName();
 
 
-		StringBuffer bodyTxt = new StringBuffer(bodyText.length());
+		StringBuilder bodyTxt = new StringBuilder(bodyText.length());
 		XmlPullParser parser = new XmlPullParser();
 
 		ICrypt urlCrypt = null;
@@ -473,15 +475,15 @@ public class StripHTMLTagsConverter implements IConverter
 	public static CharSequence convertMediaReferences(CharSequence text, String solutionName, ResourceReference media, String prefix,
 		boolean quoteSpecialHTMLChars) // TODO quoteSpecialHTMLChars - shouldn't this always be true? (currently in most places it is false)
 	{
-		if (RequestCycle.get() != null) return Strings.replaceAll(text,
-			"media:///", prefix + RequestCycle.get().urlFor(media) + "?s=" + solutionName + (quoteSpecialHTMLChars ? "&amp;" : "&") + "id="); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		if (RequestCycle.get() != null) return Strings.replaceAll(text, "media:///", //$NON-NLS-1$
+			prefix + RequestCycle.get().urlFor(media) + "?s=" + solutionName + (quoteSpecialHTMLChars ? "&amp;" : "&") + "id="); //$NON-NLS-1$//$NON-NLS-2$
 		return text;
 	}
 
 	public static String getTriggerJavaScript(FormComponent< ? > component, String value)
 	{
 		ServoyForm form = (ServoyForm)component.getForm();
-		StringBuffer sb = new StringBuffer(100);
+		StringBuilder sb = new StringBuilder(100);
 		sb.append("javascript:document.getElementById('"); //$NON-NLS-1$
 		sb.append(form.getHiddenField());
 		sb.append("').name=\'"); //$NON-NLS-1$
@@ -506,7 +508,7 @@ public class StripHTMLTagsConverter implements IConverter
 	public static String getTriggerJavaScript(IFormSubmittingComponent component, String value)
 	{
 		ServoyForm form = (ServoyForm)component.getForm();
-		StringBuffer sb = new StringBuffer(100);
+		StringBuilder sb = new StringBuilder(100);
 		sb.append("javascript:document.getElementById('"); //$NON-NLS-1$
 		sb.append(form.getHiddenField());
 		sb.append("').name=\'"); //$NON-NLS-1$

@@ -26,13 +26,14 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 
 /**
  * This object intersects the requestFocus() java-script calls for elements inside a table/list view for the web client
  * and redirects them to the appropriate cells in the wicket table.<BR>
  * The component on which this function gets called is not a real component in the table view cell. That is why
- * we need this class. 
- * 
+ * we need this class.
+ *
  * @author acostescu
  */
 public class CellNativeJavaObject extends NativeJavaObject implements ITwoNativeJavaObject
@@ -72,6 +73,16 @@ public class CellNativeJavaObject extends NativeJavaObject implements ITwoNative
 				// when that cell's component is created
 				view.setColumnThatRequestsFocus(uiComponent);
 				val = new BaseFunction();
+			}
+			else if ("putClientProperty".equals(name) && javaObject instanceof AbstractRuntimeBaseComponent)
+			{
+				// put client properties for all elements in table view
+				val = new WebCellBasedViewPutClientPropertyFunction(view, ((AbstractRuntimeBaseComponent< ? >)javaObject).getPersist(), (Function)val);
+			}
+			else if ("getClientProperty".equals(name) && javaObject instanceof AbstractRuntimeBaseComponent)
+			{
+				// put client properties for all elements in table view
+				val = new WebCellBasedViewGetClientPropertyFunction(view, ((AbstractRuntimeBaseComponent< ? >)javaObject).getPersist(), (Function)val);
 			}
 		}
 

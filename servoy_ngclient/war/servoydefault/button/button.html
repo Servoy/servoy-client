@@ -8,6 +8,6 @@
        >
 <div  style="width:100%; overflow:hidden; position:relative; white-space:nowrap; pointer-events: none;">
  	   		<span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size ,rollOverImg:model.rolloverImageMediaID, visible: model.visible}'/>
- 	   		<span ng-bind-html='(model.dataProviderID == null || model.dataProviderID.url ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
+ 	   		<span ng-bind-html='(model.dataProviderID == null || model.dataProviderID.url ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic | trustAsHtml:servoyApi.trustAsHtml()'/>
 </div>       
 </button>

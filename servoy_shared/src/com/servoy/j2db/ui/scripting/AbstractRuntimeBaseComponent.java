@@ -46,6 +46,7 @@ import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -360,6 +361,31 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		}
 		if (clientProperties == null) return null;
 		return clientProperties.get(key);
+	}
+
+	/**
+	 * Should we allow all html to be displayed as-is?
+	 *
+	 * When false, the client should sanitize the html contents.
+	 */
+	public boolean trustDataAsHtml()
+	{
+		// set at element level
+		Object trustDataAsHtml = getClientProperty(IApplication.TRUST_DATA_AS_HTML);
+
+		if (trustDataAsHtml == null)
+		{
+			// or at solution level
+			trustDataAsHtml = application.getClientProperty(IApplication.TRUST_DATA_AS_HTML);
+		}
+
+		if (trustDataAsHtml == null)
+		{
+			// or at application server level
+			trustDataAsHtml = Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString()));
+		}
+
+		return Boolean.TRUE.equals(trustDataAsHtml);
 	}
 
 	public String getBorder()

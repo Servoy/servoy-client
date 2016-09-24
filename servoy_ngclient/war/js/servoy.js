@@ -834,18 +834,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}		
 	}
 })
-.filter('htmlFilter', ['$sce', function($sce){
+.filter('htmlFilter', function() {
 	return function(input) {
 		if (input && input.indexOf('<body') >=0 && input.lastIndexOf('</body') >=0)
 		{
 			input = input.substring(input.indexOf('<body')+6,input.lastIndexOf('</body'));
 		}
-		return $sce.trustAsHtml(input);;
+		return input;
 	};
-}]).filter('mnemonicletterFilter', function($sce){  /* this filter is used for display only*/
+}).filter('mnemonicletterFilter', function() {  /* this filter is used for display only*/
 	return function(input,letter) {
-		if(letter && input) return $sce.trustAsHtml(input.replace(letter, '<u>'+letter+'</u>'));
-		if(input) {return $sce.trustAsHtml(''+input);}
+		if(letter && input) return input.replace(letter, '<u>'+letter+'</u>');
 		return input
 	};
 }).directive('svyFormatvldisplay',['$parse', function($parse){

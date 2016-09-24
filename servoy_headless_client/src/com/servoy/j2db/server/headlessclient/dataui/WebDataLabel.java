@@ -43,7 +43,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
 * Represents a label in the browser that displays data (has a dataprovider)
-* 
+*
 * @author jcompagner
 */
 public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplayTagText
@@ -120,8 +120,9 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 					{
 						try
 						{
-							bodyText = Text.processTags(TagResolver.formatObject(val, application.getLocale(), cf.parsedFormat,
-								(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
+							bodyText = Text.processTags(
+								TagResolver.formatObject(val, application.getLocale(), cf.parsedFormat,
+									(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
 								resolver);
 						}
 						catch (ParseException e)
@@ -139,7 +140,8 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 			{
 				if (HtmlUtils.startsWithHtml(bodyText))
 				{
-					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
+						application.getFlattenedSolution()).getBodyTxt();
 					hasHTML = true;
 				}
 				else
@@ -172,8 +174,8 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				{
 					try
 					{
-						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
-							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
+						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat,
+							(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
 					}
 					catch (ParseException e)
 					{
@@ -183,7 +185,8 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				if (HtmlUtils.startsWithHtml(modelObject))
 				{
 					// ignore script/header contributions for now
-					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
+						application.getFlattenedSolution()).getBodyTxt();
 					hasHTML = true;
 				}
 			}
@@ -206,7 +209,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel#hasHtml()
 	 */
 	@Override
@@ -217,7 +220,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel#getBodyText()
 	 */
 	@Override
@@ -247,7 +250,8 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 			{
 				if (HtmlUtils.startsWithHtml(current))
 				{
-					current = StripHTMLTagsConverter.convertBodyText(this, current, application.getFlattenedSolution()).getBodyTxt();
+					current = StripHTMLTagsConverter.convertBodyText(this, current, getScriptObject().trustDataAsHtml(),
+						application.getFlattenedSolution()).getBodyTxt();
 				}
 				else
 				{

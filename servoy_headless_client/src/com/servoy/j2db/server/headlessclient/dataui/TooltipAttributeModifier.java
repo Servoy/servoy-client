@@ -38,6 +38,7 @@ import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * This AttributeModifier will display the tooltip of an {@link IComponent#getToolTipText()} in the browser.
@@ -176,14 +177,15 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 							}
 						}
 						WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
-						tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "", false).toString();
+						tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "",
+							false).toString();
 						Object initialDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_INITIAL_DELAY);
 						if (initialDelayValue instanceof Number) initialDelay = ((Number)initialDelayValue).intValue();
 						Object dismissDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_DISMISS_DELAY);
 						if (dismissDelayValue instanceof Number) dismissDelay = ((Number)dismissDelayValue).intValue();
 
 					}
-					boolean isHTMLText = tooltip.trim().toLowerCase().startsWith("<html>");
+					boolean isHTMLText = HtmlUtils.startsWithHtml(tooltip);
 
 					tooltip = tooltip.replace("\r\n", isHTMLText ? " " : "<br>");
 					tooltip = tooltip.replace("\n", isHTMLText ? " " : "<br>");

@@ -225,7 +225,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		}
 		if (HtmlUtils.startsWithHtml(bodyText))
 		{
-			strippedText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution());
+			strippedText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(), application.getFlattenedSolution());
 			hasHTML = true;
 		}
 		else

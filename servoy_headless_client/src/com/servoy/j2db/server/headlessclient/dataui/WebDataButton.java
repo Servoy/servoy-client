@@ -45,8 +45,8 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
- * Represents a Button in a browser that also displays data (has a dataprovider) 
- * 
+ * Represents a Button in a browser that also displays data (has a dataprovider)
+ *
  * @author jcompagner
  */
 public class WebDataButton extends WebBaseButton implements IDisplayData, IDisplayTagText
@@ -142,8 +142,9 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 						}
 						else
 						{
-							bodyText = Text.processTags(TagResolver.formatObject(val, application.getLocale(), fp.parsedFormat,
-								(fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)),
+							bodyText = Text.processTags(
+								TagResolver.formatObject(val, application.getLocale(), fp.parsedFormat,
+									(fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)),
 								resolver);
 						}
 					}
@@ -162,7 +163,8 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 			{
 				if (HtmlUtils.startsWithHtml(bodyText))
 				{
-					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
+						application.getFlattenedSolution()).getBodyTxt();
 				}
 				else
 				{
@@ -194,8 +196,8 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 				{
 					try
 					{
-						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
-							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
+						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat,
+							(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
 					}
 					catch (ParseException e)
 					{
@@ -205,7 +207,8 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 				if (HtmlUtils.startsWithHtml(modelObject))
 				{
 					// ignore script/header contributions for now
-					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
+						application.getFlattenedSolution()).getBodyTxt();
 				}
 			}
 		}

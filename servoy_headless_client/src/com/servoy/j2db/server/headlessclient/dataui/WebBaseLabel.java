@@ -177,7 +177,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	protected CharSequence getBodyText()
 	{
-		return StripHTMLTagsConverter.convertBodyText(this, getDefaultModelObjectAsString(), application.getFlattenedSolution()).getBodyTxt();
+		return StripHTMLTagsConverter.convertBodyText(this, getDefaultModelObjectAsString(), scriptable.trustDataAsHtml(),
+			application.getFlattenedSolution()).getBodyTxt();
 	}
 
 	/**
@@ -1010,9 +1011,9 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		}
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag,
-			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid, (char)getDisplayedMnemonic(), getMarkupId(),
-				WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor, cssclass, rotation, scriptable.isEnabled(),
-				openTag));
+			WebBaseButton.instrumentBodyText(bodyText, scriptable.trustDataAsHtml(), halign, valign, hasHtmlOrImage, border, null, cssid,
+				(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor,
+				cssclass, rotation, scriptable.isEnabled(), openTag));
 	}
 
 	protected boolean hasHtmlOrImage()

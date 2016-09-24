@@ -174,6 +174,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.RenderableWrapper;
+import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
@@ -207,11 +208,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public final ResourceReference R_ARROW_DOWN = new ResourceReference(IApplication.class, "images/arrow_down.png"); //$NON-NLS-1$
 	public final ResourceReference R_ARROW_UP = new ResourceReference(IApplication.class, "images/arrow_up.png"); //$NON-NLS-1$
 
-	private final LinkedHashMap<IPersist, Component> elementToColumnIdentifierComponent = new LinkedHashMap<IPersist, Component>(); // IPersist -> column identifier components - used by JavaScript
-	private final HashMap<IPersist, Integer> elementTabIndexes = new HashMap<IPersist, Integer>();
-	private final LinkedHashMap<Component, IPersist> cellToElement = new LinkedHashMap<Component, IPersist>(); // each cell component -> IPersist (on the form)
-	private final Map<IPersist, Component> elementToColumnHeader = new HashMap<IPersist, Component>(); // links each column identifier component
+	private final LinkedHashMap<IPersist, Component> elementToColumnIdentifierComponent = new LinkedHashMap<>(); // IPersist -> column identifier components - used by JavaScript
+	private final HashMap<IPersist, Integer> elementTabIndexes = new HashMap<>();
+	private final LinkedHashMap<Component, IPersist> cellToElement = new LinkedHashMap<>(); // each cell component -> IPersist (on the form)
+	private final Map<IPersist, Component> elementToColumnHeader = new HashMap<>(); // links each column identifier component
 	// to a column header component (if such a component exists)
+
+	private final Map<IPersist, Map<Object, Object>> elementToClientProperties = new HashMap<>();
+
 
 	private String relationName;
 	private List<SortColumn> defaultSort = null;
@@ -219,13 +223,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private SortableCellViewHeaders headers;
 	private final WebMarkupContainer tableContainerBody;
 	private final WebCellBasedViewListView table;
-	private final IModel<FoundSetListWrapper> data = new Model<FoundSetListWrapper>();
+	private final IModel<FoundSetListWrapper> data = new Model<>();
 	private PagingNavigator pagingNavigator;
 	boolean showPageNavigator = true;
 	private DataAdapterList dal;
 
-	private final Map<String, Boolean> initialSortColumnNames = new HashMap<String, Boolean>();
-	private final Map<String, Boolean> initialSortedColumns = new HashMap<String, Boolean>();
+	private final Map<String, Boolean> initialSortColumnNames = new HashMap<>();
+	private final Map<String, Boolean> initialSortedColumns = new HashMap<>();
 
 	private final boolean addHeaders;
 
@@ -806,6 +810,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				// apply properties that need to be applied to <td> tag instead
 				parent.setVisible(comp.isVisible());
 			}
+
 		}
 
 
@@ -2718,7 +2723,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	}
 
 	@SuppressWarnings("nls")
-	private void initializeComponent(final Component c, AbstractBase view, Object element)
+	private void initializeComponent(final Component c, AbstractBase view, IPersist element)
 	{
 		if (dal != null && dal.isDestroyed())
 		{
@@ -2808,6 +2813,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 		}
+
+		applyClientProperties(c, element);
 	}
 
 	private void addClassToCellComponent(final Component c)
@@ -6036,6 +6043,65 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			ajaxRequestTarget = null;
 			listComponents.clear();
 			components.clear();
+		}
+	}
+
+	/**
+	 * put client property for current and future components.
+	 */
+	public void putClientProperty(IPersist persist, Object key, Object value)
+	{
+		Map<Object, Object> clientProperties = elementToClientProperties.get(persist);
+		if (clientProperties == null)
+		{
+			elementToClientProperties.put(persist, clientProperties = new HashMap<Object, Object>());
+		}
+		clientProperties.put(key, value);
+
+		for (Entry<Component, IPersist> entry : cellToElement.entrySet())
+		{
+			if (entry.getValue().equals(persist))
+			{
+				Component component = entry.getKey();
+				if (component instanceof IScriptableProvider)
+				{
+					IScriptable scriptObject = ((IScriptableProvider)component).getScriptObject();
+					if (scriptObject instanceof HasRuntimeClientProperty)
+					{
+						((HasRuntimeClientProperty)scriptObject).putClientProperty(key, value);
+					}
+				}
+			}
+		}
+	}
+
+	public Object getClientProperty(IPersist persist, Object key)
+	{
+		Map<Object, Object> clientProperties = elementToClientProperties.get(persist);
+		if (clientProperties != null)
+		{
+			return clientProperties.get(key);
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * Apply the previously set client properties to the new component.
+	 */
+	private void applyClientProperties(Component component, IPersist persist)
+	{
+		Map<Object, Object> clientProperties = elementToClientProperties.get(persist);
+		if (clientProperties != null && component instanceof IScriptableProvider)
+		{
+			IScriptable scriptObject = ((IScriptableProvider)component).getScriptObject();
+			if (scriptObject instanceof HasRuntimeClientProperty)
+			{
+				for (Entry<Object, Object> entry : clientProperties.entrySet())
+				{
+					((HasRuntimeClientProperty)scriptObject).putClientProperty(entry.getKey(), entry.getValue());
+				}
+			}
 		}
 	}
 }

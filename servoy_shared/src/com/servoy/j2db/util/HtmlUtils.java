@@ -38,7 +38,7 @@ public class HtmlUtils
 		{
 			return startsWithHtml((CharSequence)object);
 		}
-		else if (object != null)
+		if (object != null)
 		{
 			return startsWithHtml(object.toString());
 		}
@@ -53,8 +53,10 @@ public class HtmlUtils
 
 		int charIndex = 0;
 		// first trim
-		while (charIndex < charsequenceLen && charsequence.charAt(charIndex) == ' ')
+		while (charIndex < charsequenceLen && Character.isWhitespace(charsequence.charAt(charIndex)))
+		{
 			charIndex++;
+		}
 
 		if (charIndex >= charsequenceLen || charsequence.charAt(charIndex) != '<') return false;
 		if (charIndex >= charsequenceLen - 1 || Character.toLowerCase(charsequence.charAt(++charIndex)) != 'h') return false;
@@ -67,7 +69,7 @@ public class HtmlUtils
 
 	/**
 	 * searches for content thats is to be shown in a web browser and returns true if that kind of content is found
-	 * 
+	 *
 	 * @param html the HTML content to be checked
 	 * @return True if and only if the HTML content has some "display-able" content
 	 */
@@ -122,7 +124,7 @@ public class HtmlUtils
 
 	/**
 	 * returns the content wrapped by a given tag
-	 * 
+	 *
 	 * @param enclosingTag
 	 * @param htmlContent
 	 * @param beginIndex
@@ -170,7 +172,7 @@ public class HtmlUtils
 
 	/**
 	 * Converts a Java String to an HTML markup string, but does not convert normal spaces to non-breaking space entities (&lt;nbsp&gt;).
-	 * 
+	 *
 	 * @param s The string to be escaped
 	 * @see Utils#escapeMarkup(String, boolean)
 	 * @return The escaped string
@@ -184,7 +186,7 @@ public class HtmlUtils
 	 * Converts a Java String to an HTML markup String by replacing illegal characters with HTML entities where appropriate. Spaces are converted to
 	 * non-breaking spaces (&lt;nbsp&gt;) if escapeSpaces is true, tabs are converted to four non-breaking spaces, less than signs are converted to &amp;lt;
 	 * entities and greater than signs to &amp;gt; entities.
-	 * 
+	 *
 	 * @param s The string to escape
 	 * @param escapeSpaces True to replace ' ' with nonbreaking space
 	 * @return The escaped string
@@ -198,7 +200,7 @@ public class HtmlUtils
 	 * Converts a Java String to an HTML markup String by replacing illegal characters with HTML entities where appropriate. Spaces are converted to
 	 * non-breaking spaces (&lt;nbsp&gt;) if escapeSpaces is true, tabs are converted to four non-breaking spaces, less-than signs are converted to &amp;lt;
 	 * entities and greater-than signs to &amp;gt; entities.
-	 * 
+	 *
 	 * @param s The string to escape
 	 * @param escapeSpaces True to replace ' ' with nonbreaking space
 	 * @param convertToHtmlUnicodeEscapes True to convert non-7 bit characters to unicode HTML (&#...)
@@ -307,7 +309,7 @@ public class HtmlUtils
 		}
 	}
 
-	/* 
+	/*
 	 * raw unescape
 	 */
 	public static String unescape(String s)
@@ -383,8 +385,6 @@ public class HtmlUtils
 		int old_index = 0;
 		while (index != -1)
 		{
-			boolean image = false;
-			boolean link = false;
 			int formindex = lowerCaseContent.indexOf("<form", index);
 			int aindex = lowerCaseContent.indexOf("<a", index);
 			int imgindex = lowerCaseContent.indexOf("<img", index);
@@ -414,11 +414,8 @@ public class HtmlUtils
 					index++;
 					continue;
 				}
-				else
-				{
-					index = newindex;
-				}
-				link = true;
+
+				index = newindex;
 			}
 			else if (metaindex != -1)
 			{
@@ -429,11 +426,8 @@ public class HtmlUtils
 					index++;
 					continue;
 				}
-				else
-				{
-					index = newindex;
-				}
-				link = true;
+
+				index = newindex;
 			}
 			else if (linkindex != -1)
 			{
@@ -444,11 +438,8 @@ public class HtmlUtils
 					index++;
 					continue;
 				}
-				else
-				{
-					index = newindex;
-				}
-				link = true;
+
+				index = newindex;
 			}
 			else if (aindex != -1)
 			{
@@ -459,11 +450,8 @@ public class HtmlUtils
 					index++;
 					continue;
 				}
-				else
-				{
-					index = newindex;
-				}
-				link = true;
+
+				index = newindex;
 			}
 			else if (imgindex != -1)
 			{
@@ -474,11 +462,8 @@ public class HtmlUtils
 					index++;
 					continue;
 				}
-				else
-				{
-					index = newindex;
-				}
-				image = true;
+
+				index = newindex;
 			}
 			else if (formindex != -1)
 			{
@@ -489,11 +474,8 @@ public class HtmlUtils
 					index++;
 					continue;
 				}
-				else
-				{
-					index = newindex;
-				}
-				link = true;
+
+				index = newindex;
 			}
 			else
 			{
@@ -509,26 +491,93 @@ public class HtmlUtils
 			String strLink = st.nextToken();
 
 			retval.append(htmldoc.substring(old_index, index));
-			retval.append("\"");
+			retval.append('"');
 
 			if (strLink.startsWith("/"))
 			{
-				retval.append(baseURL + strLink);
+				retval.append(baseURL);
 			}
 			else if (!strLink.startsWith(baseURL))
 			{
-				retval.append(currURL + "/" + strLink);
-			}
-			else
-			{
-				retval.append(strLink);
+				retval.append(currURL).append('/');
 			}
 
+			retval.append(strLink);
 
-			retval.append("\"");
+			retval.append('"');
 			old_index = index + 1 + strLink.length() + 1;
 		}
 		retval.append(htmldoc.substring(old_index));
 		return retval.toString();
 	}
+
+	public static boolean equalsIgnoreWhitespaceAndCase(CharSequence cs1, CharSequence cs2)
+	{
+		if (cs1 == null)
+		{
+			return cs2 == null;
+		}
+		if (cs2 == null)
+		{
+			return false;
+		}
+
+		NonWhitespaceCharacterSequenceIterator it1 = new NonWhitespaceCharacterSequenceIterator(cs1);
+		NonWhitespaceCharacterSequenceIterator it2 = new NonWhitespaceCharacterSequenceIterator(cs2);
+
+		while (true)
+		{
+			if (!it1.hasNext())
+			{
+				return !it2.hasNext();
+			}
+			if (!it2.hasNext())
+			{
+				return false;
+			}
+
+			char c1 = it1.next();
+			char c2 = it2.next();
+			if (c1 != c2 && Character.toLowerCase(c1) != Character.toLowerCase(c2))
+			{
+				return false;
+			}
+		}
+	}
+
+	private static class NonWhitespaceCharacterSequenceIterator
+	{
+		private final CharSequence cs;
+		private int index = 0;
+
+		NonWhitespaceCharacterSequenceIterator(CharSequence cs)
+		{
+			this.cs = cs;
+		}
+
+		boolean hasNext()
+		{
+			proceed();
+			return index < cs.length();
+		}
+
+		char next()
+		{
+			return cs.charAt(index++);
+		}
+
+		private void proceed()
+		{
+			for (; index < cs.length(); index++)
+			{
+				char ch = cs.charAt(index);
+				if (!Character.isWhitespace(ch))
+				{
+					return;
+				}
+			}
+		}
+
+	}
+
 }

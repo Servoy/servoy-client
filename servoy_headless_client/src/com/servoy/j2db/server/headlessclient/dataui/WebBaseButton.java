@@ -72,6 +72,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -348,7 +349,7 @@ public abstract class WebBaseButton extends Button
 		if (HtmlUtils.startsWithHtml(modelObject))
 		{
 			// ignore script tags for now
-			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, scriptable.trustDataAsHtml(), application.getFlattenedSolution()).getBodyTxt();
 		}
 		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}
@@ -956,11 +957,11 @@ public abstract class WebBaseButton extends Button
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) cssClass = wcbw.getTableLabelCSSClass(getId());
 		}
-
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag,
-			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size, true, designMode ? null : cursor, false, anchor, cssClass, rotation, scriptable.isEnabled(), openTag));
+			instrumentBodyText(bodyText, scriptable.trustDataAsHtml(), halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(),
+				getMarkupId(), getImageDisplayURL(this), size, true, designMode ? null : cursor, false, anchor, cssClass, rotation, scriptable.isEnabled(),
+				openTag));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1126,10 +1127,11 @@ public abstract class WebBaseButton extends Button
 		return null;
 	}
 
+
 	@SuppressWarnings("nls")
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
-		String cssid, char mnemonic, String elementID, String imgURL, Dimension size, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors,
-		String cssClass, int rotation, boolean isEnabled, ComponentTag openTag)
+	protected static String instrumentBodyText(CharSequence bodyText, boolean trustDataAsHtml, int halign, int valign, boolean hasHtmlOrImage, Border border,
+		Insets margin, String cssid, char mnemonic, String elementID, String imgURL, Dimension size, boolean isButton, Cursor bodyCursor, boolean isAnchored,
+		int anchors, String cssClass, int rotation, boolean isEnabled, ComponentTag openTag)
 	{
 		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
@@ -1177,14 +1179,14 @@ public abstract class WebBaseButton extends Button
 		// In order to vertically align the text inside the <button>, we wrap the text inside a <span>, and we absolutely
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
-		StringBuffer instrumentedBodyText = new StringBuffer();
+		StringBuilder instrumentedBodyText = new StringBuilder();
 		String onFocus = "onfocus=\"this.parentNode.focus()\"";
 		if (openTag.getAttribute("onfocus") != null && openTag.getAttribute("onfocus").length() > 0 && openTag.getName().equals("label"))
 			onFocus = "onclick=" + "\"" + openTag.getAttribute("onfocus").replaceFirst("this", "this.parentNode") + "\"";
 		// the latest browsers (except for IE), do not trigger an onfocus neither on the span nor on the parent label element
 		// as a workaround, an onclick is added in the span of label elements that does what the parent onfocus does
-		instrumentedBodyText.append("<span " + onFocus + " style='" + //$NON-NLS-1$
-			(bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block;");
+		instrumentedBodyText.append("<span ").append(onFocus).append(" style='").append( //$NON-NLS-1$
+			(bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ")).append("display: block;");
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
@@ -1200,14 +1202,14 @@ public abstract class WebBaseButton extends Button
 		if (rotation == 0 || size.width >= size.height)
 		{
 			// Horizontal alignment and anchoring.
-			instrumentedBodyText.append(" left: " + left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-			instrumentedBodyText.append(" right: " + right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" left: ").append(left).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" right: ").append(right).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			// Vertical alignment and anchoring.
 			if (cssid == null)
 			{
-				if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-				else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: ").append(top).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
+				else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: ").append(bottom).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			// Full height.
@@ -1218,7 +1220,7 @@ public abstract class WebBaseButton extends Button
 				int innerHeight = size.height;
 				if (padding != null) innerHeight -= padding.top + padding.bottom;
 				if (borderMargin != null) innerHeight -= borderMargin.top + borderMargin.bottom;
-				instrumentedBodyText.append("height: " + innerHeight + "px;line-height: " + innerHeight + "px;");
+				instrumentedBodyText.append("height: ").append(innerHeight).append("px;line-height: ").append(innerHeight).append("px;");
 			}
 
 			if (isAnchored)
@@ -1238,12 +1240,12 @@ public abstract class WebBaseButton extends Button
 			if (borderMargin != null) innerHeight -= borderMargin.left + borderMargin.right;
 
 			int rotationOffset = (innerWidth - innerHeight) / 2;
-			instrumentedBodyText.append(" left: -" + rotationOffset + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-			instrumentedBodyText.append(" top: " + rotationOffset + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" left: -").append(rotationOffset).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" top: ").append(rotationOffset).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
 			instrumentedBodyText.append(" position: absolute;");
-			instrumentedBodyText.append(" height: " + innerHeight + "px;");
-			instrumentedBodyText.append(" width: " + innerWidth + "px;");
-			instrumentedBodyText.append("line-height: " + innerHeight + "px;");
+			instrumentedBodyText.append(" height: ").append(innerHeight).append("px;");
+			instrumentedBodyText.append(" width: ").append(innerWidth).append("px;");
+			instrumentedBodyText.append("line-height: ").append(innerHeight).append("px;");
 		}
 
 		if (!hasHtmlOrImage) instrumentedBodyText.append(" overflow: hidden;");
@@ -1255,8 +1257,9 @@ public abstract class WebBaseButton extends Button
 		if (rotation > 0)
 		{
 			String rotationCss = "rotate(" + rotation + "deg)";
-			instrumentedBodyText.append(" -ms-transform: " + rotationCss + ";" + " -moz-transform: " + rotationCss + ";" + " -webkit-transform: " + //$NON-NLS-1$
-				rotationCss + ";" + " -o-transform: " + rotationCss + ";" + " transform: " + rotationCss + ";");
+			instrumentedBodyText.append(" -ms-transform: ").append(rotationCss).append(";").append(" -moz-transform: ").append(rotationCss).append(";").append( //$NON-NLS-1$
+				" -webkit-transform: ").append(rotationCss).append(";").append(" -o-transform: ").append(rotationCss).append(";").append(" transform: ").append(
+					rotationCss).append(";");
 		}
 
 		if (cssid != null && cssClass == null) instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
@@ -1292,16 +1295,17 @@ public abstract class WebBaseButton extends Button
 		}
 		if (!Strings.isEmpty(bodyText))
 		{
-			CharSequence bodyTextValue = bodyText;
+			CharSequence bodyTextValue = sanitize(bodyText, trustDataAsHtml);
+
 			if (mnemonic > 0 && !hasHtmlOrImage)
 			{
-				StringBuffer sbBodyText = new StringBuffer(bodyTextValue);
+				StringBuilder sbBodyText = new StringBuilder(bodyTextValue);
 				int mnemonicIdx = sbBodyText.indexOf(Character.toString(mnemonic));
 				if (mnemonicIdx != -1)
 				{
 					sbBodyText.insert(mnemonicIdx + 1, "</u>");
 					sbBodyText.insert(mnemonicIdx, "<u>");
-					bodyTextValue = sbBodyText.toString();
+					bodyTextValue = sbBodyText;
 				}
 			}
 
@@ -1309,11 +1313,11 @@ public abstract class WebBaseButton extends Button
 			{
 
 				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
-				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
-					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored && (cssClass == null) ? "visibility:hidden;" : "") + "\"").append(
-						onLoadCall).append("/>");
+				StringBuilder sb = new StringBuilder("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
+					"\" style=\"vertical-align: middle;").append(IE8filterFIx).append(
+						(isElementAnchored && (cssClass == null) ? "visibility:hidden;" : "")).append("\"").append(onLoadCall).append("/>");
 				sb.append("<span style=\"vertical-align:middle;\">&nbsp;").append(bodyTextValue);
-				bodyTextValue = sb.toString();
+				bodyTextValue = sb;
 			}
 
 			instrumentedBodyText.append(bodyTextValue);
@@ -1327,7 +1331,8 @@ public abstract class WebBaseButton extends Button
 		{
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(elementID).append("_img\"");
-			instrumentedBodyText.append("style=\"" + (isElementAnchored && (cssClass == null) ? " visibility:hidden;" : "") + IE8filterFIx + "\""); // hide it until setLabelChildHeight is calculated
+			instrumentedBodyText.append("style=\"").append((isElementAnchored && (cssClass == null) ? " visibility:hidden;" : "")).append(IE8filterFIx).append(
+				"\""); // hide it until setLabelChildHeight is calculated
 			instrumentedBodyText.append(" src=\"");
 			instrumentedBodyText.append(imgURL);
 			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
@@ -1338,19 +1343,42 @@ public abstract class WebBaseButton extends Button
 
 		if (border instanceof TitledBorder)
 		{
-			instrumentedBodyText = new StringBuffer(
-				getTitledBorderOpenMarkup((TitledBorder)border) + instrumentedBodyText.toString() + getTitledBorderCloseMarkup());
+			instrumentedBodyText = new StringBuilder(getTitledBorderOpenMarkup((TitledBorder)border)).append(instrumentedBodyText).append(
+				getTitledBorderCloseMarkup());
 		}
 		if (border instanceof CompoundBorder)
 		{
 			Border outside = ((CompoundBorder)border).getOutsideBorder();
 			if (outside != null && outside instanceof TitledBorder)
 			{
-				instrumentedBodyText = new StringBuffer(
-					getTitledBorderOpenMarkup((TitledBorder)outside) + instrumentedBodyText.toString() + getTitledBorderCloseMarkup());
+				instrumentedBodyText = new StringBuilder(getTitledBorderOpenMarkup((TitledBorder)outside)).append(instrumentedBodyText).append(
+					getTitledBorderCloseMarkup());
 			}
 		}
 		return instrumentedBodyText.toString();
+	}
+
+	/**
+	 * @param bodyText
+	 * @param trustDataAsHtml
+	 * @return
+	 */
+	public static CharSequence sanitize(CharSequence bodyText, boolean trustDataAsHtml)
+	{
+		if (trustDataAsHtml || bodyText == null)
+		{
+			return bodyText;
+		}
+
+		CharSequence sanitized = HCUtils.sanitize(bodyText);
+		if (HtmlUtils.startsWithHtml(bodyText) && !HtmlUtils.equalsIgnoreWhitespaceAndCase(sanitized, bodyText))
+		{
+			Debug.warn("Html was modified by sanitizer: " + //
+				"\nOriginal html: '" + bodyText + "'," + //
+				"\nSanitized html: '" + sanitized + "'");
+		}
+
+		return sanitized;
 	}
 
 	public static String getTitledBorderOpenMarkup(TitledBorder titledBorder)
@@ -1364,7 +1392,7 @@ public abstract class WebBaseButton extends Button
 		{
 			align = "right";
 		}
-		StringBuffer fieldsetMarkup = new StringBuffer(
+		StringBuilder fieldsetMarkup = new StringBuilder(
 			"<fieldset style='top:0px;bottom:0px;left:0px;right:0px;position:absolute;margin:0px 2px 2px;padding:3px;'><legend align='");
 		fieldsetMarkup.append(align);
 		fieldsetMarkup.append("' style='");
@@ -1376,10 +1404,10 @@ public abstract class WebBaseButton extends Button
 		}
 		if (titledBorder.getTitleFont() != null)
 		{
-			Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(titledBorder.getTitleFont()));
-			if (fontPropetiesPair != null)
+			Pair<String, String>[] fontPropertiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(titledBorder.getTitleFont()));
+			if (fontPropertiesPair != null)
 			{
-				for (Pair<String, String> element : fontPropetiesPair)
+				for (Pair<String, String> element : fontPropertiesPair)
 				{
 					if (element == null) continue;
 					fieldsetMarkup.append(element.getLeft());

@@ -147,6 +147,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			},
 			isInDesigner: function() {
 				return false;
+			},
+			trustAsHtml: function() {
+				return $applicationService.trustAsHtml($scope.model ? $scope.model[beanname] : undefined);
 			}
 		}
 	}

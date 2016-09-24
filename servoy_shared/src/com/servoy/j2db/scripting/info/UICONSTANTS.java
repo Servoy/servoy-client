@@ -300,6 +300,25 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
 	/**
+	 * Property that can be set using element.putClientProperty() or application.putClientProperty()
+	 *
+	 * If set to true, data showed on elements like buttons or labels will not be sanitized.
+	 *
+	 * Showing unsanitized data can make the system vulnerable to XSS attacks, for example, an
+	 * user registers with name 'John Doe<script>someEvilJavascript</script>', when this data is shown in a label (by another user)
+	 * the javascript in the script tags will be executed.
+	 *
+	 * Only enable this setting if the data shown can always be trusted and is never composed of data from an external system or user.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * element.putClientProperty(APP_UI_PROPERTY.TRUST_AS_HTML, true)
+	 */
+	public static final String TRUST_DATA_AS_HTML = IApplication.TRUST_DATA_AS_HTML;
+
+	/**
 	 * Property that can be set on editable html area using element.putClientProperty()
 	 *
 	 * The value must be a valid json string according to TinyMCE editor configuration (http://www.tinymce.com/wiki.php/configuration).

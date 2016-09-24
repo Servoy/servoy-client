@@ -135,6 +135,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = "allowJavascriptLinkInput"; //$NON-NLS-1$
 
 	/**
+	 * When Boolean.TRUE, the element may show unsanitized data.
+	 */
+	public static final String TRUST_DATA_AS_HTML = "trustDataAsHtml"; //$NON-NLS-1$
+
+	/**
 	 * The WebClient JSON configuration for the HTML Editor.
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = "config"; //$NON-NLS-1$

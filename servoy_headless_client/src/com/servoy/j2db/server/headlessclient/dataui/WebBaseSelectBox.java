@@ -133,14 +133,15 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 				String txt = getDefaultModelObjectAsString();
 				if (HtmlUtils.startsWithHtml(txt))
 				{
-					txt = StripHTMLTagsConverter.convertBodyText(this, txt, application.getFlattenedSolution()).getBodyTxt().toString();
+					txt = StripHTMLTagsConverter.convertBodyText(this, txt, WebBaseSelectBox.this.scriptable.trustDataAsHtml(),
+						application.getFlattenedSolution()).getBodyTxt().toString();
 					setDefaultModelObject(txt);
 				}
 			}
 
 		};
 		selectLabel.setOutputMarkupId(true);
-		add(selectLabel); //$NON-NLS-1$ //$NON-NLS-2$
+		add(selectLabel);
 		setText(Text.processTags(text, null));
 
 		selector.add(new FocusIfInvalidAttributeModifier(selector));

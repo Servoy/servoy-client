@@ -5,7 +5,8 @@ angular.module('servoydefaultLabel',['servoy'])
       scope: {
       	model: "=svyModel",
       	handlers: "=svyHandlers",
-        api: "=svyApi"
+        api: "=svyApi",
+		servoyApi: "=svyServoyapi"
       },
       link: function($scope, $element, $attrs) {
 		var templateUrl = $scope.model.labelFor && ($attrs.headercell == undefined) ? "servoydefault/label/labelfor.html" : "servoydefault/label/label.html";

@@ -13,9 +13,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils,$foundsetTypeConstants) {
+}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $applicationService, $utils,$foundsetTypeConstants) {
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
+	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
 		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
@@ -25,9 +25,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 		return changes;
-	};
+	}
 
-	var sendChanges = function(now, prev, formname, beanname, property) {
+	function sendChanges(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
 			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname]);
@@ -43,15 +43,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 		})
-	};
-
-	var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope) {
+	}
+	
+	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope) {
 
 		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope)
 		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true)
 	}
 
-	var applyBeanLayout = function(beanModel, beanLayout, beanData, containerSize, isApplyBeanData) {
+	function applyBeanLayout(beanModel, beanLayout, beanData, containerSize, isApplyBeanData) {
 
 		var runtimeChanges = !isApplyBeanData && ( beanData.size != undefined || beanData.location != undefined );
 		//beanData.anchors means anchors changed or must be initialized
@@ -1072,51 +1072,67 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			keyboard: false
 		});				
 	}
+	var uiProperties;
+	function getUiProperties() {
+		if (!angular.isDefined(uiProperties)) {
+			var json = webStorage.session.get("uiProperties");
+			if (json) {
+				uiProperties = JSON.parse(json);
+			} else {
+				uiProperties = {};
+			}
+		}
+		return uiProperties;
+	}
+	
+	var userProperties;
+	function getUserProperties() {
+		if (!angular.isDefined(userProperties)) {
+			var json = webStorage.session.get("userProperties");
+			if (json) {
+				userProperties = JSON.parse(json);
+			} else {
+				userProperties = {};
+			}
+		}
+		return userProperties;
+	}
+	
+	function trustAsHtml(beanModel) {
+		
+		if (beanModel && beanModel.clientProperty && angular.isDefined(beanModel.clientProperty.trustDataAsHtml))
+		{
+			return beanModel.clientProperty.trustDataAsHtml;
+		}
+		
+		return getUiProperties()["trustDataAsHtml"];
+	}
+	
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		getUserProperty: function(key) {
-			var json = webStorage.local.get("userProperties");
-			if (json) {
-				return JSON.parse(json)[key];
-			}
-			return null;
+			return getUserProperties()[key];
 		},
 		setUserProperty: function(key,value) {
-			var obj = {}
-			var json = webStorage.local.get("userProperties");
-			if (json) {
-				obj = JSON.parse(json);
-			}
-			if (value == null) delete obj[key]
-			else obj[key] = value;
-			webStorage.local.add("userProperties", JSON.stringify(obj))
+			var userProps = getUserProperties();
+			if (value == null) delete userProps[key];
+			else userProps[key] = value;
+			webStorage.local.add("userProperties", JSON.stringify(userProps))
 		},
 		getUIProperty: function(key) {
-			var json = webStorage.session.get("uiProperties");
-			if (json) {
-				return JSON.parse(json)[key];
-			}
-			return null;
+			return getUiProperties()[key];
 		},
 		setUIProperty: function(key,value) {
-			var obj = {}
-			var json = webStorage.session.get("uiProperties");
-			if (json) {
-				obj = JSON.parse(json);
-			}
-			if (value == null) delete obj[key]
-			else obj[key] = value;
-			webStorage.session.add("uiProperties", JSON.stringify(obj))
+			var uiProps = getUiProperties();
+			if (value == null) delete uiProps[key];
+			else uiProps[key] = value;
+			webStorage.session.add("uiProperties", JSON.stringify(uiProps))
 		},
 		getUserPropertyNames: function() {
-			var json = webStorage.local.get("userProperties");
-			if (json) {
-				return Object.getOwnPropertyNames(JSON.parse(json));
-			}
-			return [];
+			return Object.getOwnPropertyNames(getUserProperties());
 		},
 		showMessage: function(message) {
 			$window.alert(message);
@@ -1275,7 +1291,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;
-		}
+		},
+		trustAsHtml: trustAsHtml
 	}
 
 }])

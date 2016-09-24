@@ -4,10 +4,12 @@ Bundle-Name: Servoy Headless Client Plug-in
 Bundle-SymbolicName: servoy_headless_client
 Bundle-Version: 8.1.0.3027
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_shared,
  servoy_smart_client,
- org.slf4j.api
+ org.slf4j.api,
+ org.jsoup
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.j2db.server.headlessclient,
  com.servoy.j2db.server.headlessclient.dataui,

@@ -25,9 +25,9 @@ import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * Represents a label in the webbrowser.
- * 
+ *
  * @author jcompagner
- * 
+ *
  */
 public class WebScriptLabel extends WebBaseLabel
 {
@@ -53,8 +53,9 @@ public class WebScriptLabel extends WebBaseLabel
 		Object modelObject = getDefaultModelObject();
 		if (HtmlUtils.startsWithHtml(modelObject))
 		{
-			// ignore script/header contributions for now			
-			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+			// ignore script/header contributions for now
+			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
+				application.getFlattenedSolution()).getBodyTxt();
 		}
 
 		instrumentAndReplaceBody(markupStream, openTag, bodyText);

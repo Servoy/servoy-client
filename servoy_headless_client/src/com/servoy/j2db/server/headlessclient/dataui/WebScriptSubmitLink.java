@@ -25,7 +25,7 @@ import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * Represents a clickable (has an action event) label in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 public class WebScriptSubmitLink extends WebBaseSubmitLink
@@ -53,7 +53,8 @@ public class WebScriptSubmitLink extends WebBaseSubmitLink
 		if (HtmlUtils.startsWithHtml(modelObject))
 		{
 			// ignore script/header contributions for now
-			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
+				application.getFlattenedSolution()).getBodyTxt();
 		}
 		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}

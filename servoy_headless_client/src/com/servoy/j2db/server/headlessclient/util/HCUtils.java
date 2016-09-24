@@ -19,12 +19,84 @@ package com.servoy.j2db.server.headlessclient.util;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Cleaner;
+import org.jsoup.safety.Whitelist;
+
+import com.servoy.j2db.util.HtmlUtils;
+
 /**
  * @author rgansevles
  *
  */
+@SuppressWarnings("nls")
 public class HCUtils
 {
+	private static String[] ALL_TAGS = new String[] { "a", "b", "blockquote", "br", "caption", "cite", "code", "col", "colgroup", //
+	"dd", "div", "dl", "dt", "em", "h1", "h2", "h3", "h4", "h5", "h6", "i", "img", "li", "ol", "p", "pre", "q", "small", "span", //
+	"strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "u", "ul" };
+
+	private static final Whitelist WHITELIST;
+
+	static
+	{
+		WHITELIST = Whitelist.relaxed() //
+		.preserveRelativeLinks(true) //
+		.addTags("html", "head", "body", "style") //
+		.addAttributes("style", "type") //
+		.addAttributes("table", "border") //
+		.addProtocols("a", "href", "javascript") //
+		.addProtocols("img", "src", "media") //
+		;
+		for (String tag : ALL_TAGS)
+		{
+			WHITELIST.addAttributes(tag, "class", "style", "align");
+		}
+	}
+
+	/**
+	 * Sanitize html against XSS attacks.
+	 *
+	 * @param html
+	 * @return sanitized html
+	 */
+	public static String sanitize(CharSequence html)
+	{
+		if (html == null)
+		{
+			return null;
+		}
+
+		if (!HtmlUtils.startsWithHtml(html))
+		{
+			// just some html, not an entire document
+			String sanitizedBody = Jsoup.clean(html.toString(), "http://any", WHITELIST);
+			// remove body wrapper
+			if (sanitizedBody.startsWith("<body>") && sanitizedBody.endsWith("</body>"))
+			{
+				sanitizedBody = sanitizedBody.substring(6, sanitizedBody.length() - 7);
+			}
+			return sanitizedBody;
+		}
+
+
+		// parse entire html
+		Document dirty = Jsoup.parse(html.toString(), "http://any");
+
+		// wrap with html, real html will be in the body which will be copied over
+		Document doc = new Document(dirty.baseUri());
+		doc.appendElement("html").appendElement("body").appendChild(dirty);
+
+		Cleaner cleaner = new Cleaner(WHITELIST);
+		Document clean = cleaner.clean(doc);
+
+		// unwrap again
+		Element sanitized = clean.body().child(0);
+
+		return sanitized.html();
+	}
 
 	/**
 	 * Replace absolute url with an url that works against the original (proxy) host, using standard request headers
