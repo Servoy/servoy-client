@@ -109,7 +109,8 @@ describe("Test portal suite", function() {
 			}
 		};
 
-		var template = '<servoycore-portal svy-model="model" svy-api="api" ></servoycore-portal>';
+		var template = "<data-servoycore-portal svy-model='model' svy-api='api' svy-handlers='handlers' svy-servoyApi='svy_servoyApi'></data-servoycore-portal>";
+		
 		element = $compile(template)(scope);
 		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"servoydefault-button" : { "dataProviderID" : true,  "relatedFoundset":true}});
 		
@@ -119,7 +120,20 @@ describe("Test portal suite", function() {
 		}, scope.model, scope, null);
 
 		scope.model = converted;
-		scope.api = {}
+		scope.api = {};
+		scope.handlers = {};
+		scope.svy_servoyApi = {
+				formWillShow: function(formname,relationname,formIndex) {
+				},
+				hideForm: function(formname,relationname,formIndex) {
+				},
+				getFormUrl: function (formId) {
+				},
+				apply: function(propertyName) {
+				},
+				startEdit: function(propertyName) {
+				}
+			};
 		
 		scope.$apply();
 		// $httpBackend.flush();
@@ -196,7 +210,7 @@ describe("Test portal suite", function() {
 	it("should have column definitions for multiline portal", function() {
 
 		scope.model.multiLine = true;
-		var newtemplate = '<servoycore-portal svy-model="model" svy-api="api"></servoycore-portal>';
+		var newtemplate = "<data-servoycore-portal svy-model='model' svy-api='api' svy-handlers='handlers' svy-servoyApi='svy_servoyApi'></data-servoycore-portal>";
 		$compile(newtemplate)(scope); //need to compile it again so that angular calls link and creates a multiline portal
 		scope.$apply();
 		portalScope = scope.$$childTail;
