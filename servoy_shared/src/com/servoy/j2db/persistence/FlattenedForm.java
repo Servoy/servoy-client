@@ -228,7 +228,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			}
 		}
 
-		setSize(checkParts(getParts(), getSize())); // recalculate height
+		setSize(checkParts(getFlattenedParts(), getSize())); // recalculate height
 	}
 
 	@Override
@@ -282,5 +282,28 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	Map<UUID, IPersist> getExtendsMap()
 	{
 		return extendsMap;
+	}
+
+	private Iterator<Part> getFlattenedParts()
+	{
+		Iterator<Part> currentParts = super.getParts();
+		Form flattenedSuperForm = flattenedSolution.getFlattenedForm(getExtendsForm());
+		if (flattenedSuperForm != null)
+		{
+			Set<Part> parts = new HashSet<Part>();
+			for (Part p : Utils.iterate(flattenedSuperForm.getParts()))
+			{
+				parts.add(p);
+			}
+			for (Part p : Utils.iterate(currentParts))
+			{
+				parts.add(p);
+			}
+			return parts.iterator();
+		}
+		else
+		{
+			return currentParts;
+		}
 	}
 }
