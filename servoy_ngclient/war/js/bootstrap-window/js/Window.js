@@ -178,6 +178,7 @@ var Window = null;
             if (this.$windowTab) {
                 this.$windowTab.addClass('label-primary');
             }
+            
         } else {
             this.$el.removeClass('active');
             if (this.$windowTab) {
@@ -186,7 +187,7 @@ var Window = null;
             }
         }
         
-        this.$el.trigger('setActive', active);
+        this.$el.trigger('bswin.active', active);
     };
 
     Window.prototype.setIndex = function(index) {

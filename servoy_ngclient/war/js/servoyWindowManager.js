@@ -348,7 +348,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					$sabloTestability.increaseEventLoop();
 					instance.bsWindowInstance.$el.on('bswin.resize',instance.onResize)
 					instance.bsWindowInstance.$el.on('bswin.move',instance.onMove)
-					instance.bsWindowInstance.$el.on("setActive", function(ev, active) {
+					instance.bsWindowInstance.$el.on("bswin.active", function(ev, active) {
 						$(ev.currentTarget).trigger(active ? "enableTabseq" : "disableTabseq");
 					});
 					instance.bsWindowInstance.setActive(true);
