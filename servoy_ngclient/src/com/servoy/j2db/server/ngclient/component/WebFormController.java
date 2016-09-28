@@ -49,6 +49,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
@@ -647,6 +648,78 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
+		if (isFormVisible == visible) return true;
+
+		if (visible && !isFormVisible)
+		{
+			// legacy support, first touch now also the tabpanel forms.
+			for (WebComponent comp : getFormUI().getComponents())
+			{
+				if ((comp instanceof WebFormComponent) && ((WebFormComponent)comp).getFormElement().getPersistIfAvailable() instanceof TabPanel)
+				{
+					Object tabIndex = comp.getProperty("tabIndex");
+					Object tabs = comp.getProperty("tabs");
+					if (tabs instanceof List && ((List)tabs).size() > 0)
+					{
+						List tabsList = (List)tabs;
+						TabPanel tabpanel = (TabPanel)((WebFormComponent)comp).getFormElement().getPersistIfAvailable();
+						if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
+						{
+							for (int i = 0; i < tabsList.size(); i++)
+							{
+								Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+								if (tab != null)
+								{
+									String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
+									Object tabForm = tab.get("containsFormId");
+									if (tabForm != null)
+									{
+										getFormUI().getDataAdapterList().addVisibleChildForm(getApplication().getFormManager().getForm(tabForm.toString()),
+											relationName, true);
+									}
+								}
+							}
+						}
+						else
+						{
+							Map<String, Object> visibleTab = null;
+							if (tabIndex instanceof Number && tabsList.size() > 0 && ((Number)tabIndex).intValue() <= tabsList.size())
+							{
+								int index = ((Number)tabIndex).intValue() - 1;
+								if (index < 0)
+								{
+									index = 0;
+								}
+								visibleTab = (Map<String, Object>)(tabsList.get(index));
+							}
+							else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
+							{
+								for (int i = 0; i < tabsList.size(); i++)
+								{
+									Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+									if (Utils.equalObjects(tabIndex, tab.get("name")))
+									{
+										visibleTab = tab;
+										break;
+									}
+								}
+							}
+							if (visibleTab != null)
+							{
+								String relationName = visibleTab.get("relationName") != null ? visibleTab.get("relationName").toString() : null;
+								Object tabForm = visibleTab.get("containsFormId");
+								if (tabForm != null)
+								{
+									getFormUI().getDataAdapterList().addVisibleChildForm(getApplication().getFormManager().getForm(tabForm.toString()),
+										relationName, true);
+								}
+							}
+						}
+					}
+				}
+			}
+
+		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
 		return notifyVisibleSuccess;

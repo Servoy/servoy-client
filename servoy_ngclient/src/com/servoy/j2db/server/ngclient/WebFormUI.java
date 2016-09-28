@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,8 +51,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Tab;
-import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
@@ -149,36 +146,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			if (component != null)
 			{
 				counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
-			}
-			if (fe.getPersistIfAvailable() instanceof TabPanel)
-			{
-				//legacy behavior, automatically link the tab
-				TabPanel tabpanel = (TabPanel)fe.getPersistIfAvailable();
-				Iterator<IPersist> it = tabpanel.getTabs();
-				if (it.hasNext())
-				{
-					Tab tab = (Tab)it.next();
-					if (tab.getContainsFormID() > 0)
-					{
-						Form form = getApplication().getFlattenedSolution().getForm(tab.getContainsFormID());
-						if (form != null)
-						{
-							dataAdapterList.addUninitializedRelatedForm(form.getName(), tab.getRelationName());
-						}
-					}
-				}
-				if (it.hasNext() && (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL))
-				{
-					Tab tab = (Tab)it.next();
-					if (tab.getContainsFormID() > 0)
-					{
-						Form form = getApplication().getFlattenedSolution().getForm(tab.getContainsFormID());
-						if (form != null)
-						{
-							dataAdapterList.addUninitializedRelatedForm(form.getName(), tab.getRelationName());
-						}
-					}
-				}
 			}
 		}
 
