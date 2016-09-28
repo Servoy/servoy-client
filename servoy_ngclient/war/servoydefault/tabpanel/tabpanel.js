@@ -8,7 +8,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			handlers: "=svyHandlers",
 			api: "=svyApi"
 		},
-		controller: function($scope, $element, $attrs,webStorage) {
+		controller: function($scope, $element, $attrs) {
 			if($scope.model.tabOrientation == -4) {
 				var groupHeaderHeight = 39;
 				var activeGroupHeaderHeight = 37;
@@ -26,35 +26,20 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 			$scope.bgstyle = {}
 			$scope.waitingForServerVisibility = {}
+			$scope.realTabs = [];
 
+		     // if the selected tab is already set then this could be a cached value of the previous state
+			// we need to reinitialize it with the correct tabIndex that should be coming from the server.
 			if ($scope.model.selectedTab) {
-			     // if the selected tab is already set then this is a reload of the form and we need to call formWillShow
-				 $scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId, $scope.model.selectedTab.relationName);
+				delete $scope.model.selectedTab;
 			}
-			else if ($scope.model.tabs && $scope.model.tabs.length >0)
-	    	{
-	    		  var index = 1;
-	    		  if ($scope.$parent && $scope.$parent.formname)
-	    		  {
-	    			  var key = $scope.$parent.formname +"_" + $element.attr('name')+"_tabindex";
-	    			  var storageValue= webStorage.session.get(key);
-	    			  if (storageValue)
-	    			  {
-	    				  index = parseInt(storageValue);
-	    				  if (index > $scope.model.tabs.length)
-	    				  {
-	    					  index = 1;
-	    				  }	  
-	    			  }	  
-	    		  }
-	    		  $scope.model.tabIndex = index;
-	    	 }
 			
 			function refresh() {
+				// if svyMarkupId is not set then the data is not here yet, wait for the tabIndex to come from the server.
+				if (! $scope.model.svyMarkupId) return;
 				var i = 0;
 				var realTabIndex = 1;
 				if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
-				
 				if (typeof $scope.model.tabIndex === 'number')
 					realTabIndex = $scope.model.tabIndex - 1;
 				else if (!isNaN(parseInt($scope.model.tabIndex)) && parseInt($scope.model.tabIndex) > 0)
@@ -94,20 +79,21 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				}
 			}
 
-			$scope.$watch("model.tabIndex", function(newValue) {
-				if ($log.debugEnabled) $log.debug("svy * model.tabIndex = " + $scope.model.tabIndex + " -- " + new Date().getTime());
-				refresh();
-				if ($scope.$parent && $scope.$parent.formname)
-				{
-					 var key = $scope.$parent.formname +"_" + $element.attr('name')+"_tabindex";
-					 webStorage.session.add(key,newValue);
-				}
+			// wait for the svyMarkupId to be set (then the form data from the server iis there. only from that one work with the tabs)
+			var unreg = $scope.$watch("model.svyMarkupId", function(newVal) {
+				if (!newVal) return;
+				unreg();
+				$scope.$watch("model.tabIndex", function(newValue) {
+					if ($log.debugEnabled) $log.debug("svy * model.tabIndex = " + $scope.model.tabIndex + " -- " + new Date().getTime());
+					refresh();
+				});
+	
+				$scope.$watch("model.tabs", function(newValue) {
+					$scope.realTabs = $scope.model.tabs;
+					if ($log.debugEnabled) $log.debug("svy * model.tabs reference updated; length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
+					refresh();
+				});   
 			});
-
-			$scope.$watch("model.tabs", function(newValue) {
-				if ($log.debugEnabled) $log.debug("svy * model.tabs reference updated; length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
-				refresh();
-			});        
 
 			$scope.$watch("model.visible", function(newValue,oldValue) {
 	    	  		if ($scope.model.selectedTab && newValue !== oldValue && $scope.model.selectedTab.containsFormId)
