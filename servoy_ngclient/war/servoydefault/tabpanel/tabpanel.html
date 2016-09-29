@@ -1,5 +1,5 @@
 <tabset  ng-class='(model.styleClass ? model.styleClass : "")  + " svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
-    <tab ng-repeat="tab in realTabs"
+    <tab ng-repeat="tab in model.tabs"
     	 active="tab.active" select="select(tab)" disabled="tab.disabled || !model.enabled || !tab.containsFormId" >
       <tab-heading  svy-mnemonic='tab.mnemonic'>
       	<img ng-hide="tab.imageMediaID == ''"  ng-src='{{tab.imageMediaID}}'/>
