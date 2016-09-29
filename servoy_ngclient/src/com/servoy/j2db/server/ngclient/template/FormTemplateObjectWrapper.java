@@ -19,8 +19,9 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.util.List;
 
-import com.servoy.j2db.BasicFormManager;
-import com.servoy.j2db.IFormController;
+import org.json.JSONObject;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
@@ -28,10 +29,10 @@ import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Utils;
 
 import freemarker.template.DefaultObjectWrapper;
@@ -50,17 +51,24 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 	private final boolean useControllerProvider;
 	private Form flattenedForm;
 	private final boolean design;
-	private final INGApplication application;
+	private final WebFormUI formUI;
+	private final JSONObject runtimeProperties;
 
 	/**
 	 * @param fs
 	 */
-	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design, INGApplication application)
+	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
 	{
 		this.context = context;
 		this.useControllerProvider = useControllerProvider;
 		this.design = design;
-		this.application = application;
+		formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI) ? (WebFormUI)context.getForm().getFormUI() : null;
+		if (formUI != null)
+		{
+			String componentProps = NGUtils.formComponentPropertiesToString(formUI, FullValueToJSONConverter.INSTANCE);
+			runtimeProperties = new JSONObject(componentProps);
+		}
+		else runtimeProperties = null;
 	}
 
 	@Override
@@ -70,12 +78,14 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		if (obj instanceof Form)
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)obj);
-			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, this, context, design);
+			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, context, design,
+				runtimeProperties != null ? runtimeProperties.getJSONObject("") : null);
 		}
 		else if (obj instanceof Object[])
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)((Object[])obj)[0]);
-			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, this, context, design);
+			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, context, design,
+				runtimeProperties != null ? runtimeProperties.getJSONObject("") : null);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
@@ -88,24 +98,22 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		else if (obj instanceof IFormElement)
 		{
 			FormElement fe = null;
-			if (application != null)
+			JSONObject object = null;
+			if (formUI != null)
 			{
-				IFormController controller = ((BasicFormManager)application.getFormManager()).getCachedFormController(flattenedForm.getName());
-				if (controller != null && controller.getFormUI() instanceof WebFormUI)
+				List<FormElement> cachedFormElements = formUI.getFormElements();
+				for (FormElement cachedFE : cachedFormElements)
 				{
-					List<FormElement> cachedFormElements = ((WebFormUI)controller.getFormUI()).getFormElements();
-					for (FormElement cachedFE : cachedFormElements)
+					if (Utils.equalObjects(cachedFE.getPersistIfAvailable(), obj))
 					{
-						if (Utils.equalObjects(cachedFE.getPersistIfAvailable(), obj))
-						{
-							fe = cachedFE;
-							break;
-						}
+						fe = cachedFE;
+						object = runtimeProperties.getJSONObject(fe.getName());
+						break;
 					}
 				}
 			}
 			wrapped = new FormElementContext(fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context.getSolution(), null, false),
-				context);
+				context, object);
 		}
 		else
 		{

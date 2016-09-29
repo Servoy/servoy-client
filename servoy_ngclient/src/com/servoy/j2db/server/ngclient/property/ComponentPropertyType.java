@@ -212,7 +212,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// create children of component as specified by this property
-		final FormElementContext feContext = new FormElementContext(formElementValue.element, formElementContext.getContext());
+		final FormElementContext feContext = new FormElementContext(formElementValue.element, formElementContext.getContext(), null);
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();

@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.util.Collection;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.servoy.j2db.FlattenedSolution;
 
@@ -31,21 +32,34 @@ public class FormElementContext
 {
 	private final FormElement formElement;
 	private final IServoyDataConverterContext context;
+	private final JSONObject object;
 
 	public FormElementContext(FormElement formElement)
 	{
-		this(formElement, null);
+		this(formElement, null, null);
 	}
 
-	public FormElementContext(FormElement formElement, IServoyDataConverterContext context)
+	public FormElementContext(FormElement formElement, IServoyDataConverterContext context, JSONObject object)
 	{
 		this.formElement = formElement;
 		this.context = context;
+		this.object = object;
 	}
 
 	public String getPropertiesString() throws JSONException
 	{
-		return formElement.propertiesAsTemplateJSON(null, this).toString();
+		String designString = formElement.propertiesAsTemplateJSON(null, this).toString();
+		if (object != null)
+		{
+			JSONObject designValues = new JSONObject(designString);
+
+			for (String key : object.keySet())
+			{
+				designValues.put(key, object.get(key));
+			}
+			designString = designValues.toString();
+		}
+		return designString;
 	}
 
 	public String getTypeName()

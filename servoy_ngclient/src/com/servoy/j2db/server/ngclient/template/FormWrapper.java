@@ -76,15 +76,16 @@ public class FormWrapper
 	private Collection<IFormElement> baseComponents;
 	private final Map<String, String> formComponentTemplates = new HashMap<>();
 	private final Map<String, Dimension> formComponentParentSizes = new HashMap<String, Dimension>();
+	private final JSONObject runtimeData;
 
-	public FormWrapper(Form form, String realName, boolean useControllerProvider, FormTemplateObjectWrapper formTemplateObjectWrapper,
-		IServoyDataConverterContext context, boolean design)
+	public FormWrapper(Form form, String realName, boolean useControllerProvider, IServoyDataConverterContext context, boolean design, JSONObject runtimeData)
 	{
 		this.form = form;
 		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
 		this.context = context;
 		this.design = design;
+		this.runtimeData = runtimeData;
 		isTableView = !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 		isListView = !design && (form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
 	}
@@ -92,6 +93,11 @@ public class FormWrapper
 	public boolean isDesign()
 	{
 		return design;
+	}
+
+	public String hasRuntimeData()
+	{
+		return runtimeData != null ? "true" : "false";
 	}
 
 
@@ -241,6 +247,11 @@ public class FormWrapper
 			}
 		}
 		return baseComponents;
+	}
+
+	public String getRuntimePropertiesString()
+	{
+		return runtimeData != null ? runtimeData.toString() : "null";
 	}
 
 	// called by ftl template
