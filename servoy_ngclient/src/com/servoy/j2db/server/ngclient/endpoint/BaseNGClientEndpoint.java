@@ -35,7 +35,14 @@ import com.servoy.j2db.util.Pair;
 public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClientWebsocketEndpoint
 {
 
-	private final ConcurrentMap<String, Pair<String, Boolean>> formsOnClient = new ConcurrentHashMap<String, Pair<String, Boolean>>();
+	/**
+	 * So basically forms can be on client/browser and have their state 'attachedToDOM' not.<br/>
+	 * For example a form could show, then hide so it was attached to DOM then it was detached.<br/><br/>
+	 *
+	 * The boolean in the right of each value in this map represents the attached/detached to/from DOM status.
+	 * The string in the left of each value is the URL for the form with name given by the key. A form is present in this map only
+	 */
+	private final ConcurrentMap<String, Pair<String, Boolean>> formsOnClientForThisEndpoint = new ConcurrentHashMap<String, Pair<String, Boolean>>();
 
 	public BaseNGClientEndpoint(String endpointType)
 	{
@@ -45,34 +52,34 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	@Override
 	public boolean addFormIfAbsent(String formName, String formUrl)
 	{
-		return formsOnClient.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null;
+		return formsOnClientForThisEndpoint.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null;
 	}
 
 	@Override
 	public void formDestroyed(String formName)
 	{
-		formsOnClient.remove(formName);
+		formsOnClientForThisEndpoint.remove(formName);
 	}
 
 	@Override
 	public String getFormUrl(String formName)
 	{
-		return formsOnClient.containsKey(formName) ? formsOnClient.get(formName).getLeft() : null;
+		return formsOnClientForThisEndpoint.containsKey(formName) ? formsOnClientForThisEndpoint.get(formName).getLeft() : null;
 	}
 
 	@Override
-	public void markFormCreated(String formName)
+	public void setAttachedToDOM(String formName, boolean attached)
 	{
-		if (formsOnClient.containsKey(formName))
+		if (formsOnClientForThisEndpoint.containsKey(formName))
 		{
-			formsOnClient.get(formName).setRight(Boolean.TRUE);
+			formsOnClientForThisEndpoint.get(formName).setRight(Boolean.valueOf(attached));
 		}
 	}
 
 	@Override
-	public boolean isFormCreated(String formName)
+	public boolean isFormAttachedToDOM(String formName)
 	{
-		return formsOnClient.containsKey(formName) && formsOnClient.get(formName).getRight().booleanValue();
+		return formsOnClientForThisEndpoint.containsKey(formName) && formsOnClientForThisEndpoint.get(formName).getRight().booleanValue();
 	}
 
 }

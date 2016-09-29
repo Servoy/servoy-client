@@ -50,7 +50,7 @@ public interface INGClientWindow extends IWindow
 
 	void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator);
 
-	void formCreated(String formName);
+	void setFormResolved(String formName, boolean resolved);
 
 	void destroyForm(String name);
 

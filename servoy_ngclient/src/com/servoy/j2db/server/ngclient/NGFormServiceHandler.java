@@ -250,7 +250,13 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 			case "formLoaded" :
 			{
-				NGClientWindow.getCurrentWindow().formCreated(args.optString("formname"));
+				NGClientWindow.getCurrentWindow().setFormResolved(args.optString("formname"), true);
+				break;
+			}
+
+			case "formUnloaded" :
+			{
+				NGClientWindow.getCurrentWindow().setFormResolved(args.optString("formname"), false);
 				break;
 			}
 

@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.WeakHashSet;
 
 /**
  * Sablo window for NGClient
@@ -51,11 +52,8 @@ import com.servoy.j2db.util.UUID;
 public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
 
-	/**
-	 * @param websocketSession
-	 * @param windowUuid
-	 * @param windowName
-	 */
+	private final WeakHashSet<IWebFormUI> pendingApiCallFormsOnNextResponse = new WeakHashSet<>();
+
 	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
 	{
 		super(websocketSession, windowUuid, windowName);
@@ -90,10 +88,40 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
+	protected Container getFormContainer(WebComponent component)
+	{
+		return (Container)component.findParent(IWebFormUI.class);
+	}
+
+	@Override
 	public void sendChanges() throws IOException
 	{
-		if (getSession().getClient() != null) getSession().getClient().changesWillBeSend();
-		super.sendChanges();
+		try
+		{
+			if (getSession().getClient() != null) getSession().getClient().changesWillBeSend();
+			super.sendChanges();
+		}
+		finally
+		{
+			pendingApiCallFormsOnNextResponse.clear();
+		}
+	}
+
+	@Override
+	protected boolean shouldSendChangesToClientWhenAvailable(Container fc)
+	{
+		boolean sendChanges = pendingApiCallFormsOnNextResponse.contains(fc) || fc.isVisible(); // we want to send changes for all forms that are visible and for forms that will get API calls as well;
+		// this was needed now instead of only isVisible() in order to also send changes to hidden div forms before any API call gets executed on them;
+		// NOTE: for forms that are not yet visible but API form them is called, the data changes will not be present as their data broadcast is disabled from DataAdapterList and FormController
+		// while they are hidden, but property changes will be sent - this is a known thing
+
+		if (!sendChanges)
+		{
+			// if a pending delayed API call will get called as well, send changes for that form so it's up-to-date
+			sendChanges = isFormResolved(fc) && hasPendingDelayedCalls(fc);
+		}
+
+		return sendChanges;
 	}
 
 	@Override
@@ -103,10 +131,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		Map<String, Object> call = new HashMap<>();
 		if (callContributions != null) call.putAll(callContributions);
 
+		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
+		IWebFormController form = getSession().getClient().getFormManager().getForm(formUI.getName());
+
 		if (!isDelayedApiCall(receiver, apiFunction))
 		{
-			IWebFormController form = getSession().getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
 			touchForm(form.getForm(), form.getName(), false);
+			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
@@ -161,7 +192,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		// if sync wait until we got response from client as it is loaded
 		if (!async)
 		{
-			if (!getEndpoint().isFormCreated(formName))
+			if (!getEndpoint().isFormAttachedToDOM(formName))
 			{
 				if (!nowSentToClient)
 				{
@@ -213,10 +244,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			String realURLWithoutSessionId = dropSessionIdFrom(realUrl);
 			if (previousURL != null && !realURLWithoutSessionId.equals(previousURL))
 			{
-				boolean wasFormCreated = getEndpoint().isFormCreated(realFormName);
 				getEndpoint().formDestroyed(realFormName);
 				getEndpoint().addFormIfAbsent(realFormName, realURLWithoutSessionId);
-				if (wasFormCreated) getEndpoint().markFormCreated(realFormName);
 			}
 
 			CurrentWindow.runForWindow(this, new Runnable()
@@ -321,34 +350,39 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		getEndpoint().formDestroyed(name);
 	}
 
-	public void formCreated(String formName)
+	/**
+	 * This 'resolved' is equivalent to client-side 'resolved' state. As sablo puts it, it means that a form is attached to the DOM of this window or not.
+	 */
+	public void setFormResolved(String formName, boolean resolved)
 	{
 		String formUrl = getEndpoint().getFormUrl(formName);
 		if (formUrl != null)
 		{
 			synchronized (formUrl)
 			{
-				getEndpoint().markFormCreated(formName);
-				getSession().getEventDispatcher().resume(formUrl);
-				Debug.debug("formCreated(" + formUrl + "): " + formName);
+				getEndpoint().setAttachedToDOM(formName, resolved);
+				Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
+				if (resolved) getSession().getEventDispatcher().resume(formUrl);
 			}
 		}
 	}
 
+	/**
+	 * This 'resolved' is equivalent to client-side 'resolved' state. As sablo puts it, it means that a form is attached to the DOM of this window or not.
+	 */
 	@Override
-	protected boolean formLoaded(WebComponent component)
+	protected boolean isFormResolved(Container form)
 	{
-		IWebFormUI parent = component.findParent(IWebFormUI.class);
-		if (parent == null) return false;
-		IWebFormController controller = parent.getController();
+		IWebFormController controller = ((IWebFormUI)form).getController();
 		if (controller == null) return false;
+
 		String formName = controller.getName();
 		String formUrl = getEndpoint().getFormUrl(formName);
 		if (formUrl != null)
 		{
 			synchronized (formUrl)
 			{
-				return getEndpoint().isFormCreated(formName);
+				return getEndpoint().isFormAttachedToDOM(formName);
 			}
 		}
 		return false;

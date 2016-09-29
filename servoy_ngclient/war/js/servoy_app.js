@@ -192,7 +192,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if (!$sabloApplication.hasFormState(formname)) continue;
 				// if the formState is on the server but not here anymore, skip it. 
 				// this can happen with a refresh on the browser.
-				$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo));
+				$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo), 
+						function(err) { $log.error("Error getting form state (svy) when trying to handle msg. from server: " + err); });
 			}
 			
 			function setFindMode(beanData)
@@ -419,7 +420,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				throw new Error("formname is undefined");
 			}
 			$sabloApplication.getFormState(formname).then(function (formState) {
-				// if first show of this form in browser window then request initial data (dataproviders and such)
+				// if first show of this form in browser window then request initial data (dataproviders and such);
 				if (notifyFormVisibility) $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
 				if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formname, formState);
 			});
@@ -808,7 +809,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						blocked = true;
 						// so the form is already (being) loaded in non-hidden div; hidden div can relax; it shouldn't load form twice
 					} else {
-						// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it
+						// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it; here getScope() is the scope provided by the hidden div load; the new one was not yet contributed
 						if (formState.getScope) formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
 						if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
 						else formState.blockPostLinkInHidden = true;
@@ -828,23 +829,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						delete formState.blockPostLinkInHidden; // the form began to load in a real location; don't resolve it in hidden div anymore
 						return;
 					}
-					if ($log.debugEnabled) $log.debug("svy * svyFormload will resolve = " + formName);
 
-					// TODO some info about why I suspect this timeout was added: normally this post link impl was intendended to mean "all directives below the form are linked/ready"; but
-					// when directives in angular use template reference instead of inline html template this is not true; so the timeout was added I think just to postpone
-					// resolving a form some more to avoid trouble; normally we should implement a way of really detecting when all child directives are linked and removing this timeout
-					$timeout(function() {
-						if ($log.debugEnabled) $log.debug("svy * svyFormload is now resolving = " + formName);
+					// we used to do the rest of the following code in a $timeout to make sure components (that use templateURL so they load async) did register their APIs in their link methods;
+					// but now the API call code will wait itself for a while so that the APIs to be contributed by components; all other usages of 'resolved' form states don't need the actual
+					// components to be fully loaded, and avoiding that $timeout makes the app. run faster + avoids the form being already hidden before it executes
+					
+					if ($log.debugEnabled) $log.debug("svy * svyFormload is now resolving form: " + formName);
+					var resolvedFormState = $sabloApplication.resolveFormState(formName);
 
-						// check again (because of the use of $timeout above) if the form was shown in a real location meanwhile in which case we must not resolve it from hidden div
-						if (inHiddenDiv && formState && formState.blockPostLinkInHidden) {
-							delete formState.blockPostLinkInHidden; // the form began to load in a real location; don't resolve it in hidden div anymore
-							return;
-						}
-						
-						var resolvedFormState = $sabloApplication.resolveFormState(formName);
-						if (resolvedFormState) {
-							$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)
+					if (resolvedFormState) {
+						if ($log.debugEnabled) $log.debug("svy * svyFormload is letting server know that form in now resolved: " + formName);
+						$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)
+
+						function initializeFormSizes()
+						{
 							var formWidth = element.prop('offsetWidth');
 							var formHeight = element.prop('offsetHeight');
 							// for some reason, height is not 0 in firefox for svy-formload tag; should we just assume the structure and remove this test altogether?
@@ -852,11 +850,25 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							{
 								var formWidth = element.children().prop('offsetWidth');
 								var formHeight = element.children().prop('offsetHeight');
-							}	
+							}
+		
 							resolvedFormState.properties.size.width = formWidth; // formState.properties == formState.getScope().formProperties here
 							resolvedFormState.properties.size.height = formHeight;
+
 						}
-					});
+						
+						// also update this size in a timeout as here it seems element bounds are not yet stable (sometimes they are 0,0 sometimes height is wrong)
+						$timeout(function() {
+							// check again (because of the use of $timeout above) if the form was shown in a real location meanwhile in which case we must not rely on these DOM elements anymore
+							if (inHiddenDiv && formState && formState.blockPostLinkInHidden) {
+								delete formState.blockPostLinkInHidden; // the form began to load in a real location; don't resolve it in hidden div anymore
+								return;
+							}
+							
+							initializeFormSizes();
+							if ($log.debugEnabled) $log.debug("svy * in postLink TOut of svyFormload (" + formName + "): resolvedFormState.properties.size = (" + resolvedFormState.properties.size.width + ", " + resolvedFormState.properties.size.height + ")");
+						});
+					}
 				}
 			}
 		}

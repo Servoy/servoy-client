@@ -356,7 +356,7 @@ public abstract class BasicFormController
 			lastSelectedIndex = formModel.getSelectedIndex();
 
 			showNavigator(invokeLaterRunnables);
-			valueChanged(null);
+			valueChanged(null); // this will refresh all part renderers if needed (because data changes are blocked for forms that are not used in some client types)
 
 			Runnable r = new Runnable()
 			{
@@ -960,7 +960,7 @@ public abstract class BasicFormController
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-		throws Exception
+			throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{

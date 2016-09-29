@@ -54,12 +54,13 @@ angular.module('servoycoreNavigator',['servoy','ui.slider']).directive('servoyco
       replace: true
       
     };
-}).controller('DefaultNavigatorController', function ($scope, $sabloApplication , $solutionSettings,$servoyWindowManager){  // special case using internal api
+}).controller('DefaultNavigatorController', function ($scope, $sabloApplication , $solutionSettings, $servoyWindowManager) { // special case using internal api
 	
 	$scope.default_navi = {};
 	$scope.$solutionSettings = $solutionSettings;// this should be placed in the window scope similar to DialogInstanceCtrl (But main window doesn't have a window controller)
 	var modelToWatch = '$solutionSettings.mainForm';
 	if($scope.$eval('win') != null)  modelToWatch ='win.form'
+		
 	// ?TODO? revisit after changing to window as a component . $solutionSettings.mainForm will be merged to $servoyWindowManager (and index.ftl will have a 'DialogInstanceCtrl')
 	$scope.$watch(modelToWatch, function (newVal, oldVal, scope) {
 		    if(newVal) {

@@ -36,7 +36,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
 	formState.resolving = true;
-	if ($log.debugEnabled) $log.debug("svy * ftl; resolving form = ${name}");
+	if ($log.debugEnabled) $log.debug("svy * ftl; resolving = true for form = ${name}");
 
 	$scope.model = formState.model;
 	$scope.api = formState.api;
@@ -214,9 +214,6 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
 		destroyListenerUnreg();
 		$sabloApplication.updateScopeForState("${name}", null);
-		for(var key in $scope.api) {
-			$scope.api[key] = {};
-		}	
 		if (formState && formState.removeWatches) {
 			if (!$scope.hiddenDivFormDiscarded) {
 				formState.removeWatches();
@@ -224,13 +221,18 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				delete formState.getScope;
 				delete formState.addWatches;
 				delete formState.handlers;
-				$sabloApplication.unResolveFormState("${name}");
-			}
+				for(var key in formState.api) {
+					formState.api[key] = {};
+				}
+				$sabloApplication.unResolveFormState("${name}"); // this also clears "resolving" not just "resolved"
+				if ($log.debugEnabled) $log.debug("svy * ftl; form controller scope destroy is letting server know that form is now UNresolved: '${name}'");
+				$sabloApplication.callService('formService', 'formUnloaded', { formname: "${name}" }, true);				
+			} else if ($log.debugEnabled) $log.debug("svy * ftl; hidden div form controller scope destroy will not clear much of formState as hiddenDiv load was interrupted by a real location load and gave prio to that real location: '${name}'");
+			
 			delete $scope.hiddenDivFormDiscarded;
-			delete formState.resolving;
 			formState = null;
 		}
-		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);
+		else $log.info("svy * ftl; form '${name}' - scope destroy cannot find a formState with watches to clean: " + formState + (formState ? ", " + formState.removeWatches : ""));
 	});
 	
 	

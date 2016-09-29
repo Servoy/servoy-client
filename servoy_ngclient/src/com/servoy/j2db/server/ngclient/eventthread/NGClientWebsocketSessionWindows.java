@@ -109,11 +109,11 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	}
 
 	@Override
-	public void formCreated(String formName)
+	public void setFormResolved(String formName, boolean resolved)
 	{
 		for (INGClientWindow window : getSession().getWindows())
 		{
-			window.formCreated(formName);
+			window.setFormResolved(formName, resolved);
 		}
 	}
 

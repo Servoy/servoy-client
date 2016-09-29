@@ -36,9 +36,5 @@ public interface INGFormManager extends IBasicFormManager
 
 	void setCurrentControllerJS(IWebFormController currentController);
 
-	/**
-	 * @param formName
-	 * @return
-	 */
 	IWebFormController getFormAndSetCurrentWindow(String formName);
 }

@@ -33,8 +33,8 @@ public interface INGClientWebsocketEndpoint extends IWebsocketEndpoint
 
 	String getFormUrl(String formName);
 
-	boolean isFormCreated(String formName);
+	boolean isFormAttachedToDOM(String formName);
 
-	void markFormCreated(String formName);
+	void setAttachedToDOM(String formName, boolean attached);
 
 }
