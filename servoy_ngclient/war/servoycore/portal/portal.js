@@ -219,7 +219,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							rowWidth = elX + el.model.size.width;
 						}
 						rowTemplate = rowTemplate + '<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
-						rowEditTemplate = rowEditTemplate + '<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(' + idx + ')" >' + editableCellTemplate + '</div>';
+						rowEditTemplate = rowEditTemplate + '<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(' + idx + ')" >' + (editableCellTemplate?editableCellTemplate:cellTemplate) + '</div>';
 					}
 					else {
 						if($scope.rowHeight == undefined || ($scope.model.rowHeight == 0 && $scope.rowHeight < el.model.size.height)) {
