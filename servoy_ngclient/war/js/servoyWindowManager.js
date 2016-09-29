@@ -601,7 +601,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	return {
 		restrict: 'A',
 		
-		link: function($element) {
+		link: function($scope, $element) {
 			// workaround for unneeded scrollbars appearing in dialogs in Chrome (although sizes seem ok and just toggling on and off overflow: auto in the form-in-dialog body part makes them go away) - see SVY-9172;
 			// the workaround uses some obscure JS code that force relayout of the dialog (hide, get width, show); as it will do hide an show in the same browser event cycle one after the other, there's no risk that
 			// api calls on that form (such as say a requestFocus) can get executed while content is hidden temporarily and misbehave... 
