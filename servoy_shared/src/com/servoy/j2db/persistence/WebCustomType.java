@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
@@ -132,9 +133,48 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	public Object getProperty(String propertyName)
 	{
 		Object value = null;
-		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) value = super.getProperty(propertyName);
+		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName))
+		{
+			if (StaticContentSpecLoader.PROPERTY_JSON.getPropertyName().equals(propertyName))
+			{
+				Object mergedParentProperty = ((AbstractBase)parent).getProperty(propertyName);
+				if (mergedParentProperty instanceof JSONObject)
+				{
+					Object mergedProperty = ((JSONObject)mergedParentProperty).opt(jsonKey);
+					if (mergedProperty instanceof JSONArray)
+					{
+						int idx = getIndex();
+						if (idx < ((JSONArray)mergedProperty).length())
+						{
+							mergedProperty = ((JSONArray)mergedProperty).get(idx);
+						}
+					}
+					if (mergedProperty instanceof JSONObject)
+					{
+						value = mergedProperty;
+					}
+				}
+			}
+			else
+			{
+				value = super.getProperty(propertyName);
+			}
+		}
 		if (value == null) value = webObjectImpl.getProperty(propertyName);
 		return value;
+	}
+
+	@Override
+	public boolean hasProperty(String propertyName)
+	{
+		boolean hasIt = false;
+		if (webObjectImpl == null) hasIt = super.hasProperty(propertyName);
+		else
+		{
+			hasIt = webObjectImpl.hasProperty(propertyName);
+			if (!hasIt) hasIt = super.hasProperty(propertyName);
+		}
+		return hasIt;
 	}
 
 	/**
@@ -290,7 +330,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public JSONObject getFullJsonInFrmFile()
 	{
-		return webObjectImpl.getJson();
+		return (JSONObject)getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 	}
 
 	@Override

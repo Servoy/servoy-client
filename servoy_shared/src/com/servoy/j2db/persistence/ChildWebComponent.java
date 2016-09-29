@@ -19,7 +19,9 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.DimensionPropertyType;
@@ -99,6 +101,29 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 		return fullJSONInFrmFile;
 	}
 
+	private JSONObject getMergedJSON()
+	{
+		JSONObject mergedJSON = (JSONObject)((IBasicWebObject)parent).getProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+		if (mergedJSON != null)
+		{
+			Object mergedObj = mergedJSON.opt(jsonKey);
+			if (mergedObj instanceof JSONArray)
+			{
+				if (index < ((JSONArray)mergedObj).length())
+				{
+					mergedJSON = (JSONObject)((JSONArray)mergedObj).get(index);
+				}
+			}
+			else if (mergedObj instanceof JSONObject)
+			{
+				mergedJSON = (JSONObject)mergedObj;
+			}
+		}
+		if (mergedJSON == null) mergedJSON = new ServoyJSONObject();
+
+		return mergedJSON;
+	}
+
 	@Override
 	public IWebComponent getParentComponent()
 	{
@@ -121,7 +146,7 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 			@Override
 			public String getTypeName()
 			{
-				return getFullJsonInFrmFile().optString(TYPE_NAME_KEY);
+				return getMergedJSON().optString(TYPE_NAME_KEY);
 			}
 
 			@Override
@@ -133,13 +158,34 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 			@Override
 			public JSONObject getJson()
 			{
-				return getFullJsonInFrmFile().optJSONObject(DEFINITION_KEY);
+				return getMergedJSON().optJSONObject(DEFINITION_KEY);
 			}
 
 			@Override
 			public void setJsonInternal(JSONObject arg)
 			{
-				getFullJsonInFrmFile().put(DEFINITION_KEY, arg);
+				if (arg != null && arg.length() > 0)
+				{
+					JSONObject definition = getFullJsonInFrmFile().getJSONObject(DEFINITION_KEY);
+					Iterator<String> valueKeysIte = arg.keys();
+					while (valueKeysIte.hasNext())
+					{
+						String valueKey = valueKeysIte.next();
+						definition.put(valueKey, arg.get(valueKey));
+					}
+				}
+			}
+
+			@Override
+			public boolean clearProperty(String propertyName)
+			{
+				if (getFullJsonInFrmFile().getJSONObject(DEFINITION_KEY).has(propertyName))
+				{
+					getFullJsonInFrmFile().getJSONObject(DEFINITION_KEY).remove(propertyName);
+					((IBasicWebObject)parent).updateJSON();
+					return true;
+				}
+				return false;
 			}
 
 			@Override
@@ -166,6 +212,12 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 					}
 				}
 				return pd;
+			}
+
+			@Override
+			public boolean hasProperty(String propertyName)
+			{
+				return getFullJsonInFrmFile().getJSONObject(DEFINITION_KEY).has(propertyName);
 			}
 		};
 	}

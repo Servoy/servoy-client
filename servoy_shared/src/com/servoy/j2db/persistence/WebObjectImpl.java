@@ -110,7 +110,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		if (arePersistMappedPropetiesLoaded && !skipPersistMappedPropertiesUpdate)
 		{
-			JSONObject old = getJson();
+			JSONObject old = (JSONObject)webObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 			try
 			{
 				JSONObject entireModel = (old != null ? old : new ServoyJSONObject()); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
@@ -302,14 +302,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public boolean hasProperty(String propertyName)
 	{
-		boolean hasIt = getPersistMappedProperties().containsKey(propertyName);
-		if (!hasIt && getPropertyDescription() != null)
+		boolean hasIt = false;
+		if (getPropertyDescription() != null)
 		{
 			PropertyDescription childPd = getChildPropertyDescription(propertyName);
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
-				JSONObject json = getJson();
+				JSONObject json = (JSONObject)webObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 				hasIt = (json != null && json.has(propertyName));
 			}
 		}
@@ -498,10 +498,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 								persistMappedPropetiesByUUID = null;
 							}
 						}
-						else
-						{
-							existingWebObject.setProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName(), object);
-						}
 					}
 					else if (object instanceof JSONArray)
 					{
@@ -563,10 +559,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 												childChildWebObjectUUID);
 											persistMappedPropertyArray.add(childComponent);
 										}
-									}
-									else
-									{
-										existingWebObject.setProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName(), ((JSONArray)object).get(i));
 									}
 								}
 							}
@@ -641,7 +633,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		try
 		{
 			boolean removed = false;
-			JSONObject oldJson = webObject.getJson();
+			JSONObject oldJson = (JSONObject)webObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 			// we can no longer check for differences here as we now reuse JSON objects/arrays
 			JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 
@@ -953,7 +945,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		try
 		{
-			JSONObject entireModel = (parentWebObject.getFlattenedJson() != null ? parentWebObject.getFlattenedJson() : new ServoyJSONObject());
+			JSONObject entireModel = (JSONObject)parentWebObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+			if (entireModel == null) entireModel = new ServoyJSONObject();
 			if (!isNew && entireModel.has(jsonKey))
 			{
 				Object v = entireModel.get(jsonKey);
