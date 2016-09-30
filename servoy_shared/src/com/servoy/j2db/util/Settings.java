@@ -363,6 +363,28 @@ public final class Settings extends SortedProperties
 		}
 	}
 
+	public Object put(Object key, Object value, boolean encrypt)
+	{
+		Object val;
+		if (encrypt && value != null && !value.toString().startsWith(enc_prefix))
+		{
+			try
+			{
+				val = enc_prefix + SecuritySupport.encrypt(this, value.toString());
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error encryptng setting " + key, e);
+				val = value;
+			}
+		}
+		else
+		{
+			val = value;
+		}
+		return put(key, val);
+	}
+
 	@Override
 	public synchronized void store(OutputStream out, String header) throws IOException
 	{
