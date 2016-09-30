@@ -67,6 +67,15 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		{
 			String componentProps = NGUtils.formComponentPropertiesToString(formUI, FullValueToJSONConverter.INSTANCE);
 			runtimeProperties = new JSONObject(componentProps);
+			JSONObject conversions = runtimeProperties.optJSONObject("conversions");
+			if (conversions != null)
+			{
+				for (String elementName : conversions.keySet())
+				{
+					JSONObject jsonObject = runtimeProperties.getJSONObject(elementName);
+					jsonObject.put("conversions", conversions.getJSONObject(elementName));
+				}
+			}
 		}
 		else runtimeProperties = null;
 	}
