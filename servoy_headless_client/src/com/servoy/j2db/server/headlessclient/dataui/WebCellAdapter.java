@@ -31,7 +31,9 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
+import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
@@ -102,24 +104,46 @@ public class WebCellAdapter implements IDataAdapter
 					Iterator iterator2 = li.iterator();
 					while (iterator2.hasNext())
 					{
+						ArrayList<Object> cellDisplays = new ArrayList<Object>();
 						Object cell = iterator2.next();
 						cell = CellContainer.getContentsForCell((Component)cell);
-						if (cell instanceof IProviderStylePropertyChanges && cell instanceof IDisplayData)
+						if (cell instanceof WebCellBasedViewListViewItem)
 						{
-							// only test if it is not already changed
-							view.checkForValueChanges(cell);
-
-							// do fire on render on all components for record change
-							if (cell instanceof ISupportOnRender && cell instanceof IScriptableProvider)
+							Iterator listItemIte = ((WebCellBasedViewListViewItem)cell).iterator();
+							while (listItemIte.hasNext())
 							{
-								IScriptable so = ((IScriptableProvider)cell).getScriptObject();
-								if (so instanceof AbstractRuntimeRendersupportComponent &&
-									((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+								Object listItemDisplay = listItemIte.next();
+								if (listItemDisplay instanceof WrapperContainer)
 								{
-									String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
-									if (record != null || (e.getName() != null && e.getName().equals(componentDataproviderID)))
+									listItemDisplay = ((WrapperContainer)listItemDisplay).getDelegate();
+								}
+								cellDisplays.add(listItemDisplay);
+							}
+						}
+						else
+						{
+							cellDisplays.add(cell);
+						}
+
+						for (Object cellDisplay : cellDisplays)
+						{
+							if (cellDisplay instanceof IProviderStylePropertyChanges && cellDisplay instanceof IDisplayData)
+							{
+								// only test if it is not already changed
+								view.checkForValueChanges(cellDisplay);
+
+								// do fire on render on all components for record change
+								if (cellDisplay instanceof ISupportOnRender && cellDisplay instanceof IScriptableProvider)
+								{
+									IScriptable so = ((IScriptableProvider)cellDisplay).getScriptObject();
+									if (so instanceof AbstractRuntimeRendersupportComponent &&
+										((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 									{
-										((ISupportOnRender)cell).fireOnRender(true);
+										String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
+										if (record != null || (e.getName() != null && e.getName().equals(componentDataproviderID)))
+										{
+											((ISupportOnRender)cellDisplay).fireOnRender(true);
+										}
 									}
 								}
 							}
