@@ -1968,7 +1968,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		super.fillClone(cloned);
 
-		Dimension size = getSize();
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size != null) ((Form)cloned).setSize(size);
 	}
 
