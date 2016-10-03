@@ -54,9 +54,6 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 	private final WebFormUI formUI;
 	private final JSONObject runtimeProperties;
 
-	/**
-	 * @param fs
-	 */
 	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
 	{
 		this.context = context;

@@ -54,8 +54,29 @@ public class FormElementContext
 		{
 			JSONObject designValues = new JSONObject(designString);
 
-			ServoyJSONObject.mergeAndDeepCloneJSON(object, designValues);
-
+			for (String key : object.keySet())
+			{
+				if ("conversions".equals(key))
+				{
+					// don't override conversions entirely cause template json might have values that are not in initialData and those might need conversion info
+					JSONObject initialDataConversions = object.getJSONObject("conversions");
+					JSONObject designConversions = designValues.optJSONObject("conversions");
+					if (designConversions == null) designValues.put("conversions", initialDataConversions);
+					else
+					{
+						// merge conversions as well
+						for (String conversionKey : initialDataConversions.keySet())
+						{
+							designConversions.put(conversionKey, initialDataConversions.get(conversionKey));
+						}
+					}
+				}
+				else
+				{
+					// put 'initial' value instead of design value
+					designValues.put(key, object.get(key));
+				}
+			}
 			designString = designValues.toString();
 		}
 		return designString;

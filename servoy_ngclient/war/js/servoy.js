@@ -969,10 +969,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		afterNGProcessedDOM : function (fn, doApply) {
 			if (requestAnimationFrame) {
 				if (doApply) {
-					window.requestAnimationFrame(function (scope) {
+					requestAnimationFrame(function (scope) {
 						$rootScope.$apply(fn);
 					});
-				} else window.requestAnimationFrame(fn);
+				} else requestAnimationFrame(fn);
 			} else $timeout(fn, 0, doApply); // it could produce flicker, but better then nothing
 		}
 	}

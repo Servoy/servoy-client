@@ -480,10 +480,6 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		fromSerializable(this, in.readObject());
 	}
 
-	/**
-	 * @param val
-	 * @param property
-	 */
 	public static JSONObject mergeAndDeepCloneJSON(JSONObject toCopyIn, JSONObject target)
 	{
 		for (String key : toCopyIn.keySet())
