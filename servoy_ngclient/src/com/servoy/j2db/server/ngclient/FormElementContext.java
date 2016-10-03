@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author gboros
@@ -53,10 +54,8 @@ public class FormElementContext
 		{
 			JSONObject designValues = new JSONObject(designString);
 
-			for (String key : object.keySet())
-			{
-				designValues.put(key, object.get(key));
-			}
+			ServoyJSONObject.mergeAndDeepCloneJSON(object, designValues);
+
 			designString = designValues.toString();
 		}
 		return designString;
