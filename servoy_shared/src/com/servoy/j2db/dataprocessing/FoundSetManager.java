@@ -1002,7 +1002,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 			{
-				if (!inMemDataSources.containsKey(dataSource))
+				if (!inMemDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
 				{
 					try
 					{
@@ -1017,6 +1017,34 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 		return table;
+	}
+
+	public boolean dataSourceExists(String dataSource) throws RepositoryException
+	{
+		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+		{
+			if (inMemDataSources.containsKey(dataSource))
+			{
+				return true;
+			}
+			ServoyJSONObject columnsDef = null;
+			Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
+			while (tblIte.hasNext() && columnsDef == null)
+			{
+				TableNode tn = tblIte.next();
+				columnsDef = tn.getColumns();
+			}
+
+			if (columnsDef != null)
+			{
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			return getTable(dataSource) != null;
+		}
 	}
 
 	public Collection<String> getInMemDataSourceNames()

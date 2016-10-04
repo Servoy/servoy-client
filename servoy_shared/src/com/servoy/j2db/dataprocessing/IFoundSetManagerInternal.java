@@ -32,7 +32,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Internal interface to extend the foundset manager
- * 
+ *
  * @author jblok
  */
 public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseManager
@@ -45,7 +45,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	/**
 	 * Get a separate foundset for some Form.
-	 * 
+	 *
 	 * @param table
 	 * @return IFoundSet
 	 * @throws ServoyException
@@ -54,7 +54,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	/**
 	 * Get a new uninitialized foundset for some data source not being attached to any Form.
-	 * 
+	 *
 	 * @param dataSource
 	 * @param pkSelect set pk query, may be null to generate the default pk select
 	 * @param defaultSortColumns may be null
@@ -65,7 +65,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	/**
 	 * Get a new uninitialized foundset for some table not being attached to any Form.
-	 * 
+	 *
 	 * @param table
 	 * @param defaultSortColumns may be null
 	 * @return IFoundSet
@@ -75,7 +75,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	/**
 	 * Get sortColumns for table and sortoptions.
-	 * 
+	 *
 	 * @param t the table
 	 * @param sortOptions the options
 	 * @return List
@@ -84,7 +84,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	/**
 	 * Get the total count in the foundset
-	 * 
+	 *
 	 * @param fs
 	 * @return the count
 	 */
@@ -105,15 +105,15 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public GlobalTransaction getGlobalTransaction();
 
 	/**
-	 * add tracking info used for logging  
+	 * add tracking info used for logging
 	 */
 	public void addTrackingInfo(String columnName, Object value);
 
 
 	/**
 	 * get all tracking info as a map, used for logging
-	 * 
-	 * @return map of tracking info  
+	 *
+	 * @return map of tracking info
 	 */
 	public HashMap<String, Object> getTrackingInfo();
 
@@ -150,4 +150,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public boolean hasTableFilter(String serverName, String tableName);
 
 	public Collection<String> getInMemDataSourceNames();
+
+	boolean dataSourceExists(String dataSource) throws RepositoryException;
 }
