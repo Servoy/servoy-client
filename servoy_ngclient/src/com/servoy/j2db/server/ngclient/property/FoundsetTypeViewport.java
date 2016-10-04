@@ -100,13 +100,14 @@ public class FoundsetTypeViewport
 		if (positiveOrNegativeRecordNo >= 0)
 		{
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
-			changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
+			if (oldStartIndex != startIndex || oldSize != size)
+				changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
 		}
 		else
 		{
 			this.startIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
 			this.size += (oldStartIndex - startIndex);
-			changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
+			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
