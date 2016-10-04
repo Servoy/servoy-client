@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author gboros

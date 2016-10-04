@@ -118,8 +118,12 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 					}
 				}
 			}
-			wrapped = new FormElementContext(fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context.getSolution(), null, false),
-				context, object);
+			FormElement formElement = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context.getSolution(), null, false);
+			if (object == null && runtimeProperties != null)
+			{
+				object = runtimeProperties.optJSONObject(formElement.getName());
+			}
+			wrapped = new FormElementContext(formElement, context, object);
 		}
 		else
 		{
