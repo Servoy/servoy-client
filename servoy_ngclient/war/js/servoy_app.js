@@ -189,11 +189,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			// data got back from the server
 			for(var formname in msg.forms) {
 				// current model
-				if (!$sabloApplication.hasFormState(formname)) continue;
-				// if the formState is on the server but not here anymore, skip it. 
-				// this can happen with a refresh on the browser.
-				$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo), 
-						function(err) { $log.error("Error getting form state (svy) when trying to handle msg. from server: " + err); });
+				if (!$sabloApplication.hasFormState(formname)) {
+					// if the form is not yet on the client ,wait for it and then apply it
+					$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo), 
+							function(err) { $log.error("Error getting form state (svy) when trying to handle msg. from server: " + err); });
+				}
+				else {
+					getFormMessageHandler(formname, msg, conversionInfo)($sabloApplication.getFormStateEvenIfNotYetResolved(formname));
+				}
 			}
 			
 			function setFindMode(beanData)
