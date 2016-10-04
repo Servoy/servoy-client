@@ -35,13 +35,14 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	var formProperties = ${propertiesString}
 
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
-//	if (${hasRuntimeData()}) {
-//		formState.model[''] =  ${runtimePropertiesString}
-//		delete formState.initializing;
-//    }
 	formState.resolving = true;
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving = true for form = ${name}");
-
+	if (${hasRuntimeData()}) {
+		formState.model[''] =  ${runtimePropertiesString}
+		delete formState.initializing;
+    }
+	// clear the beans to release some memory.
+	beans = {};
 	$scope.model = formState.model;
 	$scope.api = formState.api;
 	$scope.layout = formState.layout;
