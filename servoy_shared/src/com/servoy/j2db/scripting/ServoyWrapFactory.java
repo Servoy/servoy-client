@@ -146,7 +146,7 @@ public final class ServoyWrapFactory extends WrapFactory
 				return newObject;
 			}
 
-			if (obj.getClass() == JSONObject.class)
+			if (obj.getClass() == JSONArray.class)
 			{
 				JSONArray array = (JSONArray)obj;
 				Scriptable newObject = cx.newObject(scope, "Array");
