@@ -36,9 +36,6 @@ import com.servoy.j2db.serverconfigtemplates.OracleTemplate;
 import com.servoy.j2db.serverconfigtemplates.PostgresTemplate;
 import com.servoy.j2db.serverconfigtemplates.ServerTemplateDefinition;
 import com.servoy.j2db.serverconfigtemplates.SybaseASATemplate;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.SecuritySupport;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 
@@ -95,16 +92,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	{
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
-		String passwd = password;
-		try
-		{
-			if (passwd.startsWith("sec:")) passwd = SecuritySupport.decrypt(Settings.getInstance(), passwd.substring(4));
-		}
-		catch (Exception e)
-		{
-			Debug.error("Could not decrypt password for server " + serverName, e);
-		}
-		this.password = passwd;
+		this.password = password;
 		this.serverUrl = serverUrl;
 		this.connectionProperties = connectionProperties == null ? null : Collections.unmodifiableMap(connectionProperties);
 		this.driver = driver;
