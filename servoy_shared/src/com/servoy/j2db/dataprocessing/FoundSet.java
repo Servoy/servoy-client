@@ -60,6 +60,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
@@ -91,6 +92,7 @@ import com.servoy.j2db.query.QueryCustomJoin;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryCustomSort;
 import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
@@ -1690,43 +1692,38 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		else
 		{
 			// try to determine the SortColumns from the query-sort
-			lastSortColumns = determineSortColumns(sqlSelect.getSorts());
+			lastSortColumns = determineSortColumns(sqlSelect);
 		}
 
 		return loadByQuery(addFilterConditions(sqlSelect, foundSetFilters));
 	}
 
 	/**
-	 * @param sorts
+	 * @param sqlSelect
 	 * @return
+	 * @throws RepositoryException
 	 */
-	private List<SortColumn> determineSortColumns(ArrayList<IQuerySort> sorts)
+	private List<SortColumn> determineSortColumns(QuerySelect sqlSelect) throws RepositoryException
 	{
 		List<SortColumn> sortColumns = null;
-		for (IQuerySort qsort : Utils.iterate(sorts))
+		for (IQuerySort qsort : Utils.iterate(sqlSelect.getSorts()))
 		{
 			if (qsort instanceof QuerySort)
 			{
 				IQuerySelectValue qcolumn = ((QuerySort)qsort).getColumn();
 				if (qcolumn instanceof QueryColumn)
 				{
-					BaseQueryTable sqlTable = ((QueryColumn)qcolumn).getTable();
-
-					if (getTable() != null && getTable().getDataSource().equals(sqlTable.getDataSource()))
+					ColumnWrapper columnWrapper = findColumnWrapperForColumn(sqlSelect, (QueryColumn)qcolumn);
+					if (columnWrapper != null)
 					{
-						String columnSqlname = ((QueryColumn)qcolumn).getName();
-
-						IColumn column = getTable().getColumnBySqlname(columnSqlname);
-						if (column != null)
+						if (sortColumns == null)
 						{
-							if (sortColumns == null)
-							{
-								sortColumns = new ArrayList<>();
-							}
-							SortColumn sortColumn = new SortColumn(column, ((QuerySort)qsort).isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
-							sortColumns.add(sortColumn);
-							continue; // otherwise stop searching
+							sortColumns = new ArrayList<>();
 						}
+						SortColumn sortColumn = new SortColumn(columnWrapper);
+						sortColumn.setSortOrder(((QuerySort)qsort).isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
+						sortColumns.add(sortColumn);
+						continue; // otherwise stop searching
 					}
 				}
 			}
@@ -1734,6 +1731,60 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		// stop searching when no match could be made to a valid column, return the ones found or null when nothing matched
 		return sortColumns;
+	}
+
+	private ColumnWrapper findColumnWrapperForColumn(QuerySelect sqlSelect, QueryColumn qcolumn) throws RepositoryException
+	{
+		List<Relation> relationSequence = findQueryRelationSequence(sqlSelect, qcolumn.getTable());
+		if (relationSequence == null)
+		{
+			return null;
+		}
+
+		// found the relations, match the column (by sqlName)
+		ITable table = fsm.getTable(qcolumn.getTable().getDataSource());
+		if (table != null)
+		{
+			IColumn column = table.getColumnBySqlname(qcolumn.getName());
+			if (column != null)
+			{
+				return new ColumnWrapper(column, relationSequence.toArray(new Relation[relationSequence.size()]));
+			}
+		}
+
+		return null;
+	}
+
+	private List<Relation> findQueryRelationSequence(QuerySelect sqlSelect, BaseQueryTable qTable)
+	{
+		if (sqlSelect.getTable() == qTable)
+		{
+			// column on base table, not related
+			return Collections.emptyList();
+		}
+
+		// find the join to this table
+		for (ISQLJoin join : Utils.iterate(sqlSelect.getJoins()))
+		{
+			if (join.getName() != null && join instanceof QueryJoin && ((QueryJoin)join).getForeignTable() == qTable)
+			{
+				Relation relation = fsm.getRelation(join.getName());
+				if (relation != null && relation.getForeignDataSource().equals(qTable.getDataSource()))
+				{
+					List<Relation> subRelated = findQueryRelationSequence(sqlSelect, ((QueryJoin)join).getPrimaryTable());
+					if (subRelated != null)
+					{
+						// found matching relation sequence
+						List<Relation> relationSequence = new ArrayList<>(subRelated);
+						relationSequence.add(relation);
+						return relationSequence;
+					}
+				}
+			}
+		}
+
+		// not found
+		return null;
 	}
 
 	/**
@@ -2623,7 +2674,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Omit record under the given index, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-	
+
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sampleas js_omitRecord()
@@ -2651,7 +2702,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Omit current record, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-	
+
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sample var success = %%prefix%%foundset.omitRecord();
