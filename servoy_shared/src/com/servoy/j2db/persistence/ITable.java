@@ -256,5 +256,9 @@ public interface ITable
 
 	public boolean isInitialized();
 
-
+	/**
+	 * @param columnSqlname
+	 * @return
+	 */
+	public IColumn getColumnBySqlname(String columnSqlname);
 }

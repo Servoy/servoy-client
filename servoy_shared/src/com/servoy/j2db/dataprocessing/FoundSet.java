@@ -1687,8 +1687,53 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns == null ? defaultSort : lastSortColumns,
 				true);
 		}
+		else
+		{
+			// try to determine the SortColumns from the query-sort
+			lastSortColumns = determineSortColumns(sqlSelect.getSorts());
+		}
 
 		return loadByQuery(addFilterConditions(sqlSelect, foundSetFilters));
+	}
+
+	/**
+	 * @param sorts
+	 * @return
+	 */
+	private List<SortColumn> determineSortColumns(ArrayList<IQuerySort> sorts)
+	{
+		List<SortColumn> sortColumns = null;
+		for (IQuerySort qsort : Utils.iterate(sorts))
+		{
+			if (qsort instanceof QuerySort)
+			{
+				IQuerySelectValue qcolumn = ((QuerySort)qsort).getColumn();
+				if (qcolumn instanceof QueryColumn)
+				{
+					BaseQueryTable sqlTable = ((QueryColumn)qcolumn).getTable();
+
+					if (getTable() != null && getTable().getDataSource().equals(sqlTable.getDataSource()))
+					{
+						String columnSqlname = ((QueryColumn)qcolumn).getName();
+
+						IColumn column = getTable().getColumnBySqlname(columnSqlname);
+						if (column != null)
+						{
+							if (sortColumns == null)
+							{
+								sortColumns = new ArrayList<>();
+							}
+							SortColumn sortColumn = new SortColumn(column, ((QuerySort)qsort).isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
+							sortColumns.add(sortColumn);
+							continue; // otherwise stop searching
+						}
+					}
+				}
+			}
+		}
+
+		// stop searching when no match could be made to a valid column, return the ones found or null when nothing matched
+		return sortColumns;
 	}
 
 	/**
@@ -2578,7 +2623,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Omit record under the given index, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-
+	
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sampleas js_omitRecord()
@@ -2606,7 +2651,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Omit current record, to be shown with loadOmittedRecords.
 	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-
+	
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sample var success = %%prefix%%foundset.omitRecord();
@@ -5895,6 +5940,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 			})
 			{
+
 				@Override
 				public String getClassName()
 				{

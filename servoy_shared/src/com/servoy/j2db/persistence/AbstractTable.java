@@ -176,6 +176,21 @@ public abstract class AbstractTable implements ITable, Serializable
 		return getColumn(colname, true);
 	}
 
+	public IColumn getColumnBySqlname(String columnSqlname)
+	{
+		if (columnSqlname == null) return null;
+
+		for (Column column : columns.values())
+		{
+			if (columnSqlname.equals(column.getSQLName()))
+			{
+				return column;
+			}
+		}
+
+		return null;
+	}
+
 	//while creating a new table, name changes are possible
 	public void columnNameChange(IValidateName validator, String oldName, String newName) throws RepositoryException
 	{
