@@ -178,19 +178,21 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.modelUnwatch = null;
 
 					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
-					var beanModel = serverJSONValue[MODEL_KEY];
+					var beanData = serverJSONValue[MODEL_KEY];
+					var beanModel = {};
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
 					internalState.beanLayout = {};
 					var containerSize = {width: 0, height: 0};
 
-					var currentConversionInfo = beanModel[CONVERSIONS] ?
+					var currentConversionInfo = beanData[CONVERSIONS] ?
 							$sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : 
 								$sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 
-					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifierGenerator,
-							currentConversionInfo, beanModel[CONVERSIONS], componentScope);
+					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanData, containerSize, childChangedNotifierGenerator,
+							currentConversionInfo, beanData[CONVERSIONS], componentScope);
 					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
+					serverJSONValue[MODEL_KEY] = beanModel;
 
 					// component property is now be able to send itself entirely at runtime; we need to handle viewport conversions here as well
 					var wholeViewport = serverJSONValue[MODEL_VIEWPORT_KEY];
