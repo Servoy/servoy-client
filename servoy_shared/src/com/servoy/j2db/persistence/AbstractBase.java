@@ -330,6 +330,15 @@ public abstract class AbstractBase implements IPersist
 		return mergedObj;
 	}
 
+	public Object getOwnProperty(String propertyName)
+	{
+		if (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName))
+		{
+			return bufferPropertiesMap.get(propertyName);
+		}
+		return propertiesMap.get(propertyName);
+	}
+
 	public Object getProperty(String propertyName)
 	{
 		Object value = null;

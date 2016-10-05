@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.persistence;
 
-import java.util.Map;
-
 import org.json.JSONObject;
 
 /**
@@ -54,5 +52,5 @@ public interface IBasicWebObject extends ISupportChilds
 
 	void clearChanged();
 
-	Map<String, Object> getPropertiesMap();
+	Object getOwnProperty(String propertyName);
 }

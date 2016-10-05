@@ -110,7 +110,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		if (arePersistMappedPropetiesLoaded && !skipPersistMappedPropertiesUpdate)
 		{
-			JSONObject old = (JSONObject)webObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+			JSONObject old = (JSONObject)webObject.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 			try
 			{
 				JSONObject entireModel = (old != null ? old : new ServoyJSONObject()); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
@@ -309,7 +309,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
-				JSONObject json = (JSONObject)webObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+				JSONObject json = (JSONObject)webObject.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 				hasIt = (json != null && json.has(propertyName));
 			}
 		}
@@ -633,7 +633,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		try
 		{
 			boolean removed = false;
-			JSONObject oldJson = (JSONObject)webObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+
+			JSONObject oldJson = (JSONObject)webObject.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+
 			// we can no longer check for differences here as we now reuse JSON objects/arrays
 			JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 
@@ -945,7 +947,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		try
 		{
-			JSONObject entireModel = (JSONObject)parentWebObject.getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+			JSONObject entireModel = (JSONObject)parentWebObject.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 			if (entireModel == null) entireModel = new ServoyJSONObject();
 			if (!isNew && entireModel.has(jsonKey))
 			{
