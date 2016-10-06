@@ -293,6 +293,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				getClientInfo().setHostAddress(remote_ipaddress);
 			}
+			String remote_host = ((JSONObject)retValue).optString("remote_host");
+			if (remote_host != null)
+			{
+				getClientInfo().setHostName(remote_host);
+			}
 			if (timeZone == null)
 			{
 				String utc = ((JSONObject)retValue).optString("utcOffset");

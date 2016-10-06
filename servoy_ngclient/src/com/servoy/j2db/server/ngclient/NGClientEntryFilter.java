@@ -322,6 +322,8 @@ public class NGClientEntryFilter extends WebEntry
 									ipaddr = servletRequest.getRemoteAddr();
 								}
 								variableSubstitution.put("ipaddr", ipaddr);
+								variableSubstitution.put("hostaddr", servletRequest.getRemoteHost());
+
 
 								// push some translations to the client, in case the client cannot connect back
 								JSONObject defaultTranslations = new JSONObject();
