@@ -195,7 +195,7 @@ public class FoundsetTypeViewport
 								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this, false); // true - slide if first so that viewPort follows the first record
 								// if the size of the viewport is still smaller then the preferredViewPortSize
 								// and the foundset size is bigger then that size then update the bounds so that it is startIndex, preferedViewPortSize (or what is left in the foundset)
-								if (size < preferredViewPortSize && size < foundset.getSize())
+								if (size < preferredViewPortSize && (foundset.getSize() - startIndex) > size)
 								{
 									setBounds(startIndex, Math.min(preferredViewPortSize, (foundset.getSize() - startIndex)));
 								}
