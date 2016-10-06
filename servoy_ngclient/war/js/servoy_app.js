@@ -189,13 +189,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			// data got back from the server
 			for(var formname in msg.forms) {
 				// current model
-				if (!$sabloApplication.hasFormState(formname)) {
+				var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
+				if (typeof(formState) == 'undefined') {
 					// if the form is not yet on the client ,wait for it and then apply it
 					$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo), 
 							function(err) { $log.error("Error getting form state (svy) when trying to handle msg. from server: " + err); });
 				}
 				else {
-					getFormMessageHandler(formname, msg, conversionInfo)($sabloApplication.getFormStateEvenIfNotYetResolved(formname));
+					getFormMessageHandler(formname, msg, conversionInfo)(formState);
+					if (formState.getScope) formState.getScope().$digest();
 				}
 			}
 			
