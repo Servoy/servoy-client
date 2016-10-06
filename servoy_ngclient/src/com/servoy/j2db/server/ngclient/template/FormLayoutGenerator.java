@@ -292,7 +292,7 @@ public class FormLayoutGenerator
 
 			JSONObject ngClass = new JSONObject();
 			ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
-			ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+			ngClass.put("highlight_element", "<getDesignFormControllerScope().highlightElement('" + designId + "') == true<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 			if (fe.isFormComponentChild())
 			{
 				ngClass.put("formComponentChild", true);
