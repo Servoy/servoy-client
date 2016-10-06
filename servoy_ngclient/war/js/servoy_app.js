@@ -173,6 +173,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 
+	
+	var findModeShortCutAdded = false;
 	function connect() {
 		// maybe do this with defer ($q)
 		var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
@@ -205,12 +207,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			{
 				if (beanData['findmode'])
 				{
-					if (window.shortcut.all_shortcuts['ENTER'] !== undefined)
+					if (window.shortcut.all_shortcuts['ENTER'] === undefined)
 					{
-						beanData.hasEnterShortcut = true; 
-					}
-					else
-					{
+						findModeShortCutAdded = true;
 						function performFind(event)
 						{
 							var element = angular.element(event.srcElement ? event.srcElement : event.target);									
@@ -235,8 +234,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						window.shortcut.add('ENTER', performFind);
 					}
 				}
-				else if (beanData['findmode'] == false && !beanData.hasEnterShortcut)
+				else if (beanData['findmode'] == false && findModeShortCutAdded)
 				{
+					findModelShortCutAdded = false;
 					window.shortcut.remove('ENTER');
 				}
 			}
