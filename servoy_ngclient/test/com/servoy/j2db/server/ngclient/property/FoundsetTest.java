@@ -593,6 +593,7 @@ public class FoundsetTest extends AbstractSolutionTest
 			true);
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		viewPort.setPreferredViewportSize(1);
 		viewPort.setBounds(1, 1);
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
 		foundSet.newRecord(1, false);
@@ -669,6 +670,30 @@ public class FoundsetTest extends AbstractSolutionTest
 	}
 
 	@Test
+	public void largeFoundsetUsageWithPreferredSize() throws Exception
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		WebFormComponent wc = form.getFormUI().getWebComponent("mycustomseparatefoundsetbean");
+
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		viewPort.setPreferredViewportSize(7);
+		rawPropertyValue.getFoundset().find();
+		rawPropertyValue.getFoundset().search();
+
+		StringWriter stringWriter = new StringWriter();
+		JSONWriter jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		Assert.assertEquals(
+			new JSONObject(
+				"{\"selectedRowIndexes\":[0],\"viewPort\":{\"startIndex\":0,\"size\":7,\"rows\":[{\"firstname\":\"value00\",\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\"},{\"firstname\":\"value10\",\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value11\"},{\"firstname\":\"value20\",\"_svyRowId\":\"1.2;_2\",\"lastname\":\"value21\"},{\"firstname\":\"value30\",\"_svyRowId\":\"1.3;_3\",\"lastname\":\"value31\"},{\"firstname\":\"value40\",\"_svyRowId\":\"1.4;_4\",\"lastname\":\"value41\"},{\"firstname\":\"value50\",\"_svyRowId\":\"1.5;_5\",\"lastname\":\"value51\"},{\"firstname\":\"value60\",\"_svyRowId\":\"1.6;_6\",\"lastname\":\"value61\"}]},\"sortColumns\":\"\",\"serverSize\":200,\"multiSelect\":false,\"hasMoreRows\":true}").toString(),
+			new JSONObject(stringWriter.toString()).toString());
+	}
+
+	@Test
 	public void largeFoundsetUsage() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
@@ -696,7 +721,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter2 = new JSONWriter(stringWriter2);
 		rawPropertyValue.changesToJSON(jsonWriter2, new DataConversion(), allowBrowserConverterContext);
 
-		Assert.assertEquals("{\"upd_serverSize\":799}", stringWriter2.toString());
+
+		Assert.assertEquals(
+			new JSONObject(
+				"{\"upd_serverSize\":799,\"upd_viewPort\":{\"startIndex\":0,\"size\":15,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"firstname\":\"value00\",\"lastname\":\"value01\"},{\"_svyRowId\":\"1.1;_1\",\"firstname\":\"value10\",\"lastname\":\"value11\"},{\"_svyRowId\":\"1.2;_2\",\"firstname\":\"value20\",\"lastname\":\"value21\"},{\"_svyRowId\":\"1.3;_3\",\"firstname\":\"value30\",\"lastname\":\"value31\"},{\"_svyRowId\":\"1.4;_4\",\"firstname\":\"value40\",\"lastname\":\"value41\"},{\"_svyRowId\":\"1.5;_5\",\"firstname\":\"value50\",\"lastname\":\"value51\"},{\"_svyRowId\":\"1.6;_6\",\"firstname\":\"value60\",\"lastname\":\"value61\"},{\"_svyRowId\":\"1.7;_7\",\"firstname\":\"value70\",\"lastname\":\"value71\"},{\"_svyRowId\":\"1.8;_8\",\"firstname\":\"value80\",\"lastname\":\"value81\"},{\"_svyRowId\":\"1.9;_9\",\"firstname\":\"value90\",\"lastname\":\"value91\"},{\"_svyRowId\":\"2.10;_10\",\"firstname\":\"value100\",\"lastname\":\"value101\"},{\"_svyRowId\":\"2.11;_11\",\"firstname\":\"value110\",\"lastname\":\"value111\"},{\"_svyRowId\":\"2.12;_12\",\"firstname\":\"value120\",\"lastname\":\"value121\"},{\"_svyRowId\":\"2.13;_13\",\"firstname\":\"value130\",\"lastname\":\"value131\"},{\"_svyRowId\":\"2.14;_14\",\"firstname\":\"value140\",\"lastname\":\"value141\"}]}}").toString(),
+			new JSONObject(stringWriter2.toString()).toString());
 
 
 		// foundset loads more records due to client side wanting more records
