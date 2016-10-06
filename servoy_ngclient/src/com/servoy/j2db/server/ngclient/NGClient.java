@@ -288,6 +288,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				getClientInfo().addInfo("platform:" + platform);
 			}
+			String remote_ipaddress = ((JSONObject)retValue).optString("remote_ipaddress");
+			if (remote_ipaddress != null)
+			{
+				getClientInfo().setHostAddress(remote_ipaddress);
+			}
 			if (timeZone == null)
 			{
 				String utc = ((JSONObject)retValue).optString("utcOffset");

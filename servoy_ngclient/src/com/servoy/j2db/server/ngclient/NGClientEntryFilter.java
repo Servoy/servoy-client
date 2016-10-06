@@ -316,6 +316,13 @@ public class NGClientEntryFilter extends WebEntry
 								Map<String, String> variableSubstitution = new HashMap<String, String>();
 								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
 
+								String ipaddr = ((HttpServletRequest)servletRequest).getHeader("X-Forwarded-For");//incase there is a forwarding proxy //$NON-NLS-1$
+								if (ipaddr == null)
+								{
+									ipaddr = servletRequest.getRemoteAddr();
+								}
+								variableSubstitution.put("ipaddr", ipaddr);
+
 								// push some translations to the client, in case the client cannot connect back
 								JSONObject defaultTranslations = new JSONObject();
 								defaultTranslations.put("servoy.ngclient.reconnecting",
