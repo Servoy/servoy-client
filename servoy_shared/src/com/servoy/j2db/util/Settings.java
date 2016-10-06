@@ -326,7 +326,7 @@ public final class Settings extends SortedProperties
 		remove("saveEditorState"); //$NON-NLS-1$
 	}
 
-	private static final String enc_prefix = "encrypted:"; //$NON-NLS-1$
+	private static final String enc_prefix = "encrypted:"; //keep in sync with IWarExportModel.enc_prefix
 
 	@Override
 	public synchronized void load(InputStream inStream) throws IOException
