@@ -21,6 +21,7 @@ import org.sablo.IChangeListener;
 import org.sablo.specification.WebObjectFunctionDefinition;
 
 import com.servoy.j2db.INGClientApplication;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
@@ -46,4 +47,6 @@ public interface INGApplication extends INGClientApplication
 	void onStopSubAction(Pair<UUID, UUID> perfId);
 
 	void updateLastAccessed();
+
+	void recreateForm(Form form, String name);
 }

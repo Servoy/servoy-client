@@ -10,9 +10,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -56,6 +58,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -1333,9 +1336,27 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
+
+	@Override
+	public void recreateForm(Form form, String name)
+	{
+		toRecreate.add(new Pair<Form, String>(form, name));
+	}
+
 	@Override
 	public void changesWillBeSend()
 	{
+		if (toRecreate.size() > 0)
+		{
+			INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getWebsocketSession());
+			for (Pair<Form, String> pair : toRecreate)
+			{
+				allWindowsProxy.updateForm(pair.getLeft(), pair.getRight(), new FormHTMLAndJSGenerator(this, pair.getLeft(), pair.getRight()));
+			}
+			toRecreate.clear();
+		}
+
 		if (showUrl != null)
 		{
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",

@@ -54,7 +54,6 @@ import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.FormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
@@ -411,8 +410,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			f = application.getFlattenedSolution().getForm(form.getName());
 			form = application.getFlattenedSolution().getFlattenedForm(f);
 			getFormUI().init();
-			allWindowsProxy.updateForm(form, getName(), new FormHTMLAndJSGenerator(getApplication(), form, getName()));
-
+			getApplication().recreateForm(form, getName());
 			if (isFormVisible)
 			{
 				invokeLaterRunnables = new ArrayList<Runnable>();
