@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,7 +77,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
+public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableModelListener
 {
 
 	protected static final Logger log = LoggerFactory.getLogger(CustomJSONPropertyType.class.getCanonicalName());
@@ -296,7 +299,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		{
 			int oldServerSize = (foundset != null ? foundset.getSize() : 0);
 			int newServerSize = (newFoundset != null ? newFoundset.getSize() : 0);
-			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
+			if (foundset instanceof ISwingFoundSet)
+			{
+				((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
+				((ISwingFoundSet)foundset).removeTableModelListener(this);
+			}
 			foundset = newFoundset;
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
@@ -305,7 +312,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
 
-			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
+			if (foundset instanceof ISwingFoundSet)
+			{
+				((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
+				((ISwingFoundSet)foundset).addTableModelListener(this);
+			}
 			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 		}
 	}
@@ -345,7 +356,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public void detach()
 	{
 		viewPort.dispose();
-		if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
+		if (foundset instanceof ISwingFoundSet)
+		{
+			((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
+			((ISwingFoundSet)foundset).removeTableModelListener(this);
+		}
 	}
 
 	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
@@ -963,5 +978,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			}
 		}
 		return sortString;
+	}
+
+	public void tableChanged(TableModelEvent e)
+	{
+		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
+		// This is just an heuristic for filtering out the sort event from all table changed events that are raised.
+		if (getFoundset() != null && e.getColumn() == TableModelEvent.ALL_COLUMNS && e.getFirstRow() == 0)
+		{
+			changeMonitor.foundsetSortChanged();
+		}
 	}
 }
