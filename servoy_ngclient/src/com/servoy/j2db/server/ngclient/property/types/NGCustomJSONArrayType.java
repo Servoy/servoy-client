@@ -140,7 +140,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 					rebasedConversions.put(String.valueOf(index++), entry.getValue());
 				}
 
-				writer.key("conversions").object();
+				writer.key(JSONUtils.TYPES_KEY).object();
 				JSONUtils.writeConversions(writer, rebasedConversions);
 				writer.endObject();
 			}

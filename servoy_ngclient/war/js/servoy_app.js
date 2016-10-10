@@ -334,7 +334,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						// initialize with design data
 						layout[beanName] = { position: 'absolute' }
 
-						var newBeanConversionInfo = beanDatas[beanName].conversions;
+						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
 						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)

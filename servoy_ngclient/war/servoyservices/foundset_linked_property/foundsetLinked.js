@@ -12,8 +12,6 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 
 	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
 
-	var CONVERSIONS = 'conversions';
-	
 	/** Initializes internal state of a new value */
 	function initializeNewValue(newValue) {
 		$sabloConverters.prepareInternalState(newValue);
@@ -82,7 +80,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE_UPDATE])) {
 					internalState.recordLinked = true;
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
-							$sabloUtils.getInDepthProperty(serverJSONValue, CONVERSIONS, VIEWPORT_VALUE_UPDATE),
+							$sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE_UPDATE),
 							componentScope, componentModelGetter, true);
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
@@ -103,7 +101,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					if (angular.isDefined(serverJSONValue[SINGLE_VALUE]) || angular.isDefined(serverJSONValue[SINGLE_VALUE_UPDATE])) {
 						// just update single value from server and make copies of it to duplicate
 						internalState.recordLinked = false;
-						var conversionInfo = $sabloUtils.getInDepthProperty(serverJSONValue, CONVERSIONS, SINGLE_VALUE);
+						var conversionInfo = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, SINGLE_VALUE);
 						var singleValue = angular.isDefined(serverJSONValue[SINGLE_VALUE]) ? serverJSONValue[SINGLE_VALUE] : serverJSONValue[SINGLE_VALUE_UPDATE];
 						
 						function generateWholeViewportFromOneValue(vpSize) {
@@ -135,7 +133,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					} else if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE])) {
 						internalState.recordLinked = true;
 						wholeViewport = serverJSONValue[VIEWPORT_VALUE];
-						conversionInfos = $sabloUtils.getInDepthProperty(serverJSONValue, CONVERSIONS, VIEWPORT_VALUE);
+						conversionInfos = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE);
 					}
 					
 					if (angular.isDefined(wholeViewport)) updateWholeViewport();

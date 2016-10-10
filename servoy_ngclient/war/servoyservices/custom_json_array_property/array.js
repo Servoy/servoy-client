@@ -137,8 +137,8 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						for (var c = 0; c < newValue.length; c++) {
 							var elem = newValue[c];
 							var conversionInfo = null;
-							if (serverJSONValue.conversions) {
-								conversionInfo = serverJSONValue.conversions[c];
+							if (serverJSONValue[$sabloConverters.TYPES_KEY]) {
+								conversionInfo = serverJSONValue[$sabloConverters.TYPES_KEY][c];
 							}
 	
 							if (conversionInfo) {
@@ -163,7 +163,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					// we ignore this update and expect a fresh full copy of the array from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
 					if (internalState[CONTENT_VERSION] == serverJSONValue[CONTENT_VERSION]) {
 						var updates = serverJSONValue[UPDATES];
-						var conversionInfos = serverJSONValue.conversions;
+						var conversionInfos = serverJSONValue[$sabloConverters.TYPES_KEY];
 						var i;
 						for (i in updates) {
 							var update = updates[i];

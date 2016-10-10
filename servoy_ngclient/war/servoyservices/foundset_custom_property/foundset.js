@@ -7,7 +7,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 })
 .run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils, $q) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
-	var CONVERSIONS = "conversions"; // data conversion info
 
 	var SERVER_SIZE = "serverSize";
 	var SORT_COLUMNS = "sortColumns";
@@ -122,9 +121,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					if (angular.isDefined(viewPortUpdate[ROWS])) {
 						$viewportModule.updateWholeViewport(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[ROWS],
-								viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][ROWS] ? viewPortUpdate[CONVERSIONS][ROWS] : undefined, componentScope, componentModelGetter);
+								viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] : undefined, componentScope, componentModelGetter);
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
-						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] ? viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
+						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
 					}
 				}
 
@@ -142,11 +141,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					internalState.requests = [];
 
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
-					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][CONVERSIONS] ? newValue[VIEW_PORT][CONVERSIONS][ROWS] : undefined);
-					if (newValue[VIEW_PORT][CONVERSIONS]) {
+					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
+					if (newValue[VIEW_PORT][$sabloConverters.TYPES_KEY]) {
 						// relocate conversion info in internal state and convert
-						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope, componentModelGetter);
-						delete newValue[VIEW_PORT][CONVERSIONS];
+						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS], componentScope, componentModelGetter);
+						delete newValue[VIEW_PORT][$sabloConverters.TYPES_KEY];
 					}
 
 					// PUBLIC API to components; initialize the property value; make it 'smart'

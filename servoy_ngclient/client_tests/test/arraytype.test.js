@@ -110,7 +110,7 @@ describe("Test array_custom_property suite", function() {
 //	serverValue = {
 //	"vEr": 1,
 //	"v": []/*?*/,
-//	"conversions": 
+//	"svy_types": 
 //	{
 //	"0": "component",
 //	}
@@ -133,7 +133,7 @@ describe("Test array_custom_property suite", function() {
 //	serverValue = {
 //	"vEr": 1,
 //	"v": []/*?*/,
-//	"conversions": 
+//	"svy_types": 
 //	{
 //	"0": "component",
 //	}

@@ -112,8 +112,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String ROWS = "rows";
 	public static final String NO_OP = "n";
 
-	public static final String CONVERSIONS = "conversions";
-
 	// END keys and values used in JSON
 
 	protected FoundsetTypeViewport viewPort;

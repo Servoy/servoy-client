@@ -143,7 +143,7 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 6,
-					"conversions": {"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"4":{"d":"Date"},"5":{"d":"Date"}}},
+					"svy_types": {"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"4":{"d":"Date"},"5":{"d":"Date"}}},
 					"rows": 
 						[
 						 {
@@ -256,7 +256,7 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 8,
-					"conversions": {"upd_rows":{"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -466,7 +466,7 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 9,
-					"conversions": {"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"3":{"d":"Date"},"4":{"d":"Date"},"5":{"d":"Date"},"6":{"d":"Date"},"7":{"d":"Date"},"8":{"d":"Date"}}},
+					"svy_types": {"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"3":{"d":"Date"},"4":{"d":"Date"},"5":{"d":"Date"},"6":{"d":"Date"},"7":{"d":"Date"},"8":{"d":"Date"}}},
 					"rows": 
 					[
 						{
@@ -571,7 +571,7 @@ describe("Test foundset_custom_property suite", function() {
 				],
 				"upd_viewPort": 
 				{
-					"conversions": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}},"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}},"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -688,7 +688,7 @@ describe("Test foundset_custom_property suite", function() {
 				"upd_serverSize": 15,
 				"upd_viewPort": 
 				{
-					"conversions": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -779,7 +779,7 @@ describe("Test foundset_custom_property suite", function() {
 				"upd_serverSize": 14,
 				"upd_viewPort": 
 				{
-					"conversions": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -862,7 +862,7 @@ describe("Test foundset_custom_property suite", function() {
 
 				"upd_viewPort": 
 				{
-					"conversions": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -951,7 +951,7 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 13,
-					"conversions": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"3":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"3":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{

@@ -158,7 +158,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			writer.endObject();
 			if (arrayConversionMarkers.getConversions().size() > 0)
 			{
-				writer.key("conversions").object();
+				writer.key(JSONUtils.TYPES_KEY).object();
 				JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
 				writer.endObject();
 			}

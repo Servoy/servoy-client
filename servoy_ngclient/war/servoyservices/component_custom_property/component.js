@@ -15,13 +15,11 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	var PROPERTY_NAME_KEY = "pn";
 	var VALUE_KEY = "v";
 
-	var CONVERSIONS = 'conversions';
-
 	var NO_OP = "n";
 
 	function getChildPropertyChanges(componentState, oldPropertyValue, newPropertyValue, propertyName) {
 		var internalState = componentState[$sabloConverters.INTERNAL_IMPL];
-		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
+		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, $sabloConverters.TYPES_KEY);
 		
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
@@ -103,11 +101,11 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					var beanLayout = internalState.beanLayout;
 					var containerSize = {width: 0, height: 0};
 
-					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS)
-							: $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
+					var modelUpdateConversionInfo = modelBeanUpdate[$sabloConverters.TYPES_KEY] ? $sabloUtils.getOrCreateInDepthProperty(internalState, $sabloConverters.TYPES_KEY)
+							: $sabloUtils.getInDepthProperty(internalState, $sabloConverters.TYPES_KEY);
 
 					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifierGenerator,
-							modelUpdateConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
+							modelUpdateConversionInfo, modelBeanUpdate[$sabloConverters.TYPES_KEY], componentScope);
 					done = true;
 				}
 
@@ -116,15 +114,15 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					if (!angular.isDefined(currentClientValue[MODEL_VIEWPORT])) currentClientValue[MODEL_VIEWPORT] = [];
 
 					$viewportModule.updateWholeViewport(currentClientValue, MODEL_VIEWPORT,
-							internalState, wholeViewportUpdate, beanUpdate[CONVERSIONS] && beanUpdate[CONVERSIONS][MODEL_VIEWPORT_KEY] ?
-									beanUpdate[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined, componentScope, function () {
+							internalState, wholeViewportUpdate, beanUpdate[$sabloConverters.TYPES_KEY] && beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_KEY] ?
+									beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_KEY] : undefined, componentScope, function () {
 										return currentClientValue[MODEL_KEY]
 									});
 					done = true;
 				} else if (viewportUpdate) {
 					$viewportModule.updateViewportGranularly(currentClientValue[MODEL_VIEWPORT], internalState, viewportUpdate,
-							beanUpdate[CONVERSIONS] && beanUpdate[CONVERSIONS][MODEL_VIEWPORT_CHANGES_KEY] ?
-									beanUpdate[CONVERSIONS][MODEL_VIEWPORT_CHANGES_KEY] : undefined, componentScope, function () {
+							beanUpdate[$sabloConverters.TYPES_KEY] && beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_CHANGES_KEY] ?
+									beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_CHANGES_KEY] : undefined, componentScope, function () {
 										return currentClientValue[MODEL_KEY]
 									}, false);
 					done = true;
@@ -180,19 +178,18 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
 					var beanData = serverJSONValue[MODEL_KEY];
 					var beanModel = {};
+					serverJSONValue[MODEL_KEY] = beanModel;
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
 					internalState.beanLayout = {};
 					var containerSize = {width: 0, height: 0};
 
-					var currentConversionInfo = beanData[CONVERSIONS] ?
-							$sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : 
-								$sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
+					var currentConversionInfo = beanData[$sabloConverters.TYPES_KEY] ?
+							$sabloUtils.getOrCreateInDepthProperty(internalState, $sabloConverters.TYPES_KEY) : 
+								$sabloUtils.getInDepthProperty(internalState, $sabloConverters.TYPES_KEY);
 
 					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanData, containerSize, childChangedNotifierGenerator,
-							currentConversionInfo, beanData[CONVERSIONS], componentScope);
-					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
-					serverJSONValue[MODEL_KEY] = beanModel;
+							currentConversionInfo, beanData[$sabloConverters.TYPES_KEY], componentScope);
 
 					// component property is now be able to send itself entirely at runtime; we need to handle viewport conversions here as well
 					var wholeViewport = serverJSONValue[MODEL_VIEWPORT_KEY];
@@ -201,12 +198,12 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 					if (wholeViewport) {
 						$viewportModule.updateWholeViewport(serverJSONValue, MODEL_VIEWPORT,
-								internalState, wholeViewport, serverJSONValue[CONVERSIONS] ?
-										serverJSONValue[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined, componentScope, function() {
+								internalState, wholeViewport, serverJSONValue[$sabloConverters.TYPES_KEY] ?
+										serverJSONValue[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_KEY] : undefined, componentScope, function() {
 											return serverJSONValue[MODEL_KEY]
 										});
 					}
-					if (angular.isDefined(serverJSONValue[CONVERSIONS])) delete serverJSONValue[CONVERSIONS];
+					if (angular.isDefined(serverJSONValue[$sabloConverters.TYPES_KEY])) delete serverJSONValue[$sabloConverters.TYPES_KEY];
 
 					if (!serverJSONValue.api) serverJSONValue.api = {};
 					if (serverJSONValue.handlers)
@@ -246,7 +243,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 						apply: function(property, modelOfComponent, rowId) {
 							/** rowId is only needed if the component is linked to a foundset */
-							var conversionInfo = internalState[CONVERSIONS];
+							var conversionInfo = internalState[$sabloConverters.TYPES_KEY];
 							if (!modelOfComponent) modelOfComponent = serverJSONValue[MODEL_KEY]; // if it's not linked to foundset componentModel will be undefined
 							var propertyValue = modelOfComponent[property];
 
@@ -282,7 +279,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			if (clientValue) {
 				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
 				if (internalState) {
-					var conversionInfo = internalState[CONVERSIONS];
+					var conversionInfo = internalState[$sabloConverters.TYPES_KEY];
 					if (conversionInfo) {
 						var beanModel = clientValue[MODEL_KEY];
 						for (var key in beanModel) {

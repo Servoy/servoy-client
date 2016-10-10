@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 
@@ -55,12 +56,12 @@ public class FormElementContext
 
 			for (String key : object.keySet())
 			{
-				if ("conversions".equals(key))
+				if (JSONUtils.TYPES_KEY.equals(key))
 				{
 					// don't override conversions entirely cause template json might have values that are not in initialData and those might need conversion info
-					JSONObject initialDataConversions = object.getJSONObject("conversions");
-					JSONObject designConversions = designValues.optJSONObject("conversions");
-					if (designConversions == null) designValues.put("conversions", initialDataConversions);
+					JSONObject initialDataConversions = object.getJSONObject(JSONUtils.TYPES_KEY);
+					JSONObject designConversions = designValues.optJSONObject(JSONUtils.TYPES_KEY);
+					if (designConversions == null) designValues.put(JSONUtils.TYPES_KEY, initialDataConversions);
 					else
 					{
 						// merge conversions as well
