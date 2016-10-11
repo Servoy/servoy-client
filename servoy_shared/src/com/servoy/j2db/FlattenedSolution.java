@@ -268,17 +268,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 							}
 							else if (entry.getValue() instanceof JSONObject)
 							{
-								JSONObject json = (JSONObject)entry.getValue();
-								Iterator<String> it = json.keys();
-								while (it.hasNext())
-								{
-									String key = it.next();
-									elementId = updatedElementIds.get(json.get(key));
-									if (elementId != null)
-									{
-										json.put(key, elementId);
-									}
-								}
+								updateElementReferences((JSONObject)entry.getValue(), updatedElementIds);
 							}
 
 						}
@@ -289,6 +279,24 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		flush(persist);
 		return clone;
+	}
+
+	private void updateElementReferences(JSONObject json, Map<Object, Object> updatedElementIds)
+	{
+		Iterator<String> it = json.keys();
+		while (it.hasNext())
+		{
+			String key = it.next();
+			Object elementId = updatedElementIds.get(json.get(key));
+			if (elementId != null)
+			{
+				json.put(key, elementId);
+			}
+			else if (json.get(key) instanceof JSONObject)
+			{
+				updateElementReferences((JSONObject)json.get(key), updatedElementIds);
+			}
+		}
 	}
 
 	public void deletePersistCopy(AbstractBase persist, boolean revertToOriginal)
