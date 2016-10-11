@@ -2502,7 +2502,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (isShowingInWindow() && size != null) return size.width;
 
 		// keep backwards compatibility (if size cannot be found use main window width as stored in session properties)
-		return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserWidth();
+		if (WebClientSession.get() != null && WebClientSession.get().getClientInfo() instanceof WebClientInfo)
+		{
+			return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserWidth();
+		}
+		return 0;
 	}
 
 	public int getHeight()
@@ -2516,7 +2520,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (isShowingInWindow() && size != null) return size.height;
 
 		// main page or closed page; keep backwards compatibility (if size cannot be found use main window width as stored in session properties)
-		return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserHeight();
+		if (WebClientSession.get() != null && WebClientSession.get().getClientInfo() instanceof WebClientInfo)
+		{
+			return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserHeight();
+		}
+		return 0;
 	}
 
 	private int orientation = -1;
