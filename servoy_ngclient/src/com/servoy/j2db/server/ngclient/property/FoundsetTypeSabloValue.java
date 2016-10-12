@@ -263,6 +263,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		if (newFoundset == null && foundsetSelector != null && !"".equals(foundsetSelector))
 		{
+			// if this is a foundset selector don't replace the foundset which is already inside it
+			// that will only reinitialize constantly this FoundsetType/Table with a new foundset on every dataprovider change.
+			if (foundset != null) return;
 			try
 			{
 				// if we want to use this type on services as well we need extra code here to get the application
