@@ -487,7 +487,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			}
 			if (changeMonitor.shouldSendFoundsetSort())
 			{
-				destinationJSON.object();
+				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SORT).value(getSortStringAsNames());
 				somethingChanged = true;
 			}
