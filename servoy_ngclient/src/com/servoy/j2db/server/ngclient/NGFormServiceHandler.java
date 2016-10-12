@@ -301,7 +301,15 @@ public class NGFormServiceHandler extends FormServiceHandler
 					IValueList realValueList = ComponentFactory.getRealValueList(getApplication(), val, true, Types.OTHER, null, null);
 					if (realValueList.realValueIndexOf(realValue) != -1)
 					{
-						return realValueList.getElementAt(realValueList.realValueIndexOf(realValue));
+						try
+						{
+							return realValueList.getElementAt(realValueList.realValueIndexOf(realValue));
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+							return realValue;
+						}
 					}
 					if (realValueList instanceof DBValueList)
 					{

@@ -580,6 +580,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			if (interestedComponentProperties != null)
 			{
+				interestedComponentProperties = new ArrayList<IDataLinkedPropertyValue>(interestedComponentProperties);
 				for (IDataLinkedPropertyValue x : interestedComponentProperties)
 				{
 					x.dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
