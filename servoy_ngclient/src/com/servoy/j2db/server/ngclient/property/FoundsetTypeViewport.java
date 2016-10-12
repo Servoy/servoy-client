@@ -189,6 +189,7 @@ public class FoundsetTypeViewport
 								// reset to the preferred viewport size if that is set
 								setBounds(0, Math.min(preferredViewPortSize, foundset.getSize()));
 								changeMonitor.viewPortCompletelyChanged();
+								changeMonitor.foundSetSizeChanged();
 							}
 							else
 							{
