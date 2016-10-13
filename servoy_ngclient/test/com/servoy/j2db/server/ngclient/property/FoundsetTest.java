@@ -658,11 +658,13 @@ public class FoundsetTest extends AbstractSolutionTest
 			true);
 
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
+		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.newRecord(0, false);
 
 		Assert.assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,
 			rawPropertyValue.changeMonitor.changeFlags);
 
+		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.deleteRecord(0);
 
 		Assert.assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,

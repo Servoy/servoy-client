@@ -140,6 +140,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected int selectionRequestMsgid;
 	protected final FoundsetPropertyTypeConfig specConfig;
+	private String lastSortString;
 
 	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL, FoundsetPropertyTypeConfig specConfig)
 	{
@@ -978,6 +979,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				}
 			}
 		}
+
+		lastSortString = sortString;
 		return sortString;
 	}
 
@@ -987,7 +990,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// This is just an heuristic for filtering out the sort event from all table changed events that are raised.
 		if (getFoundset() != null && e.getColumn() == TableModelEvent.ALL_COLUMNS && e.getFirstRow() == 0)
 		{
-			changeMonitor.foundsetSortChanged();
+			if (!Utils.equalObjects(lastSortString, getSortStringAsNames())) changeMonitor.foundsetSortChanged();
 		}
 	}
 }
