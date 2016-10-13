@@ -42,12 +42,12 @@ describe("Test portal suite", function() {
 				width: 201
 			},
 
-			conversions: {
+			svy_types : {
 				'relatedFoundset': 'foundset',
 				'childElements': 'JSON_arr'
 			},
 			childElements: {
-				conversions: ['component', 'component'],
+				svy_types : ['component', 'component'],
 				v: [{
 					componentDirectiveName: "servoydefault-button",
 					forFoundset: "relatedFoundset",
@@ -160,11 +160,11 @@ describe("Test portal suite", function() {
 		portalScope = scope.$$childHead;
 
 		var newServerValue = {
-			conversions: {
+				svy_types : {
 				'childElements': 'JSON_arr'
 			},
 			childElements: {
-				conversions: ['component'],
+				svy_types : ['component'],
 				v: [{
 					forFoundset: "relatedFoundset",
 					foundsetConfig: {

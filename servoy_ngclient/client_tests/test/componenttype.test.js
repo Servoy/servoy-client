@@ -119,7 +119,7 @@ describe("Test component_custom_property suite", function() {
 					            { dataProviderID1:'book3', dataProviderID2: 1141240331662, recordDependentText: 'aha3' },
 					            { dataProviderID1:'book4', dataProviderID2: 1141240331663, recordDependentText: 'aha4' }
 					            ],
-					conversions : {
+					svy_types : {
 						model_vp: {
 							"0": { dataProviderID2: 'Date' },
 							"1": { dataProviderID2: 'Date' },
@@ -176,7 +176,7 @@ describe("Test component_custom_property suite", function() {
 						endIndex: 1,
 						type: CHANGE
 					} ],
-					conversions : {
+					svy_types : {
 						model_vp_ch: {
 							"0": { rows: { "0" : { dataProviderID2: 'Date' } } },
 							"1": { rows: { "0" : { dataProviderID2: 'Date' } } },
@@ -225,7 +225,7 @@ describe("Test component_custom_property suite", function() {
 						type: DELETE
 					} ],
 					
-					conversions : {
+					svy_types : {
 						model_vp_ch: {
 							"0": { rows: { "0" : { dataProviderID2: 'Date' } } },
 							"1": { rows: { "0" : { dataProviderID2: 'Date' } } },
@@ -323,7 +323,7 @@ describe("Test component_custom_property suite", function() {
 	it("should handle an initial data with conversions ", function() {
 		var updateValue = {
 				propertyUpdates: {
-					conversions : {
+					svy_types : {
 						model_vp : [
 						            {
 						            	dataProviderID : 'Date'
