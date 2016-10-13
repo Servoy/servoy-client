@@ -99,8 +99,8 @@ class PersistBasedFormElementImpl
 				try
 				{
 					// add beanXML (which is actually a JSON string here) defined properties to the map
-					formElement.convertFromJSONToFormElementValues(fs, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(),
-							jsonProperties, propertyPath);
+					formElement.convertFromJSONToFormElementValues(fs, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(), jsonProperties,
+						propertyPath);
 				}
 				catch (Exception ex)
 				{
@@ -219,7 +219,7 @@ class PersistBasedFormElementImpl
 		// add the tabs.
 		Iterator<IPersist> tabs = ((TabPanel)persist).getTabs();
 		putAndConvertProperty("tabIndex", 1, map, fs, specProperties.get("tabIndex"), propertyPath);
-		PropertyDescription tabSpecProperties = specProperties.get("tabs");
+		PropertyDescription tabSpecProperties = specProperties.get("tabs").getProperty("[0]");
 		boolean active = true;
 		while (tabs.hasNext())
 		{
