@@ -37,10 +37,22 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			}
 			
 			function initDivLocation(newValue) {
+				var multiplier;
+				
 				if ($scope.model.divLocation === -1) {
-					$scope.model.divLocation = Math.round(newValue / 2);
-					processDivLocation();
+					// default value, half of design size
+					newValue = ($scope.model.tabOrientation == -2? $scope.model.size.width:$scope.model.size.height)
+					multiplier = 1/2;
 				}
+				else if ($scope.model.divLocation > 0 && $scope.model.divLocation < 1)
+				{
+					multiplier = $scope.model.divLocation;
+				}	
+				if (multiplier)
+				{
+					$scope.model.divLocation = Math.round(newValue * multiplier);
+					processDivLocation();
+				}	
 			}
 			
 			function processDivLocation() {
@@ -50,7 +62,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					$timeout(processDivLocation,10);
 					return;
 				}
-				initDivLocation($scope.model.tabOrientation == -2?$scope.model.size.width:$scope.model.size.height);
+				initDivLocation($scope.model.tabOrientation == -2? $scope.api.getWidth():$scope.api.getHeight());
 
 				var pos = $scope.model.divLocation;
 				var divSize = $scope.model.divSize;
