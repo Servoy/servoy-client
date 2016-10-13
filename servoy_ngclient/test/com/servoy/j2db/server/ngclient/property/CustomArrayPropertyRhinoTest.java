@@ -35,8 +35,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.sablo.InMemPackageReader;
 import org.sablo.WebComponent;
-import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.Package.IPackageReader;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -125,7 +125,8 @@ public class CustomArrayPropertyRhinoTest
 		assertTrue(changes.contentType.getProperty("arrayT").getType() instanceof CustomJSONArrayType);
 		Object mapCh = ((ChangeAwareList)arrayCh).get(0);
 		assertTrue(mapCh != null);
-		assertTrue(((CustomJSONPropertyType< ? >)changes.contentType.getProperty("arrayT").getType()).getCustomJSONTypeDefinition().getType() instanceof CustomJSONObjectType);
+		assertTrue(((CustomJSONPropertyType< ? >)changes.contentType.getProperty(
+			"arrayT").getType()).getCustomJSONTypeDefinition().getType() instanceof CustomJSONObjectType);
 
 		JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 		// ok now that we called component.getChanges() no changes should be present any more
@@ -209,7 +210,7 @@ public class CustomArrayPropertyRhinoTest
 
 		changes = component.getAndClearChanges();
 		assertEquals(
-			"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"conversions\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"conversions\":{\"active\":\"JSON_arr\"}}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"arrayT\":\"JSON_arr\"}}",
+			"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"svy_types\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
 			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext));
 
 		// now simulate another request cycle that makes some change to the property from javascript

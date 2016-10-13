@@ -195,7 +195,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null);
 
 		Assert.assertEquals(
-			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
+			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
 			json);
 
 	}
@@ -226,7 +226,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
 		Assert.assertEquals(
-			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"conversions\":{\"atype\":\"JSON_obj\"}}",
+			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
 			json);
 	}
 
