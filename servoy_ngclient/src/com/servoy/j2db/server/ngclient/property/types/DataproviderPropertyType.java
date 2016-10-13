@@ -83,9 +83,9 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 				onDataChange = onDataChangeObj.optString("onchange", null);
 				onDataChangeCallback = onDataChangeObj.optString("callback", null);
 			}
-			hasParseHtml = json.optBoolean(HTMLStringPropertyType.CONFIG_OPTION_PARSEHTML);
+			hasParseHtml = json.has(HTMLStringPropertyType.CONFIG_OPTION_PARSEHTML) ? json.optBoolean(HTMLStringPropertyType.CONFIG_OPTION_PARSEHTML) : false;
 			displayTagsPropertyName = json.optString(DataproviderConfig.DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT, null);
-			displayTags = json.optBoolean(DataproviderConfig.DISPLAY_TAGS_CONFIG_OPT, false);
+			displayTags = json.has(DataproviderConfig.DISPLAY_TAGS_CONFIG_OPT) ? json.optBoolean(DataproviderConfig.DISPLAY_TAGS_CONFIG_OPT, false) : false;
 		}
 
 		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml, displayTagsPropertyName, displayTags);

@@ -91,8 +91,9 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			// see TagStringConfig docs for what the defaults mean
 			displayTagsPropertyName = json.optString(TagStringConfig.DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT, null);
-			displayTags = json.optBoolean(TagStringConfig.DISPLAY_TAGS_CONFIG_OPT, true);
-			useParsedValueInRhino = json.optBoolean(TagStringConfig.USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT, false);
+			displayTags = json.has(TagStringConfig.DISPLAY_TAGS_CONFIG_OPT) ? json.optBoolean(TagStringConfig.DISPLAY_TAGS_CONFIG_OPT, true) : true;
+			useParsedValueInRhino = json.has(TagStringConfig.USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT)
+				? json.optBoolean(TagStringConfig.USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT, false) : false;
 		}
 
 		return new TagStringConfig(displayTagsPropertyName, displayTags, useParsedValueInRhino);

@@ -51,9 +51,10 @@ public class FoundsetPropertyTypeConfig
 
 	public FoundsetPropertyTypeConfig(JSONObject config)
 	{
-		this.sendDefaultFormats = (config == null ? false : config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false));
+		this.sendDefaultFormats = (config == null ? false
+			: config.has(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS) ? config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false) : false);
 
-		this.hasDynamicDataproviders = (config != null && config.optBoolean(DYNAMIC_DATAPROVIDERS));
+		this.hasDynamicDataproviders = (config != null && (config.has(DYNAMIC_DATAPROVIDERS) ? config.optBoolean(DYNAMIC_DATAPROVIDERS) : false));
 
 		String[] dps = null;
 		if (config != null)
