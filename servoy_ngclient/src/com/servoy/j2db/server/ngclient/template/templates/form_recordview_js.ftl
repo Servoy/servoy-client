@@ -113,7 +113,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				return $windowService.getFormUrl(formUrl);
 			},
 			startEdit: function(propertyName) {
-				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
+				$servoyInternal.pushEditingStarted($scope.formname, beanname, propertyName);
 			},
 			apply: function(propertyName) {
 				$servoyInternal.pushDPChange("${name}", beanname, propertyName);

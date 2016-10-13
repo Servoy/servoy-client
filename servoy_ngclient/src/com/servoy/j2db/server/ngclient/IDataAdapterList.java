@@ -37,9 +37,9 @@ public interface IDataAdapterList extends ITagResolver
 
 	void pushChanges(WebFormComponent webComponent, String string);
 
-	void pushChanges(WebFormComponent webComponent, String string, String rowID);
+	void pushChanges(WebFormComponent webComponent, String string, String foundsetLinkedRowID);
 
-	void pushChanges(WebFormComponent webComponent, String string, Object newValue, String rowID);
+	void pushChanges(WebFormComponent webComponent, String string, Object newValue, String foundsetLinkedRowID);
 
 	Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args);
 
@@ -51,7 +51,7 @@ public interface IDataAdapterList extends ITagResolver
 
 	void setRecord(IRecord record, boolean fireChangeEvent);
 
-	void startEdit(WebFormComponent webComponent, String property);
+	void startEdit(WebFormComponent webComponent, String property, String foundsetLinkedRowID);
 
 	void setFindMode(boolean findMode);
 

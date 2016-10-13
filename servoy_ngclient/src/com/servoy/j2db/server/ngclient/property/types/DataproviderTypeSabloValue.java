@@ -592,4 +592,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
 		}
 	}
+
+	@Override
+	public String toString()
+	{
+		return "DP(" + dataProviderID + ")";
+	}
+
 }

@@ -639,9 +639,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	@Override
-	public void pushChanges(WebFormComponent webComponent, String beanProperty, String rowID)
+	public void pushChanges(WebFormComponent webComponent, String beanProperty, String foundsetLinkedRowID)
 	{
-		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty), rowID);
+		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty), foundsetLinkedRowID);
 	}
 
 	/**
@@ -658,9 +658,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return null;
 	}
 
-	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue, String rowID)
+	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue, String foundsetLinkedRowID)
 	{
-		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of specialized calls?
+		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
 
 		String dataProviderID = getDataProviderID(webComponent, beanProperty);
 		if (dataProviderID == null)
@@ -677,19 +677,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (newValue instanceof FoundsetLinkedTypeSabloValue)
 		{
-			int index = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getSelectedIndex();
-			if (rowID != null)
+			if (foundsetLinkedRowID != null)
 			{
-				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowID);
-				index = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getRecordIndex(splitHashAndIndex.getLeft(),
-					splitHashAndIndex.getRight().intValue());
-			}
-			else if (beanProperty.endsWith("]"))
-			{
-				index = Utils.getAsInteger(beanProperty.substring(beanProperty.lastIndexOf('[') + 1, beanProperty.length() - 1));
-			}
-			editingRecord = ((FoundsetLinkedTypeSabloValue)newValue).getFoundset().getRecord(index);
-
+				// find the row of the foundset that changed; we can't use client's index (as server-side indexes might have changed meanwhile on server); so we are doing it based on client sent rowID
+				editingRecord = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)newValue, foundsetLinkedRowID);
+				if (editingRecord == null)
+				{
+					Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" + foundsetLinkedRowID);
+					return;
+				}
+			} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
 			newValue = ((FoundsetLinkedTypeSabloValue)newValue).getWrappedValue();
 		}
 		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
@@ -755,24 +752,57 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	public void startEdit(WebFormComponent webComponent, String property)
+	private IRecordInternal getFoundsetLinkedRecord(FoundsetLinkedTypeSabloValue< ? , ? > foundsetLinkedValue, String foundsetLinkedRowID)
 	{
+		IRecordInternal recordForRowID = null;
+
+		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(foundsetLinkedRowID);
+		int index = foundsetLinkedValue.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+
+		if (index >= 0) recordForRowID = foundsetLinkedValue.getFoundset().getRecord(index);
+		return recordForRowID;
+	}
+
+	public void startEdit(WebFormComponent webComponent, String property, String foundsetLinkedRowID)
+	{
+		// TODO should this all (startEdit) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
+
 		String dataProviderID = getDataProviderID(webComponent, property);
 		if (dataProviderID == null)
 		{
 			Debug.log("startEdit called on a property that is not bound to a dataprovider: " + property + " of component: " + webComponent);
 			return;
 		}
-
-		if (record != null && !ScopesUtils.isVariableScope(dataProviderID))
+		IRecordInternal recordToUse = record;
+		if (!ScopesUtils.isVariableScope(dataProviderID))
 		{
-			int selectedIndex = record.getParentFoundSet().getSelectedIndex();
-			int rowIndex = record.getParentFoundSet().getRecordIndex(record);
-			if (selectedIndex != rowIndex)
+			Object propertyValue = webComponent.getProperty(property);
+
+			if (propertyValue instanceof FoundsetLinkedTypeSabloValue)
 			{
-				record.getParentFoundSet().setSelectedIndex(rowIndex);
+				if (foundsetLinkedRowID != null)
+				{
+					// find the row of the foundset that the user started to edit; we can't use client's index (as server-side indexes might have changed meanwhile on server); so we are doing it based on client sent rowID
+					recordToUse = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)propertyValue, foundsetLinkedRowID);
+					if (recordToUse == null)
+					{
+						Debug.error(
+							"Error executing startEdit (from client) for foundset linked DP (cannot find record): dp=" + propertyValue + ", rowID=" + foundsetLinkedRowID);
+						return;
+					}
+				} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
 			}
-			record.startEditing();
+
+			if (recordToUse != null)
+			{
+				int selectedIndex = recordToUse.getParentFoundSet().getSelectedIndex();
+				int rowIndex = recordToUse.getParentFoundSet().getRecordIndex(recordToUse);
+				if (selectedIndex != rowIndex)
+				{
+					recordToUse.getParentFoundSet().setSelectedIndex(rowIndex);
+				}
+				recordToUse.startEditing();
+			}
 		}
 	}
 

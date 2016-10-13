@@ -116,10 +116,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 						}
 						args.put("changes", changes);
 					}
+
 					if (changes.length() > 0)
 					{
 						dataPush(args);
-						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"), args.optString("rowid", null));
+						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"), args.optString("fslRowID", null));
 					}
 				}
 				break;
@@ -127,8 +128,18 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 			case "startEdit" :
 			{
-				IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(args.optString("formname")).getFormUI();
-				form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"));
+				String formName = args.getString("formname");
+				IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
+				if (form == null)
+				{
+					log.error("startEdit for unknown form '" + formName + "'");
+				}
+				else
+				{
+					form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"),
+						args.optString("fslRowID", null));
+				}
+
 				break;
 			}
 			case "executeInlineScript" :

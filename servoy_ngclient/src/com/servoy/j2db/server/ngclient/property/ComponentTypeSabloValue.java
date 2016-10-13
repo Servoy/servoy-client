@@ -908,7 +908,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						dal = formUI.getDataAdapterList();
 					}
 
-					dal.startEdit(childComponent, propertyName);
+					dal.startEdit(childComponent, propertyName, null); // TODO last arg should be here the foundsetLinked row Id in case the property is itself a foundset-linked DP; this should be done as part of case SVY-10500
 				}
 			}
 		}

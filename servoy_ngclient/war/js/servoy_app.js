@@ -288,6 +288,34 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);  
 		});
 	}
+	
+	function getFoundsetLinkedDPInfo(propertyName, beanModel) {
+		var propertyNameForServerAndRowID;
+		
+		if ((propertyName.indexOf('.') > 0 || propertyName.indexOf('[') > 0) && propertyName.endsWith("]"))	{
+			// TODO this is a big hack - see comment in pushDPChange below
+			
+			// now detect somehow if this is a foundset linked dataprovider - in which case we need to provide a rowId for it to server
+			var lastIndexOfOpenBracket = propertyName.lastIndexOf('[');
+			var indexInLastArray = parseInt(propertyName.substring(lastIndexOfOpenBracket + 1, propertyName.length - 1));
+			var dpPathWithoutArray = propertyName.substring(0, lastIndexOfOpenBracket);
+			var foundsetLinkedDPValueCandidate = eval('beanModel.' + dpPathWithoutArray);
+			if (foundsetLinkedDPValueCandidate && foundsetLinkedDPValueCandidate[$sabloConverters.INTERNAL_IMPL]
+					&& foundsetLinkedDPValueCandidate[$sabloConverters.INTERNAL_IMPL][$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]) {
+				
+				// it's very likely a foundsetLinked DP: it has the internals that that property type uses; get the corresponding rowID from the foundset property that it uses
+				// strip the last index as we now identify the record via rowId and server has no use for it anyway (on server side it's just a foundsetlinked property value, not an array, so property name should not contain that last index)
+				propertyNameForServerAndRowID = { propertyNameForServer: dpPathWithoutArray };
+
+				var foundset = foundsetLinkedDPValueCandidate[$sabloConverters.INTERNAL_IMPL][$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]();
+				if (foundset) {
+					propertyNameForServerAndRowID.rowId = foundset.viewPort.rows[indexInLastArray][$foundsetTypeConstants.ROW_ID_COL_KEY];
+				}
+			}	
+		}
+		
+		return propertyNameForServerAndRowID;
+	}
 
 	return {
 		connect: connect,
@@ -365,50 +393,63 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		callServerSideApi: function(formname, beanname, methodName, args) {
 			return $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args})
 		},
+		
+		pushEditingStarted: function(formName, beanName, propertyName) {
+			var messageForServer = { formname : formName, beanname : beanName, property : propertyName };
+			
+			// detect if this is a foundset linked dataprovider - in which case we need to provide a rowId for it to server and trim down the last array index which identifies the row on client
+			// TODO this is a big hack - see comment in pushDPChange below
+			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
+			var foundsetLinkedDPInfo = getFoundsetLinkedDPInfo(propertyName, formState.model[beanName]);
+			if (foundsetLinkedDPInfo)	{
+				if (foundsetLinkedDPInfo.rowId) messageForServer.fslRowID = foundsetLinkedDPInfo.rowId;
+				messageForServer.property = foundsetLinkedDPInfo.propertyNameForServer;
+			}	
+
+			$sabloApplication.callService("formService", "startEdit", messageForServer, true);
+		},
 
 		pushDPChange: function(formname, beanname, property) {
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
-			var changes = {}
+			var changes = {};
 
-			// default model, simple direct form child component
-			var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo()
+			var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo();
 			var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
-			var rowid = null;
+			var fslRowID = null;
 			if (conversionInfo && conversionInfo[property]) {
+				// I think this never happens currently
 				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], conversionInfo[property], undefined);
 			} else {
 				var dpValue = null;
-				if (property.indexOf('.') > 0)
-				{
-					//nested property
-					dpValue = eval('formState.model[beanname].'+property)
-					if (property.endsWith("]"))
-					{
-						var index = parseInt(property.substring(property.lastIndexOf('[')+1,property.length-1));
-						var dpPath =  property.substring(0,property.lastIndexOf('['));
-						var dpArray = eval('formState.model[beanname].'+dpPath);
-						if (dpArray && dpArray[$sabloConverters.INTERNAL_IMPL] && dpArray[$sabloConverters.INTERNAL_IMPL][$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])
-						{
-							var foundset = dpArray[$sabloConverters.INTERNAL_IMPL][$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]();
-							if (foundset)
-							{
-								rowid = foundset.viewPort.rows[index][$foundsetTypeConstants.ROW_ID_COL_KEY];
-							}	
-						}	
+
+				if (property.indexOf('.') > 0 || property.indexOf('[') > 0) {
+					// TODO this is a big hack - it would be nicer in the future if we have type info for all properties on the client and move
+					// internal states out of the values of the properties and into a separate locations (so that we can have internal states even for primitive dataprovider types)
+					// to have DP types register themselves to the apply() and startEdit() and do the apply/startEdit completely through the property itself (send property updates);
+					// then we can get rid of all the custom apply code on server as well as all this pushDPChange on client
+					
+					// nested property; get the value correctly
+					dpValue = eval('formState.model[beanname].' + property)
+					
+					// now detect if this is a foundset linked dataprovider - in which case we need to provide a rowId for it to server
+					var foundsetLinkedDPInfo = getFoundsetLinkedDPInfo(property, formState.model[beanname]);
+					if (foundsetLinkedDPInfo)	{
+						fslRowID = foundsetLinkedDPInfo.rowId;
+						property = foundsetLinkedDPInfo.propertyNameForServer;
 					}	
-				}
-				else
-				{
+				} else {
 					dpValue = formState.model[beanname][property];
-				}	
+				}
+				
 				changes[property] = $sabloUtils.convertClientObject(dpValue);
 			}
-			var dpChange = {formname:formname,beanname:beanname,property:property,changes:changes};
-			if (rowid)
-			{
-				dpChange.rowid = rowid;
-			}	
-			$sabloApplication.callService('formService', 'svyPush', dpChange, true)
+			
+			var dpChange = {formname: formname, beanname: beanname, property: property, changes: changes};
+			if (fslRowID) {
+				dpChange.fslRowID = fslRowID;
+			}
+
+			$sabloApplication.callService('formService', 'svyPush', dpChange, true);
 		}
 	}
 }).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log) {
