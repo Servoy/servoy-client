@@ -85,6 +85,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		super(application, form, name);
 		initFormUI();
+		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
 	}
 
 	public void initFormUI()
