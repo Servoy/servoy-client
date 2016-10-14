@@ -105,25 +105,21 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		else if (obj instanceof IFormElement)
 		{
 			FormElement fe = null;
-			JSONObject object = null;
 			if (formUI != null)
 			{
+				System.err.println(obj);
 				List<FormElement> cachedFormElements = formUI.getFormElements();
 				for (FormElement cachedFE : cachedFormElements)
 				{
 					if (Utils.equalObjects(cachedFE.getPersistIfAvailable(), obj))
 					{
 						fe = cachedFE;
-						object = runtimeProperties.getJSONObject(fe.getName());
 						break;
 					}
 				}
 			}
 			FormElement formElement = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context.getSolution(), null, false);
-			if (object == null && runtimeProperties != null)
-			{
-				object = runtimeProperties.optJSONObject(formElement.getName());
-			}
+			JSONObject object = runtimeProperties != null ? runtimeProperties.optJSONObject(formElement.getName()) : null;
 			wrapped = new FormElementContext(formElement, context, object);
 		}
 		else
