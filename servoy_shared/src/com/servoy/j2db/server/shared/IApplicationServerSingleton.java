@@ -47,7 +47,7 @@ import com.servoy.j2db.util.xmlxport.VersionInfo;
 
 
 /**
- * public application server methods 
+ * public application server methods
  * @author rgansevles
  */
 public interface IApplicationServerSingleton
@@ -150,4 +150,6 @@ public interface IApplicationServerSingleton
 	boolean isClientRepositoryAccessAllowed();
 
 	void checkClientRepositoryAccess(String serverName) throws RepositoryException;
+
+	boolean checkClientLicense(String companyName, String license, int numberOfLicenses);
 }

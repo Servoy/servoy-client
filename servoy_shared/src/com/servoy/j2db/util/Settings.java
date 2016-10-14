@@ -344,7 +344,8 @@ public final class Settings extends SortedProperties
 			while (it.hasNext())
 			{
 				Map.Entry entry = (Map.Entry)it.next();
-				if (entry.getKey().toString().toLowerCase().indexOf("password") != -1) //$NON-NLS-1$
+				String key = entry.getKey().toString().toLowerCase();
+				if (key.indexOf("password") != -1 || key.startsWith("license.")) //$NON-NLS-1$
 				{
 					String val = entry.getValue().toString();
 					if (val.startsWith(enc_prefix))

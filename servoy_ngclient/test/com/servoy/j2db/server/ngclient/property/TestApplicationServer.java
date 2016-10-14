@@ -419,4 +419,10 @@ final class TestApplicationServer implements IApplicationServerSingleton
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean checkClientLicense(String companyName, String license, int numberOfLicenses)
+	{
+		return false;
+	}
 }
