@@ -603,7 +603,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Fill a custom type valuelist with values from array(s) or dataset.
 	 *
-	 * NOTE: if you modify values for checkbox/radio field, note that having one value in valuelist is a special case, so switching between one value and 0/multiple values after form is created may have side effects
+	 * NOTE: if you modify values for checkbox/radio field, note that having one value in valuelist is a special case, so switching between one value and 0/multiple values may have side effects
 	 * NOTE: This is expensive operation, which triggers refresh of all visible forms. Over usage of this method may inflict performance issues.
 	 *
 	 * @sample
