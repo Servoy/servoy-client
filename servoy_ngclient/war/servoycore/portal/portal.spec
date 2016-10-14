@@ -11,8 +11,14 @@
 	"model":
 	{
 	        "background" : "color", 
-	        "borderType" : {"type":"border","stringformat":true}, 
-	        "childElements" : { "type" : "component[]", "pushToServer": "allow", "elementConfig" : {"forFoundset": "relatedFoundset"}, "tags" : {"scope": "private", "addToElementsScope" : "true"} }, 
+	        "borderType" : { "type" : "border", "stringformat" : true }, 
+	        "childElements" : { "type" : "component[]", "pushToServer" : "allow",
+	        					"tags" : { "scope" : "private" },
+								"elementConfig" : {
+									"forFoundset" : "relatedFoundset",
+									"tags" : { "addToElementsScope" : "true" }
+								}
+	        }, 
 	        "headers" : { "type" : "component[]", "pushToServer": "allow", "tags" : {"scope": "private"} }, 
 	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["onDragEndMethodID","onDragMethodID","onDragOverMethodID","onDropMethodID"] }, 
 	        "findmode" : { "type":"findmode", "tags":{"scope":"private"}, "for" : { "readOnly":false}}, 
