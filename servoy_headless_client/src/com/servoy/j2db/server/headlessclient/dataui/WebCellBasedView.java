@@ -5912,8 +5912,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			RequestCycle.get().setResponse(response);
 
 			String s = stringResponse.getBuffer().toString();
-			s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
-			s = s.replace("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replace("\r", "&#10;"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replace("\n", "&#13;"); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replace("\t", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
