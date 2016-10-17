@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -68,9 +69,9 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public class FormatPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>/* <ComponentFormat> */,
-ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>, ISabloComponentToRhino<Object> /* <ComponentFormat */,
-IRhinoToSabloComponent<Object> /* <ComponentFormat */
+public class FormatPropertyType extends DefaultPropertyType<Object>
+	implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>,
+	ISabloComponentToRhino<Object> /* <ComponentFormat */, IRhinoToSabloComponent<Object> /* <ComponentFormat */
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -330,6 +331,19 @@ IRhinoToSabloComponent<Object> /* <ComponentFormat */
 											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 										}
 									}
+									else if (val.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
+									{
+										IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
+											Types.OTHER, null, null, true);
+										if (realValuelist instanceof GlobalMethodValueList)
+										{
+											((GlobalMethodValueList)realValuelist).fill(null, "", null);
+											if (realValuelist.hasRealValues())
+											{
+												return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+											}
+										}
+									}
 								}
 								catch (Exception ex)
 								{
@@ -340,11 +354,10 @@ IRhinoToSabloComponent<Object> /* <ComponentFormat */
 					}
 				}
 			}
-			ComponentFormat format = ComponentFormat.getComponentFormat(
-					(String)formElementValue,
-					dataproviderId,
-					application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-						component.getDataConverterContext().getForm().getForm()), application, true);
+			ComponentFormat format = ComponentFormat.getComponentFormat((String)formElementValue, dataproviderId,
+				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
+					component.getDataConverterContext().getForm().getForm()),
+				application, true);
 			return format;
 		}
 		return formElementValue;
