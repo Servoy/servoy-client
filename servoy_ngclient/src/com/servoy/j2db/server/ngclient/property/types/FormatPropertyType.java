@@ -49,12 +49,15 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -262,6 +265,43 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 						if (type instanceof DataproviderPropertyType)
 						{
 							dataproviderId = (String)formElement.getPropertyValue(element);
+							PropertyDescription property = formElement.getProperty(element);
+							Object config = property.getConfig();
+							// if it is a dataprovider type. look if it is foundset linked
+							if (config instanceof FoundsetLinkedConfig && ((FoundsetLinkedConfig)config).getForFoundsetName() != null)
+							{
+								Object json = formElement.getPropertyValue(((FoundsetLinkedConfig)config).getForFoundsetName());
+								if (json instanceof JSONObject)
+								{
+									// get the foundset selector and try to resolve the table
+									String fs = ((JSONObject)json).optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
+									ITable table = application.getFlattenedSolution().getTable(fs);
+									if (table == null)
+									{
+										// table not found is the foundset selector a relation.
+										Relation[] relations = application.getFlattenedSolution().getRelationSequence(fs);
+										if (relations != null && relations.length > 0)
+										{
+											table = application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource());
+										}
+									}
+									try
+									{
+										IDataProvider dataProvider = application.getFlattenedSolution().getDataProviderForTable(table, dataproviderId);
+										// the dataprovider is found through the table, returns for this the ComponentFormat, if not fall through through the forms
+										// dataprovider lookup below
+										if (dataProvider != null)
+										{
+											return ComponentFormat.getComponentFormat((String)formElementValue, dataProvider.getDataProviderType(),
+												application);
+										}
+									}
+									catch (RepositoryException e)
+									{
+										Debug.error(e);
+									}
+								}
+							}
 							break;
 						}
 						else if (type instanceof ValueListPropertyType)
