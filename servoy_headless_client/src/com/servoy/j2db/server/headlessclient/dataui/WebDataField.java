@@ -879,7 +879,23 @@ public class WebDataField extends TextField<Object>
 					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toUpperCase();});");
 				if (needsFormatOnchange())
 				{
-					formatOnChangeBehavior = new ReadOnlyAndEnableTestAttributeModifier("onchange", "if (this.value) this.value = this.value.toUpperCase()");
+					formatOnChangeBehavior = new AttributeModifier("onchange", true, new Model<String>()
+					{
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public String getObject()
+						{
+							return "if (this.value) this.value = this.value.toUpperCase()"; //$NON-NLS-1$
+						}
+					})
+					{
+						@Override
+						protected String newValue(final String currentValue, final String replacementValue)
+						{
+							return currentValue + ";" + replacementValue;
+						}
+					};
 				}
 			}
 			else if (parsedFormat.isAllLowerCase())
@@ -890,7 +906,23 @@ public class WebDataField extends TextField<Object>
 					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toLowerCase();});");
 				if (needsFormatOnchange())
 				{
-					formatOnChangeBehavior = new ReadOnlyAndEnableTestAttributeModifier("onchange", "if (this.value) this.value = this.value.toLowerCase()");
+					formatOnChangeBehavior = new AttributeModifier("onchange", true, new Model<String>()
+					{
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public String getObject()
+						{
+							return "if (this.value) this.value = this.value.toLowerCase()"; //$NON-NLS-1$
+						}
+					})
+					{
+						@Override
+						protected String newValue(final String currentValue, final String replacementValue)
+						{
+							return currentValue + ";" + replacementValue;
+						}
+					};
 				}
 			}
 			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask())
