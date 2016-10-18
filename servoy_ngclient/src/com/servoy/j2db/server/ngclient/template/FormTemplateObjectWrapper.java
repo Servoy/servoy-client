@@ -107,7 +107,6 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 			FormElement fe = null;
 			if (formUI != null)
 			{
-				System.err.println(obj);
 				List<FormElement> cachedFormElements = formUI.getFormElements();
 				for (FormElement cachedFE : cachedFormElements)
 				{
