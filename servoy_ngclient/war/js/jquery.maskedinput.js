@@ -6,15 +6,6 @@
 	Version: 1.2.2 (03/09/2009 22:39:06)
 */
 (function($) {
-	
-	function getPasteEvent() {
-	    var el = document.createElement('input'),
-	        name = 'onpaste';
-	    el.setAttribute(name, '');
-	    return (typeof el[name] === 'function')?'paste':'input'; 
-	}
-	
-	var pasteEventName = getPasteEvent() + ".mask";
 	var iPhone = (window.orientation != undefined);
 
 	$.mask = {
@@ -320,6 +311,15 @@
 					return firstError != -1?firstError:(partialPosition ? i : firstNonMaskPos);
 				};
 
+				function onInputValueChange(doInTimeout) {
+					if(doInTimeout) {
+						setTimeout(function() { input.caret(checkVal(true)); }, 0);	
+					}
+					else {
+						input.caret(checkVal(true));
+					}
+				}
+				
 				if (!input.attr("readonly"))
 					input
 					.one("unmask", function() {
@@ -347,8 +347,11 @@
 					})
 					.bind("keydown.mask", keydownEvent)
 					.bind("keypress.mask", keypressEvent)
-					.bind(pasteEventName, function() {
-						setTimeout(function() { input.caret(checkVal(true)); }, 0);
+					.bind("input.mask", function() {
+						onInputValueChange(false);
+					})
+					.bind("paste.mask", function() {
+						onInputValueChange(true);
 					});
 
 				checkVal(true); //Perform initial check for existing values

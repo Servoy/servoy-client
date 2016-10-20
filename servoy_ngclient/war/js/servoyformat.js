@@ -464,25 +464,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				return data; //converted
 			}
 
-			function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
-				var key;
-				var keychar;
-
-				if (window.event) {
-					key = window.event.keyCode;
-				} else if (e) {
-					key = e.which;
-				} else {
-					return true;
-				}
-
-				if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27) || (e.ctrlKey && key == 97) || (e.ctrlKey && key == 99) || (e.ctrlKey && key ==
-						118) || (e.ctrlKey && key == 120)) { //added CTRL-A, X, C and V
-					return true;
-				}
-
-				keychar = String.fromCharCode(key);
-
+			function numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
 				if (mlength > 0 && obj && obj.value) {
 					var counter = 0;
 					if (("0123456789").indexOf(keychar) != -1) counter++;
@@ -506,28 +488,73 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				} else if (keychar == percentChar) {
 					return true;
 				}
-				return false;
+				return false;				
+			}
+			
+			function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
+				var key;
+				var keychar;
+
+				if (window.event) {
+					key = window.event.keyCode;
+				} else if (e) {
+					key = e.which;
+				} else {
+					return true;
+				}
+
+				if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27) || (e.ctrlKey && key == 97) || (e.ctrlKey && key == 99) || (e.ctrlKey && key ==
+						118) || (e.ctrlKey && key == 120)) { //added CTRL-A, X, C and V
+					return true;
+				}
+
+				keychar = String.fromCharCode(key);
+				return numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength);
+
 			}
 
-			function keypress(e) {
+			function testForNumbersOnly(e, keyChar) {
 				if (!$scope.model.findmode && checkNumbers) {
 					if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
 						$(e.target).blur()
 					} else if (svyFormat.type == "INTEGER") {
 						var currentLanguageNumeralSymbols = numeral.languageData();
-						return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
-							.symbol,
-							svyFormat.percent, element, svyFormat.maxLength);
+						
+						if(keyChar == undefined) {
+							return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
+									.symbol,
+									svyFormat.percent, element, svyFormat.maxLength);							
+						}
+						else {
+							return numbersonlyForChar(keyChar, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
+									.symbol,
+									svyFormat.percent, element, svyFormat.maxLength);
+						}
 					} else if (svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)) {
 						var currentLanguageNumeralSymbols = numeral.languageData();
-						return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
-							svyFormat.percent, element, svyFormat.maxLength);
+						
+						if(keyChar == undefined) {
+							return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
+									svyFormat.percent, element, svyFormat.maxLength);							
+						}
+						else {
+							return numbersonlyForChar(keyChar, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
+									svyFormat.percent, element, svyFormat.maxLength);														
+						}
 					}
 				}
 				return true;
 			}
+			
+			function keypress(e) {
+				isKeyPressEventFired = true;
+				return testForNumbersOnly(e)
+			}
 
-			function focus() {
+			function focus(e) {
+				if(e.target.tagName.toUpperCase() == 'INPUT') {
+					oldInputValue = element.val();
+				}
 				if (!$scope.model.findmode) {
 					if (svyFormat.edit && svyFormat.isMask) {
 						var settings = {};
@@ -568,11 +595,46 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				}
 			}
 
+			var isKeyPressEventFired = false;
+			var oldInputValue;
+			
+			function input(e) {
+				if(!isKeyPressEventFired && e.target.tagName.toUpperCase() == 'INPUT') {
+					var currentValue = element.val();
+				    // get inserted chars
+				    var inserted = findDelta(currentValue, oldInputValue);
+				    // get removed chars
+				    var removed = findDelta(oldInputValue, currentValue);
+				    // determine if user pasted content
+				    var pasted = inserted.length > 1 || (!inserted && !removed);
+					
+				    if(!pasted && !removed) {
+				    	if(!testForNumbersOnly(e, inserted)) {
+				    		currentValue = oldInputValue; 
+				    		element.val(currentValue);
+				    	}
+			        }
+					oldInputValue = currentValue; 
+				}				
+			}
+
+			function findDelta(value, prevValue) {
+				var delta = '';
+				for (var i = 0; i < value.length; i++) {
+					var str = value.substr(0, i) + value.substr(i + value.length - prevValue.length);
+					if (str === prevValue) {
+						delta = value.substr(i, value.length - prevValue.length);
+					}
+				}
+				return delta;
+			}			
+
 			function register() {
 				element.on('focus', focus)
 				element.on('blur', blur)
 				element.on('change', change)
 				element.on('keypress', keypress)
+				element.on('input', input)
 
 				//convert data from view format to model format
 				ngModelController.$parsers.push(viewToModel);
@@ -585,7 +647,8 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				element.off('blur', blur)
 
 				element.off('keypress', keypress)
-				element.off('change', change)
+				element.off('input', input)
+				element.off('change', change)				
 
 				var i = ngModelController.$parsers.indexOf(viewToModel);
 				if (i != -1) {
