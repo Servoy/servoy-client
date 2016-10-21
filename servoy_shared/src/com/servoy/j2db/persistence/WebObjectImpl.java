@@ -58,7 +58,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	//	not just persist mapped one (see commented out code in those methods)
 
 	private boolean arePersistMappedPropertiesLoaded = false;
-	private PropertyDescription pdUseGetterInstead;
+	private final boolean pdIsWebComponentSpecification;
+	private PropertyDescription pdPleaseUseGetterToAccessThis;
 	private Map<UUID, IPersist> persistMappedPropetiesByUUID = null; // cached just like in AbstractBase
 
 	private boolean gettingTypeName;
@@ -71,17 +72,27 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public WebObjectImpl(IBasicWebObject webObject)
 	{
 		super(webObject);
+		pdIsWebComponentSpecification = true;
+		WebObjectRegistry.registerWebObject(this);
+	}
+
+	public WebObjectImpl(IBasicWebObject webObject, Object specPD)
+	{
+		super(webObject);
+		this.pdPleaseUseGetterToAccessThis = (PropertyDescription)specPD;
+		this.pdIsWebComponentSpecification = false;
+		WebObjectRegistry.registerWebObject(this);
 	}
 
 	public PropertyDescription getPropertyDescription()
 	{
 		// at the time WebComponent is created the resources project is not yet loaded nor is the typeName property set; so find it when it's needed in this case
-		if (pdUseGetterInstead == null && !gettingTypeName)
+		if (pdPleaseUseGetterToAccessThis == null && !gettingTypeName)
 		{
 			gettingTypeName = true;
 			try
 			{
-				return WebComponentSpecProvider.getInstance() != null
+				pdPleaseUseGetterToAccessThis = WebComponentSpecProvider.getInstance() != null
 					? WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(getTypeName()) : null;
 			}
 			finally
@@ -90,7 +101,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 		}
 
-		return pdUseGetterInstead;
+		return pdPleaseUseGetterToAccessThis;
 	}
 
 	protected PropertyDescription getChildPropertyDescription(String propertyName)
@@ -98,12 +109,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		PropertyDescription propertyDescription = getPropertyDescription();
 		if (propertyDescription != null) return propertyDescription.getProperty(propertyName);
 		return null;
-	}
-
-	public WebObjectImpl(IBasicWebObject webObject, Object specPD)
-	{
-		super(webObject);
-		this.pdUseGetterInstead = (PropertyDescription)specPD;
 	}
 
 	@Override
@@ -594,6 +599,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public void reload()
 	{
 		arePersistMappedPropertiesLoaded = false;
+		if (pdIsWebComponentSpecification) pdPleaseUseGetterToAccessThis = null; // if it's a web component, next time it's needed reload it's spec as well, don't use cached one
 	}
 
 	@Override
