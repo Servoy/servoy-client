@@ -17,7 +17,9 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -53,6 +55,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 	private final boolean design;
 	private final WebFormUI formUI;
 	private final JSONObject runtimeProperties;
+	private final Map<Object, TemplateModel> wrapperCache = new HashMap<>();
 
 	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
 	{
@@ -80,6 +83,8 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 	@Override
 	public TemplateModel wrap(Object obj) throws TemplateModelException
 	{
+		TemplateModel model = wrapperCache.get(obj);
+		if (model != null) return model;
 		Object wrapped;
 		if (obj instanceof Form)
 		{
@@ -124,6 +129,8 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		{
 			wrapped = obj;
 		}
-		return super.wrap(wrapped);
+		TemplateModel wrap = super.wrap(wrapped);
+		wrapperCache.put(obj, wrap);
+		return wrap;
 	}
 }
