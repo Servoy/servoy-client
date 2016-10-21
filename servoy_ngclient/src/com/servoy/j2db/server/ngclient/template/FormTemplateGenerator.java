@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.template;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 
@@ -98,7 +99,7 @@ public class FormTemplateGenerator
 	public static String getComponentTypeName(IFormElement persist)
 	{
 		String component_type = getPersistComponentTypeName(persist);
-		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
+		if (WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(component_type) == null)
 		{
 			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
 			return FormElement.ERROR_BEAN;
@@ -109,11 +110,12 @@ public class FormTemplateGenerator
 	public static WebObjectSpecification getWebObjectSpecification(IFormElement persist)
 	{
 		String component_type = getPersistComponentTypeName(persist);
-		WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type);
+		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getInstance().getSpecProviderState();
+		WebObjectSpecification spec = componentsSpecProviderState.getWebComponentSpecification(component_type);
 		if (spec == null)
 		{
 			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
-			return WebComponentSpecProvider.getInstance().getWebComponentSpecification(FormElement.ERROR_BEAN);
+			return componentsSpecProviderState.getWebComponentSpecification(FormElement.ERROR_BEAN);
 		}
 		return spec;
 	}
@@ -130,82 +132,82 @@ public class FormTemplateGenerator
 			String type = ((IBasicWebComponent)persist).getTypeName();
 			return getComponentTypeName(type);
 		}
-		else
+
+		if (persist instanceof GraphicalComponent)
 		{
-			if (persist instanceof GraphicalComponent)
+			if (com.servoy.j2db.component.ComponentFactory.isButton((GraphicalComponent)persist))
 			{
-				if (com.servoy.j2db.component.ComponentFactory.isButton((GraphicalComponent)persist))
-				{
-					return "servoydefault-button";
-				}
-				return "servoydefault-label";
+				return "servoydefault-button";
 			}
-			if (persist instanceof Field)
+			return "servoydefault-label";
+		}
+
+		if (persist instanceof Field)
+		{
+			switch (((Field)persist).getDisplayType())
 			{
-				switch (((Field)persist).getDisplayType())
-				{
-					case Field.COMBOBOX :
-						return "servoydefault-combobox";
-					case Field.TEXT_FIELD :
-						if (((Field)persist).getValuelistID() > 0)
-						{
-							return "servoydefault-typeahead";
-						}
-						else
-						{
-							return "servoydefault-textfield";
-						}
-					case Field.RADIOS :
-						return isSingleValueComponent(persist) ? "servoydefault-radio" : "servoydefault-radiogroup";
-					case Field.CHECKS :
-						return isSingleValueComponent(persist) ? "servoydefault-check" : "servoydefault-checkgroup";
-					case Field.CALENDAR :
-						return "servoydefault-calendar";
-					case Field.TYPE_AHEAD :
+				case Field.COMBOBOX :
+					return "servoydefault-combobox";
+				case Field.TEXT_FIELD :
+					if (((Field)persist).getValuelistID() > 0)
+					{
 						return "servoydefault-typeahead";
-					case Field.TEXT_AREA :
-						return "servoydefault-textarea";
-					case Field.PASSWORD :
-						return "servoydefault-password";
-					case Field.SPINNER :
-						return "servoydefault-spinner";
-					case Field.LIST_BOX :
-					case Field.MULTISELECT_LISTBOX :
-						return "servoydefault-listbox";
-					case Field.IMAGE_MEDIA :
-						return "servoydefault-imagemedia";
-					case Field.HTML_AREA :
-						if (((Field)persist).getEditable())
-						{
-							return "servoydefault-htmlarea";
-						}
-						else
-						{
-							return "servoydefault-htmlview";
-						}
-				}
-			}
-			if (persist instanceof TabPanel)
-			{
-				int orient = ((TabPanel)persist).getTabOrientation();
-				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "servoydefault-splitpane";
-				return "servoydefault-tabpanel";
-			}
-			if (persist instanceof Portal)
-			{
-				return "servoycore-portal";
-			}
-			if (persist instanceof RectShape)
-			{
-				return "servoydefault-rectangle";
+					}
+
+					return "servoydefault-textfield";
+
+				case Field.RADIOS :
+					return isSingleValueComponent(persist) ? "servoydefault-radio" : "servoydefault-radiogroup";
+				case Field.CHECKS :
+					return isSingleValueComponent(persist) ? "servoydefault-check" : "servoydefault-checkgroup";
+				case Field.CALENDAR :
+					return "servoydefault-calendar";
+				case Field.TYPE_AHEAD :
+					return "servoydefault-typeahead";
+				case Field.TEXT_AREA :
+					return "servoydefault-textarea";
+				case Field.PASSWORD :
+					return "servoydefault-password";
+				case Field.SPINNER :
+					return "servoydefault-spinner";
+				case Field.LIST_BOX :
+				case Field.MULTISELECT_LISTBOX :
+					return "servoydefault-listbox";
+				case Field.IMAGE_MEDIA :
+					return "servoydefault-imagemedia";
+				case Field.HTML_AREA :
+					if (((Field)persist).getEditable())
+					{
+						return "servoydefault-htmlarea";
+					}
+
+					return "servoydefault-htmlview";
 			}
 		}
+
+		if (persist instanceof TabPanel)
+		{
+			int orient = ((TabPanel)persist).getTabOrientation();
+			if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "servoydefault-splitpane";
+			return "servoydefault-tabpanel";
+		}
+
+		if (persist instanceof Portal)
+		{
+			return "servoycore-portal";
+		}
+
+		if (persist instanceof RectShape)
+		{
+			return "servoydefault-rectangle";
+		}
+
 		return FormElement.ERROR_BEAN;
 	}
 
 	public static String getComponentTypeName(String beanClassName)
 	{
-		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(beanClassName) == null)
+		if (WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(beanClassName) == null)
 		{
 			Debug.error("Component spec for " + beanClassName + " not found; please check your component spec file(s).");
 			return FormElement.ERROR_BEAN;

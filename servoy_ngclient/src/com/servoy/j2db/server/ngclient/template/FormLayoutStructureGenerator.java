@@ -82,7 +82,7 @@ public class FormLayoutStructureGenerator
 		WebLayoutSpecification spec = null;
 		if (container.getPackageName() != null)
 		{
-			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getSpecProviderState().getLayoutSpecifications().get(container.getPackageName());
 			if (pkg != null)
 			{
 				spec = pkg.getSpecification(container.getSpecName());

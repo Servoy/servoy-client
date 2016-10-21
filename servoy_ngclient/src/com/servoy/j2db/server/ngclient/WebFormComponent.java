@@ -42,7 +42,7 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
-		super(name, WebComponentSpecProvider.getInstance().getWebComponentSpecification(fe.getTypeName()));
+		super(name, WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(fe.getTypeName()));
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 

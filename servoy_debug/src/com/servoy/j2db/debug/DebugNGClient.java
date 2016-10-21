@@ -143,7 +143,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
-		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications();
 		PluginScope scope = (PluginScope)engine.getSolutionScope().get("plugins", engine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)

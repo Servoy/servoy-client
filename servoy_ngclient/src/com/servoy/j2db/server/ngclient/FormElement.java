@@ -36,6 +36,7 @@ import org.json.JSONWriter;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.BaseSpecProvider.ISpecReloadListener;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -110,9 +111,16 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (f instanceof FlattenedForm) this.form = f;
 		else this.form = fs.getFlattenedForm(f);
 
-		boolean willTurnIntoErrorBean = inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()) &&
-			WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()) != null &&
-			usesPersistTypedProperties(WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()));
+		boolean willTurnIntoErrorBean;
+		if (inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()))
+		{
+			WebObjectSpecification pd = WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(((Bean)persist).getBeanClassName());
+			willTurnIntoErrorBean = pd != null && usesPersistTypedProperties(pd);
+		}
+		else
+		{
+			willTurnIntoErrorBean = false;
+		}
 
 		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
 		IFormElement superPersist = persist;
@@ -157,7 +165,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
 
-		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentTypeString) == null)
+		if (WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(componentTypeString) == null)
 		{
 			this.componentType = FormElement.ERROR_BEAN;
 		}
@@ -404,9 +412,10 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	public WebObjectSpecification getWebComponentSpec(boolean throwException)
 	{
 		WebObjectSpecification spec = null;
+		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getInstance().getSpecProviderState();
 		try
 		{
-			spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+			spec = componentsSpecProviderState.getWebComponentSpecification(componentType);
 		}
 		catch (RuntimeException re)
 		{
@@ -417,7 +426,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		{
 			String errorMessage = "Component spec for " + componentType + " not found; please check your component spec file(s).";
 			Debug.error(errorMessage);
-			return WebComponentSpecProvider.getInstance().getWebComponentSpecification(FormElement.ERROR_BEAN);
+			return componentsSpecProviderState.getWebComponentSpecification(FormElement.ERROR_BEAN);
 			//if (throwException) throw new IllegalStateException(errorMessage);
 		}
 		return spec;

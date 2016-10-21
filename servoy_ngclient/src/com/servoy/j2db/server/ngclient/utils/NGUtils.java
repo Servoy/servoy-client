@@ -25,8 +25,8 @@ import org.json.JSONException;
 import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectSpecification;
-import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DoublePropertyType;
@@ -167,25 +167,25 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
-	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeAddedToJavaPluginsList()
+	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeAddedToJavaPluginsList(SpecProviderState servicesSpecProviderState)
 	{
-		return getAllWebServiceSpecificationsExcept(new String[] { "sablo", "servoyservices", "servoydefaultservices" });
+		return getAllWebServiceSpecificationsExcept(servicesSpecProviderState, new String[] { "sablo", "servoyservices", "servoydefaultservices" });
 	}
 
 	/**
 	 * All 3rd party + some of the Servoy services (for example those that are based on bootstrap) should be avoidable when exporting.
 	 * The user might not be using them in the solution and he doesn't want all kinds of libs included that can mess up hist solution's UI.
 	 */
-	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeUncheckedAtWarExport()
+	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeUncheckedAtWarExport(SpecProviderState servicesSpecProviderState)
 	{
-		return getAllWebServiceSpecificationsExcept(new String[] { "sablo", "servoyservices" });
+		return getAllWebServiceSpecificationsExcept(servicesSpecProviderState, new String[] { "sablo", "servoyservices" });
 	}
 
-	private static WebObjectSpecification[] getAllWebServiceSpecificationsExcept(String[] ignore)
+	private static WebObjectSpecification[] getAllWebServiceSpecificationsExcept(SpecProviderState servicesSpecProviderState, String[] ignore)
 	{
 		ArrayList<WebObjectSpecification> allPublicWebServiceSpecifications = new ArrayList<WebObjectSpecification>();
 		List<String> ignoreList = Arrays.asList(ignore);
-		for (WebObjectSpecification spec : WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications())
+		for (WebObjectSpecification spec : servicesSpecProviderState.getAllWebComponentSpecifications())
 		{
 			if (ignoreList.indexOf(spec.getPackageName()) == -1)
 			{

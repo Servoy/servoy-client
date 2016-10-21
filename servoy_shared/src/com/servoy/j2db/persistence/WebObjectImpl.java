@@ -52,12 +52,12 @@ import com.servoy.j2db.util.UUID;
 public class WebObjectImpl extends WebObjectBasicImpl
 {
 
-	private final Map<String, Object> persistMappedPropeties = new HashMap<String, Object>(); // value can be IChildWebObject or IChildWebObject[] (ChildWebComponents or WebCustomTypes)
+	private final Map<String, Object> persistMappedProperties = new HashMap<String, Object>(); // value can be IChildWebObject or IChildWebObject[] (ChildWebComponents or WebCustomTypes)
 
 	// TODO should we have a map that contains all values from the JSON not only the above for IChildWebObject - or at least get/set/clear/has should handle all json values,
 	//	not just persist mapped one (see commented out code in those methods)
 
-	private boolean arePersistMappedPropetiesLoaded = false;
+	private boolean arePersistMappedPropertiesLoaded = false;
 	private PropertyDescription pdUseGetterInstead;
 	private Map<UUID, IPersist> persistMappedPropetiesByUUID = null; // cached just like in AbstractBase
 
@@ -81,8 +81,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			gettingTypeName = true;
 			try
 			{
-				return WebComponentSpecProvider.getInstance() != null ? WebComponentSpecProvider.getInstance().getWebComponentSpecification(getTypeName())
-					: null;
+				return WebComponentSpecProvider.getInstance() != null
+					? WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(getTypeName()) : null;
 			}
 			finally
 			{
@@ -95,7 +95,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	protected PropertyDescription getChildPropertyDescription(String propertyName)
 	{
-		if (getPropertyDescription() != null) return getPropertyDescription().getProperty(propertyName);
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription != null) return propertyDescription.getProperty(propertyName);
 		return null;
 	}
 
@@ -108,7 +109,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public void updatePersistMappedPropeties()
 	{
-		if (arePersistMappedPropetiesLoaded && !skipPersistMappedPropertiesUpdate)
+		if (arePersistMappedPropertiesLoaded && !skipPersistMappedPropertiesUpdate)
 		{
 			JSONObject old = (JSONObject)webObject.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 			try
@@ -180,9 +181,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	 */
 	protected boolean isCustomJSONObjectOrArrayOfCustomJSONObject(String key)
 	{
-		if (getPropertyDescription() == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
 
-		PropertyDescription childPd = getChildPropertyDescription(key);
+		PropertyDescription childPd = propertyDescription.getProperty(key);
 		if (childPd != null)
 		{
 			IPropertyType< ? > propertyType = childPd.getType();
@@ -217,9 +219,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	 */
 	protected boolean isComponentOrArrayOfComponent(String key)
 	{
-		if (getPropertyDescription() == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
 
-		PropertyDescription childPd = getChildPropertyDescription(key);
+		PropertyDescription childPd = propertyDescription.getProperty(key);
 		if (childPd != null)
 		{
 			IPropertyType< ? > propertyType = childPd.getType();
@@ -234,12 +237,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public boolean setProperty(String propertyName, Object val)
 	{
-		if (getPropertyDescription() != null)
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription != null)
 		{
-			PropertyDescription childPd = getChildPropertyDescription(propertyName);
-			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification &&
-				((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName) != null)
-				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName).getAsPropertyDescription();
+			PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+			if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+				((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+				childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
 			if (childPd != null)
 			{
 				IPropertyType< ? > propertyType = childPd.getType();
@@ -279,21 +283,25 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			updatePersistMappedPropeties();
 			return true;
 		}
-		else if (getPropertyDescription() != null)
+		else
 		{
-			// IMPORTANT if we decide that this method shouldn't affect all json properties and we remove the following code, we have to update code
-			// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
-			// depends on this in the end (the same for WebComponentPropertySource)
-			PropertyDescription childPd = getChildPropertyDescription(propertyName);
-			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification)
+			PropertyDescription propertyDescription = getPropertyDescription();
+			if (propertyDescription != null)
 			{
-				if (((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName) != null)
-					childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName).getAsPropertyDescription();
-			}
-			if (childPd != null)
-			{
-				// it is a json property defined in spec, but it's not mapping to a persist
-				setOrRemoveJsonSubproperty(propertyName, null, true);
+				// IMPORTANT if we decide that this method shouldn't affect all json properties and we remove the following code, we have to update code
+				// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
+				// depends on this in the end (the same for WebComponentPropertySource)
+				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+				if (childPd == null && propertyDescription instanceof WebObjectSpecification)
+				{
+					if (((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+						childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
+				}
+				if (childPd != null)
+				{
+					// it is a json property defined in spec, but it's not mapping to a persist
+					setOrRemoveJsonSubproperty(propertyName, null, true);
+				}
 			}
 		}
 		return false;
@@ -303,9 +311,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public boolean hasProperty(String propertyName)
 	{
 		boolean hasIt = false;
-		if (getPropertyDescription() != null)
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription != null)
 		{
-			PropertyDescription childPd = getChildPropertyDescription(propertyName);
+			PropertyDescription childPd = propertyDescription.getProperty(propertyName);
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
@@ -322,12 +331,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		Map<String, Object> ctp = getPersistMappedProperties();
 		if (ctp.containsKey(propertyName)) return ctp.get(propertyName);
 
-		if (getPropertyDescription() != null)
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription != null)
 		{
-			PropertyDescription childPd = getChildPropertyDescription(propertyName);
-			if (childPd == null && getPropertyDescription() instanceof WebObjectSpecification &&
-				((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName) != null)
-				childPd = ((WebObjectSpecification)getPropertyDescription()).getHandler(propertyName).getAsPropertyDescription();
+			PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+			if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+				((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+				childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
 			if (childPd != null)
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
@@ -404,9 +414,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	private Map<String, Object> getPersistMappedProperties()
 	{
-		if (!arePersistMappedPropetiesLoaded)
+		if (!arePersistMappedPropertiesLoaded)
 		{
-			arePersistMappedPropetiesLoaded = true; // do this here rather then later to avoid stack overflows in case code below end up calling persist.getProperty() again
+			arePersistMappedPropertiesLoaded = true; // do this here rather then later to avoid stack overflows in case code below end up calling persist.getProperty() again
 
 			if (getPropertyDescription() != null && getJson() != null)
 			{
@@ -424,10 +434,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					Debug.error(e);
 				}
 			}
-			else arePersistMappedPropetiesLoaded = false; // maybe the solution is being activated as we speak and the property descriptions from resources project are not yet available...
+			else arePersistMappedPropertiesLoaded = false; // maybe the solution is being activated as we speak and the property descriptions from resources project are not yet available...
 		}
 
-		return persistMappedPropeties;
+		return persistMappedProperties;
 	}
 
 	protected void updatePersistMappedProperty(String beanJSONKey, Object object)
@@ -441,12 +451,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			{
 				if (ServoyJSONObject.isJavascriptUndefined(object))
 				{
-					persistMappedPropeties.remove(beanJSONKey);
+					persistMappedProperties.remove(beanJSONKey);
 					persistMappedPropetiesByUUID = null;
 				}
 				else if (ServoyJSONObject.isJavascriptNull(object))
 				{
-					persistMappedPropeties.put(beanJSONKey, null);
+					persistMappedProperties.put(beanJSONKey, null);
 					persistMappedPropetiesByUUID = null;
 				}
 				else
@@ -471,9 +481,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							if (childChildWebObjectUUID != null)
 							{
 								IChildWebObject currentPersist = null;
-								if (persistMappedPropeties.containsKey(beanJSONKey) && persistMappedPropeties.get(beanJSONKey) instanceof IChildWebObject)
+								if (persistMappedProperties.containsKey(beanJSONKey) && persistMappedProperties.get(beanJSONKey) instanceof IChildWebObject)
 								{
-									currentPersist = (IChildWebObject)persistMappedPropeties.get(beanJSONKey);
+									currentPersist = (IChildWebObject)persistMappedProperties.get(beanJSONKey);
 									if (childChildWebObjectUUID.equals(currentPersist.getUUID()))
 									{
 										existingWebObject = currentPersist;
@@ -487,14 +497,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							if (isComponent(propertyType))
 							{
 								childWebObject = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
-								persistMappedPropeties.put(beanJSONKey, childWebObject);
+								persistMappedProperties.put(beanJSONKey, childWebObject);
 								persistMappedPropetiesByUUID = null;
 							}
 							else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
 							{
 								childWebObject = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
 								childWebObject.setTypeName(simpleTypeName);
-								persistMappedPropeties.put(beanJSONKey, childWebObject);
+								persistMappedProperties.put(beanJSONKey, childWebObject);
 								persistMappedPropetiesByUUID = null;
 							}
 						}
@@ -510,9 +520,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()) || isComponent(propertyType))
 							{
 								ArrayList<IChildWebObject> currentPersistMappedPropertyArray = new ArrayList<IChildWebObject>();
-								if (persistMappedPropeties.containsKey(beanJSONKey) && persistMappedPropeties.get(beanJSONKey) instanceof IChildWebObject[])
+								if (persistMappedProperties.containsKey(beanJSONKey) && persistMappedProperties.get(beanJSONKey) instanceof IChildWebObject[])
 								{
-									currentPersistMappedPropertyArray.addAll(Arrays.asList((IChildWebObject[])persistMappedPropeties.get(beanJSONKey)));
+									currentPersistMappedPropertyArray.addAll(Arrays.asList((IChildWebObject[])persistMappedProperties.get(beanJSONKey)));
 								}
 
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
@@ -562,7 +572,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 									}
 								}
 							}
-							persistMappedPropeties.put(beanJSONKey, persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
+							persistMappedProperties.put(beanJSONKey, persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
 							persistMappedPropetiesByUUID = null;
 						}
 					}
@@ -576,14 +586,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		}
 		else
 		{
-			if (persistMappedPropeties.remove(beanJSONKey) != null) persistMappedPropetiesByUUID = null;
+			if (persistMappedProperties.remove(beanJSONKey) != null) persistMappedPropetiesByUUID = null;
 		}
 	}
 
 	@Override
 	public void reload()
 	{
-		arePersistMappedPropetiesLoaded = false;
+		arePersistMappedPropertiesLoaded = false;
 	}
 
 	@Override
@@ -591,7 +601,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	{
 		setJsonInternal(arg);
 
-		if (arePersistMappedPropetiesLoaded)
+		if (arePersistMappedPropertiesLoaded)
 		{
 			if (arg != null)
 			{
@@ -612,7 +622,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 			else
 			{
-				persistMappedPropeties.clear();
+				persistMappedProperties.clear();
 			}
 		}
 
@@ -660,7 +670,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				((AbstractBase)webObject).flagChanged();
 			}
 
-			if (arePersistMappedPropetiesLoaded && getPropertyDescription() != null)
+			if (arePersistMappedPropertiesLoaded && getPropertyDescription() != null)
 			{
 				updatePersistMappedProperty(key, value); // update this web object's child web objects if needed (if this key affects them)
 			} // else not yet loaded - they will all load later so nothing to do here
@@ -912,7 +922,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			Iterator<IPersist> allobjects = getAllObjects();
 			if (allobjects != null && allobjects.hasNext())
 			{
-				persistMappedPropetiesByUUID = new ConcurrentHashMap<UUID, IPersist>(persistMappedPropeties.size(), 0.9f, 16);
+				persistMappedPropetiesByUUID = new ConcurrentHashMap<UUID, IPersist>(persistMappedProperties.size(), 0.9f, 16);
 				while (allobjects.hasNext())
 				{
 					IPersist persist = allobjects.next();

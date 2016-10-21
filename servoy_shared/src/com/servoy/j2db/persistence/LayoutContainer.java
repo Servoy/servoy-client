@@ -117,11 +117,10 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		String tag = getTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE);
 		if (tag == null)
 		{
-			Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getInstance().getLayoutSpecifications();
+			Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getInstance().getSpecProviderState().getLayoutSpecifications();
 			if (layouts != null && getPackageName() != null && layouts.get(getPackageName()) != null)
 			{
-				WebLayoutSpecification spec = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(getPackageName()).getSpecification(
-					getSpecName());
+				WebLayoutSpecification spec = layouts.get(getPackageName()).getSpecification(getSpecName());
 				if (spec != null && spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()) != null &&
 					spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).hasDefault())
 				{
