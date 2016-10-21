@@ -68,6 +68,7 @@ import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
@@ -82,6 +83,9 @@ import com.servoy.j2db.util.Utils;
 public class FormElementHelper implements IFormElementCache
 {
 	public final static RuntimeProperty<String> FORM_COMPONENT_TEMPLATE_NAME = new RuntimeProperty<String>()
+	{
+	};
+	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
 	{
 	};
 	public final static FormElementHelper INSTANCE = new FormElementHelper();
@@ -652,10 +656,16 @@ public class FormElementHelper implements IFormElementCache
 		FlattenedSolution flattenedSolution) // TODO more args will be needed here such as the tabSeq property name or description
 	{
 		if (persistIfAvailable == null) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
-
 		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
-		Map<TabSeqProperty, Integer> cachedTabSeq;
-		if (formWasModifiedViaSolutionModel) cachedTabSeq = null;
+		Map<TabSeqProperty, Integer> cachedTabSeq = null;
+		if (formWasModifiedViaSolutionModel)
+		{
+			Pair<Long, Map<TabSeqProperty, Integer>> pair = flattenedForm.getRuntimeProperty(FORM_TAB_SEQUENCE);
+			if (pair != null && flattenedForm.getLastModified() == pair.getLeft().longValue())
+			{
+				cachedTabSeq = pair.getRight();
+			}
+		}
 		else cachedTabSeq = formTabSequences.get(flattenedForm.getUUID());
 
 		if (cachedTabSeq == null)
@@ -719,6 +729,10 @@ public class FormElementHelper implements IFormElementCache
 			if (!formWasModifiedViaSolutionModel)
 			{
 				formTabSequences.putIfAbsent(flattenedForm.getUUID(), cachedTabSeq);
+			}
+			else
+			{
+				flattenedForm.setRuntimeProperty(FORM_TAB_SEQUENCE, new Pair<>(Long.valueOf(flattenedForm.getLastModified()), cachedTabSeq));
 			}
 		}
 
