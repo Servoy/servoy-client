@@ -210,7 +210,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 				for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) {
 					viewPort.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
-					updateRowConversionInfo(rowUpdate.startIndex, internalState, rowUpdateConversions ? rowUpdateConversions[j] : undefined);
+					updateRowConversionInfo(rowUpdate.startIndex, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
 				// insert might have made obsolete some records in cache; remove those; for inserts
 				// !!! rowUpdate.endIndex means the new length of the viewport
@@ -240,7 +240,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				viewPort.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
 				for (j = 0; j < rowUpdate.rows.length; j++) {
 					viewPort.push(rowUpdate.rows[j]);
-					updateRowConversionInfo(viewPort.length - 1, internalState, rowUpdateConversions ? rowUpdateConversions[j] : undefined);
+					updateRowConversionInfo(viewPort.length - 1, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
 //				if (oldLength == viewPort.length) {
 //				// workaround follows for a bug in ng-grid (changing the row references while the array has the same length doesn't trigger a UI update)
