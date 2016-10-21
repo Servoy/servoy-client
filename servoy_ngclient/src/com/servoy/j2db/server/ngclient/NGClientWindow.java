@@ -335,7 +335,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public boolean hasForm(String realName)
 	{
-		return getEndpoint().getFormUrl(realName) != null;
+		INGClientWebsocketEndpoint endpoint = getEndpoint();
+		return endpoint != null && endpoint.getFormUrl(realName) != null;
 	}
 
 	protected String getDefaultFormURLStart(Form form, String name)
