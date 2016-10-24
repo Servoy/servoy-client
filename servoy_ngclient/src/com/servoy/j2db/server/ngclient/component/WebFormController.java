@@ -419,8 +419,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				Utils.invokeLater(application, invokeLaterRunnables);
 			}
 
-			application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
-			application.getFlattenedSolution().registerLiveForm(form, namedInstance);
 		}
 		else
 		{
@@ -433,6 +431,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
 		}
+		application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
+		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
 		return true;
 	}
 
