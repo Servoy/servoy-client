@@ -144,7 +144,7 @@ public class FormController extends BasicFormController
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -201,7 +201,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
 	 */
 	@Override
@@ -359,7 +359,7 @@ public class FormController extends BasicFormController
 		if (view != null) scrollPosition = view.getVisibleRect();
 		getFormUI().setDesignMode(null);
 		Form f = application.getFlattenedSolution().getForm(form.getName());
-		form = application.getFlattenedSolution().getFlattenedForm(f);
+		form = application.getFlattenedSolution().getFlattenedForm(f, false); // don't use case, make sure it updates the cache
 		initStylesAndBorder();
 		int v = currentViewType;
 		currentViewType = -1;
@@ -726,7 +726,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#requestFocus()
 	 */
 	public void requestFocus()
@@ -1335,7 +1335,8 @@ public class FormController extends BasicFormController
 	{
 		if (formModel != null)
 		{
-			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$
 		}
 		else
 		{
