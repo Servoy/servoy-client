@@ -394,7 +394,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 		// update flattened form reference cause now we probably need to use a SM modified version
 		Form f = application.getFlattenedSolution().getForm(form.getName());
-		form = application.getFlattenedSolution().getFlattenedForm(f);
+		form = application.getFlattenedSolution().getFlattenedForm(f, false); // don't use case, make sure it updates the cache
 
 		INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getApplication().getWebsocketSession());
 		if (allWindowsProxy.hasFormChangedSinceLastSendToClient(form, getName()))

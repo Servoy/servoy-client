@@ -884,19 +884,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public void flushFlattendFormCache(IPersist persist)
+	public void flushFlattendFormCache(Form frm)
 	{
-		if (flattenedFormCache == null) return;
-		Form form = null;
-		if (persist instanceof FlattenedForm)
+		if (flattenedFormCache == null || frm == null) return;
+		Form form = frm;
+		if (frm instanceof FlattenedForm)
 		{
-			form = ((FlattenedForm)persist).getForm();
+			form = ((FlattenedForm)frm).getForm();
 		}
-		else
-		{
-			form = (Form)persist.getAncestor(IRepository.FORMS);
-		}
-		if (form != null) flattenedFormCache.remove(form);
+		flattenedFormCache.remove(form);
 	}
 
 	/*
@@ -1887,13 +1883,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (persist instanceof Relation) flushRelations();
 		if (persist instanceof ValueList) flushValuelists();
-		if (persist instanceof Form) flushForms();
+		if (persist instanceof Form)
+		{
+			flushForms();
+			flushFlattendFormCache((Form)persist);
+		}
 		if (persist instanceof ScriptMethod) flushScopes();
 		if (persist instanceof ScriptVariable) flushScriptVariables();
 		if (persist instanceof ScriptCalculation || persist instanceof AggregateVariable) flushGlobalProviders();
 		flushDataProvidersForPersist(persist);
 		flushDataProviderLookups(persist);
-		flushFlattendFormCache(persist);
 
 		allObjectscache = null;
 
@@ -2863,6 +2862,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 			else
 			{
+				flushFlattendFormCache(form);
 				Set<String> instances = liveForms.get(form.getName());
 				if (instances != null)
 				{
