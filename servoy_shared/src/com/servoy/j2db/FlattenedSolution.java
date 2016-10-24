@@ -172,7 +172,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public FlattenedSolution()
 	{
-		this(false);
+		this(true);
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 */
 	public FlattenedSolution(SolutionMetaData solutionMetaData, IActiveSolutionHandler activeSolutionHandler) throws RepositoryException, RemoteException
 	{
-		this(false);
+		this(true);
 		setSolution(solutionMetaData, true, true, activeSolutionHandler);
 	}
 
@@ -890,6 +890,21 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 			return flattedFormRef[0];
 		}
+	}
+
+	public void flushFlattendFormCache(IPersist persist)
+	{
+		if (flattenedFormCache == null) return;
+		Form form = null;
+		if (persist instanceof FlattenedForm)
+		{
+			form = ((FlattenedForm)persist).getForm();
+		}
+		else
+		{
+			form = (Form)persist.getAncestor(IRepository.FORMS);
+		}
+		flattenedFormCache.remove(form);
 	}
 
 	/*
@@ -1886,6 +1901,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		if (persist instanceof ScriptCalculation || persist instanceof AggregateVariable) flushGlobalProviders();
 		flushDataProvidersForPersist(persist);
 		flushDataProviderLookups(persist);
+		flushFlattendFormCache(persist);
 
 		allObjectscache = null;
 
