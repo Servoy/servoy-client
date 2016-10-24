@@ -1146,7 +1146,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var userProperties;
 	function getUserProperties() {
 		if (!angular.isDefined(userProperties)) {
-			var json = webStorage.session.get("userProperties");
+			var json = webStorage.local.get("userProperties");
 			if (json) {
 				userProperties = JSON.parse(json);
 			} else {
