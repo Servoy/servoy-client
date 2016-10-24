@@ -896,7 +896,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			form = (Form)persist.getAncestor(IRepository.FORMS);
 		}
-		flattenedFormCache.remove(form);
+		if (form != null) flattenedFormCache.remove(form);
 	}
 
 	/*
