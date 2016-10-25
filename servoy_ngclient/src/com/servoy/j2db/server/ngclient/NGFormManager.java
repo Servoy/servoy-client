@@ -246,7 +246,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				application.blockGUI(application.getI18NMessage("servoy.formManager.loadingForm") + formName); //$NON-NLS-1$
 
-				f = application.getFlattenedSolution().getFlattenedForm(f);
+				f = application.getFlattenedSolution().getFlattenedForm(f, false);
 
 				fp = new WebFormController((INGApplication)application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
