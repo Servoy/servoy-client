@@ -626,7 +626,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			allobjects = Collections.synchronizedList(new ArrayList<IPersist>(3));
 		}
-		if (allobjects.contains(obj))
+		if (obj.getParent() == this)
 		{
 			internalRemoveChild(obj);
 		}
