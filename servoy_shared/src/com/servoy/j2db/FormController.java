@@ -128,7 +128,7 @@ public class FormController extends BasicFormController
 			{
 				if (this.form instanceof FlattenedForm)
 				{
-					this.form = application.getFlattenedSolution().getFlattenedForm(copyForm, true);
+					this.form = application.getFlattenedSolution().getFlattenedForm(copyForm, false);
 				}
 				else
 				{
@@ -137,7 +137,7 @@ public class FormController extends BasicFormController
 			}
 			else if (this.form instanceof FlattenedForm)
 			{
-				this.form = application.getFlattenedSolution().getFlattenedForm(this.form, true);
+				this.form = application.getFlattenedSolution().getFlattenedForm(this.form, false);
 			}
 		}
 
