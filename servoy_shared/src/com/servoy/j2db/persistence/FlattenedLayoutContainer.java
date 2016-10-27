@@ -63,7 +63,7 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	@Override
 	public void addChild(IPersist obj)
 	{
-		if (getAllObjectsAsList().contains(obj))
+		if (obj != null && obj.getParent() == this)
 		{
 			layoutContainer.internalRemoveChild(obj);
 		}

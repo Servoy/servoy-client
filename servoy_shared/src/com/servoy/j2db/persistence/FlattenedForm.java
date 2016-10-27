@@ -137,7 +137,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		{
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (f.isResponsiveLayout() && persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0)
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && f.isResponsiveLayout())
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null)
