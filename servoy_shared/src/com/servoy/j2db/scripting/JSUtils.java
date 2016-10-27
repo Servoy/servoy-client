@@ -27,6 +27,7 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
@@ -276,6 +277,8 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Format a date object to a text representation.
+	 * This will format with the system timezone, so for web and ng clients it will use the server timezone to format
+	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
 	 * @sample
 	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss');
@@ -290,6 +293,31 @@ public class JSUtils implements IJSUtils
 		if (format != null && date != null)
 		{
 			return new SimpleDateFormat(format, application.getLocale()).format(date);
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * Format a date object to a text representation using the format and timezone given.
+	 * If the timezone is not given the timezone of the client itself will be used.
+	 * see i18n.getAvailableTimeZoneIDs() to get a timezone string that can be used.
+	 *
+	 * @sample
+	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss', "UTC");
+	 *
+	 * @param date the date
+	 * @param format the format to output
+	 * @param timezone the timezone to use the format, if null then current client timezone is used.
+	 * @return the date as text
+	 */
+	@JSFunction
+	public String dateFormat(Date date, String format, String timezone)
+	{
+		if (format != null && date != null)
+		{
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, application.getLocale());
+			simpleDateFormat.setTimeZone(timezone == null ? application.getTimeZone() : TimeZone.getTimeZone(timezone));
+			return simpleDateFormat.format(date);
 		}
 		return ""; //$NON-NLS-1$
 	}
