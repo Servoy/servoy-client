@@ -155,6 +155,32 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
+	public void selectAndOpenSolution()
+	{
+		try
+		{
+			try
+			{
+				getWebsocketSession().getClientService("$sabloLoadingIndicator").executeServiceCall("showLoading", null);
+			}
+			catch (IOException e)
+			{
+			}
+			super.selectAndOpenSolution();
+		}
+		finally
+		{
+			try
+			{
+				getWebsocketSession().getClientService("$sabloLoadingIndicator").executeServiceCall("hideLoading", null);
+			}
+			catch (IOException e)
+			{
+			}
+		}
+	}
+
+	@Override
 	protected SolutionMetaData selectSolutionToLoad() throws RepositoryException
 	{
 		// don't return here the current solution, that should only be loaded really through
