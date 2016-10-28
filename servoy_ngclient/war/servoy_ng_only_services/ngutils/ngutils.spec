@@ -25,6 +25,9 @@
 		"setOnUnloadConfirmationMessage" : {
 			"parameters" : [ { "name" : "message", "type" : "string" } ]
 		},
+		"setOnUnloadConfirmation" : {
+			"parameters" : [ { "name" : "showConfirmation", "type" : "boolean" } ]
+		},
 		"setViewportMetaDefaultForMobileAwareSites" : {
 			"parameters" : [ ]
 		},
