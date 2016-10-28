@@ -39,6 +39,25 @@ angular.module('ngclientutils', [ 'servoy' ])
 		},
 
 		/**
+		 * Set whether browser default warning message will be shown when the browser tab is closed or the users navigates away, 
+		 * this can be used to let users know they have data modifications that are not yet saved. 
+		 *
+		 * @param {boolean} showConfirmation boolean for whether to show confirmation message
+		 */
+		setOnUnloadConfirmation: function(showConfirmation)
+		{
+			// the message is ignored lately by browsers
+			confirmMessage = 'You have unsaved data. Are you sure you want to quit?';
+			if (showConfirmation) {
+				// duplicate add's of the same type and function are ignored 
+				// if an existing message would be updated with a new one
+				$window.window.addEventListener("beforeunload", beforeUnload);
+			}
+			else {
+				$window.window.removeEventListener("beforeunload", beforeUnload);
+			}
+		},
+		/**
 		 * Call this when a solution can handle mobile device layouts (responsive design, can handle nicely
 		 * width < height). This call is equivalent to calling setViewportMetaForMobileAwareSites(plugins.htmlHeaders.VIEWPORT_MOBILE_DEFAULT).<br/><br/>
 		 * 
