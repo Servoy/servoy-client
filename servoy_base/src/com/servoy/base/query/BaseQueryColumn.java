@@ -137,7 +137,6 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		final BaseQueryColumn other = (BaseQueryColumn)obj;
-		if (this.id != -1 || other.id != -1) return this.id == other.id;
 		if (this.name == null)
 		{
 			if (other.name != null) return false;
@@ -153,9 +152,8 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 			if (other.table != null) return false;
 		}
 		else if (!this.table.equals(other.table)) return false;
-		return true;
+		return id != -1 && this.id == other.id;
 	}
-
 
 	@Override
 	public String toString()
