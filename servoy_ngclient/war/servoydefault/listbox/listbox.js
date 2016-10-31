@@ -109,9 +109,10 @@ directive('servoydefaultListbox', [ '$parse', '$templateCache', '$http', '$compi
 				 */
 				$scope.api.getSelectedElements = function() {
 					var value = [];
-					if ($scope.model.valuelistID) {
+					if ($scope.model.valuelistID && $scope.model.dataProviderID) {
+						var arrValue = isMultiSelect ? $scope.model.dataProviderID.split('\n') : [$scope.model.dataProviderID];
 						for (var i = 0; i < $scope.model.valuelistID.length; i++) {
-							if ($scope.convertModel.indexOf($scope.model.valuelistID[i].realValue) >= 0) {
+							if (arrValue.indexOf($scope.model.valuelistID[i].realValue) >= 0) {
 								value.push($scope.model.valuelistID[i].realValue);
 							}
 						}
