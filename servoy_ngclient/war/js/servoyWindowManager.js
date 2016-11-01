@@ -411,14 +411,20 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				else
 					$location.url($location.url());
 			}
-			if (!$rootScope.$$phase) $rootScope.$digest();
+			if (!$rootScope.$$phase) {
+				if ($log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from switchForm for root scope");
+				$rootScope.$digest();
+			}
 		},
 		setTitle: function(name,title) {
 			if(instances[name] && instances[name].type!= WindowType.WINDOW){
 				instances[name].title =title;
 			}else{
 				$solutionSettings.solutionTitle = title;
-				if (!$rootScope.$$phase) $rootScope.$digest();
+				if (!$rootScope.$$phase) {
+					if ($log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from setTitle for root scope");
+					$rootScope.$digest();
+				}
 			}
 		},
 		setInitialBounds:function(name,initialBounds){
@@ -521,7 +527,10 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 						if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formName, formState);
 					});
 				}
-				if (!$rootScope.$$phase) $rootScope.$digest();
+				if (!$rootScope.$$phase) {
+					if ($log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from updateController for root scope");
+					$rootScope.$digest();
+				}
 			} else if ($log.debugEnabled) {
 				$log.warn("svy * updateController for form '" + formName + "' was ignored as the URLs are identical and we don't want to clear all kinds of states/caches without the form getting reloaded due to URL change");
 			}
@@ -532,7 +541,10 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			// form URL is used to create the directives/DOM and be ready for use
 			if ($log.debugEnabled) $log.debug("svy * requireFormLoaded: " + formName);
 			prepareFormForUseInHiddenDiv(formName);
-			if (!$rootScope.$$phase) $rootScope.$digest();
+			if (!$rootScope.$$phase) {
+				if ($log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from requireFormLoaded for root scope");
+				$rootScope.$digest();
+			}
 		},
 		destroyController : function(formName){
 			$sabloApplication.clearFormState(formName);

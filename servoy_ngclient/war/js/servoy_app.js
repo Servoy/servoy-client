@@ -187,7 +187,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			
 		}
 		var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, {solution:$solutionSettings.solutionName}, recordingPrefix)
-		wsSession.onMessageObject(function (msg, conversionInfo) {
+		wsSession.onMessageObject(function (msg, conversionInfo, scopesToDigest) {
 			// data got back from the server
 			for(var formname in msg.forms) {
 				// current model
@@ -199,7 +199,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 				else {
 					getFormMessageHandler(formname, msg, conversionInfo)(formState);
-					if (formState.getScope) formState.getScope().$digest();
+					if (formState.getScope) {
+						var s = formState.getScope();
+						if (s) scopesToDigest.putItem(s);
+					}
 				}
 			}
 			
@@ -1169,7 +1172,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
-			if (!$rootScope.$$phase) $rootScope.$digest();
+			if (!$rootScope.$$phase) {
+				if ($log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from setStyleSheets for root scope");
+				$rootScope.$digest();
+			}
 		},
 		getUserProperty: function(key) {
 			return getUserProperties()[key];
