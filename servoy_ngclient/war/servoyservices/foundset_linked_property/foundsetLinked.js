@@ -62,6 +62,21 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				if (!angular.isDefined(internalState)) {
 					initializeNewValue(newValue);
 					internalState = newValue[$sabloConverters.INTERNAL_IMPL];
+					var changeListeners = [];
+					newValue.addChangeListener = function(listener) {
+						changeListeners.push(listener);
+					}
+					newValue.removeChangeListener = function(listener) {
+						var index = changeListeners.indexOf(listener);
+						if (index > -1) {
+							changeListeners.splice(index, 1);
+						}
+					}
+					internalState.fireChanges = function(values) {
+						for(var i=0;i<changeListeners.length;i++) {
+							changeListeners[i](values);
+						}
+					}
 				}
 
 				if (angular.isDefined(serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])) {
@@ -84,6 +99,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
 							$sabloUtils.getInDepthProperty(serverJSONValue, CONVERSIONS, VIEWPORT_VALUE_UPDATE),
 							componentScope, componentModelGetter, true);
+					internalState.fireChanges(serverJSONValue[VIEWPORT_VALUE_UPDATE]);
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
 					var wholeViewport;
