@@ -105,8 +105,17 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 				if (delta != 0)
 					$scope.model.divLocation += Math.round(delta * $scope.model.resizeWeight); // the divLocation watch will do the rest
 			}
+			// initialize 'previous'
+			processResize();
 
-			$window.addEventListener('resize',processResize);
+			var resizeTimeout;
+			function onResize() {
+				if(resizeTimeout) {
+					$timeout.cancel(resizeTimeout);
+				}
+				resizeTimeout = $timeout(processResize, 50);
+			}
+			$window.addEventListener('resize',onResize);
 
 			if($scope.model.tabOrientation == -3) {
 				$scope.$watch("model.size.height", function(newValue, oldValue) {
