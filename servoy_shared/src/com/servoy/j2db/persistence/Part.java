@@ -463,4 +463,9 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
+	@Override
+	public ISupportChilds getRealParent()
+	{
+		return getParent();
+	}
 }

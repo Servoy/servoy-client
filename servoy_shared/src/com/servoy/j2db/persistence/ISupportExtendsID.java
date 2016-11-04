@@ -41,4 +41,5 @@ public interface ISupportExtendsID
 
 	Map<String, Object> getFlattenedPropertiesMap();
 
+	ISupportChilds getRealParent();
 }

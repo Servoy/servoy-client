@@ -409,4 +409,14 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
+	@Override
+	public ISupportChilds getRealParent()
+	{
+		if (getExtendsID() > 0 && getParent() instanceof Form)//TODO check if responsive form?
+		{
+			IPersist superPersist = PersistHelper.getSuperPersist(this);
+			if (superPersist != null) return superPersist.getParent();
+		}
+		return getParent();
+	}
 }

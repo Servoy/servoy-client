@@ -2063,4 +2063,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID).intValue();
 	}
+
+	@Override
+	public ISupportChilds getRealParent()
+	{
+		return getParent();
+	}
 }

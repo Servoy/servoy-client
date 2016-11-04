@@ -319,4 +319,9 @@ public class Tab extends AbstractBase
 		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
+	@Override
+	public ISupportChilds getRealParent()
+	{
+		return getParent();
+	}
 }
