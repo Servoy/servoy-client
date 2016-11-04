@@ -2082,6 +2082,17 @@ public final class Utils
 		}
 	}
 
+	public static void invokeAndWait(IEventDelegator delegator, List<Runnable> runnables)
+	{
+		if (runnables != null)
+		{
+			for (Runnable r : runnables)
+			{
+				delegator.invokeAndWait(r);
+			}
+		}
+	}
+
 //	@Deprecated
 //	public static String firstLetterToUpperCase(String string)
 //	{
