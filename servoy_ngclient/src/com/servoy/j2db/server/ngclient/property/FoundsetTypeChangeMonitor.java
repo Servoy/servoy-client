@@ -227,6 +227,18 @@ public class FoundsetTypeChangeMonitor
 		if (propertyValue.viewPort.size > 0) allChanged();
 	}
 
+	public void shrinkClientViewport(int relativeFirstRowToOldViewport, int relativeLastRowToOldViewport)
+	{
+		if (!shouldSendAll() && !shouldSendWholeViewPort() && relativeFirstRowToOldViewport <= relativeLastRowToOldViewport)
+		{
+			for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+			{
+				vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(), RowData.DELETE);
+			}
+			notifyChange();
+		}
+	}
+
 	public void recordsDeleted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
 	{
 		int oldChangeFlags = changeFlags;
@@ -327,24 +339,37 @@ public class FoundsetTypeChangeMonitor
 		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
 	}
 
+	public void extendClientViewport(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
+	{
+		if (!shouldSendAll() && !shouldSendWholeViewPort())
+		{
+			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
+			int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
+			// add records that were inserted in viewPort
+			for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+			{
+				vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
+					RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+			}
+			notifyChange();
+		}
+	}
+
 	/**
 	 * Deals with new records being inserted into the foundset.
 	 * @param firstRow the first row of the insertion.
 	 * @param lastRow the last row of the insertion.
 	 * @param viewPort the current viewPort.
-	 * @param viewPortExpandOnly if false, and records were inserted exactly at the viewPort start index, it will just slide the viewport;
-	 * if true then records were requested for (so not actually inserted in the foundset, just a viewportExpand is happening) exactly
-	 * at the viewPort start index, it will actually insert the new records in the view port.
 	 */
-	public void recordsInserted(int firstRow, int lastRow, FoundsetTypeViewport viewPort, boolean viewPortExpandOnly)
+	public void recordsInserted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
 	{
 		int oldChangeFlags = changeFlags;
 		boolean viewPortRecordChangesUpdated = false;
-		if (!viewPortExpandOnly && lastRow - firstRow >= 0) foundSetSizeChanged();
+		if (lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
-			if (viewPort.getStartIndex() <= (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
+			if (viewPort.getStartIndex() <= firstRow && firstRow <= viewPortEndIdx)
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 				// add records that were inserted in viewPort

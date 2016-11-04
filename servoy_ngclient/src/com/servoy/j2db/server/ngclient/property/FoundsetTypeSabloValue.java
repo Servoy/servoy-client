@@ -645,11 +645,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					{
 						viewPort.setPreferredViewportSize(update.getInt(PREFERRED_VIEWPORT_SIZE));
 					}
-
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))
 					{
 						viewPort.loadExtraRecords(update.getInt("loadExtraRecords"));
+					}
+					// {loadLessRecords: negativeOrPositiveCount}
+					else if (update.has("loadLessRecords"))
+					{
+						viewPort.loadLessRecords(update.getInt("loadLessRecords"));
 					}
 					else if (update.has("sort"))
 					{
