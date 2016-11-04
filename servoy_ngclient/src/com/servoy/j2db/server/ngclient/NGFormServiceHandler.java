@@ -178,73 +178,78 @@ public class NGFormServiceHandler extends FormServiceHandler
 				{
 					controller = getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 				}
-				if (controller == null) return Boolean.valueOf(true);
-				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				boolean isVisible = args.getBoolean("visible");
-				WebFormComponent containerComponent = null;
-				if (parentForm != null)
-				{
-					containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
 
-					if (isVisible && containerComponent != null)
-					{
-						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
-					}
-				}
-				boolean ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
-				if (ok && parentForm != null)
+				boolean ok = true;
+				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+				if (controller != null)
 				{
-					if (!isVisible && containerComponent != null)
+					boolean isVisible = args.getBoolean("visible");
+					WebFormComponent containerComponent = null;
+					if (parentForm != null)
 					{
-						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
-					}
-					String relation = null;
-					if (isVisible && args.has("relation") && !args.isNull("relation") && !"".equals(args.getString("relation")))
-					{
-						relation = args.getString("relation");
-						FoundSet parentFs = parentForm.getFormModel();
-						IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
-						if (selectedRecord != null)
+						containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
+
+						if (isVisible && containerComponent != null)
 						{
-							controller.loadRecords(selectedRecord.getRelatedFoundSet(relation));
+							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
+						}
+					}
+					ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
+					if (ok && parentForm != null)
+					{
+						if (!isVisible && containerComponent != null)
+						{
+							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
+						}
+						String relation = null;
+						if (isVisible && args.has("relation") && !args.isNull("relation") && !"".equals(args.getString("relation")))
+						{
+							relation = args.getString("relation");
+							FoundSet parentFs = parentForm.getFormModel();
+							IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
+							if (selectedRecord != null)
+							{
+								controller.loadRecords(selectedRecord.getRelatedFoundSet(relation));
+							}
+							else
+							{
+								// no selected record, then use prototype so we can get global relations
+								controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relation));
+							}
+						}
+
+						if (isVisible)
+						{
+							// was shown
+							parentForm.getFormUI().getDataAdapterList().addVisibleChildForm(controller, relation, true);
 						}
 						else
 						{
-							// no selected record, then use prototype so we can get global relations
-							controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relation));
+							// was hidden
+							parentForm.getFormUI().getDataAdapterList().removeVisibleChildForm(controller, true);
 						}
 					}
+				}
 
-					if (isVisible)
+				// if this call has an show object, then we need to directly show that form right away
+				if (ok && args.has("show"))
+				{
+					JSONObject showing = args.getJSONObject("show");
+					showing.put("visible", true);
+					if (args.has("parentForm"))
 					{
-						// was shown
-						parentForm.getFormUI().getDataAdapterList().addVisibleChildForm(controller, relation, true);
+						showing.put("parentForm", args.getString("parentForm"));
+						showing.put("bean", args.getString("bean"));
 					}
-					else
-					{
-						// was hidden
-						parentForm.getFormUI().getDataAdapterList().removeVisibleChildForm(controller, true);
-					}
-
-					// if this call has an show object, then we need to directly show that form right away
-					if (ok && args.has("show"))
-					{
-						JSONObject showing = args.getJSONObject("show");
-						showing.put("visible", true);
-						if (args.has("parentForm"))
-						{
-							showing.put("parentForm", args.getString("parentForm"));
-							showing.put("bean", args.getString("bean"));
-						}
-						executeMethod("formvisibility", showing);
-						// send the changes before returning the value, because else the values will be still
-						// a bit later then the "ok" of the form can be hidden.
-						CurrentWindow.get().sendChanges();
-					}
+					executeMethod("formvisibility", showing);
+					// send the changes before returning the value, because else the values will be still
+					// a bit later then the "ok" of the form can be hidden.
+					CurrentWindow.get().sendChanges();
 				}
 				Utils.invokeLater(getApplication(), invokeLaterRunnables);
 				Form form = getApplication().getFormManager().getPossibleForm(formName);
 				if (form != null) NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true);
+
 				return Boolean.valueOf(ok);
 			}
 
@@ -291,7 +296,9 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				break;
 			}
+
 			case "getValuelistDisplayValue" :
+			{
 				Object realValue = args.get("realValue");
 				Object valuelistID = args.get("valuelist");
 				int id = Utils.getAsInteger(valuelistID);
@@ -317,6 +324,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 					}
 				}
 				break;
+			}
+
 			case "callServerSideApi" :
 			{
 				String formName = args.getString("formname");
@@ -383,7 +392,9 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				break;
 			}
+
 			case "performFind" :
+			{
 				String formName = args.optString("formname");
 				boolean clear = args.optBoolean("clear");
 				boolean reduce = args.optBoolean("reduce");
@@ -394,6 +405,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 					controller.performFind(clear, reduce, showDialogOnNoResults);
 				}
 				break;
+			}
 
 			default :
 			{
