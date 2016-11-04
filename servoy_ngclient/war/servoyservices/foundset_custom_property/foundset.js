@@ -154,10 +154,18 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push({newViewPort: {startIndex : startIndex, size : size}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
-					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount) {
+					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if (isNaN(negativeOrPositiveCount)) throw "extrarecords is not a number (" + negativeOrPositiveCount + ")";
 						internalState.requests.push({loadExtraRecords: negativeOrPositiveCount});
-						if (internalState.changeNotifier) internalState.changeNotifier();
+						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
+					};
+					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
+						if (isNaN(negativeOrPositiveCount)) throw "lessrecords is not a number (" + negativeOrPositiveCount + ")";
+						internalState.requests.push({loadLessRecords: negativeOrPositiveCount});
+						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
+					};
+					newValue.notifyChanged = function() {
+						if (internalState.changeNotifier && internalState.requests.length > 0) internalState.changeNotifier();
 					};
 					newValue.sort = function(columns) {
 						internalState.requests.push({sort: columns});

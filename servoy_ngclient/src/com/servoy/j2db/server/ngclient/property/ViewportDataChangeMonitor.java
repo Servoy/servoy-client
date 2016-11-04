@@ -132,7 +132,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 				RowData newOperation = new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType);
 				if (operationType == RowData.CHANGE)
 				{
-					// it happens often that we get multiple change events for the same row one after another; don't sent each one to browser as it's not needed
+					// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
 					while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
 					{
 						viewPortChanges.remove(viewPortChanges.size() - 1);

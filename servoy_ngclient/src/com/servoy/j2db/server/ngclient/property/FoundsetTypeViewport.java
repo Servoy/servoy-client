@@ -101,13 +101,52 @@ public class FoundsetTypeViewport
 		{
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
 			if (oldStartIndex != startIndex || oldSize != size)
-				changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
+				changeMonitor.extendClientViewport(this.startIndex + oldSize, this.startIndex + this.size - 1, this);
 		}
 		else
 		{
 			this.startIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
 			this.size += (oldStartIndex - startIndex);
-			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
+			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.extendClientViewport(this.startIndex, oldStartIndex - 1, this);
+		}
+
+		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
+		if (foundset != null)
+		{
+			if (foundset.getSize() != oldFoundsetSize) changeMonitor.foundSetSizeChanged();
+			foundset.addFoundSetEventListener(getFoundsetEventListener());
+		}
+	}
+
+	/**
+	 * Narrow down the viewport - useful for discarding some records from the client viewport start or end without re-sending the rest of the viewport.
+	 *
+	 * @param positiveOrNegativeRecordNo the number of records to shrink the viewPort with. A positive value
+	 * will remove records from the beginning and a negative value will remove records from the end of the viewport.
+	 */
+	public void loadLessRecords(int positiveOrNegativeRecordNo)
+	{
+		int oldStartIndex = this.startIndex;
+		int oldSize = this.size;
+
+		int oldFoundsetSize = 0;
+		if (foundset != null)
+		{
+			foundset.removeFoundSetEventListener(getFoundsetEventListener());
+			oldFoundsetSize = foundset.getSize();
+		}
+		if (positiveOrNegativeRecordNo >= 0)
+		{
+			// remove from the beginning
+			correctAndSetViewportBoundsInternal(oldStartIndex + positiveOrNegativeRecordNo, oldSize - positiveOrNegativeRecordNo);
+			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.shrinkClientViewport(0, startIndex - oldStartIndex - 1); // shrink needs old viewport relative removed interval
+		}
+		else
+		{
+			// remove from the end; it's negative
+			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
+			// normally start index has not changed
+			if (oldSize != size) changeMonitor.shrinkClientViewport(size, oldSize - 1);
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
@@ -193,7 +232,7 @@ public class FoundsetTypeViewport
 							}
 							else
 							{
-								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this, false); // true - slide if first so that viewPort follows the first record
+								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
 								// if the size of the viewport is still smaller then the preferredViewPortSize
 								// and the foundset size is bigger then that size then update the bounds so that it is startIndex, preferedViewPortSize (or what is left in the foundset)
 								if (size < preferredViewPortSize && (foundset.getSize() - startIndex) > size)
