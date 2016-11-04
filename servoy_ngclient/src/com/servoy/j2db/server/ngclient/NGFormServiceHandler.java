@@ -257,7 +257,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 					// a bit later then the "ok" of the form can be hidden.
 					CurrentWindow.get().sendChanges();
 				}
-				Utils.invokeLater(getApplication(), invokeLaterRunnables);
+				Utils.invokeAndWait(getApplication(), invokeLaterRunnables);
 				Form form = getApplication().getFormManager().getPossibleForm(formName);
 				if (form != null) NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true);
 
