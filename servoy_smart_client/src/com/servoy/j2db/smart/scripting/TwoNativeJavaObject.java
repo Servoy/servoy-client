@@ -39,9 +39,9 @@ import com.servoy.j2db.smart.dataui.PortalComponent;
 
 /**
  * This object is made for the FormPanel elements so that both the Renderer object and the Editor object will be called for there requests.
- * 
+ *
  * Also the list view should be repainted. So that setEnabled/Color will be seen by the listview.
- * 
+ *
  * @author jcompagner
  */
 public class TwoNativeJavaObject extends NativeJavaObject
@@ -66,7 +66,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.mozilla.javascript.NativeJavaObject#get(java.lang.String, org.mozilla.javascript.Scriptable)
 	 */
 	@Override
@@ -120,15 +120,20 @@ public class TwoNativeJavaObject extends NativeJavaObject
 					}
 					else if (listView instanceof ListView)
 					{
-						((ListView)listView).editCellAt((((ListView)listView).getSelectedIndex()));
-						uiComponent.requestFocus();
-						SwingUtilities.invokeLater(new Runnable()
+						if (listView.isEnabled())
 						{
-							public void run()
+							// if list is not enabled, all controls are disabled or readonly, no sense to start edit and request focus
+							// also when clicking and disabled we don't do anything
+							((ListView)listView).editCellAt((((ListView)listView).getSelectedIndex()));
+							uiComponent.requestFocus();
+							SwingUtilities.invokeLater(new Runnable()
 							{
-								if (!((ListView)listView).isEditing()) ((ListView)listView).editCellAt((((ListView)listView).getSelectedIndex()));
-							}
-						});
+								public void run()
+								{
+									if (!((ListView)listView).isEditing()) ((ListView)listView).editCellAt((((ListView)listView).getSelectedIndex()));
+								}
+							});
+						}
 					}
 					else if (listView instanceof PortalComponent)
 					{
@@ -148,11 +153,11 @@ public class TwoNativeJavaObject extends NativeJavaObject
 	public Object unwrap()
 	{
 		// only go into edit if this is the event dispatch thread.
-		// else debugger can block. If scripts will get its own thread this has to be invokeLater() 
+		// else debugger can block. If scripts will get its own thread this has to be invokeLater()
 		if (SwingUtilities.isEventDispatchThread())
 		{
 
-			// when this component is unwrapped, NOT due to a function call on it,  (the reference is given to the java world)			
+			// when this component is unwrapped, NOT due to a function call on it,  (the reference is given to the java world)
 			// or the location or width is requested we should make sure that it goes in editmode so that the component is in a valid
 			// state. For example popupmenu tries to show an popup on the components location.
 			if (executingFunction == null || executingFunction.startsWith("getLocation") || executingFunction.startsWith("getWidth")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -205,7 +210,7 @@ public class TwoNativeJavaObject extends NativeJavaObject
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.mozilla.javascript.NativeJavaObject#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
 	 */
 	@Override
