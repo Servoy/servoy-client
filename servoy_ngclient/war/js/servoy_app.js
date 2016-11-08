@@ -4,7 +4,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 ).config(['$controllerProvider', '$logProvider', '$translateProvider', function($controllerProvider, $logProvider, $translateProvider) {
 	controllerProvider = $controllerProvider;
-	$logProvider.debugEnabled(false);
 	
 	// TODO: check if this does not break some translated values
 	$translateProvider.useSanitizeValueStrategy('sanitize');

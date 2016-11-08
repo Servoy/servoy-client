@@ -27,12 +27,14 @@ import javax.swing.event.ListSelectionListener;
 final class FoundsetPropertySelectionListener implements ListSelectionListener
 {
 
-	protected boolean ignoreSelectionChanges;
-	protected FoundsetTypeChangeMonitor changeMonitor;
+	private boolean ignoreSelectionChanges;
+	private final FoundsetTypeChangeMonitor changeMonitor;
+	private final FoundsetTypeViewport viewPort;
 
-	public FoundsetPropertySelectionListener(FoundsetTypeChangeMonitor changeMonitor)
+	public FoundsetPropertySelectionListener(FoundsetTypeChangeMonitor changeMonitor, FoundsetTypeViewport viewPort)
 	{
 		this.changeMonitor = changeMonitor;
+		this.viewPort = viewPort;
 	}
 
 	@Override
@@ -41,6 +43,7 @@ final class FoundsetPropertySelectionListener implements ListSelectionListener
 		if (!e.getValueIsAdjusting() && !ignoreSelectionChanges)
 		{
 			changeMonitor.selectionChanged();
+			viewPort.selectionChanged();
 		}
 	}
 

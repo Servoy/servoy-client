@@ -36,24 +36,37 @@ public class FoundsetPropertyTypeConfig
 	public static final String SEND_DEFAULT_FORMATS = "provideColumnFormats";
 	public static final String DATAPROVIDERS = "dataproviders";
 	public static final String DYNAMIC_DATAPROVIDERS = "dynamicDataproviders";
+	public static final String SEND_SELECTION_VIEWPORT_INITIALLY = "sendSelectionViewportInitially";
+	public static final String INITIAL_PREFERRED_VIEWPORT_SIZE = "initialPreferredViewPortSize";
+
 
 	public final boolean sendDefaultFormats;
 
 	public final boolean hasDynamicDataproviders;
 	public final String[] dataproviders;
+	public final int initialPreferredViewPortSize;
+	public final boolean sendSelectionViewportInitially;
 
-	public FoundsetPropertyTypeConfig(boolean sendDefaultFormats, boolean hasDynamicDataproviders, String[] dataproviders)
+	public FoundsetPropertyTypeConfig(boolean sendDefaultFormats, boolean hasDynamicDataproviders, String[] dataproviders,
+		boolean sendSelectionViewportInitially, int initialPreferredViewPortSize)
 	{
 		this.sendDefaultFormats = sendDefaultFormats;
 		this.hasDynamicDataproviders = hasDynamicDataproviders;
 		this.dataproviders = dataproviders;
+		this.sendSelectionViewportInitially = sendSelectionViewportInitially;
+		this.initialPreferredViewPortSize = initialPreferredViewPortSize;
 	}
 
 	public FoundsetPropertyTypeConfig(JSONObject config)
 	{
-		this.sendDefaultFormats = (config == null ? false : config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false));
+		this.sendDefaultFormats = (config == null ? false
+			: config.has(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS) ? config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false) : false);
 
-		this.hasDynamicDataproviders = (config != null && config.optBoolean(DYNAMIC_DATAPROVIDERS));
+		this.hasDynamicDataproviders = (config != null && (config.has(DYNAMIC_DATAPROVIDERS) ? config.optBoolean(DYNAMIC_DATAPROVIDERS) : false));
+		this.sendSelectionViewportInitially = (config != null && config.has(SEND_SELECTION_VIEWPORT_INITIALLY)
+			? config.optBoolean(SEND_SELECTION_VIEWPORT_INITIALLY) : false);
+		this.initialPreferredViewPortSize = (config != null && config.has(INITIAL_PREFERRED_VIEWPORT_SIZE) ? config.optInt(INITIAL_PREFERRED_VIEWPORT_SIZE)
+			: 50);
 
 		String[] dps = null;
 		if (config != null)

@@ -106,6 +106,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
 	public static final String PREFERRED_VIEWPORT_SIZE = "preferredViewportSize";
+	public static final String INITIAL_SELECTION_VIEWPORT_CENTERED = "initialSelectionViewportCentered";
 	public static final String ROWS = "rows";
 	public static final String NO_OP = "n";
 
@@ -149,7 +150,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		rowDataProvider = new FoundsetTypeRowDataProvider(this);
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
-		viewPort = new FoundsetTypeViewport(changeMonitor);
+		viewPort = new FoundsetTypeViewport(changeMonitor, specConfig);
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		recordDataLinkedPropertyIDToColumnDP = new HashMap<String, String>();
 		// foundsetSelector as defined in component design XML.
@@ -333,7 +334,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	{
 		if (listSelectionListener == null)
 		{
-			listSelectionListener = new FoundsetPropertySelectionListener(changeMonitor);
+			listSelectionListener = new FoundsetPropertySelectionListener(changeMonitor, viewPort);
 		}
 		return listSelectionListener;
 	}
@@ -639,20 +640,28 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					if (update.has("newViewPort"))
 					{
 						JSONObject newViewport = update.getJSONObject("newViewPort");
+
+						viewPort.clearSendingInitialPreferredViewport();
 						viewPort.setBounds(newViewport.getInt(START_INDEX), newViewport.getInt(SIZE));
 					}
 					if (update.has(PREFERRED_VIEWPORT_SIZE))
 					{
 						viewPort.setPreferredViewportSize(update.getInt(PREFERRED_VIEWPORT_SIZE));
+						if (update.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY))
+							viewPort.setSendSelectionViewportInitially(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
+						if (update.has(INITIAL_SELECTION_VIEWPORT_CENTERED))
+							viewPort.setInitialSelectionViewportCentered(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
 					}
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))
 					{
+						viewPort.clearSendingInitialPreferredViewport();
 						viewPort.loadExtraRecords(update.getInt("loadExtraRecords"));
 					}
 					// {loadLessRecords: negativeOrPositiveCount}
 					else if (update.has("loadLessRecords"))
 					{
+						viewPort.clearSendingInitialPreferredViewport();
 						viewPort.loadLessRecords(update.getInt("loadLessRecords"));
 					}
 					else if (update.has("sort"))

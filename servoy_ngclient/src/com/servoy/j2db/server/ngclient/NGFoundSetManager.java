@@ -194,7 +194,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
 		if (foundsetTypeSabloValue == null)
 		{
-			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null))
+			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null, false, 15))
 			{
 				@Override
 				protected void updateFoundset(IRecordInternal record)

@@ -511,6 +511,7 @@ public class FoundsetTypeChangeMonitor
 	{
 		changeFlags = 0;
 		viewPortDataChangeMonitor.clearChanges();
+		propertyValue.getViewPort().clearSendingInitialPreferredViewport();
 	}
 
 	protected void notifyChange()
