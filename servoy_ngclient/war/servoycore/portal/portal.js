@@ -34,12 +34,13 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			}
 			
 			$scope.columnMinWidth = (!$scope.model.multiLine && $scope.model.headerHeight != 0) ? 30 : 0;
+			$scope.readOnlyOptimizedMode = $scope.model.readOnlyMode !== undefined ? $scope.model.readOnlyMode : $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
 			
 			var pageSizeFactor = $applicationService.getUIProperty("ngClientPageSizeFactor");
 			if (!pageSizeFactor || pageSizeFactor <= 1) pageSizeFactor = 2;
 			$scope.pageSize = 25;
 			$scope.transferFocus = function() {
-				$($element.find(".ui-grid-focuser")[0]).focus();
+				$($element.find(".ui-grid-focuser")[0]).focus();	
 			}
 			
 			var EMPTY =  {viewPort:{rows:[]}};
@@ -160,10 +161,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				return columnTitle;
 			}
 
-			var readOnlyOptimizedMode = $scope.model.readOnlyMode !== undefined ? $scope.model.readOnlyMode : $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
 			if (elements)
 			{
-				if(!readOnlyOptimizedMode) {
+				if(!$scope.readOnlyOptimizedMode) {
 					$element.on("keydown", function(event) {
 						if(!$scope.foundset.multiSelect && (event.which == 38 || event.which == 40)) {
 							var selectedRowIdx = $scope.foundset.selectedRowIndexes[0];
@@ -199,7 +199,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					cellTemplate += '/>';					
 					
 					
-					if(readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {						
+					if($scope.readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {						
 						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';						
 						isEditable = true;
 						isRowEditable = true;
@@ -267,7 +267,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							enableSorting:isSortable,
 							sortDirectionCycle: [uiGridConstants.ASC, uiGridConstants.DESC],
 							enableHiding: false,
-							allowCellFocus: readOnlyOptimizedMode,
+							allowCellFocus: $scope.readOnlyOptimizedMode,
 							headerCellClass: headerCellClass,
 							svyHeaderAction: headerAction,
 							svyRightClick: headerRightClick,
@@ -298,7 +298,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					cellEditableCondition: isRowEditable,
 					editableCellTemplate: rowEditTemplate,
 					type: "object", // just put a type here to avoid a console warning, we don't know the type and we dont use the edit feature of ui-grid
-					allowCellFocus: readOnlyOptimizedMode
+					allowCellFocus: $scope.readOnlyOptimizedMode
 				});
 			}
 			else {

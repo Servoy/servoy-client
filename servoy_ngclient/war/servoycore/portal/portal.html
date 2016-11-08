@@ -1,10 +1,12 @@
 <div style="width: 100%; height: 100%; overflow: hidden; " 
 	class='svy-portal'
-	sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 150}"> <!-- add here stuff that applies directly to portal (styles, borders...) -->
-	<div  ng-focus='transferFocus()' sablo-tabseq='model.tabSeq'></div>
+	sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true}"> <!-- add here stuff that applies directly to portal (styles, borders...) -->
+	<div  ng-focus='transferFocus()' sablo-tabseq='readOnlyOptimizedMode ? 1 : -2'></div>
     <div class="svyPortalGridStyle" 
     		ui-grid='gridOptions'
     		ui-grid-move-columns
-    	 	ui-grid-resize-columns ui-grid-selection ui-grid-infinite-scroll ui-grid-cellNav ui-grid-edit>
+    	 	ui-grid-resize-columns ui-grid-selection ui-grid-infinite-scroll ui-grid-cellNav ui-grid-edit
+    	 	sablo-tabseq='2'
+    	 	sablo-tabseq-config="{container: true, reservedGap: 150}">
     </div>
 </div>
