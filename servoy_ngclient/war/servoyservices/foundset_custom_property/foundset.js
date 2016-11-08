@@ -11,8 +11,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SERVER_SIZE = "serverSize";
 	var SORT_COLUMNS = "sortColumns";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
-	var SEND_SELECTION_RESPONSE = "selectionResponse";
-	var SEND_SELECTION_REQUESTID = "selectionRequestID";
 	var MULTI_SELECT = "multiSelect";
 	var HAS_MORE_ROWS = "hasMoreRows";
 	var VIEW_PORT = "viewPort";
@@ -20,6 +18,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SIZE = "size";
 	var ROWS = "rows";
 	var COLUMN_FORMATS = "columnFormats";
+	var HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
+	var ID_KEY = "id";
+	var VALUE_KEY = "value";
 
 	var PUSH_TO_SERVER = "w";
 
@@ -93,15 +94,26 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
 					updates = true;
 				}
-				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE])) {
+				if (angular.isDefined(serverJSONValue[HANDLED_CLIENT_REQUESTS])) {
+					var handledRequests = serverJSONValue[HANDLED_CLIENT_REQUESTS]; // array of { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-					if (internalState.deferred && internalState.msgid && internalState.msgid === serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_REQUESTID]) {
-						
-						if (serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE]) internalState.deferred.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
-						else internalState.deferred.reject(currentClientValue[SELECTED_ROW_INDEXES]);
-						
-						delete internalState.deferred;
-					}
+					
+					handledRequests.forEach( function(handledReq) { 
+					     var defer = internalState.deferred[handledReq[ID_KEY]];
+					     if (defer) {
+					    	 if (defer === internalState.selectionUpdateDefer) {
+						    	 if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+						    	 else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
+						    	 
+						    	 delete internalState.selectionUpdateDefer;
+					    	 } else {
+						    	 if (handledReq[VALUE_KEY]) defer.resolve();
+						    	 else defer.reject();
+					    	 }
+					    	 delete internalState.deferred[handledReq[ID_KEY]];
+					     }
+					});
+					
 					updates = true;
 				}
 				
@@ -139,6 +151,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 
 					internalState.requests = [];
+					internalState.deferred = {}; // key is msgId (which always increases), values is the q defer
+					internalState.currentMsgId = 0;
+					
+					function getNewDeferId() {
+						var d = $q.defer();
+						internalState.currentMsgId++;
+						internalState.deferred[internalState.currentMsgId] = d;
+						
+						return internalState.currentMsgId;
+					}
 
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
 					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
@@ -151,18 +173,36 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
 						if (isNaN(startIndex) || isNaN(size)) throw new Error("loadRecordsAsync: start or size are not numbers (" + startIndex + "," + size + ")");
-						internalState.requests.push({newViewPort: {startIndex : startIndex, size : size}});
+
+						req = {newViewPort: {startIndex : startIndex, size : size}};
+						var requestID = getNewDeferId();
+						req[ID_KEY] = requestID;
+						internalState.requests.push(req);
+						
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						return internalState.deferred[requestID].promise;
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadExtraRecordsAsync: extrarecords is not a number (" + negativeOrPositiveCount + ")");
-						internalState.requests.push({loadExtraRecords: negativeOrPositiveCount});
+
+						req = { loadExtraRecords: negativeOrPositiveCount };
+						var requestID = getNewDeferId();
+						req[ID_KEY] = requestID;
+						internalState.requests.push(req);
+						
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
+						return internalState.deferred[requestID].promise;
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadLessRecordsAsync: lessrecords is not a number (" + negativeOrPositiveCount + ")");
-						internalState.requests.push({loadLessRecords: negativeOrPositiveCount});
+
+						req = { loadLessRecords: negativeOrPositiveCount };
+						var requestID = getNewDeferId();
+						req[ID_KEY] = requestID;
+						internalState.requests.push(req);
+
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
+						return internalState.deferred[requestID].promise;
 					};
 					newValue.notifyChanged = function() {
 						if (internalState.changeNotifier && internalState.requests.length > 0) internalState.changeNotifier();
@@ -180,22 +220,20 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
 					newValue.requestSelectionUpdate = function(tmpSelectedRowIdxs) {
-						if (internalState.deferred) {
-							internalState.deferred.reject("canceled");
+						if (internalState.selectionUpdateDefer) {
+							internalState.selectionUpdateDefer.reject("Selection change defer cancelled because we are already sending another selection to server.");
 						}
-						delete internalState.deferred;
+						delete internalState.selectionUpdateDefer;
 
-						internalState.deferred = $q.defer();
-						if (internalState.msgid === undefined) {
-							internalState.msgid = 1;
-						}
-						else {
-							internalState.msgid++;
-						}
-						internalState.requests.push({newClientSelectionRequest: tmpSelectedRowIdxs, selectionRequestID: internalState.msgid});
+						var msgId = getNewDeferId();
+						internalState.selectionUpdateDefer = internalState.deferred[msgId];
+						
+						req = {newClientSelectionRequest: tmpSelectedRowIdxs, selectionRequestID: msgId};
+						req[ID_KEY] = msgId;
+						internalState.requests.push();
 						if (internalState.changeNotifier) internalState.changeNotifier();
 
-						return internalState.deferred.promise;
+						return internalState.selectionUpdateDefer.promise;
 					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup

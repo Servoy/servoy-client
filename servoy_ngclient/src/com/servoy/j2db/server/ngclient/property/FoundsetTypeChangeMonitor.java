@@ -30,6 +30,8 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.j2db.util.Pair;
+
 /**
  * This class is responsible for keeping track of what changes need to be sent to the client (whole thing, selection changes, viewport idx/size change, row data changes...)
  *
@@ -56,9 +58,8 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_SELECTED_INDEXES = 0b000010000;
 
-	protected static final int SEND_SELECTION_DENIED = 0b000100000;
-
-	protected static final int SEND_SELECTION_ACCEPTED = 0b001000000;
+	// 0b000100000;
+	// 0b001000000;
 
 	protected static final int SEND_COLUMN_FORMATS = 0b010000000;
 
@@ -67,9 +68,12 @@ public class FoundsetTypeChangeMonitor
 	protected boolean lastHadMoreRecords = false;
 
 	protected IChangeListener changeNotifier;
+
 	protected int changeFlags = 0;
+	protected List<Pair<Integer, Boolean>> handledRequestIds = new ArrayList<>();
 	protected final ViewportDataChangeMonitor<FoundsetTypeRowDataProvider> viewPortDataChangeMonitor;
 	protected final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
+
 	protected final FoundsetTypeSabloValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
 
 	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue, FoundsetTypeRowDataProvider rowDataProvider)
@@ -79,31 +83,19 @@ public class FoundsetTypeChangeMonitor
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 
-
 	/**
-	 * Called when the foundSet selection request from the client was accepted by the server.
+	 * A client request (change selection, load extra records...) was handled on server either successfully or not. But the client
+	 * still needs to know about this in case a client side promise is still waiting to be resolved/cancelled for that action.
+	 *
+	 * We keep these all the time, even if the whole viewport is resent because this info needs to go to client anyway.
+	 *
+	 * @param reqId the requestId that we got from the client for executing an action
+	 * @param success wether that action was handled successfully or with failures.
 	 */
-	public void selectionAccepted()
+	public void requestIdHandled(int reqId, boolean success)
 	{
-		if (!shouldSendAll())
-		{
-			int oldChangeFlags = changeFlags;
-			changeFlags = changeFlags | SEND_SELECTION_ACCEPTED;
-			if (oldChangeFlags != changeFlags) notifyChange();
-		}
-	}
-
-	/**
-	 * Called when the foundSet selection request from the client was denied by the server.
-	 */
-	public void selectionDenied()
-	{
-		if (!shouldSendAll())
-		{
-			int oldChangeFlags = changeFlags;
-			changeFlags = changeFlags | SEND_SELECTION_DENIED;
-			if (oldChangeFlags != changeFlags) notifyChange();
-		}
+		handledRequestIds.add(new Pair<>(Integer.valueOf(reqId), Boolean.valueOf(success)));
+		if (handledRequestIds.size() == 1) notifyChange();
 	}
 
 	/**
@@ -445,14 +437,9 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
 	}
 
-	public boolean shouldSendSelectionAccepted()
+	public List<Pair<Integer, Boolean>> getHandledRequestIds()
 	{
-		return (changeFlags & SEND_SELECTION_ACCEPTED) != 0;
-	}
-
-	public boolean shouldSendSelectionDenied()
-	{
-		return (changeFlags & SEND_SELECTION_DENIED) != 0;
+		return handledRequestIds;
 	}
 
 	public boolean shouldSendFoundsetSize()
@@ -503,8 +490,7 @@ public class FoundsetTypeChangeMonitor
 	public boolean hasChanges()
 	{
 		return shouldSendAll() || shouldSendFoundsetSize() || shouldSendFoundsetSort() || shouldSendSelectedIndexes() || shouldSendViewPortBounds() ||
-			shouldSendWholeViewPort() || shouldSendColumnFormats() || shouldSendSelectionAccepted() || shouldSendSelectionDenied() ||
-			getViewPortChanges().size() > 0;
+			shouldSendWholeViewPort() || shouldSendColumnFormats() || getHandledRequestIds().size() > 0 || getViewPortChanges().size() > 0;
 	}
 
 	public void clearChanges()
@@ -512,6 +498,7 @@ public class FoundsetTypeChangeMonitor
 		changeFlags = 0;
 		viewPortDataChangeMonitor.clearChanges();
 		propertyValue.getViewPort().clearSendingInitialPreferredViewport();
+		handledRequestIds.clear();
 	}
 
 	protected void notifyChange()
