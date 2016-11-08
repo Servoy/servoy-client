@@ -8,6 +8,9 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	var INSERT = 1;
 	var DELETE = 2;
 
+	var DATAPROVIDER_KEY = "dp";
+	var VALUE_KEY = "value";
+
 	function addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState, componentScope, dumbWatchType) {
 		if (componentScope) {
 			function queueChange(newData, oldData) {
@@ -16,13 +19,13 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				if (angular.isDefined(internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])) {
 					r[$foundsetTypeConstants.ROW_ID_COL_KEY] = internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]().viewPort.rows[idx][$foundsetTypeConstants.ROW_ID_COL_KEY];
 				} else r[$foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]; // if it doesn't have internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] then it's probably the foundset property's viewport directly which has those in the viewport
-				r.dp = columnName;
-				r.value = newData;
+				r[DATAPROVIDER_KEY] = columnName;
+				r[VALUE_KEY] = newData;
 
 				// convert new data if necessary
 				var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][idx] : undefined;
-				if (conversionInfo && conversionInfo[columnName]) r.value = $sabloConverters.convertFromClientToServer(r.value, conversionInfo[columnName], oldData);
-				else r.value = $sabloUtils.convertClientObject(r.value);
+				if (conversionInfo && conversionInfo[columnName]) r[VALUE_KEY] = $sabloConverters.convertFromClientToServer(r[VALUE_KEY], conversionInfo[columnName], oldData);
+				else r[VALUE_KEY] = $sabloUtils.convertClientObject(r[VALUE_KEY]);
 
 				internalState.requests.push({viewportDataChanged: r});
 				if (internalState.changeNotifier) internalState.changeNotifier();

@@ -96,8 +96,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String SORT = "sortColumns";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 
-	public static final String SEND_SELECTION_RESPONSE = "selectionResponse";
-	public static final String SEND_SELECTION_REQUESTID = "selectionRequestID";
+	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
+	public static final String ID_KEY = "id";
 
 	public static final String MULTI_SELECT = "multiSelect";
 	public static final String VIEW_PORT = "viewPort";
@@ -138,7 +138,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected BaseWebObject webObject;
 
-	protected int selectionRequestMsgid;
 	protected final FoundsetPropertyTypeConfig specConfig;
 
 	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL, FoundsetPropertyTypeConfig specConfig)
@@ -376,6 +375,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, false);
 
+		addHandledClientRequestIdsIfNeeded(destinationJSON, true);
+
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
 		addViewPort(destinationJSON);
@@ -493,24 +494,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				addSelectedIndexes(destinationJSON);
 				somethingChanged = true;
 			}
-			if (changeMonitor.shouldSendSelectionDenied())
-			{
-				if (!somethingChanged) destinationJSON.object();
-				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_REQUESTID);
-				destinationJSON.value(this.selectionRequestMsgid);
-				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_RESPONSE);
-				destinationJSON.value(false);
-				somethingChanged = true;
-			}
-			if (changeMonitor.shouldSendSelectionAccepted())
-			{
-				if (!somethingChanged) destinationJSON.object();
-				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_REQUESTID);
-				destinationJSON.value(this.selectionRequestMsgid);
-				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_RESPONSE);
-				destinationJSON.value(true);
-				somethingChanged = true;
-			}
+			somethingChanged = addHandledClientRequestIdsIfNeeded(destinationJSON, somethingChanged);
 			if (changeMonitor.shouldSendColumnFormats())
 			{
 				if (!somethingChanged) destinationJSON.object();
@@ -577,6 +561,23 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		}
 	}
 
+	private boolean addHandledClientRequestIdsIfNeeded(JSONWriter destinationJSON, boolean somethingChanged)
+	{
+		List<Pair<Integer, Boolean>> handledClientRequests = changeMonitor.getHandledRequestIds();
+		if (handledClientRequests.size() > 0)
+		{
+			if (!somethingChanged) destinationJSON.object();
+			destinationJSON.key(HANDLED_CLIENT_REQUESTS).array();
+			for (Pair<Integer, Boolean> x : handledClientRequests)
+			{
+				destinationJSON.object().key(ID_KEY).value(x.getLeft().intValue()).key(VALUE_KEY).value(x.getRight().booleanValue()).endObject();
+			}
+			destinationJSON.endArray();
+			somethingChanged = true;
+		}
+		return somethingChanged;
+	}
+
 	protected String getComponentName(String columnName)
 	{
 		Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
@@ -640,9 +641,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					if (update.has("newViewPort"))
 					{
 						JSONObject newViewport = update.getJSONObject("newViewPort");
+						int requestID = update.getInt(ID_KEY);
 
 						viewPort.clearSendingInitialPreferredViewport();
 						viewPort.setBounds(newViewport.getInt(START_INDEX), newViewport.getInt(SIZE));
+
+						changeMonitor.requestIdHandled(requestID, true);
 					}
 					if (update.has(PREFERRED_VIEWPORT_SIZE))
 					{
@@ -655,14 +659,18 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))
 					{
+						int requestID = update.getInt(ID_KEY);
 						viewPort.clearSendingInitialPreferredViewport();
 						viewPort.loadExtraRecords(update.getInt("loadExtraRecords"));
+						changeMonitor.requestIdHandled(requestID, true);
 					}
 					// {loadLessRecords: negativeOrPositiveCount}
 					else if (update.has("loadLessRecords"))
 					{
+						int requestID = update.getInt(ID_KEY);
 						viewPort.clearSendingInitialPreferredViewport();
 						viewPort.loadLessRecords(update.getInt("loadLessRecords"));
+						changeMonitor.requestIdHandled(requestID, true);
 					}
 					else if (update.has("sort"))
 					{
@@ -754,7 +762,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					// {newClientSelectionRequest: newSelectedIndexesArray}
 					else if (update.has("newClientSelectionRequest"))
 					{
-						this.selectionRequestMsgid = update.getInt("selectionRequestID");
+						int requestID = update.getInt(ID_KEY);
 						JSONArray jsonSelectedIndexes = update.getJSONArray("newClientSelectionRequest");
 						int[] newSelectedIndexes = new int[jsonSelectedIndexes.length()];
 						for (int j = newSelectedIndexes.length - 1; j >= 0; j--)
@@ -785,15 +793,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							if (!Arrays.equals(oldSelection, foundset.getSelectedIndexes()))
 							{// if the selection is changed, send it back to the client so that its model is also updated
 								changeMonitor.selectionChanged();
-								changeMonitor.selectionAccepted();
+								changeMonitor.requestIdHandled(requestID, true);
 							}
 							else
 							{
 								if (!Arrays.equals(oldSelection, newSelectedIndexes))
 								{ // it was supposed to change but the server did not allow it
-									changeMonitor.selectionDenied();
+									changeMonitor.requestIdHandled(requestID, false);
+
 								}
-								else changeMonitor.selectionAccepted();
+								else changeMonitor.requestIdHandled(requestID, true);
 							}
 						}
 					}
