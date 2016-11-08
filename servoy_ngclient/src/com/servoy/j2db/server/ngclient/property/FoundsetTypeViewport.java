@@ -35,15 +35,24 @@ public class FoundsetTypeViewport
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected IFoundSetInternal foundset;
 	protected IFoundSetEventListener foundsetEventListener;
-	private int preferredViewPortSize = 15;
+
+	private int preferredViewPortSize; // 50 by default; see constructor
+	private boolean sendSelectionViewportInitially; // default is false; see constructor
+	private boolean initialSelectionViewportCentered = true; // see setInitialSelectionViewportCentered(...) below
+
+	private boolean sendingInitialPreferredViewport = false;
 
 	/**
 	 * Creates a new viewport object.
 	 * @param changeMonitor change monitor can be used to announce changes in viewport (bounds).
 	 */
-	public FoundsetTypeViewport(FoundsetTypeChangeMonitor changeMonitor)
+	public FoundsetTypeViewport(FoundsetTypeChangeMonitor changeMonitor, FoundsetPropertyTypeConfig specConfig)
 	{
 		this.changeMonitor = changeMonitor;
+		this.preferredViewPortSize = specConfig.initialPreferredViewPortSize;
+		this.sendSelectionViewportInitially = specConfig.sendSelectionViewportInitially;
+		// we don't define initialSelectionViewportCentered in .spec config yet because the component usually doesn't know on first show what it's desired page size is (that is normally based on UI space) - or some component might even not know if it's using paging or scrolling UI viewport
+		// but initialSelectionViewportCentered can still be altered by the component after it is shown in browser via a foundset type API call from client
 	}
 
 	protected void setFoundset(IFoundSetInternal newFoundset)
@@ -52,9 +61,60 @@ public class FoundsetTypeViewport
 		if (newFoundset != null) newFoundset.addFoundSetEventListener(getFoundsetEventListener());
 		this.foundset = newFoundset;
 
-		// reset to the preferred viewport size if that is set
-		setBounds(0, foundset != null ? Math.min(preferredViewPortSize, foundset.getSize()) : 0);
+		setPreferredViewportBounds();
 		changeMonitor.viewPortCompletelyChanged();
+	}
+
+	private void setPreferredViewportBounds()
+	{
+		sendingInitialPreferredViewport = true;
+
+		if (foundset != null)
+		{
+			// reset to the preferred viewport
+			int firstSelectedIndex;
+			if (sendSelectionViewportInitially && (firstSelectedIndex = foundset.getSelectedIndex()) >= 0)
+			{
+				int startIdx, vpSize;
+				if (initialSelectionViewportCentered)
+				{
+					// "scrolling"; center selection in viewport if possible
+					startIdx = Math.max(0, firstSelectedIndex - (preferredViewPortSize / 2));
+				}
+				else
+				{
+					// "paging"; calculate the page that contains selection
+					startIdx = preferredViewPortSize * (firstSelectedIndex / preferredViewPortSize);
+				}
+				vpSize = Math.min(preferredViewPortSize, foundset.getSize() - startIdx);
+				setBounds(startIdx, vpSize);
+			}
+			else
+			{
+				setBounds(0, Math.min(preferredViewPortSize, foundset.getSize()));
+			}
+		}
+		else
+		{
+			setBounds(0, 0);
+		}
+	}
+
+	protected void selectionChanged()
+	{
+		// as for example when showing the form the first time foundset will have size 0
+		// then it will gain records with selection -1 then selection will be set to 0 then the on show can change selection again -
+		// all this in the same event - we must set preferred viewport bounds based on last initial selection
+		if (sendSelectionViewportInitially && sendingInitialPreferredViewport)
+		{
+			setPreferredViewportBounds();
+		}
+	}
+
+	protected void clearSendingInitialPreferredViewport()
+	{
+		// TODO can we apply preferred viewport of selection nicer? so detect last selection to be used somehow without plugging into selection change listener and clear changes?
+		sendingInitialPreferredViewport = false;
 	}
 
 	public int getStartIndex()
@@ -226,19 +286,21 @@ public class FoundsetTypeViewport
 							if (size == 0)
 							{
 								// reset to the preferred viewport size if that is set
-								setBounds(0, Math.min(preferredViewPortSize, foundset.getSize()));
+								setPreferredViewportBounds();
 								changeMonitor.viewPortCompletelyChanged();
 								changeMonitor.foundSetSizeChanged();
 							}
 							else
 							{
-								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
 								// if the size of the viewport is still smaller then the preferredViewPortSize
-								// and the foundset size is bigger then that size then update the bounds so that it is startIndex, preferedViewPortSize (or what is left in the foundset)
+								// and the foundset size allows for bigger viewport then size then update the bounds so that it is
+								// adds the extra wanted records at the end
 								if (size < preferredViewPortSize && (foundset.getSize() - startIndex) > size)
 								{
 									setBounds(startIndex, Math.min(preferredViewPortSize, (foundset.getSize() - startIndex)));
 								}
+
+								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
 							}
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
@@ -276,12 +338,36 @@ public class FoundsetTypeViewport
 	}
 
 	/**
-	 * Sets the preferred viewport size
-	 * @param int1
+	 * Sets the preferred viewport size.
 	 */
 	public void setPreferredViewportSize(int preferredViewPortSize)
 	{
 		this.preferredViewPortSize = preferredViewPortSize;
+	}
+
+	/**
+	 * If this is true, then server side foundset property will initially send to client a viewport of 'preferredViewPortSize' based on currently selected row.
+	 * If this is false, then server side foundset property will initially send to client a viewport of 'preferredViewPortSize' starting from row 0.
+	 */
+	public void setSendSelectionViewportInitially(boolean sendSelectionViewportInitially)
+	{
+		this.sendSelectionViewportInitially = sendSelectionViewportInitially;
+	}
+
+	/**
+	 * This value is only relevant if sendSelectionViewportInitially is true.
+	 *
+	 * If 'initialSelectionViewportCentered' is true, then server side foundset property will initially send to client a viewport of 'preferredViewPortSize'
+	 * with selected row centered in that viewport. If selection is close to foundset start or end index it will still try to send closest
+	 * 'preferredViewPortSize' records, even if selected index will not be centered in that viewport.<br/><br/>
+	 *
+	 * If 'initialSelectionViewportCentered' is false, then server side foundset property will initially send to client the 'page' viewport (based on pages of
+	 * 'preferredViewPortSize' records) that contains the selected record. For example preferredViewPortSize = 15 and selected row is 17 - it will send a viewport
+	 * of 15 - 29 (if foundset size is > 29).
+	 */
+	public void setInitialSelectionViewportCentered(boolean initialSelectionViewportCentered)
+	{
+		this.initialSelectionViewportCentered = initialSelectionViewportCentered;
 	}
 
 }

@@ -150,17 +150,17 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
-						if (isNaN(startIndex) || isNaN(size)) throw "start or size are not numbers (" + startIndex + "," + size + ")";
+						if (isNaN(startIndex) || isNaN(size)) throw new Error("loadRecordsAsync: start or size are not numbers (" + startIndex + "," + size + ")");
 						internalState.requests.push({newViewPort: {startIndex : startIndex, size : size}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
-						if (isNaN(negativeOrPositiveCount)) throw "extrarecords is not a number (" + negativeOrPositiveCount + ")";
+						if (isNaN(negativeOrPositiveCount)) throw new Error("loadExtraRecordsAsync: extrarecords is not a number (" + negativeOrPositiveCount + ")");
 						internalState.requests.push({loadExtraRecords: negativeOrPositiveCount});
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
-						if (isNaN(negativeOrPositiveCount)) throw "lessrecords is not a number (" + negativeOrPositiveCount + ")";
+						if (isNaN(negativeOrPositiveCount)) throw new Error("loadLessRecordsAsync: lessrecords is not a number (" + negativeOrPositiveCount + ")");
 						internalState.requests.push({loadLessRecords: negativeOrPositiveCount});
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
 					};
@@ -171,9 +171,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push({sort: columns});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
-					newValue.setPreferredViewportSize = function(size) {
-						if (isNaN(size)) throw "size is not a number (" + size + ")";
-						internalState.requests.push({preferredViewportSize: size});
+					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
+						if (isNaN(size)) throw new Error("setPreferredViewportSize(...): illegal argument; size is not a number (" + size + ")");
+						var request = {preferredViewportSize: size};
+						if (angular.isDefined(sendSelectionViewportInitially)) request.sendSelectionViewportInitially = !!sendSelectionViewportInitially;
+						if (angular.isDefined(initialSelectionViewportCentered)) request.initialSelectionViewportCentered = !!initialSelectionViewportCentered;
+						internalState.requests.push();
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
 					newValue.requestSelectionUpdate = function(tmpSelectedRowIdxs) {
