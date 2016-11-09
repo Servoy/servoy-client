@@ -174,7 +174,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					newValue.loadRecordsAsync = function(startIndex, size) {
 						if (isNaN(startIndex) || isNaN(size)) throw new Error("loadRecordsAsync: start or size are not numbers (" + startIndex + "," + size + ")");
 
-						req = {newViewPort: {startIndex : startIndex, size : size}};
+						var req = {newViewPort: {startIndex : startIndex, size : size}};
 						var requestID = getNewDeferId();
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
@@ -185,7 +185,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadExtraRecordsAsync: extrarecords is not a number (" + negativeOrPositiveCount + ")");
 
-						req = { loadExtraRecords: negativeOrPositiveCount };
+						var req = { loadExtraRecords: negativeOrPositiveCount };
 						var requestID = getNewDeferId();
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
@@ -196,7 +196,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadLessRecordsAsync: lessrecords is not a number (" + negativeOrPositiveCount + ")");
 
-						req = { loadLessRecords: negativeOrPositiveCount };
+						var req = { loadLessRecords: negativeOrPositiveCount };
 						var requestID = getNewDeferId();
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
@@ -216,7 +216,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						var request = {preferredViewportSize: size};
 						if (angular.isDefined(sendSelectionViewportInitially)) request.sendSelectionViewportInitially = !!sendSelectionViewportInitially;
 						if (angular.isDefined(initialSelectionViewportCentered)) request.initialSelectionViewportCentered = !!initialSelectionViewportCentered;
-						internalState.requests.push();
+						internalState.requests.push(request);
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
 					newValue.requestSelectionUpdate = function(tmpSelectedRowIdxs) {
@@ -228,9 +228,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						var msgId = getNewDeferId();
 						internalState.selectionUpdateDefer = internalState.deferred[msgId];
 						
-						req = {newClientSelectionRequest: tmpSelectedRowIdxs, selectionRequestID: msgId};
+						var req = {newClientSelectionRequest: tmpSelectedRowIdxs, selectionRequestID: msgId};
 						req[ID_KEY] = msgId;
-						internalState.requests.push();
+						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
 
 						return internalState.selectionUpdateDefer.promise;
