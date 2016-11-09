@@ -1531,4 +1531,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 
 	}
+
+	@Override
+	public void setTimeZone(TimeZone zone)
+	{
+		Debug.warn("Setting TimeZone on NG client is not allowed");
+	}
 }

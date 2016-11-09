@@ -290,11 +290,8 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public String dateFormat(Date date, String format)
 	{
-		if (format != null && date != null)
-		{
-			return new SimpleDateFormat(format, application.getLocale()).format(date);
-		}
-		return ""; //$NON-NLS-1$
+		boolean isSwingOrNGClient = Utils.isSwingClient(application.getApplicationType()) || (application.getApplicationType() == IApplication.NG_CLIENT);
+		return dateFormat(date, format, isSwingOrNGClient ? null : TimeZone.getDefault().getID());
 	}
 
 	/**
