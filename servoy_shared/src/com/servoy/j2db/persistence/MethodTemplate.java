@@ -59,6 +59,7 @@ public class MethodTemplate implements IMethodTemplate
 
 	private static final Map<Class< ? >, Map<String, MethodTemplate>> CLASS_TEMPLATES = new HashMap<Class< ? >, Map<String, MethodTemplate>>();
 	public static final Map<String, MethodTemplate> COMMON_TEMPLATES = new TreeMap<String, MethodTemplate>();
+
 	static
 	{
 		// Calculation templates
@@ -67,10 +68,10 @@ public class MethodTemplate implements IMethodTemplate
 		calculationTemplates.put("rowBGColorCalculation", //$NON-NLS-1$
 			new MethodTemplate("Calculate the row background color", new MethodArgument("rowBGColorCalc", ArgumentType.Color, "row background color"), //
 				new MethodArgument[] { new MethodArgument("index", ArgumentType.Number, "row index"), //
-					new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
-					new MethodArgument("elementType", ArgumentType.String, "element type"), //
-					new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
-					new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
+				new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
+				new MethodArgument("elementType", ArgumentType.String, "element type"), //
+				new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
+				new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
 				"\tif (selected)\n\t\treturn '#c4ffff';\n\telse if (index % 2)\n\t\treturn '#f4ffff';\n\telse\n\t\treturn '#FFFFFF';", true));
 
 		// Common method templates
@@ -164,7 +165,7 @@ public class MethodTemplate implements IMethodTemplate
 
 	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, String userTemplate)
 	{
-		return getMethodDeclaration(name, methodCode, PUBLIC_TAG, userTemplate, null);
+		return getMethodDeclaration(name, methodCode, PUBLIC_TAG, userTemplate, null, false);
 	}
 
 	/**
@@ -174,10 +175,11 @@ public class MethodTemplate implements IMethodTemplate
 	 * @param tagToOutput PUBLIC_TAG/PROTECTED_TAG/PRIVATE_TAG
 	 * @return
 	 */
-	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate, Map<String, String> substitutions)
+	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate, Map<String, String> substitutions,
+		boolean cleanTemplate)
 	{
 		StringBuilder sb = new StringBuilder();
-		if (description != null && description.length() > 0)
+		if (!cleanTemplate && description != null && description.length() > 0)
 		{
 			String[] lines = description.split("\n"); //$NON-NLS-1$
 			for (int i = 0; i < lines.length; i++)
@@ -189,7 +191,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		if (userTemplate != null && userTemplate.length() > 0)
 		{
-			if (sb.length() > 0) sb.append(" *\n"); //$NON-NLS-1$
+			if (!cleanTemplate && sb.length() > 0) sb.append(" *\n"); //$NON-NLS-1$
 			for (String line : userTemplate.split("\n"))
 			{
 				sb.append(" * ").append(line).append('\n'); //$NON-NLS-1$
@@ -197,7 +199,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		if (args != null && args.length > 0)
 		{
-			sb.append(" *\n"); //$NON-NLS-1$
+			if (!cleanTemplate && sb.length() > 0) sb.append(" *\n"); //$NON-NLS-1$
 			for (MethodArgument element : args)
 			{
 				sb.append(" * @param "); //$NON-NLS-1$
@@ -213,7 +215,7 @@ public class MethodTemplate implements IMethodTemplate
 				if (element.isOptional()) sb.append("[");
 				sb.append(element.getName());
 				if (element.isOptional()) sb.append("]");
-				if (element.getDescription() != null)
+				if (!cleanTemplate && element.getDescription() != null)
 				{
 					sb.append(' ').append(element.getDescription());
 				}
@@ -223,7 +225,7 @@ public class MethodTemplate implements IMethodTemplate
 		if (signature != null && signature.getType() != null)
 		{
 			sb.append(" *\n * @return {").append(signature.getType()).append('}'); //$NON-NLS-1$
-			if (signature.getDescription() != null)
+			if (!cleanTemplate && signature.getDescription() != null)
 			{
 				sb.append(' ').append(signature.getDescription());
 			}
@@ -338,7 +340,7 @@ public class MethodTemplate implements IMethodTemplate
 		{
 			@Override
 			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate,
-				Map<String, String> substitutions)
+				Map<String, String> substitutions, boolean cleanTemplate)
 			{
 				CharSequence body;
 				if (methodCode == null)
@@ -367,7 +369,7 @@ public class MethodTemplate implements IMethodTemplate
 				{
 					body = methodCode;
 				}
-				return super.getMethodDeclaration(name, body, tagToOutput, userTemplate, substitutions);
+				return super.getMethodDeclaration(name, body, tagToOutput, userTemplate, substitutions, cleanTemplate);
 			}
 		};
 	}
