@@ -1,6 +1,6 @@
-/// <reference path="typings/angularjs/angular.d.ts" />
-/// <reference path="typings/numeraljs/numeraljs.d.ts" />
-/// <reference path="typings/window/window.d.ts" />
+/// <reference path="../../typings/angularjs/angular.d.ts" />
+/// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
+/// <reference path="../../typings/window/window.d.ts" />
 
 var controllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
@@ -16,7 +16,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log) {
+}]).factory('$servoyInternal', function ($rootScope:angular.IRootScopeService, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log) {
 
 	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
