@@ -299,7 +299,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
-			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":18}}]}},\"service\":\"formService\"}",
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":18}, \"id\": 4321}]}},\"service\":\"formService\"}",
 			true);
 
 		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
@@ -313,6 +313,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertEquals(18, viewPort.getInt("size"));
 		JSONArray rows = viewPort.getJSONArray("rows");
 		Assert.assertEquals(18, rows.length());
+
+		JSONArray handledClientReqIds = foundset.getJSONArray("handledClientReqIds");
+		Assert.assertEquals(1, handledClientReqIds.length());
+		Assert.assertEquals(4321, handledClientReqIds.getJSONObject(0).getInt("id"));
+		Assert.assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
 
 		JSONObject row0 = rows.getJSONObject(0);
 		Assert.assertEquals("value1", row0.getString("firstname"));
@@ -350,7 +355,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
-			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundsetWithAllow\":[{\"newViewPort\":{\"startIndex\":0,\"size\":18}}]}},\"service\":\"formService\"}",
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundsetWithAllow\":[{\"newViewPort\":{\"startIndex\":0,\"size\":18}, \"id\": 1234}]}},\"service\":\"formService\"}",
 			true);
 
 		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
@@ -359,6 +364,12 @@ public class FoundsetTest extends AbstractSolutionTest
 		bean = object.getJSONObject("mycustombean");
 		foundset = bean.getJSONObject("myfoundsetWithAllow");
 		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		JSONArray handledClientReqIds = foundset.getJSONArray("handledClientReqIds");
+		Assert.assertEquals(1, handledClientReqIds.length());
+		Assert.assertEquals(1234, handledClientReqIds.getJSONObject(0).getInt("id"));
+		Assert.assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
+
 		viewPort = foundset.getJSONObject("viewPort");
 		Assert.assertEquals(0, viewPort.getInt("startIndex"));
 		Assert.assertEquals(18, viewPort.getInt("size"));
@@ -406,7 +417,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
-			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mydynamiccustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":3}}]}},\"service\":\"formService\"}",
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mydynamiccustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":3}, \"id\": 4312}]}},\"service\":\"formService\"}",
 			true);
 
 		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
@@ -419,6 +430,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertEquals(3, viewPort.getInt("size"));
 		JSONArray rows = viewPort.getJSONArray("rows");
 		Assert.assertEquals(3, rows.length());
+
+		JSONArray handledClientReqIds = foundset.getJSONArray("handledClientReqIds");
+		Assert.assertEquals(1, handledClientReqIds.length());
+		Assert.assertEquals(4312, handledClientReqIds.getJSONObject(0).getInt("id"));
+		Assert.assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
 
 		JSONObject row0 = rows.getJSONObject(0);
 		Assert.assertEquals("relatedvalue111", row0.getString("dp1"));
