@@ -133,7 +133,7 @@ describe("Test foundset_custom_property suite", function() {
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
 			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
-					[{"newViewPort":{"startIndex":0,"size":6}}]
+					[{"newViewPort":{"startIndex":0,"size":6},"id":1}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
 			expect(realClientValue[iS].isChanged()).toEqual(false);
@@ -455,7 +455,7 @@ describe("Test foundset_custom_property suite", function() {
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
 			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
-					[{"newViewPort":{"startIndex":0,"size":9}}]
+					[{"newViewPort":{"startIndex":0,"size":9},"id":2}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
 			expect(realClientValue[iS].isChanged()).toEqual(false);
@@ -941,7 +941,7 @@ describe("Test foundset_custom_property suite", function() {
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
 			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
-					[{"loadExtraRecords":4}]
+					[{"loadExtraRecords":4,"id":3}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
 			expect(realClientValue[iS].isChanged()).toEqual(false);
