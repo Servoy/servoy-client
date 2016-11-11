@@ -1,6 +1,6 @@
 /// <reference path="../../typings/angularjs/angular.d.ts" />
 /// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
-/// <reference path="../../typings/window/window.d.ts" />
+/// <reference path="../../typings/defaults/window.d.ts" />
 
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {

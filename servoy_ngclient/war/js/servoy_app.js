@@ -1,6 +1,6 @@
 /// <reference path="../../typings/angularjs/angular.d.ts" />
 /// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
-/// <reference path="../../typings/window/window.d.ts" />
+/// <reference path="../../typings/defaults/window.d.ts" />
 
 var controllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
