@@ -5,5 +5,6 @@ interface Window {
     servoy_remoteaddr: any;
     servoy_remotehost: any;
     mozRequestAnimationFrame: any;
-    webkitRequestAnimationFrame: any;
+    msRequestAnimationFrame: any;
+    webkitRequestAnimationFrame: number;
 }
