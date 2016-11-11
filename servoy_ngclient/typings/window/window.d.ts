@@ -4,4 +4,6 @@ interface Window {
     shortcut: Shortcut;
     servoy_remoteaddr: any;
     servoy_remotehost: any;
+    mozRequestAnimationFrame: any;
+    webkitRequestAnimationFrame: any;
 }

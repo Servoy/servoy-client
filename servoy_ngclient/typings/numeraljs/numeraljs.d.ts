@@ -38,6 +38,7 @@ interface Numeral {
 	multiply(value: any): Numeral;
 	divide(value: any): Numeral;
 	difference(value: any): number;
+    languageData(key?: string);
 }
 
 declare var numeral: Numeral;
