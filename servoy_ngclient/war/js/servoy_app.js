@@ -1,3 +1,7 @@
+/// <reference path="../../typings/angularjs/angular.d.ts" />
+/// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
+/// <reference path="../../typings/window/window.d.ts" />
+
 var controllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
@@ -12,7 +16,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $applicationService, $utils,$foundsetTypeConstants) {
+}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log) {
 
 	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
@@ -238,7 +242,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 				else if (beanData['findmode'] == false && findModeShortCutAdded)
 				{
-					findModelShortCutAdded = false;
+					findModeShortCutAdded = false;
 					window.shortcut.remove('ENTER');
 				}
 			}
@@ -404,7 +408,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 			var foundsetLinkedDPInfo = getFoundsetLinkedDPInfo(propertyName, formState.model[beanName]);
 			if (foundsetLinkedDPInfo)	{
-				if (foundsetLinkedDPInfo.rowId) messageForServer.fslRowID = foundsetLinkedDPInfo.rowId;
+				if (foundsetLinkedDPInfo.rowId) messageForServer['fslRowID'] = foundsetLinkedDPInfo.rowId;
 				messageForServer.property = foundsetLinkedDPInfo.propertyNameForServer;
 			}	
 
@@ -448,7 +452,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			
 			var dpChange = {formname: formname, beanname: beanname, property: property, changes: changes};
 			if (fslRowID) {
-				dpChange.fslRowID = fslRowID;
+				dpChange['fslRowID'] = fslRowID;
 			}
 
 			$sabloApplication.callService('formService', 'svyPush', dpChange, true);
@@ -518,16 +522,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				var imageHeight = element[0].clientHeight;
 				var imageWidth = element[0].clientWidth;
 				// vertical align cennter
-				var height = element[0].parentNode.clientHeight;
+				var height = element[0].parentNode['clientHeight'];
 				if (height > imageHeight) alignStyle.top = (height - imageHeight) / 2+'px';
 				// horizontal align (default left)
-				var width = element[0].parentNode.clientWidth;
+				var width = element[0].parentNode['clientWidth'];
 				if (width > imageWidth) {
 					if (horizontalAlignment == 0 /*SwingConstants.CENTER*/) alignStyle.left = (width - imageWidth) / 2+'px';
 					else if (horizontalAlignment == 4 /*SwingConstants.RIGHT*/) alignStyle.left = (width - imageWidth)+'px';
 					else
 					{
-						if ((element[0].parentNode.childNodes > 1) && (imageHeight + 34 < height)) alignStyle.left ='51px';
+						if ((element[0].parentNode.childNodes.length > 1) && (imageHeight + 34 < height)) alignStyle.left ='51px';
 					}
 				}
 				element.css(alignStyle);
@@ -576,8 +580,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 
-			if (scope.model && scope.model.anchors && $solutionSettings.enableAnchoring) {
-				if ((((scope.model.anchors & $anchorConstants.NORTH) != 0) && ((scope.model.anchors & $anchorConstants.SOUTH) != 0)) || (((scope.model.anchors & $anchorConstants.EAST) != 0) && ((scope.model.anchors & $anchorConstants.WEST) != 0)))
+			if (scope['model'] && scope['model'].anchors && $solutionSettings.enableAnchoring) {
+				if ((((scope['model'].anchors & $anchorConstants.NORTH) != 0) && ((scope['model'].anchors & $anchorConstants.SOUTH) != 0)) || (((scope['model'].anchors & $anchorConstants.EAST) != 0) && ((scope['model'].anchors & $anchorConstants.WEST) != 0)))
 				{
 					// anchored image, add resize listener
 					var resizeTimeoutID = null;
@@ -585,9 +589,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					scope.$on("dialogResize",setImageStyle);
 				}
 			}
-			scope.$watch(attrs.svyImagemediaid,function(newVal) {
+			scope.$watch(attrs['svyImagemediaid'],function(newVal) {
 				media = newVal;
-				var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+				var componentSize = {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
 				if (componentSize.width > 0 && componentSize.height > 0 )
 					angular.element(element[0]).ready(setImageStyle);
 				else if (media && media.visible) { 
@@ -817,7 +821,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	return {
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
-			var formName = tAttrs.formname; 
+			var formName = tAttrs['formname'];
 			if ($log.debugEnabled) $log.debug("svy * compile svyFormload for form = " + formName);
 
 			// it sometimes happens that this gets called from a div that is detatched from the real page body somewhere in parents - and
@@ -1066,7 +1070,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					redirectUrl : $window.location.href,
 					redirectTimeout : -1
 			}
-			if(maintenanceMode.viewUrl) ment.viewUrl = mentenanceMode.viewUrl 
+			if(maintenanceMode.viewUrl) ment.viewUrl = maintenanceMode.viewUrl 
 			if(maintenanceMode.redirectUrl)	ment.redirectUrl = maintenanceMode.redirectUrl;
 			if(maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
 
@@ -1076,7 +1080,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		setInternalServerError: function(internalServerError){
 			var error = {viewUrl:'templates/serverInternalErrorView.html'}
 			if(internalServerError.viewUrl)  error.viewUrl = internalServerError.viewUrl;
-			if(internalServerError.stack) error.stack = internalServerError.stack;
+			if(internalServerError.stack) error['stack'] = internalServerError.stack;
 
 			$solutionSettings.internalServerError = error;		
 			if (!$rootScope.$$phase) $rootScope.$digest();
@@ -1207,7 +1211,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if(url.indexOf('resources/dynamic') === 0 && target === '_self') {
 					var ifrm = document.getElementById('srv_downloadframe');
 					if (ifrm) {
-						ifrm.src = url;
+                        ifrm.setAttribute("src", url);
 					}
 					else {
 						ifrm = document.createElement("IFRAME");
@@ -1294,7 +1298,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							} catch(e5) {
 								// we can't find a suitable locale defined in languages.js; get the needed things from server (Java knows more locales)
 								// and create the locate info from that
-								promise = $sabloApplication.callService("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
+								var promise = $sabloApplication.callService("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
 								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and languages.js provided langs?
 								var numeralLanguage = language + (country ? '-' + country : "");
 								promise.then(function(numeralLocaleInfo) {
