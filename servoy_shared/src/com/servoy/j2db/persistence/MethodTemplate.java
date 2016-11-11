@@ -272,7 +272,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		else
 		{
-			if (addTodoBlock) sb.append("\n\t// ").append("TODO Auto-generated method stub"); //$NON-NLS-1$
+			if (!cleanTemplate && addTodoBlock) sb.append("\n\t// ").append("TODO Auto-generated method stub"); //$NON-NLS-1$
 			if (defaultMethodCode != null)
 			{
 				sb.append("\n\t").append(defaultMethodCode); //$NON-NLS-1$
