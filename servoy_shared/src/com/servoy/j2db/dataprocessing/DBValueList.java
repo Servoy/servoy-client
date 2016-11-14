@@ -42,6 +42,7 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -291,15 +292,18 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 					if (set.getRowCount() >= maxValuelistRows)
 					{
-						if (application instanceof IApplication)
+						if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 						{
-							((IApplication)application).reportJSWarning(
-								"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
-						}
-						else
-						{
-							application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
-								null);
+							if (application instanceof IApplication)
+							{
+								((IApplication)application).reportJSWarning(
+									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+							}
+							else
+							{
+								application.reportJSError(
+									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+							}
 						}
 					}
 
@@ -340,15 +344,18 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					}
 					if (fs.getSize() >= maxValuelistRows)
 					{
-						if (application instanceof IApplication)
+						if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 						{
-							((IApplication)application).reportJSWarning(
-								"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
-						}
-						else
-						{
-							application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
-								null);
+							if (application instanceof IApplication)
+							{
+								((IApplication)application).reportJSWarning(
+									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+							}
+							else
+							{
+								application.reportJSError(
+									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+							}
 						}
 					}
 
