@@ -35,7 +35,7 @@ import org.sablo.websocket.impl.ClientService;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.IBasicFormManager;
-import com.servoy.j2db.IDebugClient;
+import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -68,7 +68,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public class DebugNGClient extends NGClient implements IDebugClient
+public class DebugNGClient extends NGClient implements IDebugNGClient
 {
 	private final IDesignerCallback designerCallback;
 	private Solution current;
@@ -241,9 +241,15 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		refreshI18NMessages();
 		if (recreateForms)
 		{
-			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
-			refreshForms(cachedFormControllers);
+			recreateForms();
 		}
+	}
+
+	@Override
+	public void recreateForms()
+	{
+		List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
+		refreshForms(cachedFormControllers);
 	}
 
 	private void refreshForms(Collection<IFormController> forms)

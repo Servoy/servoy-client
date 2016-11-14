@@ -47,6 +47,7 @@ import com.servoy.j2db.DebugClientType;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDebugClientHandler;
+import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
@@ -534,7 +535,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	}
 
 	@Override
-	public IDebugClient getDebugNGClient()
+	public IDebugNGClient getDebugNGClient()
 	{
 		return debugNGClient;
 	}

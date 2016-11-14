@@ -59,7 +59,7 @@ public interface IDebugClientHandler
 
 	IDebugWebClient getDebugWebClient();
 
-	IDebugClient getDebugNGClient();
+	IDebugNGClient getDebugNGClient();
 
 	<T extends IDebugClient> T getDebugClient(DebugClientType<T> type);
 
