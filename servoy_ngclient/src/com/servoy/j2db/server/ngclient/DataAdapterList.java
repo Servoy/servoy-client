@@ -683,7 +683,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				editingRecord = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)newValue, foundsetLinkedRowID);
 				if (editingRecord == null)
 				{
-					Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" + foundsetLinkedRowID);
+					Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" +
+						foundsetLinkedRowID);
 					return;
 				}
 			} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
@@ -786,8 +787,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					recordToUse = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)propertyValue, foundsetLinkedRowID);
 					if (recordToUse == null)
 					{
-						Debug.error(
-							"Error executing startEdit (from client) for foundset linked DP (cannot find record): dp=" + propertyValue + ", rowID=" + foundsetLinkedRowID);
+						Debug.error("Error executing startEdit (from client) for foundset linked DP (cannot find record): dp=" + propertyValue + ", rowID=" +
+							foundsetLinkedRowID);
 						return;
 					}
 				} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
@@ -927,7 +928,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					}
 				}
 			}
-			relatedController.getFormUI().setParentContainer(parentContainer);
+//			// for non legacy components, wait for client to set correct parent; do not set null
+			if (parentContainer != null || !relatedController.getForm().isResponsiveLayout())
+			{
+				relatedController.getFormUI().setParentContainer(parentContainer);
+			}
 		}
 	}
 
