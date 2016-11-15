@@ -452,7 +452,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					var format = null;
 					var type = svyFormat ? svyFormat.type : null;
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
-					if (element.is(":focus")) format = svyFormat.edit
+					if (svyFormat.edit && element.is(":focus")) format = svyFormat.edit
 					try {
 						data = formatUtils.format(modelValue, format, type);
 					} catch (e) {
