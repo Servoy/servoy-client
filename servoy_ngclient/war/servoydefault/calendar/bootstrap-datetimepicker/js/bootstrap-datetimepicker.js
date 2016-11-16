@@ -164,14 +164,14 @@
                             .append($('<th>').addClass('prev').attr('data-action', 'previous')
                                 .append($('<span>').addClass(options.icons.previous))
                                 )
-                            .append($('<th>').addClass('picker-switch').attr('data-action', 'pickerSwitch').attr('colspan', (options.calendarWeeks ? '6' : '5')))
+                            .append($('<th>').addClass('picker-switch').attr('data-action', 'pickerSwitch').attr('colspan', ((options.calendarWeeks || options.isoCalendarWeeks) ? '6' : '5')))
                             .append($('<th>').addClass('next').attr('data-action', 'next')
                                 .append($('<span>').addClass(options.icons.next))
                                 )
                             ),
                     contTemplate = $('<tbody>')
                         .append($('<tr>')
-                            .append($('<td>').attr('colspan', (options.calendarWeeks ? '8' : '7')))
+                            .append($('<td>').attr('colspan', ((options.calendarWeeks || options.isoCalendarWeeks) ? '8' : '7')))
                             );
 
                 return [
@@ -457,7 +457,7 @@
                 var row = $('<tr>'),
                     currentDate = viewDate.clone().startOf('w');
 
-                if (options.calendarWeeks === true) {
+                if (options.calendarWeeks === true || options.isoCalendarWeeks === true) {
                     row.append($('<th>').addClass('cw').text('#'));
                 }
 
@@ -591,7 +591,10 @@
                 while (!viewDate.clone().endOf('M').endOf('w').isBefore(currentDate, 'd')) {
                     if (currentDate.weekday() === 0) {
                         row = $('<tr>');
-                        if (options.calendarWeeks) {
+                        if (options.isoCalendarWeeks) {
+                            row.append('<td class="cw">' + currentDate.isoWeek() + '</td>');
+                        } 
+                        else if (options.calendarWeeks) {
                             row.append('<td class="cw">' + currentDate.week() + '</td>');
                         }
                         html.push(row);
@@ -1706,6 +1709,20 @@
             return picker;
         };
 
+        picker.isoCalendarWeeks = function (isoCalendarWeeks) {
+            if (arguments.length === 0) {
+                return options.isoCalendarWeeks;
+            }
+
+            if (typeof isoCalendarWeeks !== 'boolean') {
+                throw new TypeError('isoCalendarWeeks() expects parameter to be a boolean value');
+            }
+
+            options.isoCalendarWeeks = isoCalendarWeeks;
+            update();
+            return picker;
+        };
+        
         picker.showTodayButton = function (showTodayButton) {
             if (arguments.length === 0) {
                 return options.showTodayButton;
@@ -1937,6 +1954,7 @@
         sideBySide: false,
         daysOfWeekDisabled: [],
         calendarWeeks: false,
+        isoCalendarWeeks: false,
         viewMode: 'days',
         toolbarPlacement: 'default',
         showTodayButton: false,

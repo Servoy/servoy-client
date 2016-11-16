@@ -348,6 +348,19 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String VALUELIST_MAX_ROWS = IApplication.VALUELIST_MAX_ROWS;
 
+	/**
+	 * Property that can be set using application.putClientProperty().
+	 *
+	 * If set to true, the default calendar will show week number according to ISO 8601. By default (false) will show week number according to locale.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER, true)
+	 */
+	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = IApplication.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER;
+
 	public String getPrefix()
 	{
 		return "APP_UI_PROPERTY"; //$NON-NLS-1$

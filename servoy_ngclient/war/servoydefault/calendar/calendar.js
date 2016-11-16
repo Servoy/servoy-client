@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -25,6 +25,12 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			if (locale.language) {
 				options.locale = locale.language;
 			}
+			var showISOWeeks = $applicationService.getUIProperty('ngCalendarShowISOWeeks');
+			if (showISOWeeks)
+			{
+				options.isoCalendarWeeks = true;
+			}	
+			
 			child.datetimepicker(options);
 
 			function inputChanged(e) {

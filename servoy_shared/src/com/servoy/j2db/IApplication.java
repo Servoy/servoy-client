@@ -116,6 +116,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = "ngClientOptimizedReadonlyMode"; //$NON-NLS-1$
 
 	/**
+	 * When Boolean.TRUE, the NGClient default calendar will show ISO 8601 week number. By default it shows the week number according to locale.
+	 */
+	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = "ngCalendarShowISOWeeks"; //$NON-NLS-1$
+
+	/**
 	 * When Boolean.TRUE, any subsequent events on same element and having same type will be blocked (cancelled).
 	 */
 	public static final String BLOCK_DUPLICATE_EVENTS = "ngBlockDuplicateEvents"; //$NON-NLS-1$
