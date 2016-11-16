@@ -73,7 +73,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 					{
 						// reject execution
 						console.log("rejecting execution of: "+eventType +" on "+beanName);
-						return $q.resolve(null);;
+						return $q.resolve(null);
 					}
 				}
 				executingEvents[executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': rowId};
@@ -104,7 +104,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	var servoyApi = function(beanname) {
 		return {
 			formWillShow: function(formname,relationname,formIndex) {
-				$formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
+				return $formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
 			},
 			hideForm: function(formname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown) {
 				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown);
