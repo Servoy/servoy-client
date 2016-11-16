@@ -458,7 +458,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			$sabloApplication.callService('formService', 'svyPush', dpChange, true);
 		}
 	}
-}).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log) {
+}).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log,$q) {
 	return {
 		formWillShow: function(formname,notifyFormVisibility,parentForm,beanName,relationname,formIndex) {
 			if ($log.debugEnabled) $log.debug("svy * Form " + formname + " is preparing to show. Notify server needed: " + notifyFormVisibility);
@@ -473,9 +473,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			$sabloApplication.getFormState(formname).then(function (formState) {
 				// if first show of this form in browser window then request initial data (dataproviders and such);
-				if (notifyFormVisibility) $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
 				if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formname, formState);
 			});
+			if (notifyFormVisibility) {
+				return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, false);
+			}
+			// dummy promise
+			return $q.when();
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex,formnameThatWillBeShown,relationnameThatWillBeShown,formIndexThatWillBeShown) {
 			if (!formname) {
