@@ -137,6 +137,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 								viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][ROWS] ? viewPortUpdate[CONVERSIONS][ROWS] : undefined, componentScope, componentModelGetter);
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
 						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] ? viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
+						internalState.fireChanges(viewPortUpdate[UPDATE_PREFIX + ROWS]);
 					}
 				}
 
@@ -235,6 +236,21 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						if (internalState.changeNotifier) internalState.changeNotifier();
 
 						return internalState.selectionUpdateDefer.promise;
+					}
+					var changeListeners = [];
+					newValue.addChangeListener = function(listener) {
+						changeListeners.push(listener);
+					}
+					newValue.removeChangeListener = function(listener) {
+						var index = changeListeners.indexOf(listener);
+						if (index > -1) {
+							changeListeners.splice(index, 1);
+						}
+					}
+					internalState.fireChanges = function(values) {
+						for(var i=0;i<changeListeners.length;i++) {
+							changeListeners[i](values);
+						}
 					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup
