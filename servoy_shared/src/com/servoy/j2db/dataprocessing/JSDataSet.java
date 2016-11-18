@@ -733,6 +733,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			}
 		}
 
+		if (columnameMap == null)
+		{
+			// invent column names if none defined yet
+			makeColumnMap();
+		}
 		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, intTypes /* inferred from dataset when null */, pkNames);
 		if (dataSource != null)
 		{
