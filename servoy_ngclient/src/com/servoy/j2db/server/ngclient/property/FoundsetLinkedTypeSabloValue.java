@@ -80,6 +80,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected IChangeListener changeMonitor;
 	protected String idForFoundset;
 	protected boolean idForFoundsetChanged = false;
+	protected boolean isRhinoValue = false;
 
 	protected ViewportDataChangeMonitor<FoundsetLinkedViewportRowDataProvider<YF, YT>> viewPortChangeMonitor;
 
@@ -110,11 +111,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	}
 
 	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, YF formElementValue, PropertyDescription wrappedPropertyDescription,
-		INGFormElement formElement, WebFormComponent component)
+		INGFormElement formElement, WebFormComponent component, boolean isRhinoValue)
 	{
 		initializingState = new InitializingState(wrappedPropertyDescription, formElementValue, formElement);
 		this.component = component;
 		this.forFoundsetPropertyName = forFoundsetPropertyName;
+		this.isRhinoValue = isRhinoValue;
 		// this.wrappedSabloValue = null; // for now; waiting for foundset property availability
 	}
 

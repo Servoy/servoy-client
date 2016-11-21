@@ -21,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.UniqueTag;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
@@ -195,7 +197,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, formElementValue, getConfig(pd).wrappedPropertyDescription, formElement,
-			component);
+			component, false);
 	}
 
 	@Override
@@ -240,6 +242,10 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public Object toRhinoValue(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
 		Scriptable startScriptable)
 	{
+		if (webComponentValue != null && !webComponentValue.initialized && webComponentValue.isRhinoValue)
+		{
+			return webComponentValue.initializingState.formElementValue;
+		}
 		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(webComponentValue.getWrappedValue(), getConfig(pd).wrappedPropertyDescription,
 			componentOrService, startScriptable);
 	}
@@ -248,17 +254,18 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(Object rhinoValue, FoundsetLinkedTypeSabloValue<YF, YT> previousComponentValue,
 		PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		if (previousComponentValue == null)
-		{
-			FoundsetLinkedTypeSabloValue<YF, YT> flts = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, (YF)rhinoValue,
-				getConfig(pd).wrappedPropertyDescription, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService);
-			return flts;
-		}
-		else
-		{
-			previousComponentValue.rhinoToSablo(rhinoValue, getConfig(pd).wrappedPropertyDescription, componentOrService);
-			return previousComponentValue;
-		}
+//		if (previousComponentValue == null)
+//		{
+		if (rhinoValue == UniqueTag.NOT_FOUND || rhinoValue == Undefined.instance) rhinoValue = null;
+		FoundsetLinkedTypeSabloValue<YF, YT> flts = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, (YF)rhinoValue,
+			getConfig(pd).wrappedPropertyDescription, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService, true);
+		return flts;
+//		}
+//		else
+//		{
+//			previousComponentValue.rhinoToSablo(rhinoValue, getConfig(pd).wrappedPropertyDescription, componentOrService);
+//			return previousComponentValue;
+//		}
 	}
 
 	@Override
