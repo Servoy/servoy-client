@@ -254,8 +254,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		boolean send = locale != null && !locale.equals(l);
 		super.setLocale(l);
-		if (send) getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
-			new Object[] { l.getLanguage(), l.getCountry() });
+		if (send && !("".equals(l.getLanguage()) && "".equals(l.getCountry())))
+			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
+				new Object[] { l.getLanguage(), l.getCountry() });
 	}
 
 	@Override
