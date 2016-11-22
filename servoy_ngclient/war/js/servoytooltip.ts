@@ -163,7 +163,7 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		        	if(tooltip) $svyTooltipUtils.hideTooltip();
 		        })
         	scope.$watch(attrs['svyTooltip'],function(newVal){
-        		tooltip = newVal;        		
+        		tooltip = <string>newVal;        		
         	})
         	
         }

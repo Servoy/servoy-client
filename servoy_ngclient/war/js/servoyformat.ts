@@ -26,7 +26,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 	}
 	var getDayInYear = function(date) {
 		var start = new Date(date.getFullYear(), 0, 0);
-		var diff = date - start;
+		var diff = date - <any>start;
 		var oneDay = 1000 * 60 * 60 * 24;
 		return Math.floor(diff / oneDay);
 	}
