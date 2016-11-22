@@ -5,7 +5,7 @@ interface Window {
     shortcut: Shortcut;
     servoy_remoteaddr: any;
     servoy_remotehost: any;
-    msRequestAnimationFrame: any;
-    mozRequestAnimationFrame: any;
-    webkitRequestAnimationFrame: number;
+    msRequestAnimationFrame(...args: any[]): any;
+    mozRequestAnimationFrame(...args: any[]): any;
+    webkitRequestAnimationFrame(...args: any[]): any;
 }
