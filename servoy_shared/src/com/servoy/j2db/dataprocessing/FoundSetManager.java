@@ -1947,7 +1947,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					return foundset.getSize();
 				}
-
+				long time = System.currentTimeMillis();
 				IDataServer ds = application.getDataServer();
 				Table t = (Table)foundset.getTable();
 				String transaction_id = getTransactionID(t.getServerName());
@@ -1956,6 +1956,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
 				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,
 					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				if (Debug.tracing())
+				{
+					Debug.trace("Foundset count time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+						selectCountSQLString.toString());
+				}
+
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1980,6 +1986,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			try
 			{
+				long time = System.currentTimeMillis();
 				IDataServer ds = application.getDataServer();
 				String transaction_id = getTransactionID(table.getServerName());
 
@@ -1988,6 +1995,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
 					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				if (Debug.tracing())
+				{
+					Debug.trace("Table count time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+						countSelect.toString());
+				}
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
