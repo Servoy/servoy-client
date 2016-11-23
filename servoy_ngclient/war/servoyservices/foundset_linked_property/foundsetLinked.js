@@ -143,10 +143,14 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 									initialVPSize = -1;
 									if (!angular.isDefined(newV)) newV = 0;
 									
-									$viewportModule.removeDataWatchesFromRows(newValue.length, internalState);
-									generateWholeViewportFromOneValue(newV);
-									updateWholeViewport();
-									$viewportModule.addDataWatchesToRows(newValue, internalState, componentScope, true, internalState[PUSH_TO_SERVER]);
+									if (componentScope) {
+										componentScope.$evalAsync(function(){
+											$viewportModule.removeDataWatchesFromRows(newValue.length, internalState);
+											generateWholeViewportFromOneValue(newV);
+											updateWholeViewport();
+											$viewportModule.addDataWatchesToRows(newValue, internalState, componentScope, true, internalState[PUSH_TO_SERVER]);
+										})
+									}
 								});
 					} else if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE])) {
 						internalState.recordLinked = true;
