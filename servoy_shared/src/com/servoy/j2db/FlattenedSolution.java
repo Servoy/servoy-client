@@ -858,14 +858,14 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			return form;
 		}
 
+		// make sure is latest form
+		form = getForm(form.getID());
+
 		if (flattenedFormCache == null)
 		{
 			// no caching
 			return createFlattenedForm(form);
 		}
-
-		// make sure is latest form
-		form = getForm(form.getID());
 
 		// cache flattened form
 		FlattenedForm[] flattedFormRef;
