@@ -1,12 +1,13 @@
 /// <reference path="../../typings/angularjs/angular.d.ts" />
 /// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
 /// <reference path="../../typings/defaults/window.d.ts" />
+/// <reference path="../../typings/sablo/sablo.d.ts" />
 
-var controllerProvider;
+var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
 
-).config(['$controllerProvider', '$logProvider', '$translateProvider', function($controllerProvider, $logProvider, $translateProvider) {
+).config(['$controllerProvider', '$translateProvider', function($controllerProvider: angular.IControllerProvider, $translateProvider) {
 	controllerProvider = $controllerProvider;
 	
 	// TODO: check if this does not break some translated values
@@ -16,7 +17,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log) {
+}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q, $solutionSettings, $window: angular.IWindowService, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication: sablo.ISabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
 
 	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
@@ -29,7 +30,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 		return changes;
 	}
-
+	
 	function sendChanges(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
@@ -274,7 +275,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 
 			if (msg.sessionid && recordingPrefix) {
-				var btn = $window.document.createElement("A");        // Create a <button> element
+				var btn = <HTMLAnchorElement>$window.document.createElement("A");        // Create a <button> element
 				btn.href = "solutions/" + msg.sessionid + ".recording";
 				btn.target = "_blank";
 				btn.style.position= "absolute";
@@ -458,14 +459,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			$sabloApplication.callService('formService', 'svyPush', dpChange, true);
 		}
 	}
-}).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log,$q) {
+}).factory("$formService",function($sabloApplication:sablo.ISabloApplication,$servoyInternal,$rootScope: angular.IRootScopeService,$log:sablo.ILogService,$q:angular.IQService) {
 	return {
 		formWillShow: function(formname,notifyFormVisibility,parentForm,beanName,relationname,formIndex) {
 			if ($log.debugEnabled) $log.debug("svy * Form " + formname + " is preparing to show. Notify server needed: " + notifyFormVisibility);
-			if ($rootScope.updatingFormName === formname) {
+			if ($rootScope['updatingFormName'] === formname) {
 				if ($log.debugEnabled) $log.debug("svy * Form " + formname + " was set in hidden div. Clearing out hidden div.");
-				$rootScope.updatingFormUrl = ''; // it's going to be shown; remove it from hidden DOM
-				$rootScope.updatingFormName = null;
+				$rootScope['updatingFormUrl'] = ''; // it's going to be shown; remove it from hidden DOM
+				$rootScope['updatingFormName'] = null;
 			}
 
 			if (!formname) {
@@ -479,7 +480,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, false);
 			}
 			// dummy promise
-			return $q.when();
+			return $q.when(null);
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex,formnameThatWillBeShown,relationnameThatWillBeShown,formIndexThatWillBeShown) {
 			if (!formname) {
@@ -499,7 +500,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return $sabloApplication.callService('formService', 'gotoform', {formname:formname});
 		}
 	}	
-}).directive('svyAutosave',  function ($sabloApplication) {
+}).directive('svyAutosave',  function ($sabloApplication:sablo.ISabloApplication) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -947,7 +948,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	styleSheetPaths: [],
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService, $svyI18NService) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService, $svyI18NService) {
 	$servoyInternal.connect();
 
 	// initialize locale client side
@@ -1025,10 +1026,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},$solutionSettings.maintenanceMode.redirectTimeout*1000)
 	}
 }])
-.controller("LoginController", function($scope, $modalInstance, $sabloApplication, $rootScope, webStorage) {
+.controller("LoginController", function($scope, $modalInstance, $sabloApplication:sablo.ISabloApplication, $rootScope, webStorage) {
 	$scope.model = {'remember' : true };
 	$scope.doLogin = function() {
-		var promise = $sabloApplication.callService("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
+		var promise = $sabloApplication.callService<{username:string,password:string}>("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
 		promise.then(function(ok) {
 			if(ok) {
 				if(ok.username) webStorage.local.add('servoy_username', ok.username);
@@ -1130,7 +1131,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log,$translate) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window,$timeout,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log,$translate) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -1302,7 +1303,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							} catch(e5) {
 								// we can't find a suitable locale defined in languages.js; get the needed things from server (Java knows more locales)
 								// and create the locate info from that
-								var promise = $sabloApplication.callService("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
+								var promise = $sabloApplication.callService<NumeralJSLanguage>("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
 								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and languages.js provided langs?
 								var numeralLanguage = language + (country ? '-' + country : "");
 								promise.then(function(numeralLocaleInfo) {
@@ -1314,7 +1315,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 									numeral.language(numeralLanguage);
 									if (!initializing) {
 										webStorage.session.add("locale", numeralLanguage);
-										$sabloApplication.setLocale({ language : language, country : country });
+										$sabloApplication.setLocale({ language : language, country : country , full: language + "-" + country});
 									}
 								}, function(reason) {
 									$log.warn("Cannot properly handle locale '" + numeralLanguage + "'. It is not available in js libs and it could not be loaded from server...");
@@ -1327,7 +1328,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			var lang = webStorage.session.get("locale");
 			if (lang) {
 				var array = language.split('-');
-				$sabloApplication.setLocale({ language : array[0], country : array[1] });
+				$sabloApplication.setLocale({ language : array[0], country : array[1] , full: language});
 			}
 		},
 		showInfoPanel: function(url,w,h,t,closeText)
@@ -1369,7 +1370,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	}
 
 }])
-.run(function($window, $sabloApplication) {
+.run(function($window, $sabloApplication:sablo.ISabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {
 		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)
 	}
