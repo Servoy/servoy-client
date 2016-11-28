@@ -29,6 +29,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -44,7 +45,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author acostescu
  */
 public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>,
-	IRhinoDesignConverter, IRhinoToSabloComponent<Font>, ISabloComponentToRhino<Font>
+	IRhinoDesignConverter, IRhinoToSabloComponent<Font>, ISabloComponentToRhino<Font>, IDesignValueConverter<Font>
 {
 
 	public final static NGFontPropertyType NG_INSTANCE = new NGFontPropertyType();
@@ -57,8 +58,8 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
+		FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
@@ -114,5 +115,31 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 		return true;
 	}
 
+	@Override
+	public Font fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	{
+		try
+		{
+			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+				propertyDescription, null, null);
+		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
+	}
+
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		if (value instanceof Font)
+		{
+			JSONStringer writer = new JSONStringer();
+			toJSON(writer, null, (Font)value, pd, null, null);
+			return new JSONObject(writer.toString());
+		}
+		return value;
+	}
 
 }
