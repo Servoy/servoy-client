@@ -2,6 +2,8 @@
 /// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
 /// <reference path="../../typings/defaults/window.d.ts" />
 /// <reference path="../../typings/sablo/sablo.d.ts" />
+/// <reference path="../../typings/jquery/jquery.d.ts" />
+/// <reference path="../../typings/servoy/servoy.d.ts" />
 
 var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
@@ -17,7 +19,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q, $solutionSettings, $window: angular.IWindowService, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication: sablo.ISabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
+}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q:angular.IQService, $solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sessionService, $sabloConverters:sablo.ISabloConverters, $sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
 
 	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
@@ -30,7 +32,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 		return changes;
 	}
-	
 	function sendChanges(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
@@ -459,14 +460,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			$sabloApplication.callService('formService', 'svyPush', dpChange, true);
 		}
 	}
-}).factory("$formService",function($sabloApplication:sablo.ISabloApplication,$servoyInternal,$rootScope: angular.IRootScopeService,$log:sablo.ILogService,$q:angular.IQService) {
+}).factory("$formService",function($sabloApplication:sablo.ISabloApplication,$servoyInternal,$rootScope: servoy.IRootScopeService,$log:sablo.ILogService,$q:angular.IQService) {
 	return {
 		formWillShow: function(formname,notifyFormVisibility,parentForm,beanName,relationname,formIndex) {
 			if ($log.debugEnabled) $log.debug("svy * Form " + formname + " is preparing to show. Notify server needed: " + notifyFormVisibility);
-			if ($rootScope['updatingFormName'] === formname) {
+			if ($rootScope.updatingFormName === formname) {
 				if ($log.debugEnabled) $log.debug("svy * Form " + formname + " was set in hidden div. Clearing out hidden div.");
-				$rootScope['updatingFormUrl'] = ''; // it's going to be shown; remove it from hidden DOM
-				$rootScope['updatingFormName'] = null;
+				$rootScope.updatingFormUrl = ''; // it's going to be shown; remove it from hidden DOM
+				$rootScope.updatingFormName = null;
 			}
 
 			if (!formname) {
@@ -543,7 +544,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			});
 		}
 	};
-}).directive('svyImagemediaid',  function ($parse,$timeout,$solutionSettings,$anchorConstants,$window) {
+}).directive('svyImagemediaid',  function ($parse:angular.IParseService,$timeout:angular.ITimeoutService,$solutionSettings:servoy.SolutionSettings,$anchorConstants,$window:angular.IWindowService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {     
@@ -599,8 +600,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				var componentSize = {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
 				if (componentSize.width > 0 && componentSize.height > 0 )
 					angular.element(element[0]).ready(setImageStyle);
-				else if (media && media.visible) { 
-					angular.element(element[0]).ready($timeout(function(){setImageStyle();},0,false));
+				else if (media && media.visible) {
+					// TODO should this below be just a timeout or a timeout call wrapped into a function?					
+//					angular.element(element[0]).ready($timeout(function(){setImageStyle();},0,false));
+					$timeout(function(){setImageStyle();},0,false)
 				}
 			}, true)
 
@@ -784,7 +787,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 })
-.directive('svyLayoutUpdate', function($window,$timeout) {
+.directive('svyLayoutUpdate', function($window:angular.IWindowService,$timeout:angular.ITimeoutService) {
 	return {
 		restrict: 'A', // only activate on element attribute
 		controller: function($scope, $element, $attrs) {
@@ -822,7 +825,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 	};   
-}).directive('svyFormload',  function ($timeout, $servoyInternal, $sabloApplication, $windowService, $rootScope, $log) {
+}).directive('svyFormload',  function ($timeout:angular.ITimeoutService, $servoyInternal, $sabloApplication:sablo.ISabloApplication, $windowService, $rootScope:servoy.IRootScopeService, $log:sablo.ILogService) {
 	return {
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
@@ -867,7 +870,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						// so the form is already (being) loaded in non-hidden div; hidden div can relax; it shouldn't load form twice
 					} else {
 						// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it; here getScope() is the scope provided by the hidden div load; the new one was not yet contributed
-						if (formState.getScope) formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
+						if (formState.getScope) formState.getScope()['hiddenDivFormDiscarded'] = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
 						if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
 						else formState.blockPostLinkInHidden = true;
 					}
@@ -879,7 +882,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 			return {
 				pre: function(scope, element, attrs) {},
-				post: function(scope, element, attrs) {
+				post: function(scope:angular.IScope, element:JQuery, attrs:angular.IAttributes) {
 					if ($log.debugEnabled) $log.debug("svy * postLink svyFormload for form = " + formName + ", hidden: " + inHiddenDiv);
 					if (blocked) return; // the form load was blocked by that tElem.empty() a few lines above (form is already loaded elsewhere)
 					if (inHiddenDiv && formState && formState.blockPostLinkInHidden) {
@@ -930,12 +933,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 	}
-}).factory('translateFilterServoyI18Loader', ['$q', function ($q) {
+}).factory('translateFilterServoyI18Loader', ['$q', function ($q:angular.IQService) {
    return function (options) {
        // return empty translation, translateFilterServoyI18nMessageLoader is used as missingTranslationHandler
        return $q.when({});
     };
-}]).factory('translateFilterServoyI18nMessageLoader', ['$svyI18NService', '$q', function ($svyI18NService, $q) {
+}]).factory('translateFilterServoyI18nMessageLoader', ['$svyI18NService', function ($svyI18NService) {
     // use servoy i18n as loader for the translate filter
 	return function(key) {
 		return $svyI18NService.getI18NMessage(key);
@@ -948,7 +951,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	styleSheetPaths: [],
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService, $svyI18NService) {
+}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService, $svyI18NService) {
 	$servoyInternal.connect();
 
 	// initialize locale client side
@@ -997,36 +1000,36 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return style;
 	}
 
-}).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
+}).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings:servoy.SolutionSettings,$timeout:angular.ITimeoutService,$window:angular.IWindowService) {
 
 	$scope.redirectUrl = $solutionSettings.noLicense.redirectUrl;
 
 	if($solutionSettings.noLicense.redirectTimeout >=0){
 		$timeout(function(){			
-			$window.location = $solutionSettings.noLicense.redirectUrl;
+			$window.location.assign($solutionSettings.noLicense.redirectUrl);
 		},$solutionSettings.noLicense.redirectTimeout*1000)
 	}
-}]).controller("SessionExpiredController",['$scope','$solutionSettings',function($scope, $solutionSettings) {
+}]).controller("SessionExpiredController",['$scope','$solutionSettings',function($scope, $solutionSettings:servoy.SolutionSettings) {
 
 	$scope.redirectUrl = $solutionSettings.sessionExpired.redirectUrl;
 
 }])
-.controller("InternalServerErrorController",['$scope','$solutionSettings',function($scope, $solutionSettings) {
+.controller("InternalServerErrorController",['$scope','$solutionSettings',function($scope, $solutionSettings:servoy.SolutionSettings) {
 
 	$scope.error = $solutionSettings.internalServerError
 
 }])
-.controller("MaintenanceModeController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
+.controller("MaintenanceModeController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings:servoy.SolutionSettings,$timeout:angular.ITimeoutService,$window:angular.IWindowService) {
 
 	$scope.redirectUrl = $solutionSettings.maintenanceMode.redirectUrl;
 
 	if($solutionSettings.maintenanceMode.redirectTimeout >=0){
 		$timeout(function(){			
-			$window.location = $solutionSettings.maintenanceMode.redirectUrl;
+			$window.location.assign($solutionSettings.maintenanceMode.redirectUrl);
 		},$solutionSettings.maintenanceMode.redirectTimeout*1000)
 	}
 }])
-.controller("LoginController", function($scope, $modalInstance, $sabloApplication:sablo.ISabloApplication, $rootScope, webStorage) {
+.controller("LoginController", function($scope, $modalInstance, $sabloApplication:sablo.ISabloApplication, $rootScope:angular.IRootScopeService, webStorage) {
 	$scope.model = {'remember' : true };
 	$scope.doLogin = function() {
 		var promise = $sabloApplication.callService<{username:string,password:string}>("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
@@ -1041,7 +1044,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		})
 	}	
 })
-.factory('$sessionService',['$solutionSettings','$window','$rootScope','$servoyWindowManager',function($solutionSettings,$window,$rootScope,$servoyWindowManager){
+.factory('$sessionService',['$solutionSettings','$window','$rootScope','$servoyWindowManager',function($solutionSettings:servoy.SolutionSettings,$window:angular.IWindowService,$rootScope:angular.IRootScopeService,$servoyWindowManager){
 
 	return {
 		expireSession : function (sessionExpired){
@@ -1131,7 +1134,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window,$timeout,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log,$translate) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService,$log:sablo.ILogService,$translate) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
