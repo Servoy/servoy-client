@@ -70,12 +70,12 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 	protected ConvertedMap<SabloWT, SabloT> sabloWrappedBaseMap;
 	protected IAttachHandler<SabloWT> attachHandler;
 
-	public RhinoNativeObjectWrapperMap(NativeObject rhinoObject, PropertyDescription customJSONTypeDefinition, Map<String, SabloT> previousComponentValue,
-		BaseWebObject componentOrService, Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping)
+	public RhinoNativeObjectWrapperMap(NativeObject rhinoObject, PropertyDescription customJSONTypeDefinition, BaseWebObject componentOrService,
+		Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping)
 	{
 		super(new NativeObjectProxyMap<String, Object>(rhinoObject));
 		this.childPropsThatNeedWrapping = childPropsThatNeedWrapping;
-		this.previousValues = previousComponentValue != null ? new HashMap<String, SabloT>(previousComponentValue) : new HashMap<String, SabloT>();
+		this.previousValues = new HashMap<String, SabloT>();
 		this.componentOrService = componentOrService;
 		this.customJSONTypeDefinition = customJSONTypeDefinition;
 		this.rhinoObject = rhinoObject;

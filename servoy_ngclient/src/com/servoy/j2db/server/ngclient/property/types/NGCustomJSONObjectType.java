@@ -226,8 +226,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 			if (rhinoValue instanceof NativeObject)
 			{
-				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), previousComponentValue,
-					componentOrService, getChildPropsThatNeedWrapping());
+				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), componentOrService,
+					getChildPropsThatNeedWrapping());
 				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, pd, new WrappingContext(componentOrService, pd.getName()));
 				cam.markAllChanged();
 				return cam;

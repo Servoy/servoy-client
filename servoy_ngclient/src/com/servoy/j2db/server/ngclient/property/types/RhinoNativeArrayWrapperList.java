@@ -67,10 +67,9 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 	protected ConvertedList<SabloWT, SabloT> sabloWrappedBaseList;
 	protected IAttachHandler<SabloWT> attachHandler;
 
-	public RhinoNativeArrayWrapperList(NativeArray rhinoArray, PropertyDescription elementTypeDefinition, List<SabloT> previousComponentValue,
-		BaseWebObject componentOrService)
+	public RhinoNativeArrayWrapperList(NativeArray rhinoArray, PropertyDescription elementTypeDefinition, BaseWebObject componentOrService)
 	{
-		this(new NativeArrayProxyList<Object>(rhinoArray), elementTypeDefinition, previousComponentValue, componentOrService, rhinoArray);
+		this(new NativeArrayProxyList<Object>(rhinoArray), elementTypeDefinition, componentOrService, rhinoArray);
 	}
 
 	public Scriptable getBaseRhinoScriptable()
@@ -84,16 +83,11 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		this.attachHandler = attachHandler;
 	}
 
-	public RhinoNativeArrayWrapperList(List<Object> rhinoBasedList, PropertyDescription elementTypeDefinition, List<SabloT> previousComponentValue,
-		BaseWebObject componentOrService, Scriptable rhinoScriptable)
+	public RhinoNativeArrayWrapperList(List<Object> rhinoBasedList, PropertyDescription elementTypeDefinition, BaseWebObject componentOrService,
+		Scriptable rhinoScriptable)
 	{
 		super(rhinoBasedList);
 		this.previousValues = new HashMap<Integer, SabloT>();
-		if (previousComponentValue != null)
-		{
-			for (int i = previousComponentValue.size() - 1; i >= 0; i--)
-				this.previousValues.put(Integer.valueOf(i), previousComponentValue.get(i));
-		}
 		this.componentOrService = componentOrService;
 		this.elementTypeDefinition = elementTypeDefinition;
 		this.rhinoScriptable = rhinoScriptable;

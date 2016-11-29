@@ -194,14 +194,13 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 			if (rhinoValue instanceof NativeArray)
 			{
-				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>((NativeArray)rhinoValue, getCustomJSONTypeDefinition(), previousSpecialArray,
-					componentOrService);
+				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>((NativeArray)rhinoValue, getCustomJSONTypeDefinition(), componentOrService);
 			}
 			else if (rhinoValue instanceof NativeJavaArray)
 			{
 				// rhinoValue.unwrap() will be a java static array []
 				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>(Arrays.asList(((NativeJavaArray)rhinoValue).unwrap()),
-					getCustomJSONTypeDefinition(), previousSpecialArray, componentOrService, (Scriptable)rhinoValue);
+					getCustomJSONTypeDefinition(), componentOrService, (Scriptable)rhinoValue);
 			}
 
 			if (rhinoArray != null)
