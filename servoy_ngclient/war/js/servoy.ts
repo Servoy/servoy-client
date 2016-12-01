@@ -1,6 +1,8 @@
 /// <reference path="../../typings/angularjs/angular.d.ts" />
 /// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
 /// <reference path="../../typings/defaults/window.d.ts" />
+/// <reference path="../../typings/sablo/sablo.d.ts" />
+/// <reference path="../../typings/servoy/servoy.d.ts" />
 
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {
@@ -30,7 +32,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils",function($rootScope, $timeout, $svyProperties) {
+}).factory("$utils",function($rootScope:angular.IRootScopeService, $timeout:angular.ITimeoutService, $svyProperties:servoy.IServoyProperties) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -123,7 +125,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 	
-	return{
+	return <servoy.IUtils> {
 
 		/** this function can be used in filters .It accepts a string jsonpath the property to test for null. 
     	Example: "item in  model.valuelistID  | filter:notNullOrEmpty('realValue')"*/
@@ -227,8 +229,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			return findAttribute(element, parent, attributeName);
 		}
 	}
-}).factory("$svyProperties",function($svyTooltipUtils, $timeout, $scrollbarConstants) {
-	return {
+}).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants) {
+	return <servoy.IServoyProperties> {
 		setBorder: function(element,newVal) {
 			if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
 
@@ -340,7 +342,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			element.on('focus', function() {
 				$timeout(function() {
 					if (element.is(":focus"))
-						element[0].select(); 
+						(<HTMLInputElement>element[0]).select(); 
 				},0);
 			});
 		},
@@ -404,7 +406,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 		}
 	}
-}).directive('ngOnChange', function($parse){
+}).directive('ngOnChange', function($parse:angular.IParseService){
 	return function(scope, elm, attrs){       
 		var onChangeFunction = $parse(attrs['ngOnChange']);
 		elm.bind("change", function(event) {
@@ -412,7 +414,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				onChangeFunction(scope, { $cmd: event });
 			})});
 	};
-}).directive('svyAutoapply', function($sabloApplication, $parse, $log, $utils) {
+}).directive('svyAutoapply', function($sabloApplication:sablo.ISabloApplication, $parse:angular.IParseService, $log:angular.ILogService, $utils:servoy.IUtils) {
 	return {
 		restrict: 'A', // only activate on element attribute
 		require: '?ngModel', // get a hold of NgModelController
@@ -502,14 +504,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 		}
 	};
-}).directive('svyEnter',  function ($parse,$utils) {
+}).directive('svyEnter',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
-		link: function (scope, element, attrs) {
+		link: function (scope:angular.IScope, element:JQuery, attrs) {
 			$utils.attachEventHandler($parse,element,scope,attrs['svyEnter'],'keydown', $utils.testEnterKey, 100, false, true, attrs['ngModel']);
 		}
 	};
-}).directive('svyChange',  function ($parse,$utils) {
+}).directive('svyChange',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -517,7 +519,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			$utils.attachEventHandler($parse,element,scope,attrs['svyChange'],'change',null,100);
 		}
 	};
-}).directive('svyClick',  function ($parse,$utils) {
+}).directive('svyClick',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -550,35 +552,35 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 		}
 	};
-}).directive('svyDblclick',  function ($parse,$utils) {
+}).directive('svyDblclick',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			$utils.attachEventHandler($parse,element,scope,attrs['svyDblclick'],'dblclick');
 		}
 	};
-}).directive('svyRightclick',  function ($parse,$utils) {
+}).directive('svyRightclick',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			$utils.attachEventHandler($parse,element,scope,attrs['svyRightclick'],'contextmenu',null,null,true);
 		}
 	};
-}).directive('svyFocusgained',  function ($parse,$utils) {
+}).directive('svyFocusgained',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			$utils.attachEventHandler($parse,element,scope,attrs['svyFocusgained'],'focus');
 		}
 	};
-}).directive('svyFocuslost',  function ($parse,$utils) {
+}).directive('svyFocuslost',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			$utils.attachEventHandler($parse,element,scope,attrs['svyFocuslost'],'blur');
 		}
 	};
-}).directive('svyBorder',  function ($svyProperties) {
+}).directive('svyBorder',  function ($svyProperties:servoy.IServoyProperties) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -588,7 +590,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 		}
 	};
-}).directive('svyMargin',  function ($utils,$parse) {
+}).directive('svyMargin',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -599,7 +601,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive('svyFont',  function ($utils) {
+.directive('svyFont',  function ($utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -607,7 +609,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyBackground',  function ($utils) {
+.directive('svyBackground',  function ($utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -615,7 +617,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyForeground',  function ($utils) {
+.directive('svyForeground',  function ($utils:servoy.IUtils) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -623,7 +625,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyScrollbars',  function ($svyProperties,$parse,$scrollbarConstants) {
+.directive('svyScrollbars',  function ($svyProperties:servoy.IServoyProperties,$parse:angular.IParseService,$scrollbarConstants) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -640,7 +642,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyHorizontaldirection',  function ($parse,$scrollbarConstants) {
+.directive('svyHorizontaldirection',  function ($parse:angular.IParseService,$scrollbarConstants) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -653,7 +655,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyMnemonic',  function ($utils,$parse) {
+.directive('svyMnemonic',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -665,17 +667,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	}
 })
 
-.directive('svyTextrotation',  function ($utils,$parse,$svyProperties) {
+.directive('svyTextrotation',  function ($utils:servoy.IUtils,$parse:angular.IParseService,$svyProperties:servoy.IServoyProperties) {
 	// DESIGN TIME ONLY
 	return {
 		restrict: 'A',
-		link: function (scope, element, attrs) {  
+		link: function (scope:angular.IScope&{model:{size:{height:number,width:number}}}, element:JQuery, attrs) {  
 			var rotation= $parse(attrs['svyTextrotation'])(scope);
 			$svyProperties.setRotation(element,scope,rotation);
 		}
 	}
 })
-.directive('svyHorizontalalignment',  function ($utils,$parse,$svyProperties) {
+.directive('svyHorizontalalignment',  function ($utils:servoy.IUtils,$parse:angular.IParseService,$svyProperties:servoy.IServoyProperties) {
 	// DESIGN TIME ONLY
 	return {
 		restrict: 'A',
@@ -685,7 +687,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyVerticalalignment',  function ($utils,$parse,$svyProperties) {
+.directive('svyVerticalalignment',  function ($utils:servoy.IUtils,$parse:angular.IParseService,$svyProperties:servoy.IServoyProperties) {
 	// DESIGN TIME ONLY
 	return {
 		restrict: 'A',
@@ -697,7 +699,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svySelectonenter',  function ($timeout,$svyProperties) {
+.directive('svySelectonenter',  function ($timeout:angular.ITimeoutService,$svyProperties:servoy.IServoyProperties) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -708,7 +710,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive('svyRollovercursor',  function ($timeout) {
+.directive('svyRollovercursor',  function ($timeout:angular.ITimeoutService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -834,7 +836,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		if(letter && input) return input.replace(letter, '<u>'+letter+'</u>');
 		return input
 	};
-}).directive('svyFormatvldisplay',['$parse', function($parse){
+}).directive('svyFormatvldisplay',['$parse', function($parse:angular.IParseService){
 	//it is similar to svy-format
 	return{
 		restrict:'A',
@@ -902,7 +904,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			})
 		}
 	}
-}]).directive("svyComponentWrapper", ['$compile', function ($compile) {
+}]).directive("svyComponentWrapper", ['$compile', function ($compile:angular.ICompileService) {
 	return {
 		priority: 1000,
 		//replace: true,
@@ -945,7 +947,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 }]
-).factory('$svyNGEvents', ['$timeout', '$rootScope', function($timeout, $rootScope) {
+).factory('$svyNGEvents', ['$timeout', '$rootScope', function($timeout:angular.ITimeoutService, $rootScope:angular.IRootScopeService) {
 	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 	return {
@@ -963,11 +965,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			} else $timeout(fn, 0, doApply); // it could produce flicker, but better then nothing
 		}
 	}
-}]).factory("$svyI18NService",['$sabloApplication','$q', function($sabloApplication, $q) {
+}]).factory("$svyI18NService",['$sabloApplication','$q', function($sabloApplication:sablo.ISabloApplication, $q:angular.IQService) {
 	var cachedMessages = {};
-	var cachedPromises = {};
+	var cachedPromises: { [s: string]: {promise?:angular.IPromise<{}>; value?:any}} = {};
 	var defaultTranslations = {};
-	return {
+	return <servoy.IServoyI18NService> {
 		addDefaultTranslations: function(translations) {
 			angular.extend(defaultTranslations, translations);
 		},
@@ -1008,7 +1010,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				var promise = $sabloApplication.callService("i18nService", "getI18NMessages", {0: key}, false).
 				   then(
 						      function(result) {
-						    	  if (promise.reject) {
+						    	  if (promise['reject']) {
 						    		  return $q.reject(result)
 						    	  }
 						    	  else {
@@ -1044,7 +1046,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			cachedMessages = {};
 			for (var key in cachedPromises) {
 				if (cachedPromises.hasOwnProperty(key) && cachedPromises[key].promise) {
-					cachedPromises[key].promise.reject = true;
+					cachedPromises[key].promise['reject'] = true;
 				}
 			}
 			cachedPromises = {};

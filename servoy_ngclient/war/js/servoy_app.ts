@@ -19,7 +19,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
 	
-}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q:angular.IQService, $solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sessionService, $sabloConverters:sablo.ISabloConverters, $sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $applicationService, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
+}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q:angular.IQService, $solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters, $sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
 
 	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
@@ -825,7 +825,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 	};   
-}).directive('svyFormload',  function ($timeout:angular.ITimeoutService, $servoyInternal, $sabloApplication:sablo.ISabloApplication, $windowService, $rootScope:servoy.IRootScopeService, $log:sablo.ILogService) {
+}).directive('svyFormload',  function ($timeout:angular.ITimeoutService, $sabloApplication:sablo.ISabloApplication, $windowService, $rootScope:servoy.IRootScopeService, $log:sablo.ILogService) {
 	return {
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
@@ -938,7 +938,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
        // return empty translation, translateFilterServoyI18nMessageLoader is used as missingTranslationHandler
        return $q.when({});
     };
-}]).factory('translateFilterServoyI18nMessageLoader', ['$svyI18NService', function ($svyI18NService) {
+}]).factory('translateFilterServoyI18nMessageLoader', ['$svyI18NService', function ($svyI18NService:servoy.IServoyI18NService) {
     // use servoy i18n as loader for the translate filter
 	return function(key) {
 		return $svyI18NService.getI18NMessage(key);
@@ -951,7 +951,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	styleSheetPaths: [],
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService, $svyI18NService) {
+}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService) {
 	$servoyInternal.connect();
 
 	// initialize locale client side
@@ -1134,7 +1134,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService,$log:sablo.ILogService,$translate) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', 
+                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',

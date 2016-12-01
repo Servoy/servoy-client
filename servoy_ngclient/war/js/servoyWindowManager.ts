@@ -1,5 +1,10 @@
+/// <reference path="../../typings/angularjs/angular.d.ts" />
+/// <reference path="../../typings/sablo/sablo.d.ts" />
+/// <reference path="../../typings/jquery/jquery.d.ts" />
+/// <reference path="../../typings/servoy/servoy.d.ts" />
+
 angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that window is a component with handlers
-.config(['$locationProvider', function($locationProvider) {
+.config(['$locationProvider', function($locationProvider:angular.ILocationProvider) {
     $locationProvider.html5Mode(true);
 }])
 .directive('svyWindow', function () {
@@ -18,13 +23,12 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	};
 })
 .factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile','WindowType',
-                                  function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
+                                  function($timeout:angular.ITimeoutService, $rootScope:angular.IRootScopeService,$http:angular.IHttpService,$q:angular.IQService ,$templateCache:angular.ITemplateCacheService,$injector,$controller:angular.IControllerService,$compile:angular.ICompileService,WindowType:servoy.WindowType) {
 	var WM = new window.WindowManager();
-	var winInstances = {}
-	return {
+	var self:servoy.IServoyWindowManager = {
 		BSWindowManager: WM,
-		instances: winInstances,
-		open : function (windowOptions) {
+		instances: {},
+		open: function (windowOptions) {
 			var dialogOpenedDeferred = $q.defer();
 
 			//prepare an instance of a window to be injected into controllers and returned to a caller
@@ -44,8 +48,8 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			templateAndResolvePromise.then(function(tplAndVars){
 				//initialize dialog scope and controller
 				var windowScope = (windowOptions.scope || $rootScope).$new();
-				windowScope.$close = windowInstance.close;
-				windowScope.$dismiss = windowInstance.dismiss;
+//				windowScope['$close'] = windowInstance['close']; // TODO will WindowInstance ever have a close or dismiss function??
+//				windowScope['$dismiss'] = windowInstance['dismiss'];
 				windowInstance.$scope = windowScope;
 
 				var ctrlLocals = {};
@@ -134,17 +138,17 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			return dialogOpenedDeferred.promise;
 		},
 		destroyAllDialogs: function(){
-			for(var dialog in this.instances)
+			for(var dialog in self.instances)
 			{
-				if (this.instances[dialog] && this.instances[dialog].bsWindowInstance) this.instances[dialog].hide();
+				if (self.instances[dialog] && self.instances[dialog].bsWindowInstance) self.instances[dialog].hide();
 			}
-			this.instances = {};
+			self.instances = {};
 		}
 	}
 
 
 //	utiliy functions
-	function getTemplatePromise(options) {
+	function getTemplatePromise(options:{template?:string,templateUrl?:string}) {
 		return options.template ? $q.when(options.template) :
 			$http.get(options.templateUrl, {cache: $templateCache}).then(function (result) {
 				return result.data;
@@ -174,10 +178,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		if (top < 0) top = 0;
 		return {x:left,y:top}
 	};
+	return self;
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location,$sabloLoadingIndicator,$sabloTestability) {
+}]).factory("$windowService", function($servoyWindowManager:servoy.IServoyWindowManager, $log:sablo.ILogService, $rootScope:servoy.IRootScopeService, $solutionSettings:servoy.SolutionSettings, $window:angular.IWindowService, $timeout:angular.ITimeoutService, $formService, $sabloApplication:sablo.ISabloApplication, webStorage, WindowType:servoy.WindowType,$servoyInternal,$templateCache:angular.ITemplateCacheService, $location:angular.ILocationService,$sabloLoadingIndicator,$sabloTestability) {
 	var instances = $servoyWindowManager.instances;
-	var formTemplateUrls = {};
+	var formTemplateUrls: { [s: string]: string; } = {};
 	var storage = webStorage.local;
 	var sol = $solutionSettings.solutionName+'.'
 
@@ -190,7 +195,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}, 500);
 	});
 
-	function getFormUrl(formName) {
+	function getFormUrl(formName:string):string {
 		var realFormUrl = formTemplateUrls[formName];
 		if (realFormUrl == null || realFormUrl == undefined) {
 			formTemplateUrls[formName] = "";
@@ -253,7 +258,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	    }
 	});
 
-	return {
+	var self:servoy.IWindowService = {
 		create: function (name,type){
 			// dispose old one
 			if(instances[name]){
@@ -266,15 +271,24 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 						title:'',
 						opacity:1,
 						undecorated:false,
+						size:null,
+						location:null,
+						navigatorForm:null,
+						form:null,
+						initialBounds:null,
+						resizable:false,
+						transparent:false,
+						storeBounds:false,
 						bsWindowInstance:null,  // bootstrap-window instance , available only after creation
-						hide: function (result) {
+						$scope:null,
+						hide: function () {
 							if(win.bsWindowInstance) win.bsWindowInstance.close();
 							if(!this.storeBounds){
 								delete this.location;
 								delete this.size;
 							}
 							delete win.bsWindowInstance
-							if (win['$scope']) win['$scope'].$destroy();
+							if (win.$scope) win.$scope.$destroy();
 						},
 						setLocation:function(location){
 							this.location = location;
@@ -292,17 +306,17 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 							if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 						},
 						getSize: function(){
-							return win['size'];
+							return win.size;
 						},
 						onResize:function($event,size){
-							win['size'] = size;
-							if(win['storeBounds']) storage.add(sol+name+'.storedBounds.size',size)
-							$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win['size']},true);
+							win.size = size;
+							if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
+							$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win.size},true);
 							win['$scope'].$broadcast("dialogResize");
 						},
 						onMove:function($event,location){
-							win['location'] = {x:location.left,y:location.top};
-							if(win['storeBounds']) storage.add(sol+name+'.storedBounds.location',win['location'])
+							win.location = {x:location.left,y:location.top};
+							if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win['location'])
 							$sabloApplication.callService("$windowService", "move", {name:win.name,location:win['location']},true);
 						},
 						toFront:function(){
@@ -339,15 +353,15 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				}
 				$sabloTestability.block(true);
 				$servoyWindowManager.open({
-					animation: false,
+//					animation: false,
 					templateUrl: "templates/dialog.html",
 					controller: "DialogInstanceCtrl",
-					windowClass: "tester",
+//					windowClass: "tester",
 					windowInstance:instance
 				}).then(function(){
 					// test if it is modal dialog, then the request blocks on the server and we should hide the loading.
 					if (instance.type == 1 && $sabloLoadingIndicator.isShowing()) {
-						instance.loadingIndicatorIsHidden = true;
+						instance['loadingIndicatorIsHidden'] = true;
 						$sabloLoadingIndicator.hideLoading();
 					}
 					$sabloTestability.increaseEventLoop();
@@ -369,8 +383,8 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		hide:function(name){
 			var instance = instances[name];
 			if (instance) {
-				if (instance.loadingIndicatorIsHidden) {
-					delete instance.loadingIndicatorIsHidden;
+				if (instance['loadingIndicatorIsHidden']) {
+					delete instance['loadingIndicatorIsHidden'];
 					$sabloLoadingIndicator.showLoading();
 				}
 				$sabloTestability.decreaseEventLoop();
@@ -552,12 +566,14 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		getFormUrl: getFormUrl
 	}
+	return self;
 
 }).value('WindowType',{
 	DIALOG:0,
 	MODAL_DIALOG:1,
 	WINDOW:2
-}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$timeout,$windowService, $servoyInternal,$sabloApplication,$formService,$sabloTestability) {
+}).controller("DialogInstanceCtrl", function ($scope:angular.IScope&{win:servoy.WindowInstance,getFormUrl():string,getNavigatorFormUrl():string,isUndecorated():boolean,getBodySize():{width:string,height:string},cancel():void},
+												 windowInstance:servoy.WindowInstance,$timeout:angular.ITimeoutService,$windowService:servoy.IWindowService, $servoyInternal,$sabloApplication:sablo.ISabloApplication,$formService,$sabloTestability) {
 
 	var block = true;
 	// these scope variables can be accessed by child scopes
@@ -609,7 +625,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 //			}
 //		})
 	};
-}).directive('unwantedDialogScrollbarsWorkaround', function($log, $timeout) { 
+}).directive('unwantedDialogScrollbarsWorkaround', function($log:sablo.ILogService, $timeout:angular.ITimeoutService) { 
 	return {
 		restrict: 'A',
 		
