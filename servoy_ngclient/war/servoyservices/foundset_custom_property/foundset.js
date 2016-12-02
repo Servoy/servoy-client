@@ -5,7 +5,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	UPDATE_SIZE_CALLBACK:'updateSizeCallback'
 })
-.run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils, $q) {
+.run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils, $q, $log) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
 	var SERVER_SIZE = "serverSize";
@@ -173,6 +173,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadRecordsAsync requested with (" + startIndex + ", " + size + ")");
 						if (isNaN(startIndex) || isNaN(size)) throw new Error("loadRecordsAsync: start or size are not numbers (" + startIndex + "," + size + ")");
 
 						var req = {newViewPort: {startIndex : startIndex, size : size}};
@@ -184,6 +185,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						return internalState.deferred[requestID].promise;
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadExtraRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadExtraRecordsAsync: extrarecords is not a number (" + negativeOrPositiveCount + ")");
 
 						var req = { loadExtraRecords: negativeOrPositiveCount };
@@ -195,6 +197,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						return internalState.deferred[requestID].promise;
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadLessRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadLessRecordsAsync: lessrecords is not a number (" + negativeOrPositiveCount + ")");
 
 						var req = { loadLessRecords: negativeOrPositiveCount };
@@ -206,13 +209,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						return internalState.deferred[requestID].promise;
 					};
 					newValue.notifyChanged = function() {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * notifyChanged called");
 						if (internalState.changeNotifier && internalState.requests.length > 0) internalState.changeNotifier();
 					};
 					newValue.sort = function(columns) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * sort requested with " + JSON.stringify(columns));
 						internalState.requests.push({sort: columns});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
 					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * setPreferredViewportSize called with (" + size + ", " + sendSelectionViewportInitially + ", " + initialSelectionViewportCentered + ")");
 						if (isNaN(size)) throw new Error("setPreferredViewportSize(...): illegal argument; size is not a number (" + size + ")");
 						var request = {preferredViewportSize: size};
 						if (angular.isDefined(sendSelectionViewportInitially)) request.sendSelectionViewportInitially = !!sendSelectionViewportInitially;
@@ -221,6 +227,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
 					newValue.requestSelectionUpdate = function(tmpSelectedRowIdxs) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * requestSelectionUpdate called with " + JSON.stringify(tmpSelectedRowIdxs));
 						if (internalState.selectionUpdateDefer) {
 							internalState.selectionUpdateDefer.reject("Selection change defer cancelled because we are already sending another selection to server.");
 						}
@@ -265,6 +272,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 			// restore/add watches
 			addBackWatches(newValue, componentScope);
+			
+			if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updates or value received from server; new viewport and server size (" + newValue[VIEW_PORT][START_INDEX] + ", " + newValue[VIEW_PORT][SIZE] + ", " + newValue[SERVER_SIZE] + ")");
 
 			return newValue;
 		},

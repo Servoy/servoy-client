@@ -1185,7 +1185,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
 			if (!$rootScope.$$phase) {
-				if ($log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from setStyleSheets for root scope");
+				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy * Will call digest from setStyleSheets for root scope");
 				$rootScope.$digest();
 			}
 		},
