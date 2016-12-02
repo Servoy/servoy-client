@@ -56,7 +56,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A session which holds the actual started client inside
- * 
+ *
  * @author jblok
  */
 public class WebClientSession extends WebSession
@@ -194,17 +194,17 @@ public class WebClientSession extends WebSession
 
 	/**
 	 * Logout is being called by:
-	 * 
+	 *
 	 * 1> 2 javascript methods: js_logout and js_exit
-	 * 
+	 *
 	 * 2> 2 UserClient methods: closeSolution and shutDown
-	 * 
+	 *
 	 * 3> 1 ValueUnbound of the session a> Session time out b> Remove attribute when loading new Solution
-	 * 
+	 *
 	 * With 1 and 2 the session can be invalidated. With 3a the session is already invalidating.
-	 * 
+	 *
 	 * 3b the session shouldn't be invalidated.
-	 * 
+	 *
 	 * If logout calls invalidate then the value unbound will be called again that will call logout again.
 	 */
 	public void logout()
@@ -285,7 +285,7 @@ public class WebClientSession extends WebSession
 	public DynamicWebResource.ResourceState getResourceState()
 	{
 		DynamicWebResource.ResourceState resourceState = null;
-		if (serveInfo[0] != null && serveInfo[1] != null)
+		if (serveInfo != null && serveInfo[0] != null && serveInfo[1] != null)
 		{
 			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", serveInfo[3] + "; filename=\"" + serveInfo[0] + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resourceState = new DynamicWebResource.ResourceState()
@@ -425,7 +425,7 @@ public class WebClientSession extends WebSession
 			{
 				for (Page touched : touchedPages)
 				{
-					// if the current touched pages are in the locked pages map and its not on our own locked pages list. 
+					// if the current touched pages are in the locked pages map and its not on our own locked pages list.
 					// something is waiting for that page to be released.
 					found = !ownLockedPages.contains(touched) && lockedPages.containsKey(touched);
 					if (found)
@@ -467,7 +467,7 @@ public class WebClientSession extends WebSession
 		super.detach();
 		synchronized (lockedPages)
 		{
-			// remove all locks this thread has 
+			// remove all locks this thread has
 			for (Page page : toRelease.get())
 			{
 				lockedPages.remove(page);
