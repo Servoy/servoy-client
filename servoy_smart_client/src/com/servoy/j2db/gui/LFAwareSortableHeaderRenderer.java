@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -50,7 +51,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 
 /***
  * Header renderer for table component(tableview or portal); used for normal header and labelfor header
- * 
+ *
  *  @author lvostinar
  */
 public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer implements IComponent, UIResource
@@ -151,7 +152,8 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		}
 	}
 
-	private Component lfComponent = null;
+	private WeakReference<Component> wrLFComponent = null;
+	private WeakReference<TableCellRenderer> wrLFAwareRenderer = null;
 	private Object lfValue = null;
 
 	@Override
@@ -175,17 +177,23 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 			this.setHorizontalTextPosition(defaultHorizontalTextPosition);
 		}
 		TableCellRenderer lfAwareRenderer = table.getTableHeader().getDefaultRenderer();
+		if (wrLFAwareRenderer == null || wrLFAwareRenderer.get() != lfAwareRenderer)
+		{
+			wrLFAwareRenderer = new WeakReference<>(lfAwareRenderer);
+			wrLFComponent = null;
+		}
 
 		if (lfAwareRenderer != null)
 		{
+			Component lfComponent = wrLFComponent != null ? wrLFComponent.get() : null;
 			// Ask the renderer to do the rendering for us.
 			if (lfComponent == null || !Utils.equalObjects(value, lfValue))
 			{
 				// cache value, this is an expensive operation into the look and feel renderer.
-				lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				wrLFComponent = new WeakReference<>(lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column));
 				lfValue = value;
+				lfComponent = wrLFComponent.get();
 			}
-
 			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();
 			if (defaultBgColor == null) defaultBgColor = ((JLabel)lfComponent).getBackground();
 			if (defaultFont == null) defaultFont = ((JLabel)lfComponent).getFont();
