@@ -21,7 +21,7 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>com.palantir.typescript.typeScriptBuilder</name>
+			<name>ts.eclipse.ide.core.typeScriptBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -29,6 +29,5 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.pde.PluginNature</nature>
-		<nature>com.palantir.typescript.typeScriptNature</nature>
 	</natures>
 </projectDescription>
