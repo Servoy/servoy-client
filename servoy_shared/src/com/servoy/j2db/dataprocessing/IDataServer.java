@@ -160,7 +160,8 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	/**
 	 * Get a sequence
 	 */
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID) throws RepositoryException, RemoteException;
+	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+		throws RepositoryException, RemoteException;
 
 	/**
 	 * Insert a data set in a table. When tableName is null a temporary table will be created

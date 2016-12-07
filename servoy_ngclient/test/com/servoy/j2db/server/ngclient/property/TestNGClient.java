@@ -300,7 +300,7 @@ public class TestNGClient extends NGClient
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
-					throws ServoyException, RemoteException
+				throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -391,7 +391,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID) throws RepositoryException, RemoteException
+			public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+				throws RepositoryException, RemoteException
 			{
 				// TODO Auto-generated method stub
 				return null;

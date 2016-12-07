@@ -91,7 +91,7 @@ public class I18NUtil
 
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
 		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, String filterName, String[] filterValue, FoundSetManager fm)
-			throws Exception
+		throws Exception
 	{
 		writeMessagesToRepository(i18NServerName, i18NTableName, repository, dataServer, clientID, messages, noUpdates, noRemoves, null, filterName,
 			filterValue, fm);
@@ -156,7 +156,7 @@ public class I18NUtil
 						Object[] insertColumnValues = null;
 						if (logIdIsServoyManaged)
 						{
-							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), -1);
+							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), -1, i18NServerName);
 							if (lang == null)
 							{
 								insertColumns = new QueryColumn[] { pkCol, msgKey, msgVal };
@@ -182,7 +182,7 @@ public class I18NUtil
 							}
 						}
 
-						Column filterColumn = (Column)i18NTable.getColumn(filterName);
+						Column filterColumn = i18NTable.getColumn(filterName);
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
 							insertColumns = Utils.arrayAdd(insertColumns, new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
@@ -203,7 +203,7 @@ public class I18NUtil
 
 						if (filterName != null)
 						{
-							Column filterColumn = (Column)i18NTable.getColumn(filterName);
+							Column filterColumn = i18NTable.getColumn(filterName);
 							if (filterColumn != null && filterValue != null && filterValue.length > 0)
 							{
 								QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
@@ -240,7 +240,7 @@ public class I18NUtil
 
 							if (filterName != null)
 							{
-								Column filterColumn = (Column)i18NTable.getColumn(filterName);
+								Column filterColumn = i18NTable.getColumn(filterName);
 								if (filterColumn != null && filterValue != null && filterValue.length > 0)
 								{
 									QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
@@ -291,7 +291,7 @@ public class I18NUtil
 
 				if (filterName != null)
 				{
-					Column filterColumn = (Column)i18NTable.getColumn(filterName);
+					Column filterColumn = i18NTable.getColumn(filterName);
 					if (filterColumn != null && filterValue != null && filterValue.length > 0)
 					{
 						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),

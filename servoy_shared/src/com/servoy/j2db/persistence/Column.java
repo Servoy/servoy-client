@@ -620,7 +620,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						IDataServer ds = application.getDataServer();
 						if (ds != null)
 						{
-							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getID());
+							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getID(), getTable().getServerName());
 						}
 						return Integer.valueOf(0);
 					}

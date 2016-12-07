@@ -119,9 +119,10 @@ public class DataServerProxy implements IDataServer
 		return ds.getBlob(clientId, getMappedServerName(serverName), blobSelect, filters, tid);
 	}
 
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID) throws RepositoryException, RemoteException
+	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+		throws RepositoryException, RemoteException
 	{
-		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoID);
+		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoID, columnInfoServer);
 	}
 
 	public IDataSet performCustomQuery(String client_id, String serverName, String driverTableName, String transaction_id, ISQLSelect sqlSelect,

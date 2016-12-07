@@ -2849,7 +2849,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			int columnInfoID = table.getColumnInfoID(columnName);
 			if (columnInfoID == -1) return null;
 
-			return application.getDataServer().getNextSequence(serverName, tableName, columnName, columnInfoID);
+			return application.getDataServer().getNextSequence(serverName, tableName, columnName, columnInfoID, serverName);
 		}
 		catch (Exception e)
 		{

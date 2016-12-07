@@ -603,12 +603,13 @@ public class ProfileDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getNextSequence(java.lang.String, java.lang.String, java.lang.String, int)
 	 */
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID) throws RepositoryException, RemoteException
+	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+		throws RepositoryException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.getNextSequence(serverName, tableName, columnName, columnInfoID);
+			return dataserver.getNextSequence(serverName, tableName, columnName, columnInfoID, columnInfoServer);
 		}
 		finally
 		{
