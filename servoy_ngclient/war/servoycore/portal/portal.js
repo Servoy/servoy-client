@@ -2,10 +2,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 .directive('servoycorePortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
                                    '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
-                                   '$svyProperties', '$sabloConstants','$window','i18nService',
+                                   '$svyProperties', '$window','i18nService',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants,
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants,$window,i18nService) {
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window,i18nService) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -196,6 +196,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
 					+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
+					if (el.componentDirectiveName === "servoydefault-combobox" || el.componentDirectiveName === "servoydefault-calendar") {
+						cellTemplate += " svy-portal-cell='true'";
+					} 
 					cellTemplate += '/>';					
 					
 					

@@ -1,5 +1,5 @@
 angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
-.directive('servoydefaultCombobox', ['$timeout', '$apifunctions','$sabloConstants','$svyProperties','$applicationService', function ($timeout, $apifunctions,$sabloConstants,$svyProperties,$applicationService) {
+.directive('servoydefaultCombobox', ['$timeout', '$apifunctions','$sabloConstants','$svyProperties','$applicationService', '$animate', function ($timeout, $apifunctions,$sabloConstants,$svyProperties,$applicationService,$animate) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -20,7 +20,9 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			$scope.enablefilter = enableFilter !== undefined && enableFilter != null ? enableFilter : true;
 		},
 		link: function (scope, element, attrs) {
-
+			if(attrs['svyPortalCell']) {
+				$animate.enabled(element, false);
+			}
 			// workaround for ui-select issue, that sets the select items formatter (scope.$$childHead.$select.parserResult) too late 
 			if(scope.$$childHead && scope.$$childHead.$select && (scope.$$childHead.$select.parserResult == undefined)) {
 				scope.$$childHead.$select.parserResult = { source: function() { return undefined }};	

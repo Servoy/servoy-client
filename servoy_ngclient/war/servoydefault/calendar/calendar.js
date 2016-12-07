@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService,$animate) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -8,6 +8,9 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			svyServoyapi : "="
 		},
 		link : function($scope, $element, $attrs) {
+			if($attrs['svyPortalCell']) {
+				$animate.enabled($element, false);
+			}
 			var child = $element.children();
 			var ngModel = child.controller("ngModel");
 			var isDataFormatted = true;
@@ -231,7 +234,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				else
 				{
 					inputChanged(event);
-				}
+				}	
 			}
 
 			/**
