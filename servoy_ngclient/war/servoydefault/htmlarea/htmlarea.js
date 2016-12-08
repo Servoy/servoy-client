@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties) {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -55,6 +55,48 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 					}
 			}
 
+			// app level configuration
+			var defaultConfiguration = $applicationService.getUIProperty("config");
+			if (defaultConfiguration)
+			{
+				try
+				{
+					defaultConfiguration = JSON.parse(defaultConfiguration);
+				}
+				catch(e)
+				{
+					console.error(e)
+				}
+				for (var key in defaultConfiguration)
+				{
+					if (defaultConfiguration.hasOwnProperty(key))
+					{
+						$scope.tinyConfig[key] = defaultConfiguration[key];
+					}
+				}
+			}
+			
+			// element level configuration
+			var configuration = $scope.model.clientProperty ? $scope.model.clientProperty['config'] : null;
+			if (configuration)
+			{
+				try
+				{
+					configuration = JSON.parse(configuration);
+				}
+				catch(e)
+				{
+					console.error(e)
+				}
+				for (var key in configuration)
+				{
+					if (configuration.hasOwnProperty(key))
+					{
+						$scope.tinyConfig[key] = configuration[key];
+					}
+				}
+			}
+			
 			/**
 	      	 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
 	      	 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of an element; then use the X and Y coordinates with the setScroll function to set a new scroll location. 
