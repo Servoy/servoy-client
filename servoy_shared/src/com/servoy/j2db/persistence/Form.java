@@ -134,6 +134,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public String getServerName()
 	{
 		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
+		if (stn == null) stn = DataSourceUtils.getMemServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -259,6 +260,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public String getTableName()
 	{
 		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
+		if (stn == null) stn = DataSourceUtils.getMemServernameTablename(getDataSource());
 		return stn == null ? null : stn[1];
 	}
 
