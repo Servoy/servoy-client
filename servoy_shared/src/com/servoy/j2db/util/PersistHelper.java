@@ -974,6 +974,7 @@ public class PersistHelper
 			{
 				for (IPersist child : temp.getAllObjectsAsList())
 				{
+					if (!(child instanceof ISupportExtendsID)) continue;
 					Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
 					if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
 					{
