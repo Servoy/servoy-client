@@ -398,8 +398,7 @@ public class SQLGenerator
 				}
 				else
 				{
-						Debug.log(
-							"Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.log("Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -1299,7 +1298,7 @@ public class SQLGenerator
 				}
 			}
 			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues,
-				maskedOp != IBaseSQLCondition.NOT_OPERATOR || maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR);
+				maskedOp != IBaseSQLCondition.NOT_OPERATOR && maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR);
 		}
 		else if (maskedOp == IBaseSQLCondition.BETWEEN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_BETWEEN_OPERATOR)
 		{
