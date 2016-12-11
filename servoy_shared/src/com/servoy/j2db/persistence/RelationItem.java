@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.persistence;
 
+import java.util.regex.Pattern;
+
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -38,18 +40,17 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		ISQLCondition.EQUALS_OPERATOR, ISQLCondition.GT_OPERATOR, ISQLCondition.LT_OPERATOR, ISQLCondition.GTE_OPERATOR, ISQLCondition.LTE_OPERATOR, ISQLCondition.NOT_OPERATOR, ISQLCondition.IN_OPERATOR, ISQLCondition.LIKE_OPERATOR, ISQLCondition.NOT_LIKE_OPERATOR,
 		// case insensitive
 		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_OPERATOR |
-			ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR |
-				ISQLCondition.CASEINSENTITIVE_MODIFIER,
-				// or null
-				ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR |
-					ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR |
-						ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
-							ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR |
-								ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER,
-								// case insensitive or null
-								ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER |
-									ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER |
-										ISQLCondition.ORNULL_MODIFIER,
+			ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR |
+				ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER,
+		// or null
+		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR |
+			ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR |
+				ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR |
+					ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR |
+						ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER,
+		// case insensitive or null
+		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
+			ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER,
 		//
 	};
 
@@ -203,7 +204,8 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 		for (int i = 0; i < IBaseSQLCondition.OPERATOR_STRINGS.length; i++)
 		{
-			if (IBaseSQLCondition.OPERATOR_STRINGS[i].equalsIgnoreCase(opString))
+			Pattern pattern = Pattern.compile(IBaseSQLCondition.OPERATOR_STRINGS[i].replace(" ", "\\s+"), Pattern.CASE_INSENSITIVE);
+			if (pattern.matcher(opString).matches())
 			{
 				return IBaseSQLCondition.ALL_DEFINED_OPERATORS[i] | mod;
 			}
