@@ -75,7 +75,8 @@
 	"types": {
 	  "foundsetinfo": {
 	  		"foundset": "foundset",
-	  		"foundsethash": "int"
+	  		"foundsethash": "int",
+	  		"childrelationinfo": "object" 
 	  }
 	}	
 }

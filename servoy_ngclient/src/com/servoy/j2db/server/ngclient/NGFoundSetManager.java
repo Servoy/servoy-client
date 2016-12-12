@@ -92,6 +92,25 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				HashMap<String, Object> foundsetinfoMap = new HashMap<String, Object>();
 				foundsetinfoMap.put("foundset", value);
 				foundsetinfoMap.put("foundsethash", Integer.valueOf(args.optInt("foundsethash")));
+
+				String childrelation = args.optString("childrelation");
+				if (childrelation != null)
+				{
+					JSONObject childrelationinfo = new JSONObject();
+					childrelationinfo.put("name", childrelation);
+					for (int i = 0; i < foundset.getSize(); i++)
+					{
+						IRecordInternal record = foundset.getRecord(i);
+						Object o = record.getValue(childrelation);
+						if (o instanceof IFoundSetInternal)
+						{
+							childrelationinfo.put(record.getPKHashKey() + "_" + record.getParentFoundSet().getRecordIndex(record),
+								((IFoundSetInternal)o).getSize());
+						}
+					}
+					foundsetinfoMap.put("childrelationinfo", childrelationinfo);
+				}
+
 				foundsets.add(new ChangeAwareMap(foundsetinfoMap));
 			}
 		}

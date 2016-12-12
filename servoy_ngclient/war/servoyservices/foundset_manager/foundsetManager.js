@@ -14,7 +14,7 @@ angular.module('foundset_manager',['sabloApp'])
 	}
 
 	return {
-		getFoundSet: function(foundsethash, dataproviders, sort) {
+		getFoundSet: function(foundsethash, dataproviders, sort, childrelation) {
 			var deferred = $q.defer();
 			var foundset = getFoundSetFromScope(foundsethash);
 			if(!foundset) {
@@ -26,7 +26,7 @@ angular.module('foundset_manager',['sabloApp'])
 						deferred.resolve(foundset);
 					}
 			    });
-				$sabloApplication.callService("$foundsetManager", "getFoundSet", {foundsethash: foundsethash, dataproviders: dataproviders, sort: sort}, false);
+				$sabloApplication.callService("$foundsetManager", "getFoundSet", {foundsethash: foundsethash, dataproviders: dataproviders, sort: sort, childrelation: childrelation}, false);
 			}
 			else {
 				deferred.resolve(foundset);
@@ -58,6 +58,14 @@ angular.module('foundset_manager',['sabloApp'])
 		},
 		removeFoundSetsFromCache: function() {
 			$sabloApplication.callService("$foundsetManager", "removeFoundSetsFromCache");
+		},
+		getFoundSetChildRelationInfo(foundsethash, childrelation) {
+			for(var i = 0; i < scope.model.foundsets.length; i++) {
+				if(scope.model.foundsets[i].foundsethash == foundsethash && scope.model.foundsets[i].childrelationinfo['name'] == childrelation) {
+					return scope.model.foundsets[i].childrelationinfo;
+				}
+			}
+			return null;
 		}
 	}
 })
