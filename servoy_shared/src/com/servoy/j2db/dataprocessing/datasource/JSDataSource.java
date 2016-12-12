@@ -58,10 +58,27 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	 * @sample
 	 * datasources.db.example_data.orders.getDatasource() // returns 'db:/example_data/orders'
 	 *
+	 * @deprecated As of release 8.1.2 , replaced by {@link #getDataSource()}.
+	 *
+	 * @return String datasource
+	 */
+	@Deprecated
+	@JSFunction
+	public String getDatasource()
+	{
+		return datasource;
+	}
+
+	/**
+	 * Get the datasource string.
+	 *
+	 * @sample
+	 * datasources.db.example_data.orders.getDataSource() // returns 'db:/example_data/orders'
+	 *
 	 * @return String datasource
 	 */
 	@JSFunction
-	public String getDatasource()
+	public String getDataSource()
 	{
 		return datasource;
 	}
