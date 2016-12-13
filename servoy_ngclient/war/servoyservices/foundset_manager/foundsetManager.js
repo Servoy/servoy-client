@@ -59,7 +59,7 @@ angular.module('foundset_manager',['sabloApp'])
 		removeFoundSetsFromCache: function() {
 			$sabloApplication.callService("$foundsetManager", "removeFoundSetsFromCache");
 		},
-		getFoundSetChildRelationInfo(foundsethash, childrelation) {
+		getFoundSetChildRelationInfo: function(foundsethash, childrelation) {
 			for(var i = 0; i < scope.model.foundsets.length; i++) {
 				if(scope.model.foundsets[i].foundsethash == foundsethash && scope.model.foundsets[i].childrelationinfo['name'] == childrelation) {
 					return scope.model.foundsets[i].childrelationinfo;
