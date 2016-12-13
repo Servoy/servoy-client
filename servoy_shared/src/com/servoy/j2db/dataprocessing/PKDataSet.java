@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.util.Comparator;
+import java.util.List;
 
 import com.servoy.j2db.persistence.ITransactable;
 import com.servoy.j2db.query.AbstractBaseQuery.PlaceHolderSetter;
@@ -28,7 +29,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Data set optimized for PKs.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -223,9 +224,9 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 							if (pksAndRecordsHolder.hasDynamicPlaceholder())
 							{
 								// query still has the pk set condition, set the condition back to the pk set from before the transaction
-								pksAndRecordsHolder.getQuerySelectForReading().acceptVisitor(
-									new PlaceHolderSetter(new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(),
-										SQLGenerator.PLACEHOLDER_FOUNDSET_PKS), pksBeforeTransaction));
+								pksAndRecordsHolder.getQuerySelectForReading().acceptVisitor(new PlaceHolderSetter(
+									new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS),
+									pksBeforeTransaction));
 							}
 							transactionListener = null;
 						}
@@ -372,5 +373,11 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 		}
 
 		return sortedPKs.contains(pk);
+	}
+
+	@Override
+	public List<Object[]> getRows()
+	{
+		return pks.getRows();
 	}
 }
