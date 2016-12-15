@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.servoy.base.persistence.IBaseComponent;
@@ -415,7 +416,23 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		if (getExtendsID() > 0 && getParent() instanceof Form)//TODO check if responsive form?
 		{
 			IPersist superPersist = PersistHelper.getSuperPersist(this);
-			if (superPersist != null) return superPersist.getParent();
+			if (superPersist != null)
+			{
+				ISupportChilds parent = superPersist.getParent();
+				if (parent != null)
+				{
+					Iterator<IPersist> it = getParent().getAllObjects();
+					while (it.hasNext())
+					{
+						IPersist possibleParent = it.next();
+						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() == parent.getID())
+						{
+							return (ISupportChilds)possibleParent;
+						}
+					}
+					return parent;
+				}
+			}
 		}
 		return getParent();
 	}
