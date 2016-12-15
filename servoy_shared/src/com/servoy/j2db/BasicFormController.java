@@ -4122,12 +4122,12 @@ public abstract class BasicFormController
 		}
 
 		/**
-		 * Omit current record in form foundset, to be shown with loadOmittedRecords.
+		 * Omit selected record(s) (add it to omit records list) in form foundset, to be shown with loadOmittedRecords. This operation returns false only when form foundset is in bad state (table not accessible or not having a valid selected record).
 		 *
 		 * Note: The omitted records are discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invert
 		 *
 		 * @sample var success = %%prefix%%controller.omitRecord();
-		 * @return true if successful
+		 * @return true if all selected record(s) could be omitted
 		 *
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadOmittedRecords()
 		 */
