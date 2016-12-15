@@ -2672,16 +2672,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Omit record under the given index, to be shown with loadOmittedRecords.
-	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-
+	 * Omit record under the given index (add it to omit records list), to be shown with loadOmittedRecords. If index is null it behaves just like omitRecord().
+	 * This operation returns false when index is invalid (should be between 1 and foundset size) or foundset is in bad state (its table not accessible). Any retrievable record can be ommitted.
+	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sampleas js_omitRecord()
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 *
-	 * @param index The index of the record to omit.
+	 * @param index The index of the record to omit, starting with 1 .
 	 *
 	 * @return boolean true if all records could be omitted.
 	 */
@@ -2700,16 +2700,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Omit current record, to be shown with loadOmittedRecords.
-	 * If the foundset is in multiselect mode, all selected records are omitted (when no index parameter is used).
-
+	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords. This operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record).
+	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sample var success = %%prefix%%foundset.omitRecord();
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 *
-	 * @return boolean true if all records could be omitted.
+	 * @return boolean true if all selected record(s) could be omitted.
 	 */
 	public boolean js_omitRecord() throws ServoyException
 	{
