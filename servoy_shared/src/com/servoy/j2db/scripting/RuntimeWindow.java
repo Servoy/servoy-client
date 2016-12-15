@@ -316,4 +316,5 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		return null;
 	}
 
+	public abstract void setCSSClass(String cssClassName);
 }

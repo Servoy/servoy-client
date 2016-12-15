@@ -362,7 +362,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 //		{
 //			// parent matters for dialogs
 //			JSWindow parentJSWindow;
-//			if (initialParentWindow != null && initialParentWindow.getWrappedObject() != null && ((Window)initialParentWindow.getWrappedObject()).isShowing()) 
+//			if (initialParentWindow != null && initialParentWindow.getWrappedObject() != null && ((Window)initialParentWindow.getWrappedObject()).isShowing())
 //			{
 //				parentJSWindow = initialParentWindow;
 //			}
@@ -376,7 +376,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 //			Pair<Boolean, IMainContainer> p = createAndReparentDialogIfNeeded(fm, parentJSWindow, isModal);
 //			toFront = p.getLeft().booleanValue();
 //			previousModalContainer = p.getRight();
-//			
+//
 //			// TO DO
 //		}
 //		else if (windowType == WINDOW)
@@ -384,10 +384,10 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 //			// TO DO
 //		} // else illegal situation that should never happen
 //		else throw new RuntimeException("Unknown window type: " + windowType);
-//		
+//
 //		IMainContainer container = ((FormWindow)wrappedWindow).getMainContainer();
 //		final FormController fp = fm.showFormInMainPanel(formName, container, title, true, windowName);
-//		
+//
 //		if (isDialog && fp != null && fp.getName().equals(formName))
 //		{
 //			FormDialog sfd = ((FormDialog)wrappedWindow);
@@ -464,7 +464,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		FormDialog sfd = (FormDialog)wrappedWindow;
 		IMainContainer container = sfd.getMainContainer();
 
-		// For none legacy the dialog must always be really closed 
+		// For none legacy the dialog must always be really closed
 		sfd.setCloseAll(closeAll || !legacyV3Behavior);
 
 		if (sfd.isVisible())
@@ -611,7 +611,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	/**
 	 * This is a special method for that test for the ModalityType class/enum of java 6 of the value DOCUMENT_MODAL
-	 * and if found it will set that on the dialog given as the argument,this way we default in 6 to document modal instead of application modal. 
+	 * and if found it will set that on the dialog given as the argument,this way we default in 6 to document modal instead of application modal.
 	 * @param sfd
 	 */
 	@SuppressWarnings("nls")
@@ -809,7 +809,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				{
 					setDefaultSize(fp);
 
-					//if location was restored, then initial width and height need to be set  
+					//if location was restored, then initial width and height need to be set
 					if (!FormManager.FULL_SCREEN.equals(initialBounds))
 					{
 						setWindowBounds(new Rectangle(getX(), getY(), initialBounds.width, initialBounds.height), legacyV3Behavior);
@@ -1025,7 +1025,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.ISwingRuntimeWindow#getJMenuBar()
 	 */
 	public JMenuBar getJMenuBar()
@@ -1035,7 +1035,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.ISwingRuntimeWindow#getWindow()
 	 */
 	public Window getWindow()
@@ -1045,7 +1045,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.ISwingRuntimeWindow#setJMenuBar(javax.swing.JMenuBar)
 	 */
 	public void setJMenuBar(JMenuBar menuBar)
@@ -1063,7 +1063,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
 	 */
 	@Override
@@ -1087,4 +1087,14 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		return toolbarPanel;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#setCSSClass(java.lang.String)
+	 */
+	@Override
+	public void setCSSClass(String cssClassName)
+	{
+		// ignored
+	}
 }

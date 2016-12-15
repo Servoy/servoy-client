@@ -599,4 +599,16 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroy",
 			new Object[] { getName() });
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#setCSSClass(java.lang.String)
+	 */
+	@Override
+	public void setCSSClass(String cssClassName)
+	{
+		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setCSSClassName",
+			new Object[] { getName(), cssClassName });
+	}
 }
