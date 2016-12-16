@@ -394,7 +394,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				WebsocketSessionManager.closeInactiveSessions();
 			}
-		}, getWindowTimeout() + 10, TimeUnit.MILLISECONDS);
+		}, getWindowTimeout() * 1000 + 10, TimeUnit.MILLISECONDS);
 	}
 
 	@Override

@@ -67,6 +67,7 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
@@ -882,6 +883,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
+		if (NGCONSTANTS.WINDOW_TIMEOUT.equals(name))
+		{
+			if (val != null && (!(val instanceof Number) || ((Number)val).longValue() <= 0))
+			{
+				return false;
+			}
+
+			getWebsocketSession().setSessionWindowTimeout(val == null ? null : Long.valueOf(((Number)val).longValue()));
+			return true;
+		}
+
 		if (val == null || val instanceof Boolean || val instanceof Number || val instanceof String)
 		{
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty", new Object[] { name, val });
@@ -897,7 +909,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public Object getClientProperty(Object name)
 	{
-		return (uiProperties == null) ? null : uiProperties.get(name);
+		if (NGCONSTANTS.WINDOW_TIMEOUT.equals(name))
+		{
+			return Long.valueOf(getWebsocketSession().getWindowTimeout());
+		}
+
+		return uiProperties == null ? null : uiProperties.get(name);
 	}
 
 	@Override
