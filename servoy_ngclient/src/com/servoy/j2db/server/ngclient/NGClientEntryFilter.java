@@ -480,6 +480,8 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			allIndexCSS = new ArrayList<String>();
 			allIndexCSS.add("wro/" + SERVOY_CSS_THIRDPARTY_SVYGRP + group_id + ".css");
+			//get all css contributions which do not support grouping
+			allIndexCSS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE)[0]);
 			allIndexCSS.add("wro/" + SERVOY_CSS_CONTRIBUTIONS_SVYGRP + group_id + ".css");
 		}
 		else
