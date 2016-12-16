@@ -2685,7 +2685,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return boolean true if all records could be omitted.
 	 */
-	public boolean js_omitRecord(Number index) throws ServoyException
+	public boolean js_omitRecord(Number index)
 	{
 		int _index;
 		if (index == null)
@@ -2710,7 +2710,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return boolean true if all selected record(s) could be omitted.
 	 */
-	public boolean js_omitRecord() throws ServoyException
+	public boolean js_omitRecord()
 	{
 		return isInitialized() && omitState(getSelectedIndexes());
 	}
@@ -4490,7 +4490,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 
-	public boolean omitState(int[] rows) throws ServoyException
+	public boolean omitState(int[] rows)
 	{
 		if (sheet.getTable() == null)
 		{
@@ -5083,12 +5083,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		QuerySelect sqlSelect;
-		IDataSet pks;
 		synchronized (pksAndRecords)
 		{
 			sqlSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getQuerySelectForReading(), null, true, null,
 				lastSortColumns, true);
-			pks = pksAndRecords.getPks();
+			IDataSet pks = pksAndRecords.getPks();
 			// set the current select with the new sort in case a refreshFromDBInternal comes along or when defer is set
 			pksAndRecords.setPksAndQuery(pks, pks == null ? 0 : pks.getRowCount(), sqlSelect, true);
 
@@ -5099,7 +5098,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		//always keep selection when sorting
+		reloadWithCurrentQuery(fsm.pkChunkSize, true, false);
+	}
+
+	/**
+	 * @throws ServoyException
+	 * @throws RepositoryException
+	 */
+	protected boolean reloadWithCurrentQuery(int rowsToRetrieve, boolean reuse, boolean clearInternalState) throws ServoyException
+	{
+		QuerySelect sqlSelect;
+		IDataSet pks;
+		synchronized (pksAndRecords)
+		{
+			sqlSelect = getPksAndRecords().getQuerySelectForReading();
+			pks = pksAndRecords.getPks();
+		}
+
+		//always keep selection when reloading
 		Object[][] selectedPKs = null;
 		int[] selectedIndexes = getSelectedIndexes();
 		// if single selected and first record is selected we ignore selection
@@ -5113,12 +5129,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		int oldSize = getSize();
+		int oldSize = getRawSize();
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		try
 		{
-			pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			synchronized (pksAndRecords)
 			{
@@ -5126,9 +5142,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (sqlSelect != pksAndRecords.getQuerySelectForReading())
 				{
 					Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-					return;
+					return false;
 				}
-				pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, true);
+				pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, reuse);
 			}
 		}
 		catch (RemoteException e)
@@ -5138,7 +5154,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		initialized = true;
 
-		int newSize = getSize();
+		if (clearInternalState)
+		{
+			//do kind of browseAll/refresh from db.
+			// differences: selected record isn't tried to keep in sync with pk, new records are handled different.
+			// boolean must be false before clear (that fires a aggregate change so again a getRecord())
+			clearInternalState(true);
+		}
+
+		int newSize = getRawSize();
 		fireDifference(oldSize, newSize);
 
 		boolean selectedPKsRecPresent = false;
@@ -5151,6 +5175,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			setSelectedIndex(newSize > 0 ? 0 : -1);
 		}
+
+		return true;
 	}
 
 	public void sort(Comparator<Object[]> recordPKComparator)
@@ -6776,11 +6802,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			if (currentIndex >= 0)
 			{
-				IRecord currentRecord = FoundSet.this.getRecord(currentIndex);
-				if (currentRecord == null || !Utils.equalObjects(currentRecord.getPK(), currentPK))
+				IRecord tmpCurrentRecord = FoundSet.this.getRecord(currentIndex);
+				if (tmpCurrentRecord == null || !Utils.equalObjects(tmpCurrentRecord.getPK(), currentPK))
 				{
 					// something is changed in the foundset, recalculate
-					if (currentRecord == null)
+					if (tmpCurrentRecord == null)
 					{
 						int size = FoundSet.this.getRawSize();
 						if (size == 0)
@@ -6788,15 +6814,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							return null;
 						}
 						currentIndex = size - 1;
-						currentRecord = FoundSet.this.getRecord(currentIndex);
+						tmpCurrentRecord = FoundSet.this.getRecord(currentIndex);
 					}
-					if (!listContainsArray(processedPKS, currentRecord.getPK()))
+					if (!listContainsArray(processedPKS, tmpCurrentRecord.getPK()))
 					{
 						// substract current index
-						while (currentRecord != null && !listContainsArray(processedPKS, currentRecord.getPK()))
+						while (tmpCurrentRecord != null && !listContainsArray(processedPKS, tmpCurrentRecord.getPK()))
 						{
 							currentIndex = currentIndex - 1;
-							currentRecord = FoundSet.this.getRecord(currentIndex);
+							tmpCurrentRecord = FoundSet.this.getRecord(currentIndex);
 						}
 						nextIndex = currentIndex + 1;
 						nextRecord = FoundSet.this.getRecord(nextIndex);
@@ -6804,13 +6830,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					else
 					{
 						// increment current index
-						while (currentRecord != null && listContainsArray(processedPKS, currentRecord.getPK()))
+						while (tmpCurrentRecord != null && listContainsArray(processedPKS, tmpCurrentRecord.getPK()))
 						{
 							currentIndex = currentIndex + 1;
-							currentRecord = FoundSet.this.getRecord(currentIndex);
+							tmpCurrentRecord = FoundSet.this.getRecord(currentIndex);
 						}
 						nextIndex = currentIndex;
-						nextRecord = currentRecord;
+						nextRecord = tmpCurrentRecord;
 					}
 					if (nextRecord == null)
 					{
@@ -6861,7 +6887,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Scriptable callbackScope = callback.getParentScope();
 			try
 			{
-				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record, recordIndex + 1, foundset }, false, true);
+				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record, Integer.valueOf(recordIndex + 1), foundset },
+					false, true);
 			}
 			catch (Exception ex)
 			{
