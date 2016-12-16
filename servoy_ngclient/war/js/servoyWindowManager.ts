@@ -2,6 +2,7 @@
 /// <reference path="../../typings/sablo/sablo.d.ts" />
 /// <reference path="../../typings/jquery/jquery.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
+/// <reference path="../../typings/defaults/window.d.ts" />
 
 angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that window is a component with handlers
 .config(['$locationProvider', function($locationProvider:angular.ILocationProvider) {
@@ -45,7 +46,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			var templateAndResolvePromise =
 				$q.all([getTemplatePromise(windowOptions)].concat(getResolvePromises(windowOptions.resolve)));
 
-			templateAndResolvePromise.then(function(tplAndVars){
+			templateAndResolvePromise.then(function(tplAndVars:any){
 				//initialize dialog scope and controller
 				var windowScope = (windowOptions.scope || $rootScope).$new();
 //				windowScope['$close'] = windowInstance['close']; // TODO will WindowInstance ever have a close or dismiss function??
