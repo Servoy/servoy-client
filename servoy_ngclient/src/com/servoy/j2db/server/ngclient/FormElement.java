@@ -114,7 +114,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		boolean willTurnIntoErrorBean;
 		if (inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()))
 		{
-			WebObjectSpecification pd = WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(((Bean)persist).getBeanClassName());
+			WebObjectSpecification pd = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(((Bean)persist).getBeanClassName());
 			willTurnIntoErrorBean = pd != null && usesPersistTypedProperties(pd);
 		}
 		else
@@ -165,7 +165,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
 
-		if (WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(componentTypeString) == null)
+		if (WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentTypeString) == null)
 		{
 			this.componentType = FormElement.ERROR_BEAN;
 		}
@@ -412,7 +412,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	public WebObjectSpecification getWebComponentSpec(boolean throwException)
 	{
 		WebObjectSpecification spec = null;
-		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getInstance().getSpecProviderState();
+		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getSpecProviderState();
 		try
 		{
 			spec = componentsSpecProviderState.getWebComponentSpecification(componentType);

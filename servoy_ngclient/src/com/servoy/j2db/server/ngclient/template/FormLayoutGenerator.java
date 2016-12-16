@@ -192,7 +192,7 @@ public class FormLayoutGenerator
 			if (form.isResponsiveLayout())
 			{
 				List<String> allowedChildren = new ArrayList<String>();
-				Collection<PackageSpecification<WebLayoutSpecification>> values = WebComponentSpecProvider.getInstance().getSpecProviderState().getLayoutSpecifications().values();
+				Collection<PackageSpecification<WebLayoutSpecification>> values = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().values();
 				for (PackageSpecification<WebLayoutSpecification> specifications : values)
 				{
 					for (WebLayoutSpecification specification : specifications.getSpecifications().values())

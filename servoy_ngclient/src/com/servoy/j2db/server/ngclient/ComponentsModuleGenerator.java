@@ -48,8 +48,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 	{
 		resp.setContentType("text/javascript");
 		HTTPUtils.checkAndSetUnmodified(req, resp, System.currentTimeMillis());
-		StringBuilder sb = generateComponentsModule(getAllNames(WebServiceSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications()),
-			getAllNames(WebComponentSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications()));
+		StringBuilder sb = generateComponentsModule(getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()),
+			getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
 		resp.setContentLength(sb.length());
 		resp.getWriter().write(sb.toString());
 	}
@@ -67,9 +67,9 @@ public class ComponentsModuleGenerator extends HttpServlet
 	public static StringBuilder generateComponentsModule(Set<String> services, Set<String> components)
 	{
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications()));
+		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
 		generateModules(sb,
-			components != null ? components : getAllNames(WebComponentSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications()));
+			components != null ? components : getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		return sb;
