@@ -16,7 +16,7 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
 					   $element.append(elements);
         		   }
         		   else {
-        			   $element.html("<div>FormComponent, select a form</div>");
+        			   $element.html("<div>FormComponentContainer, select a form</div>");
         		   }
         	   });
         }
