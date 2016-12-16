@@ -473,7 +473,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = hm.entrySet().toArray(EMPTY_ENTRY_ARRAY);
 			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
 			{
-				SoftReference<RelatedFoundSet> sr = entry.getValue();
+				final SoftReference<RelatedFoundSet> sr = entry.getValue();
 				RelatedFoundSet element = sr.get();
 				if (element != null)
 				{
@@ -484,7 +484,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						{
 							if (!element.creationSqlSelect.equals(element.getSqlSelect()))
 							{
-								element.invalidateFoundset();
+								// Do not invalidate related foundsets during execution of current script, selected record may not be stable
+								getApplication().invokeLater(new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										RelatedFoundSet rfs = sr.get();
+										if (rfs != null)
+										{
+											rfs.invalidateFoundset();
+										}
+									}
+								});
 							}
 						}
 						catch (Exception e)
