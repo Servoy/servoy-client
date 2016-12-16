@@ -1893,6 +1893,18 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			return false;
 		}
 
+		@Override
+		public List<Object[]> getRows()
+		{
+			int rc = getRowCount();
+			List<Object[]> rows = new ArrayList<>();
+			for (int i = 0; i < rc; i++)
+			{
+				rows.add(getRow(i));
+			}
+			return rows;
+		}
+
 		public boolean removeColumn(int columnIndex)
 		{
 			throw new UnsupportedOperationException("removeColumn after createDataSource is not supported on data set"); //$NON-NLS-1$

@@ -2509,6 +2509,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		IDataSet fixedDataSet = dataSet;
 		int[] fixedIntTypes = intTypes;
+		if (fixedIntTypes == null) fixedIntTypes = dataSet.getColumnTypes();
 
 		// get column def from the first in-mem datasource found
 		ServoyJSONObject columnsDef = null;
@@ -2549,10 +2550,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 
 			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames.toArray(new String[inmemColumnNames.size()])) ||
-				!Arrays.equals(intTypes, inmemColumnTypes))
+				!Arrays.equals(fixedIntTypes, inmemColumnTypes))
 			{
 				fixedIntTypes = inmemColumnTypes;
-				fixedDataSet = new BufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]), fixedIntTypes);
+				fixedDataSet = new BufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]), fixedIntTypes, dataSet.getRows());
 				if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames.toArray(new String[inmemColumnNames.size()])) && dataSet.getColumnCount() > 0)
 				{
 					Debug.warn("Dataset column names definition does not match inmem table definition for datasource : " + dataSource);

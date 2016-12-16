@@ -19,28 +19,29 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Dataset interface
- * 
+ *
  * <p>
  * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
  * </p>
- *  
+ *
  * @author jblok
  */
 public interface IDataSet extends Serializable, Cloneable
 {
 	/**
 	 * Get the number of rows in this dataset.
-	 * 
+	 *
 	 * @return int the count
 	 */
 	public int getRowCount();
 
 	/**
 	 * Get a specified row.
-	 * 
+	 *
 	 * @param row the row to get
 	 * @return the row data
 	 */
@@ -48,14 +49,14 @@ public interface IDataSet extends Serializable, Cloneable
 
 	/**
 	 * Remove a row from memory (not in db).
-	 * 
+	 *
 	 * @param index the index, -1 is removeAll
 	 */
 	public void removeRow(int index);
 
 	/**
 	 * Add a row in memory (not in db).
-	 * 
+	 *
 	 * @param index
 	 * @param array
 	 */
@@ -63,35 +64,42 @@ public interface IDataSet extends Serializable, Cloneable
 
 	/**
 	 * Add a row in memory (not in db).
-	 * 
+	 *
 	 * @param array
 	 */
 	public void addRow(Object[] array);
 
 	/**
+	 * return all the rows.
+	 *
+	 * @return
+	 */
+	public List<Object[]> getRows();
+
+	/**
 	 * Get the number of columns in this dataset.
-	 * 
+	 *
 	 * @return int the count
 	 */
 	public int getColumnCount();
 
 	/**
 	 * Return the names of the columns, can be null is not requested from server.
-	 * 
+	 *
 	 * @return the names
 	 */
 	public String[] getColumnNames();
 
 	/**
 	 * Return the types of the columns, can be null is not requested from server.
-	 * 
+	 *
 	 * @return the types
 	 */
 	public int[] getColumnTypes();
 
 	/**
 	 * Returns true if the query had more results but this set was limited by performQuery (rowsToRetrieve).
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean hadMoreRows();
@@ -115,13 +123,13 @@ public interface IDataSet extends Serializable, Cloneable
 
 
 	/**
-	 * @param rowComparator 
+	 * @param rowComparator
 	 */
 	public void sort(Comparator<Object[]> rowComparator);
 
 	/**
 	 * adds a new column to the data set
-	 * 
+	 *
 	 * @param columnIndex the index where the column should be added (index begins with 0)
 	 * @param columnName the name of the added column
 	 * @return True if the adding was successful and false otherwise; if the method returns false, it means no modifications to the data set were made
@@ -130,7 +138,7 @@ public interface IDataSet extends Serializable, Cloneable
 
 	/**
 	 * removes the column from the specified position (first position is 0)
-	 * 
+	 *
 	 * @param columnIndex
 	 * @return True only if successful; false otherwise
 	 */
@@ -138,7 +146,7 @@ public interface IDataSet extends Serializable, Cloneable
 
 	/**
 	 * sets the column from the specified position (first position is 0)
-	 * 
+	 *
 	 * @param columnIndex
 	 * @param columnName
 	 */

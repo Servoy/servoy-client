@@ -24,9 +24,9 @@ import com.servoy.j2db.query.ColumnType;
 
 /**
  * @author lvostinar
- * 
+ *
  * A dataset that also holds row index information.
- * 
+ *
  */
 public class DataSetWithIndex implements IDataSetWithIndex, ISerializableDataSet
 {
@@ -176,14 +176,7 @@ public class DataSetWithIndex implements IDataSetWithIndex, ISerializableDataSet
 	@Override
 	public List<Object[]> getRows()
 	{
-		if (dataset instanceof ISerializableDataSet)
-		{
-			return ((ISerializableDataSet)dataset).getRows();
-		}
-		else
-		{
-			throw new RuntimeException("Getter getRows called for non serializable dataset:" + dataset);
-		}
+		return dataset.getRows();
 	}
 
 	/*
