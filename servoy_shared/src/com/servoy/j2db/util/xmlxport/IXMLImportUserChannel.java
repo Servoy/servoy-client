@@ -53,6 +53,8 @@ public interface IXMLImportUserChannel extends InfoChannel
 
 	public static final int SKIP_ACTION = 6;
 
+	public static final int CREATE_ACTION = 7;
+
 	public static final int IMPORT_USER_POLICY_DONT = 0;
 	public static final int IMPORT_USER_POLICY_CREATE_U_UPDATE_G = 1;
 	public static final int IMPORT_USER_POLICY_OVERWRITE_COMPLETELY = 2;
@@ -280,7 +282,7 @@ public interface IXMLImportUserChannel extends InfoChannel
 
 	/**
 	 * Should the importer first compact the solutions or not
-	 * 
+	 *
 	 * @return boolean true if it should first compact
 	 */
 	public boolean compactSolutions();
