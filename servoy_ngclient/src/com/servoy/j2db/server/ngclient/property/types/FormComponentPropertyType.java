@@ -237,7 +237,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				{
 					if (element.getName() != null)
 					{
-						WebObjectSpecification spec = WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(FormTemplateGenerator.getComponentTypeName(element));
+						WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(FormTemplateGenerator.getComponentTypeName(element));
 						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
 						if (properties.size() > 0)
 						{

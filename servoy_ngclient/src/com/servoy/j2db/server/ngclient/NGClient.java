@@ -264,7 +264,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
-		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
@@ -627,7 +627,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		//cleanup here before script engine is destroyed
 		if (canClose || force)
 		{
-			WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getSpecProviderState().getAllWebComponentSpecifications();
+			WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
 			for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 			{
 				WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");

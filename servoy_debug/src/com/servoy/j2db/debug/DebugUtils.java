@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 
@@ -243,6 +244,8 @@ public class DebugUtils
 		Set<IFormController> scopesToReload = new HashSet<IFormController>();
 		final Set<IFormController> formsToReload = new HashSet<IFormController>();
 
+		final SpecProviderState specProviderState = WebComponentSpecProvider.getSpecProviderState();
+
 		final Set<Form> formsUpdated = new HashSet<Form>();
 		for (IPersist persist : changes)
 		{
@@ -416,9 +419,8 @@ public class DebugUtils
 									if (o instanceof WebComponent)
 									{
 										WebComponent webComponent = (WebComponent)o;
-										WebObjectSpecification spec = WebComponentSpecProvider.getInstance() != null
-											? WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName())
-											: null;
+										WebObjectSpecification spec = specProviderState == null ? null
+											: specProviderState.getWebComponentSpecification(webComponent.getTypeName());
 										if (spec != null)
 										{
 											Collection<PropertyDescription> properties = spec.getProperties(RelationPropertyType.INSTANCE);
@@ -456,8 +458,7 @@ public class DebugUtils
 						@Override
 						public Object visit(IPersist o)
 						{
-							if (o instanceof Field && ((Field)o).getValuelistID() > 0 &&
-								Utils.equalObjects(((Field)o).getValuelistID(), finalValuelist.getID()))
+							if (o instanceof Field && ((Field)o).getValuelistID() > 0 && ((Field)o).getValuelistID() == finalValuelist.getID())
 							{
 								formsToReload.add(finalController);
 								return o;
@@ -465,8 +466,8 @@ public class DebugUtils
 							if (o instanceof WebComponent)
 							{
 								WebComponent webComponent = (WebComponent)o;
-								WebObjectSpecification spec = WebComponentSpecProvider.getInstance() != null
-									? WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName()) : null;
+								WebObjectSpecification spec = specProviderState == null ? null
+									: specProviderState.getWebComponentSpecification(webComponent.getTypeName());
 								if (spec != null)
 								{
 									Collection<PropertyDescription> properties = spec.getProperties(ValueListPropertyType.INSTANCE);

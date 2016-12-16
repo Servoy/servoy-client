@@ -99,7 +99,7 @@ public class FormTemplateGenerator
 	public static String getComponentTypeName(IFormElement persist)
 	{
 		String component_type = getPersistComponentTypeName(persist);
-		if (WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(component_type) == null)
+		if (WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(component_type) == null)
 		{
 			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
 			return FormElement.ERROR_BEAN;
@@ -110,7 +110,7 @@ public class FormTemplateGenerator
 	public static WebObjectSpecification getWebObjectSpecification(IFormElement persist)
 	{
 		String component_type = getPersistComponentTypeName(persist);
-		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getInstance().getSpecProviderState();
+		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getSpecProviderState();
 		WebObjectSpecification spec = componentsSpecProviderState.getWebComponentSpecification(component_type);
 		if (spec == null)
 		{
@@ -207,7 +207,7 @@ public class FormTemplateGenerator
 
 	public static String getComponentTypeName(String beanClassName)
 	{
-		if (WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(beanClassName) == null)
+		if (WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(beanClassName) == null)
 		{
 			Debug.error("Component spec for " + beanClassName + " not found; please check your component spec file(s).");
 			return FormElement.ERROR_BEAN;

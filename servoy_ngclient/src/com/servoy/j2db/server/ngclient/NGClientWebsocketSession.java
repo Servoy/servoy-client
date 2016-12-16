@@ -342,7 +342,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IClientService createClientService(String name)
 	{
-		WebObjectSpecification spec = WebServiceSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(name);
+		WebObjectSpecification spec = WebServiceSpecProvider.getSpecProviderState().getWebComponentSpecification(name);
 		if (spec == null) spec = new WebObjectSpecification(name, "", name, null, null, null, "", null);
 		return new ServoyClientService(name, spec, this);
 	}

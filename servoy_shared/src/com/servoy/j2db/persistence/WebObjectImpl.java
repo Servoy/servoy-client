@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -92,8 +93,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			gettingTypeName = true;
 			try
 			{
-				pdPleaseUseGetterToAccessThis = WebComponentSpecProvider.getInstance() != null
-					? WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(getTypeName()) : null;
+				SpecProviderState specProviderState = WebComponentSpecProvider.getSpecProviderState();
+				pdPleaseUseGetterToAccessThis = specProviderState == null ? null : specProviderState.getWebComponentSpecification(getTypeName());
 			}
 			finally
 			{
@@ -577,7 +578,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 									}
 								}
 							}
-							persistMappedProperties.put(beanJSONKey, persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
+							persistMappedProperties.put(beanJSONKey,
+								persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
 							persistMappedPropetiesByUUID = null;
 						}
 					}

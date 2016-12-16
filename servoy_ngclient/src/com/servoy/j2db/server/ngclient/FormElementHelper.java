@@ -685,7 +685,7 @@ public class FormElementHelper implements IFormElementCache
 				if (FormTemplateGenerator.isWebcomponentBean(formElement))
 				{
 					String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
-					WebObjectSpecification specification = WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(componentType);
+					WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
 					if (specification != null)
 					{
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
@@ -758,7 +758,7 @@ public class FormElementHelper implements IFormElementCache
 			if (propertyName != null && element instanceof IBasicWebComponent)
 			{
 				String componentType = FormTemplateGenerator.getComponentTypeName(element);
-				WebObjectSpecification specification = WebComponentSpecProvider.getInstance().getSpecProviderState().getWebComponentSpecification(componentType);
+				WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
 				if (specification != null)
 				{
 					PropertyDescription property = specification.getProperty(propertyName);
