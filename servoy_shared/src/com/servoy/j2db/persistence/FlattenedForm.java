@@ -173,7 +173,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						}
 						else if (ip instanceof LayoutContainer)
 						{
-							internalAddChild(new FlattenedLayoutContainer(this, flattenedSolution, (LayoutContainer)ip));
+							internalAddChild(new FlattenedLayoutContainer(this, (LayoutContainer)ip));
 						}
 						else
 						{

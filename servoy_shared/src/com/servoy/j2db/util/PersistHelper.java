@@ -1102,7 +1102,7 @@ public class PersistHelper
 		{
 			FlattenedForm ff = flattenedSolution.getFlattenedForm(parent) instanceof FlattenedForm ? (FlattenedForm)flattenedSolution.getFlattenedForm(parent)
 				: flattenedSolution.createFlattenedForm(parent);
-			flattenedPersist = new FlattenedLayoutContainer(ff, flattenedSolution, (LayoutContainer)flattenedPersist);
+			flattenedPersist = new FlattenedLayoutContainer(ff, (LayoutContainer)flattenedPersist);
 		}
 		return flattenedPersist;
 	}
