@@ -1904,11 +1904,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
@@ -2673,7 +2673,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Omit record under the given index (add it to omit records list), to be shown with loadOmittedRecords. If index is null it behaves just like omitRecord().
-	 * This operation returns false when index is invalid (should be between 1 and foundset size) or foundset is in bad state (its table not accessible). Any retrievable record can be ommitted.
+	 * This operation returns false when index is invalid (should be between 1 and foundset size) or foundset is in bad state (its table not accessible)
+	 * or the record is in an edit state and can't be saved (autosave is false). Any retrievable record can be ommitted.
 	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
@@ -2700,7 +2701,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords. This operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record).
+	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords. T
+	 * his operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
+	 * or the record is in an edit state and can't be saved (autosave is false).
 	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
@@ -4494,6 +4497,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (sheet.getTable() == null)
 		{
+			getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid table");
 			return false;
 		}
 
@@ -4504,6 +4508,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (row < 0 || row >= getSize())
 			{
 				success = false;
+				getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid index " + row);
 				continue;
 			}
 			IRecordInternal state = getRecord(row);
@@ -4513,6 +4518,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
+				getFoundSetManager().getApplication().reportJSWarning(
+					"Record not omitted for index " + row + " because could not stop the edit on it " + state);
 				success = false;
 			}
 		}
