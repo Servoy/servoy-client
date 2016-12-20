@@ -38,20 +38,37 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
 public class JSLayoutContainer extends JSBaseContainer implements IJSParent<LayoutContainer>, IJavaScriptType
 {
-	protected LayoutContainer layoutContainer;
+	private LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
 	private boolean isCopy = false;
 
 	public JSLayoutContainer(IJSParent< ? > parent, IApplication application, LayoutContainer layoutContainer)
 	{
 		super(application);
-		this.layoutContainer = layoutContainer;
+		this.setLayoutContainer(layoutContainer);
 		this.parent = parent;
+	}
+
+	private LayoutContainer getLayoutContainer()
+	{
+		if (!isCopy)
+		{
+			// as long as the layoutcontainer is not already a copy, we have to get the real one
+			// so that changes to other instances of JSLayoutContainer that points to the same container are seen in this one.
+			LayoutContainer lc = (LayoutContainer)parent.getSupportChild().getChild(getLayoutContainer().getUUID());
+			layoutContainer = lc != null ? lc : layoutContainer;
+		}
+		return layoutContainer;
+	}
+
+	private void setLayoutContainer(LayoutContainer layoutContainer)
+	{
+		this.layoutContainer = layoutContainer;
 	}
 
 	public LayoutContainer getSupportChild()
 	{
-		return layoutContainer;
+		return getLayoutContainer();
 	}
 
 	public IJSParent< ? > getJSParent()
@@ -66,7 +83,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		if (!isCopy)
 		{
 			// then get the replace the item with the item of the copied relation.
-			layoutContainer = (LayoutContainer)parent.getSupportChild().getChild(layoutContainer.getUUID());
+			setLayoutContainer((LayoutContainer)parent.getSupportChild().getChild(getLayoutContainer().getUUID()));
 			isCopy = true;
 		}
 	}
@@ -74,7 +91,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@Override
 	public AbstractContainer getContainer()
 	{
-		return layoutContainer;
+		return getLayoutContainer();
 	}
 
 
@@ -87,7 +104,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public void setSpecName(String name)
 	{
 		checkModification();
-		layoutContainer.setSpecName(name);
+		getLayoutContainer().setSpecName(name);
 	}
 
 	/**
@@ -98,7 +115,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getSpecName()
 	{
-		return layoutContainer.getSpecName();
+		return getLayoutContainer().getSpecName();
 	}
 
 	/**
@@ -110,7 +127,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public void setPackageName(String name)
 	{
 		checkModification();
-		layoutContainer.setPackageName(name);
+		getLayoutContainer().setPackageName(name);
 	}
 
 	/**
@@ -121,7 +138,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getPackageName()
 	{
-		return layoutContainer.getPackageName();
+		return getLayoutContainer().getPackageName();
 	}
 
 	/**
@@ -133,14 +150,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getTagType()
 	{
-		return layoutContainer.getTagType();
+		return getLayoutContainer().getTagType();
 	}
 
 	@JSSetter
 	public void setTagType(String tagType)
 	{
 		checkModification();
-		layoutContainer.setTagType(tagType);
+		getLayoutContainer().setTagType(tagType);
 	}
 
 	/**
@@ -152,14 +169,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getElementId()
 	{
-		return layoutContainer.getElementId();
+		return getLayoutContainer().getElementId();
 	}
 
 	@JSSetter
 	public void setElementId(String elementId)
 	{
 		checkModification();
-		layoutContainer.setElementId(elementId);
+		getLayoutContainer().setElementId(elementId);
 	}
 
 	/**
@@ -171,14 +188,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getCssClasses()
 	{
-		return layoutContainer.getCssClasses();
+		return getLayoutContainer().getCssClasses();
 	}
 
 	@JSSetter
 	public void setCssClasses(String cssClasses)
 	{
 		checkModification();
-		layoutContainer.setCssClasses(cssClasses);
+		getLayoutContainer().setCssClasses(cssClasses);
 	}
 
 	/**
@@ -192,7 +209,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSFunction
 	public String getAttribute(String name)
 	{
-		return layoutContainer.getAttribute(name);
+		return getLayoutContainer().getAttribute(name);
 	}
 
 	/**
@@ -208,7 +225,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public void putAttribute(String name, String value)
 	{
 		checkModification();
-		layoutContainer.putAttribute(name, value);
+		getLayoutContainer().putAttribute(name, value);
 	}
 
 	/**
@@ -220,14 +237,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getStyle()
 	{
-		return layoutContainer.getStyle();
+		return getLayoutContainer().getStyle();
 	}
 
 	@JSSetter
 	public void setStyle(String style)
 	{
 		checkModification();
-		layoutContainer.setStyle(style);
+		getLayoutContainer().setStyle(style);
 	}
 
 	/**
@@ -239,13 +256,13 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public String getName()
 	{
-		return layoutContainer.getName();
+		return getLayoutContainer().getName();
 	}
 
 	@JSSetter
 	public void setName(String arg)
 	{
-		layoutContainer.setName(arg);
+		getLayoutContainer().setName(arg);
 	}
 
 	/**
@@ -257,14 +274,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public int getX()
 	{
-		return layoutContainer.getLocation().x;
+		return getLayoutContainer().getLocation().x;
 	}
 
 	@JSSetter
 	public void setX(int x)
 	{
 		checkModification();
-		layoutContainer.setLocation(new Point(x, layoutContainer.getLocation().y));
+		getLayoutContainer().setLocation(new Point(x, getLayoutContainer().getLocation().y));
 	}
 
 	/**
@@ -276,14 +293,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public int getY()
 	{
-		return layoutContainer.getLocation().y;
+		return getLayoutContainer().getLocation().y;
 	}
 
 	@JSSetter
 	public void setY(int y)
 	{
 		checkModification();
-		layoutContainer.setLocation(new Point(layoutContainer.getLocation().x, y));
+		getLayoutContainer().setLocation(new Point(getLayoutContainer().getLocation().x, y));
 	}
 
 	/**
@@ -295,14 +312,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public int getHeight()
 	{
-		return layoutContainer.getSize().height;
+		return getLayoutContainer().getSize().height;
 	}
 
 	@JSSetter
 	public void setHeight(int height)
 	{
 		checkModification();
-		layoutContainer.setSize(new Dimension(layoutContainer.getSize().width, height));
+		getLayoutContainer().setSize(new Dimension(getLayoutContainer().getSize().width, height));
 	}
 
 	/**
@@ -314,20 +331,20 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@JSGetter
 	public int getWidth()
 	{
-		return layoutContainer.getSize().width;
+		return getLayoutContainer().getSize().width;
 	}
 
 	@JSSetter
 	public void setWidth(int width)
 	{
 		checkModification();
-		layoutContainer.setSize(new Dimension(width, layoutContainer.getSize().height));
+		getLayoutContainer().setSize(new Dimension(width, getLayoutContainer().getSize().height));
 	}
 
 	@Override
 	public AbstractContainer getFlattenedContainer()
 	{
-		return layoutContainer;
+		return getLayoutContainer();
 	}
 
 	/*
@@ -338,6 +355,6 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@Override
 	public String toString()
 	{
-		return "JSLayoutContainer[" + getTagType() + ", attributes: " + layoutContainer.getAttributes() + "]";
+		return "JSLayoutContainer[" + getTagType() + ", attributes: " + getLayoutContainer().getAttributes() + "]";
 	}
 }

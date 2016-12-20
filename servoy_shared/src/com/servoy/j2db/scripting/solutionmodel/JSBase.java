@@ -30,9 +30,9 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
- * 
+ *
  * @param <T>
- * 
+ *
  */
 public class JSBase<T extends AbstractBase> implements ISMHasUUID
 {
@@ -47,11 +47,19 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 		this.isCopy = isNew;
 	}
 
+	@SuppressWarnings("unchecked")
 	public final T getBaseComponent(boolean forModification)
 	{
 		if (forModification)
 		{
 			checkModification();
+		}
+		else if (!isCopy)
+		{
+			// as long as the component is not already a copy, we have to get the real one
+			// so that changes to other instances of this componnet that points to the same persist instance are seen in this one.
+			T child = (T)parent.getSupportChild().getChild(baseComponent.getUUID());
+			baseComponent = child != null ? child : baseComponent;
 		}
 		return baseComponent;
 	}
@@ -63,7 +71,7 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 
 	/**
 	 * Returns the UUID of this component.
-	 * 
+	 *
 	 * @sample
 	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
 	 * application.output(button_uuid.toString());
