@@ -39,6 +39,8 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	private transient Boolean isProtected;
 	private transient Boolean isConstructor;
 
+	private Boolean isPublic;
+
 	/**
 	 * Constructor I
 	 */
@@ -83,6 +85,7 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		super.setDeclaration(declaration);
 		isPrivate = null;
 		isProtected = null;
+		isPublic = null;
 		isConstructor = null;
 	}
 
@@ -154,6 +157,26 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		return prot.booleanValue();
 	}
 
+	public boolean isPublic()
+	{
+		Boolean publ = isPublic;
+		if (publ == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				publ = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				publ = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@public", index) != -1);
+			}
+			isPublic = publ;
+		}
+		return publ.booleanValue();
+	}
+
 	public boolean isConstructor()
 	{
 		Boolean constructor = isConstructor;
@@ -180,4 +203,47 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	{
 		return "ScriptMethod[name:" + (getParent() instanceof Solution ? ScopesUtils.getScopeString(this) : getName()) + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
+
+	public String getScriptMethodSignature(String methodName, boolean showParam, boolean showParamType, boolean showReturnType, boolean showReturnTypeAtEnd)
+	{
+		MethodArgument[] args = getRuntimeProperty(IScriptProvider.METHOD_ARGUMENTS);
+
+		StringBuilder methodSignatureBuilder = new StringBuilder();
+		methodSignatureBuilder.append(methodName != null ? methodName : getName()).append('(');
+		for (int i = 0; i < args.length; i++)
+		{
+			if ((showParam || showParamType) && args[i].isOptional()) methodSignatureBuilder.append('[');
+			if (showParam)
+			{
+				methodSignatureBuilder.append(args[i].getName());
+				if (showParamType) methodSignatureBuilder.append(':');
+			}
+			if (showParamType) methodSignatureBuilder.append(args[i].getType());
+			if ((showParam || showParamType) && args[i].isOptional()) methodSignatureBuilder.append(']');
+			if (i < args.length - 1) methodSignatureBuilder.append(", ");
+		}
+		methodSignatureBuilder.append(')');
+
+		if (showReturnType)
+		{
+			MethodArgument returnTypeArgument = getRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE);
+			String returnType = "void";
+			if (returnTypeArgument != null)
+			{
+				if ("*".equals(returnTypeArgument.getType().getName())) returnType = "Any";
+				else returnType = returnTypeArgument.getType().getName();
+			}
+			if (showReturnTypeAtEnd)
+			{
+				methodSignatureBuilder.append(" - ").append(returnType);
+			}
+			else
+			{
+				methodSignatureBuilder.insert(0, ' ').insert(0, returnType);
+			}
+		}
+
+		return methodSignatureBuilder.toString();
+	}
+
 }
