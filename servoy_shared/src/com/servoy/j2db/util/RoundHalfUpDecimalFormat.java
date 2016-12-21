@@ -71,7 +71,8 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 			sb.append('-');
 			return sb;
 		}
-		return super.format(number, result, fieldPosition);
+		// add our default precission number so that 0.0245 are half upped.
+		return super.format(number + Utils.DEFAULT_EQUALS_PRECISION, result, fieldPosition);
 	}
 
 
