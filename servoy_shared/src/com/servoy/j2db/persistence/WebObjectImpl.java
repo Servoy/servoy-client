@@ -267,7 +267,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				else
 				{
 					// it is a json property defined in spec, but it's not mapping to a persist
-					setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(propertyName, val), false);
+					setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(getChildPropertyDescription(propertyName), val), false);
 					return true;
 				}
 			}
@@ -350,21 +350,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				JSONObject json = getJson();
 				Object value = json != null ? json.opt(propertyName) : null;
 				value = convertToJavaType(childPd, value);
-				if (value instanceof JSONArray)
-				{
-					PropertyDescription desc = null;
-					if (childPd.getType() instanceof CustomJSONArrayType< ? , ? >)
-					{
-						desc = ((CustomJSONArrayType< ? , ? >)childPd.getType()).getCustomJSONTypeDefinition();
-					}
-					JSONArray arr = (JSONArray)value;
-					Object[] java_arr = new Object[arr.length()];
-					for (int i = 0; i < arr.length(); i++)
-					{
-						java_arr[i] = convertToJavaType(desc, arr.get(i));
-					}
-					return java_arr;
-				}
 				return value;
 			}
 		}
@@ -372,7 +357,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return null;
 	}
 
-	private Object convertToJavaType(PropertyDescription childPd, Object val)
+	public static Object convertToJavaType(PropertyDescription childPd, Object val)
 	{
 		Object value = val;
 		IDesignValueConverter< ? > converter = null;
@@ -380,10 +365,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		{
 			value = converter.fromDesignValue(value, childPd);
 		}
-		return (val != JSONObject.NULL) ? value : null;
+		return (value != JSONObject.NULL) ? value : null;
 	}
 
-	private IDesignValueConverter< ? > getConverter(PropertyDescription pd)
+	private static IDesignValueConverter< ? > getConverter(PropertyDescription pd)
 	{
 		return (pd.getType() instanceof IDesignValueConverter< ? >) ? (IDesignValueConverter< ? >)pd.getType() : null;
 	}
@@ -696,9 +681,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return false;
 	}
 
-	private Object convertFromJavaType(String propertyName, Object value)
+	public static Object convertFromJavaType(PropertyDescription pd, Object value)
 	{
-		PropertyDescription pd = getChildPropertyDescription(propertyName);
 		if (pd != null && getConverter(pd) != null)
 		{
 			return getConverter(pd).toDesignValue(value, pd);

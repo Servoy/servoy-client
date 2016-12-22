@@ -19,12 +19,16 @@ package com.servoy.j2db.persistence;
 import org.sablo.specification.PropertyDescription;
 
 /**
- * Converts between the stored value and the corresponding java value.
+ * Converts between the stored value and the corresponding java value.<br/><br/>
+ *
+ * I think this is about converting between what the underlying storage stores for persist
+ * properties and the values returned or set through the Persist getters/setters to/from the Java world...
+ *
  * @author emera
  */
 public interface IDesignValueConverter<JT>
 {
-	JT fromDesignValue(Object newValue, PropertyDescription propertyDescription);
+	JT fromDesignValue(Object designValue, PropertyDescription propertyDescription);
 
-	Object toDesignValue(Object value, PropertyDescription pd);
+	Object toDesignValue(Object javaValue, PropertyDescription pd);
 }

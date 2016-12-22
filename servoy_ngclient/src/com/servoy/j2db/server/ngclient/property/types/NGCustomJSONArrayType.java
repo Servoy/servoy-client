@@ -43,6 +43,8 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.WebObjectImpl;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -58,6 +60,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.IRhinoDesignConverter;
+import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
@@ -66,10 +69,10 @@ import com.servoy.j2db.util.ServoyJSONObject;
  *
  * @author acostescu
  */
-public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT>
-	implements IDesignToFormElement<JSONArray, Object[], Object>, IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>,
-	ISabloComponentToRhino<Object>, IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>,
-	ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>, IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter
+public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
+	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
+	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>,
+	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter, IDesignValueConverter
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -351,6 +354,40 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(arr.get(i), desc, application, webComponent, Integer.toString(i)));
 			}
 			return result;
+		}
+		return value;
+	}
+
+	@Override
+	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	{
+		if (designValue instanceof JSONArray)
+		{
+			PropertyDescription elementPD = getCustomJSONTypeDefinition();
+			JSONArray arr = (JSONArray)designValue;
+			Object[] java_arr = new Object[arr.length()];
+			for (int i = 0; i < arr.length(); i++)
+			{
+				java_arr[i] = WebObjectImpl.convertToJavaType(elementPD, arr.opt(i));
+			}
+			return java_arr;
+		}
+		return designValue;
+	}
+
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		if (value instanceof Object[])
+		{
+			PropertyDescription elementPD = getCustomJSONTypeDefinition();
+			Object[] arr = (Object[])value;
+			JSONArray jsonArray = new ServoyJSONArray();
+			for (int i = 0; i < arr.length; i++)
+			{
+				jsonArray.put(i, WebObjectImpl.convertFromJavaType(elementPD, arr[i]));
+			}
+			return jsonArray;
 		}
 		return value;
 	}

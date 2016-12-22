@@ -273,7 +273,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			// restore/add watches
 			addBackWatches(newValue, componentScope);
 			
-			if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updates or value received from server; new viewport and server size (" + newValue[VIEW_PORT][START_INDEX] + ", " + newValue[VIEW_PORT][SIZE] + ", " + newValue[SERVER_SIZE] + ")");
+			if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updates or value received from server; new viewport and server size (" + newValue[VIEW_PORT][START_INDEX] + ", " + newValue[VIEW_PORT][SIZE] + ", " + newValue[SERVER_SIZE] + ", " + JSON.stringify(newValue[SELECTED_ROW_INDEXES]) + ")");
 
 			return newValue;
 		},
