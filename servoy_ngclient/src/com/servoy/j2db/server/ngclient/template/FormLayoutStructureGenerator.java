@@ -82,7 +82,8 @@ public class FormLayoutStructureGenerator
 		WebLayoutSpecification spec = null;
 		if (container.getPackageName() != null)
 		{
-			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(container.getPackageName());
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+				container.getPackageName());
 			if (pkg != null)
 			{
 				spec = pkg.getSpecification(container.getSpecName());
@@ -94,6 +95,9 @@ public class FormLayoutStructureGenerator
 		{
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
+			writer.print("'");
+			writer.print(" svy-location='");
+			writer.print(container.getLocation().x);
 			writer.print("'");
 			boolean highSet = false;
 			JSONObject ngClass = new JSONObject();
