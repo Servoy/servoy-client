@@ -55,7 +55,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		{
 			// as long as the layoutcontainer is not already a copy, we have to get the real one
 			// so that changes to other instances of JSLayoutContainer that points to the same container are seen in this one.
-			LayoutContainer lc = (LayoutContainer)parent.getSupportChild().getChild(getLayoutContainer().getUUID());
+			LayoutContainer lc = (LayoutContainer)parent.getSupportChild().getChild(layoutContainer.getUUID());
 			layoutContainer = lc != null ? lc : layoutContainer;
 		}
 		return layoutContainer;
