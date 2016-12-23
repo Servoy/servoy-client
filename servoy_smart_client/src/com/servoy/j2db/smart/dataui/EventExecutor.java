@@ -40,7 +40,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The event executor for the swing (smart) client.
- * 
+ *
  * @author jcompagner
  */
 public class EventExecutor extends BaseEventExecutor implements MouseListener, FocusListener, Serializable, KeyListener
@@ -76,7 +76,8 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 
 	public void mouseReleased(MouseEvent e)
 	{
-		if (enclosedComponent instanceof JTextComponent && !((JTextComponent)enclosedComponent).isEditable() && SwingUtilities.isLeftMouseButton(e))
+		if (enclosedComponent instanceof JTextComponent && !((JTextComponent)enclosedComponent).isEditable() && SwingUtilities.isLeftMouseButton(e) &&
+			((JTextComponent)enclosedComponent).isEnabled())
 		{
 			actionPerformed(e.getModifiers(), e.getPoint());
 		}
@@ -258,7 +259,7 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void selectOnEnter()
 	{
