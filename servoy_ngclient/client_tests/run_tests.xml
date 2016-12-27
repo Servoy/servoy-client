@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="run_tests">
 	<property name="basedir" value="."/>
-	<property name="tsc" value="/usr/share/tomcat7/NodeJS/node-v4.2.3-linux-x64/bin/tsc"/>
+	<property name="tsc" value="tsc"/>
 	
 	<property name="karma_run_once.conf" value="./karma.conf.js"/>
 	<property name="karma_run_on_file_change.conf" value="./karma_run_on_file_change.conf.js"/>
