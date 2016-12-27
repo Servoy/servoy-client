@@ -673,22 +673,22 @@ public class PersistHelper
 	private static boolean isStyle(String value)
 	{
 		String[] styles = { "bold", //$NON-NLS-1$
-			"italic", //$NON-NLS-1$
-			"regular", //$NON-NLS-1$
-			"medium", //$NON-NLS-1$
-			"oblique", //$NON-NLS-1$
-			"semi", //$NON-NLS-1$
-			"narrow", //$NON-NLS-1$
-			"black", //$NON-NLS-1$
-			"light", //$NON-NLS-1$
-			"extra", //$NON-NLS-1$
-			"condensed", //$NON-NLS-1$
-			"cond", //$NON-NLS-1$
-			"ultra", //$NON-NLS-1$
-			"demi", //$NON-NLS-1$
-			"thin", //$NON-NLS-1$
-			"wide", //$NON-NLS-1$
-			"rounded" }; //$NON-NLS-1$
+		"italic", //$NON-NLS-1$
+		"regular", //$NON-NLS-1$
+		"medium", //$NON-NLS-1$
+		"oblique", //$NON-NLS-1$
+		"semi", //$NON-NLS-1$
+		"narrow", //$NON-NLS-1$
+		"black", //$NON-NLS-1$
+		"light", //$NON-NLS-1$
+		"extra", //$NON-NLS-1$
+		"condensed", //$NON-NLS-1$
+		"cond", //$NON-NLS-1$
+		"ultra", //$NON-NLS-1$
+		"demi", //$NON-NLS-1$
+		"thin", //$NON-NLS-1$
+		"wide", //$NON-NLS-1$
+		"rounded" }; //$NON-NLS-1$
 		for (String element : styles)
 		{
 			if (element.equalsIgnoreCase(value)) return true;
@@ -895,6 +895,32 @@ public class PersistHelper
 		return null;
 	}
 
+	public static ISupportChilds getRealParent(IPersist persist)
+	{
+		if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && persist.getParent() instanceof Form)//TODO check if responsive form?
+		{
+			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
+			if (superPersist != null)
+			{
+				ISupportChilds parent = superPersist.getParent();
+				if (parent != null)
+				{
+					Iterator<IPersist> it = persist.getParent().getAllObjects();
+					while (it.hasNext())
+					{
+						IPersist possibleParent = it.next();
+						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() == parent.getID())
+						{
+							return (ISupportChilds)possibleParent;
+						}
+					}
+					return parent;
+				}
+			}
+		}
+		return persist.getParent();
+	}
+
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
 	{
 		IPersist parentPersist = (IPersist)persist;
@@ -1076,7 +1102,7 @@ public class PersistHelper
 		{
 			FlattenedForm ff = flattenedSolution.getFlattenedForm(parent) instanceof FlattenedForm ? (FlattenedForm)flattenedSolution.getFlattenedForm(parent)
 				: flattenedSolution.createFlattenedForm(parent);
-			flattenedPersist = new FlattenedLayoutContainer(ff, flattenedSolution, (LayoutContainer)flattenedPersist);
+			flattenedPersist = new FlattenedLayoutContainer(ff, (LayoutContainer)flattenedPersist);
 		}
 		return flattenedPersist;
 	}

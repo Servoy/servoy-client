@@ -44,6 +44,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
@@ -433,6 +434,12 @@ public class FormLayoutGenerator
 				writer.print(" svy-id='");
 				writer.print(designId);
 				writer.print("'");
+				if (fe.getPersistIfAvailable() instanceof ISupportBounds)
+				{
+					writer.print(" svy-location='");
+					writer.print(((ISupportBounds)fe.getPersistIfAvailable()).getLocation().x);
+					writer.print("'");
+				}
 				if (selectable)
 				{
 					writer.print(" svy-non-selectable");

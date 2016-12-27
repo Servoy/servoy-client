@@ -205,8 +205,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				else {
 					getFormMessageHandler(formname, msg, conversionInfo)(formState);
 					if (formState.getScope) {
-						var s = formState.getScope();
-						if (s) scopesToDigest.putItem(s);
+						// hack: if default navigator data is coming in, rootscope should be applied 
+						if (msg.forms[formname]["svy_default_navigator"]) {
+							scopesToDigest.putItem($rootScope);
+						}
+						else {
+							var s = formState.getScope();
+							if (s) scopesToDigest.putItem(s);
+						}
 					}
 				}
 			}

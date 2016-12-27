@@ -35,12 +35,6 @@ public class WebObjectRegistry
 		trackedWebObjects = new WeakHashSet<>(64);
 	}
 
-	public static void stopTracking()
-	{
-		if (trackedWebObjects != null) trackedWebObjects.clear();
-		trackedWebObjects = null;
-	}
-
 	public static void registerWebObject(WebObjectImpl webObject)
 	{
 		if (trackedWebObjects != null)

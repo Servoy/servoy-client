@@ -257,13 +257,22 @@ public class NGConversions
 				}
 				catch (Exception e)
 				{
-					Debug.error("Can't convert '" + designValue + "' from design value to a form value", e);
+					Debug.error("Can't convert '" + designValue + "' from design value to a form value as type: " + ((IDesignToFormElement)type).getName(), e);
+					return null;
 				}
 			}
 			else
 			{
-				return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.jsonNullToNull(designValue), pd, flattenedSolution, formElement,
-					propertyPath);
+				try
+				{
+					return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.jsonNullToNull(designValue), pd, flattenedSolution, formElement,
+						propertyPath);
+				}
+				catch (Exception e)
+				{
+					Debug.error("Can't convert '" + designValue + "' from design value to a form value as type: " + ((IDesignToFormElement)type).getName(), e);
+					return null;
+				}
 			}
 		}
 		return ServoyJSONObject.jsonNullToNull(designValue);

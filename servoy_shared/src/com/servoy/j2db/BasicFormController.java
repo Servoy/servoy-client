@@ -960,7 +960,7 @@ public abstract class BasicFormController
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-			throws Exception
+		throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
@@ -2187,6 +2187,7 @@ public abstract class BasicFormController
 	{
 		if (formModel != null && formModel.getTable() == null)
 		{
+			getApplication().reportJSWarning("ommit fails because of an invalid table on form " + getName());
 			return false;
 		}
 		checkInitialized();
@@ -4122,7 +4123,9 @@ public abstract class BasicFormController
 		}
 
 		/**
-		 * Omit selected record(s) (add it to omit records list) in form foundset, to be shown with loadOmittedRecords. This operation returns false only when form foundset is in bad state (table not accessible or not having a valid selected record).
+		 * Omit selected record(s) (add it to omit records list) in form foundset, to be shown with loadOmittedRecords.
+		 * This operation returns false only when form foundset is in bad state (table not accessible or not having a valid selected record)
+		 * or the record is in an edit state and can't be saved (autosave is false).
 		 *
 		 * Note: The omitted records are discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invert
 		 *

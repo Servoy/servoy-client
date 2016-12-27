@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.util.List;
 import java.util.Map;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
@@ -15,14 +14,12 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	private static final long serialVersionUID = 1L;
 
 	private final LayoutContainer layoutContainer;
-	private final FlattenedSolution flattenedSolution;
 	private final FlattenedForm flattenedForm;
 
-	public FlattenedLayoutContainer(FlattenedForm flattenedForm, FlattenedSolution flattenedSolution, LayoutContainer layoutContainer)
+	public FlattenedLayoutContainer(FlattenedForm flattenedForm, LayoutContainer layoutContainer)
 	{
 		super(layoutContainer.getParent(), layoutContainer.getID(), layoutContainer.getUUID());
 		this.layoutContainer = layoutContainer;
-		this.flattenedSolution = flattenedSolution;
 		this.flattenedForm = flattenedForm;
 		fill();
 	}
@@ -43,7 +40,7 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		{
 			if (child instanceof LayoutContainer)
 			{
-				internalAddChild(new FlattenedLayoutContainer(flattenedForm, flattenedSolution,
+				internalAddChild(new FlattenedLayoutContainer(flattenedForm,
 					(LayoutContainer)(extendsMap.containsKey(child.getUUID()) ? extendsMap.get(child.getUUID()) : child)));
 			}
 			else

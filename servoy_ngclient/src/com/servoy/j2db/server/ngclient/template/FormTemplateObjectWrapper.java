@@ -102,6 +102,11 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
 			wrapped = new FormElement(DefaultNavigator.INSTANCE, context.getSolution(), new PropertyPath(), design);
+			JSONObject object = runtimeProperties != null ? runtimeProperties.optJSONObject(((FormElement)wrapped).getName()) : null;
+			if (object != null)
+			{
+				wrapped = new FormElementContext((FormElement)wrapped, context, object);
+			}
 		}
 		else if (obj instanceof Part)
 		{

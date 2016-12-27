@@ -233,11 +233,6 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	@Override
 	public ISupportChilds getRealParent()
 	{
-		if (getExtendsID() > 0 && getParent() instanceof Form)
-		{
-			IPersist superPersist = PersistHelper.getSuperPersist(this);
-			if (superPersist != null) return superPersist.getParent();
-		}
-		return getParent();
+		return PersistHelper.getRealParent(this);
 	}
 }
