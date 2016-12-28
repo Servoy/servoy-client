@@ -52,7 +52,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * {@link AbstractListModel} implementation for Lookup/Typeahead fields.
- * 
+ *
  * @author jcompagner
  */
 public class LookupListModel extends AbstractListModel
@@ -455,14 +455,14 @@ public class LookupListModel extends AbstractListModel
 				trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
 			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select,
-				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
+				true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = processRow(set.getRow(i));
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null && !display.equals("")) //$NON-NLS-1$
+				if (display != null)
 				{
 					alDisplay.add(display);
 					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
@@ -630,7 +630,7 @@ public class LookupListModel extends AbstractListModel
 			{
 				Object[] row = processRow(set.getRow(i));
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null && !display.equals("")) //$NON-NLS-1$
+				if (display != null)
 				{
 					alDisplay.add(display);
 					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
@@ -657,8 +657,10 @@ public class LookupListModel extends AbstractListModel
 		sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		if (!"".equals(txt)) //$NON-NLS-1$
 		{
-			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, new QueryFunction(
-				QueryFunctionType.upper, DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID), txt.toUpperCase() + '%'));
+			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH,
+				new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR,
+					new QueryFunction(QueryFunctionType.upper, DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID),
+					txt.toUpperCase() + '%'));
 		}
 		else
 		{

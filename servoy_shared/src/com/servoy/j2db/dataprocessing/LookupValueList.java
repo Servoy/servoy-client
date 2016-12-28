@@ -228,7 +228,7 @@ public class LookupValueList implements IValueList
 						{
 							DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormats, concatShowValues, showValues, element,
 								application);
-							if (obj != null && !obj.equals("")) //$NON-NLS-1$
+							if (obj != null)
 							{
 								alDisplay.add(obj);
 								alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, element, application));
@@ -388,7 +388,7 @@ public class LookupValueList implements IValueList
 		{
 			Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
 			DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormats, concatShowValues, showValues, row, application);
-			if (obj != null && !obj.equals("")) //$NON-NLS-1$
+			if (obj != null)
 			{
 				alDisplay.add(obj);
 				alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
