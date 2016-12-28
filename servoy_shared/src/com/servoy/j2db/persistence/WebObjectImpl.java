@@ -354,7 +354,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				if (value == null && json != null && childPd.hasDefault() && PropertyUtils.isCustomJSONProperty(childPd.getType()))
 				{
 					Object defaultValue = childPd.getDefaultValue();
-					if (defaultValue instanceof JSONObject || defaultValue instanceof JSONArray)
+					if (defaultValue instanceof JSONObject || (defaultValue instanceof JSONArray &&
+						PropertyUtils.isCustomJSONProperty(((ICustomType)childPd.getType()).getCustomJSONTypeDefinition().getType())))
 					{
 						// first do a deep clone, because else we will change the default value of the property itself.
 						if (defaultValue instanceof JSONObject)
