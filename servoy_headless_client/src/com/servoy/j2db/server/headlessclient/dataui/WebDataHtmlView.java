@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents the HTML Field in the webbrowser. Has support for call backs of scripts through javascript:methodname links or other tags.
- * 
+ *
  * @author jcompagner
  */
 public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, ISupportScriptCallback, ISupportScroll
@@ -135,10 +135,12 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	protected void onComponentTag(ComponentTag tag)
 	{
 		tag.put("id", getMarkupId());
+		// tabindexattributemodifier is disabled , we should output -1 all the time
+		tag.put("tabindex", -1);
 	}
 
 	/**
-	 * This is because in the super classes we add a container <span> tag to fix the horizontal/vertical 
+	 * This is because in the super classes we add a container <span> tag to fix the horizontal/vertical
 	 * alignment, and that tag is missing the 'width' and 'height' attributes by default. By returning true
 	 * here we force the two attributes to be added.
 	 */
@@ -277,7 +279,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	public void setTitleText(String title)
 	{
 		super.setTitleText(title);
-		//	see ComponentFactory createField	
+		//	see ComponentFactory createField
 		if (needEntireState() && getDataProviderID() == null)
 		{
 			setTagText(application.getI18NMessageIfPrefixed(title));
@@ -288,7 +290,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -300,7 +302,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -311,7 +313,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
