@@ -349,6 +349,29 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				// it is a json property defined in spec, but it's not mapping to a persist
 				JSONObject json = getJson();
 				Object value = json != null ? json.opt(propertyName) : null;
+				// there the value is null and this child has a default custom json property (array or object) then
+				// we have to make that right now so we get the persist mapped properties filled up for the properties view.
+				if (value == null && json != null && childPd.hasDefault() && PropertyUtils.isCustomJSONProperty(childPd.getType()))
+				{
+					Object defaultValue = childPd.getDefaultValue();
+					if (defaultValue instanceof JSONObject || defaultValue instanceof JSONArray)
+					{
+						// first do a deep clone, because else we will change the default value of the property itself.
+						if (defaultValue instanceof JSONObject)
+						{
+							JSONObject defaultJSON = (JSONObject)defaultValue;
+							defaultValue = ServoyJSONObject.mergeAndDeepCloneJSON(defaultJSON, new JSONObject());
+						}
+						else
+						{
+							JSONArray defaultJSON = (JSONArray)defaultValue;
+							defaultValue = ServoyJSONObject.mergeAndDeepCloneJSON(defaultJSON, new JSONArray());
+						}
+						json.put(propertyName, defaultValue);
+						updatePersistMappedProperty(propertyName, defaultValue);
+						return ctp.get(propertyName);
+					}
+				}
 				value = convertToJavaType(childPd, value);
 				return value;
 			}
