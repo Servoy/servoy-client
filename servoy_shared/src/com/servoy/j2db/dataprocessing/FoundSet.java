@@ -480,14 +480,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (flushRelatedFS)
 		{
-			Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
-			while (it.hasNext())
+			// Do not flush related foundsets during execution of current script, selected record may not be stable
+			fsm.getApplication().invokeLater(new Runnable()
 			{
-				Relation r = it.next();
-				fsm.flushRelatedFoundSet(this, r.getName());
-			}
-			editRecordList.getFoundsetEventMap().remove(this);
-			editRecordList.fireEvents();
+				@Override
+				public void run()
+				{
+					try
+					{
+						flushRelatedFoundsets();
+					}
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
+					}
+				}
+			});
 		}
 
 		clearInternalState(true);
@@ -576,6 +584,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else setSelectedIndex(selectedIndex);
 		}
+	}
+
+	private void flushRelatedFoundsets() throws RepositoryException
+	{
+		for (Relation r : Utils.iterate(fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false)))
+		{
+			fsm.flushRelatedFoundSet(FoundSet.this, r.getName());
+		}
+		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
+		editRecordList.getFoundsetEventMap().remove(this);
+		editRecordList.fireEvents();
 	}
 
 	public boolean hasAccess(int access)
@@ -6035,6 +6054,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					return getDataSource();
 				}
+
 			};
 			scope.setFunctionParentScriptable(this); // make sure functions like getSize cannot be overridden
 			prototypeScope = scope;
