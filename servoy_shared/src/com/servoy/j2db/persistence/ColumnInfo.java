@@ -25,11 +25,12 @@ import java.util.List;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
  * Add some info to a column
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ColumnInfo")
@@ -187,7 +188,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	/**
 	 * The type of autoenter configured for the column. Can be one of: none,
 	 * system value, sequence, custom value or lookup value.
-	 * 
+	 *
 	 */
 	public int getAutoEnterType()
 	{
@@ -201,12 +202,12 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/**
 	 * The subtype of autoenter configured for the column. The available options depend
-	 * on the type of autoenter. 
-	 * 
+	 * on the type of autoenter.
+	 *
 	 * If autoenter is set to system value, then the subtype can be one of: none, creation datetime,
 	 * creation username, modification datetime, modification username, database managed,
 	 * creation user uid, modification user uid, creation server datetime or modification server datetime.
-	 * 
+	 *
 	 * If autoenter is set to sequence, then the subtype can be one of: none, Servoy sequence,
 	 * database sequence, database identity or universally unique identifier.
 	 */
@@ -238,9 +239,13 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 			{
 				databaseSequenceName = null;
 			}
-			else if (databaseSequenceName.length() > 50)
+			else
 			{
-				databaseSequenceName = databaseSequenceName.substring(0, 50);
+				int maxLength = Utils.getAsInteger(Settings.getInstance().getProperty("ServerManager.databasesequence.maxlength"), 50);
+				if (databaseSequenceName.length() > maxLength)
+				{
+					databaseSequenceName = databaseSequenceName.substring(0, maxLength);
+				}
 			}
 		}
 		this.databaseSequenceName = databaseSequenceName;
@@ -417,7 +422,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	}
 
 	/**
-	 * The default format of the column. 
+	 * The default format of the column.
 	 * Currently only strings or numbers are supported.
 	 */
 	public String getDefaultFormat()
@@ -641,7 +646,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/**
 	 * Set or clear a flag.
-	 * 
+	 *
 	 * @param flag
 	 * @param set
 	 */
@@ -660,7 +665,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/**
 	 * Returns true if the auto enter type specified has the same semantics as the auto enter type of this column info.
-	 * 
+	 *
 	 */
 	public boolean hasSameAutoEnterType(int autoEnterType2, int autoEnterSubType2, String databaseSequenceName2)
 	{
@@ -734,9 +739,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/**
 	 * Get the column type as configured by developer.
-	 * <p>Note, do not call this method directly, use Column.getConfiguredColumnType() instead so that in case of 
+	 * <p>Note, do not call this method directly, use Column.getConfiguredColumnType() instead so that in case of
 	 * old column info (with configured type not set), there will be a fallback to the db column type.
-	 * 
+	 *
 	 * @see Column#getConfiguredColumnType()
 	 */
 	public ColumnType getConfiguredColumnType()
@@ -785,7 +790,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/**
 	 * Turns strings with no content (blank spaces are not considered content) into null. Returns other strings unchanged.
-	 * 
+	 *
 	 * @param s the string.
 	 * @return null if there is no content in string, s otherwise.
 	 */
@@ -797,7 +802,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	/**
 	 * Copy column info into this column info.
-	 * 
+	 *
 	 * @param sourceColumnInfo
 	 */
 	public void copyFrom(ColumnInfo sourceColumnInfo)
