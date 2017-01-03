@@ -34,9 +34,9 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.IWebComponentInitializer;
-import org.sablo.specification.BaseSpecProvider.ISpecReloadListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
+import org.sablo.specification.SpecReloadSubject.ISpecReloadListener;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -394,8 +394,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 
 			// TODO the following is a workaround that allows not clearing the form element cache when reloading any ng package (so only when reloaded spec was actually altered here before and it might need to be re-altered again)
-			WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
-			if (webComponentSpecProvider != null) webComponentSpecProvider.addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
+			WebComponentSpecProvider.getSpecReloadSubject().addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
 		}
 	}
 

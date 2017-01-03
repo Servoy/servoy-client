@@ -58,7 +58,7 @@ public class HTMLTagsConverter
 		{
 			e = bodyElementsIte.next();
 			attrs = e.attributes();
-			attrsIte = attrs.iterator();
+			attrsIte = attrs.asList().iterator();
 			while (attrsIte.hasNext())
 			{
 				attr = attrsIte.next();
@@ -87,8 +87,24 @@ public class HTMLTagsConverter
 							Debug.error("cannot encrypt javascript", ex);
 							script = "";
 						}
-						attr.setValue(javascriptPrefix + "executeInlineScript('" + encryptedFormName + "', '" + script + "', " +
-							browserArgumentsMap.toString() + ")");
+						if ("href".equals(attr.getKey()))
+						{
+							if (attrs.hasKey("externalcall"))
+							{
+								attrs.remove("externalcall");
+							}
+							else
+							{
+								attr.setValue("#");
+								attrs.put("onclick",
+									"executeInlineScript('" + encryptedFormName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
+							}
+						}
+						else
+						{
+							attr.setValue(
+								"executeInlineScript('" + encryptedFormName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
+						}
 					}
 					else if (replaceContent.startsWith(mediaPrefix))
 					{
@@ -99,8 +115,8 @@ public class HTMLTagsConverter
 							try
 							{
 								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
-								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&uuid=" +
-									context.getApplication().getWebsocketSession().getUuid());
+								attr.setValue(
+									"resources/servoy_blobloader?blob=" + blobpart + "&uuid=" + context.getApplication().getWebsocketSession().getUuid());
 							}
 							catch (Exception e1)
 							{

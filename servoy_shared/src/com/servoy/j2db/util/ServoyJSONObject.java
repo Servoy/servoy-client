@@ -500,6 +500,41 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		return target;
 	}
 
+
+	/**
+	 * @param defaultJSON
+	 * @param jsonArray
+	 * @return
+	 */
+	public static JSONArray mergeAndDeepCloneJSON(JSONArray toCopyIn, JSONArray target)
+	{
+		for (int i = 0; i < toCopyIn.length(); i++)
+		{
+			Object toCopy = toCopyIn.get(i);
+			Object current = target.opt(i);
+			if (toCopy instanceof JSONObject)
+			{
+				if (!(current instanceof JSONObject))
+				{
+					current = new JSONObject();
+					target.put(i, current);
+				}
+				mergeAndDeepCloneJSON((JSONObject)toCopy, (JSONObject)current);
+			}
+			else if (toCopy instanceof JSONArray)
+			{
+				if (!(current instanceof JSONArray))
+				{
+					current = new JSONArray();
+					target.put(i, current);
+				}
+				mergeAndDeepCloneJSON((JSONArray)toCopy, (JSONArray)current);
+			}
+			else target.put(i, toCopy);
+		}
+		return target;
+	}
+
 	static Object toSerializable(Object o)
 	{
 		if (o instanceof JSONObject)
@@ -669,4 +704,5 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 			return super.equals(obj) || obj == JSONObject.NULL;
 		}
 	}
+
 }
