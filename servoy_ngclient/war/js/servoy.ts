@@ -229,7 +229,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			return findAttribute(element, parent, attributeName);
 		}
 	}
-}).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants) {
+}).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $applicationService) {
 	return <servoy.IServoyProperties> {
 		setBorder: function(element,newVal) {
 			if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
@@ -381,8 +381,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
 		createTooltipState: function(element,value) {
 			var tooltip =  value;
+			var initialDelay = $applicationService.getUIProperty("tooltipInitialDelay");
+			if(isNaN(initialDelay)) initialDelay = 750;
+			var dismissDelay = $applicationService.getUIProperty("tooltipDismissDelay"); 
+			if(isNaN(dismissDelay)) dismissDelay = 5000;
+
 			function mouseover(event) {
-	        	$svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);
+	        	$svyTooltipUtils.showTooltip(event, tooltip, initialDelay, dismissDelay);
 	        }
 			function mouseout(event) {
 	        	$svyTooltipUtils.hideTooltip();
