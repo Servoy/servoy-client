@@ -229,7 +229,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			return findAttribute(element, parent, attributeName);
 		}
 	}
-}).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $applicationService) {
+}).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
 	return <servoy.IServoyProperties> {
 		setBorder: function(element,newVal) {
 			if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
@@ -381,9 +381,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
 		createTooltipState: function(element,value) {
 			var tooltip =  value;
-			var initialDelay = $applicationService.getUIProperty("tooltipInitialDelay");
+			var initialDelay = $svyUIProperties.getUIProperty("tooltipInitialDelay");
 			if(isNaN(initialDelay)) initialDelay = 750;
-			var dismissDelay = $applicationService.getUIProperty("tooltipDismissDelay"); 
+			var dismissDelay = $svyUIProperties.getUIProperty("tooltipDismissDelay"); 
 			if(isNaN(dismissDelay)) dismissDelay = 5000;
 
 			function mouseover(event) {
@@ -1055,6 +1055,33 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 			}
 			cachedPromises = {};
+		}
+	}
+}]
+).factory('$svyUIProperties', ['webStorage', function(webStorage) {
+	var uiProperties;
+	
+	function getUiProperties() {
+		if (!angular.isDefined(uiProperties)) {
+			var json = webStorage.session.get("uiProperties");
+			if (json) {
+				uiProperties = JSON.parse(json);
+			} else {
+				uiProperties = {};
+			}
+		}
+		return uiProperties;
+	}
+
+	return {
+		getUIProperty: function(key) {
+			return getUiProperties()[key];
+		},
+		setUIProperty: function(key,value) {
+			var uiProps = getUiProperties();
+			if (value == null) delete uiProps[key];
+			else uiProps[key] = value;
+			webStorage.session.add("uiProperties", JSON.stringify(uiProps))
 		}
 	}
 }])
