@@ -1140,8 +1140,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', 
-                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties',
+                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -1150,18 +1150,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			backdrop: 'static',
 			keyboard: false
 		});				
-	}
-	var uiProperties;
-	function getUiProperties() {
-		if (!angular.isDefined(uiProperties)) {
-			var json = webStorage.session.get("uiProperties");
-			if (json) {
-				uiProperties = JSON.parse(json);
-			} else {
-				uiProperties = {};
-			}
-		}
-		return uiProperties;
 	}
 	
 	var userProperties;
@@ -1184,7 +1172,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return beanModel.clientProperty.trustDataAsHtml;
 		}
 		
-		return getUiProperties()["trustDataAsHtml"];
+		return $svyUIProperties.getUIProperty("trustDataAsHtml");
 	}
 	
 	return {
@@ -1205,13 +1193,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			webStorage.local.add("userProperties", JSON.stringify(userProps))
 		},
 		getUIProperty: function(key) {
-			return getUiProperties()[key];
+			return $svyUIProperties.getUIProperty(key);
 		},
 		setUIProperty: function(key,value) {
-			var uiProps = getUiProperties();
-			if (value == null) delete uiProps[key];
-			else uiProps[key] = value;
-			webStorage.session.add("uiProperties", JSON.stringify(uiProps))
+			$svyUIProperties.setUIProperty(key, value);
 		},
 		getUserPropertyNames: function() {
 			return Object.getOwnPropertyNames(getUserProperties());
