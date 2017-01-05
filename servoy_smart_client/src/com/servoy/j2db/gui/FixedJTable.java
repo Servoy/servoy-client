@@ -69,7 +69,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param dm
 	 */
 	public FixedJTable(IApplication application, TableModel dm)
@@ -80,7 +80,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param dm
 	 * @param cm
 	 */
@@ -92,7 +92,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param dm
 	 * @param cm
 	 * @param sm
@@ -178,8 +178,8 @@ public class FixedJTable extends JTable
 		if (model instanceof FoundSet) ((FoundSet)model).getRecord(rowIndex);
 
 		changeSelectionModel(csm, columnIndex, toggle, extend, false, false);
-		changeSelectionModel(rsm, rowIndex, toggle, extend, rsm.getSelectionMode() != ListSelectionModel.SINGLE_SELECTION ? rsm.isSelectedIndex(rowIndex)
-			: false, true);
+		changeSelectionModel(rsm, rowIndex, toggle, extend,
+			rsm.getSelectionMode() != ListSelectionModel.SINGLE_SELECTION ? rsm.isSelectedIndex(rowIndex) : false, true);
 
 		// Scroll after changing the selection as blit scrolling is immediate,
 		// so that if we cause the repaint after the scroll we end up painting
@@ -397,7 +397,7 @@ public class FixedJTable extends JTable
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#paintImmediately(int, int, int, int)
 	 */
 	@Override
@@ -439,93 +439,86 @@ public class FixedJTable extends JTable
 	@Override
 	public void valueChanged(ListSelectionEvent e)
 	{
-		if (getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION)
+		if (e.getValueIsAdjusting()) return;
+		int rowCount = getRowCount() - 1;
+		int columnCount = getColumnCount() - 1;
+
+		if (rowCount < 0 || columnCount < 0)
 		{
-			if (e.getValueIsAdjusting()) return;
-			int rowCount = getRowCount() - 1;
-			int columnCount = getColumnCount() - 1;
+			return;
+		}
 
-			if (rowCount < 0 || columnCount < 0)
+		int firstIndex = Math.min(rowCount, Math.max(e.getFirstIndex(), 0));
+		int lastIndex = Math.min(rowCount, Math.max(e.getLastIndex(), 0));
+		Rectangle firstRowRect1 = getCellRect(firstIndex, 0, false);
+		Rectangle firstRowRect2 = getCellRect(firstIndex, columnCount, false);
+		int paintImmediately = 0;
+		if (application instanceof ISmartClientApplication)
+		{
+			paintImmediately = ((ISmartClientApplication)application).getPaintTableImmediately();
+		}
+		boolean valid = paintImmediately <= 0 && isValid();
+
+		if (valid)
+		{
+			Rectangle currentRect = getVisibleRect();
+			if (currentRect.y > firstRowRect1.y)
 			{
-				return;
+				valid = false;
 			}
-
-			int firstIndex = Math.min(rowCount, Math.max(e.getFirstIndex(), 0));
-			int lastIndex = Math.min(rowCount, Math.max(e.getLastIndex(), 0));
-			Rectangle firstRowRect1 = getCellRect(firstIndex, 0, false);
-			Rectangle firstRowRect2 = getCellRect(firstIndex, columnCount, false);
-			int paintImmediately = 0;
-			if (application instanceof ISmartClientApplication)
+			else if ((currentRect.y + currentRect.height) <= (firstRowRect1.y + firstRowRect2.height))
 			{
-				paintImmediately = ((ISmartClientApplication)application).getPaintTableImmediately();
+				valid = false;
 			}
-			boolean valid = paintImmediately <= 0 && isValid();
+		}
 
-			if (valid)
+		if (getAutoscrolls())
+		{
+			if (true)
 			{
-				Rectangle currentRect = getVisibleRect();
-				if (currentRect.y > firstRowRect1.y)
+				final Rectangle cellRect = getCellRect(getSelectedRow(), getSelectedColumn(), false);
+				if (cellRect != null)
 				{
-					valid = false;
-				}
-				else if ((currentRect.y + currentRect.height) <= (firstRowRect1.y + firstRowRect2.height))
-				{
-					valid = false;
-				}
-			}
-
-			if (getAutoscrolls())
-			{
-				if (true)
-				{
-					final Rectangle cellRect = getCellRect(getSelectedRow(), getSelectedColumn(), false);
-					if (cellRect != null)
+					SwingUtilities.invokeLater(new Runnable()
 					{
-						SwingUtilities.invokeLater(new Runnable()
+						public void run()
 						{
-							public void run()
-							{
-								scrollRectToVisible(cellRect);
+							scrollRectToVisible(cellRect);
 
-							}
-						});
-					}
+						}
+					});
 				}
-				else
-				{
-					autoScroll = true;
-				}
-			}
-
-			if (valid)
-			{
-				super.paintImmediately(firstRowRect1.union(firstRowRect2));
 			}
 			else
 			{
-				repaint(firstRowRect1.union(firstRowRect2));
+				autoScroll = true;
 			}
+		}
 
-			Rectangle lastRowRect1 = getCellRect(lastIndex, 0, false);
-			Rectangle lastRowRect2 = getCellRect(lastIndex, columnCount, false);
-			if (valid)
-			{
-				super.paintImmediately(lastRowRect1.union(lastRowRect2));
-			}
-			else
-			{
-				repaint(lastRowRect1.union(lastRowRect2));
-			}
+		if (valid)
+		{
+			super.paintImmediately(firstRowRect1.union(firstRowRect2));
 		}
 		else
 		{
-			super.valueChanged(e);
+			repaint(firstRowRect1.union(firstRowRect2));
+		}
+
+		Rectangle lastRowRect1 = getCellRect(lastIndex, 0, false);
+		Rectangle lastRowRect2 = getCellRect(lastIndex, columnCount, false);
+		if (valid)
+		{
+			super.paintImmediately(lastRowRect1.union(lastRowRect2));
+		}
+		else
+		{
+			repaint(lastRowRect1.union(lastRowRect2));
 		}
 	}
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param numRows
 	 * @param numColumns
 	 */
@@ -537,7 +530,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param rowData
 	 * @param columnNames
 	 */
@@ -549,7 +542,7 @@ public class FixedJTable extends JTable
 
 	/**
 	 * Constructor for TheRightTable.
-	 * 
+	 *
 	 * @param rowData
 	 * @param columnNames
 	 */
@@ -580,7 +573,7 @@ public class FixedJTable extends JTable
 					{
 						((JComboBox)comp).setPopupVisible(true);
 					}
-					// If we have a button inside the cell, fire its action, don't waste 
+					// If we have a button inside the cell, fire its action, don't waste
 					// the first VK_ENTER for just starting the edit.
 					else if (comp instanceof JButton)
 					{
@@ -651,8 +644,8 @@ public class FixedJTable extends JTable
 		bounds.x = bounds.y = 0;
 
 		if (this.getRowCount() <= 0 || this.getColumnCount() <= 0 ||
-		// this check prevents us from painting
-		// when the clip doesn't intersect our bounds at all
+			// this check prevents us from painting
+			// when the clip doesn't intersect our bounds at all
 			!bounds.intersects(clip))
 		{
 			return;
