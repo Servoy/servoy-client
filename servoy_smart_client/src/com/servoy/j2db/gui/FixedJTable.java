@@ -58,6 +58,8 @@ public class FixedJTable extends JTable
 
 	protected final IApplication application;
 
+	private int selectedRowIndex;
+
 	/**
 	 * Constructor for TheRightTable.
 	 */
@@ -439,80 +441,95 @@ public class FixedJTable extends JTable
 	@Override
 	public void valueChanged(ListSelectionEvent e)
 	{
-		if (e.getValueIsAdjusting()) return;
-		int rowCount = getRowCount() - 1;
-		int columnCount = getColumnCount() - 1;
-
-		if (rowCount < 0 || columnCount < 0)
+		if (getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION)
 		{
-			return;
-		}
+			if (e.getValueIsAdjusting()) return;
+			int rowCount = getRowCount() - 1;
+			int columnCount = getColumnCount() - 1;
 
-		int firstIndex = Math.min(rowCount, Math.max(e.getFirstIndex(), 0));
-		int lastIndex = Math.min(rowCount, Math.max(e.getLastIndex(), 0));
-		Rectangle firstRowRect1 = getCellRect(firstIndex, 0, false);
-		Rectangle firstRowRect2 = getCellRect(firstIndex, columnCount, false);
-		int paintImmediately = 0;
-		if (application instanceof ISmartClientApplication)
-		{
-			paintImmediately = ((ISmartClientApplication)application).getPaintTableImmediately();
-		}
-		boolean valid = paintImmediately <= 0 && isValid();
-
-		if (valid)
-		{
-			Rectangle currentRect = getVisibleRect();
-			if (currentRect.y > firstRowRect1.y)
+			if (rowCount < 0 || columnCount < 0)
 			{
-				valid = false;
+				return;
 			}
-			else if ((currentRect.y + currentRect.height) <= (firstRowRect1.y + firstRowRect2.height))
-			{
-				valid = false;
-			}
-		}
 
-		if (getAutoscrolls())
-		{
-			if (true)
+			int firstIndex = Math.min(rowCount, Math.max(e.getFirstIndex(), 0));
+			int lastIndex = Math.min(rowCount, Math.max(e.getLastIndex(), 0));
+			Rectangle firstRowRect1 = getCellRect(firstIndex, 0, false);
+			Rectangle firstRowRect2 = getCellRect(firstIndex, columnCount, false);
+			int paintImmediately = 0;
+			if (application instanceof ISmartClientApplication)
 			{
-				final Rectangle cellRect = getCellRect(getSelectedRow(), getSelectedColumn(), false);
-				if (cellRect != null)
+				paintImmediately = ((ISmartClientApplication)application).getPaintTableImmediately();
+			}
+			boolean valid = paintImmediately <= 0 && isValid();
+
+			if (valid)
+			{
+				Rectangle currentRect = getVisibleRect();
+				if (currentRect.y > firstRowRect1.y)
 				{
-					SwingUtilities.invokeLater(new Runnable()
-					{
-						public void run()
-						{
-							scrollRectToVisible(cellRect);
-
-						}
-					});
+					valid = false;
 				}
+				else if ((currentRect.y + currentRect.height) <= (firstRowRect1.y + firstRowRect2.height))
+				{
+					valid = false;
+				}
+			}
+
+			scrollToSelection();
+
+			if (valid)
+			{
+				super.paintImmediately(firstRowRect1.union(firstRowRect2));
 			}
 			else
 			{
-				autoScroll = true;
+				repaint(firstRowRect1.union(firstRowRect2));
+			}
+
+			Rectangle lastRowRect1 = getCellRect(lastIndex, 0, false);
+			Rectangle lastRowRect2 = getCellRect(lastIndex, columnCount, false);
+			if (valid)
+			{
+				super.paintImmediately(lastRowRect1.union(lastRowRect2));
+			}
+			else
+			{
+				repaint(lastRowRect1.union(lastRowRect2));
+			}
+		}
+		else
+		{
+			super.valueChanged(e);
+			if (!e.getValueIsAdjusting() && (selectedRowIndex != getSelectedRow()))
+			{
+				scrollToSelection();
 			}
 		}
 
-		if (valid)
+		if (!e.getValueIsAdjusting())
 		{
-			super.paintImmediately(firstRowRect1.union(firstRowRect2));
+			selectedRowIndex = getSelectedRow();
 		}
-		else
-		{
-			repaint(firstRowRect1.union(firstRowRect2));
-		}
+	}
 
-		Rectangle lastRowRect1 = getCellRect(lastIndex, 0, false);
-		Rectangle lastRowRect2 = getCellRect(lastIndex, columnCount, false);
-		if (valid)
+
+	private void scrollToSelection()
+	{
+		if (getAutoscrolls())
 		{
-			super.paintImmediately(lastRowRect1.union(lastRowRect2));
-		}
-		else
-		{
-			repaint(lastRowRect1.union(lastRowRect2));
+			final Rectangle cellRect = getCellRect(getSelectedRow(), getSelectedColumn(), false);
+			if (cellRect != null)
+			{
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						scrollRectToVisible(cellRect);
+
+					}
+				});
+			}
 		}
 	}
 
