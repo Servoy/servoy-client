@@ -2509,7 +2509,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		IDataSet fixedDataSet = dataSet;
 		int[] fixedIntTypes = intTypes;
-		if (fixedIntTypes == null) fixedIntTypes = dataSet.getColumnTypes();
 
 		// get column def from the first in-mem datasource found
 		ServoyJSONObject columnsDef = null;
@@ -2522,6 +2521,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		if (columnsDef != null)
 		{
+			// if this is a desigenr defined in mem table, then look if the types of the dataset
+			// are the same as in one defined in the developer.
+			if (fixedIntTypes == null) fixedIntTypes = dataSet.getColumnTypes();
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
 			ArrayList<String> inmemColumnNames = new ArrayList<String>();
 			ArrayList<String> inmemPKs = new ArrayList<String>();
