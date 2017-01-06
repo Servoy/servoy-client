@@ -120,7 +120,7 @@ public class ScriptEngine implements IScriptSupport
 			if (sp instanceof IApplication)
 			{
 				IApplication application = (IApplication)sp;
-				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), true);
 				cx.setWrapFactory(new ServoyWrapFactory(application));
 			}
 		}
