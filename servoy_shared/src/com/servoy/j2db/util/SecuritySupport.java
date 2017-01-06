@@ -41,6 +41,7 @@ public class SecuritySupport
 	private static KeyStore passwordKeyStore;
 	private static KeyStore sslKeyStore;
 	private static char[] passphrase;
+	private static SecretKeySpec keySpec;
 
 //	public static void main(String[] args) throws Exception
 //	{
@@ -117,6 +118,16 @@ public class SecuritySupport
 				is = SecuritySupport.class.getResourceAsStream("background.gif");
 				passwordKeyStore = KeyStore.getInstance("JKS");
 				passwordKeyStore.load(is, "passphrase".toCharArray());
+				Enumeration e = passwordKeyStore.aliases();
+				while (e.hasMoreElements())
+				{
+					String alias = (String)e.nextElement();
+					if (passwordKeyStore.isKeyEntry(alias))
+					{
+						keySpec = new SecretKeySpec(new DESedeKeySpec(passwordKeyStore.getKey(alias, "passphrase".toCharArray()).getEncoded()).getKey(),
+							"DESede");
+					}
+				}
 			}
 			finally
 			{
@@ -124,16 +135,7 @@ public class SecuritySupport
 			}
 		}
 
-		Enumeration e = passwordKeyStore.aliases();
-		while (e.hasMoreElements())
-		{
-			String alias = (String)e.nextElement();
-			if (passwordKeyStore.isKeyEntry(alias))
-			{
-				return new SecretKeySpec(new DESedeKeySpec(passwordKeyStore.getKey(alias, "passphrase".toCharArray()).getEncoded()).getKey(), "DESede");
-			}
-		}
-		return null;
+		return keySpec;
 	}
 
 	@SuppressWarnings("nls")
