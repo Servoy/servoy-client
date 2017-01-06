@@ -216,7 +216,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					updateRowConversionInfo(rowUpdate.startIndex, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
 				// insert might have made obsolete some records in cache; remove those; for inserts
-				// !!! rowUpdate.endIndex means the new length of the viewport
+				// !!! rowUpdate.endIndex by convention means the new length of the viewport
 				if (viewPort.length > rowUpdate.endIndex) {
 					// remove conversion info for these rows as well
 					if (internalState[CONVERSIONS]) {

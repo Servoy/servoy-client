@@ -121,6 +121,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					updates = true;
 					var viewPortUpdate = serverJSONValue[UPDATE_PREFIX + VIEW_PORT];
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					var oldStartIndex = currentClientValue[VIEW_PORT][START_INDEX];
+					var oldSize = currentClientValue[VIEW_PORT][SIZE];
 
 					if (angular.isDefined(viewPortUpdate[START_INDEX])) {
 						currentClientValue[VIEW_PORT][START_INDEX] = viewPortUpdate[START_INDEX];
@@ -136,7 +138,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 								viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] : undefined, componentScope, componentModelGetter);
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
 						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
-						internalState.fireChanges(viewPortUpdate[UPDATE_PREFIX + ROWS]);
+						internalState.fireChanges(viewPortUpdate[UPDATE_PREFIX + ROWS], oldStartIndex, oldSize);
 					}
 				}
 
@@ -253,9 +255,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							changeListeners.splice(index, 1);
 						}
 					}
-					internalState.fireChanges = function(values) {
+					internalState.fireChanges = function(rowUpdates, oldStartIndex, oldSize) {
 						for(var i=0;i<changeListeners.length;i++) {
-							changeListeners[i](values);
+							changeListeners[i](rowUpdates, oldStartIndex, oldSize);
 						}
 					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
