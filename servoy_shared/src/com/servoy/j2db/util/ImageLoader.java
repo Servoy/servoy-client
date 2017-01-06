@@ -55,7 +55,7 @@ import com.servoy.j2db.persistence.Media;
 
 /**
  * Helper class to load image via ImageIO
- * 
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
@@ -292,8 +292,10 @@ public class ImageLoader
 		ByteArrayInputStream bais = new ByteArrayInputStream(iconArray);
 		ImageInputStream iis = null;
 		ImageReader ir = null;
+		boolean imageIOCache = ImageIO.getUseCache();
 		try
 		{
+			ImageIO.setUseCache(false); // this makes sure that it uses in memory, no temp file is created.
 			iis = ImageIO.createImageInputStream(bais);
 			Iterator<ImageReader> it = ImageIO.getImageReaders(iis);
 			if (it.hasNext())
@@ -320,6 +322,7 @@ public class ImageLoader
 		}
 		finally
 		{
+			ImageIO.setUseCache(imageIOCache);
 			if (ir != null)
 			{
 				ir.dispose();
@@ -556,7 +559,8 @@ public class ImageLoader
 							fixedWidth = Boolean.TRUE;
 						}
 
-						int width = getImageSize(parentSize.width, ((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+						int width = getImageSize(parentSize.width,
+							((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
 						int height = getImageSize(parentSize.height,
 							((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
 						imageData = resize(imageData, width, height, autoWidth || autoHeight, fixedWidth);
