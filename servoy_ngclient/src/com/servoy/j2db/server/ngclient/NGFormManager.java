@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
 import org.sablo.websocket.CurrentWindow;
 
@@ -44,6 +45,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
@@ -196,14 +198,23 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				Object[] args = ((ClientState)application).getPreferedSolutionMethodArguments();
 
-				// avoid stack overflows when an execute method URL is used to open the solution, and that method does call JSSecurity login
-				((ClientState)application).resetPreferedSolutionMethodNameToCall();
-
 				Pair<String, String> scope = ScopesUtils.getVariableScope(preferedSolutionMethodName);
-				Object result = application.getScriptEngine().getScopesScope().executeGlobalFunction(scope.getLeft(), scope.getRight(), args, false, false);
-				if (application.getSolution().getSolutionType() == SolutionMetaData.AUTHENTICATOR)
+				GlobalScope gs = application.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
+				if (gs != null && gs.get(scope.getRight()) instanceof Function)//make sure the function is found before resetting preferedSolutionMethodName
 				{
-					application.getRuntimeProperties().put(IServiceProvider.RT_OPEN_METHOD_RESULT, result);
+					// avoid stack overflows when an execute method URL is used to open the solution, and that method does call JSSecurity login
+					((ClientState)application).resetPreferedSolutionMethodNameToCall();
+
+					Object result = application.getScriptEngine().getScopesScope().executeGlobalFunction(scope.getLeft(), scope.getRight(), args, false, false);
+					if (application.getSolution().getSolutionType() == SolutionMetaData.AUTHENTICATOR)
+					{
+						application.getRuntimeProperties().put(IServiceProvider.RT_OPEN_METHOD_RESULT, result);
+					}
+				}
+				else if (application.getFlattenedSolution().isMainSolutionLoaded())
+				{
+					Debug.error("Preferred method '" + preferedSolutionMethodName + "' not found in " + application.getFlattenedSolution() + ".");
+					((ClientState)application).resetPreferedSolutionMethodNameToCall();
 				}
 			}
 			catch (Exception e1)
