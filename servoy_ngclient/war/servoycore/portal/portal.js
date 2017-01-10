@@ -332,7 +332,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;							
 					    totalWidth = totalWidth - 17; //make sure possible vertical scroll does now overlap last column
 					    
-						if (resizeWidth > 0 && totalWidth > 0)
+						if (resizeWidth > 0 && totalWidth !== 0)
 						{
 							for(var i = 0; i < $scope.model.childElements.length; i++)
 							{
