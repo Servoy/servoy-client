@@ -126,6 +126,7 @@ public class SecuritySupport
 					{
 						keySpec = new SecretKeySpec(new DESedeKeySpec(passwordKeyStore.getKey(alias, "passphrase".toCharArray()).getEncoded()).getKey(),
 							"DESede");
+						break;
 					}
 				}
 			}
@@ -224,5 +225,6 @@ public class SecuritySupport
 	{
 		sslKeyStore = null;
 		passwordKeyStore = null;
+		keySpec = null;
 	}
 }
