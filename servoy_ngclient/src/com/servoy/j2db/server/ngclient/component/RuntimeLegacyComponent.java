@@ -89,6 +89,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		ScriptNameToSpecName.put("rolloverImageURL", StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName());
 		ScriptNameToSpecName.put("valueListItems", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
 		ScriptNameToSpecName.put("valueListName", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
+		ScriptNameToSpecName.put("titleText", "text");
 
 		LegacyApiNames = new HashSet<>();
 		LegacyApiNames.add("putClientProperty");
