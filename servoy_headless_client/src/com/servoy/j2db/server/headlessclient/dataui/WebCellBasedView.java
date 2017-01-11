@@ -561,11 +561,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			getViewSize();
 			final int firstIndex = getStartIndex();
+			List< ? extends IRecordInternal> modelList = getList();
 			for (int i = 0; i < getViewSize(); i++)
 			{
 				// Get index
 				final int index = firstIndex + i;
-				getList().get(index);
+				if (index >= modelList.size())
+				{
+					break;
+				}
+				modelList.get(index);
 				updateListItem(index);
 			}
 			updateHeaders();
