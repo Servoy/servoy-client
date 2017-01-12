@@ -49,4 +49,6 @@ public interface INGApplication extends INGClientApplication
 	void updateLastAccessed();
 
 	void recreateForm(Form form, String name);
+
+	void flushRecreatedForm(Form form, String formName);
 }

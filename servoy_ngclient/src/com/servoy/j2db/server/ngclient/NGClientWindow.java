@@ -181,7 +181,9 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			}
 			// form is not yet on the client, send over the controller
 			updateController(form, formName, !async, new FormHTMLAndJSGenerator(getSession().getClient(), form, formName));
-			Debug.debug("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
+			// if recreateUI was also called (even that is not really needed), do flush the recreate map, so the form is not send again in the same response.
+			getClient().flushRecreatedForm(form, formName);
+			if (Debug.tracing()) Debug.trace("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
 		}
 		else
 		{
