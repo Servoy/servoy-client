@@ -4,7 +4,7 @@
 	"version": 1,
 	"icon": "servoydefault/spinner/spinner.png",
 	"definition": "servoydefault/spinner/spinner.js",
-	"libraries": [{"name":"svy-spinner", "version":"1", "url":"servoydefault/spinner/spinner.css", "mimetype":"text/css"},{"name":"font-awesome", "version":"4.2.0", "url":"servoydefault/spinner/css/font-awesome.css", "mimetype":"text/css"}],
+	"libraries": [{"name":"svy-spinner", "version":"1", "url":"servoydefault/spinner/spinner.css", "mimetype":"text/css"},{"name":"font-awesome", "version":"4.2.0", "url":"servoydefault/spinner/css/font-awesome.css", "mimetype":"text/css", "group":false}],
 	"model":
 	{
 	        "background" : "color", 
