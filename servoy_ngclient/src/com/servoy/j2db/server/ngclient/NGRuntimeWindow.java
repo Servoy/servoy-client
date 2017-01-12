@@ -410,7 +410,22 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
-			getApplication().getWebsocketSession().getEventDispatcher().resume(this);
+			final IEventDispatcher eventDispatcher = getApplication().getWebsocketSession().getEventDispatcher();
+			if (eventDispatcher.isEventDispatchThread())
+			{
+				eventDispatcher.resume(this);
+			}
+			else
+			{
+				eventDispatcher.addEvent(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						eventDispatcher.resume(NGRuntimeWindow.this);
+					}
+				});
+			}
 		}
 	}
 
