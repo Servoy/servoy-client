@@ -914,7 +914,7 @@ public class PersistHelper
 							return (ISupportChilds)possibleParent;
 						}
 					}
-					return parent;
+					return getRealParent(superPersist);
 				}
 			}
 		}

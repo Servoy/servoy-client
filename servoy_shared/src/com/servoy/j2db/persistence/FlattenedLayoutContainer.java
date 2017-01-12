@@ -40,14 +40,22 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		{
 			if (child instanceof LayoutContainer)
 			{
-				internalAddChild(new FlattenedLayoutContainer(flattenedForm,
-					(LayoutContainer)(extendsMap.containsKey(child.getUUID()) ? extendsMap.get(child.getUUID()) : child)));
+				internalAddChild(new FlattenedLayoutContainer(flattenedForm, (LayoutContainer)getOverridePersist(child, extendsMap)));
 			}
 			else
 			{
-				internalAddChild(extendsMap.containsKey(child.getUUID()) ? extendsMap.get(child.getUUID()) : child);
+				internalAddChild(getOverridePersist(child, extendsMap));
 			}
 		}
+	}
+
+	private IPersist getOverridePersist(IPersist child, Map<UUID, IPersist> extendsMap)
+	{
+		if (extendsMap.containsKey(child.getUUID()))
+		{
+			return getOverridePersist(extendsMap.get(child.getUUID()), extendsMap);
+		}
+		return child;
 	}
 
 	@Override
