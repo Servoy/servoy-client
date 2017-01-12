@@ -35,6 +35,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * Proxy class around a {@link IDataServer} instance for switchServer support.
@@ -263,9 +264,9 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
-		String[] pkNames) throws ServoyException, RemoteException
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
-		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, types, pkNames);
+		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, types, pkNames, columnInfoDefinitions);
 	}
 
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,

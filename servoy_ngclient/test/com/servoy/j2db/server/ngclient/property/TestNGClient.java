@@ -73,6 +73,7 @@ import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * @author Johan
@@ -365,7 +366,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid, int[] types,
-				String[] pkNames) throws ServoyException, RemoteException
+				String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 			{
 				dataSetMap.put(dataSource, set);
 				Table table = new Table(serverName, serverName, true, ITable.TABLE, null, null);

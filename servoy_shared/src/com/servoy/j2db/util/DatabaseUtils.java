@@ -18,6 +18,7 @@
 package com.servoy.j2db.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -135,32 +136,7 @@ public class DatabaseUtils
 				{
 					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength());
 					existingColumnInfo++;
-					int element_id = persistFactory.getNewElementID(null);
-					ColumnInfo ci = new ColumnInfo(element_id, true);
-					ci.setAutoEnterType(cid.autoEnterType);
-					ci.setAutoEnterSubType(cid.autoEnterSubType);
-					ci.setSequenceStepSize(cid.sequenceStepSize);
-					ci.setPreSequenceChars(cid.preSequenceChars);
-					ci.setPostSequenceChars(cid.postSequenceChars);
-					ci.setDefaultValue(cid.defaultValue);
-					ci.setLookupValue(cid.lookupValue);
-					ci.setDatabaseSequenceName(cid.databaseSequenceName);
-					ci.setTitleText(cid.titleText);
-					ci.setDescription(cid.description);
-					ci.setForeignType(cid.foreignType);
-					ci.setConverterName(cid.converterName);
-					ci.setConverterProperties(cid.converterProperties);
-					ci.setValidatorProperties(cid.validatorProperties);
-					ci.setValidatorName(cid.validatorName);
-					ci.setDefaultFormat(cid.defaultFormat);
-					ci.setElementTemplateProperties(cid.elementTemplateProperties);
-					ci.setDataProviderID(cid.dataProviderID);
-					ci.setContainsMetaData(cid.containsMetaData);
-					ci.setConfiguredColumnType(cid.columnType);
-					ci.setCompatibleColumnTypes(cid.compatibleColumnTypes);
-					ci.setFlags(cid.flags);
-					c.setDatabasePK((cid.flags & Column.PK_COLUMN) != 0);
-					c.setColumnInfo(ci);
+					updateColumnInfo(persistFactory, c, cid);
 					changedColumns.add(c);
 				}
 			}
@@ -204,5 +180,49 @@ public class DatabaseUtils
 		}
 		ci.setFlags(c.getFlags()); // when column has no columninfo and no flags it will return Column.PK_COLUMN for db pk column.
 		c.setColumnInfo(ci);
+	}
+
+	public static void updateColumnInfo(IPersistFactory persistFactory, Column c, ColumnInfoDef cid) throws RepositoryException
+	{
+		int element_id = persistFactory.getNewElementID(null);
+		ColumnInfo ci = new ColumnInfo(element_id, true);
+		ci.setAutoEnterType(cid.autoEnterType);
+		ci.setAutoEnterSubType(cid.autoEnterSubType);
+		ci.setSequenceStepSize(cid.sequenceStepSize);
+		ci.setPreSequenceChars(cid.preSequenceChars);
+		ci.setPostSequenceChars(cid.postSequenceChars);
+		ci.setDefaultValue(cid.defaultValue);
+		ci.setLookupValue(cid.lookupValue);
+		ci.setDatabaseSequenceName(cid.databaseSequenceName);
+		ci.setTitleText(cid.titleText);
+		ci.setDescription(cid.description);
+		ci.setForeignType(cid.foreignType);
+		ci.setConverterName(cid.converterName);
+		ci.setConverterProperties(cid.converterProperties);
+		ci.setValidatorProperties(cid.validatorProperties);
+		ci.setValidatorName(cid.validatorName);
+		ci.setDefaultFormat(cid.defaultFormat);
+		ci.setElementTemplateProperties(cid.elementTemplateProperties);
+		ci.setDataProviderID(cid.dataProviderID);
+		ci.setContainsMetaData(cid.containsMetaData);
+		ci.setConfiguredColumnType(cid.columnType);
+		ci.setCompatibleColumnTypes(cid.compatibleColumnTypes);
+		ci.setFlags(cid.flags);
+		c.setDatabasePK((cid.flags & Column.PK_COLUMN) != 0);
+		c.setColumnInfo(ci);
+	}
+
+	public static void updateTableColumnInfos(IPersistFactory persistFactory, ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions)
+		throws RepositoryException
+	{
+		Iterator<Column> tableColumnsIte = t.getColumns().iterator();
+		while (tableColumnsIte.hasNext())
+		{
+			Column column = tableColumnsIte.next();
+			if (columnInfoDefinitions.containsKey(column.getName()))
+			{
+				DatabaseUtils.updateColumnInfo(persistFactory, column, columnInfoDefinitions.get(column.getName()));
+			}
+		}
 	}
 }

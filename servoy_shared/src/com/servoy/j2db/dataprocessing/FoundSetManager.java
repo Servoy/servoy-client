@@ -2519,12 +2519,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			columnsDef = tn.getColumns();
 		}
 
+		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
 		if (columnsDef != null)
 		{
 			// if this is a desigenr defined in mem table, then look if the types of the dataset
 			// are the same as in one defined in the developer.
 			if (fixedIntTypes == null) fixedIntTypes = dataSet.getColumnTypes();
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
+			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>();
 			ArrayList<String> inmemColumnNames = new ArrayList<String>();
 			ArrayList<String> inmemPKs = new ArrayList<String>();
 			int[] inmemColumnTypes = null;
@@ -2538,6 +2540,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					inmemPKs.add(cid.name);
 				}
+				columnInfoDefinitions.put(cid.name, cid);
 			}
 			if (pkNames == null && inmemPKs.size() > 0)
 			{
@@ -2604,7 +2607,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			table = application.getDataServer().insertDataSet(application.getClientID(), fixedDataSet, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-				fixedIntTypes /* inferred from dataset when null */, pkNames);
+				fixedIntTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);

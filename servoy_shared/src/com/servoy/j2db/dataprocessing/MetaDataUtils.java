@@ -287,10 +287,10 @@ public class MetaDataUtils
 		ApplicationServerRegistry.get().getDataServer().performUpdates(ApplicationServerRegistry.get().getClientId(),
 			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null, //
 				new QueryDelete(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()))) // delete entire table
-		});
+			});
 		// insert the data
 		ApplicationServerRegistry.get().getDataServer().insertDataSet(ApplicationServerRegistry.get().getClientId(), dataSet, table.getDataSource(),
-			table.getServerName(), table.getName(), null, null, null);
+			table.getServerName(), table.getName(), null, null, null, null);
 
 		return dataSet.getRowCount();
 	}

@@ -20,6 +20,7 @@ package com.servoy.j2db.debug;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * A wrapper/proxy around the actual {@link IDataServer} to profile queries to the database.
@@ -631,12 +633,12 @@ public class ProfileDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[], String[])
 	 */
 	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
-		String[] pkNames) throws ServoyException, RemoteException
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types, pkNames);
+			return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types, pkNames, columnInfoDefinitions);
 		}
 		finally
 		{
