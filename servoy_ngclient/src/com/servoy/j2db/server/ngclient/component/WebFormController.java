@@ -274,18 +274,25 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void destroy()
 	{
-		if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
-		unload();
-		if (formUI != null)
+		try
 		{
-			formUI.destroy();
-			formUI = null;
+			if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
+			unload();
+			if (formUI != null)
+			{
+				formUI.destroy();
+				formUI = null;
+			}
+			super.destroy();
+			IWindow window = CurrentWindow.safeGet();
+			if (window instanceof NGClientWindow)
+			{
+				((NGClientWindow)window).destroyForm(getName());
+			}
 		}
-		super.destroy();
-		IWindow window = CurrentWindow.safeGet();
-		if (window instanceof NGClientWindow)
+		finally
 		{
-			((NGClientWindow)window).destroyForm(getName());
+			application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
 		}
 	}
 

@@ -1389,6 +1389,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
+	public void flushRecreatedForm(Form form, String formName)
+	{
+		toRecreate.remove(new Pair<Form, String>(form, formName));
+	}
+
+	@Override
 	public void changesWillBeSend()
 	{
 		if (toRecreate.size() > 0)
