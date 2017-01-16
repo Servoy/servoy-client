@@ -538,7 +538,7 @@
     }
 
     if (message) {
-      var label = $(templates.label).text(message);
+      var label = $(templates.label).html(message);
       form.append(label);
     }
     // now place it in our form
