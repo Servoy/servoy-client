@@ -34,10 +34,10 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	private static final long serialVersionUID = 1L;
 
 	public static final String[] AGGREGATE_TYPE_STRINGS = new String[] { "count", //$NON-NLS-1$
-	"maximum", //$NON-NLS-1$
-	"minimum", //$NON-NLS-1$
-	"average", //$NON-NLS-1$
-	"sum" //$NON-NLS-1$
+		"maximum", //$NON-NLS-1$
+		"minimum", //$NON-NLS-1$
+		"average", //$NON-NLS-1$
+		"sum" //$NON-NLS-1$
 	};
 
 
@@ -56,7 +56,6 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	public String toHTML()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("<html>"); //$NON-NLS-1$
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getName());
 		sb.append("</b> "); //$NON-NLS-1$
@@ -64,7 +63,6 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 		sb.append("( "); //$NON-NLS-1$
 		sb.append(getDataProviderIDToAggregate());
 		sb.append(" )"); //$NON-NLS-1$
-		sb.append("</html>"); //$NON-NLS-1$
 		return sb.toString();
 	}
 

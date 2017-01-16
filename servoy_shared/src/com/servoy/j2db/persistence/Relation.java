@@ -739,8 +739,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	{
 		String primaryDataSource = getPrimaryDataSource();
 		return primaryDataSource != null && primaryDataSource.equals(getForeignDataSource()) // same data source
-		&& isFKPKRef(dataProviderHandler) // FK to itself
-		&& Arrays.equals(getPrimaryDataProviders(dataProviderHandler), getForeignColumns(dataProviderHandler));
+			&& isFKPKRef(dataProviderHandler) // FK to itself
+			&& Arrays.equals(getPrimaryDataProviders(dataProviderHandler), getForeignColumns(dataProviderHandler));
 	}
 
 	/**
@@ -958,25 +958,23 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public String toHTML()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("<html>Name(solution): <b>"); //$NON-NLS-1$
-		sb.append(getName());
+		sb.append("<b>" + getName());
 		sb.append(" ("); //$NON-NLS-1$
 		sb.append(getRootObject().getName());
-		sb.append(')');
+		sb.append(")</b>");
 		if (isGlobal())
 		{
-			sb.append("</b><br>Global relation <b>"); //$NON-NLS-1$
+			sb.append("<br>Global relation"); //$NON-NLS-1$
 		}
-		sb.append("</b><br><br>From: <b>"); //$NON-NLS-1$
+		sb.append("<pre><b>From: </b>"); //$NON-NLS-1$
 		sb.append(getPrimaryServerName());
 		sb.append(" - "); //$NON-NLS-1$
 		sb.append(getPrimaryTableName());
-		sb.append("</b><br>To: <b>"); //$NON-NLS-1$
+		sb.append("<br><b>To: </b>"); //$NON-NLS-1$
 		sb.append(getForeignServerName());
 		sb.append(" - "); //$NON-NLS-1$
 		sb.append(getForeignTableName());
-		sb.append("</b><br>"); //$NON-NLS-1$
-		sb.append("<br>"); //$NON-NLS-1$
+		sb.append("<br><br>"); //$NON-NLS-1$
 		List<IPersist> allobjects = getAllObjectsAsList();
 		int size = allobjects.size();
 		for (int i = 0; i < size; i++)
@@ -989,7 +987,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			sb.append(ri.getForeignColumnName());
 			if (i < size - 1) sb.append("<br>"); //$NON-NLS-1$
 		}
-		sb.append("</html>"); //$NON-NLS-1$
+		sb.append("</pre>"); //$NON-NLS-1$
 		return sb.toString();
 	}
 

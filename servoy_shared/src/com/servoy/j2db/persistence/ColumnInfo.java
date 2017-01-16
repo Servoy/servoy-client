@@ -541,7 +541,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	public String toHTML()
 	{
-		return getTextualPropertyInfo(true);
+		return getTextualPropertyInfo(false);
 	}
 
 	public String getTextualPropertyInfo(boolean html)

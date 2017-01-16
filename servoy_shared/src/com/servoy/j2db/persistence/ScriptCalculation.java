@@ -52,18 +52,17 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	public String toHTML()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("<html>"); //$NON-NLS-1$
 		sb.append("<b>"); //$NON-NLS-1$
-		sb.append(getName());
-		sb.append("</b> "); //$NON-NLS-1$
 		sb.append(Column.getDisplayTypeString(Column.mapToDefaultType(getType())));
+		sb.append(" " + getName());
+		sb.append("</b><pre>"); //$NON-NLS-1$
 		String code = getMethodCode();
 		if (code != null)
 		{
-			sb.append(" calculation: <br>"); //$NON-NLS-1$
+			sb.append("<b>Calculation:</b> <br>"); //$NON-NLS-1$
 			sb.append(getMethodCode().substring(0, Math.min(code.length(), 30)));
 		}
-		sb.append("</html>"); //$NON-NLS-1$
+		sb.append("</pre>");
 		return sb.toString();
 	}
 
