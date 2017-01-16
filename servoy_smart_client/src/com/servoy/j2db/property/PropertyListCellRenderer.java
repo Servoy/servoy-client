@@ -31,7 +31,7 @@ import com.servoy.j2db.util.Pair;
 
 /**
  * class is used in all popups
- * 
+ *
  * @author jblok
  */
 public class PropertyListCellRenderer extends DefaultListCellRenderer
@@ -80,7 +80,9 @@ public class PropertyListCellRenderer extends DefaultListCellRenderer
 		{
 			if (value instanceof ISupportHTMLToolTipText)
 			{
-				((JComponent)c).setToolTipText(((ISupportHTMLToolTipText)value).toHTML());
+				String html = ((ISupportHTMLToolTipText)value).toHTML();
+				if (!html.startsWith("<html>")) html = "<html>" + html + "</html>";
+				((JComponent)c).setToolTipText(html);
 			}
 			else
 			{
