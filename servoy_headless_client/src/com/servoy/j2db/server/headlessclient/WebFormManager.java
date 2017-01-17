@@ -72,7 +72,7 @@ public class WebFormManager extends FormManager
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.FormManager#makeSolutionSettings(com.servoy.j2db.persistence.Solution)
 	 */
 	@Override
@@ -317,7 +317,7 @@ public class WebFormManager extends FormManager
 	{
 		FormController[] array = createdFormControllers.values().toArray(new FormController[0]);
 		createdFormControllers.clear();
-		leaseHistory.clear();
+		clearLeaseHistory();
 
 		reload(array);
 	}
@@ -372,7 +372,7 @@ public class WebFormManager extends FormManager
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.FormManager#destroySolutionSettings()
 	 */
 	@Override

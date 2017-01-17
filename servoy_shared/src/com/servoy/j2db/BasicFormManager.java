@@ -20,6 +20,7 @@ package com.servoy.j2db;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -36,6 +37,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -44,14 +46,40 @@ import com.servoy.j2db.scripting.SolutionScope;
  */
 public abstract class BasicFormManager implements IBasicFormManager
 {
+	private static final int MAX_FORMS_LOADED;
+
+	static
+	{
+		// TODO web clients?? Can they also get 160 forms??
+		long maxMem = Runtime.getRuntime().maxMemory();
+		if (maxMem > 300000000)
+		{
+			MAX_FORMS_LOADED = 192;
+		}
+		else if (maxMem > 200000000)
+		{
+			MAX_FORMS_LOADED = 128;
+		}
+		else if (maxMem > 100000000)
+		{
+			MAX_FORMS_LOADED = 64;
+		}
+		else
+		{
+			MAX_FORMS_LOADED = 32;
+		}
+		Debug.trace("MaxFormsLoaded set to:" + MAX_FORMS_LOADED); //$NON-NLS-1$
+	}
+
 	protected final ConcurrentMap<String, Form> possibleForms; // formName -> Form
 	protected final IApplication application;
-
+	private final LinkedList<IFormController> leaseHistory;
 
 	public BasicFormManager(IApplication application)
 	{
 		this.application = application;
 		possibleForms = new ConcurrentHashMap<String, Form>();
+		leaseHistory = new LinkedList<IFormController>();
 	}
 
 	public void addForm(Form form, boolean selected)
@@ -267,5 +295,89 @@ public abstract class BasicFormManager implements IBasicFormManager
 	 */
 	public abstract IFormController getCachedFormController(String formName);
 
+	public void touch(IFormController fp)
+	{
+		addAsLastInLeaseHistory(fp);
+	}
 
+	protected int getMaxFormsLoaded()
+	{
+		return MAX_FORMS_LOADED;
+	}
+
+	protected final void clearLeaseHistory()
+	{
+		leaseHistory.clear();
+	}
+
+	protected final boolean removeAllFromLeaseHistory()
+	{
+		boolean hadFormPanels = false;
+		synchronized (leaseHistory)
+		{
+			hadFormPanels = leaseHistory.size() > 0;
+			while (leaseHistory.size() > 0)
+			{
+				IFormController fp = leaseHistory.removeFirst();
+				fp.destroy();
+			}
+		}
+		return hadFormPanels;
+	}
+
+	protected final void removeFromLeaseHistory(IFormController fc)
+	{
+		synchronized (leaseHistory)
+		{
+			leaseHistory.remove(fc);
+		}
+	}
+
+	protected final void addAsLastInLeaseHistory(IFormController fc)
+	{
+		synchronized (leaseHistory)
+		{
+			if (!leaseHistory.isEmpty() && leaseHistory.getLast() != fc)
+			{
+				leaseHistory.remove(fc);//to prevent the panel is added more than once
+				leaseHistory.add(fc);
+			}
+		}
+	}
+
+	protected final void updateLeaseHistory(IFormController fp)
+	{
+		IFormController toBeRemoved = null;
+		synchronized (leaseHistory)
+		{
+			int leaseHistorySize = leaseHistory.size();
+			if (leaseHistorySize > getMaxFormsLoaded())
+			{
+				for (int i = 0; i < leaseHistorySize; i++)
+				{
+					IFormController fc = leaseHistory.get(i);
+					if (canBeDeleted(fc))
+					{
+						toBeRemoved = fc;
+						break;
+					}
+				}
+			}
+			leaseHistory.remove(fp);//to prevent the panel is added more than once
+			leaseHistory.add(fp);
+			if (Debug.tracing())
+			{
+				Debug.trace("FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			}
+		}
+		if (toBeRemoved != null)
+		{
+			if (Debug.tracing())
+			{
+				Debug.trace("FormPanel '" + toBeRemoved.getName() + "' removed because of MAX_FORMS_LOADED (" + getMaxFormsLoaded() + //$NON-NLS-1$ //$NON-NLS-2$
+					") was passed."); //$NON-NLS-1$
+			}
+			toBeRemoved.destroy();
+		}
+	}
 }

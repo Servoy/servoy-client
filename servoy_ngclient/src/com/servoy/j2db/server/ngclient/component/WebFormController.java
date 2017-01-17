@@ -267,11 +267,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	public void touch()
-	{
-	}
-
-	@Override
 	public void destroy()
 	{
 		try

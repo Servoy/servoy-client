@@ -4513,4 +4513,13 @@ public abstract class BasicFormController
 		}
 	}
 
+	@Override
+	public void touch()
+	{
+		IBasicFormManager fm = getBasicFormManager();
+		if (!isFormVisible && fm != null)
+		{
+			fm.touch(this);
+		}
+	}
 }

@@ -55,6 +55,7 @@ import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindo
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -69,12 +70,16 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	private Form loginForm;
 
+	private final int maxForms;
+
 	/**
 	 * @param application
 	 */
 	public NGFormManager(INGApplication application)
 	{
 		super(application);
+		int max = Utils.getAsInteger(Settings.getInstance().getProperty("servoy.max.webforms.loaded", "128"), false);
+		maxForms = max == 0 ? 128 : max;
 		this.createdFormControllers = new ConcurrentHashMap<>();
 	}
 
@@ -238,6 +243,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	public void removeFormController(BasicFormController fp)
 	{
+		removeFromLeaseHistory(fp);
 		createdFormControllers.remove(fp.getName());
 	}
 
@@ -262,6 +268,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				fp = new WebFormController((INGApplication)application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
+				updateLeaseHistory(fp);
 				fp.setView(fp.getView());
 				fp.executeOnLoadMethod();
 			}
@@ -269,6 +276,10 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				application.releaseGUI();
 			}
+		}
+		else
+		{
+			addAsLastInLeaseHistory(fp);
 		}
 		return fp;
 	}
@@ -368,6 +379,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		{
 			controller.destroy();
 		}
+		clearLeaseHistory();
 		createdFormControllers.clear();
 		possibleForms.clear();
 
@@ -608,5 +620,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			Debug.log("should the form " + formName + " have a window name, window very likely already closed?"); // throw new RuntimeException("window not set for form:" + formName + " (" + form + ")");
 		}
 		return form;
+	}
+
+	@Override
+	protected int getMaxFormsLoaded()
+	{
+		return maxForms;
 	}
 }

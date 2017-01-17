@@ -1344,18 +1344,6 @@ public class FormController extends BasicFormController
 		}
 	}
 
-
-	/**
-	 *
-	 */
-	public void touch()
-	{
-		if (!isFormVisible && fm != null)
-		{
-			fm.touch(this);
-		}
-	}
-
 	public void recomputeTabSequence(int baseTabSequenceIndex)
 	{
 		application.getDataRenderFactory().reapplyTabSequence(getFormUI(), baseTabSequenceIndex);

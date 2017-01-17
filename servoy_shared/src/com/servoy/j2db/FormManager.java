@@ -26,7 +26,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,37 +76,11 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 	public static final Rectangle FULL_SCREEN = new Rectangle(IApplication.FULL_SCREEN, IApplication.FULL_SCREEN, IApplication.FULL_SCREEN,
 		IApplication.FULL_SCREEN);
 
-	private static final int MAX_FORMS_LOADED;
-
-	static
-	{
-		// TODO web clients?? Can they also get 160 forms??
-		long maxMem = Runtime.getRuntime().maxMemory();
-		if (maxMem > 300000000)
-		{
-			MAX_FORMS_LOADED = 192;
-		}
-		else if (maxMem > 200000000)
-		{
-			MAX_FORMS_LOADED = 128;
-		}
-		else if (maxMem > 100000000)
-		{
-			MAX_FORMS_LOADED = 64;
-		}
-		else
-		{
-			MAX_FORMS_LOADED = 32;
-		}
-		Debug.trace("MaxFormsLoaded set to:" + MAX_FORMS_LOADED); //$NON-NLS-1$
-	}
-
 	protected final AllowNullMap<String, IMainContainer> containers; //windowname -> IMainContainer
 	protected IMainContainer currentContainer;
 	protected IMainContainer mainContainer;
 
 	protected final ConcurrentMap<String, FormController> createdFormControllers; // formName -> FormController
-	protected LinkedList<FormController> leaseHistory;
 
 	private final AppletController appletContext; //incase we use applets on form
 
@@ -124,7 +97,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		containers.put(mainContainer.getContainerName(), mainContainer);
 		currentContainer = mainContainer;
 		this.mainContainer = mainContainer;
-		leaseHistory = new LinkedList<FormController>();
 		createdFormControllers = new ConcurrentHashMap<String, FormController>();
 		appletContext = new AppletController(app);
 	}
@@ -355,7 +327,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 		currentContainer = getMainContainer(null);
 
-		leaseHistory = new LinkedList<FormController>();
+		clearLeaseHistory();
 		createdFormControllers.clear();
 		possibleForms.clear();
 	}
@@ -755,22 +727,12 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	public void removeAllFormPanels()
 	{
-		FormController fp;
 		boolean hadFormPanels = false;
 		// also first try to get the lock on this, because destroy() call can result in that.
 		// Then a deadlock will happen, so first get it before the leasHistory..
 		synchronized (this)
 		{
-			synchronized (leaseHistory)
-			{
-				hadFormPanels = leaseHistory.size() > 0;
-				while (leaseHistory.size() > 0)
-				{
-					fp = leaseHistory.removeFirst();
-					fp.destroy();
-				}
-			}
-
+			hadFormPanels = removeAllFromLeaseHistory();
 		}
 		if (hadFormPanels)
 		{
@@ -781,24 +743,9 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	public void removeFormController(BasicFormController fp)
 	{
-		synchronized (leaseHistory)
-		{
-			leaseHistory.remove(fp);
-		}
+		removeFromLeaseHistory(fp);
 		createdFormControllers.remove(fp.getName());
 		removeFormUser(fp);
-	}
-
-	public void touch(FormController fp)
-	{
-		synchronized (leaseHistory)
-		{
-			if (!leaseHistory.isEmpty() && leaseHistory.getLast() != fp)
-			{
-				leaseHistory.remove(fp);//to prevent the panel is added more than once
-				leaseHistory.add(fp);
-			}
-		}
 	}
 
 	/**
@@ -834,39 +781,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 				fp = new FormController(application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
-				FormController toBeRemoved = null;
-				synchronized (leaseHistory)
-				{
-					int leaseHistorySize = leaseHistory.size();
-					if (leaseHistorySize > getMaxFormsLoaded())
-					{
-						for (int i = 0; i < leaseHistorySize; i++)
-						{
-							FormController fc = leaseHistory.get(i);
-							if (canBeDeleted(fc))
-							{
-								toBeRemoved = fc;
-								break;
-							}
-						}
-					}
-					leaseHistory.remove(fp);//to prevent the panel is added more than once
-					leaseHistory.add(fp);
-					if (Debug.tracing())
-					{
-						Debug.trace(
-							"FormPanel '" + fp.getName() + "' created, Loaded forms: " + leaseHistory.size() + " of " + getMaxFormsLoaded() + " (max)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					}
-				}
-				if (toBeRemoved != null)
-				{
-					if (Debug.tracing())
-					{
-						Debug.trace("FormPanel '" + toBeRemoved.getName() + "' removed because of MAX_FORMS_LOADED (" + getMaxFormsLoaded() + //$NON-NLS-1$ //$NON-NLS-2$
-							") was passed."); //$NON-NLS-1$
-					}
-					toBeRemoved.destroy();
-				}
+				updateLeaseHistory(fp);
 			}
 			finally
 			{
@@ -875,21 +790,9 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		}
 		else
 		{
-			synchronized (leaseHistory)
-			{
-				if (leaseHistory.size() != 0 && leaseHistory.getLast() != fp)
-				{
-					leaseHistory.remove(fp); // move to the end of the list (LRU policy)
-					leaseHistory.add(fp);
-				}
-			}
+			addAsLastInLeaseHistory(fp);
 		}
 		return fp;
-	}
-
-	protected int getMaxFormsLoaded()
-	{
-		return MAX_FORMS_LOADED;
 	}
 
 	/**
