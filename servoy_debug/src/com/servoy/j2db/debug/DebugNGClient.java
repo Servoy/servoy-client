@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -61,6 +62,7 @@ import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -253,14 +255,16 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		if (fm != null)
 		{
 			List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
-			refreshForms(cachedFormControllers);
+			refreshForms(cachedFormControllers, false);
 		}
 	}
 
-	private void refreshForms(Collection<IFormController> forms)
+	private void refreshForms(Collection<IFormController> forms, boolean forcePageReload)
 	{
+		boolean reload = forcePageReload;
 		if (forms != null && forms.size() > 0)
 		{
+			reload = true;
 			FormElementHelper.INSTANCE.reload();
 			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
 			for (IFormController formController : cachedFormControllers)
@@ -300,6 +304,9 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				}
 				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
 			}
+		}
+		if (reload)
+		{
 			WebsocketSessionWindows allendpoints = new NGClientWebsocketSessionWindows(getWebsocketSession());
 			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null, null);
 			try
@@ -328,7 +335,21 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				ff.reload();
 			}
 		}
-		refreshForms(scopesAndFormsToReload[1]);
+
+		boolean forcePageReload = false;
+		if (scopesAndFormsToReload[1] == null || scopesAndFormsToReload[1].size() < 1)
+		{
+			for (IPersist persist : changes)
+			{
+				if (persist instanceof Media && PersistHelper.getOrderedStyleSheets(getFlattenedSolution()).contains(((Media)persist).getName()))
+				{
+					forcePageReload = true;
+					break;
+				}
+			}
+		}
+
+		refreshForms(scopesAndFormsToReload[1], forcePageReload);
 
 		for (IFormController controller : scopesAndFormsToReload[0])
 		{
