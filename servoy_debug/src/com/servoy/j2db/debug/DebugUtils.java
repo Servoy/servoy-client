@@ -48,7 +48,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -67,7 +66,6 @@ import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -498,14 +496,6 @@ public class DebugUtils
 					{
 						formsToReload.add(formController);
 					}
-				}
-			}
-			else if (persist instanceof Media && PersistHelper.getOrderedStyleSheets(clientState.getFlattenedSolution()).contains(((Media)persist).getName()))
-			{
-				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
-				for (IFormController formController : cachedFormControllers)
-				{
-					formsToReload.add(formController);
 				}
 			}
 		}
