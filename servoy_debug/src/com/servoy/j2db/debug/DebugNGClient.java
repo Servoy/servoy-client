@@ -50,6 +50,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGFormManager;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
@@ -248,8 +249,12 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void recreateForms()
 	{
-		List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
-		refreshForms(cachedFormControllers);
+		INGFormManager fm = getFormManager();
+		if (fm != null)
+		{
+			List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
+			refreshForms(cachedFormControllers);
+		}
 	}
 
 	private void refreshForms(Collection<IFormController> forms)
