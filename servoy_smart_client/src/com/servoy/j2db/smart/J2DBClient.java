@@ -26,6 +26,7 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
@@ -839,7 +840,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		try
 		{
 			Class< ? > cls = Class.forName(rmiFactory.trim());
-			Constructor< ? > constructor = cls.getConstructor(new Class[] { URL.class, ISmartClientApplication.class, Properties.class, IReconnectListener.class });
+			Constructor< ? > constructor = cls.getConstructor(
+				new Class[] { URL.class, ISmartClientApplication.class, Properties.class, IReconnectListener.class });
 			rmiFactoryFactory = (IRMIClientSocketFactoryFactory)constructor.newInstance(new Object[] { webstartbase, this, getSettings(), this });
 			Debug.trace("IRMISocketFactoryFactory instantiated: " + cls); //$NON-NLS-1$
 		}
@@ -871,14 +873,14 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK), "enabletracing"); //$NON-NLS-1$
 		ActionMap am = rootPane.getActionMap();
 		am.put("enabletracing", new AbstractAction() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+		{
+			private static final long serialVersionUID = 1L;
 
-				public void actionPerformed(ActionEvent e)
-				{
-					Debug.toggleTracing();
-				}
-			});
+			public void actionPerformed(ActionEvent e)
+			{
+				Debug.toggleTracing();
+			}
+		});
 
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		frame.setName(IApplication.APP_WINDOW_NAME);
@@ -890,25 +892,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		String windowicon = getSettings().getProperty("servoy.branding.windowicon"); //$NON-NLS-1$
 		if (branding.equals("true") && windowicon != null && Utils.isSwingClient(getApplicationType())) //$NON-NLS-1$
 		{
-			URL webstartUrl = WebStart.getWebStartURL();
-			try
-			{
-				String windowiconFile = null;
-				String path = webstartUrl.getPath();
-				if (!path.equals("") && path.endsWith("/"))
-				{
-					windowiconFile = path.substring(0, path.length() - 1) + windowicon;
-				}
-				else windowiconFile = windowicon;
-
-				URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), windowiconFile);
-				frame.setIconImage(new ImageIcon(url).getImage());
-			}
-			catch (MalformedURLException ex)
-			{
-				Debug.error("Error loading the window icon image", ex); //$NON-NLS-1$
-				frame.setIconImage(loadImage("windowicon.png").getImage()); //$NON-NLS-1$
-			}
+			frame.setIconImage(getWindowIcon(windowicon));
 		}
 		else
 		{
@@ -933,6 +917,29 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		glassPane.addKeyListener(new KeyAdapter()
 		{
 		});
+	}
+
+	protected Image getWindowIcon(String windowicon)
+	{
+		URL webstartUrl = WebStart.getWebStartURL();
+		try
+		{
+			String windowiconFile = null;
+			String path = webstartUrl.getPath();
+			if (!path.equals("") && path.endsWith("/"))
+			{
+				windowiconFile = path.substring(0, path.length() - 1) + windowicon;
+			}
+			else windowiconFile = windowicon;
+
+			URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), windowiconFile);
+			return new ImageIcon(url).getImage();
+		}
+		catch (MalformedURLException ex)
+		{
+			Debug.error("Error loading the window icon image", ex); //$NON-NLS-1$
+			return loadImage("windowicon.png").getImage(); //$NON-NLS-1$
+		}
 	}
 
 	public void addURLStreamHandler(String protocolName, URLStreamHandler handler)
@@ -2111,9 +2118,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				int but = JOptionPane.CANCEL_OPTION;
 				if (!force)
 				{
-					but = JOptionPane.showConfirmDialog(
-						frame,
-						Messages.getString("servoy.client.message.activetransaction"), Messages.getString("servoy.client.message.activetransaction.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+					but = JOptionPane.showConfirmDialog(frame, Messages.getString("servoy.client.message.activetransaction"), //$NON-NLS-1$
+						Messages.getString("servoy.client.message.activetransaction.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
 				}
 				if (but == JOptionPane.OK_OPTION)
 				{
@@ -3107,8 +3113,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					while (getClientInfo().getUserUid() == null)
 					{
 						URL serverURL = getServerURL();
-						String name = getSettings().getProperty(
-							serverURL.getHost() + serverURL.getPort() + "lastLoggedinUserName", System.getProperty("user.name")); //$NON-NLS-1$ //$NON-NLS-2$
+						String name = getSettings().getProperty(serverURL.getHost() + serverURL.getPort() + "lastLoggedinUserName", //$NON-NLS-1$
+							System.getProperty("user.name")); //$NON-NLS-1$
 
 						if (loginDialog == null)
 						{
@@ -3829,9 +3835,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			ex = ((Exception)ex).getCause();
 		}
-		if (isConnected() &&
-			ex instanceof ServoyException &&
-			(((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED || ((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.INVALID_RMI_SERVER_CONNECTION))
+		if (isConnected() && ex instanceof ServoyException && (((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.CLIENT_NOT_REGISTERED ||
+			((ServoyException)ex).getErrorCode() == ServoyException.InternalCodes.INVALID_RMI_SERVER_CONNECTION))
 		{
 			if (rmiFactoryFactory != null)
 			{
@@ -4023,7 +4028,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					{
 						try
 						{
-							getDataServer().logMessage("Client reconnected with id " + getClientID() + " from id " + prevClientId + ", client needs to restart");
+							getDataServer().logMessage(
+								"Client reconnected with id " + getClientID() + " from id " + prevClientId + ", client needs to restart");
 						}
 						catch (Exception ex)
 						{
@@ -4048,9 +4054,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						{
 							try
 							{
-								getDataServer().logMessage(
-									"Client reconnected with id " + getClientID() + " from id " + prevClientId +
-										", relogin with old credentials failed, restarting client");
+								getDataServer().logMessage("Client reconnected with id " + getClientID() + " from id " + prevClientId +
+									", relogin with old credentials failed, restarting client");
 							}
 							catch (Exception ex)
 							{
