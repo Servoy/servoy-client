@@ -47,6 +47,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IBasicWebComponent;
+import com.servoy.j2db.persistence.IBasicWebObject;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -736,7 +737,7 @@ public class FormElementHelper implements IFormElementCache
 			}
 		}
 
-		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)flattenedForm.findChild(persistIfAvailable.getUUID()), pd.getName()));
+		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(flattenedForm.findChild(persistIfAvailable.getUUID()), pd.getName()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;
@@ -744,10 +745,10 @@ public class FormElementHelper implements IFormElementCache
 
 	public static class TabSeqProperty
 	{
-		public IFormElement element;
+		public IPersist element;
 		public String propertyName;
 
-		public TabSeqProperty(IFormElement element, String propertyName)
+		public TabSeqProperty(IPersist element, String propertyName)
 		{
 			this.element = element;
 			this.propertyName = propertyName;
@@ -757,7 +758,7 @@ public class FormElementHelper implements IFormElementCache
 		{
 			if (propertyName != null && element instanceof IBasicWebComponent)
 			{
-				String componentType = FormTemplateGenerator.getComponentTypeName(element);
+				String componentType = FormTemplateGenerator.getComponentTypeName((IBasicWebComponent)element);
 				WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
 				if (specification != null)
 				{
@@ -767,6 +768,10 @@ public class FormElementHelper implements IFormElementCache
 						return Utils.getAsInteger(((IBasicWebComponent)element).getProperty(propertyName));
 					}
 				}
+			}
+			else if (propertyName != null && element instanceof IBasicWebObject)
+			{
+				return Utils.getAsInteger(((IBasicWebObject)element).getProperty(propertyName));
 			}
 			else if (element instanceof ISupportTabSeq)
 			{
