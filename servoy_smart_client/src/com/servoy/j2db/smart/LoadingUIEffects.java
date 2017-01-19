@@ -29,6 +29,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UIUtils;
@@ -36,7 +37,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Class responsible for offering UI feedback when things (solutions) are being loaded in Smart Client.
- * 
+ *
  * @author acostescu
  */
 public class LoadingUIEffects
@@ -193,29 +194,36 @@ public class LoadingUIEffects
 
 	protected JLabel getWebStartURLImageLabel(String imgPath)
 	{
-		String loadingImage = imgPath;
-		URL webstartUrl = getWebStartURL();
-		if (webstartUrl != null)
+		if (application.getApplicationType() == IApplication.RUNTIME)
 		{
-			try
-			{
-				if (!loadingImage.startsWith("/")) loadingImage = "/" + loadingImage; //$NON-NLS-1$//$NON-NLS-2$
-				String loadingImageFile = null;
-				String path = webstartUrl.getPath();
-				if (!path.equals("") && path.endsWith("/")) //$NON-NLS-1$//$NON-NLS-2$
-				{
-					loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
-				}
-				else loadingImageFile = loadingImage;
-				URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImageFile);
-				return new JLabel(new ImageIcon(url), SwingConstants.CENTER);
-			}
-			catch (MalformedURLException ex)
-			{
-				Debug.error("Error loading the solution loading image", ex); //$NON-NLS-1$
-			}
+			return new JLabel(new ImageIcon(imgPath));
 		}
-		return null;
+		else
+		{
+			String loadingImage = imgPath;
+			URL webstartUrl = getWebStartURL();
+			if (webstartUrl != null)
+			{
+				try
+				{
+					if (!loadingImage.startsWith("/")) loadingImage = "/" + loadingImage; //$NON-NLS-1$//$NON-NLS-2$
+					String loadingImageFile = null;
+					String path = webstartUrl.getPath();
+					if (!path.equals("") && path.endsWith("/")) //$NON-NLS-1$//$NON-NLS-2$
+					{
+						loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
+					}
+					else loadingImageFile = loadingImage;
+					URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImageFile);
+					return new JLabel(new ImageIcon(url), SwingConstants.CENTER);
+				}
+				catch (MalformedURLException ex)
+				{
+					Debug.error("Error loading the solution loading image", ex); //$NON-NLS-1$
+				}
+			}
+			return null;
+		}
 	}
 
 	protected URL getWebStartURL()
