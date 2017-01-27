@@ -18,9 +18,11 @@ package com.servoy.j2db.persistence;
 
 
 import java.beans.IntrospectionException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -316,6 +318,42 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	{
 		super.setExtendsID(arg);
 		webObjectImpl.reload();
+	}
+
+	/**
+	 * returns the attribute value of the given attribute name.
+	 * these attributes will be generated on the tag.
+	 *
+	 * @param name
+	 * @return the value of the attribute
+	 */
+	public String getAttribute(String name)
+	{
+		Object value = getCustomProperty(new String[] { "attributes", name });
+		if (value instanceof String) return (String)value;
+		return null;
+	}
+
+	/**
+	 * sets an attribute value for the given name that will be generated on this layout containers html tag.
+	 *
+	 * @param name
+	 * @param value
+	 */
+	public void putAttribute(String name, String value)
+	{
+		putCustomProperty(new String[] { "attributes", name }, value);
+	}
+
+	public Map<String, String> getAttributes()
+	{
+		Object customProperty = getCustomProperty(new String[] { "attributes" });
+		if (customProperty instanceof Map)
+		{
+			return Collections.unmodifiableMap((Map<String, String>)customProperty);
+		}
+		return Collections.emptyMap();
+
 	}
 
 	@Override
