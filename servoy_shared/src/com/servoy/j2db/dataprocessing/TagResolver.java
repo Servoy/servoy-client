@@ -31,6 +31,7 @@ import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.Settings;
@@ -167,7 +168,28 @@ public class TagResolver
 			return null;
 		}
 
-		String formatString = (format != null) ? format : getFormatString(value.getClass(), settings);
+		String formatString = null;
+		int maxLength = -1;
+		if (format != null)
+		{
+			ParsedFormat parsedFormat = FormatParser.parseFormatProperty(format);
+			formatString = parsedFormat.getDisplayFormat();
+			if (parsedFormat.getMaxLength() != null)
+			{
+				maxLength = parsedFormat.getMaxLength().intValue();
+				if (formatString == null)
+				{
+					char[] chars = new char[maxLength];
+					for (int i = 0; i < chars.length; i++)
+						chars[i] = '#';
+					formatString = new String(chars);
+				}
+			}
+		}
+		else
+		{
+			formatString = getFormatString(value.getClass(), settings);
+		}
 		if (formatString == null)
 		{
 			return value.toString();
@@ -180,7 +202,10 @@ public class TagResolver
 
 		if (value instanceof Number /* Integer extends Number */)
 		{
-			return new DecimalFormat(formatString, RoundHalfUpDecimalFormat.getDecimalFormatSymbols(locale)).format(value);
+			DecimalFormat decimalFormat = new DecimalFormat(formatString, RoundHalfUpDecimalFormat.getDecimalFormatSymbols(locale));
+			String formatedValue = decimalFormat.format(value);
+			if (maxLength > -1 && maxLength <= formatedValue.length()) formatedValue = formatedValue.substring(0, maxLength);
+			return formatedValue;
 		}
 
 		return value.toString();
