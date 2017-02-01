@@ -155,7 +155,16 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			// TODO currently htmlParsingAllowed will be true here as well (the method is never called with true/false); but if that is needed in the future, we need to let TagStringTypeSabloValue of htmlParsingAllowed == false as well)
 			// data links are required; register them to DAL; normally DAL can't be null here
-			sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription, component.getFormElement());
+			if (designValue != newDesignValue)
+			{
+				sabloValue = new I18NTagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription,
+					component.getFormElement(), designValue);
+			}
+			else
+			{
+				sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription,
+					component.getFormElement());
+			}
 		}
 		else
 		// just some static string
@@ -167,7 +176,14 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 			}
 
 			// no data links required
-			sabloValue = new BasicTagStringTypeSabloValue(staticValue, dal);
+			if (designValue != newDesignValue)
+			{
+				sabloValue = new BasicI18NTagStringTypeSabloValue(staticValue, dal, designValue);
+			}
+			else
+			{
+				sabloValue = new BasicTagStringTypeSabloValue(staticValue, dal);
+			}
 		}
 
 		return sabloValue;
