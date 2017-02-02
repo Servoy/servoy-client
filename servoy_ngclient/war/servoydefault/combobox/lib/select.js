@@ -381,6 +381,9 @@ uis.controller('uiSelectCtrl',
       $timeout(function() {
         ctrl.search = initSearchValue || ctrl.search;
         _searchInput[0].focus();
+        if(ctrl.items.length > 0) {
+        	_ensureHighlightVisible();
+        }
       });
     }
   };
