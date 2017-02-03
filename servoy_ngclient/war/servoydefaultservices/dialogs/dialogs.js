@@ -141,14 +141,14 @@ angular.module('dialogs',['servoy'])
 				for (var i=0;i<buttonsText.length;i++)
 				{
 					var buttonModel = {
-						      label: buttonsText[i],
+						      label: this.escapeString(buttonsText[i], true),
 						      callback: function(event) {
 						    	 dialogOpenedDeferred.resolve(event.target.innerHTML);
 						      }
 					}
 					if (i==0) buttonModel.className =  "btn-primary";
 					else buttonModel.className =  "btn-default";
-					dialogOptions.buttons[buttonsText[i]] = buttonModel;
+					dialogOptions.buttons[this.escapeString(buttonsText[i], false)] = buttonModel;
 				}	
 			}	
 			var dialog = bootbox.dialog(dialogOptions);
@@ -157,6 +157,13 @@ angular.module('dialogs',['servoy'])
 				$sabloTestability.block(false);
 			})
 			return dialogOpenedDeferred.promise;
+		},
+		escapeString: function(str, forDisplay) {
+      		return str.replace(/&/g, forDisplay ? '&amp;' : 'amp').
+			  replace(/</g, forDisplay ? '&lt;' : 'lt').
+			  replace(/>/g, forDisplay ? '&gt;' : 'gt').
+			  replace(/'/g, forDisplay ? '&apos;' : 'apos').
+			  replace(/"/g, forDisplay ? '&quot;' : 'quot');
 		}
 	}
 })
