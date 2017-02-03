@@ -1058,9 +1058,16 @@ public class PersistHelper
 			if (solution.getStyleSheetID() > 0)
 			{
 				Media media = fs.getMedia(solution.getStyleSheetID());
-				if (!styleSheets.contains(media.getName()))
+				if (media != null)
 				{
-					styleSheets.add(media.getName());
+					if (!styleSheets.contains(media.getName()))
+					{
+						styleSheets.add(media.getName());
+					}
+				}
+				else
+				{
+					Debug.warn("Stylesheet set for solution '" + solution.getName() + "' cannot be found"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
