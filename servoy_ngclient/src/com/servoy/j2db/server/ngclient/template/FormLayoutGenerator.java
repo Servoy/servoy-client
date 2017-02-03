@@ -52,7 +52,6 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
@@ -532,9 +531,9 @@ public class FormLayoutGenerator
 			writer.print(".svy_servoyApi'");
 		}
 
-		if (fe.getPersistIfAvailable() instanceof WebComponent)
+		if (fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
-			Map<String, String> attributes = new HashMap<String, String>(((WebComponent)fe.getPersistIfAvailable()).getAttributes());
+			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getAttributes());
 			for (Entry<String, String> entry : attributes.entrySet())
 			{
 				writer.print(" ");

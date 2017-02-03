@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Collections;
 import java.util.Map;
 
 import com.servoy.base.persistence.IBaseComponent;
@@ -31,7 +32,8 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jblok
  */
-public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable, IBaseComponent
+public class BaseComponent extends AbstractBase
+	implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable, IBaseComponent, ISupportAttributes
 {
 	private static final long serialVersionUID = 1L;
 
@@ -413,5 +415,28 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	public ISupportChilds getRealParent()
 	{
 		return PersistHelper.getRealParent(this);
+	}
+
+	/**
+	 * Sets the attribute values for the given name that will be generated on this base component's html tag.
+	 * NGClient only!
+	 *
+	 * @param value map of attributes
+	 */
+	@Override
+	public void putAttributes(Map<String, String> value)
+	{
+		putCustomProperty(new String[] { "attributes" }, value);
+	}
+
+	@Override
+	public Map<String, String> getAttributes()
+	{
+		Object customProperty = getCustomProperty(new String[] { "attributes" });
+		if (customProperty instanceof Map)
+		{
+			return Collections.unmodifiableMap((Map<String, String>)customProperty);
+		}
+		return Collections.emptyMap();
 	}
 }
