@@ -123,9 +123,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
-				QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
-				QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-				QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };
+					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
+					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
+					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };
 			}
 		});
 	}
@@ -1098,7 +1098,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param sql_query The custom sql.
 	 * @param arguments Specified arguments or null if there are no arguments.
 	 * @param max_returned_rows The maximum number of rows returned by the query.
-	 * @param types The column types
+	 * @param columnTypes The column types
 	 * @param pkNames array of pk names, when null a hidden pk-column will be added
 	 *
 	 * @return datasource containing the results of the query or null if the parameters are wrong.
@@ -3898,15 +3898,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			String name = String.valueOf(args[0]);
 			if (args[1] instanceof IDataSet && args[2] instanceof Object[])
 			{
-
-				int[] intTypes = new int[((Object[])args[2]).length];
+				ColumnType[] columnTypes = new ColumnType[((Object[])args[2]).length];
 				for (int i = 0; i < ((Object[])args[2]).length; i++)
 				{
-					intTypes[i] = Utils.getAsInteger(((Object[])(args[2]))[i]);
+					columnTypes[i] = ColumnType.getColumnType(Utils.getAsInteger(((Object[])(args[2]))[i]));
 				}
 				try
 				{
-					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], intTypes, null);
+					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], columnTypes, null);
 				}
 				catch (ServoyException e)
 				{

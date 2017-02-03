@@ -30,9 +30,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Default implementation of the {@link IDataSet} interface.
- * 
+ *
  * ContentList like result, can be serialized between server and client
- * 
+ *
  * @author jblok
  */
 public class BufferedDataSet implements ISerializableDataSet
@@ -50,7 +50,7 @@ public class BufferedDataSet implements ISerializableDataSet
 
 	/**
 	 * Create a non db bind dataset
-	 * 
+	 *
 	 * @param columnNames the array with all the column names
 	 * @param rows a list with Object arrays containing column data in same length/order as columnames array
 	 */
@@ -129,7 +129,7 @@ public class BufferedDataSet implements ISerializableDataSet
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -160,7 +160,7 @@ public class BufferedDataSet implements ISerializableDataSet
 
 	/**
 	 * Get a specified row
-	 * 
+	 *
 	 * @param row the row to get
 	 * @return the row data
 	 */
@@ -288,20 +288,9 @@ public class BufferedDataSet implements ISerializableDataSet
 	/*
 	 * Setter for json deserialisation
 	 */
-	public void setColumnTypes(int[] columnTypes)
+	public void setColumnTypes(int[] intTypes)
 	{
-		if (columnTypes == null)
-		{
-			this.columnTypes = null;
-		}
-		else
-		{
-			this.columnTypes = new ColumnType[columnTypes.length];
-			for (int i = 0; i < columnTypes.length; i++)
-			{
-				this.columnTypes[i] = ColumnType.getInstance(columnTypes[i], Integer.MAX_VALUE, 0);
-			}
-		}
+		this.columnTypes = ColumnType.getColumnTypes(intTypes);
 	}
 
 	/*
@@ -327,7 +316,7 @@ public class BufferedDataSet implements ISerializableDataSet
 
 	public void sort(Comparator<Object[]> rowComparator)
 	{
-		Object[][] array = this.rows.toArray(new Object[this.rows.size()][]);//strange construct due to type interference 
+		Object[][] array = this.rows.toArray(new Object[this.rows.size()][]);//strange construct due to type interference
 		Arrays.sort(array, rowComparator);
 		this.rows = new SafeArrayList<Object[]>(Arrays.asList(array));
 	}

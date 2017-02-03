@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
@@ -358,15 +359,15 @@ public class TestNGClient extends NGClient
 			@Override
 			public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-				String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
+				String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
 			{
 				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
-			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid, int[] types,
-				String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
+				ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 			{
 				dataSetMap.put(dataSource, set);
 				Table table = new Table(serverName, serverName, true, ITable.TABLE, null, null);
