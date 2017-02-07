@@ -20,10 +20,13 @@ package com.servoy.j2db.server.ngclient.property.types;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.sablo.specification.property.types.DefaultPropertyType;
+
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author gboros
@@ -31,45 +34,45 @@ import org.sablo.specification.property.types.DefaultPropertyType;
  */
 public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
 {
-	private final ReferenceQueue<T> refQueue = new ReferenceQueue<>();
-	private final List<WeakReference<T>> allRefs = new ArrayList<WeakReference<T>>();
+	private final ReferenceQueue<T> garbageCollectedRefQueue = new ReferenceQueue<>();
+	private final Map<String, WeakReference<T>> allWeakRefsByUUID = new HashMap<String, WeakReference<T>>();
+	private final WeakHashMap<T, String> refsToUUIDs = new WeakHashMap<>();
+	private final Map<WeakReference<T>, String> allUUIDsByWeakRef = new HashMap<WeakReference<T>, String>();
 
-	protected int addReference(T ref)
+	protected String addReference(T ref)
 	{
-		cleanReferences();
-		if (ref == null) return 0;
-		int hashCode = ref.hashCode();
-		if (getReference(hashCode) == null)
+		cleanGarbageCollectedReferences();
+		if (ref == null) return null;
+		String refID = refsToUUIDs.get(ref);
+		if (refID == null)
 		{
-			allRefs.add(new WeakReference<T>(ref, refQueue));
+			refID = UUID.randomUUID().toString();
+			WeakReference<T> weakRef = new WeakReference<T>(ref, garbageCollectedRefQueue);
+			allWeakRefsByUUID.put(refID, weakRef);
+			refsToUUIDs.put(ref, refID);
+			allUUIDsByWeakRef.put(weakRef, refID);
 		}
-		return hashCode;
+		return refID;
 	}
 
-	protected T getReference(int hashCode)
+	protected T getReference(String refID)
 	{
-		cleanReferences();
-		if (hashCode > 0)
+		cleanGarbageCollectedReferences();
+		if (refID != null)
 		{
-			for (int i = 0; i < allRefs.size(); i++)
-			{
-				WeakReference<T> wr = allRefs.get(i);
-				T ref = wr.get();
-				if (ref != null && ref.hashCode() == hashCode)
-				{
-					return ref;
-				}
-			}
+			return allWeakRefsByUUID.get(refID).get();
 		}
 		return null;
 	}
 
-	private void cleanReferences()
+	private void cleanGarbageCollectedReferences()
 	{
-		Reference< ? > ref;
-		while ((ref = refQueue.poll()) != null)
+		Reference< ? extends T> ref;
+		while ((ref = garbageCollectedRefQueue.poll()) != null)
 		{
-			allRefs.remove(ref);
+			String refId = allUUIDsByWeakRef.remove(ref);
+			allWeakRefsByUUID.remove(refId);
+			// no need to clear here refsToUUIDs, as it is a weak hash-map and when T key is garbage collected it clears itself anyway
 		}
 	}
 }

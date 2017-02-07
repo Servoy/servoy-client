@@ -91,7 +91,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 			{
 				HashMap<String, Object> foundsetinfoMap = new HashMap<String, Object>();
 				foundsetinfoMap.put("foundset", value);
-				foundsetinfoMap.put("foundsethash", Integer.valueOf(args.optInt("foundsethash")));
+				foundsetinfoMap.put("foundsethash", args.optString("foundsethash"));
 
 				String childrelation = args.optString("childrelation");
 				if (childrelation != null)
