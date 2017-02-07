@@ -915,15 +915,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		}
 		else if (record != null)
 		{
-			try
-			{
-				return record.setValue(dataProviderID, obj);
-			}
-			catch (IllegalArgumentException e)
-			{
-				// TODO handle the validaton errors.
-				fs.getFormController().getApplication().reportError("Validation for " + dataProviderID + " for value: " + obj + " failed.", e);
-			}
+			return record.setValue(dataProviderID, obj);
 		}
 		return null;
 	}
