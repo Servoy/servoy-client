@@ -711,8 +711,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					Entry< ? , ? > e = newValueIte.next();
 					if (!"".equals(e.getKey()))
 					{
-						com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID + e.getKey(),
-							e.getValue());
+						try
+						{
+							com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(),
+								dataProviderID + e.getKey(), e.getValue());
+						}
+						catch (IllegalArgumentException ex)
+						{
+							Debug.trace(ex);
+							getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+						}
 					}
 				}
 			}

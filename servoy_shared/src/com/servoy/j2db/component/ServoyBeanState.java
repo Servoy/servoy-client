@@ -20,12 +20,15 @@ import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author jcompagner
@@ -131,7 +134,16 @@ public class ServoyBeanState implements IRecord
 
 	public Object setValue(String dataProviderID, Object value)
 	{
-		return DataAdapterList.setValueObject(record, formScope, dataProviderID, value);
+		try
+		{
+			return DataAdapterList.setValueObject(record, formScope, dataProviderID, value);
+		}
+		catch (IllegalArgumentException ex)
+		{
+			Debug.trace(ex);
+			formScope.getFormController().getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+		}
+		return null;
 	}
 
 	public boolean startEditing()
