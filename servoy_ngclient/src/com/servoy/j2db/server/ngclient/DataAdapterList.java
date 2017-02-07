@@ -27,6 +27,7 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
@@ -59,6 +60,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
@@ -718,26 +720,45 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				v = newValue;
 			}
-			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
+			Object oldValue = null;
+			Exception setValueException = null;
+			try
+			{
+				oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
+			}
+			catch (IllegalArgumentException e)
+			{
+				Debug.trace(e);
+				getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
+				setValueException = e;
+			}
 			Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
 			if (config instanceof FoundsetLinkedConfig)
 			{
 				config = ((FoundsetLinkedConfig)config).getWrappedPropertyDescription().getConfig();
 			}
 			String onDataChange = ((DataproviderConfig)config).getOnDataChange();
-			if (onDataChange != null && !Utils.equalObjects(oldValue, v) && webComponent.hasEvent(onDataChange))
+			if (onDataChange != null)
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
 				Object returnValue = null;
 				Exception exception = null;
-				try
+				if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
 				{
-					returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
+					try
+					{
+						returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
+					}
+					catch (Exception e)
+					{
+						Debug.error("Error during onDataChange webComponent=" + webComponent, e);
+						exception = e;
+					}
 				}
-				catch (Exception e)
+				else if (setValueException != null)
 				{
-					Debug.error("Error during onDataChange webComponent=" + webComponent, e);
-					exception = e;
+					returnValue = setValueException.getMessage();
+					exception = setValueException;
 				}
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
 					beanProperty).getConfig()).getOnDataChangeCallback();
