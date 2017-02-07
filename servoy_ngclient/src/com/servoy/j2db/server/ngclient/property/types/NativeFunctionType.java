@@ -33,8 +33,8 @@ import org.sablo.websocket.utils.JSONUtils;
  * @author gboros
  *
  */
-public class NativeFunctionType extends ReferencePropertyType<NativeFunction> implements IPropertyConverterForBrowser<NativeFunction>,
-	IClassPropertyType<NativeFunction>
+public class NativeFunctionType extends ReferencePropertyType<NativeFunction>
+	implements IPropertyConverterForBrowser<NativeFunction>, IClassPropertyType<NativeFunction>
 {
 	public static final NativeFunctionType INSTANCE = new NativeFunctionType();
 	public static final String TYPE_NAME = "NativeFunction"; //$NON-NLS-1$
@@ -54,7 +54,7 @@ public class NativeFunctionType extends ReferencePropertyType<NativeFunction> im
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonNativeFunction = (JSONObject)newJSONValue;
-			return getReference(jsonNativeFunction.optInt("functionhash"));
+			return getReference(jsonNativeFunction.optString("functionhash"));
 		}
 		return null;
 	}
@@ -64,8 +64,8 @@ public class NativeFunctionType extends ReferencePropertyType<NativeFunction> im
 	 * org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, java.lang.Object)
 	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, NativeFunction sabloValue, PropertyDescription propertyDescription,
-		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, NativeFunction sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();

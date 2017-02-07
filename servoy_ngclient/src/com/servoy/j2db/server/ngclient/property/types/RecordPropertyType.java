@@ -67,7 +67,7 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 			BaseWebObject webObject = dataConverterContext.getWebObject();
 			if (jsonRecord.has("recordhash"))
 			{
-				record = getReference(jsonRecord.optInt("recordhash"));
+				record = getReference(jsonRecord.optString("recordhash"));
 			}
 			if (record == null && webObject != null && jsonRecord.has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
 			{

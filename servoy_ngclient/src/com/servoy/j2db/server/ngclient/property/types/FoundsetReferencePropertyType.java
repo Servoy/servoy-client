@@ -32,8 +32,8 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
  *
  * @author gboros
  */
-public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal> implements IPropertyConverterForBrowser<IFoundSetInternal>,
-	IClassPropertyType<IFoundSetInternal>
+public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal>
+	implements IPropertyConverterForBrowser<IFoundSetInternal>, IClassPropertyType<IFoundSetInternal>
 {
 
 	public static final FoundsetReferencePropertyType INSTANCE = new FoundsetReferencePropertyType();
@@ -56,7 +56,7 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 		if (newValue instanceof JSONObject)
 		{
 			JSONObject jsonFoundset = (JSONObject)newValue;
-			return getReference(jsonFoundset.optInt("foundsethash"));
+			return getReference(jsonFoundset.optString("foundsethash"));
 		}
 		return null;
 	}

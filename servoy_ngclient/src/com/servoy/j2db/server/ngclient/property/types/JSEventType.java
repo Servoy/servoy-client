@@ -73,7 +73,7 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonObject = (JSONObject)newJSONValue;
-			event = getReference(jsonObject.optInt("jseventhash"));
+			event = getReference(jsonObject.optString("jseventhash"));
 			if (event == null)
 			{
 				event = new JSEvent();

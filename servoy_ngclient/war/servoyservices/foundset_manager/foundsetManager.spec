@@ -16,7 +16,7 @@
 			[
 				{
 					"name": "foundsethash",
-					"type": "int"
+					"type": "string"
 				},
 				{
 					"name": "dataproviders",
@@ -35,7 +35,7 @@
 			[
 				{
 					"name": "foundsethash",
-					"type": "int"
+					"type": "string"
 				},
 				{
 					"name": "rowid",
@@ -55,7 +55,7 @@
 			[
 				{
 					"name": "foundsethash",
-					"type": "int"
+					"type": "string"
 				},
 				{
 					"name": "rowid",
@@ -75,7 +75,7 @@
 	"types": {
 	  "foundsetinfo": {
 	  		"foundset": "foundset",
-	  		"foundsethash": "int",
+	  		"foundsethash": "string",
 	  		"childrelationinfo": "object" 
 	  }
 	}	
