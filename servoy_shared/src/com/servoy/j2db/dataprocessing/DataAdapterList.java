@@ -31,6 +31,7 @@ import javax.swing.text.Document;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -64,6 +65,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * This class encapsulates all the dataproviders for a form part (mainly the body) ,it does the creation and setup of dataAdapters<br>
@@ -849,7 +851,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void setValueObject(String dataProviderID, Object obj)
 	{
-		setValueObject(currentRecord, getFormScope(), dataProviderID, obj);
+		try
+		{
+			setValueObject(currentRecord, getFormScope(), dataProviderID, obj);
+		}
+		catch (IllegalArgumentException ex)
+		{
+			Debug.trace(ex);
+			getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+		}
 	}
 
 	// helper method; not static because needs form scope
