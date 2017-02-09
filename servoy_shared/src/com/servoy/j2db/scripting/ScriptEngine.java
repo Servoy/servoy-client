@@ -677,7 +677,36 @@ public class ScriptEngine implements IScriptSupport
 				}
 				else if (application.getSolution() != null)
 				{
-					application.handleException(null, ex);
+					Throwable t = ex;
+					while (t.getCause() != null)
+					{
+						t = t.getCause();
+					}
+					String msg = t.getLocalizedMessage();
+					if (scope instanceof FormScope)
+					{
+						msg += " (Form Context: " + ((FormScope)scope).getScopeName() + ')';
+					}
+					else if (scope instanceof GlobalScope)
+					{
+						msg += " (Global Scope Context: " + ((GlobalScope)scope).getScopeName() + ')';
+					}
+					else if (scope instanceof LazyCompilationScope)
+					{
+						msg += " (Scope Context: " + ((LazyCompilationScope)scope).getScopeName() + ')';
+					}
+					if (args != null)
+					{
+						for (Object arg : args)
+						{
+							if (arg instanceof JSEvent)
+							{
+								msg += ", " + arg;
+								break;
+							}
+						}
+					}
+					application.handleException(msg, ex);
 				}
 				else
 				{

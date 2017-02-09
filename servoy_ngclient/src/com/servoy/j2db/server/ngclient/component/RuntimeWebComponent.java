@@ -590,4 +590,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		return component;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Component: " + component;
+	}
+
 }
