@@ -60,7 +60,8 @@ public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
 		cleanGarbageCollectedReferences();
 		if (refID != null)
 		{
-			return allWeakRefsByUUID.get(refID).get();
+			WeakReference<T> ref = allWeakRefsByUUID.get(refID);
+			return ref != null ? ref.get() : null;
 		}
 		return null;
 	}
