@@ -18,6 +18,7 @@ package com.servoy.j2db.util;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ScriptRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -269,27 +270,62 @@ public class Debug
 		if (log == null) return;
 
 		boolean wasInserted = insertClientInfo(true);
-		log.error(message, s);
+		Throwable t = s;
+		if (!(t instanceof ServoyException) && t.getCause() != null)
+		{
+			t = t.getCause();
+		}
+		if (t instanceof ServoyException && ((ServoyException)t).getContext() != null)
+		{
+			log.error(message + getScriptStackTrace(message, s) + "\nContext: " + ((ServoyException)t).getContext(), s);
+		}
+		else log.error(message + getScriptStackTrace(message, s), s);
 		if (wasInserted) insertClientInfo(false);
+	}
+
+	/**
+	 * @param message
+	 * @param s
+	 * @return
+	 */
+	private static String getScriptStackTrace(String message, Throwable s)
+	{
+		String scriptStackTrace = "";
+		if (s instanceof RhinoException)
+		{
+			scriptStackTrace = ((RhinoException)s).getScriptStackTrace();
+		}
+		if ((scriptStackTrace == null || "".equals(scriptStackTrace)))
+		{
+			scriptStackTrace = getScriptStacktraceFromContext(message);
+		}
+		if (scriptStackTrace != null && !"".equals(scriptStackTrace))
+		{
+			scriptStackTrace += "\n" + scriptStackTrace;
+		}
+		return scriptStackTrace;
+	}
+
+	/**
+	 * @param message
+	 * @param scriptStackTrace
+	 * @return
+	 */
+	public static String getScriptStacktraceFromContext(String message)
+	{
 		if (Context.getCurrentContext() != null)
 		{
 			try
 			{
 				EcmaError jsError = ScriptRuntime.constructError(message, message);
-				String scriptStackTrace = jsError.getScriptStackTrace();
-				if (!scriptStackTrace.equals(""))
-				{
-					wasInserted = insertClientInfo(true);
-					log.error(message + ", script stacktrace:\n" + scriptStackTrace);
-					if (wasInserted) insertClientInfo(false);
-
-				}
+				return jsError.getScriptStackTrace();
 			}
 			catch (Exception e)
 			{
 				// just ignore
 			}
 		}
+		return null;
 	}
 
 	public static void error(Object s)
@@ -303,7 +339,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.error(String.valueOf(s));
+			log.error(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
 			if (wasInserted) insertClientInfo(false);
 
 		}
@@ -315,13 +351,13 @@ public class Debug
 		if (throwable != null)
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.warn(message, throwable);
+			log.warn(message + getScriptStackTrace(message, throwable), throwable);
 			if (wasInserted) insertClientInfo(false);
 		}
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.info(message);
+			log.info(message + getScriptStacktraceFromContext(message));
 			if (wasInserted) insertClientInfo(false);
 
 		}
@@ -333,13 +369,14 @@ public class Debug
 		if (s instanceof Throwable)
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.warn("Throwable", (Throwable)s);
+			Throwable throwable = (Throwable)s;
+			log.warn("Throwable" + getScriptStackTrace(throwable.getLocalizedMessage(), (Throwable)s), (Throwable)s);
 			if (wasInserted) insertClientInfo(false);
 		}
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.info(String.valueOf(s));
+			log.info(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
 			if (wasInserted) insertClientInfo(false);
 		}
 	}
@@ -354,7 +391,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.warn(String.valueOf(s));
+		log.warn(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -363,7 +400,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.error(String.valueOf(s));
+		log.error(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -372,7 +409,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.debug(String.valueOf(s));
+		log.debug(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
 		if (wasInserted) insertClientInfo(false);
 	}
 

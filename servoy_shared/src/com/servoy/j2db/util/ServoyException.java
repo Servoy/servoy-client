@@ -338,6 +338,8 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 
 	private String scriptStackTrace;
 
+	protected String context;
+
 	public ServoyException()
 	{
 		this(0, null);
@@ -625,6 +627,11 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		return result.toString();
 	}
 
+	public String js_getContext()
+	{
+		return context;
+	}
+
 	/**
 	 * Returns the script stack trace for this ServoyException if this could be created.
 	 *
@@ -684,5 +691,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 			return "ServoyException"; //$NON-NLS-1$
 		}
 		return super.toString();
+	}
+
+	public ServoyException setContext(String context)
+	{
+		this.context = context;
+		return this;
+	}
+
+	public String getContext()
+	{
+		return this.context;
 	}
 }
