@@ -25,6 +25,7 @@ import java.util.List;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -44,6 +45,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Valuelist based on values from a relation (related foundset)
@@ -271,10 +274,19 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 					IRecordInternal[] records = allRecords.toArray(new IRecordInternal[allRecords.size()]);
 					if (defaultSort != null) Arrays.sort(records, new RecordComparator(defaultSort));
 
-					if (records.length >= maxValuelistRows)
+					if (records.length >= maxValuelistRows &&
+						Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 					{
-						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
-							null);
+						if (application instanceof IApplication)
+						{
+							((IApplication)application).reportJSWarning(
+								"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+						}
+						else
+						{
+							application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+								null);
+						}
 					}
 
 					String[] displayFormat = getDisplayFormat((Table)relatedFoundSet.getTable());
@@ -380,9 +392,18 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				addElement(""); //$NON-NLS-1$
 				realValues.add(null);
 			}
-			if (dataSet.getRowCount() >= maxValuelistRows)
+			if (dataSet.getRowCount() >= maxValuelistRows &&
+				Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 			{
-				application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+				if (application instanceof IApplication)
+				{
+					((IApplication)application).reportJSWarning(
+						"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+				}
+				else
+				{
+					application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+				}
 			}
 			String[] displayFormat = getDisplayFormat((Table)application.getFoundSetManager().getTable(pair.getRight().getDataSource()));
 			for (int i = 0; i < dataSet.getRowCount(); i++)
