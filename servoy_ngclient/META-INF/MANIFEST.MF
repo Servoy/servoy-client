@@ -25,7 +25,7 @@ Require-Bundle: servoy_shared,
  org.slf4j.api;bundle-version="1.7.2",
  org.apache.commons.io,
  org.jsoup,
- org.freemarker.freemarker,
+ org.freemarker.freemarker;bundle-version="2.3.21",
  commons-lang3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .

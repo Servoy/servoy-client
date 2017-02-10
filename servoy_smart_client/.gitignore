@@ -4,3 +4,4 @@
 /build.xml
 /${buildDirectory}
 /@dot
+/target/

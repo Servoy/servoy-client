@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>servoy-client</artifactId>
+	<version>8.1.2.3031</version>
+	<groupId>com.servoy</groupId>
+	<packaging>pom</packaging>
+	
+	<properties>
+		<tycho.version>0.26.0</tycho.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<servoy-repo.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/repository/</servoy-repo.url>
+		<sablo.version>0.0.1-SNAPSHOT</sablo.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>servoy</id>
+			<url>${servoy-repo.url}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<pomDependencies>consider</pomDependencies>
+					<resolver>p2</resolver>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+					<dependency-resolution>
+						<optionalDependencies>ignore</optionalDependencies>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.jnlp</groupId>
+			<artifactId>jnlp-api</artifactId>
+			<version>8.0</version>
+			<scope>system</scope>
+			<systemPath>${java.home}/lib/javaws.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.sablo</groupId>
+			<artifactId>sablo-core</artifactId>
+			<version>${sablo.version}</version>
+		</dependency>
+	</dependencies>
+
+	<modules>
+		<module>servoy_base</module>
+		<module>servoy_shared</module>
+		<module>servoy_smart_client</module>
+		<module>servoy_headless_client</module>
+		<module>servoy_ngclient</module>
+		<module>servoy_debug</module>
+	</modules>
+</project>
