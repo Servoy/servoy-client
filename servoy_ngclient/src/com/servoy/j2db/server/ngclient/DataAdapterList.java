@@ -751,6 +751,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
 				Object returnValue = null;
 				Exception exception = null;
+				String onDataChangeCallback = null;
 				if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
 				{
 					try
@@ -762,14 +763,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						Debug.error("Error during onDataChange webComponent=" + webComponent, e);
 						exception = e;
 					}
+					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
+						beanProperty).getConfig()).getOnDataChangeCallback();
 				}
 				else if (setValueException != null)
 				{
 					returnValue = setValueException.getMessage();
 					exception = setValueException;
+					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
+						beanProperty).getConfig()).getOnDataChangeCallback();
 				}
-				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
-					beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
 					WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
