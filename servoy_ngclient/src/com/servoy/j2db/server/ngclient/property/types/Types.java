@@ -109,5 +109,7 @@ public class Types
 		TypesRegistry.addType(JSDNDEventType.INSTANCE);
 		TypesRegistry.addType(JSNativeJavaObjectType.INSTANCE);
 		TypesRegistry.addType(FoundsetReferencePropertyType.INSTANCE);
+		TypesRegistry.addType(FoundsetReferencePropertyTypeOld.INSTANCE);
+		TypesRegistry.addType(RowReferencePropertyType.INSTANCE);
 	}
 }

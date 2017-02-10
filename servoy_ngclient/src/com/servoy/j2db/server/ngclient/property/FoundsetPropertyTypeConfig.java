@@ -33,15 +33,17 @@ import com.servoy.j2db.util.Debug;
 public class FoundsetPropertyTypeConfig
 {
 
+	public static final boolean DEFAULT_SEND_DEFAULT_FORMATS = false;
+	public static final boolean DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY = false;
+	public static final int DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE = 50;
+
 	public static final String SEND_DEFAULT_FORMATS = "provideColumnFormats";
 	public static final String DATAPROVIDERS = "dataproviders";
 	public static final String DYNAMIC_DATAPROVIDERS = "dynamicDataproviders";
 	public static final String SEND_SELECTION_VIEWPORT_INITIALLY = "sendSelectionViewportInitially";
 	public static final String INITIAL_PREFERRED_VIEWPORT_SIZE = "initialPreferredViewPortSize";
 
-
 	public final boolean sendDefaultFormats;
-
 	public final boolean hasDynamicDataproviders;
 	public final String[] dataproviders;
 	public final int initialPreferredViewPortSize;
@@ -59,14 +61,14 @@ public class FoundsetPropertyTypeConfig
 
 	public FoundsetPropertyTypeConfig(JSONObject config)
 	{
-		this.sendDefaultFormats = (config == null ? false
-			: config.has(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS) ? config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false) : false);
+		this.sendDefaultFormats = (config == null ? false : config.has(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS)
+			? config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false) : DEFAULT_SEND_DEFAULT_FORMATS);
 
 		this.hasDynamicDataproviders = (config != null && (config.has(DYNAMIC_DATAPROVIDERS) ? config.optBoolean(DYNAMIC_DATAPROVIDERS) : false));
 		this.sendSelectionViewportInitially = (config != null && config.has(SEND_SELECTION_VIEWPORT_INITIALLY)
-			? config.optBoolean(SEND_SELECTION_VIEWPORT_INITIALLY) : false);
+			? config.optBoolean(SEND_SELECTION_VIEWPORT_INITIALLY) : DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY);
 		this.initialPreferredViewPortSize = (config != null && config.has(INITIAL_PREFERRED_VIEWPORT_SIZE) ? config.optInt(INITIAL_PREFERRED_VIEWPORT_SIZE)
-			: 50);
+			: DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE);
 
 		String[] dps = null;
 		if (config != null)

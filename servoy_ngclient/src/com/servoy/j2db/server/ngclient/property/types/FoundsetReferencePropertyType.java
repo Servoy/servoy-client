@@ -16,8 +16,9 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
@@ -27,17 +28,23 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
+ * This is meant to replace FoundsetReferencePropertyTypeOld as that sends too much server side information to the client - and it's not always needed. (not sure it is ever really needed)
+ * The idea is that you can send an unique string hash to the client representing a foundset value (that will probably be stored as a value in the service/component
+ * model model as well as a FoundsetPropertyType) and then you can send that back to server through the same property type (for example as an argument to server side
+ * scripting of that service/component) and on the server you get the real foundset it represents.
  *
- * @author gboros
+ * @author acostescu
  */
-public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal>
-	implements IPropertyConverterForBrowser<IFoundSetInternal>, IClassPropertyType<IFoundSetInternal>
+public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal> implements IPropertyConverterForBrowser<IFoundSetInternal>,
+	IClassPropertyType<IFoundSetInternal>, IRhinoToSabloComponent<IFoundSetInternal>, ISabloComponentToRhino<IFoundSetInternal>
 {
 
 	public static final FoundsetReferencePropertyType INSTANCE = new FoundsetReferencePropertyType();
-	public static final String TYPE_NAME = "foundsetref";
+	public static final String TYPE_NAME = "foundsetRef";
 
 	private FoundsetReferencePropertyType()
 	{
@@ -53,10 +60,9 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	public IFoundSetInternal fromJSON(Object newValue, IFoundSetInternal previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newValue instanceof JSONObject)
+		if (newValue instanceof String)
 		{
-			JSONObject jsonFoundset = (JSONObject)newValue;
-			return getReference(jsonFoundset.optString("foundsethash"));
+			return getReference((String)newValue);
 		}
 		return null;
 	}
@@ -66,12 +72,7 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		writer.object();
-		writer.key("foundsethash").value(addReference(value));
-		writer.key("foundsetdatasource").value(value.getDataSource());
-		writer.key("foundsetpk").value(value.getTable().getRowIdentColumnNames().next());
-		writer.key("svyType").value(getName());
-		writer.endObject();
+		writer.value(addReference(value));
 		return writer;
 	}
 
@@ -80,4 +81,28 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	{
 		return IFoundSetInternal.class;
 	}
+
+	@Override
+	public boolean isValueAvailableInRhino(IFoundSetInternal webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
+	}
+
+	@Override
+	public Object toRhinoValue(IFoundSetInternal webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		return webComponentValue;
+	}
+
+	@Override
+	public IFoundSetInternal toSabloComponentValue(Object rhinoValue, IFoundSetInternal previousComponentValue, PropertyDescription pd,
+		BaseWebObject componentOrService)
+	{
+		if (rhinoValue instanceof IFoundSetInternal)
+		{
+			return (IFoundSetInternal)rhinoValue;
+		}
+		return null;
+	}
+
 }

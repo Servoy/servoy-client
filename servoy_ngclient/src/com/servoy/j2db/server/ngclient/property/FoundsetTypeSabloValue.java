@@ -48,6 +48,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -79,6 +80,8 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableModelListener
 {
+
+	public static final String FORM_FOUNDSET_SELECTOR = "";
 
 	protected static final Logger log = LoggerFactory.getLogger(CustomJSONPropertyType.class.getCanonicalName());
 	protected static final String PUSH_TO_SERVER = "w";
@@ -157,8 +160,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// foundsetSelector as defined in component design XML.
 		if (designJSONValue != null)
 		{
-			foundsetSelector = ((JSONObject)designJSONValue).optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
-			initializeDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
+			foundsetSelector = ((JSONObject)designJSONValue).optString(FoundsetPropertyType.FOUNDSET_SELECTOR, null);
+			initializeDataproviders(((JSONObject)designJSONValue).optJSONObject(FoundsetPropertyType.DATAPROVIDERS_KEY_FOR_DESIGN));
 		}
 	}
 
@@ -219,8 +222,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		updateFoundset((IRecordInternal)null);
 		if (designJSONValue != null)
 		{
-			JSONObject spec = (JSONObject)designJSONValue;
-			JSONObject dataProvidersJSON = spec.optJSONObject("dataproviders");
+			JSONObject designValue = (JSONObject)designJSONValue;
+			JSONObject dataProvidersJSON = designValue.optJSONObject(FoundsetPropertyType.DATAPROVIDERS_KEY_FOR_DESIGN);
 			if (dataProvidersJSON != null)
 			{
 				changeMonitor.dataProvidersChanged();
@@ -246,14 +249,21 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	 */
 	protected void updateFoundset(IRecordInternal record)
 	{
+		if (foundsetSelector == null) return; // this foundset is only meant to be set from Rhino scripting; do not automatically set it and do not automatically clear it once it's set from Rhino
+
 		IFoundSetInternal newFoundset = null;
-		if (record != null)
+		if (FORM_FOUNDSET_SELECTOR.equals(foundsetSelector))
 		{
-			if ("".equals(foundsetSelector))
+			// it is the form's foundset then
+			if (record != null)
 			{
 				newFoundset = record.getParentFoundSet();
 			}
-			else
+		}
+		else if (!foundsetSelector.startsWith(DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH))
+		{
+			// is is a relation then
+			if (record != null)
 			{
 				Object o = record.getValue(foundsetSelector);
 				if (o instanceof IFoundSetInternal)
@@ -262,24 +272,26 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				}
 			}
 		}
-
-		if (newFoundset == null && foundsetSelector != null && !"".equals(foundsetSelector))
+		else if (newFoundset == null/* && foundsetSelector.startsWith(DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH)*/)
 		{
-			// if this is a foundset selector don't replace the foundset which is already inside it
+			// if this is a separate foundset selector don't replace the foundset which is already inside it because
 			// that will only reinitialize constantly this FoundsetType/Table with a new foundset on every dataprovider change.
-			if (foundset != null) return;
-			try
+			if (foundset != null) newFoundset = foundset;
+			else
 			{
-				// if we want to use this type on services as well we need extra code here to get the application
-				newFoundset = (IFoundSetInternal)getFoundSetManager().getFoundSet(foundsetSelector);
-				if (((JSONObject)designJSONValue).optBoolean(FoundsetPropertyType.LOAD_ALL_RECORDS_FOR_SEPARATE, false))
+				try
 				{
-					newFoundset.loadAllRecords();
+					// if we want to use this type on services as well we need extra code here to get the application
+					newFoundset = (IFoundSetInternal)getFoundSetManager().getFoundSet(foundsetSelector);
+					if (((JSONObject)designJSONValue).optBoolean(FoundsetPropertyType.LOAD_ALL_RECORDS_FOR_SEPARATE, false))
+					{
+						newFoundset.loadAllRecords();
+					}
 				}
-			}
-			catch (ServoyException e)
-			{
-				if (record != null && !(record instanceof PrototypeState)) Debug.error(e);
+				catch (ServoyException e)
+				{
+					if (record != null && !(record instanceof PrototypeState)) Debug.error(e);
+				}
 			}
 		}
 		updateFoundset(newFoundset);
@@ -961,7 +973,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	@Override
 	public String toString()
 	{
-		return "'" + propertyName + "' foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
+		return "Foundset '" + (foundset != null ? foundset.getDataSource() : null) + " on property '" + propertyName +
+			"': foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
 	}
 
 	public void setRecordDataLinkedPropertyIDToColumnDP(String id, String dataprovider)
@@ -1015,4 +1028,5 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (!Utils.equalObjects(lastSortString, getSortStringAsNames())) changeMonitor.foundsetSortChanged();
 		}
 	}
+
 }

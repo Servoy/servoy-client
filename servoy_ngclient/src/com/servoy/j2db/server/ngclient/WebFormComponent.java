@@ -49,9 +49,6 @@ public class WebFormComponent extends Container implements IContextProvider
 		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
 	}
 
-	/**
-	 * @return
-	 */
 	public FormElement getFormElement()
 	{
 		return formElement;
@@ -266,7 +263,8 @@ public class WebFormComponent extends Container implements IContextProvider
 					!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
 				if (isValueValid)
 				{
-					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementDataChangeMethodID(), args);
+					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementDataChangeMethodID(),
+						args);
 				}
 			}
 

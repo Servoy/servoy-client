@@ -20,7 +20,9 @@ package com.servoy.j2db.server.ngclient.property;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONPropertyType;
@@ -32,6 +34,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.scripting.DefaultScope;
@@ -43,7 +46,9 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Implementation for the complex custom type "foundset".
@@ -52,8 +57,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue>
 	implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
-	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
-	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
+	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>,
+	ISupportsGranularUpdates<FoundsetTypeSabloValue>, IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
 {
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
 
@@ -61,6 +66,10 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
 	public static final String LOAD_ALL_RECORDS_FOR_SEPARATE = "loadAllRecords";
+
+	private static final String DATAPROVIDERS_KEY_FOR_RHINO = "dataproviders";
+	private static final String FOUNDSET_KEY_FOR_RHINO = "foundset";
+	public static final String DATAPROVIDERS_KEY_FOR_DESIGN = "dataproviders";
 
 	public FoundsetPropertyType(PropertyDescription definition)
 	{
@@ -178,11 +187,11 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		{
 			switch (name)
 			{
-				case "foundset" :
+				case FOUNDSET_KEY_FOR_RHINO :
 				{
 					return webComponentValue.getFoundset();
 				}
-				case "dataproviders" :
+				case DATAPROVIDERS_KEY_FOR_RHINO :
 				{
 					if (webComponentValue.recordDataLinkedPropertyIDToColumnDP.size() > 0)
 					{
@@ -220,13 +229,22 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		{
 			switch (name)
 			{
-				case "foundset" :
+				case FOUNDSET_KEY_FOR_RHINO :
 				{
-					if (value instanceof IFoundSetInternal) webComponentValue.updateFoundset((IFoundSetInternal)value);
+					if (value instanceof IFoundSetInternal)
+					{
+						if (webComponentValue.foundsetSelector == null ||
+							webComponentValue.foundsetSelector.startsWith(DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH))
+						{
+							webComponentValue.updateFoundset((IFoundSetInternal)value);
+						}
+						else throw new RuntimeException("illegal value '" + value +
+							"' to set on the foundset property; this foundset is either pinned to form's foundset or to a related foundset " + pd.getName());
+					}
 					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
 					break;
 				}
-				case "dataproviders" :
+				case DATAPROVIDERS_KEY_FOR_RHINO :
 				{
 					if (webComponentValue.recordDataLinkedPropertyIDToColumnDP.size() > 0)
 					{
@@ -251,7 +269,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		@Override
 		public Object[] getIds()
 		{
-			return new Object[] { "foundset", "dataproviders" };
+			return new Object[] { FOUNDSET_KEY_FOR_RHINO, DATAPROVIDERS_KEY_FOR_RHINO };
 		}
 	}
 
@@ -266,6 +284,86 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public Object parseConfig(JSONObject config)
 	{
 		return new FoundsetPropertyTypeConfig(config);
+	}
+
+	@Override
+	public FoundsetTypeSabloValue toSabloComponentValue(Object rhinoValue, FoundsetTypeSabloValue previousComponentValue, PropertyDescription pd,
+		BaseWebObject componentOrService)
+	{
+		FoundsetTypeSabloValue newSabloValue = null;
+
+		IFoundSetInternal newFoundset = null;
+		JSONObject dataproviders = null;
+		boolean sendDefaultFormats = FoundsetPropertyTypeConfig.DEFAULT_SEND_DEFAULT_FORMATS;
+		int initialPreferredViewPortSize = FoundsetPropertyTypeConfig.DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE;
+		boolean sendSelectionViewportInitially = FoundsetPropertyTypeConfig.DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY;
+
+		// rhinoValue can be:
+		// 1.                {
+		//                       foundset : ...someIFoundSetInternal...,
+		//                       dataproviders : { dp1: "userNickname", dp2: "userReviewRating", ... }
+		//                       sendDefaultFormats : ...someBoolean...,
+		//                       sendSelectionViewportInitially : ...someBoolean...,
+		//                       initialPreferredViewPortSize: ..someInteger...
+		//                   }
+		//    any of the keys above are optional except "foundset"
+		// 2. or it can directly be a IFoundSetInternal value in which case dataproviders is considered empty
+
+		if (rhinoValue instanceof NativeObject)
+		{
+			NativeObject obj = (NativeObject)rhinoValue;
+			Object foundset = obj.get(FOUNDSET_KEY_FOR_RHINO, obj);
+			if (foundset instanceof IFoundSetInternal)
+			{
+				newFoundset = (IFoundSetInternal)foundset;
+				if (obj.has(FoundsetPropertyTypeConfig.DATAPROVIDERS, obj))
+				{
+					Object dpsValue = obj.get(FoundsetPropertyTypeConfig.DATAPROVIDERS, obj);
+					if (dpsValue instanceof Scriptable)
+					{
+						dataproviders = new JSONObject();
+						Object[] ids = ((Scriptable)dpsValue).getIds();
+						for (Object id : ids)
+						{
+							dataproviders.put((String)id, (String)((Scriptable)dpsValue).get((String)id, ((Scriptable)dpsValue)));
+						}
+					}
+				}
+				if (obj.has(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, obj))
+					sendDefaultFormats = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, obj));
+				if (obj.has(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj))
+					initialPreferredViewPortSize = Utils.getAsInteger(obj.get(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj));
+				if (obj.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj))
+					sendSelectionViewportInitially = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj));
+			}
+		}
+		else if (rhinoValue instanceof IFoundSetInternal)
+		{
+			newFoundset = (IFoundSetInternal)rhinoValue;
+		}
+
+		if (newFoundset != null)
+		{
+			if (previousComponentValue != null && previousComponentValue.getFoundset() == newFoundset) newSabloValue = previousComponentValue;
+			else
+			{
+				JSONObject designJSON = new JSONObject();
+				designJSON.put(FOUNDSET_SELECTOR, (String)null); // tell the FoundsetTypeSabloValue that it shouldn't try to automatically get a foundset
+				if (dataproviders != null) designJSON.put(DATAPROVIDERS_KEY_FOR_DESIGN, dataproviders);
+
+
+				newSabloValue = new FoundsetTypeSabloValue(designJSON, null, null,
+					new FoundsetPropertyTypeConfig(sendDefaultFormats, true, null, sendSelectionViewportInitially, initialPreferredViewPortSize));
+				newSabloValue.updateFoundset(newFoundset);
+			}
+		}
+		else if (rhinoValue != null && rhinoValue != Undefined.instance)
+		{
+			throw new RuntimeException("Cannot set " + rhinoValue +
+				" into a foundset property type; for existing foundset properties you can set the myProp.foundset or myProp.dataproviders directly. If you want to set a complete new value you have to give here something like { foundset : ...someFoundset..., dataproviders : { dp1: 'userNickname', dp2: 'userReviewRating', ... } } instead.");
+		}
+
+		return newSabloValue;
 	}
 
 }
