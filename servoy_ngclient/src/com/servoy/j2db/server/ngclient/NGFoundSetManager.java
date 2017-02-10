@@ -35,7 +35,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.types.FoundsetReferencePropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FoundsetReferencePropertyTypeOld;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -46,9 +46,6 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 {
 	public static final String FOUNDSET_SERVICE = "$foundsetManager"; //$NON-NLS-1$
 
-	/**
-	 * @param application
-	 */
 	public NGFoundSetManager(IApplication app, IFoundSetFactory factory)
 	{
 		super(app, factory);
@@ -61,7 +58,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 	{
 		if ("getFoundSet".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyTypeOld.INSTANCE.fromJSON(args, null, null, null, null);
 			String sort = args.optString("sort");
 			if (!"".equals(sort))
 			{
@@ -116,7 +113,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		}
 		else if ("getRelatedFoundSetHash".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyTypeOld.INSTANCE.fromJSON(args, null, null, null, null);
 			String rowid = args.optString("rowid");
 			String relation = args.optString("relation");
 
@@ -130,14 +127,14 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				if (o instanceof IFoundSetInternal)
 				{
 					IFoundSetInternal relatedFoundset = (IFoundSetInternal)o;
-					PropertyDescription foundsetRefProperty = new PropertyDescription("", FoundsetReferencePropertyType.INSTANCE);
+					PropertyDescription foundsetRefProperty = new PropertyDescription("", FoundsetReferencePropertyTypeOld.INSTANCE);
 					return new TypedData<IFoundSetInternal>(relatedFoundset, foundsetRefProperty);
 				}
 			}
 		}
 		else if ("updateFoundSetRow".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyTypeOld.INSTANCE.fromJSON(args, null, null, null, null);
 			String rowid = args.optString("rowid");
 			String dataproviderid = args.optString("dataproviderid");
 			Object value = args.get("value");
@@ -157,7 +154,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		}
 		else if ("removeFoundSetFromCache".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyTypeOld.INSTANCE.fromJSON(args, null, null, null, null);
 			removeFoundSetTypeSabloValue(foundset);
 		}
 		else if ("removeFoundSetsFromCache".equals(methodName))
