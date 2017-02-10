@@ -1170,7 +1170,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				FlattenedForm ff = (FlattenedForm)controller.getForm();
 				ff.reload();
 			}
-			controller.getFormScope().reload();
+			if (!controller.isDestroyed())
+			{
+				controller.getFormScope().reload();
+			}
 		}
 	}
 

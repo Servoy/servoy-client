@@ -63,6 +63,8 @@ public interface IFormController extends IForm
 	 */
 	void destroy();
 
+	boolean isDestroyed();
+
 	/**
 	 * @return
 	 */
