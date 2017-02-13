@@ -89,7 +89,7 @@ public class FoundsetTypeViewport
 				vpSize = Math.min(preferredViewPortSize, foundset.getSize() - startIdx); // if selection is at the beginning and we can send more records after it do that (so selection won't be centered, but we still try to send preferred size)
 
 				// if selection is at the end and we can send more records from before selection, do that (so selection won't be centered, but we still try to send preferred size)
-				if (vpSize < preferredViewPortSize && startIdx > 0)
+				if (initialSelectionViewportCentered && vpSize < preferredViewPortSize && startIdx > 0)
 				{
 					startIdx = Math.max(0, foundset.getSize() - preferredViewPortSize);
 					vpSize = Math.min(preferredViewPortSize, foundset.getSize() - startIdx);
