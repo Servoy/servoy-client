@@ -34,7 +34,6 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.scripting.DefaultScope;
@@ -48,6 +47,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -233,8 +233,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				{
 					if (value instanceof IFoundSetInternal)
 					{
-						if (webComponentValue.foundsetSelector == null ||
-							webComponentValue.foundsetSelector.startsWith(DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH))
+						if (webComponentValue.foundsetSelector == null || DataSourceUtils.isDatasourceUri(webComponentValue.foundsetSelector))
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
