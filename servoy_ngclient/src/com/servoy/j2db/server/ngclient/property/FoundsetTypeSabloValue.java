@@ -48,7 +48,6 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -66,6 +65,7 @@ import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
@@ -260,7 +260,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				newFoundset = record.getParentFoundSet();
 			}
 		}
-		else if (!foundsetSelector.startsWith(DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH))
+		else if (!DataSourceUtils.isDatasourceUri(foundsetSelector))
 		{
 			// is is a relation then
 			if (record != null)
@@ -272,10 +272,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				}
 			}
 		}
-		else if (newFoundset == null/* && foundsetSelector.startsWith(DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH)*/)
+		else // DataSourceUtils.isDatasourceUri(foundsetSelector)
 		{
-			// if this is a separate foundset selector don't replace the foundset which is already inside it because
-			// that will only reinitialize constantly this FoundsetType/Table with a new foundset on every dataprovider change.
+			// if this is a separate foundset selector; don't replace the foundset which is already inside it because
+			// that will only reinitialize constantly this FoundsetType/Table with a new foundset - on every dataprovider change.
 			if (foundset != null) newFoundset = foundset;
 			else
 			{
