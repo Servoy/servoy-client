@@ -1297,8 +1297,7 @@ public class SQLGenerator
 					}
 				}
 			}
-			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues,
-				maskedOp != IBaseSQLCondition.NOT_OPERATOR && maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR);
+			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues, true);
 		}
 		else if (maskedOp == IBaseSQLCondition.BETWEEN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_BETWEEN_OPERATOR)
 		{
