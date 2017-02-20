@@ -51,4 +51,10 @@ public class I18NTagStringTypeSabloValue extends TagStringTypeSabloValue impleme
 		return i18nKey;
 	}
 
+	@Override
+	public DataAdapterList getDataAdapterList()
+	{
+		return super.getDataAdapterList();
+	}
+
 }

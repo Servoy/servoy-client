@@ -295,7 +295,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				{
 					String i18nKey = ((II18NValue)property).getI18NKey();
 					BasicTagStringTypeSabloValue sabloComponentValue = TagStringPropertyType.INSTANCE.toSabloComponentValue(i18nKey, pd,
-						((WebFormComponent)component).getFormElement(), (WebFormComponent)component, (DataAdapterList)formUI.getDataAdapterList());
+						((WebFormComponent)component).getFormElement(), (WebFormComponent)component, ((II18NValue)property).getDataAdapterList());
 					getAndSetter.setProperty(pd.getName(), sabloComponentValue);
 				}
 			}
