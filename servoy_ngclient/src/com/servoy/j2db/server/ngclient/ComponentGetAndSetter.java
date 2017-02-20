@@ -46,5 +46,6 @@ public class ComponentGetAndSetter implements IGetAndSetter
 	public void setProperty(String name, Object value)
 	{
 		component.setProperty(name, value);
+		component.flagPropertyAsDirty(name, true);
 	}
 }
