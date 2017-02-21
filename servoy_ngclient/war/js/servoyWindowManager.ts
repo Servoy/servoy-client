@@ -519,7 +519,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				if (html) $templateCache.put(realFormUrl,html);
 				var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 				$sabloApplication.clearFormState(formName)
-				eval(controllerCode);
+				evalControllerCodeWithoutClosure(controllerCode);
 				formTemplateUrls[formName] = realFormUrl;
 				
 				// if the form was already initialized and visible, then make sure it is reinitialized
@@ -654,3 +654,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}
 	}
 });
+
+function evalControllerCodeWithoutClosure(controllerCode) {
+	eval(controllerCode);
+}
