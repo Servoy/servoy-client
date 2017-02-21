@@ -2623,7 +2623,7 @@ public final class Utils
 	public static boolean isValidEmailAddress(String email)
 	{
 		return (email != null
-			? (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,16})$", Pattern.CASE_INSENSITIVE).matcher( //$NON-NLS-1$
+			? (Pattern.compile("^[_a-z0-9-+']+(\\.[_a-z0-9-+']+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,16})$", Pattern.CASE_INSENSITIVE).matcher( //$NON-NLS-1$
 				email).matches())
 			: false);
 	}
