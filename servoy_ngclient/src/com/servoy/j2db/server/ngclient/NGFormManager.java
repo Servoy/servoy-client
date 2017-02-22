@@ -239,6 +239,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	public void removeFormController(BasicFormController fp)
 	{
 		createdFormControllers.remove(fp.getName());
+		possibleForms.remove(fp.getForm().getName());
 	}
 
 	@Override
@@ -368,8 +369,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		{
 			controller.destroy();
 		}
-		createdFormControllers.clear();
-		possibleForms.clear();
 
 		// cleanup windows (containers)
 		NGRuntimeWindowManager wm = ((INGApplication)application).getRuntimeWindowManager();
