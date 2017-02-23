@@ -122,7 +122,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	}
 
 	/**
-	 * Do the actual update in the database, returns true if successful.
+	 * Do the actual update in the database, returns true if successful. It will first try to save all editing records (from all foundsets), if cannot save will return false before doing the update.
 	 * There are 3 types of possible use with the foundset updater
 	 * 1) update entire foundset by a single sql statement; that is not possible when the table of the foundset has tracking enabled then it will loop over the whole foundset.
 	 *    When a single sql statement is done, modification columns will not be updated and associated Table Events won't be triggered, because it does the update directly in the database, without getting the records.
@@ -268,8 +268,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 		}
 		catch (Exception ex)
 		{
-			application.handleException(
-				application.getI18NMessage("servoy.foundsetupdater.updateFailed"), new ApplicationException(ServoyException.SAVE_FAILED, ex)); //$NON-NLS-1$
+			application.handleException(application.getI18NMessage("servoy.foundsetupdater.updateFailed"), //$NON-NLS-1$
+				new ApplicationException(ServoyException.SAVE_FAILED, ex));
 			return false;
 		}
 
