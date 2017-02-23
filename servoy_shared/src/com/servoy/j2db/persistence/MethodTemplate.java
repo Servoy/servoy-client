@@ -55,7 +55,7 @@ public class MethodTemplate implements IMethodTemplate
 	private static final String TAG_RETURN_TYPE = "return";
 	private static final String TAG_CODE = "code";
 
-	private static final MethodTemplate DEFAULT_TEMPLATE = new MethodTemplate(null, null, null, null, true);
+	public static final MethodTemplate DEFAULT_TEMPLATE = new MethodTemplate(null, null, null, null, true);
 
 	private static final Map<Class< ? >, Map<String, MethodTemplate>> CLASS_TEMPLATES = new HashMap<Class< ? >, Map<String, MethodTemplate>>();
 	public static final Map<String, MethodTemplate> COMMON_TEMPLATES = new TreeMap<String, MethodTemplate>();
