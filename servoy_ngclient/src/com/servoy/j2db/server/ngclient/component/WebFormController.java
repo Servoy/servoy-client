@@ -745,9 +745,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					destroy();
 				}
 			};
-			ArrayList<Runnable> invokeLater = new ArrayList<Runnable>();
-			invokeLater.add(run);
-			Utils.invokeLater(getApplication(), invokeLater);
+			invokeLaterRunnables.add(run);
 		}
 
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);

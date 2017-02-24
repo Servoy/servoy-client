@@ -562,20 +562,27 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public void invokeAndWait(Runnable r)
 	{
-		FutureTask<Object> future = new FutureTask<Object>(r, null);
-		wsSession.getEventDispatcher().addEvent(future);
-		try
+		if (wsSession.getEventDispatcher().isEventDispatchThread())
 		{
-			future.get(); // blocking
+			r.run();
 		}
-		catch (InterruptedException e)
+		else
 		{
-			Debug.trace(e);
-		}
-		catch (ExecutionException e)
-		{
-			e.getCause().printStackTrace();
-			Debug.error(e.getCause());
+			FutureTask<Object> future = new FutureTask<Object>(r, null);
+			wsSession.getEventDispatcher().addEvent(future);
+			try
+			{
+				future.get(); // blocking
+			}
+			catch (InterruptedException e)
+			{
+				Debug.trace(e);
+			}
+			catch (ExecutionException e)
+			{
+				e.getCause().printStackTrace();
+				Debug.error(e.getCause());
+			}
 		}
 	}
 
