@@ -739,9 +739,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					destroy();
 				}
 			};
-			ArrayList<Runnable> invokeLater = new ArrayList<Runnable>();
-			invokeLater.add(run);
-			Utils.invokeLater(getApplication(), invokeLater);
+			invokeLaterRunnables.add(run);
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
