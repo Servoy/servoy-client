@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
@@ -53,6 +54,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
 
 	private final WeakHashSet<IWebFormUI> pendingApiCallFormsOnNextResponse = new WeakHashSet<>();
+
+	private final HashSet<String> allowedForms = new HashSet<>();
 
 	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
 	{
@@ -136,7 +139,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (!isDelayedApiCall(receiver, apiFunction))
 		{
-			touchForm(form.getForm(), form.getName(), false);
+			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
@@ -159,7 +162,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	public void touchForm(Form form, String realInstanceName, boolean async)
+	public void registerAllowedForm(String formName)
+	{
+		allowedForms.add(formName);
+	}
+
+	@Override
+	public void touchForm(Form form, String realInstanceName, boolean async, boolean testForValidForm)
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
@@ -168,6 +177,10 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
+			if (testForValidForm && !allowedForms.contains(formName))
+			{
+				throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
+			}
 			IWebFormController cachedFormController = getSession().getClient().getFormManager().getCachedFormController(formName);
 			IWebFormUI formUI = cachedFormController != null ? cachedFormController.getFormUI() : null;
 			if (formUI != null && formUI.getParentContainer() == null)

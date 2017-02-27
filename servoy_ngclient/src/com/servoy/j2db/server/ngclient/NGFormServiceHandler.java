@@ -259,7 +259,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				Utils.invokeAndWait(getApplication(), invokeLaterRunnables);
 				Form form = getApplication().getFormManager().getPossibleForm(formName);
-				if (form != null) NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true);
+				if (form != null)
+					NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true, true);
 
 				return Boolean.valueOf(ok);
 			}

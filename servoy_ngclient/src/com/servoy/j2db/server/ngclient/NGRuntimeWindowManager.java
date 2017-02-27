@@ -87,7 +87,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 					}
 					if (form != null)
 					{
-						NGClientWindow.getCurrentWindow().touchForm(application.getFlattenedSolution().getFlattenedForm(form), formName, true);
+						NGClientWindow.getCurrentWindow().touchForm(application.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
 					}
 				}
 				break;

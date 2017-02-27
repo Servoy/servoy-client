@@ -133,11 +133,20 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	}
 
 	@Override
-	public void touchForm(Form flattenedForm, String realInstanceName, boolean async)
+	public void touchForm(Form flattenedForm, String realInstanceName, boolean async, boolean testForValidForm)
 	{
 		for (INGClientWindow window : getSession().getWindows())
 		{
-			window.touchForm(flattenedForm, realInstanceName, async);
+			window.touchForm(flattenedForm, realInstanceName, async, testForValidForm);
+		}
+	}
+
+	@Override
+	public void registerAllowedForm(String formName)
+	{
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			window.registerAllowedForm(formName);
 		}
 	}
 

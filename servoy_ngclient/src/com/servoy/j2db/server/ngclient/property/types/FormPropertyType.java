@@ -27,6 +27,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
+import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -38,6 +39,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -101,47 +103,47 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		{
 			writer.key(key);
 		}
+		String formName = null;
 		if (sabloValue instanceof String)
 		{
+			formName = (String)sabloValue;
 			// form name
 			UUID uuid = Utils.getAsUUID(sabloValue, false);
-			boolean nameWritten = false;
 			if (uuid != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
 				Form form = (Form)((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution().searchPersist(
 					uuid);
 				if (form != null)
 				{
-					writer.value(form.getName());
-					nameWritten = true;
+					formName = form.getName();
 				}
-			}
-
-			if (!nameWritten)
-			{
-				writer.value(sabloValue);
 			}
 		}
 		else if (sabloValue instanceof CharSequence)
 		{
-			writer.value(((CharSequence)sabloValue).toString());
+			formName = ((CharSequence)sabloValue).toString();
 		}
 		else if (sabloValue instanceof Form)
 		{
-			writer.value(((Form)sabloValue).getName());
+			formName = ((Form)sabloValue).getName();
 		}
 		else if (sabloValue instanceof FormController)
 		{
-			writer.value(((FormController)sabloValue).getName());
+			formName = ((FormController)sabloValue).getName();
 		}
 		else if (sabloValue instanceof FormScope)
 		{
-			writer.value(((FormScope)sabloValue).getFormController().getName());
+			formName = ((FormScope)sabloValue).getFormController().getName();
 		}
 		else
 		{
+			formName = null;
 			Debug.error("Cannot handle unknown value for Form type: " + sabloValue);
-			writer.value(null);
+		}
+		writer.value(formName);
+		if (CurrentWindow.get() instanceof INGClientWindow)
+		{
+			((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName);
 		}
 		return writer;
 	}
@@ -203,6 +205,10 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		{
 			writer.key(key);
 			writer.value(form.getName());
+			if (CurrentWindow.get() instanceof INGClientWindow)
+			{
+				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(form.getName());
+			}
 		}
 		return writer;
 	}
