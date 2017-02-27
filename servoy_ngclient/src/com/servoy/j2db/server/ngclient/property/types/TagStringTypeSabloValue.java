@@ -44,6 +44,8 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	protected IChangeListener changeMonitor;
 	protected IServoyDataConverterContext dataConverterContext;
 	protected final TargetDataLinks dataLinks;
+	private final PropertyDescription pd;
+	private final FormElement formElement;
 
 	public TagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
 		PropertyDescription pd, FormElement formElement)
@@ -51,6 +53,8 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		super(designValue, dataAdapterList);
 
 		this.dataConverterContext = dataConverterContext;
+		this.pd = pd;
+		this.formElement = formElement;
 		dataLinks = ((TagStringPropertyType)pd.getType()).getDataLinks(getDesignValue(), pd, dataConverterContext.getSolution(), formElement);
 
 		updateTagReplacedValue();
@@ -82,6 +86,22 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		{
 			changeMonitor.valueChanged();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (super.equals(obj) && obj instanceof TagStringTypeSabloValue)
+		{
+			TagStringTypeSabloValue value = (TagStringTypeSabloValue)obj;
+			return value.pd == pd && value.formElement == formElement;
+		}
+		return false;
 	}
 
 	protected boolean updateTagReplacedValue()
