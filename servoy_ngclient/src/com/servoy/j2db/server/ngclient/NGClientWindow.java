@@ -201,7 +201,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		else
 		{
 			formUrl = getEndpoint().getFormUrl(formName);
-			Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
+			if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
@@ -216,7 +216,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
 						new Object[] { formName });
 				}
-				Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
+				if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
 				// really send the changes
 				try
 				{
@@ -383,7 +383,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			synchronized (formUrl)
 			{
 				getEndpoint().setAttachedToDOM(formName, resolved);
-				Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
+				if (Debug.isDebugEnabled())
+					Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
 				if (resolved) getSession().getEventDispatcher().resume(formUrl);
 			}
 		}
