@@ -1263,13 +1263,16 @@ public class SQLGenerator
 			maskedOp == IBaseSQLCondition.GTE_OPERATOR || maskedOp == IBaseSQLCondition.LTE_OPERATOR)
 		{
 			Object inValues;
+			boolean andCondition = true;
 			if (value instanceof List< ? >)
 			{
 				inValues = new Object[][] { ((List< ? >)value).toArray() };
+				andCondition = maskedOp != IBaseSQLCondition.NOT_OPERATOR && maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR;
 			}
 			else if (value != null && value.getClass().isArray())
 			{
 				inValues = new Object[][] { (Object[])value };
+				andCondition = maskedOp != IBaseSQLCondition.NOT_OPERATOR && maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR;
 			}
 			else
 			{
@@ -1297,8 +1300,7 @@ public class SQLGenerator
 					}
 				}
 			}
-			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues,
-				maskedOp != IBaseSQLCondition.NOT_OPERATOR && maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR);
+			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues, andCondition);
 		}
 		else if (maskedOp == IBaseSQLCondition.BETWEEN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_BETWEEN_OPERATOR)
 		{
