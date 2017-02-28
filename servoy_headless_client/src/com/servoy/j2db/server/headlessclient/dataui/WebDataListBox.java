@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
 import javax.swing.border.Border;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
@@ -86,9 +87,9 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class WebDataListBox extends ListMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
-	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
-	ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
+public class WebDataListBox extends ListMultipleChoice
+	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds,
+	IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -123,6 +124,26 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true, true);
+		list.addListDataListener(new ListDataListener()
+		{
+			@Override
+			public void intervalAdded(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void intervalRemoved(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void contentsChanged(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+		});
 		list.setMultiValueSelect(multiSelection);
 		setChoices(list);
 
@@ -477,7 +498,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		{
 			case IColumnTypes.DATETIME :
 				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-				null, application.getLocale(), true), cf.parsedFormat);
+					null, application.getLocale(), true), cf.parsedFormat);
 				break;
 
 			case IColumnTypes.INTEGER :
