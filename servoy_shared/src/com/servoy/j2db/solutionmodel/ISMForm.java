@@ -2067,4 +2067,12 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setWidth(int width);
 
+	/**
+	 * Returns true if this form is in responsive mode
+	 *
+	 * @sample
+	 * var myForm = solutionModel.getForm('myform');
+	 * if (myForm.isResponsive()) {}
+	 */
+	public boolean isResponsiveLayout();
 }
