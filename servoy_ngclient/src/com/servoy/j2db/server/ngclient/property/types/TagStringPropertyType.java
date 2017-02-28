@@ -238,7 +238,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, final FormElement formElement)
+	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, final INGFormElement formElement)
 	{
 		final Set<String> dataProviders = new HashSet<>();
 		final boolean recordDP[] = new boolean[1];

@@ -92,7 +92,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		// formElementValue is the data provider id string here
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;

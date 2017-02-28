@@ -52,7 +52,6 @@ import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGApplication;
@@ -260,7 +259,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		if (formElementValue instanceof IValueList)
 		{

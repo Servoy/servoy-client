@@ -144,7 +144,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(YF formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(YF formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		if (wrappedType instanceof IDataLinkedType)
 		{

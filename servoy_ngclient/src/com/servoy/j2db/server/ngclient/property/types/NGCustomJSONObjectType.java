@@ -307,7 +307,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public TargetDataLinks getDataLinks(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
-		FormElement formElement)
+		INGFormElement formElement)
 	{
 		if (ServoyJSONObject.isJavascriptNullOrUndefined(formElementValue)) return TargetDataLinks.NOT_LINKED_TO_DATA;
 

@@ -288,7 +288,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 

@@ -38,7 +38,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -156,7 +155,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(JSONObject formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(JSONObject formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		return TargetDataLinks.LINKED_TO_ALL; // if you change this you should call this method in FoundsetTypeSabloValue.attach as well when registering as listener to DAL
 	}

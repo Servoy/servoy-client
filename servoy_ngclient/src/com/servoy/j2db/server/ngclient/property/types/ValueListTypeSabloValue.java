@@ -45,7 +45,6 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
@@ -173,7 +172,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		this.component = component;
 		valueList.addListDataListener(this);
 
-		FormElement formElement = ((WebFormComponent)component).getFormElement();
 		// register data link and find mode listeners as needed
 		TargetDataLinks dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD,
 			((WebFormComponent)component).getDataConverterContext().getSolution(), formElement);
