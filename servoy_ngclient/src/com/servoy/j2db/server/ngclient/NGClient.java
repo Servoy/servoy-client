@@ -76,11 +76,7 @@ import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
-import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.types.II18NValue;
-import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -274,7 +270,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Collection<WebComponent> components = formUI.getComponents();
 			for (WebComponent component : components)
 			{
-				resetI18NProperties(formUI, component, component.getSpecification(), new ComponentGetAndSetter(component));
+				if (component instanceof WebFormComponent)
+					resetI18NProperties(formUI, (WebFormComponent)component, component.getSpecification(), new ComponentGetAndSetter(component));
 			}
 		}
 	}
@@ -285,7 +282,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	 * @param webObjectSpecification
 	 */
 	@SuppressWarnings("unchecked")
-	private void resetI18NProperties(IWebFormUI formUI, WebComponent component, PropertyDescription description, IGetAndSetter getAndSetter)
+	private void resetI18NProperties(IWebFormUI formUI, WebFormComponent component, PropertyDescription description, IGetAndSetter getAndSetter)
 	{
 		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
 		Map< ? , ? > cachedValueList = (Map< ? , ? >)getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
@@ -294,16 +291,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		Collection<PropertyDescription> properties = description.getProperties().values();
 		for (PropertyDescription pd : properties)
 		{
-			if (pd.getType() instanceof TagStringPropertyType)
+			if (pd.getType() instanceof II18NPropertyType)
 			{
-				Object property = getAndSetter.getProperty(pd.getName());
-				if (property instanceof II18NValue)
-				{
-					String i18nKey = ((II18NValue)property).getI18NKey();
-					BasicTagStringTypeSabloValue sabloComponentValue = TagStringPropertyType.INSTANCE.toSabloComponentValue(i18nKey, pd,
-						((WebFormComponent)component).getFormElement(), (WebFormComponent)component, ((II18NValue)property).getDataAdapterList());
-					getAndSetter.setProperty(pd.getName(), sabloComponentValue);
-				}
+				((II18NPropertyType)pd.getType()).resetValue(getAndSetter, pd, component);
 			}
 			else if (pd.getType() instanceof CustomJSONArrayType< ? , ? >)
 			{
@@ -329,18 +319,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				{
 					PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 					resetI18NProperties(formUI, component, customPd, new MapGetAndSetter((Map<String, Object>)property));
-				}
-			}
-			else if (pd.getType() instanceof ValueListPropertyType)
-			{
-				Object property = getAndSetter.getProperty(pd.getName());
-				if (property instanceof ValueListTypeSabloValue)
-				{
-					ValueListTypeSabloValue currentSabloValue = (ValueListTypeSabloValue)property;
-					FormElement formElement = ((WebFormComponent)component).getFormElement();
-					ValueListTypeSabloValue newSabloValue = ((ValueListPropertyType)pd.getType()).toSabloComponentValue(
-						formElement.getRawPropertyValue(pd.getName()), pd, formElement, (WebFormComponent)component, currentSabloValue.getDataAdapterList());
-					getAndSetter.setProperty(pd.getName(), newSabloValue);
 				}
 			}
 		}

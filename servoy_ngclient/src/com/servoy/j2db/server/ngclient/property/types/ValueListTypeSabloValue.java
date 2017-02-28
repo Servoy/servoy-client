@@ -46,6 +46,7 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -74,9 +75,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected BaseWebObject component;
 	private final ComponentFormat format;
 	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
+	protected final INGFormElement formElement;
 
 	public ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID,
-		PropertyDescription vlPD, ComponentFormat format)
+		PropertyDescription vlPD, ComponentFormat format, INGFormElement formElement)
 	{
 		this.valueList = valueList;
 		this.dataAdapterList = dataAdapterList;
@@ -84,6 +86,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		this.dataproviderID = dataproviderID;
 		this.vlPD = vlPD;
 		this.format = format;
+		this.formElement = formElement;
 	}
 
 	public IValueList getValueList()
