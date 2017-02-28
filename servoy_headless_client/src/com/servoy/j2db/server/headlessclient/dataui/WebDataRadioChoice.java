@@ -29,6 +29,7 @@ import java.util.StringTokenizer;
 
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
@@ -83,9 +84,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane,
-	ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender,
-	ISupportScroll
+public class WebDataRadioChoice extends RadioChoice
+	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener,
+	IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -117,6 +118,26 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true, false);
+		list.addListDataListener(new ListDataListener()
+		{
+			@Override
+			public void intervalAdded(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void intervalRemoved(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void contentsChanged(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+		});
 		setChoices(list);
 
 		setChoiceRenderer(new WebChoiceRenderer(this, list)); // null because this component does not use a converter (for date/number formats)
@@ -129,6 +150,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		this.scriptable = scriptable;
 		scriptable.setList(list);
 		add(new ScrollBehavior(this));
+
 	}
 
 	@Override
@@ -141,7 +163,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		{
 			case IColumnTypes.DATETIME :
 				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-				null, application.getLocale(), true), cf.parsedFormat);
+					null, application.getLocale(), true), cf.parsedFormat);
 				break;
 
 			case IColumnTypes.INTEGER :
@@ -1024,7 +1046,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1036,7 +1058,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1047,7 +1069,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override

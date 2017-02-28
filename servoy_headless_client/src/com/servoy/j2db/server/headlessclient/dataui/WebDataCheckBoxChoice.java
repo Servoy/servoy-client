@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
@@ -122,6 +123,26 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 		list = new WebComboModelListModelWrapper(vl, true, false);
 		list.setMultiValueSelect(multiselect);
+		list.addListDataListener(new ListDataListener()
+		{
+			@Override
+			public void intervalAdded(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void intervalRemoved(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void contentsChanged(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+		});
 		setChoices(list);
 		this.multiselect = multiselect;
 
