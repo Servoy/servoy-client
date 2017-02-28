@@ -172,15 +172,14 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-
+		if (testForValidForm && !allowedForms.contains(formName))
+		{
+			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
+		}
 		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, false).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
-			if (testForValidForm && !allowedForms.contains(formName))
-			{
-				throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
-			}
 			IWebFormController cachedFormController = getSession().getClient().getFormManager().getCachedFormController(formName);
 			IWebFormUI formUI = cachedFormController != null ? cachedFormController.getFormUI() : null;
 			if (formUI != null && formUI.getParentContainer() == null)
