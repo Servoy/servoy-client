@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
@@ -83,9 +84,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
-	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
-	ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
+public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
+	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds,
+	IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -120,6 +121,26 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true, false);
+		list.addListDataListener(new ListDataListener()
+		{
+			@Override
+			public void intervalAdded(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void intervalRemoved(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+
+			@Override
+			public void contentsChanged(ListDataEvent e)
+			{
+				getStylePropertyChanges().setChanged();
+			}
+		});
 		list.setMultiValueSelect(true);
 		setChoices(list);
 
@@ -151,7 +172,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		{
 			case IColumnTypes.DATETIME :
 				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-				null, application.getLocale(), true), cf.parsedFormat);
+					null, application.getLocale(), true), cf.parsedFormat);
 				break;
 
 			case IColumnTypes.INTEGER :
@@ -1041,7 +1062,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1053,7 +1074,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1064,7 +1085,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
