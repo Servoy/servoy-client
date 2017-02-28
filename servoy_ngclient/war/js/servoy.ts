@@ -386,15 +386,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			var dismissDelay = $svyUIProperties.getUIProperty("tooltipDismissDelay"); 
 			if(isNaN(dismissDelay)) dismissDelay = 5000;
 
-			function mouseover(event) {
+			function doShow(event) {
 	        	$svyTooltipUtils.showTooltip(event, tooltip, initialDelay, dismissDelay);
 	        }
-			function mouseout(event) {
+			function doHide(event) {
 	        	$svyTooltipUtils.hideTooltip();
 	        }
 			function register() {
-				element.on('mouseover', mouseover);
-		        element.on('mouseout', mouseout)
+				element.on('mouseover', doShow);
+		        element.on('mouseout', doHide);
+				element.on('click', doHide);
+				element.on('contextmenu', doHide);
 			}
 			if (tooltip) {
 		        register();
@@ -404,8 +406,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					register();
 				}
 				else if (!newValue && tooltip) {
-					element.off('mouseover', mouseover);
-			        element.off('mouseout', mouseout)
+					element.off('mouseover', doShow);
+			        element.off('mouseout', doHide);
+					element.off('click', doHide);
+					element.off('contextmenu', doHide);
 				}
 				tooltip = newValue;
 			}
