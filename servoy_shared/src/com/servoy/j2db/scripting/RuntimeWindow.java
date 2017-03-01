@@ -279,7 +279,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 			if (!application.getFlattenedSolution().formCanBeInstantiated(frm))
 			{
 				// abstract form
-				throw new ApplicationException(ServoyException.ABSTRACT_FORM);
+				throw new ApplicationException(ServoyException.ABSTRACT_FORM, new Object[] { f });
 			}
 
 			show(f);
