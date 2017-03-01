@@ -30,7 +30,7 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * This class is normally found as related state from another state and therefore holds related data
- * 
+ *
  * @author jblok
  */
 public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFoundSet, Cloneable
@@ -99,7 +99,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 			}
 		};
 
-		IApplication app = (IApplication)fsm.getApplication();
+		IApplication app = fsm.getApplication();
 		if (app.isEventDispatchThread())
 		{
 			runner.run();
@@ -112,7 +112,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 
 	/**
 	 * Returns the selectedRow.
-	 * 
+	 *
 	 * @return int
 	 */
 	@Override
@@ -125,7 +125,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 
 	/**
 	 * Sets the selectedRow.
-	 * 
+	 *
 	 * @param selectedRow The selectedRow to set
 	 */
 	@Override
@@ -137,9 +137,12 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	}
 
 	@Override
-	protected void fireFoundSetEvent(int firstRow, int lastRow, int type)
+	protected void fireFoundSetEvent(final FoundSetEvent e)
 	{
-		super.fireFoundSetEvent(firstRow, lastRow, type);
+		super.fireFoundSetEvent(e);
+		int type = e.getChangeType();
+		int firstRow = e.getFirstRow();
+		int lastRow = e.getLastRow();
 		if (type == FoundSetEvent.CHANGE_INSERT || type == FoundSetEvent.CHANGE_DELETE)
 		{
 			// if for example both a record view and a table view listen for this event and the record view changes the selection before the table view tries to adjust it due to the insert (on the same selectionModel)
@@ -154,7 +157,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 				selectionModel.setFoundsetIsFiringSizeChangeTableAndListEvent(before);
 			}
 		}
-		else
+		else if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
 		{
 			getTableAndListEventDelegate().fireTableAndListEvent(fsm.getApplication(), firstRow, lastRow, type);
 		}

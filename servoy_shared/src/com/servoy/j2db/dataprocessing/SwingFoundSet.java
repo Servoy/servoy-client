@@ -30,7 +30,7 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * The foundset to be used in swing apps
- * 
+ *
  * @author jblok
  */
 public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
@@ -98,7 +98,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 			}
 		};
 
-		IApplication app = (IApplication)fsm.getApplication();
+		IApplication app = fsm.getApplication();
 		if (app.isEventDispatchThread())
 		{
 			runner.run();
@@ -111,7 +111,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 
 	/**
 	 * Returns the selectedRow.
-	 * 
+	 *
 	 * @return int
 	 */
 	@Override
@@ -124,7 +124,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 
 	/**
 	 * Sets the selectedRow.
-	 * 
+	 *
 	 * @param selectedRow The selectedRow to set
 	 */
 	@Override
@@ -135,9 +135,12 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	}
 
 	@Override
-	protected void fireFoundSetEvent(int firstRow, int lastRow, int type)
+	protected void fireFoundSetEvent(final FoundSetEvent e)
 	{
-		super.fireFoundSetEvent(firstRow, lastRow, type);
+		super.fireFoundSetEvent(e);
+		int type = e.getChangeType();
+		int firstRow = e.getFirstRow();
+		int lastRow = e.getLastRow();
 		// always fire also if there are no listeners (because of always-first-selection rule)
 		if (type == FoundSetEvent.CHANGE_INSERT || type == FoundSetEvent.CHANGE_DELETE)
 		{
@@ -153,7 +156,7 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 				selectionModel.setFoundsetIsFiringSizeChangeTableAndListEvent(before);
 			}
 		}
-		else
+		else if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
 		{
 			getTableAndListEventDelegate().fireTableAndListEvent(fsm.getApplication(), firstRow, lastRow, type);
 		}
