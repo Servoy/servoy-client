@@ -23,7 +23,10 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					ignoreReadonly : true,
 					showTodayButton: true,
 					calendarWeeks: true,
-					showClose: true
+					showClose: true,
+					icons: {
+						close: 'glyphicon glyphicon-ok'
+					}
 				};
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -171,7 +174,10 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						ignoreReadonly : true,
 						showTodayButton: true,
 						calendarWeeks: true,
-						showClose: true
+						showClose: true,
+						icons: {
+							close: 'glyphicon glyphicon-ok'
+						}
 					});
 					theDateTimePicker = child.data('DateTimePicker');
 					theDateTimePicker.format(dateFormat);
