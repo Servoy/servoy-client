@@ -38,8 +38,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.BrowserConverterContext;
-import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
@@ -76,8 +74,8 @@ import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
-import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IPerfomanceRegistry;
@@ -263,6 +261,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		if (send && !("".equals(l.getLanguage()) && "".equals(l.getCountry())))
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
 				new Object[] { l.getLanguage(), l.getCountry() });
+		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
+		Map< ? , ? > cachedValueList = (Map< ? , ? >)getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+		if (cachedValueList != null) cachedValueList.clear();
 		List<IFormController> allControllers = getFormManager().getCachedFormControllers();
 		for (IFormController fc : allControllers)
 		{
@@ -271,55 +272,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			for (WebComponent component : components)
 			{
 				if (component instanceof WebFormComponent)
-					resetI18NProperties(formUI, (WebFormComponent)component, component.getSpecification(), new ComponentGetAndSetter(component));
-			}
-		}
-	}
-
-	/**
-	 * @param formUI
-	 * @param component
-	 * @param webObjectSpecification
-	 */
-	@SuppressWarnings("unchecked")
-	private void resetI18NProperties(IWebFormUI formUI, WebFormComponent component, PropertyDescription description, IGetAndSetter getAndSetter)
-	{
-		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
-		Map< ? , ? > cachedValueList = (Map< ? , ? >)getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
-		if (cachedValueList != null) cachedValueList.clear();
-
-		Collection<PropertyDescription> properties = description.getProperties().values();
-		for (PropertyDescription pd : properties)
-		{
-			if (pd.getType() instanceof II18NPropertyType)
-			{
-				((II18NPropertyType)pd.getType()).resetValue(getAndSetter, pd, component);
-			}
-			else if (pd.getType() instanceof CustomJSONArrayType< ? , ? >)
-			{
-				Object property = getAndSetter.getProperty(pd.getName());
-				if (property instanceof List< ? > && ((List< ? >)property).size() > 0)
-				{
-					PropertyDescription arrayPD = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
-					if (arrayPD.getType() instanceof CustomJSONObjectType< ? , ? >)
-					{
-						PropertyDescription customPD = ((CustomJSONObjectType< ? , ? >)arrayPD.getType()).getCustomJSONTypeDefinition();
-						List<Map<String, Object>> lst = (List<Map<String, Object>>)property;
-						for (Map<String, Object> customObject : lst)
-						{
-							resetI18NProperties(formUI, component, customPD, new MapGetAndSetter(customObject));
-						}
-					}
-				}
-			}
-			else if (pd.getType() instanceof CustomJSONObjectType< ? , ? >)
-			{
-				Object property = getAndSetter.getProperty(pd.getName());
-				if (property instanceof Map< ? , ? >)
-				{
-					PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
-					resetI18NProperties(formUI, component, customPd, new MapGetAndSetter((Map<String, Object>)property));
-				}
+					NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification(), new ComponentGetAndSetter(component));
 			}
 		}
 	}

@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONException;
@@ -46,9 +47,12 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
 import com.servoy.j2db.util.Debug;
@@ -194,5 +198,17 @@ public abstract class NGUtils
 		}
 
 		return allPublicWebServiceSpecifications.toArray(new WebObjectSpecification[allPublicWebServiceSpecifications.size()]);
+	}
+
+	public static void resetI18NProperties(WebFormComponent component, PropertyDescription description, IGetAndSetter getAndSetter)
+	{
+		Collection<PropertyDescription> properties = description.getProperties().values();
+		for (PropertyDescription pd : properties)
+		{
+			if (pd.getType() instanceof II18NPropertyType)
+			{
+				((II18NPropertyType)pd.getType()).resetValue(getAndSetter, pd, component);
+			}
+		}
 	}
 }
