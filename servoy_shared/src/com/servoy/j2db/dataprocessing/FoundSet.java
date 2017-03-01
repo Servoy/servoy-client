@@ -5323,17 +5323,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
-	protected void fireFoundSetEvent(int firstRow, int lastRow, int changeType)
+	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	protected void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}
 
-	private void fireFoundSetEvent(final FoundSetEvent e)
+	protected void fireFoundSetEvent(final FoundSetEvent e)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
