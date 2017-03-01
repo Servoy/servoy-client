@@ -172,7 +172,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-		if (testForValidForm && !allowedForms.contains(formName))
+		if (testForValidForm && !allowedForms.contains(formName) && getEndpoint().getFormUrl(formName) == null)
 		{
 			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
 		}
