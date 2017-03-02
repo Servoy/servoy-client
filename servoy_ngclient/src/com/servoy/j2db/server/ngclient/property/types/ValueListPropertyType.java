@@ -392,7 +392,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 
 		Object property = getAndSetter.getProperty(pd.getName());
-		if (property instanceof ValueListTypeSabloValue)
+		// have to test if a real valuelist is there because a "autoVL" valuelist doesn't have an actual valuelist but is based on the column itself.
+		if (property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).valueList.getValueList() != null)
 		{
 			ValueListTypeSabloValue currentSabloValue = (ValueListTypeSabloValue)property;
 			ValueListTypeSabloValue newSabloValue = ((ValueListPropertyType)pd.getType()).toSabloComponentValue(
