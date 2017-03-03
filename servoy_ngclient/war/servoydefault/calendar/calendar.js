@@ -22,7 +22,11 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					showClear : true,
 					ignoreReadonly : true,
 					showTodayButton: true,
-					calendarWeeks: true
+					calendarWeeks: true,
+					showClose: true,
+					icons: {
+						close: 'glyphicon glyphicon-ok'
+					}
 				};
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -35,6 +39,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			}	
 			
 			child.datetimepicker(options);
+			var theDateTimePicker = child.data('DateTimePicker');
 
 			function inputChanged(e) {
 				if ($scope.model.findmode) {
@@ -61,8 +66,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			ngModel.$render = function() {
 				try {
 					$element.off("dp.change", inputChanged);
-					var x = child.data('DateTimePicker');
-					if (x && !$scope.model.findmode) x.date(correctDateValueToUse(ngModel.$viewValue)); // set default date for widget open; turn undefined to null as well (undefined gives exception)
+					if (theDateTimePicker && !$scope.model.findmode) theDateTimePicker.date(correctDateValueToUse(ngModel.$viewValue)); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
 						// in find mode
 						child.children("input").val(ngModel.$viewValue);
@@ -100,8 +104,8 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				if (format && format[which]) {
 					dateFormat = moment().toMomentFormatString(format[which]);
 				}
-				var x = child.data('DateTimePicker');
-				if (angular.isDefined(x)) { // can be undefined in find mode
+
+				if (angular.isDefined(theDateTimePicker)) { // can be undefined in find mode
 					var ieVersion = detectIE();
 					var start=0;
 					var end=0;
@@ -110,10 +114,10 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						start = child.children("input")[0].selectionStart;
 						end = child.children("input")[0].selectionEnd;
 					}
-					x.format(dateFormat);
+					theDateTimePicker.format(dateFormat);
 
 					try {
-						x.date(correctDateValueToUse(ngModel.$viewValue));
+						theDateTimePicker.date(correctDateValueToUse(ngModel.$viewValue));
 
 					}
 					finally {
@@ -160,7 +164,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 
 			$scope.$watch('model.findmode', function() {
 				if ($scope.model.findmode) {
-					child.data('DateTimePicker').destroy();
+					theDateTimePicker.destroy();
 				} else {
 					$element.off("dp.error");
 					child.datetimepicker({
@@ -169,13 +173,17 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						showClear : true,
 						ignoreReadonly : true,
 						showTodayButton: true,
-						calendarWeeks: true
+						calendarWeeks: true,
+						showClose: true,
+						icons: {
+							close: 'glyphicon glyphicon-ok'
+						}
 					});
-					var x = child.data('DateTimePicker');
-					x.format(dateFormat);
+					theDateTimePicker = child.data('DateTimePicker');
+					theDateTimePicker.format(dateFormat);
 					try {
 						$element.off("dp.change", inputChanged);
-						x.date(correctDateValueToUse(ngModel.$viewValue));
+						theDateTimePicker.date(correctDateValueToUse(ngModel.$viewValue));
 					} finally {
 						$element.on("dp.error", onError);
 						$element.on("dp.change", inputChanged);
@@ -337,6 +345,9 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				}
 			});
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				if (angular.isDefined(theDateTimePicker)) { // can be undefined in find mode
+					theDateTimePicker.destroy();
+				}
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];
 			});

@@ -52,8 +52,8 @@ import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -77,9 +77,10 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
-	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
-	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType, IRhinoDesignConverter
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>
+	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
+	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
+	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -167,7 +168,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		valueList = getIValueList(formElementValue, pd, formElement, component, dataAdapterList, val, valueList, config, dataproviderID);
 
 		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd,
-			getComponentFormat(pd, dataAdapterList, formElement, config, dataproviderID)) : null;
+			getComponentFormat(pd, dataAdapterList, formElement, config, dataproviderID), formElement) : null;
 	}
 
 	/**
@@ -258,7 +259,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		if (formElementValue instanceof IValueList)
 		{
@@ -306,9 +307,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			ValueListConfig config = (ValueListConfig)pd.getConfig();
 			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
 				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
-			return newVl != null
-				? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd, new ComponentFormat(format, type, type))
-				: previousComponentValue;
+			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd,
+				new ComponentFormat(format, type, type), value.formElement) : previousComponentValue;
 		}
 		return null;
 	}
@@ -385,6 +385,22 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			return application.getScriptEngine().getSolutionModifier().getValueList(list.getName());
 		}
 		return null;
+	}
+
+	@Override
+	public void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component)
+	{
+
+		Object property = getAndSetter.getProperty(pd.getName());
+		// have to test if a real valuelist is there because a "autoVL" valuelist doesn't have an actual valuelist but is based on the column itself.
+		if (property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).valueList.getValueList() != null)
+		{
+			ValueListTypeSabloValue currentSabloValue = (ValueListTypeSabloValue)property;
+			ValueListTypeSabloValue newSabloValue = ((ValueListPropertyType)pd.getType()).toSabloComponentValue(
+				currentSabloValue.valueList.getValueList().getUUID(), pd, currentSabloValue.formElement, component, currentSabloValue.getDataAdapterList());
+			getAndSetter.setProperty(pd.getName(), newSabloValue);
+		}
+
 	}
 
 }

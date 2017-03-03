@@ -151,7 +151,11 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			$scope.$watch('model.divLocation', function(newValue, oldValue){
 				if (newValue && newValue  !== oldValue) {
 					processDivLocation();
-					if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,$.Event("change"));
+					if($scope.handlers.onChangeMethodID) {
+						$scope.$evalAsync(function() {
+							$scope.handlers.onChangeMethodID(-1,$.Event("change"));
+						});
+					}
 					// let the containing forms re-calculate their size
 					$window.dispatchEvent(new Event('resize'));
 				}

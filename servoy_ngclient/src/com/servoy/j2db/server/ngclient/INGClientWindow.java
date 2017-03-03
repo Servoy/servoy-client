@@ -54,9 +54,14 @@ public interface INGClientWindow extends IWindow
 
 	void destroyForm(String name);
 
-	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
+	void touchForm(Form flattenedForm, String realInstanceName, boolean async, boolean testForValidForm);
 
 	@Override
 	INGClientWebsocketSession getSession();
+
+	/**
+	 * @param formName
+	 */
+	void registerAllowedForm(String formName);
 
 }

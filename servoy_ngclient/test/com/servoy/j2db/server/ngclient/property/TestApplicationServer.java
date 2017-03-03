@@ -421,7 +421,7 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	}
 
 	@Override
-	public boolean checkClientLicense(String companyName, String license, int numberOfLicenses)
+	public boolean checkClientLicense(String companyName, String license, String numberOfLicenses)
 	{
 		return false;
 	}

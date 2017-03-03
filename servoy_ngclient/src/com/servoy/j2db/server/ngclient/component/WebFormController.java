@@ -266,28 +266,37 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	}
 
+	private boolean destroyOnHide;
+
 	@Override
 	public void destroy()
 	{
-		try
+		if (isFormVisible())
 		{
-			if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
-			unload();
-			if (formUI != null)
-			{
-				formUI.destroy();
-				formUI = null;
-			}
-			super.destroy();
-			IWindow window = CurrentWindow.safeGet();
-			if (window instanceof NGClientWindow)
-			{
-				((NGClientWindow)window).destroyForm(getName());
-			}
+			destroyOnHide = true;
 		}
-		finally
+		else
 		{
-			application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
+			try
+			{
+				if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
+				unload();
+				if (formUI != null)
+				{
+					formUI.destroy();
+					formUI = null;
+				}
+				super.destroy();
+				IWindow window = CurrentWindow.safeGet();
+				if (window instanceof NGClientWindow)
+				{
+					((NGClientWindow)window).destroyForm(getName());
+				}
+			}
+			finally
+			{
+				application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
+			}
 		}
 	}
 
@@ -720,6 +729,17 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				}
 			}
 
+		}
+		if (!visible && destroyOnHide)
+		{
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					destroy();
+				}
+			};
+			invokeLaterRunnables.add(run);
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.

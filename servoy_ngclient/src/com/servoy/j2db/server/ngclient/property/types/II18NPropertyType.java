@@ -19,42 +19,19 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.specification.PropertyDescription;
 
-import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.IGetAndSetter;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 
 /**
- * @author jcompagner
+ * @author jcomp
  *
  */
-public class I18NTagStringTypeSabloValue extends TagStringTypeSabloValue implements II18NValue
+public interface II18NPropertyType
 {
-	private final String i18nKey;
 
 	/**
-	 * @param designValue
-	 * @param dataAdapterList
-	 * @param dataConverterContext
-	 * @param pd
-	 * @param formElement
+	 * @param property
 	 */
-	public I18NTagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
-		PropertyDescription pd, FormElement formElement, String i18nKey)
-	{
-		super(designValue, dataAdapterList, dataConverterContext, pd, formElement);
-		this.i18nKey = i18nKey;
-	}
-
-	@Override
-	public String getI18NKey()
-	{
-		return i18nKey;
-	}
-
-	@Override
-	public DataAdapterList getDataAdapterList()
-	{
-		return super.getDataAdapterList();
-	}
+	void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component);
 
 }

@@ -49,7 +49,9 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementExtension;
+import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.MapGetAndSetter;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
@@ -60,6 +62,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
@@ -75,7 +78,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
 	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
 	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>, IFindModeAwareType<Map<String, FormElementT>, Map<String, SabloT>>,
-	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter
+	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter, II18NPropertyType
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -307,7 +310,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public TargetDataLinks getDataLinks(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
-		FormElement formElement)
+		INGFormElement formElement)
 	{
 		if (ServoyJSONObject.isJavascriptNullOrUndefined(formElementValue)) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
@@ -370,6 +373,23 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			return result;
 		}
 		return value;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.II18NPropertyType#resetValue(com.servoy.j2db.server.ngclient.IGetAndSetter,
+	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.WebFormComponent)
+	 */
+	@Override
+	public void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component)
+	{
+		Object property = getAndSetter.getProperty(pd.getName());
+		if (property instanceof Map< ? , ? >)
+		{
+			PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
+			NGUtils.resetI18NProperties(component, customPd, new MapGetAndSetter((Map<String, Object>)property));
+		}
 	}
 
 }

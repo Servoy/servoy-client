@@ -493,7 +493,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 				return Messages.getString("servoy.applicationException.maintenanceMode"); //$NON-NLS-1$
 
 			case ABSTRACT_FORM :
-				return Messages.getString("servoy.formPanel.error.cannotShowForm"); //$NON-NLS-1$
+				return Messages.getString("servoy.formPanel.error.cannotShowForm", tagValues); //$NON-NLS-1$
 
 			case InternalCodes.OPERATION_CANCELLED :
 				return "Operation cancelled"; //$NON-NLS-1$

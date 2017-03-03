@@ -67,7 +67,7 @@ public class RhinoConversion
 			Object[] ids = no.getIds();
 			for (Object id2 : ids)
 			{
-				String id = (String)id2;
+				String id = String.valueOf(id2);
 				map.put(id, defaultFromRhino(no.get(id), oldMap != null ? oldMap.get(id) : null, pd != null ? pd.getProperty(id) : null, converterContext));
 			}
 			return map;

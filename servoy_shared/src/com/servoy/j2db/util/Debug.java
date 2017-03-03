@@ -413,6 +413,11 @@ public class Debug
 		if (wasInserted) insertClientInfo(false);
 	}
 
+	public static boolean isDebugEnabled()
+	{
+		return log.isDebugEnabled();
+	}
+
 	private static void initIfFirstTime()
 	{
 		if (log == null)

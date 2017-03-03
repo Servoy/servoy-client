@@ -143,7 +143,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	public void init()
 	{
-		components.clear();
+		clearComponents();
 		cachedElements.clear();
 		groups.clear();
 		IDataAdapterList previousDataAdapterList = dataAdapterList;
@@ -171,7 +171,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			}
 		}
 
-		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
+		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)getComponent(DefaultNavigator.NAME_PROP_VALUE);
 		if (nav != null)
 		{
 			nav.newFoundset(null);
@@ -190,7 +190,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				dataAdapterList.setRecord(record, false);
 				previousDataAdapterList.setRecord(null, false);
 
-				nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
+				nav = (DefaultNavigatorWebComponent)getComponent(DefaultNavigator.NAME_PROP_VALUE);
 				if (nav != null) nav.newFoundset(record.getParentFoundSet());
 			}
 			previousDataAdapterList.destroy();
@@ -421,19 +421,18 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void destroy()
 	{
 		if (dataAdapterList != null) dataAdapterList.destroy();
-		Collection<WebComponent> componentsList = new ArrayList<WebComponent>(components.values());
-		for (WebComponent c : componentsList)
+		for (WebComponent c : getComponents())
 		{
 			c.dispose();
 		}
-		components.clear();
+		clearComponents();
 		cleanupListeners();
 	}
 
 	@Override
 	public void setModel(IFoundSetInternal fs)
 	{
-		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
+		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)getComponent(DefaultNavigator.NAME_PROP_VALUE);
 		if (nav != null)
 		{
 			nav.newFoundset(fs);
@@ -459,7 +458,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 	private void propagatePropertyToAllComponents(String property, boolean value)
 	{
-		for (WebComponent component : components.values())
+		for (WebComponent component : getComponents())
 		{
 			Object newValue = Boolean.valueOf(value);
 			if (READONLY.equals(property))
@@ -569,7 +568,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		// See also WebFormComponent
 		boolean retValue = true;
 		Set<IWebFormController> childFormsThatWereNotified = new HashSet<>();
-		for (WebComponent component : components.values())
+		for (WebComponent component : getComponents())
 		{
 			// childFormsThatWereNotified will be populated with forms that are notified below
 			retValue = retValue && ((WebFormComponent)component).notifyVisible(visible, invokeLaterRunnables, childFormsThatWereNotified);
@@ -943,7 +942,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public void refreshValueList(IValueList valuelist)
 	{
-		for (WebComponent component : components.values())
+		for (WebComponent component : getComponents())
 		{
 			WebFormComponent comp = (WebFormComponent)component;
 			Collection<PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));

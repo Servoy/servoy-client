@@ -36,6 +36,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.websocket.utils.DataConversion;
@@ -50,7 +51,9 @@ import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.MapGetAndSetter;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -59,6 +62,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -72,7 +76,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
 public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
 	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
 	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>,
-	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter, IDesignValueConverter
+	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter, IDesignValueConverter<Object>, II18NPropertyType
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -288,7 +292,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
@@ -390,5 +394,32 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			return jsonArray;
 		}
 		return value;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.II18NPropertyType#resetValue(com.servoy.j2db.server.ngclient.IGetAndSetter,
+	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.WebFormComponent)
+	 */
+	@Override
+	public void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component)
+	{
+		Object property = getAndSetter.getProperty(pd.getName());
+		if (property instanceof List< ? > && ((List< ? >)property).size() > 0)
+		{
+			PropertyDescription arrayPD = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
+			if (arrayPD.getType() instanceof CustomJSONObjectType< ? , ? >)
+			{
+				PropertyDescription customPD = ((CustomJSONObjectType< ? , ? >)arrayPD.getType()).getCustomJSONTypeDefinition();
+				List<Map<String, Object>> lst = (List<Map<String, Object>>)property;
+				for (Map<String, Object> customObject : lst)
+				{
+					NGUtils.resetI18NProperties(component, customPD, new MapGetAndSetter(customObject));
+				}
+			}
+		}
+
+
 	}
 }

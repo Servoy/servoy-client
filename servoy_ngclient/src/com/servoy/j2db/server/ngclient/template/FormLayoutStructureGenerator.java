@@ -118,7 +118,7 @@ public class FormLayoutStructureGenerator
 					ngClass.put(spec.getDesignStyleClass(), "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 					ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
-				if (spec.getAllowedChildren().size() > 0 || spec.getExcludedChildren().size() > 0)
+				if (spec.getAllowedChildren().size() > 0 || spec.getExcludedChildren() != null)
 				{
 					ngClass.put("drop_highlight", "<canContainDraggedElement('" + spec.getPackageName() + "." + spec.getName() + "')<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}

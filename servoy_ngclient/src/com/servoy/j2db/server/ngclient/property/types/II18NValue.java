@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import com.servoy.j2db.server.ngclient.DataAdapterList;
+
 /**
  * @author jcompagner
  *
@@ -24,4 +26,6 @@ package com.servoy.j2db.server.ngclient.property.types;
 public interface II18NValue
 {
 	String getI18NKey();
+
+	DataAdapterList getDataAdapterList();
 }

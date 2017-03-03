@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
@@ -53,6 +54,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
 
 	private final WeakHashSet<IWebFormUI> pendingApiCallFormsOnNextResponse = new WeakHashSet<>();
+
+	private final HashSet<String> allowedForms = new HashSet<>();
 
 	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
 	{
@@ -136,7 +139,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (!isDelayedApiCall(receiver, apiFunction))
 		{
-			touchForm(form.getForm(), form.getName(), false);
+			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
@@ -159,11 +162,20 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	public void touchForm(Form form, String realInstanceName, boolean async)
+	public void registerAllowedForm(String formName)
+	{
+		allowedForms.add(formName);
+	}
+
+	@Override
+	public void touchForm(Form form, String realInstanceName, boolean async, boolean testForValidForm)
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-
+		if (testForValidForm && !allowedForms.contains(formName) && getEndpoint().getFormUrl(formName) == null)
+		{
+			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
+		}
 		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, false).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
@@ -188,7 +200,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		else
 		{
 			formUrl = getEndpoint().getFormUrl(formName);
-			Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
+			if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
@@ -203,7 +215,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
 						new Object[] { formName });
 				}
-				Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
+				if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
 				// really send the changes
 				try
 				{
@@ -370,7 +382,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			synchronized (formUrl)
 			{
 				getEndpoint().setAttachedToDOM(formName, resolved);
-				Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
+				if (Debug.isDebugEnabled())
+					Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
 				if (resolved) getSession().getEventDispatcher().resume(formUrl);
 			}
 		}

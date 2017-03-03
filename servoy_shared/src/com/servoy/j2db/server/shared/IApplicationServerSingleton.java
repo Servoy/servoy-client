@@ -151,5 +151,5 @@ public interface IApplicationServerSingleton
 
 	void checkClientRepositoryAccess(String serverName) throws RepositoryException;
 
-	boolean checkClientLicense(String companyName, String license, int numberOfLicenses);
+	boolean checkClientLicense(String companyName, String license, String numberOfLicenses);
 }

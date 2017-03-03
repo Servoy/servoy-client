@@ -103,6 +103,8 @@ public interface IServerInternal
 
 	ITable getTable(String tableName) throws RepositoryException;
 
+	String getTableDatasource(String tableName) throws RepositoryException;
+
 	IRepository createRepositoryTables() throws RepositoryException;
 
 	IRepository getRepository() throws RepositoryException;

@@ -25,11 +25,13 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
+import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IServerRhinoToRhino;
@@ -93,6 +95,10 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 		if (sabloValue != null)
 		{
 			writer.value(sabloValue.getFormController().getName());
+			if (CurrentWindow.get() instanceof INGClientWindow)
+			{
+				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(sabloValue.getFormController().getName());
+			}
 		}
 		else
 		{

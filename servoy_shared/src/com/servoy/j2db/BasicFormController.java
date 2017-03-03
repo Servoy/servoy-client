@@ -3140,7 +3140,7 @@ public abstract class BasicFormController
 		 * When possible, the foundset will be loaded with the given query.
 		 * This is not always possible because the foundset needs to manipulate the query when adding conditions and joins.
 		 * In that case the query will be wrapped: select pk from tab where pk = (queryString)
-		 * The result is the same, except for te ordering in the queryString which will be ignored.
+		 * The result is the same, except for the ordering in the queryString which will be ignored.
 		 *
 		 * The query will be wrapped when one of the following is true:
 		 * <ul>

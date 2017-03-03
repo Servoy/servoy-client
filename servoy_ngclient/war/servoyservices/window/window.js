@@ -327,7 +327,7 @@ angular.module('window',['servoy'])
 					if (cssClass == 'img_checkbox' && items[j].selected != true)
 					{
 						// not selected checkbox
-						cssClass = null;
+						cssClass = 'img_checkbox_unselected';
 					}
 					if (cssClass == 'img_radio_off' && items[j].selected == true)
 					{

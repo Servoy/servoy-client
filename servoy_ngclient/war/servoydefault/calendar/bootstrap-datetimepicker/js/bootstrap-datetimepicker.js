@@ -454,14 +454,15 @@
             },
 
             fillDow = function () {
+            	var weekname = (options.isoCalendarWeeks ? 'isoWeek' : 'week')
                 var row = $('<tr>'),
-                    currentDate = viewDate.clone().startOf('w');
+                    currentDate = viewDate.clone().startOf(weekname);
 
                 if (options.calendarWeeks === true || options.isoCalendarWeeks === true) {
                     row.append($('<th>').addClass('cw').text('#'));
                 }
 
-                while (currentDate.isBefore(viewDate.clone().endOf('w'))) {
+                while (currentDate.isBefore(viewDate.clone().endOf(weekname))) {
                     row.append($('<th>').addClass('dow').text(currentDate.format('dd')));
                     currentDate.add(1, 'd');
                 }
@@ -586,10 +587,12 @@
                     daysViewHeader.eq(2).addClass('disabled');
                 }
 
-                currentDate = viewDate.clone().startOf('M').startOf('week');
+                var weekname = (options.isoCalendarWeeks ? 'isoWeek' : 'week')
+                var weekstart = (options.isoCalendarWeeks ? 1 : 0)
+                currentDate = viewDate.clone().startOf('M').startOf(weekname);
 
-                while (!viewDate.clone().endOf('M').endOf('w').isBefore(currentDate, 'd')) {
-                    if (currentDate.weekday() === 0) {
+                while (!viewDate.clone().endOf('M').endOf(weekname).isBefore(currentDate, 'd')) {
+                    if ((options.isoCalendarWeeks ? currentDate.isoWeekday() : currentDate.weekday()) === weekstart) {
                         row = $('<tr>');
                         if (options.isoCalendarWeeks) {
                             row.append('<td class="cw">' + currentDate.isoWeek() + '</td>');
