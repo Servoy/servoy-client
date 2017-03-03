@@ -247,6 +247,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				{
 					JSONObject showing = args.getJSONObject("show");
 					showing.put("visible", true);
+					showing.put("formname", formName);
 					if (args.has("parentForm"))
 					{
 						showing.put("parentForm", args.getString("parentForm"));
