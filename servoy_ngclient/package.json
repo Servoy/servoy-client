@@ -1,0 +1,10 @@
+{
+  "name": "sablo-unit-test-module",
+  "description": "A module that bundles karma depenencies needed to tun karma for sablo",
+  "dependencies": {
+    "typescript": "~2.0.10"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

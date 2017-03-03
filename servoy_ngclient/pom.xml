@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.servoy</groupId>
+    <artifactId>servoy-client</artifactId>
+    <version>8.1.2.3031</version>
+  </parent>
+  <artifactId>servoy_ngclient</artifactId>
+  <version>8.1.2.3031</version>
+  <packaging>eclipse-plugin</packaging>
+   <build>
+      <plugins>
+  	<plugin>
+	   <groupId>com.github.eirslett</groupId>
+	   <artifactId>frontend-maven-plugin</artifactId>
+	   <version>0.0.29</version>
+	   <executions>
+ 
+		<!-- 1. Install node and npm locally -->
+		<execution>
+			<id>install node and npm</id>
+			<goals>
+				<goal>install-node-and-npm</goal>
+			</goals>
+			<configuration>
+				<nodeVersion>v5.7.1</nodeVersion>
+				<npmVersion>3.6.0</npmVersion>
+			</configuration>
+		</execution>
+ 
+		<!-- 2. Install karma and karma plugins
+		<execution>
+			<id>npm install</id>
+			<goals>
+				<goal>npm</goal>
+			</goals>
+		</execution>
+  -->
+    	<!-- 3. npm run build -->
+		<execution>
+			<id>npm run build</id>
+			<goals>
+				<goal>npm</goal>
+			</goals>
+			<configuration>
+				<arguments>run build</arguments>
+			</configuration>
+		</execution>
+ 
+		<!-- 4. Run karma tests
+		<execution>
+			<id>javascript tests</id>
+			<goals>
+				<goal>karma</goal>
+			</goals>
+			<configuration>
+				<karmaConfPath>client_tests/karma.conf</karmaConfPath>
+			</configuration>
+		</execution>
+		 -->
+	   </executions>
+          </plugin>
+          </plugins>
+          </build>
+</project>

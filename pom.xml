@@ -10,7 +10,7 @@
 		<tycho.version>0.26.0</tycho.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<servoy-repo.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/repository/</servoy-repo.url>
-		<sablo.version>0.0.1-SNAPSHOT</sablo.version>
+		<sablo.version>8.1.2.3031-SNAPSHOT</sablo.version>
 	</properties>
 
 	<repositories>
@@ -28,6 +28,23 @@
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho.version}</version>
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+			 	   <compilerArgument>-err:-forbidden</compilerArgument>
+			 	   <extraClasspathElements>
+			 	      <dependency>
+						<groupId>javax.jnlp</groupId>
+						<artifactId>jnlp-api</artifactId>
+						<version>8.0</version>
+						<scope>system</scope>
+						<systemPath>${java.home}/lib/javaws.jar</systemPath>
+					</dependency>
+					</extraClasspathElements>
+			   </configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -63,17 +80,11 @@
 			<version>1.2.17</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.jnlp</groupId>
-			<artifactId>jnlp-api</artifactId>
-			<version>8.0</version>
-			<scope>system</scope>
-			<systemPath>${java.home}/lib/javaws.jar</systemPath>
-		</dependency>
-		<dependency>
 			<groupId>org.sablo</groupId>
 			<artifactId>sablo-core</artifactId>
 			<version>${sablo.version}</version>
 		</dependency>
+		
 	</dependencies>
 
 	<modules>
