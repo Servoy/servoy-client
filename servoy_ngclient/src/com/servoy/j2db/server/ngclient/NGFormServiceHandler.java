@@ -243,7 +243,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 
 				// if this call has an show object, then we need to directly show that form right away
-				if (ok && args.has("show"))
+				if (ok && args.has("show") && args.getJSONObject("show").has("formname"))
 				{
 					JSONObject showing = args.getJSONObject("show");
 					showing.put("visible", true);
