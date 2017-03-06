@@ -30,14 +30,14 @@
 			</configuration>
 		</execution>
  
-		<!-- 2. Install karma and karma plugins
+		<!-- 2. Install karma and karma plugins -->
 		<execution>
 			<id>npm install</id>
 			<goals>
 				<goal>npm</goal>
 			</goals>
 		</execution>
-  -->
+ 
     	<!-- 3. npm run build -->
 		<execution>
 			<id>npm run build</id>
