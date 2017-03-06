@@ -9,8 +9,12 @@
 	<properties>
 		<tycho.version>0.26.0</tycho.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<servoy-repo.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/repository/</servoy-repo.url>
+		<maven.compiler.source>1.7</maven.compiler.source>
+	    <maven.compiler.target>1.7</maven.compiler.target>
 		<sablo.version>8.1.2.3031-SNAPSHOT</sablo.version>
+		<servoy-repo.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/compile_target/install/</servoy-repo.url>
+		<servoy-deltapack.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/compile_target/install/deltapack/</servoy-deltapack.url>
+		<servoy-shiplibs.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
 	<repositories>
@@ -19,7 +23,18 @@
 			<url>${servoy-repo.url}</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>servoy_shiblibs</id>
+			<url>${servoy-shiplibs.url}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>servoy_deltapack</id>
+			<url>${servoy-deltapack.url}</url>
+			<layout>p2</layout>
+		</repository>
 	</repositories>
+
 
 	<build>
 		<plugins>
@@ -58,6 +73,26 @@
 							<os>win32</os>
 							<ws>win32</ws>
 							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
 						</environment>
 					</environments>
 					<dependency-resolution>
