@@ -190,46 +190,49 @@ public class WebServiceScriptable implements Scriptable
 	 *
 	 * @return the return value of the method converted back from Rhino to sablo webObject java value.
 	 */
-	public Object executeScopeFunction(String methodName, Object[] arrayOfSabloJavaMethodArgs)
+	public Object executeScopeFunction(WebObjectFunctionDefinition functionSpec, Object[] arrayOfSabloJavaMethodArgs)
 	{
-		Object object = scopeObject.get(methodName, scopeObject);
-		if (object instanceof Function)
+		if (functionSpec != null)
 		{
-			Context context = Context.enter();
-			try
+			Object object = scopeObject.get(functionSpec.getName(), scopeObject);
+			if (object instanceof Function)
 			{
-				// find spec for method
-				BaseWebObject serviceWebObject = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
-				WebObjectFunctionDefinition functionSpec = serviceSpecification.getApiFunction(methodName);
-				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
-
-				// convert arguments to Rhino
-				Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
-				for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
+				Context context = Context.enter();
+				try
 				{
-					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
-						(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, serviceWebObject, this);
-				}
-				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+					// find spec for method
+					BaseWebObject serviceWebObject = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-				PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
-				return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, serviceWebObject);
+					// convert arguments to Rhino
+					Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
+					for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
+					{
+						array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
+							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, serviceWebObject, this);
+					}
+					Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+
+					PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
+					return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, serviceWebObject);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					return null;
+				}
+				finally
+				{
+					Context.exit();
+				}
 			}
-			catch (JSONException e)
+			else
 			{
-				e.printStackTrace();
-				return null;
-			}
-			finally
-			{
-				Context.exit();
+				throw new RuntimeException("trying to call a function '" + functionSpec.getName() + "' that does not exists on a the service with spec: " +
+					serviceSpecification.getName());
 			}
 		}
-		else
-		{
-			throw new RuntimeException(
-				"trying to call a function '" + methodName + "' that does not exists on a the service with spec: " + serviceSpecification.getName());
-		}
+		return null;
 	}
 
 	@Override
