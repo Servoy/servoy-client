@@ -270,7 +270,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -812,7 +812,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		Page page = findPage();
 		if (page instanceof MainPage)
 		{
-			((MainPage)page).getPageContributor().addDynamicJavaScript("tinymce.activeEditor.selection.setContent('" + s + "')");
+			((MainPage)page).getPageContributor().addDynamicJavaScript("tinymce.activeEditor.selection.setContent('" + s + "'); tinyMCE.activeEditor.focus()");
 		}
 	}
 
@@ -830,7 +830,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -842,7 +842,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -853,7 +853,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
