@@ -523,6 +523,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	//should be disabled if not showing!
 	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables)
 	{
+		if (visible == b) return;
 		visible = b;
 		for (IDisplayRelatedData drd : relatedDataAdapters)
 		{
