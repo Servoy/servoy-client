@@ -13,9 +13,9 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 	    <maven.compiler.target>1.7</maven.compiler.target>
 		<sablo.version>8.1.2.3031-SNAPSHOT</sablo.version>
-		<servoy-repo.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/compile_target/install/</servoy-repo.url>
-		<servoy-deltapack.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/compile_target/install/deltapack/</servoy-deltapack.url>
-		<servoy-shiplibs.url>file:/${project.basedir}/../../servoy-osgi-target/eclipse_target/ship_plugins/</servoy-shiplibs.url>
+		<servoy-repo.url>${project.baseUri}../../servoy-osgi-target/eclipse_target/compile_target/install/</servoy-repo.url>
+		<servoy-deltapack.url>${project.baseUri}../../servoy-osgi-target/eclipse_target/compile_target/install/deltapack/</servoy-deltapack.url>
+		<servoy-shiplibs.url>${project.baseUri}../../servoy-osgi-target/eclipse_target/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
 	<repositories>
@@ -35,6 +35,29 @@
 			<layout>p2</layout>
 		</repository>
 	</repositories>
+	
+	<profiles>
+      <profile>
+      <id>doc</id>
+      	<modules>
+				<module>servoy_doc</module>
+		</modules>
+      </profile>
+      	<profile>
+			<id>plugins</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>servoy_base</module>
+				<module>servoy_shared</module>
+				<module>servoy_smart_client</module>
+				<module>servoy_headless_client</module>
+				<module>servoy_ngclient</module>
+				<module>servoy_debug</module>
+			</modules>
+		</profile>
+    </profiles>
 
 
 	<build>
@@ -160,66 +183,6 @@
 				<configuration>
 					<defaultP2Metadata>false</defaultP2Metadata>
 				</configuration>
-			</plugin>		    <plugin>
-		      <groupId>org.eclipse.tycho.extras</groupId>
-		      <artifactId>tycho-pack200a-plugin</artifactId>
-		      <version>${tycho.extra.version}</version>
-		      <executions>
-		       <execution>
-		        <id>pack200-normalize</id>
-		        <goals>
-		         <goal>normalize</goal>
-		        </goals>
-		       </execution>
-		      </executions>
-		     </plugin>
-		    <plugin>
-		    <groupId>org.apache.maven.plugins</groupId>
-		    <artifactId>maven-jarsigner-plugin</artifactId>
-		    <version>1.4</version>
-		    <configuration>
-		     <keystore>${project.basedir}/../../build/eclipse_build/keystore</keystore>
-		     <alias>ServoyClient</alias>
-		     <tsa>http://sha256timestamp.ws.symantec.com/sha256/timestamp</tsa>
-		    </configuration>
-		    <executions>
-		     <execution>
-		      <id>sign</id>
-		      <goals>
-		       <goal>sign</goal>
-		      </goals>
-		     </execution>
-		    </executions>
-		   </plugin>
-		   <plugin>
-		      <groupId>org.eclipse.tycho.extras</groupId>
-		      <artifactId>tycho-pack200b-plugin</artifactId>
-		      <version>${tycho.extra.version}</version>
-		      <executions>
-		       <execution>
-		        <id>pack200-pack</id>
-		        <goals>
-		         <goal>pack</goal>
-		        </goals>
-		       </execution>
-		      </executions>
-		     </plugin>
-		     <plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<executions>
-					<execution>
-						<id>p2-metadata</id>
-						<goals>
-							<goal>p2-metadata</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-				</executions>
-				<configuration>
-					<defaultP2Metadata>false</defaultP2Metadata>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -240,15 +203,5 @@
 			<artifactId>sablo-core</artifactId>
 			<version>${sablo.version}</version>
 		</dependency>
-		
 	</dependencies>
-
-	<modules>
-		<module>servoy_base</module>
-		<module>servoy_shared</module>
-		<module>servoy_smart_client</module>
-		<module>servoy_headless_client</module>
-		<module>servoy_ngclient</module>
-		<module>servoy_debug</module>
-	</modules>
 </project>
