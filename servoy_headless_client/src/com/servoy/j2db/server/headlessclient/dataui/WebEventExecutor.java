@@ -61,6 +61,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dnd.IFormDataDragNDrop;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
@@ -168,8 +169,9 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (id != null && useAJAX)
 		{
-			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
-				!(component instanceof ILabel) && !(component instanceof WebBaseSelectBox.ISelector) && component instanceof FormComponent< ? >)
+			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay &&
+				((IDisplay)component).isReadOnly()) && !(component instanceof ILabel) && !(component instanceof WebBaseSelectBox.ISelector) &&
+				component instanceof FormComponent< ? >)
 			{
 				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -334,21 +336,19 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
 					{
-						WebEventExecutor.this.onEvent(
-							JSEvent.EventType.rightClick,
-							target,
-							component,
+						WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
 							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
-								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my"))), new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("glx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my"))), //$NON-NLS-1$
+							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("glx")),
 								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("gly")))); //$NON-NLS-1$
 					}
 
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall +
-							"+Servoy.Utils.getActionParams(event," + ((component instanceof SortableCellViewHeader) ? "true" : "false") + ")"); //$NON-NLS-1$
+						return super.generateCallbackScript(
+							partialCall + "+Servoy.Utils.getActionParams(event," + ((component instanceof SortableCellViewHeader) ? "true" : "false") + ")"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -661,24 +661,23 @@ public class WebEventExecutor extends BaseEventExecutor
 										selectedIndexesA.add(new Integer(selected));
 									if (selectedIndexesA.indexOf(selectedIndex) != -1)
 									{
-										if (selectedIndexesA.size() > 1) selectedIndexesA.remove(selectedIndex);
+										if (selectedIndexesA.size() > 1)
+										{
+											((ISwingFoundSet)fs).getSelectionModel().removeIndexInterval(selectedIndex, selectedIndex);
+										}
 									}
-									else selectedIndexesA.add(selectedIndex);
-									selectedIndexes = new int[selectedIndexesA.size()];
-									for (int i = 0; i < selectedIndexesA.size(); i++)
-										selectedIndexes[i] = selectedIndexesA.get(i).intValue();
-									((FoundSet)fs).setSelectedIndexes(selectedIndexes);
+									else
+									{
+										((ISwingFoundSet)fs).getSelectionModel().addSelectionInterval(selectedIndex, selectedIndex);
+									}
+
 								}
 								else if (extend)
 								{
 									int anchor = ((FoundSet)fs).getSelectedIndex();
 									int min = Math.min(anchor, index);
 									int max = Math.max(anchor, index);
-
-									int[] newSelectedIndexes = new int[max - min + 1];
-									for (int i = min; i <= max; i++)
-										newSelectedIndexes[i - min] = i;
-									((FoundSet)fs).setSelectedIndexes(newSelectedIndexes);
+									((ISwingFoundSet)fs).getSelectionModel().setSelectionInterval(min, max);
 								}
 							}
 						}
@@ -692,8 +691,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				if (!isIndexSelected(fs, index) && !(fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect()))
 				{
 					// setSelectedIndex failed, probably due to validation failed, do a blur()
-					if (target != null) target.appendJavascript("var toBlur = document.getElementById(\"" + component.getMarkupId() +
-						"\");if (toBlur) toBlur.blur();");
+					if (target != null)
+						target.appendJavascript("var toBlur = document.getElementById(\"" + component.getMarkupId() + "\");if (toBlur) toBlur.blur();");
 					return false;
 				}
 			}
@@ -1046,8 +1045,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		boolean hasDropEvent)
 	{
 		StringBuilder sb = null;
-		if (hasDragEvent &&
-			(component instanceof WebBaseLabel || component instanceof WebBaseButton || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
+		if (hasDragEvent && (component instanceof WebBaseLabel || component instanceof WebBaseButton || component instanceof WebBaseSubmitLink ||
+			((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
 		else if (hasDropEvent) sb = sbAttachDrop;
 
 		if (sb != null)
