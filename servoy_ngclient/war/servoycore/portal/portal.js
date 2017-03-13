@@ -1097,8 +1097,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
 					updateGridSelectionFromFoundset(true);
 				},[uiGridConstants.dataChange.ROW]);
-				gridApi.selection.on.rowSelectionChanged($scope,function(row){
-					
+				var updateSelection = function(){
+				
 					if ($scope.ignoreSelection) return;
 					
 					var newNGGridSelectedItems =  gridApi.selection.getSelectedRows();
@@ -1110,8 +1110,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					if (tmpSelectedRowIdxs.length === 0 && newNGGridSelectedItems.length > 0) return;
 					
 					$scope.requestSelectionUpdate(tmpSelectedRowIdxs);
-				});
-				
+				}
+				gridApi.selection.on.rowSelectionChanged($scope,updateSelection);
+				gridApi.selection.on.rowSelectionChangedBatch($scope,updateSelection);
 
 				gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
 					var tmpSelectedRowIdxs = [];					

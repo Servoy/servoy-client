@@ -318,6 +318,7 @@ public class FoundsetTypeViewport
 						}
 						changeMonitor.checkHadMoreRows();
 					}
+					else if (event.getType() == FoundSetEvent.SELECTION_MODE_CHANGE) changeMonitor.multiSelectChanged();
 				}
 			};
 		}
