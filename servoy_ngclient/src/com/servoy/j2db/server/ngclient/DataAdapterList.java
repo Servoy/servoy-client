@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -828,9 +829,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			if (recordToUse != null)
 			{
-				int selectedIndex = recordToUse.getParentFoundSet().getSelectedIndex();
 				int rowIndex = recordToUse.getParentFoundSet().getRecordIndex(recordToUse);
-				if (selectedIndex != rowIndex)
+				if (Arrays.binarySearch(recordToUse.getParentFoundSet().getSelectedIndexes(), rowIndex) < 0)
 				{
 					recordToUse.getParentFoundSet().setSelectedIndex(rowIndex);
 				}
