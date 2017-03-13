@@ -271,8 +271,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Collection<WebComponent> components = formUI.getComponents();
 			for (WebComponent component : components)
 			{
-				if (component instanceof WebFormComponent)
-					NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification(), new ComponentGetAndSetter(component));
+				if (component instanceof WebFormComponent) NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification());
 			}
 		}
 	}

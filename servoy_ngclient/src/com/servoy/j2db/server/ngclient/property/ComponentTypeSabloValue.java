@@ -65,6 +65,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowDat
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IWrapperDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
@@ -1044,6 +1045,19 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	public String toString()
 	{
 		return "Child component value: " + childComponent;
+	}
+
+
+	public void resetI18nValue()
+	{
+		for (Entry<String, PropertyDescription> p : childComponent.getSpecification().getProperties().entrySet())
+		{
+			if (p.getValue().getType() instanceof II18NPropertyType)
+			{
+				childComponent.setProperty(p.getKey(),
+					((II18NPropertyType)p.getValue().getType()).resetI18nValue(childComponent.getProperty(p.getKey()), p.getValue(), childComponent));
+			}
+		}
 	}
 
 }
