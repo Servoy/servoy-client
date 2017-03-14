@@ -390,7 +390,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public ValueListTypeSabloValue resetI18nValue(ValueListTypeSabloValue property, PropertyDescription pd, WebFormComponent component)
 	{
 		// have to test if a real valuelist is there because a "autoVL" valuelist doesn't have an actual valuelist but is based on the column itself.
-		if (property.valueList.getValueList() != null)
+		if (property != null && property.valueList.getValueList() != null)
 		{
 			ValueListTypeSabloValue currentSabloValue = property;
 			ValueListTypeSabloValue newSabloValue = ((ValueListPropertyType)pd.getType()).toSabloComponentValue(
