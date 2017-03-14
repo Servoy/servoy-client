@@ -42,6 +42,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -56,8 +57,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue>
 	implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
-	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>,
-	ISupportsGranularUpdates<FoundsetTypeSabloValue>, IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
+	IFormElementDefaultValueToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IConvertedPropertyType<FoundsetTypeSabloValue>,
+	ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
+	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
 {
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
 
@@ -103,6 +105,17 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		WebFormComponent component, DataAdapterList dal)
 	{
 		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal, (FoundsetPropertyTypeConfig)pd.getConfig());
+	}
+
+	@Override
+	public FoundsetTypeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+		if (pd.getDefaultValue() instanceof JSONObject)
+		{
+			return toSabloComponentValue((JSONObject)pd.getDefaultValue(), pd, formElement, component, dataAdapterList);
+		}
+		return null;
 	}
 
 	@Override
