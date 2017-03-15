@@ -433,12 +433,20 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				allLinksOfDP = new ArrayList<>();
 				dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
 			}
-			if (!allLinksOfDP.contains(propertyValue)) allLinksOfDP.add(propertyValue);
+			if (allLinksOfDP.remove(propertyValue))
+			{
+				Debug.error("DAL.addDataLinkedProperty - trying to register the same (equal) property value twice (" + propertyValue +
+					"); this means that some code that uses DAL is not working properly (maybe cleanup/detach malfunction); will use latest value... Links: " +
+					targetDataLinks);
+			}
+
+			allLinksOfDP.add(propertyValue);
 
 			if (formController != null) setupModificationListener(dpID); // see if we need to listen to global/form scope changes
 		}
 
 		allComponentPropertiesLinkedToData.add(propertyValue);
+
 	}
 
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
@@ -464,11 +472,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void removeFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)
 	{
 		findModeAwareProperties.remove(propertyValue);
-	}
-
-	public void componentDisposed(WebFormComponent component)
-	{
-		// TODO remove modification listeners for form/global scopes if needed...
 	}
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)

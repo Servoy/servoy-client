@@ -867,7 +867,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getRuntimeWebComponent(java.lang.String)
 	 */
 	@Override
@@ -875,6 +875,19 @@ public class TestWebFormUI implements IWebFormUI
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#removeComponentFromElementsScope(com.servoy.j2db.server.ngclient.FormElement,
+	 * org.sablo.specification.WebObjectSpecification, com.servoy.j2db.server.ngclient.WebFormComponent)
+	 */
+	@Override
+	public void removeComponentFromElementsScope(FormElement element, WebObjectSpecification webComponentSpec, WebFormComponent childComponent)
+	{
+		// TODO Auto-generated method stub
+
 	}
 
 }

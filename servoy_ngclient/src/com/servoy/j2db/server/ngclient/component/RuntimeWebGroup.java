@@ -23,6 +23,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,6 +101,25 @@ public class RuntimeWebGroup implements Scriptable
 	public void add(RuntimeWebComponent runtimeComponent)
 	{
 		runtimeWebComponents.add(runtimeComponent);
+	}
+
+	public void remove(WebFormComponent formComponent)
+	{
+		Iterator<RuntimeWebComponent> it = runtimeWebComponents.iterator();
+		while (it.hasNext())
+		{
+			RuntimeWebComponent runtimeComponent = it.next();
+			if (runtimeComponent.getComponent() == formComponent)
+			{
+				it.remove();
+				break;
+			}
+		}
+	}
+
+	public int getComponentCount()
+	{
+		return runtimeWebComponents.size();
 	}
 
 	@Override

@@ -54,17 +54,19 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	void setParentContainer(WebFormComponent parentContainer);
 
-	public String getParentWindowName();
+	String getParentWindowName();
 
-	public void setParentWindowName(String parentWindowName);
+	void setParentWindowName(String parentWindowName);
 
-	public Object getParentContainer();
+	Object getParentContainer();
 
-	public IServoyDataConverterContext getDataConverterContext();
+	IServoyDataConverterContext getDataConverterContext();
 
-	public void contributeComponentToElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component);
+	void contributeComponentToElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component);
 
-	public RuntimeWebComponent getRuntimeWebComponent(String name);
+	void removeComponentFromElementsScope(FormElement element, WebObjectSpecification webComponentSpec, WebFormComponent childComponent);
+
+	RuntimeWebComponent getRuntimeWebComponent(String name);
 
 	void refreshValueList(IValueList valuelist);
 
@@ -72,4 +74,5 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	public IWebFormController getController();
 
 	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
+
 }

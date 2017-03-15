@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Arrays;
+
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IPropertyType;
 
@@ -82,6 +84,13 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 			}
 			return this;
 		}
+
+		@Override
+		public String toString()
+		{
+			return "DataLinks " + (recordLinked ? "(recordLinked)" : "") + ": " + Arrays.asList(dataProviderIDs);
+		}
+
 	}
 
 	/**

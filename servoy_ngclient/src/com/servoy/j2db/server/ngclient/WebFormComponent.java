@@ -192,7 +192,6 @@ public class WebFormComponent extends Container implements IContextProvider
 	public void dispose()
 	{
 		propertyChangeSupport = null;
-		((DataAdapterList)dataAdapterList).componentDisposed(this);
 		super.dispose();
 	}
 
