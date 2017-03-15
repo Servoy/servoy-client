@@ -1,3 +1,8 @@
+.dropdown-menu[typeahead-popup] > li > a
+{ 
+	min-height: 20px; 
+}
+
 .svy-reconnecting {
 	color: red;
 }
