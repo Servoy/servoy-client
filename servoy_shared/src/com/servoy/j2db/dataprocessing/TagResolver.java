@@ -28,13 +28,13 @@ import javax.swing.JFormattedTextField.AbstractFormatter;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
-import com.servoy.j2db.util.Settings;
 
 /**
  * Resolver class for tags in text
@@ -57,8 +57,7 @@ public class TagResolver
 		{
 			if (record == null) return null;
 			Object value = record.getValue(dataProviderID);
-			return formatObject(value, record.getParentFoundSet().getFoundSetManager().getApplication().getLocale(), (value == null) ? null
-				: record.getParentFoundSet().getFoundSetManager().getApplication().getSettings());
+			return formatObject(value, record.getParentFoundSet().getFoundSetManager().getApplication());
 		}
 	}
 
@@ -66,25 +65,25 @@ public class TagResolver
 	{
 
 		private final Scriptable scriptobj;
-		private final Locale locale;
+		private final IServiceProvider application;
 
-		public ScriptableTagResolver(Scriptable obj, Locale locale)
+		public ScriptableTagResolver(Scriptable obj, IServiceProvider application)
 		{
 			this.scriptobj = obj;
-			this.locale = locale;
+			this.application = application;
 		}
 
 		public String getStringValue(String dataProviderID)
 		{
 			if (scriptobj == null) return null;
 			Object value = ScriptVariableScope.unwrap(scriptobj.get(dataProviderID, scriptobj));
-			return formatObject(value, locale, (value == null) ? null : Settings.getInstance());
+			return formatObject(value, application);
 		}
 	}
 
 	/**
 	 * Factory method to create a resolver.
-	 * 
+	 *
 	 * @param o
 	 * @return resolver
 	 */
@@ -95,13 +94,13 @@ public class TagResolver
 
 	/**
 	 * Factory method to create a resolver.
-	 * 
+	 *
 	 * @param o
 	 * @return resolver
 	 */
-	public static ITagResolver createResolver(Scriptable o, Locale locale)
+	public static ITagResolver createResolver(Scriptable o, IServiceProvider application)
 	{
-		return new ScriptableTagResolver(o, locale);
+		return new ScriptableTagResolver(o, application);
 	}
 
 
@@ -153,14 +152,14 @@ public class TagResolver
 		return value.toString();
 	}
 
-	public static String formatObject(Object value, Locale locale, Properties settings)
+	public static String formatObject(Object value, IServiceProvider application)
 	{
 
-		return formatObject(value, null, locale, settings);
+		return formatObject(value, null, application);
 	}
 
 
-	public static String formatObject(Object value, String format, Locale locale, Properties settings)
+	public static String formatObject(Object value, String format, IServiceProvider application)
 	{
 
 		if (value == null || value == Scriptable.NOT_FOUND)
@@ -188,7 +187,7 @@ public class TagResolver
 		}
 		else
 		{
-			formatString = getFormatString(value.getClass(), settings);
+			formatString = getFormatString(value.getClass(), application);
 		}
 		if (formatString == null)
 		{
@@ -202,7 +201,7 @@ public class TagResolver
 
 		if (value instanceof Number /* Integer extends Number */)
 		{
-			DecimalFormat decimalFormat = new DecimalFormat(formatString, RoundHalfUpDecimalFormat.getDecimalFormatSymbols(locale));
+			DecimalFormat decimalFormat = new DecimalFormat(formatString, RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale()));
 			String formatedValue = decimalFormat.format(value);
 			if (maxLength > -1 && maxLength <= formatedValue.length()) formatedValue = formatedValue.substring(0, maxLength);
 			return formatedValue;
@@ -213,32 +212,32 @@ public class TagResolver
 
 	/**
 	 * Get the format string for an object based on the settings.
-	 * 
+	 *
 	 * @param clazz
 	 * @param settings
 	 * @return
 	 */
-	public static String getFormatString(Class clazz, Properties settings)
+	public static String getFormatString(Class clazz, IServiceProvider application)
 	{
-
+		Properties settings = application.getSettings();
 		String formatString = null;
 
 		if (Date.class.isAssignableFrom(clazz))
 		{
-			String pattern = settings.getProperty("locale.dateformat"); //$NON-NLS-1$
+			String pattern = application.getI18NMessageIfPrefixed(settings.getProperty("locale.dateformat")); //$NON-NLS-1$
 			// Note: new SimpleDateFormat() uses Locale.getDefault()
 			formatString = (pattern == null || pattern.trim().length() == 0) ? new SimpleDateFormat().toPattern() : pattern;
 		}
 		// Note that Integer extends Number, so first check for Integer, then for Number
 		else if (Integer.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz))
 		{
-			String pattern = settings.getProperty("locale.integerformat"); //$NON-NLS-1$
+			String pattern = application.getI18NMessageIfPrefixed(settings.getProperty("locale.integerformat")); //$NON-NLS-1$
 			// Note: new DecimalFormat() uses Locale.getDefault()
 			formatString = (pattern == null || pattern.trim().length() == 0) ? new DecimalFormat().toPattern() : pattern;
 		}
 		else if (Number.class.isAssignableFrom(clazz))
 		{
-			String pattern = settings.getProperty("locale.numberformat"); //$NON-NLS-1$
+			String pattern = application.getI18NMessageIfPrefixed(settings.getProperty("locale.numberformat")); //$NON-NLS-1$
 			// Note: new DecimalFormat() uses Locale.getDefault()
 			formatString = (pattern == null || pattern.trim().length() == 0) ? new DecimalFormat().toPattern() : pattern;
 		}
@@ -246,24 +245,24 @@ public class TagResolver
 		return formatString;
 	}
 
-	public static String getDefaultFormatForType(Properties settings, int type)
+	public static String getDefaultFormatForType(IServiceProvider application, int type)
 	{
 		switch (type)
 		{
 			case IColumnTypes.DATETIME :
-				return getFormatString(Date.class, settings);
+				return getFormatString(Date.class, application);
 
 			case IColumnTypes.TEXT :
-				return getFormatString(String.class, settings);
+				return getFormatString(String.class, application);
 
 			case IColumnTypes.NUMBER :
-				return getFormatString(Number.class, settings);
+				return getFormatString(Number.class, application);
 
 			case IColumnTypes.INTEGER :
-				return getFormatString(Integer.class, settings);
+				return getFormatString(Integer.class, application);
 
 			case IColumnTypes.MEDIA :
-				return getFormatString(byte[].class, settings);
+				return getFormatString(byte[].class, application);
 
 			default :
 				return null;

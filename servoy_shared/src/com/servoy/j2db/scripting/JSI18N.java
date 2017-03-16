@@ -145,7 +145,7 @@ public class JSI18N implements IJSI18N
 	@JSFunction
 	public String getDefaultDateFormat()
 	{
-		return TagResolver.getFormatString(Date.class, application.getSettings());
+		return TagResolver.getFormatString(Date.class, application);
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class JSI18N implements IJSI18N
 	@JSFunction
 	public String getDefaultNumberFormat()
 	{
-		return TagResolver.getFormatString(Number.class, application.getSettings());
+		return TagResolver.getFormatString(Number.class, application);
 	}
 
 	/**
@@ -425,8 +425,8 @@ public class JSI18N implements IJSI18N
 		Properties currentLocaleJarMessages = new Properties();
 		try
 		{
-			currentLocaleJarMessages.load(Messages.class.getClassLoader().getResourceAsStream(
-				"com/servoy/j2db/messages_" + locale.getLanguage() + ".properties")); //$NON-NLS-1$ //$NON-NLS-2$
+			currentLocaleJarMessages.load(
+				Messages.class.getClassLoader().getResourceAsStream("com/servoy/j2db/messages_" + locale.getLanguage() + ".properties")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		catch (Exception e)
 		{

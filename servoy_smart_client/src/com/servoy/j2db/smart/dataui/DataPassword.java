@@ -64,11 +64,11 @@ import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;
 import com.servoy.j2db.util.docvalidator.ValidatingDocument;
 
 /**
- * Runtime swing password field 
+ * Runtime swing password field
  * @author jblok
  */
-public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer,
-	ISupportPlaceholderText, ISupportOnRender
+public class DataPassword extends JPasswordField
+	implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportPlaceholderText, ISupportOnRender
 {
 	private String dataProviderID;
 	private final EventExecutor eventExecutor;
@@ -328,7 +328,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 				previousValue = o;
 				if (o != null)
 				{
-					setText(TagResolver.formatObject(o, application.getLocale(), application.getSettings()));
+					setText(TagResolver.formatObject(o, application));
 				}
 				else
 				{
@@ -614,7 +614,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 	}
 
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;

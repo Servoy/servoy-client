@@ -757,7 +757,7 @@ public class SQLGenerator
 				}
 				if (Utils.stringIsEmpty(formatString))
 				{
-					formatString = TagResolver.getDefaultFormatForType(application.getSettings(), dataProviderType);
+					formatString = TagResolver.getDefaultFormatForType(application, dataProviderType);
 				}
 
 				ISQLCondition or = null;

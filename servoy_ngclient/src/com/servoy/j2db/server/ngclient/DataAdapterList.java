@@ -844,7 +844,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public String getStringValue(String name)
 	{
-		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication().getLocale(), getApplication().getSettings());
+		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication());
 		return processValue(stringValue, name, null); // TODO last param ,IDataProviderLookup, should be implemented
 	}
 

@@ -715,7 +715,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		{
 			return ""; //$NON-NLS-1$
 		}
-		return TagResolver.formatObject(obj, format, application.getLocale(), application.getSettings());
+		return TagResolver.formatObject(obj, format, application);
 	}
 
 	public String getName()

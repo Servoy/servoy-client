@@ -875,7 +875,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					public String getStringValue(String nm)
 					{
-						return TagResolver.formatObject(dal.getValueObject(state, nm), application.getLocale(), dal.getApplication().getSettings());
+						return TagResolver.formatObject(dal.getValueObject(state, nm), dal.getApplication());
 					}
 				});
 				if (data instanceof DbIdentValue)
@@ -1047,19 +1047,20 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					String nm = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
 					if (isRowBGColorCalculation)
 					{
-						bg_color = foundset.getCalculationValue(
-							state,
-							strRowBGColorProvider,
+						bg_color = foundset.getCalculationValue(state, strRowBGColorProvider,
 							Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(isSelected), type, nm, new Boolean(isEdited) }),
-								Utils.parseJSExpressions(rowBGColorArgs)), null);
+								Utils.parseJSExpressions(rowBGColorArgs)),
+							null);
 					}
 					else
 					{
 						try
 						{
 							FormController currentForm = dal.getFormController();
-							bg_color = currentForm.executeFunction(strRowBGColorProvider, Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(
-								isSelected), type, nm, currentForm.getName(), state, new Boolean(isEdited) }), Utils.parseJSExpressions(rowBGColorArgs)),
+							bg_color = currentForm.executeFunction(strRowBGColorProvider,
+								Utils.arrayMerge(
+									(new Object[] { new Integer(row), new Boolean(isSelected), type, nm, currentForm.getName(), state, new Boolean(isEdited) }),
+									Utils.parseJSExpressions(rowBGColorArgs)),
 								false, null, true, null);
 						}
 						catch (Exception ex)
@@ -1153,9 +1154,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					// create a focus border with the same border insets
 					Insets noFocusBorderInsets = styleBorder.getBorderInsets(component);
 					Insets adjustedBorderInsets = adjustedBorder.getBorderInsets(component);
-					EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top), Math.max(0,
-						noFocusBorderInsets.left - adjustedBorderInsets.left), Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom), Math.max(
-						0, noFocusBorderInsets.right - adjustedBorderInsets.right));
+					EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top),
+						Math.max(0, noFocusBorderInsets.left - adjustedBorderInsets.left),
+						Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom),
+						Math.max(0, noFocusBorderInsets.right - adjustedBorderInsets.right));
 
 					adjustedBorder = new CompoundBorder(adjustedBorder, emptyInsideBorder);
 				}
@@ -1357,7 +1359,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	public Object getCellEditorValue()
 	{
 		// test if currentEditing state isn't deleted already
-		if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null)) return null;
+		if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null))
+			return null;
 
 		Object comp = editor;
 		if ((comp instanceof IDisplay && ((IDisplay)comp).isReadOnly()) || gettingEditorValue)
@@ -1909,23 +1912,23 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			Area borderClip = new Area(new Rectangle(x, y, width, height));
 			if ((hideMask & LEFT) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x, y + sourceBorderInsets.top, sourceBorderInsets.left, height - sourceBorderInsets.top -
-					sourceBorderInsets.bottom)));
+				borderClip.subtract(new Area(
+					new Rectangle(x, y + sourceBorderInsets.top, sourceBorderInsets.left, height - sourceBorderInsets.top - sourceBorderInsets.bottom)));
 			}
 			if ((hideMask & RIGHT) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x + width - sourceBorderInsets.right, y + sourceBorderInsets.top, sourceBorderInsets.right, height -
-					sourceBorderInsets.top - sourceBorderInsets.bottom)));
+				borderClip.subtract(new Area(new Rectangle(x + width - sourceBorderInsets.right, y + sourceBorderInsets.top, sourceBorderInsets.right,
+					height - sourceBorderInsets.top - sourceBorderInsets.bottom)));
 			}
 			if ((hideMask & TOP) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y, width - sourceBorderInsets.left - sourceBorderInsets.right,
-					sourceBorderInsets.top)));
+				borderClip.subtract(new Area(
+					new Rectangle(x + sourceBorderInsets.left, y, width - sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.top)));
 			}
 			if ((hideMask & BOTTOM) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y + height - sourceBorderInsets.bottom, width -
-					sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.bottom)));
+				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y + height - sourceBorderInsets.bottom,
+					width - sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.bottom)));
 			}
 			g.setClip(borderClip);
 			sourceBorder.paintBorder(c, g, x, y, width, height);
