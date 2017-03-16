@@ -520,6 +520,7 @@ public class NGClientEntryFilter extends WebEntry
 	@Override
 	public void destroy()
 	{
+		super.destroy();
 		WebsocketSessionManager.closeAllSessions();
 		FormElementHelper.INSTANCE.reload();
 	}
