@@ -155,6 +155,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String VALUELIST_MAX_ROWS = "maxValuelistRows";//$NON-NLS-1$
 
 	/**
+	 * When Boolean.TRUE, related find/search will only return records that have a related match, also in case of left outer joins. Default value is servoy property servoy.client.relatedNullSearchAddPkCondition/true.
+	 */
+	public static final String RELATED_NULL_SEARCH_ADD_PK_CONDITION = "relatedNullSearchAddPkCondition";//$NON-NLS-1$
+
+	/**
 	 * Non-null name for the first (main) window.
 	 */
 	public static final String APP_WINDOW_NAME = "Application_frame";

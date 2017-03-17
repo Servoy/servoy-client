@@ -335,6 +335,30 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{"menubar": "tools table format view insert edit", "statusbar" : true, "toolbar": "undo redo | styleselect | bold italic"}')
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
+
+	/**
+	 * Property that can be set using element.putClientProperty()
+	 *
+	 * If set to true, related find/search will only return records that have a related match, also in case of left outer joins.
+	 * Otherwise a related search on a field may return records where the related search does not match.
+	 *
+	 * For example,
+	 * * <pre>
+	 *     if (foundset.find()) {
+	 *      founset.myleftouterjoinrelation.myfield = 'someval';
+	 *      foundset.search();
+	 *     }
+	 * </pre>
+	 * With this setting to false records of the foundset table that have no related records via the relation will also be returned.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: servoy property servoy.client.relatedNullSearchAddPkCondition/true
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.RELATED_NULL_SEARCH_ADD_PK_CONDITION, false)
+	 */
+	public static final String RELATED_NULL_SEARCH_ADD_PK_CONDITION = IApplication.RELATED_NULL_SEARCH_ADD_PK_CONDITION;
+
 	/**
 	 * Property that can be set using application.putClientProperty()
 	 *
