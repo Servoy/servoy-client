@@ -1079,7 +1079,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 	return {
 		getUIProperty: function(key) {
-			return getUiProperties()[key];
+			var value=getUiProperties()[key];
+			if (value === undefined)
+			{
+				value = null;
+			}
+			return value;
 		},
 		setUIProperty: function(key,value) {
 			var uiProps = getUiProperties();
