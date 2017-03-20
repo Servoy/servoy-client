@@ -401,7 +401,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	@Override
 	public ComponentTypeSabloValue resetI18nValue(ComponentTypeSabloValue currentValue, PropertyDescription description, WebFormComponent component)
 	{
-		currentValue.resetI18nValue();
+		if (currentValue != null) currentValue.resetI18nValue();
 		return currentValue;
 	}
 }

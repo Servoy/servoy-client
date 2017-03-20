@@ -375,13 +375,16 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	@Override
 	public Map<String, SabloT> resetI18nValue(Map<String, SabloT> property, PropertyDescription pd, WebFormComponent component)
 	{
-		PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
-		for (String prop : property.keySet())
+		if (property != null)
 		{
-			if (customPd.getProperty(prop).getType() instanceof II18NPropertyType)
+			PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
+			for (String prop : property.keySet())
 			{
-				property.put(prop, (SabloT)((II18NPropertyType)customPd.getProperty(prop).getType()).resetI18nValue(property.get(prop),
-					customPd.getProperty(prop), component));
+				if (customPd.getProperty(prop).getType() instanceof II18NPropertyType)
+				{
+					property.put(prop, (SabloT)((II18NPropertyType)customPd.getProperty(prop).getType()).resetI18nValue(property.get(prop),
+						customPd.getProperty(prop), component));
+				}
 			}
 		}
 		return property;
