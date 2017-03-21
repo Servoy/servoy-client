@@ -22,6 +22,7 @@ import javax.servlet.ServletRequest;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ISessionClient;
@@ -152,7 +153,7 @@ public class HeadlessClientFactoryInternal
 				{
 					@Override
 					public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
-						throws Exception
+							throws Exception
 					{
 						// always throw exception
 						return super.executeFunction(f, scope, thisObject, args, focusEvent, true);
@@ -165,6 +166,10 @@ public class HeadlessClientFactoryInternal
 			{
 				super.reportError(msg, detail);
 				loadException[0] = msg;
+				if (detail instanceof JavaScriptException && ((JavaScriptException)detail).getValue() instanceof Scriptable)
+				{
+					loadException[0] += " " + Utils.getScriptableString((Scriptable)((JavaScriptException)detail).getValue());
+				}
 				if (detail instanceof Exception)
 				{
 					loadException[0] += " " + ((Exception)detail).getMessage();
