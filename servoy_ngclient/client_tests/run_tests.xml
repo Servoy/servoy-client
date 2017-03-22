@@ -8,10 +8,15 @@
 	
 	<property file="./development_mode.properties" /> <!-- if the file is present karma will run in continuous mode for development when run_tests is ran -->
 	<property name="karma.conf" value="${karma_run_once.conf}"/>
+	<property file="run_tests_personal.properties"/>
+	<property name="sablo_location" value="../../sablo"/>
 
 	<target name="typescript_transpiling">
 		<echo message="Transpiling ${project}"/>
-		<exec executable="${tsc}" failonerror="true">
+		<exec executable="${tsc}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="unix">
+		   <arg line="-p ${project}" />
+		</exec>		
+		<exec executable="${tsc}.cmd" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="windows">
 		   <arg line="-p ${project}" />
 		</exec>		
 	</target>
@@ -69,7 +74,7 @@
 	<target name="run_tests" depends="install_karma_if_necessary">
 		<!-- do TypeScript transpiling of sablo -->
 		<antcall target="typescript_transpiling">
-			<param name="project" value="../../sablo"/>
+			<param name="project" value="${sablo_location}"/>
 		</antcall>
 		<!-- do TypeScript transpiling of servoy_ngclient -->
 		<antcall target="typescript_transpiling">
