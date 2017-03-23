@@ -25,6 +25,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A value list
@@ -496,6 +497,25 @@ public class ValueList extends AbstractBase
 	public void setAddEmptyValue(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ADDEMPTYVALUE, arg);
+	}
+
+	/**
+	 * Property that tells valuelist will be loaded lazy. Useful for NGClient, global method valuelist.
+	 */
+	public boolean getLazyLoading()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING });
+		return Utils.getAsBoolean(customProperty);
+	}
+
+	/**
+	 * Sets the lazyLoading.
+	 *
+	 * @param lazyLoading The lazyLoading to set
+	 */
+	public void setLazyLoading(boolean arg)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING }, Boolean.valueOf(arg));
 	}
 
 	/**

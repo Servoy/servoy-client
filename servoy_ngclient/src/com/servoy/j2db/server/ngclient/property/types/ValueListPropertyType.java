@@ -102,11 +102,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String def = null;
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
+		boolean lazyLoading = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			if (json.has("max")) max = json.optInt("max");
+			if (json.has("lazyLoading")) lazyLoading = json.optBoolean("lazyLoading");
 			if (json.has("tags"))
 			{
 				try
@@ -120,7 +122,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				}
 			}
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading);
 	}
 
 	@Override

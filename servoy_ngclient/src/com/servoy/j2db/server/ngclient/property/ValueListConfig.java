@@ -26,14 +26,16 @@ public class ValueListConfig
 	private final String defaultValue;
 	private final int maxCount;
 	private final boolean logMax;
+	boolean lazyLoading = false;
 
-	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax)
+	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading)
 	{
 		super();
 		this.dataprovider = dataprovider;
 		this.defaultValue = def;
 		this.maxCount = maxCount;
 		this.logMax = logMax;
+		this.lazyLoading = lazyLoading;
 	}
 
 
@@ -56,4 +58,10 @@ public class ValueListConfig
 	{
 		return logMax;
 	}
+
+	public boolean getLazyLoading()
+	{
+		return lazyLoading;
+	}
+
 }
