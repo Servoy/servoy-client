@@ -311,4 +311,9 @@ public class WebFormComponent extends Container implements IContextProvider
 		}
 	}
 
+	public IDataAdapterList getDataAdapterList()
+	{
+		return dataAdapterList;
+	}
+
 }
