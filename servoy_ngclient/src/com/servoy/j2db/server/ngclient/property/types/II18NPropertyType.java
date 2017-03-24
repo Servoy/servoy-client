@@ -18,20 +18,15 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IPropertyType;
 
-import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 
 /**
  * @author jcomp
  *
  */
-public interface II18NPropertyType
+public interface II18NPropertyType<T> extends IPropertyType<T>
 {
-
-	/**
-	 * @param property
-	 */
-	void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component);
-
+	T resetI18nValue(T currentValue, PropertyDescription pd, WebFormComponent component);
 }

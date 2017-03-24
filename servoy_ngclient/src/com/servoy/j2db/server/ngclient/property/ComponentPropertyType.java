@@ -50,6 +50,7 @@ import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ITemplateValueUpdaterType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -68,7 +69,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	implements IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
-	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>
+	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>,
+	II18NPropertyType<ComponentTypeSabloValue>
 {
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);
@@ -239,7 +241,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
 		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
-			throws JSONException
+		throws JSONException
 	{
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
@@ -395,4 +397,11 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		void writeComponentModel() throws JSONException;
 	}
 
+
+	@Override
+	public ComponentTypeSabloValue resetI18nValue(ComponentTypeSabloValue currentValue, PropertyDescription description, WebFormComponent component)
+	{
+		if (currentValue != null) currentValue.resetI18nValue();
+		return currentValue;
+	}
 }

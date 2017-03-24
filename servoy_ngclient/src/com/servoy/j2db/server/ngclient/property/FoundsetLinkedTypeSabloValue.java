@@ -122,7 +122,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		if (component != null)
 		{
-			return (FoundsetTypeSabloValue)component.getProperty(forFoundsetPropertyName);
+			Object property = component.getProperty(forFoundsetPropertyName);
+			if (property instanceof FoundsetTypeSabloValue)
+			{
+				return ((FoundsetTypeSabloValue)property);
+			}
 		}
 		return null;
 	}

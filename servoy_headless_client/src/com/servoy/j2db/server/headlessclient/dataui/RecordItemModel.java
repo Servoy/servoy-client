@@ -199,12 +199,8 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			{
 				FormScope fs = webForm.getController().getFormScope();
 				Object value = DataAdapterList.getValueObject(currentRecord, fs, name);
-				String stringValue = TagResolver.formatObject(value, webForm.getController().getApplication().getLocale(),
-					webForm.getController().getApplication().getSettings());
-				return DataAdapterList.processValue(
-					stringValue,
-					name,
-					webForm.getController().getApplication().getFlattenedSolution().getDataproviderLookup(
+				String stringValue = TagResolver.formatObject(value, webForm.getController().getApplication());
+				return DataAdapterList.processValue(stringValue, name, webForm.getController().getApplication().getFlattenedSolution().getDataproviderLookup(
 					webForm.getController().getApplication().getFoundSetManager(), webForm.getController().getForm()));
 			}
 			return null;
@@ -365,7 +361,8 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		if (webForm == null)
 		{
 			// component.toString() may cause stackoverflow here
-			Debug.error("Component " + component.getClass() + " with dp: " + dataProviderID + "  already removed from its parent form.", new RuntimeException()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Debug.error("Component " + component.getClass() + " with dp: " + dataProviderID + "  already removed from its parent form.", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				new RuntimeException());
 			return null;
 		}
 		FormScope fs = webForm.getController().getFormScope();

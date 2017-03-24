@@ -80,6 +80,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[HAS_MORE_ROWS] = serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS];
 					updates = true;
 				}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + MULTI_SELECT])) {
+					currentClientValue[MULTI_SELECT] = serverJSONValue[UPDATE_PREFIX + MULTI_SELECT];
+					updates = true;
+				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS])) {
 					currentClientValue[COLUMN_FORMATS] = serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS];
 					updates = true;

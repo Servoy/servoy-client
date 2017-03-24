@@ -58,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  * This scope holds the variables of the specific servoy elements (form/global).
  * It remembers the type of the variable and will convert to that type when a value is set.
  * Media types {@link IColumnTypes#MEDIA} will not be converted but will go into this scope as is.
- * 
+ *
  * @author jblok
  */
 public abstract class ScriptVariableScope extends LazyCompilationScope
@@ -78,10 +78,6 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		put(var, false);
 	}
 
-	/**
-	 * @param variable
-	 * @param b
-	 */
 	public void put(ScriptVariable var, boolean overwriteInitialValue)
 	{
 		putScriptVariable(var.getDataProviderID(), var, overwriteInitialValue);
@@ -127,7 +123,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 							}
 						}
 					}
-					str = '(' + str + ')'; // add brackets so that unnamed objects are evaluated correctly (otherwise it will give a syntax error) 
+					str = '(' + str + ')'; // add brackets so that unnamed objects are evaluated correctly (otherwise it will give a syntax error)
 				}
 				String sourceName = var.getSerializableRuntimeProperty(IScriptProvider.FILENAME);
 				if (sourceName == null)
@@ -144,12 +140,6 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		}
 	}
 
-	/**
-	 * @param name
-	 * @param initValue
-	 * @param str
-	 * @return
-	 */
 	private Object evalValue(String name, String str, String sourceName, int lineNumber)
 	{
 		Object retValue = null;
@@ -161,7 +151,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		try
 		{
 			cx.setGeneratingDebug(lineNumber != -1);
-			if (lineNumber != -1 || Utils.getAsBoolean(System.getProperty(ScriptEngine.SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY, "false"))) //flag should only be used in rich client //$NON-NLS-1$ 
+			if (lineNumber != -1 || Utils.getAsBoolean(System.getProperty(ScriptEngine.SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY, "false"))) //flag should only be used in rich client //$NON-NLS-1$
 			{
 				cx.setOptimizationLevel(-1);
 			}
@@ -200,7 +190,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 			}
 			else if (!(retValue instanceof String) && !(retValue == null && nameType.get(name) != null))
 			{
-				// this is not an instanceof a String and a Date so make it a 
+				// this is not an instanceof a String and a Date so make it a
 				previousType = nameType.put(name, new Integer(IColumnTypes.MEDIA));
 			}
 			if (previousType != null)
@@ -428,19 +418,19 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 				value = unwrapped;
 				try
 				{
-					value = Column.getAsRightType(variableType.intValue(), Column.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true); // dont convert with timezone here, its not ui but from scripting 
+					value = Column.getAsRightType(variableType.intValue(), Column.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true); // dont convert with timezone here, its not ui but from scripting
 				}
 				catch (Exception e)
 				{
-					throw new IllegalArgumentException(Messages.getString(
-						"servoy.conversion.error.global", new Object[] { name, Column.getDisplayTypeString(variableType.intValue()), value })); //$NON-NLS-1$
+					throw new IllegalArgumentException(Messages.getString("servoy.conversion.error.global", //$NON-NLS-1$
+						new Object[] { name, Column.getDisplayTypeString(variableType.intValue()), value }));
 				}
 			}
 		}
 
 		if (value instanceof Date)
 		{
-			// make copy so then when it is further used in js it won't change this one. 
+			// make copy so then when it is further used in js it won't change this one.
 			value = new Date(((Date)value).getTime());
 		}
 		else if (xmlType && value instanceof String)
@@ -480,9 +470,6 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
  */
 	private final IModificationSubject modificationSubject = new ModificationSubject();
 
-	/**
-	 * @return the modificationSubject
-	 */
 	public IModificationSubject getModificationSubject()
 	{
 		return modificationSubject;
@@ -501,10 +488,6 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		return name;
 	}
 
-	/**
-	 * @param dataProviderID
-	 * @return
-	 */
 	public Object get(String dataProviderID)
 	{
 		return unwrap(getImpl(dataProviderID, this));
@@ -541,7 +524,15 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		if (locked) throw new WrappedException(new RuntimeException(Messages.getString("servoy.javascript.error.lockedForDeleteName", new Object[] { var }))); //$NON-NLS-1$
 		nameType.remove(var.getName());
 		if (replacedNameType != null) replacedNameType.remove(var.getName());
-		super.remove(var.getName());
+
+		remove(var.getName());
+	}
+
+	@Override
+	public Object remove(String name)
+	{
+		removeIndexByValue(name); // in index based map we keep the variable names as value not the real variable obj; see "get(int, Scriptable)"
+		return super.remove(name);
 	}
 
 	@Override
@@ -551,4 +542,5 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		if (replacedNameType != null) replacedNameType.clear();
 		super.destroy();
 	}
+
 }

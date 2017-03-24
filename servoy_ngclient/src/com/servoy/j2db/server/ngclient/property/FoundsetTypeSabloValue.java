@@ -323,6 +323,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
 			changeMonitor.checkHadMoreRows();
+			if (foundset.isMultiSelect()) changeMonitor.multiSelectChanged();
 
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
 
@@ -396,8 +397,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		destinationJSON.key(SORT).value(getSortStringAsNames());
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
-		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
-		destinationJSON.key(HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false); // TODO listener and granular changes for this as well?
+		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false);
+		destinationJSON.key(HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false);
 
 		writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, false);
 
@@ -511,6 +512,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			{
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendMultiSelect())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendSelectedIndexes())

@@ -271,8 +271,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Collection<WebComponent> components = formUI.getComponents();
 			for (WebComponent component : components)
 			{
-				if (component instanceof WebFormComponent)
-					NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification(), new ComponentGetAndSetter(component));
+				if (component instanceof WebFormComponent) NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification());
 			}
 		}
 	}
@@ -1317,6 +1316,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceName);
 					WebObjectSpecification serviceSpec = webServiceScriptable.getServiceSpecification();
 					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
+					if (functionSpec == null)
+					{
+						functionSpec = (serviceSpec != null ? serviceSpec.getServerApiFunction(serviceMethodName) : null);
+					}
 					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 					// apply conversion
@@ -1328,7 +1331,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 					}
 
-					Object retVal = webServiceScriptable.executeScopeFunction(serviceMethodName, arrayOfJavaConvertedMethodArgs);
+					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
 					if (functionSpec != null && functionSpec.getReturnType() != null)
 					{
 						retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type

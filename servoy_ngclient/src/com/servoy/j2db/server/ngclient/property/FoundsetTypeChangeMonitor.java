@@ -59,7 +59,7 @@ public class FoundsetTypeChangeMonitor
 	protected static final int SEND_SELECTED_INDEXES = 0b000010000;
 
 	// 0b000100000;
-	// 0b001000000;
+	protected static final int SEND_MULTISELECT = 0b001000000;
 
 	protected static final int SEND_COLUMN_FORMATS = 0b010000000;
 
@@ -110,6 +110,17 @@ public class FoundsetTypeChangeMonitor
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
+
+	public void multiSelectChanged()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_MULTISELECT;
+			if (oldChangeFlags != changeFlags) notifyChange();
+		}
+	}
+
 
 	/**
 	 * The foundset's size changed.
@@ -455,6 +466,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendHadMoreRows()
 	{
 		return (changeFlags & SEND_HAD_MORE_ROWS) != 0;
+	}
+
+	public boolean shouldSendMultiSelect()
+	{
+		return (changeFlags & SEND_MULTISELECT) != 0;
 	}
 
 	public boolean shouldSendColumnFormats()

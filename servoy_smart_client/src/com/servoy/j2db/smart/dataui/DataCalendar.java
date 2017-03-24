@@ -134,7 +134,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Component#setName(java.lang.String)
 	 */
 	@Override
@@ -236,7 +236,8 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				{
 					if (isEnabled())
 					{
-						((BaseEventExecutor)enclosedComponent.getEventExecutor()).fireRightclickCommand(true, enclosedComponent, e.getModifiers(), e.getPoint());
+						((BaseEventExecutor)enclosedComponent.getEventExecutor()).fireRightclickCommand(true, enclosedComponent, e.getModifiers(),
+							e.getPoint());
 					}
 				}
 			};
@@ -294,7 +295,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 				chooser = null;
 				((ISmartClientApplication)application).registerWindow("JDateChooser", chooser); //$NON-NLS-1$
 			}
-			String dateFormat = TagResolver.getFormatString(Date.class, application.getSettings());
+			String dateFormat = TagResolver.getFormatString(Date.class, application);
 			if (windowParent instanceof JFrame)
 			{
 				chooser = new JDateChooser((JFrame)windowParent, application.getI18NMessage("servoy.dateChooser.selectDate"), dateFormat); //$NON-NLS-1$
@@ -342,7 +343,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataui.IFieldComponent#setToolTipText(java.lang.String)
 	 */
 	@Override
@@ -608,7 +609,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	}
 
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;
@@ -643,7 +644,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IDisplay#stopEditing()
 	 */
 	public boolean stopUIEditing(boolean looseFocus)
@@ -654,7 +655,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataui.IFieldComponent#setSelectOnEnter(boolean)
 	 */
 	public void setSelectOnEnter(boolean b)

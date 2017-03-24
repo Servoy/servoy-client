@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -432,12 +433,20 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				allLinksOfDP = new ArrayList<>();
 				dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
 			}
-			if (!allLinksOfDP.contains(propertyValue)) allLinksOfDP.add(propertyValue);
+			if (allLinksOfDP.remove(propertyValue))
+			{
+				Debug.error("DAL.addDataLinkedProperty - trying to register the same (equal) property value twice (" + propertyValue +
+					"); this means that some code that uses DAL is not working properly (maybe cleanup/detach malfunction); will use latest value... Links: " +
+					targetDataLinks);
+			}
+
+			allLinksOfDP.add(propertyValue);
 
 			if (formController != null) setupModificationListener(dpID); // see if we need to listen to global/form scope changes
 		}
 
 		allComponentPropertiesLinkedToData.add(propertyValue);
+
 	}
 
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
@@ -463,11 +472,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void removeFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)
 	{
 		findModeAwareProperties.remove(propertyValue);
-	}
-
-	public void componentDisposed(WebFormComponent component)
-	{
-		// TODO remove modification listeners for form/global scopes if needed...
 	}
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
@@ -828,9 +832,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			if (recordToUse != null)
 			{
-				int selectedIndex = recordToUse.getParentFoundSet().getSelectedIndex();
 				int rowIndex = recordToUse.getParentFoundSet().getRecordIndex(recordToUse);
-				if (selectedIndex != rowIndex)
+				if (Arrays.binarySearch(recordToUse.getParentFoundSet().getSelectedIndexes(), rowIndex) < 0)
 				{
 					recordToUse.getParentFoundSet().setSelectedIndex(rowIndex);
 				}
@@ -841,7 +844,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public String getStringValue(String name)
 	{
-		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication().getLocale(), getApplication().getSettings());
+		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication());
 		return processValue(stringValue, name, null); // TODO last param ,IDataProviderLookup, should be implemented
 	}
 

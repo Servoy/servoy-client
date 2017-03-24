@@ -68,8 +68,8 @@ public class ComponentFormat
 		return getComponentFormat(format, dataProviderID, dataProviderLookup, application, false);
 	}
 
-	public static ComponentFormat getComponentFormat(String format, String dataProviderID, IDataProviderLookup dataProviderLookup,
-		IServiceProvider application, boolean autoFillMaxLength)
+	public static ComponentFormat getComponentFormat(String format, String dataProviderID, IDataProviderLookup dataProviderLookup, IServiceProvider application,
+		boolean autoFillMaxLength)
 	{
 		int dpType = IColumnTypes.TEXT;
 		String formatProperty = format;
@@ -131,7 +131,8 @@ public class ComponentFormat
 						{
 							try
 							{
-								int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
+								int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(
+									ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
 								if (convType != Integer.MAX_VALUE)
 								{
 									dpType = Column.mapToDefaultType(convType);
@@ -186,7 +187,7 @@ public class ComponentFormat
 			}
 		}
 
-		String defaultFormat = parsedFormat.isEmpty() ? TagResolver.getDefaultFormatForType(application.getSettings(), uiType) : null;
+		String defaultFormat = parsedFormat.isEmpty() ? TagResolver.getDefaultFormatForType(application, uiType) : null;
 		String formatString;
 		if (parsedFormat.isEmpty() && !hasUIConverter)
 		{
@@ -230,8 +231,8 @@ public class ComponentFormat
 			}
 			catch (Exception e)
 			{
-				throw new IllegalArgumentException(Messages.getString(
-					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), value }), e); //$NON-NLS-1$
+				throw new IllegalArgumentException(Messages.getString("servoy.record.error.settingDataprovider", //$NON-NLS-1$
+					new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), value }), e);
 			}
 		}
 		return value;
@@ -268,8 +269,9 @@ public class ComponentFormat
 			}
 			catch (Exception e)
 			{
-				throw new IllegalArgumentException(Messages.getString(
-					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), obj }), e); //$NON-NLS-1$
+				throw new IllegalArgumentException(
+					Messages.getString("servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), obj }), //$NON-NLS-1$
+					e);
 			}
 		}
 		return obj;

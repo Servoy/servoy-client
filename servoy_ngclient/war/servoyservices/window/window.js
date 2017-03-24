@@ -302,7 +302,6 @@ angular.module('window',['servoy'])
 					var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(scope.model.popupform.form);
 					if (formState) {
 						formState.getScope().$destroy();
-						$sabloApplication.clearFormState(scope.model.popupform.form);
 					}
 				}
 				popup.remove();

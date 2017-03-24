@@ -348,8 +348,11 @@ public class WebClientSession extends WebSession
 			}
 		}
 
-		// clear after one minute
-		getWebClient().getScheduledExecutor().schedule(new ServeClearer(serveInfo), 60, TimeUnit.SECONDS);
+		if (getWebClient() != null && serveInfo != null)
+		{
+			// clear after one minute
+			getWebClient().getScheduledExecutor().schedule(new ServeClearer(serveInfo), 60, TimeUnit.SECONDS);
+		}
 
 		return resourceState;
 	}

@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
@@ -200,14 +199,14 @@ public abstract class NGUtils
 		return allPublicWebServiceSpecifications.toArray(new WebObjectSpecification[allPublicWebServiceSpecifications.size()]);
 	}
 
-	public static void resetI18NProperties(WebFormComponent component, PropertyDescription description, IGetAndSetter getAndSetter)
+	public static void resetI18NProperties(WebFormComponent component, PropertyDescription description)
 	{
 		Collection<PropertyDescription> properties = description.getProperties().values();
 		for (PropertyDescription pd : properties)
 		{
 			if (pd.getType() instanceof II18NPropertyType)
 			{
-				((II18NPropertyType)pd.getType()).resetValue(getAndSetter, pd, component);
+				component.setProperty(pd.getName(), ((II18NPropertyType)pd.getType()).resetI18nValue(component.getProperty(pd.getName()), pd, component));
 			}
 		}
 	}

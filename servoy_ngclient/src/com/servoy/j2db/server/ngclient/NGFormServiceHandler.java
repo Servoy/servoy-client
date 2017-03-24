@@ -243,7 +243,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 
 				// if this call has an show object, then we need to directly show that form right away
-				if (ok && args.has("show"))
+				if (ok && args.has("show") && args.getJSONObject("show").has("formname"))
 				{
 					JSONObject showing = args.getJSONObject("show");
 					showing.put("visible", true);
@@ -377,6 +377,10 @@ public class NGFormServiceHandler extends FormServiceHandler
 							// find spec for method
 							WebObjectSpecification componentSpec = webComponent.getSpecification();
 							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
+							if (functionSpec == null)
+							{
+								functionSpec = (componentSpec != null ? componentSpec.getServerApiFunction(componentMethodName) : null);
+							}
 							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 							// apply conversion
@@ -388,7 +392,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 									new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 							}
 
-							Object retVal = runtimeComponent.executeScopeFunction(componentMethodName, arrayOfJavaConvertedMethodArgs);
+							Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
 
 							if (functionSpec != null && functionSpec.getReturnType() != null)
 							{

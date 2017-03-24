@@ -130,6 +130,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		else
 		{
+
+
 			int size = Math.min(config.getMaxCount(), valueList.getSize());
 			List<Map<String, Object>> array = new ArrayList<>(size);
 			for (int i = 0; i < size; i++)
@@ -203,6 +205,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
+		if (valueList.getValueList().getLazyLoading() && valueList.getSize() == 0 && config.getLazyLoading() && filteredValuelist == null)
+		{
+			// lazy load, wait for initial filter to load the valuelist
+			return;
+		}
 		if ((previousRecord != null && !previousRecord.equals(record)) || Utils.equalObjects(dataProvider, dataproviderID))
 		{
 			revertFilter();

@@ -523,6 +523,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	//should be disabled if not showing!
 	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables)
 	{
+		if (visible == b) return;
 		visible = b;
 		for (IDisplayRelatedData drd : relatedDataAdapters)
 		{
@@ -826,7 +827,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	public String getStringValue(String name)
 	{
-		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application.getLocale(), application.getSettings());
+		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application);
 		return processValue(stringValue, name, dataProviderLookup);
 	}
 

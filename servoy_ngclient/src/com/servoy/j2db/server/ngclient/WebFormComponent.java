@@ -20,6 +20,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -191,7 +192,6 @@ public class WebFormComponent extends Container implements IContextProvider
 	public void dispose()
 	{
 		propertyChangeSupport = null;
-		((DataAdapterList)dataAdapterList).componentDisposed(this);
 		super.dispose();
 	}
 
@@ -309,6 +309,23 @@ public class WebFormComponent extends Container implements IContextProvider
 		{
 			isWritingComponentProperties = false;
 		}
+	}
+
+	@Override
+	public Object getRawPropertyValue(String propertyName, boolean getDefaultFromSpecAsWellIfNeeded)
+	{
+		String[] parts = propertyName.split("\\.");
+		String firstProperty = parts[0];
+		if (firstProperty.indexOf('[') > 0)
+		{
+			firstProperty = firstProperty.substring(0, firstProperty.indexOf('['));
+		}
+		PropertyDescription propertyDesc = specification.getProperty(firstProperty);
+		if (propertyDesc != null && propertyDesc.getType() instanceof IFormElementDefaultValueToSabloComponent)
+		{
+			return super.getRawPropertyValue(propertyName, false);
+		}
+		return super.getRawPropertyValue(propertyName, getDefaultFromSpecAsWellIfNeeded);
 	}
 
 }

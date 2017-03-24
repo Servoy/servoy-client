@@ -202,12 +202,12 @@ public class JSUtils implements IJSUtils
 			{
 				Scriptable scriptObject = (Scriptable)scriptable;
 				settings = Settings.getInstance();
-				tagResolver = TagResolver.createResolver(scriptObject, application.getLocale());
+				tagResolver = TagResolver.createResolver(scriptObject, application);
 			}
 
 			if (tagResolver != null && settings != null)
 			{
-				return Text.processTags(TagResolver.formatObject(text, application.getLocale(), settings), tagResolver);
+				return Text.processTags(TagResolver.formatObject(text, application), tagResolver);
 			}
 			return ""; //$NON-NLS-1$
 		}
@@ -1190,9 +1190,9 @@ public class JSUtils implements IJSUtils
 	}
 
 	private final Character[] CONVERSIONS = new Character[] { Character.valueOf('b'), Character.valueOf('B'), Character.valueOf('h'), Character.valueOf('H'), //
-		Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'), //
-		Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
-		Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
+	Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'), //
+	Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
+	Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
 
 	/**
 	 * Returns the number of words in the text string.

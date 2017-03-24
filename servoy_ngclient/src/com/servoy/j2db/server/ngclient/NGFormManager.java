@@ -245,7 +245,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	{
 		removeFromLeaseHistory(fp);
 		createdFormControllers.remove(fp.getName());
-		possibleForms.remove(fp.getForm().getName());
 	}
 
 	@Override

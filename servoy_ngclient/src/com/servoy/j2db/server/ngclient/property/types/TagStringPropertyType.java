@@ -39,7 +39,6 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
-import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -59,11 +58,11 @@ import com.servoy.j2db.util.Text;
  * @author jcompagner
  * @author acostescu
  */
-public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTypeSabloValue>
-	implements IFormElementToTemplateJSON<String, BasicTagStringTypeSabloValue>, ISupportTemplateValue<String>,
-	IDataLinkedType<String, BasicTagStringTypeSabloValue>, IFormElementToSabloComponent<String, BasicTagStringTypeSabloValue>,
-	IConvertedPropertyType<BasicTagStringTypeSabloValue>, ISabloComponentToRhino<BasicTagStringTypeSabloValue>,
-	IRhinoToSabloComponent<BasicTagStringTypeSabloValue>, ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>, II18NPropertyType
+public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTypeSabloValue> implements
+	IFormElementToTemplateJSON<String, BasicTagStringTypeSabloValue>, ISupportTemplateValue<String>, IDataLinkedType<String, BasicTagStringTypeSabloValue>,
+	IFormElementToSabloComponent<String, BasicTagStringTypeSabloValue>, IConvertedPropertyType<BasicTagStringTypeSabloValue>,
+	ISabloComponentToRhino<BasicTagStringTypeSabloValue>, IRhinoToSabloComponent<BasicTagStringTypeSabloValue>,
+	ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>, II18NPropertyType<BasicTagStringTypeSabloValue>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -307,15 +306,15 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component)
+	public BasicTagStringTypeSabloValue resetI18nValue(BasicTagStringTypeSabloValue value, PropertyDescription pd, WebFormComponent component)
 	{
-		Object value = getAndSetter.getProperty(pd.getName());
 		if (value instanceof II18NValue)
 		{
 			String i18nKey = ((II18NValue)value).getI18NKey();
 			BasicTagStringTypeSabloValue sabloComponentValue = TagStringPropertyType.INSTANCE.toSabloComponentValue(i18nKey, pd, component.getFormElement(),
 				component, ((II18NValue)value).getDataAdapterList());
-			getAndSetter.setProperty(pd.getName(), sabloComponentValue);
+			return sabloComponentValue;
 		}
+		return value;
 	}
 }

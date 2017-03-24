@@ -280,40 +280,57 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	}
 
 	/**
-	 *  Method used to remove a method or a variable from the {@link FormScope}
-	 * @param name
+	 * This method in {@link DefaultScope} only removes the value for the given key (it does not touch the index access).<br/>
+	 * But extending classes should add to it any specific logic. For example if a child class will always keep values referenced via String keys also in the index based access,
+	 * it might want to clear that value from the index map too or whatever internal specific member to that class it keeps that value in as well...
+	 *
+	 * @param key the key of the value to be removed.
+	 * @return the value that was removed, if any.
 	 */
-	public void remove(String name)
+	public Object remove(String key)
 	{
-		boolean found = false;
-		Object o = allVars.remove(name);
-		if (o != null)
+		return allVars.remove(key);
+	}
+
+	/**
+	 * Removes a value from the index mapping.
+	 * Will make sure that the indexes that followed the deleted one will slide left with 1 position.
+	 *
+	 * @param o the value to be removed
+	 * @return the index at which the value was found - in case it was removed or -1 if that value was not found.
+	 */
+	public int removeIndexByValue(Object o)
+	{
+		Integer found = null;
+		Iterator<Entry<Integer, Object>> it = allIndex.entrySet().iterator();
+		while (it.hasNext())
 		{
-			Iterator<Entry<Integer, Object>> it = allIndex.entrySet().iterator();
-			while (it.hasNext())
+			Map.Entry<Integer, Object> entry = it.next();
+			if (entry.getValue().equals(o))
 			{
-				Map.Entry<Integer, Object> entry = it.next();
-				if (entry.getValue().equals(name))
+				Integer key = entry.getKey();
+				found = key;
+				int oldLength = allIndex.size();
+				allIndex.remove(key);
+				Integer nextKey = new Integer(key.intValue() + 1);
+				while (nextKey.intValue() <= oldLength)
 				{
-					Integer key = entry.getKey();
-					allIndex.remove(key);
-					Integer nextKey = new Integer(key.intValue() + 1);
-					o = allIndex.remove(nextKey);
-					while (o != null)
-					{
-						allIndex.put(key, o);
-						key = nextKey;
-						nextKey = new Integer(key.intValue() + 1);
-						o = allIndex.remove(nextKey);
-					}
-					found = true;
-					break;
+					Object tmp = allIndex.remove(nextKey);
+					if (tmp != null) allIndex.put(key, tmp);
+					else allIndex.remove(key);
+
+					key = nextKey;
+					nextKey = new Integer(key.intValue() + 1);
 				}
-			}
-			if (!found)
-			{
-				Utils.mapRemoveByValue(name, allIndex);
+				break;
 			}
 		}
+		if (found == null)
+		{
+			found = Utils.mapRemoveByValue(o, allIndex);
+		}
+
+		return found != null ? found.intValue() : -1;
 	}
+
 }

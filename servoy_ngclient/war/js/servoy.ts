@@ -382,9 +382,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		createTooltipState: function(element,value) {
 			var tooltip =  value;
 			var initialDelay = $svyUIProperties.getUIProperty("tooltipInitialDelay");
-			if(isNaN(initialDelay)) initialDelay = 750;
+			if(initialDelay === null || isNaN(initialDelay)) initialDelay = 750;
 			var dismissDelay = $svyUIProperties.getUIProperty("tooltipDismissDelay"); 
-			if(isNaN(dismissDelay)) dismissDelay = 5000;
+			if(dismissDelay=== null || isNaN(dismissDelay)) dismissDelay = 5000;
 
 			function doShow(event) {
 	        	$svyTooltipUtils.showTooltip(event, tooltip, initialDelay, dismissDelay);
@@ -1079,7 +1079,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 	return {
 		getUIProperty: function(key) {
-			return getUiProperties()[key];
+			var value=getUiProperties()[key];
+			if (value === undefined)
+			{
+				value = null;
+			}
+			return value;
 		},
 		setUIProperty: function(key,value) {
 			var uiProps = getUiProperties();

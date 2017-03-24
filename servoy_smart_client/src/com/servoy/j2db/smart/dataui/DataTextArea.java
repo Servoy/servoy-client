@@ -96,9 +96,9 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * Runtime swing component which makes a text area
  * @author jblok
  */
-public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IFixedPreferredWidth,
-	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportPlaceholderText,
-	ISupportOnRender
+public class DataTextArea extends EnableScrollPanel
+	implements IDisplayData, IFieldComponent, IScrollPane, IFixedPreferredWidth, ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize,
+	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportPlaceholderText, ISupportOnRender
 {
 	private final JTextArea enclosedComponent;
 	private String dataProviderID;
@@ -366,8 +366,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public void setMargin(Insets m)
 	{
 //		enclosedComponent.setMargin(i); seems to have no effect
-		enclosedComponent.setBorder(BorderFactory.createCompoundBorder(enclosedComponent.getBorder(),
-			BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
+		enclosedComponent.setBorder(
+			BorderFactory.createCompoundBorder(enclosedComponent.getBorder(), BorderFactory.createEmptyBorder(m.top, m.left, m.bottom, m.right)));
 	}
 
 	public Insets getMargin()
@@ -730,7 +730,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 			{
 				if (resolver != null)
 				{
-					setValueEx(Text.processTags(TagResolver.formatObject(obj != null ? obj : "", application.getLocale(), application.getSettings()), resolver)); //$NON-NLS-1$
+					setValueEx(Text.processTags(TagResolver.formatObject(obj != null ? obj : "", application), resolver)); //$NON-NLS-1$
 					if (tooltip != null)
 					{
 						enclosedComponent.setToolTipText(Text.processTags(tooltip, resolver));
@@ -753,7 +753,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 				}
 				else
 				{
-					setValueEx(TagResolver.formatObject(obj, application.getLocale(), application.getSettings()));
+					setValueEx(TagResolver.formatObject(obj, application));
 				}
 				if (tooltip != null)
 				{

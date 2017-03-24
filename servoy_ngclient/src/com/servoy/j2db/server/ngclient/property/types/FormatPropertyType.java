@@ -54,11 +54,11 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
-import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
+import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -75,7 +75,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormatPropertyType extends DefaultPropertyType<Object>
 	implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>,
-	ISabloComponentToRhino<Object> /* <ComponentFormat */, IRhinoToSabloComponent<Object> /* <ComponentFormat */, II18NPropertyType
+	ISabloComponentToRhino<Object> /* <ComponentFormat */, IRhinoToSabloComponent<Object> /* <ComponentFormat */, II18NPropertyType<Object>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -374,14 +374,19 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 									}
 									else if (val.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
 									{
-										IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
-											Types.OTHER, null, null, true);
-										if (realValuelist instanceof GlobalMethodValueList)
+										boolean lazyLoad = val.getLazyLoading() && forProperty.getConfig() instanceof ValueListConfig &&
+											((ValueListConfig)forProperty.getConfig()).getLazyLoading();
+										if (!lazyLoad)
 										{
-											((GlobalMethodValueList)realValuelist).fill(null, "", null);
-											if (realValuelist.hasRealValues())
+											IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
+												Types.OTHER, null, null, true);
+											if (realValuelist instanceof GlobalMethodValueList)
 											{
-												return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+												((GlobalMethodValueList)realValuelist).fill(null, "", null);
+												if (realValuelist.hasRealValues())
+												{
+													return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+												}
 											}
 										}
 									}
@@ -431,15 +436,14 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component)
+	public Object resetI18nValue(Object value, PropertyDescription pd, WebFormComponent component)
 	{
-		Object value = getAndSetter.getProperty(pd.getName());
 		if (value instanceof I18NComponentFormat)
 		{
 			Object sabloValue = getSabloValue(((I18NComponentFormat)value).i18nKey, ((I18NComponentFormat)value).formElement, pd, component);
-			getAndSetter.setProperty(pd.getName(), sabloValue);
+			return sabloValue;
 		}
-
+		return value;
 	}
 
 	class I18NComponentFormat extends ComponentFormat

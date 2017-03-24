@@ -279,7 +279,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 			{
 				boolean isVisible = controller.isFormVisible();
 				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables);
-				if (!Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
+				if (controller.getFormModel() != null && !Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
 				{
 					// for now we just destroy the form and recreate it with the other datasource;
 					// TODO we just load the shared foundset for that datasource - can we improve this somehow so that the loaded foundset is closer to the current runtime situation of the form? (related tabs etc.)

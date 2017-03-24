@@ -1510,6 +1510,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	interface JSAppendTarget
 	{
 		void appendJavascript(String javascript);
+
+		boolean isBeforeRender();
 	}
 
 	public WebCellBasedView(final String id, final IApplication application, RuntimePortal scriptable, final Form form, final AbstractBase cellview,
@@ -3186,6 +3188,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				public void appendJavascript(String javascript)
 				{
 					jsHeadScrollViewport.append(javascript);
+				}
+
+				@Override
+				public boolean isBeforeRender()
+				{
+					return true;
 				}
 			});
 		}
@@ -4930,32 +4938,32 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						{
 							//backgroundcolor and color are sent as final inline string
 							sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
-							append(selectedId).append("', "). //$NON-NLS-1$
-							append(toJsArrayString(bgRuntimeColorjsArray, "background-color:")).append(","). //$NON-NLS-1$
-							append(toJsArrayString(fgRuntimeColorjsArray, "color:")).append(","). //$NON-NLS-1$
-							append(toJsArrayString(fstyleJsAray, "")).append(", "). //$NON-NLS-1$
-							append(toJsArrayString(fweightJsAray, "")).append(", "). //$NON-NLS-1$
-							append(toJsArrayString(fsizeJsAray, "")).append(", "). //$NON-NLS-1$
-							append(toJsArrayString(ffamilyJsAray, "")).append(", "). //$NON-NLS-1$
-							append(toJsArrayString(bstyleJsAray, "")).append(", "). //$NON-NLS-1$
-							append(toJsArrayString(bwidthJsAray, "")).append(","). //$NON-NLS-1$
-							append(toJsArrayString(bcolorJsAray, "")).append(","). //$NON-NLS-1$
-							append(isListViewMode()).append(");\n"); //$NON-NLS-1$
+								append(selectedId).append("', "). //$NON-NLS-1$
+								append(toJsArrayString(bgRuntimeColorjsArray, "background-color:")).append(","). //$NON-NLS-1$
+								append(toJsArrayString(fgRuntimeColorjsArray, "color:")).append(","). //$NON-NLS-1$
+								append(toJsArrayString(fstyleJsAray, "")).append(", "). //$NON-NLS-1$
+								append(toJsArrayString(fweightJsAray, "")).append(", "). //$NON-NLS-1$
+								append(toJsArrayString(fsizeJsAray, "")).append(", "). //$NON-NLS-1$
+								append(toJsArrayString(ffamilyJsAray, "")).append(", "). //$NON-NLS-1$
+								append(toJsArrayString(bstyleJsAray, "")).append(", "). //$NON-NLS-1$
+								append(toJsArrayString(bwidthJsAray, "")).append(","). //$NON-NLS-1$
+								append(toJsArrayString(bcolorJsAray, "")).append(","). //$NON-NLS-1$
+								append(isListViewMode()).append(");\n"); //$NON-NLS-1$
 						}
 						else
 						{
 							sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
-							append(selectedId).append("', '"). //$NON-NLS-1$
-							append(selectedColor).append("', '"). //$NON-NLS-1$
-							append(selectedFgColor).append("', '"). //$NON-NLS-1$
-							append(fstyle).append("', '"). //$NON-NLS-1$
-							append(fweight).append("', '"). //$NON-NLS-1$
-							append(fsize).append("', '"). //$NON-NLS-1$
-							append(ffamily).append("', '"). //$NON-NLS-1$
-							append(bstyle).append("', '"). //$NON-NLS-1$
-							append(bwidth).append("', '"). //$NON-NLS-1$
-							append(bcolor).append("', "). //$NON-NLS-1$
-							append(isListViewMode()).append(");\n"); //$NON-NLS-1$
+								append(selectedId).append("', '"). //$NON-NLS-1$
+								append(selectedColor).append("', '"). //$NON-NLS-1$
+								append(selectedFgColor).append("', '"). //$NON-NLS-1$
+								append(fstyle).append("', '"). //$NON-NLS-1$
+								append(fweight).append("', '"). //$NON-NLS-1$
+								append(fsize).append("', '"). //$NON-NLS-1$
+								append(ffamily).append("', '"). //$NON-NLS-1$
+								append(bstyle).append("', '"). //$NON-NLS-1$
+								append(bwidth).append("', '"). //$NON-NLS-1$
+								append(bcolor).append("', "). //$NON-NLS-1$
+								append(isListViewMode()).append(");\n"); //$NON-NLS-1$
 						}
 					}
 				}
@@ -5402,6 +5410,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				target.appendJavascript(javascript);
 			}
+
+			@Override
+			public boolean isBeforeRender()
+			{
+				return false;
+			}
 		});
 	}
 
@@ -5617,6 +5631,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
+
+			boolean skipAppendRows = false;
 			if (isKeepLoadedRowsInScrollMode)
 			{
 				int remainingPageViewSize = tableSize - selectedIndex < pageViewSize ? tableSize - selectedIndex : pageViewSize;
@@ -5627,6 +5643,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				newRows = getRows(table, viewSize, newRowsCount);
 				rowsBuffer = renderRows(getResponse(), newRows);
 				isGettingRows = false;
+				skipAppendRows = target.isBeforeRender();
 			}
 			else
 			{
@@ -5642,28 +5659,32 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				rowsBuffer = renderRows(getResponse(), newRows);
 				isGettingRows = false;
 				selectedIndex = new Integer(selectedIndex.intValue() - viewStartIndex);
+
 			}
 
 			if (rowsBuffer != null)
 			{
 				StringBuffer sb = new StringBuffer();
 
-				hasTopBuffer = table.getStartIndex() > 0;
-				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
-
-				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
-				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
-				sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
-				sb.append(newRowsCount).append(","); //$NON-NLS-1$
-				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
-				sb.append(1).append(", "); //$NON-NLS-1$
-				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
-				sb.append(hasBottomBuffer).append(",");
-				sb.append(!isKeepLoadedRowsInScrollMode).append(");");
-
-				if (rowsBuffer[0].length() > 0)
+				if (!skipAppendRows)
 				{
-					sb.append('\n').append(rowsBuffer[0]);
+					hasTopBuffer = table.getStartIndex() > 0;
+					hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+
+					sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+					sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+					sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
+					sb.append(newRowsCount).append(","); //$NON-NLS-1$
+					sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+					sb.append(1).append(", "); //$NON-NLS-1$
+					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+					sb.append(hasBottomBuffer).append(",");
+					sb.append(!isKeepLoadedRowsInScrollMode).append(");");
+
+					if (rowsBuffer[0].length() > 0)
+					{
+						sb.append('\n').append(rowsBuffer[0]);
+					}
 				}
 
 				int cellHeight = getCellHeight();

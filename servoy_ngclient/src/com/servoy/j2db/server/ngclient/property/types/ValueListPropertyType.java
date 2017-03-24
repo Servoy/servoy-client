@@ -53,7 +53,6 @@ import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
-import com.servoy.j2db.server.ngclient.IGetAndSetter;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -80,7 +79,7 @@ import com.servoy.j2db.util.Utils;
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>
 	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
 	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
-	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType
+	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -103,11 +102,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String def = null;
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
+		boolean lazyLoading = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			if (json.has("max")) max = json.optInt("max");
+			if (json.has("lazyLoading")) lazyLoading = json.optBoolean("lazyLoading");
 			if (json.has("tags"))
 			{
 				try
@@ -121,7 +122,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				}
 			}
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading);
 	}
 
 	@Override
@@ -388,19 +389,17 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public void resetValue(IGetAndSetter getAndSetter, PropertyDescription pd, WebFormComponent component)
+	public ValueListTypeSabloValue resetI18nValue(ValueListTypeSabloValue property, PropertyDescription pd, WebFormComponent component)
 	{
-
-		Object property = getAndSetter.getProperty(pd.getName());
 		// have to test if a real valuelist is there because a "autoVL" valuelist doesn't have an actual valuelist but is based on the column itself.
-		if (property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).valueList.getValueList() != null)
+		if (property != null && property.valueList.getValueList() != null)
 		{
-			ValueListTypeSabloValue currentSabloValue = (ValueListTypeSabloValue)property;
+			ValueListTypeSabloValue currentSabloValue = property;
 			ValueListTypeSabloValue newSabloValue = ((ValueListPropertyType)pd.getType()).toSabloComponentValue(
 				currentSabloValue.valueList.getValueList().getUUID(), pd, currentSabloValue.formElement, component, currentSabloValue.getDataAdapterList());
-			getAndSetter.setProperty(pd.getName(), newSabloValue);
+			return newSabloValue;
 		}
-
+		return property;
 	}
 
 }

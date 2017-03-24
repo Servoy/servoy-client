@@ -37,6 +37,7 @@ import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.FindState.RelatedFindState;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
@@ -118,20 +119,31 @@ public class SQLGenerator
 /*
  * _____________________________________________________________ Declaration of attributes
  */
-	private final IServiceProvider application;
+	private final IApplication application;
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
-	private final boolean relatedNullSearchAddPkCondition;
+	private final boolean relatedNullSearchAddPkConditionSystemSetting;
 	private final boolean enforcePkInSort;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public SQLGenerator(IServiceProvider app)
+	public SQLGenerator(IApplication app)
 	{
 		application = app;
-		relatedNullSearchAddPkCondition = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
+		relatedNullSearchAddPkConditionSystemSetting = Utils.getAsBoolean(
+			application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
 		// sort should always contain the pk, so that when sorting values are not unique the sorting result is stable
 		enforcePkInSort = Utils.getAsBoolean(application.getSettings().getProperty("servoy.foundset.sort.enforcepk", "true")); //$NON-NLS-1$//$NON-NLS-2$
+	}
+
+	private boolean relatedNullSearchAddPkCondition()
+	{
+		Object relatedNullSearchAddPkConditionSolutionSetting = application.getClientProperty(IApplication.RELATED_NULL_SEARCH_ADD_PK_CONDITION);
+		if (relatedNullSearchAddPkConditionSolutionSetting != null)
+		{
+			return Utils.getAsBoolean(relatedNullSearchAddPkConditionSolutionSetting);
+		}
+		return relatedNullSearchAddPkConditionSystemSetting;
 	}
 
 /*
@@ -757,7 +769,7 @@ public class SQLGenerator
 				}
 				if (Utils.stringIsEmpty(formatString))
 				{
-					formatString = TagResolver.getDefaultFormatForType(application.getSettings(), dataProviderType);
+					formatString = TagResolver.getDefaultFormatForType(application, dataProviderType);
 				}
 
 				ISQLCondition or = null;
@@ -787,7 +799,7 @@ public class SQLGenerator
 					final ConverterInfo fColumnConverterInfo = columnConverterInfo;
 					final int fDataProviderType = c.getDataProviderType();
 					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString, c,
-						relatedNullSearchAddPkCondition && rfs.getRelations().size() > 0, new IValueConverter()
+						rfs.getRelations().size() > 0 && relatedNullSearchAddPkCondition(), new IValueConverter()
 						{
 							@Override
 							public Object convertFromObject(Object value)
