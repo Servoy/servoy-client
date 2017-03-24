@@ -197,6 +197,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		{
 			UUID uuid = Utils.getAsUUID(formElementValue, false);
 			if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+			else if (formElementValue instanceof String) val = application.getFlattenedSolution().getValueList(formElementValue.toString());
 		}
 
 
@@ -310,6 +311,12 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
 			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd,
 				new ComponentFormat(format, type, type), value.formElement) : previousComponentValue;
+		}
+		else if (rhinoValue instanceof String && componentOrService instanceof WebFormComponent)
+		{
+			//valuelist name
+			return toSabloComponentValue(rhinoValue, pd, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService,
+				(DataAdapterList)((WebFormComponent)componentOrService).getDataAdapterList());
 		}
 		return null;
 	}

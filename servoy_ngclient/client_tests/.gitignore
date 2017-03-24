@@ -28,3 +28,4 @@ node_modules
 .lock-wscript
 /test-results.xml
 /development_mode.properties
+/run_tests_personal.properties
