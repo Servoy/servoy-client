@@ -281,7 +281,6 @@ public class FoundsetTypeViewport
 				public void foundSetChanged(FoundSetEvent event)
 				{
 					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged(foundset.isInFindMode());
-					else if (event.getType() == FoundSetEvent.FOUNDSET_INVALIDATED) changeMonitor.foundsetInvalidated();
 					else if (event.getType() == FoundSetEvent.CONTENTS_CHANGED)
 					{
 						// partial change only push the changes.
@@ -316,6 +315,8 @@ public class FoundsetTypeViewport
 							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this,
 								event.getDataProviders());
 						}
+						else if (event.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED) foundset.getSize(); // getSize on a related foundset (that can be invalidated) will validate the foundset and send any changes as subsequent events; do that as we are actively monitoring this foundset
+
 						changeMonitor.checkHadMoreRows();
 					}
 					else if (event.getType() == FoundSetEvent.SELECTION_MODE_CHANGE) changeMonitor.multiSelectChanged();

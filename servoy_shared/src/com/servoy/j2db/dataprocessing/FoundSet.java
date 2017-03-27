@@ -3211,11 +3211,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Get the record object at the index.
+	 * Get the record object at the given index.
+	 * Argument "index" is 1 based (so first record is 1).
 	 *
 	 * @sample var record = %%prefix%%foundset.getRecord(index);
 	 *
-	 * @param index int record index
+	 * @param index int record index (1 based).
 	 *
 	 * @return Record record.
 	 */
