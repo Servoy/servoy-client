@@ -151,8 +151,6 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		}
 	}
 
-	private Component lfComponent = null;
-	private Object lfValue = null;
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -178,14 +176,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 
 		if (lfAwareRenderer != null)
 		{
-			// Ask the renderer to do the rendering for us.
-			if (lfComponent == null || !Utils.equalObjects(value, lfValue))
-			{
-				// cache value, this is an expensive operation into the look and feel renderer.
-				lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				lfValue = value;
-			}
-
+			Component lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();
 			if (defaultBgColor == null) defaultBgColor = ((JLabel)lfComponent).getBackground();
 			if (defaultFont == null) defaultFont = ((JLabel)lfComponent).getFont();
