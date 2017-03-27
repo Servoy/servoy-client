@@ -2097,7 +2097,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				String tableName = tok.nextToken().trim();
 				String[] lcTableName = tableName.toLowerCase().split(whitespace);
-				if (lcTableName[0].equals(mainTable))
+				if (matchesMainTablename(lcTableName[0]))
 				{
 					foundTable = true;
 					// either 'tabname', 'tabname aliasname' or 'tabname AS aliasname', when no alias is given, use table name as alias
@@ -2134,6 +2134,65 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		return loadByQuery(sqlSelect);
+	}
+
+	/** Check if the tableName matches the main table.
+	 *
+	 * For example: "THECAT"."THESCHEMA"."THETABLE" matches thetable.
+	 */
+	private boolean matchesMainTablename(String tableName)
+	{
+		Table table = sheet.getTable();
+		if (table.getName().equalsIgnoreCase(tableName) || table.getSQLName().equalsIgnoreCase(tableName))
+		{
+			return true;
+		}
+
+		String[] catschemtab = tableName.split("\\.");
+		if (catschemtab.length == 2)
+		{
+			// catalogorschema.table
+			String catschem = dequote(catschemtab[0]);
+			String tab = dequote(catschemtab[1]);
+			if ((catschem.equalsIgnoreCase(table.getCatalog()) || catschem.equalsIgnoreCase(table.getSchema())) &&
+				(table.getName().equalsIgnoreCase(tab) || table.getSQLName().equalsIgnoreCase(tab)))
+			{
+				return true;
+			}
+		}
+		else if (catschemtab.length == 3)
+		{
+			// catalog.schema.table
+			String cat = dequote(catschemtab[0]);
+			String schem = dequote(catschemtab[1]);
+			String tab = dequote(catschemtab[2]);
+			if (cat.equalsIgnoreCase(table.getCatalog()) && schem.equalsIgnoreCase(table.getSchema()) &&
+				(table.getName().equalsIgnoreCase(tab) || table.getSQLName().equalsIgnoreCase(tab)))
+			{
+				return true;
+			}
+		}
+
+		// no match
+		return false;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	private static String dequote(String name)
+	{
+		if (name.length() > 2 && isquote(name.charAt(0)) && isquote(name.charAt(name.length() - 1)))
+		{
+			return name.substring(1, name.length() - 1);
+		}
+		return name;
+	}
+
+	private static boolean isquote(char c)
+	{
+		return c == '"' || c == '\'';
 	}
 
 	public boolean loadExternalPKList(IDataSet ds) throws ServoyException
