@@ -214,14 +214,6 @@ public class FoundsetTypeChangeMonitor
 	}
 
 	/**
-	 * Called when the foundset is invalidated.
-	 */
-	public void foundsetInvalidated()
-	{
-		allChanged();
-	}
-
-	/**
 	 * Called when the dataProviders that this foundset type provides changed.
 	 */
 	public void dataProvidersChanged()
