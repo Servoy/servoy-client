@@ -21,7 +21,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -152,10 +151,6 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		}
 	}
 
-	private WeakReference<Component> wrLFComponent = null;
-	private WeakReference<TableCellRenderer> wrLFAwareRenderer = null;
-	private Object lfValue = null;
-
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
@@ -177,23 +172,9 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 			this.setHorizontalTextPosition(defaultHorizontalTextPosition);
 		}
 		TableCellRenderer lfAwareRenderer = table.getTableHeader().getDefaultRenderer();
-		if (wrLFAwareRenderer == null || wrLFAwareRenderer.get() != lfAwareRenderer)
-		{
-			wrLFAwareRenderer = new WeakReference<>(lfAwareRenderer);
-			wrLFComponent = null;
-		}
-
 		if (lfAwareRenderer != null)
 		{
-			Component lfComponent = wrLFComponent != null ? wrLFComponent.get() : null;
-			// Ask the renderer to do the rendering for us.
-			if (lfComponent == null || !Utils.equalObjects(value, lfValue))
-			{
-				// cache value, this is an expensive operation into the look and feel renderer.
-				wrLFComponent = new WeakReference<>(lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column));
-				lfValue = value;
-				lfComponent = wrLFComponent.get();
-			}
+			Component lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();
 			if (defaultBgColor == null) defaultBgColor = ((JLabel)lfComponent).getBackground();
 			if (defaultFont == null) defaultFont = ((JLabel)lfComponent).getFont();
