@@ -5033,11 +5033,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				fireSelectionAdjusting();
 				pksAndRecords.setPksAndQuery(findPKs, findPKs.getRowCount(), findSqlSelect);
-				initialized = true;
 
 				clearInternalState(true);
 				fireAggregateChangeWithEvents(null); //notify about aggregate change,because the find has cleared them all.
 			}
+			initialized = true;
 
 			fireDifference(numberOfFindStates, getSize());
 
