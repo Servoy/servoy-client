@@ -897,6 +897,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public void flushFlattendFormCache(Form frm)
 	{
+		flushFlattendFormCache(frm, false);
+	}
+
+	public void flushFlattendFormCache(Form frm, boolean includingSubforms)
+	{
 		if (flattenedFormCache == null || frm == null) return;
 		Form form = frm;
 		if (frm instanceof FlattenedForm)
@@ -904,6 +909,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			form = ((FlattenedForm)frm).getForm();
 		}
 		flattenedFormCache.remove(form);
+
+		if (includingSubforms)
+		{
+			Iterator<Form> formCacheIte = flattenedFormCache.keySet().iterator();
+			while (formCacheIte.hasNext())
+			{
+				if (FlattenedForm.hasFormInHierarchy(formCacheIte.next(), frm))
+				{
+					formCacheIte.remove();
+				}
+			}
+		}
 	}
 
 	/*

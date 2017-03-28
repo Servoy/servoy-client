@@ -126,6 +126,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 			isCopy = true;
 		}
+		else
+		{
+			application.getFlattenedSolution().flushFlattendFormCache(getForm(), true);
+		}
 		getForm().setLastModified(System.currentTimeMillis());
 
 		application.getFlattenedSolution().registerChangedForm(getForm());
@@ -268,7 +272,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	@JSFunction
 	public JSVariable getVariable(String name)
 	{
-		ScriptVariable variable = application.getFlattenedSolution().getFlattenedForm(getForm(), false).getScriptVariable(name);
+		ScriptVariable variable = application.getFlattenedSolution().getFlattenedForm(getForm()).getScriptVariable(name);
 		if (variable != null)
 		{
 			return new JSVariable(application, this, variable, false);
@@ -293,7 +297,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	public JSVariable[] getVariables(boolean returnInheritedElements)
 	{
 		List<JSVariable> variables = new ArrayList<JSVariable>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm(), false) : getForm();
+		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm()) : getForm();
 		Iterator<ScriptVariable> scriptVariables = form2use.getScriptVariables(true);
 		while (scriptVariables.hasNext())
 		{
@@ -441,7 +445,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	@JSFunction
 	public JSMethod getMethod(String name)
 	{
-		ScriptMethod sm = application.getFlattenedSolution().getFlattenedForm(getForm(), false).getScriptMethod(name);
+		ScriptMethod sm = application.getFlattenedSolution().getFlattenedForm(getForm()).getScriptMethod(name);
 		if (sm != null)
 		{
 			return new JSMethod(this, sm, application, false);
@@ -476,7 +480,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	public JSMethod[] getMethods(boolean returnInheritedElements)
 	{
 		List<JSMethod> methods = new ArrayList<JSMethod>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm(), false) : getForm();
+		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm()) : getForm();
 		Iterator<ScriptMethod> scriptMethods = form2use.getScriptMethods(true);
 		while (scriptMethods.hasNext())
 		{
@@ -544,7 +548,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	private JSPart getPartInternal(int partType, int height)
 	{
-		Iterator<Part> parts = application.getFlattenedSolution().getFlattenedForm(getForm(), false).getParts();
+		Iterator<Part> parts = application.getFlattenedSolution().getFlattenedForm(getForm()).getParts();
 		while (parts.hasNext())
 		{
 			Part part = parts.next();
@@ -561,7 +565,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		Form superForm = application.getFlattenedSolution().getForm(getForm().getExtendsID());
 		if (superForm != null)
 		{
-			Iterator<Part> superParts = application.getFlattenedSolution().getFlattenedForm(superForm, false).getParts();
+			Iterator<Part> superParts = application.getFlattenedSolution().getFlattenedForm(superForm).getParts();
 			while (superParts.hasNext())
 			{
 				Part superPart = superParts.next();
@@ -881,7 +885,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	public JSPart[] getParts(boolean returnInheritedElements)
 	{
 		List<JSPart> lst = new ArrayList<JSPart>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm(), false) : getForm();
+		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm()) : getForm();
 		Iterator<Part> parts = form2use.getParts();
 		while (parts.hasNext())
 		{
@@ -987,7 +991,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	@JSFunction
 	public int getPartYOffset(int type, int height)
 	{
-		Form ff = application.getFlattenedSolution().getFlattenedForm(getForm(), false);
+		Form ff = application.getFlattenedSolution().getFlattenedForm(getForm());
 
 		Iterator<Part> parts = ff.getParts();
 		while (parts.hasNext())
@@ -3487,6 +3491,6 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	@Override
 	public AbstractContainer getFlattenedContainer()
 	{
-		return application.getFlattenedSolution().getFlattenedForm(getForm(), false);
+		return application.getFlattenedSolution().getFlattenedForm(getForm());
 	}
 }
