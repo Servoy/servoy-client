@@ -912,13 +912,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		if (includingSubforms)
 		{
-			Iterator<Form> it = getForms(false);
-			while (it.hasNext())
+			Iterator<Form> formCacheIte = flattenedFormCache.keySet().iterator();
+			while (formCacheIte.hasNext())
 			{
-				Form childForm = it.next();
-				if (childForm.getExtendsID() == frm.getID())
+				if (FlattenedForm.hasFormInHierarchy(formCacheIte.next(), frm))
 				{
-					flushFlattendFormCache(childForm, true);
+					formCacheIte.remove();
 				}
 			}
 		}
