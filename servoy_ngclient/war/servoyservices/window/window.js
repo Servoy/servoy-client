@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability) {
+.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability,$utils) {
 	var scope = $services.getServiceScope('window');
 	return {
 
@@ -73,44 +73,12 @@ angular.module('window',['servoy'])
 								contextFilterElement = contextFilterParts[1];
 							}
 						}
+						
+						var jsEvent = $utils.createJSEvent(e,shortcutcombination,contextFilter,contextFilterElement);
+						
+						if (!jsEvent) continue;
 
 						var args = scope.model.shortcuts[j].arguments;
-						
-						var form;
-						var parent = targetEl;
-						var targetElNameChain = new Array();
-						var contextMatch = false;
-						while (parent) {
-							form = parent.getAttribute("ng-controller");
-							if (form) {
-								//global shortcut or context match
-								var shortcuthit = !contextFilter || (contextFilter && form == contextFilter);
-								if (!shortcuthit) break;
-								contextMatch = true;
-								break;
-							}
-							if(parent.getAttribute("name")) targetElNameChain.push(parent.getAttribute("name"));
-							parent = parent.parentNode;
-						}
-						
-						if (!contextMatch) continue;
-						
-						var jsEvent = {svyType: 'JSEvent', eventType: shortcutcombination};
-						if(form != 'MainController') {
-							jsEvent.formName = form;
-							var formScope = angular.element(parent).scope();
-							for (var i = 0; i < targetElNameChain.length; i++) {
-								if(formScope.model[targetElNameChain[i]]) {
-									jsEvent.elementName = targetElNameChain[i];
-									break;
-								}
-							}
-							
-							if(contextFilterElement && (contextFilterElement != jsEvent.elementName)) {
-								continue;
-							}
-						}
-						
 						var argsWithEvent = [jsEvent];// append args
 						if(args != null) {
 							if(args.length) {
