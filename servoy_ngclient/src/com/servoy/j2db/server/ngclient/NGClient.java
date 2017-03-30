@@ -659,7 +659,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
 					if (scope != null)
 					{
-						Scriptable service = (Scriptable)scope.get(serviceSpecification.getName(), null);
+						Scriptable service = (Scriptable)scope.get(serviceSpecification.getScriptingName(), null);
 						Object api = service.get(apiFunction.getName(), null);
 						if (api instanceof Function)
 						{
@@ -1299,9 +1299,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				break;
 			case "callServerSideApi" :
 			{
-				String serviceName = args.getString("service");
+				String serviceScriptingName = args.getString("service");
 				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
-				Object service = scope.get(serviceName, scope);
+				Object service = scope.get(serviceScriptingName, scope);
 
 				if (service instanceof WebServiceScriptable)
 				{
@@ -1313,8 +1313,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					// the call to webServiceScriptable.executeScopeFunction will do the java to Rhino one
 
 					// find spec for method
-					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceName);
-					WebObjectSpecification serviceSpec = webServiceScriptable.getServiceSpecification();
+					WebObjectSpecification serviceSpec = webServiceScriptable.getServiceSpecification(); // get specification from plugins scope (which uses getScriptName() of service, then use the getClientService using the real name, to make sure client service is created if needed)
+					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceSpec.getName());
+
 					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
 					if (functionSpec == null)
 					{
@@ -1340,7 +1341,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 				else
 				{
-					Debug.warn("callServerSideApi for unknown service '" + serviceName + "'");
+					Debug.warn("callServerSideApi for unknown service '" + serviceScriptingName + "'");
 				}
 				break;
 			}

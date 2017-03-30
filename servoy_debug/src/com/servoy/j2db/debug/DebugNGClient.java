@@ -31,7 +31,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
-import org.sablo.websocket.impl.ClientService;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.IBasicFormManager;
@@ -153,8 +152,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		{
 			if (serviceSpecification.getApiFunctions().size() != 0 || serviceSpecification.getAllPropertiesNames().size() != 0)
 			{
-				scope.put(ClientService.convertToJSName(serviceSpecification.getName()), scope,
-					new WebServiceScriptable(this, serviceSpecification, engine.getSolutionScope()));
+				scope.put(serviceSpecification.getScriptingName(), scope, new WebServiceScriptable(this, serviceSpecification, engine.getSolutionScope()));
 			}
 		}
 		scope.setLocked(true);
@@ -308,7 +306,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		if (reload)
 		{
 			WebsocketSessionWindows allendpoints = new NGClientWebsocketSessionWindows(getWebsocketSession());
-			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null, null);
+			allendpoints.executeAsyncServiceCall(getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE), "reload", null, null);
 			try
 			{
 				allendpoints.flush();

@@ -259,10 +259,6 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		return value;
 	}
 
-	/**
-	 * @param name
-	 * @return
-	 */
 	protected String generatePropertyName(String name)
 	{
 		String newName = name.substring(name.startsWith("is") ? 2 : 3);
