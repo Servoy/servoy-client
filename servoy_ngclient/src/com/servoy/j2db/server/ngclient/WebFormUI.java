@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.WebComponent;
+import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -96,7 +97,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		private FormSpecification()
 		{
-			super("form_spec", "", "", null, null, null, "", null);
+			super("form_spec", "", IPackageReader.WEB_COMPONENT, "", null, null, null, "", null);
 			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));

@@ -328,4 +328,12 @@ public class WebFormComponent extends Container implements IContextProvider
 		return super.getRawPropertyValue(propertyName, getDefaultFromSpecAsWellIfNeeded);
 	}
 
+	/**
+	 * @return the dataAdapterList
+	 */
+	public IDataAdapterList getDataAdapterList()
+	{
+		return dataAdapterList;
+	}
+
 }

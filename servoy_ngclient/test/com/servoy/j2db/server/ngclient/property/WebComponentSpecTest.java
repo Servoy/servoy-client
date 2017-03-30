@@ -313,4 +313,5 @@ public class WebComponentSpecTest
 		Assert.assertEquals("sample", spec.getPackageName());
 		//Assert.assertEquals("sample:test", spec.getFullName());
 	}
+
 }
