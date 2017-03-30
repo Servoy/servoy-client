@@ -794,4 +794,18 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 		return new RuntimeWebComponent[0];
 	}
+
+	/*
+	 * @see com.servoy.j2db.IFormController#hasParentForm()
+	 */
+	@Override
+	public boolean hasParentForm()
+	{
+		IWebFormController pfc = getParentFormController();
+		if (pfc != null)
+		{
+			return !pfc.isDestroyed();
+		}
+		return false;
+	}
 }

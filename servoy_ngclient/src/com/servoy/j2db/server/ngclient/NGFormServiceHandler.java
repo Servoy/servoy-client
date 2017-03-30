@@ -283,6 +283,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				IWebFormController form = getApplication().getFormManager().getForm(formName);
 				if (form != null)
 				{
+					checkAndSetParentWindow(formName); // maybe the form was destroyed because of memory limits, make sure we set the parent window
 					String windowName = form.getFormUI().getParentWindowName();
 					NGRuntimeWindow window = null;
 					if (windowName != null && (window = getApplication().getRuntimeWindowManager().getWindow(windowName)) != null)

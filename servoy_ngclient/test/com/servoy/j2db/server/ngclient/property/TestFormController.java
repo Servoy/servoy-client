@@ -166,7 +166,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormController#isDestroyed()
 	 */
 	@Override
@@ -761,6 +761,15 @@ public class TestFormController implements IWebFormController
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * @see com.servoy.j2db.IFormController#hasParentForm()
+	 */
+	@Override
+	public boolean hasParentForm()
+	{
 		return false;
 	}
 }
