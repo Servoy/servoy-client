@@ -1,6 +1,6 @@
 {
-  "name": "sablo-unit-test-module",
-  "description": "A module that bundles karma depenencies needed to tun karma for sablo",
+  "name": "ngclient-ts-compile",
+  "description": "A module that setsup typescript for the ts file compilation",
   "dependencies": {
     "typescript": "~2.0.10"
   },
