@@ -1626,9 +1626,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 								KeyStroke k = KeyStroke.getKeyStroke(keyStroke.getKeyCode(), modifiers);
 
-								Object mapVal = map.get(keyStroke);
-								map.remove(keyStroke);
-								map.put(k, mapVal);
+								if (map.get(k) == null)
+								{
+									Object mapVal = map.get(keyStroke);
+									map.remove(keyStroke);
+									map.put(k, mapVal);
+								}
 							}
 
 						}
