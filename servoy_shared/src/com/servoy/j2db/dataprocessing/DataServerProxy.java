@@ -110,7 +110,7 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException
+		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException
 	{
 		return ds.createSQLStatement(action, getMappedServerName(server_name), tableName, pkColumnData, tid, sqlUpdate, filters);
 	}

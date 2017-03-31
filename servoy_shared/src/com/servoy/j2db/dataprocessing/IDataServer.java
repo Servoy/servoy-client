@@ -119,7 +119,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 		Object[] questiondata) throws RemoteException, RepositoryException;
 
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException;
+		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException;
 
 	public boolean notifyDataChange(String client_id, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
 		throws RemoteException;
