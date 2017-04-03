@@ -244,10 +244,15 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		final WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		if (apiFunction == null)
+		{
+			apiFunction = serviceSpecification.getInternalApiFunction(name);
+		}
 		if (apiFunction != null && apiObject != null)
 		{
 			final Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
+			final WebObjectFunctionDefinition apiFunctionFinal = apiFunction;
 			if (serverSideFunction instanceof Function)
 			{
 				return new BaseFunction()
@@ -256,7 +261,7 @@ public class WebServiceScriptable implements Scriptable
 					public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 					{
 						Object retValue = ((Function)serverSideFunction).call(cx, scope, thisObj, args);
-						retValue = NGConversions.INSTANCE.convertServerSideRhinoToRhinoValue(retValue, apiFunction.getReturnType(),
+						retValue = NGConversions.INSTANCE.convertServerSideRhinoToRhinoValue(retValue, apiFunctionFinal.getReturnType(),
 							(BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName()), null);
 						return retValue;
 					}

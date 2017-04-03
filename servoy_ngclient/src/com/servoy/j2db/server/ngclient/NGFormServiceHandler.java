@@ -377,10 +377,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 							// find spec for method
 							WebObjectSpecification componentSpec = webComponent.getSpecification();
-							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
+							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getInternalApiFunction(componentMethodName)
+								: null);
 							if (functionSpec == null)
 							{
-								functionSpec = (componentSpec != null ? componentSpec.getServerApiFunction(componentMethodName) : null);
+								functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
 							}
 							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
