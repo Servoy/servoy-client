@@ -23,18 +23,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.servoy.base.query.BaseQueryTable;
-import com.servoy.j2db.persistence.IServerManagerInternal;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.server.shared.IClientManagerInternal;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -43,17 +40,20 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  *
  */
-public class ValidatingDelegateDataServer extends AbstractDelegateDataServer implements IDataServerInternal
+public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 {
+	private final IServiceProvider application;
+
 	/**
 	 * @param dataserver
 	 */
-	public ValidatingDelegateDataServer(IDataServer dataserver)
+	public ValidatingDelegateDataServer(IDataServer dataserver, IServiceProvider application)
 	{
 		super(dataserver);
+		this.application = application;
 	}
 
-	protected void validateQuery(IVisitable[] queries) throws RepositoryException
+	protected void validateQuery(IVisitable[] queries)
 	{
 		if (queries != null)
 		{
@@ -64,7 +64,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer imp
 		}
 	}
 
-	protected void validateQuery(ISQLStatement[] statements) throws RepositoryException
+	protected void validateQuery(ISQLStatement[] statements)
 	{
 		if (statements != null)
 		{
@@ -76,7 +76,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer imp
 		}
 	}
 
-	protected void validateQuery(IVisitable query) throws RepositoryException
+	protected void validateQuery(IVisitable query)
 	{
 		if (query != null)
 		{
@@ -110,8 +110,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer imp
 					else if (serverName != null && !singleServer.equals(serverName))
 					{
 						String msg = "Cannot perform multiserver-query '" + serverName + "'/'" + singleServer + "'";
-						Debug.warn(msg + ", query = " + query);
-						throw new RepositoryException(msg);
+						application.reportJSError(msg, query);
 					}
 				}
 			}
@@ -375,116 +374,6 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer imp
 	{
 		validateQuery(sqlQuery);
 		return super.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
-	}
-
-	////// IDataServerInternal methods ///////////
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#doInserts(java.lang.String, java.lang.String, com.servoy.j2db.persistence.ITable,
-	 * com.servoy.j2db.dataprocessing.IDataSet, java.util.ArrayList)
-	 */
-	@Override
-	public void doInserts(String client_id, String transaction_id, ITable table, IDataSet resultWithColumnNames, ArrayList<TableFilter> filters)
-		throws ServoyException
-	{
-		((IDataServerInternal)getDelegate()).doInserts(client_id, transaction_id, table, resultWithColumnNames, filters);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#doI18NUpdates(java.lang.String, java.lang.String, com.servoy.j2db.persistence.Table,
-	 * com.servoy.j2db.dataprocessing.BufferedDataSet, boolean)
-	 */
-	@Override
-	public void doI18NUpdates(String client_id, String transaction_id, Table table, BufferedDataSet resultWithColumnNames, boolean onlyInserts)
-		throws ServoyException
-	{
-		((IDataServerInternal)getDelegate()).doI18NUpdates(client_id, transaction_id, table, resultWithColumnNames, onlyInserts);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#getServerManager()
-	 */
-	@Override
-	public IServerManagerInternal getServerManager()
-	{
-		return ((IDataServerInternal)getDelegate()).getServerManager();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#getNextRepositorySequence(java.lang.String, java.lang.String, int)
-	 */
-	@Override
-	public Object getNextRepositorySequence(String tableName, String columnName, int columnInfoID) throws RepositoryException
-	{
-		return ((IDataServerInternal)getDelegate()).getNextRepositorySequence(tableName, columnName, columnInfoID);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#startRepositoryTransaction(java.lang.String)
-	 */
-	@Override
-	public String startRepositoryTransaction(String client_id) throws RepositoryException
-	{
-		return ((IDataServerInternal)getDelegate()).startRepositoryTransaction(client_id);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#endRepositoryTransactions(java.lang.String, java.lang.String[], boolean)
-	 */
-	@Override
-	public boolean endRepositoryTransactions(String client_id, String[] transaction_ids, boolean commit) throws RepositoryException
-	{
-		return ((IDataServerInternal)getDelegate()).endRepositoryTransactions(client_id, transaction_ids, commit);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#performRepositoryUpdates(java.lang.String, com.servoy.j2db.dataprocessing.ISQLStatement[])
-	 */
-	@Override
-	public Object[] performRepositoryUpdates(String client_id, ISQLStatement[] statements) throws ServoyException
-	{
-		validateQuery(statements);
-		return ((IDataServerInternal)getDelegate()).performRepositoryUpdates(client_id, statements);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#performRepositoryQuery(java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect,
-	 * java.util.ArrayList, boolean, int, int, boolean, int, com.servoy.j2db.dataprocessing.ITrackingSQLStatement)
-	 */
-	@Override
-	public IDataSet performRepositoryQuery(String client_id, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean createMetaInfo, int type, ITrackingSQLStatement trackingInfo) throws ServoyException
-	{
-		validateQuery(sqlSelect);
-		return ((IDataServerInternal)getDelegate()).performRepositoryQuery(client_id, transaction_id, sqlSelect, filters, distinctInMemory, startRow,
-			rowsToRetrieve, createMetaInfo, type, trackingInfo);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IDataServerInternal#getClientManager()
-	 */
-	@Override
-	public IClientManagerInternal getClientManager()
-	{
-		return ((IDataServerInternal)getDelegate()).getClientManager();
 	}
 
 }

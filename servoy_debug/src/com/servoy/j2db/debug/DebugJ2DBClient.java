@@ -76,6 +76,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
 import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.gui.LoginDialog;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -957,7 +958,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 					ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(dataServer, new Class< ? >[] { IDataServer.class }),
 					new Class[] { IDataServer.class });
 			}
-			dataServer = new ProfileDataServer(dataServer);
+			dataServer = new ProfileDataServer(new ValidatingDelegateDataServer(dataServer, this));
 		}
 		return dataServer;
 	}
