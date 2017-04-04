@@ -11,8 +11,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 		controller: function ($scope) {
 			$scope.style = {
 					height: '100%',
-					width: '100%',
-					overflow: 'hidden'
+					width: '100%'
 			};
 
 			$scope.findMode = false;

@@ -204,11 +204,6 @@ div.svy-label-with-focus:focus{
 	border-color: #d6e9c6;
 }
 
-.dropdown-menu {
-	position:fixed;
-	top:auto;
-	left:auto;
-}
 .dropdown-menu[typeahead-popup] {
 	max-height:200px;
 	overflow:auto;
@@ -217,7 +212,8 @@ div.svy-label-with-focus:focus{
 	width: auto;
 }
 .ui-select-bootstrap > .ui-select-match {
-	padding:0px
+	padding:0px;
+  overflow:hidden;
 }
 .ui-select-search
 {
@@ -238,12 +234,12 @@ div.svy-label-with-focus:focus{
 	top: 25%;
 	position:relative;
 }
-.ui-select-choices-row>a
+.ui-select-bootstrap .ui-select-choices-row>span
 {
 	padding-left: 0;
 	padding-right: 0;
 }
-.ui-select-choices-row>a>div
+.ui-select-choices-row>span>div
 {
 	padding-left: 20px;
 }
