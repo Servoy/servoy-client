@@ -30,6 +30,7 @@ import org.sablo.websocket.utils.DataConversion;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IServerRhinoToRhino;
@@ -64,7 +65,7 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
 		if (rhinoValue instanceof String && app != null)
@@ -108,7 +109,7 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
 		if (webComponentValue instanceof String && app != null)
@@ -119,7 +120,7 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object fromServerRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object fromServerRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		return toRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);

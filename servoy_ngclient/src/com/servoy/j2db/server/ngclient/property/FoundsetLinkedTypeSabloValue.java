@@ -40,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -279,7 +280,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return wrappedSabloValue;
 	}
 
-	public void rhinoToSablo(Object rhinoValue, PropertyDescription wrappedPropertyDescription, BaseWebObject componentOrService)
+	public void rhinoToSablo(Object rhinoValue, PropertyDescription wrappedPropertyDescription, INGWebObject componentOrService)
 	{
 		YT newWrappedVal;
 		newWrappedVal = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, wrappedSabloValue, wrappedPropertyDescription, componentOrService);
@@ -291,7 +292,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
 			wrappedSabloValue = newWrappedVal;
 			if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
-				((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, componentOrService);
+				((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, componentOrService.getUnderlyingWebObject());
 		}
 	}
 

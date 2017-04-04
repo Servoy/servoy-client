@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Undefined;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -31,6 +30,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 
@@ -79,7 +79,7 @@ public class ServoyStringPropertyType extends StringPropertyType
 	}
 
 	@Override
-	public String toSabloComponentValue(Object rhinoValue, String previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public String toSabloComponentValue(Object rhinoValue, String previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		if (rhinoValue == Undefined.instance)
 		{

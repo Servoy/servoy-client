@@ -55,6 +55,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
@@ -239,9 +240,9 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 		return getSabloValue(null, formElement, pd, component);
 	}
 
-	private Object getSabloValue(Object formElementValue, INGFormElement formElement, PropertyDescription pd, WebFormComponent component)
+	private Object getSabloValue(Object formElementValue, INGFormElement formElement, PropertyDescription pd, INGWebObject component)
 	{
-		IApplication application = component.getDataConverterContext().getApplication();
+		IApplication application = ((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getApplication();
 		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
 		{
 			formElementValue = null;
@@ -254,7 +255,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 			{
 				for (String element : (String[])pd.getConfig())
 				{
-					PropertyDescription forProperty = formElement.getProperty(element);
+					PropertyDescription forProperty = component.getProperties().contentType != null ? component.getProperties().contentType.getProperty(element)
+						: formElement.getProperty(element);
 					if (forProperty != null)
 					{
 						IPropertyType< ? > type = forProperty.getType();
@@ -264,8 +266,14 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 						}
 						if (type instanceof DataproviderPropertyType)
 						{
-							dataproviderId = (String)formElement.getPropertyValue(element);
-							PropertyDescription property = formElement.getProperty(element);
+							dataproviderId = DataAdapterList.getDataProviderID(component.getProperty(element));
+							if (dataproviderId == null)//TODO check why is it still null...
+							{
+								dataproviderId = (String)formElement.getPropertyValue(element);
+							}
+
+							PropertyDescription property = component.getProperties().contentType != null
+								? component.getProperties().contentType.getProperty(element) : formElement.getProperty(element);
 							Object config = property.getConfig();
 							// if it is a dataprovider type. look if it is foundset linked
 							if (config instanceof FoundsetLinkedConfig && ((FoundsetLinkedConfig)config).getForFoundsetName() != null)
@@ -396,7 +404,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 			}
 			ComponentFormat format = ComponentFormat.getComponentFormat((String)formElementValue, dataproviderId,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-					component.getDataConverterContext().getForm().getForm()),
+					((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm()),
 				application, true);
 			return format;
 		}
@@ -410,7 +418,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		if (webComponentValue instanceof ComponentFormat)
 		{
@@ -420,8 +428,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
-		return getSabloValue(rhinoValue, ((WebFormComponent)componentOrService).getFormElement(), pd, (WebFormComponent)componentOrService);
+		return getSabloValue(rhinoValue, ((WebFormComponent)componentOrService.getUnderlyingWebObject()).getFormElement(), pd, componentOrService);
 	}
 }

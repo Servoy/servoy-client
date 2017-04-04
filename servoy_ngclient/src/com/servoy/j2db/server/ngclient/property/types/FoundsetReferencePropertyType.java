@@ -28,6 +28,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
@@ -89,14 +90,14 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	}
 
 	@Override
-	public Object toRhinoValue(IFoundSetInternal webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(IFoundSetInternal webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		return webComponentValue;
 	}
 
 	@Override
 	public IFoundSetInternal toSabloComponentValue(Object rhinoValue, IFoundSetInternal previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 		if (rhinoValue instanceof IFoundSetInternal)
 		{

@@ -24,6 +24,7 @@ import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.EnabledSabloValue;
 
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
@@ -67,9 +68,9 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements ISablo
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */
 	@Override
-	public Object toRhinoValue(Boolean webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Boolean webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
-		Object v = componentOrService.getRawPropertyValue(pd.getName(), true);
+		Object v = componentOrService.getUnderlyingWebObject().getRawPropertyValue(pd.getName(), true);//TODO getUnderlying object or getValue??
 		if (v != null)
 		{
 			return ((NGEnabledSabloValue)v).getComponentValue();

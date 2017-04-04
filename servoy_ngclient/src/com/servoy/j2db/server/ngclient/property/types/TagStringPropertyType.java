@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -259,16 +260,17 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 	@Override
 	public BasicTagStringTypeSabloValue toSabloComponentValue(Object rhinoValue, BasicTagStringTypeSabloValue previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 		if (rhinoValue != null)
 		{
 			// this code can interpret the new value as a static one or a a tag-aware one depending on the property's config: USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT
 			String newDesignValue = rhinoValue instanceof String ? (String)rhinoValue : rhinoValue.toString();
 			return createNewTagStringTypeSabloValue(newDesignValue, (previousComponentValue != null ? previousComponentValue.getDataAdapterList() : null),
-				!((TagStringConfig)pd.getConfig()).useParsedValueInRhino(), true, pd,
-				componentOrService instanceof WebFormComponent ? ((WebFormComponent)componentOrService) : null,
-				((IContextProvider)componentOrService).getDataConverterContext().getApplication(), false);
+				!((TagStringConfig)pd.getConfig()).useParsedValueInRhino(),
+				true, pd, componentOrService.getUnderlyingWebObject() instanceof WebFormComponent
+					? ((WebFormComponent)componentOrService.getUnderlyingWebObject()) : null,
+				((IContextProvider)componentOrService.getUnderlyingWebObject()).getDataConverterContext().getApplication(), false);
 		}
 		return null;
 	}
@@ -280,7 +282,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public Object toRhinoValue(BasicTagStringTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object toRhinoValue(BasicTagStringTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		if (webComponentValue == null) return null;

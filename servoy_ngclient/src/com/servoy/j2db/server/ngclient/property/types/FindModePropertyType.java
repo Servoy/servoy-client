@@ -35,6 +35,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -47,9 +48,9 @@ import com.servoy.j2db.util.ServoyJSONObject;
  * @author gganea
  *
  */
-public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue> implements IConvertedPropertyType<FindModeSabloValue>,
-	IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>, ISabloComponentToRhino<FindModeSabloValue>,
-	IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
+public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue>
+	implements IConvertedPropertyType<FindModeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>,
+	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
@@ -105,8 +106,8 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	}
 
 	@Override
-	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
-		WebFormComponent component, DataAdapterList dataAdapterList)
+	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
 	{
 		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), dataAdapterList);
 	}
@@ -126,14 +127,14 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	}
 
 	@Override
-	public Object toRhinoValue(FindModeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(FindModeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		return Scriptable.NOT_FOUND;
 	}
 
 	@Override
 	public FindModeSabloValue toSabloComponentValue(Object rhinoValue, FindModeSabloValue previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 		return previousComponentValue;
 	}

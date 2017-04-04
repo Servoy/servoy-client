@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.sablo.BaseWebObject;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.impl.ClientService;
 
@@ -26,7 +27,7 @@ import org.sablo.websocket.impl.ClientService;
  * @author jcompagner
  *
  */
-public class ServoyClientService extends ClientService implements IContextProvider
+public class ServoyClientService extends ClientService implements IContextProvider, INGWebObject
 {
 	private final INGClientWebsocketSession session;
 
@@ -49,4 +50,9 @@ public class ServoyClientService extends ClientService implements IContextProvid
 		session.valueChanged();
 	}
 
+	@Override
+	public BaseWebObject getUnderlyingWebObject()
+	{
+		return this;
+	}
 }

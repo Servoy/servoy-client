@@ -30,6 +30,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -68,13 +69,13 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 	}
 
 	@Override
-	public Object toRhinoValue(Color webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Color webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		return PersistHelper.createColorString(webComponentValue);
 	}
 
 	@Override
-	public Color toSabloComponentValue(Object rhinoValue, Color previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public Color toSabloComponentValue(Object rhinoValue, Color previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		if (rhinoValue instanceof String)
 		{

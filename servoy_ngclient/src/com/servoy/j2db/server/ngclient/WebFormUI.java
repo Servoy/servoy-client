@@ -21,6 +21,7 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.Package.IPackageReader;
@@ -66,7 +67,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
-public class WebFormUI extends Container implements IWebFormUI, IContextProvider
+public class WebFormUI extends Container implements IWebFormUI, IContextProvider, INGWebObject
 {
 	public static final String ENABLED = "enabled";
 	public static final String READONLY = "readOnly";
@@ -471,7 +472,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 					ReadonlySabloValue oldValue = (ReadonlySabloValue)readonlyproperty;
 					//use the rhino conversion to convert from boolean to ReadOnlySabloValue
 					PropertyDescription pd = ((WebFormComponent)component).getFormElement().getWebComponentSpec().getProperty(READONLY);
-					if (pd != null) newValue = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(Boolean.valueOf(value), oldValue, pd, component);
+					if (pd != null) newValue = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(Boolean.valueOf(value), oldValue, pd, (INGWebObject)component);
 				}
 			}
 			component.setProperty(property, newValue);
@@ -985,4 +986,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		return "FormUI for " + (formController != null ? formController.toString() : "");
 	}
 
+	@Override
+	public BaseWebObject getUnderlyingWebObject()
+	{
+		return this;
+	}
 }

@@ -52,6 +52,7 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -385,7 +386,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 									for (PropertyDescription visibleProperty : visibleProperties)
 									{
 										previousVal = siblingComponent.getProperty(visibleProperty.getName());
-										val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, visibleProperty, siblingComponent);
+										val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, visibleProperty,
+												(INGWebObject)siblingComponent);
 
 										if (val != previousVal) siblingComponent.setProperty(name, val);
 									}

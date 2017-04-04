@@ -27,13 +27,13 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Utils;
 
@@ -92,7 +92,7 @@ public class RhinoConversion
 	 * Default conversion used to convert to Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
 	 * Types that don't implement the sablo <-> rhino conversions are by default available and their value is accessible directly.
 	 */
-	public static Object defaultToRhino(final Object webComponentValue, final PropertyDescription pd, final BaseWebObject componentOrService,
+	public static Object defaultToRhino(final Object webComponentValue, final PropertyDescription pd, final INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		// convert simple json values to Rhino values
@@ -123,7 +123,7 @@ public class RhinoConversion
 					if (!Utils.equalObjects(((Map)webComponentValue).get(name), value))
 					{
 						((Map)webComponentValue).put(name, value);
-						if (componentOrService != null) componentOrService.flagPropertyAsDirty(pd.getName(), true);
+						if (componentOrService != null) componentOrService.getUnderlyingWebObject().flagPropertyAsDirty(pd.getName(), true);
 					}
 				}
 
@@ -132,7 +132,7 @@ public class RhinoConversion
 				{
 					super.delete(name);
 					((Map)webComponentValue).remove(name);
-					if (componentOrService != null) componentOrService.flagPropertyAsDirty(pd.getName(), true);
+					if (componentOrService != null) componentOrService.getUnderlyingWebObject().flagPropertyAsDirty(pd.getName(), true);
 				}
 			};
 			for (Object key : ((Map)webComponentValue).keySet())

@@ -26,7 +26,6 @@ import java.util.Set;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap.IAttachAware;
 import org.sablo.specification.property.ChangeAwareMap.IAttachHandler;
@@ -34,6 +33,8 @@ import org.sablo.specification.property.ConvertedMap;
 import org.sablo.specification.property.IWrappedBaseMapProvider;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.WrappingContext;
+
+import com.servoy.j2db.server.ngclient.INGWebObject;
 
 /**
  * This map is able to act as a Sablo wrap-aware map that is based on a native Rhino JS object value.
@@ -64,13 +65,13 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 
 	protected Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping;
 	protected Map<String, SabloT> previousValues;
-	protected BaseWebObject componentOrService;
+	protected INGWebObject componentOrService;
 	protected final PropertyDescription customJSONTypeDefinition;
 	protected final NativeObject rhinoObject;
 	protected ConvertedMap<SabloWT, SabloT> sabloWrappedBaseMap;
 	protected IAttachHandler<SabloWT> attachHandler;
 
-	public RhinoNativeObjectWrapperMap(NativeObject rhinoObject, PropertyDescription customJSONTypeDefinition, BaseWebObject componentOrService,
+	public RhinoNativeObjectWrapperMap(NativeObject rhinoObject, PropertyDescription customJSONTypeDefinition, INGWebObject componentOrService,
 		Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping)
 	{
 		super(new NativeObjectProxyMap<String, Object>(rhinoObject));
@@ -151,7 +152,7 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 	{
 		IWrapperType<SabloT, SabloWT> wt = childPropsThatNeedWrapping.get(forKey);
 		return wt != null ? wt.wrap(value, null /* we never store the wrapped value here... */, customJSONTypeDefinition.getProperty(forKey),
-			new WrappingContext(componentOrService, forKey)) : (SabloWT)value;
+			new WrappingContext(componentOrService.getUnderlyingWebObject(), forKey)) : (SabloWT)value;
 	}
 
 	/**

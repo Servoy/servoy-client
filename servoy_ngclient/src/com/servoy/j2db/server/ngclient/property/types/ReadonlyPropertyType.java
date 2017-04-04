@@ -33,6 +33,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -43,9 +44,9 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  * @author gganea
  *
  */
-public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue> implements IConvertedPropertyType<ReadonlySabloValue>,
-IFormElementDefaultValueToSabloComponent<JSONObject, ReadonlySabloValue>, ISabloComponentToRhino<ReadonlySabloValue>,
-IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, ReadonlySabloValue>
+public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue>
+	implements IConvertedPropertyType<ReadonlySabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, ReadonlySabloValue>,
+	ISabloComponentToRhino<ReadonlySabloValue>, IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, ReadonlySabloValue>
 {
 
 	public static final ReadonlyPropertyType INSTANCE = new ReadonlyPropertyType();
@@ -119,7 +120,7 @@ IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, R
 	@SuppressWarnings("boxing")
 	@Override
 	public ReadonlySabloValue toSabloComponentValue(Object rhinoValue, ReadonlySabloValue previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 		return new ReadonlySabloValue((ReadonlyConfig)pd.getConfig(), (Boolean)rhinoValue, previousComponentValue.getOldOppositeOfValue());
 	}
@@ -132,7 +133,7 @@ IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, R
 
 	@SuppressWarnings("boxing")
 	@Override
-	public Object toRhinoValue(ReadonlySabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(ReadonlySabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		return webComponentValue.getValue();//
 	}

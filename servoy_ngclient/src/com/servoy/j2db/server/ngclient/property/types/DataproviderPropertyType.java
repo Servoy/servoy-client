@@ -33,6 +33,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
@@ -151,13 +152,13 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 
 	@Override
 	public DataproviderTypeSabloValue toSabloComponentValue(Object rhinoValue, DataproviderTypeSabloValue previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 		return previousComponentValue; // the property is read-only in Rhino
 	}
 
 	@Override
-	public Object toRhinoValue(DataproviderTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object toRhinoValue(DataproviderTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		return webComponentValue != null ? webComponentValue.getDataProviderID() : null;

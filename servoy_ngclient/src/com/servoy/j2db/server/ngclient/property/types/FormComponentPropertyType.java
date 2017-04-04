@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
@@ -113,7 +114,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		Scriptable newObject = Context.getCurrentContext().newObject(startScriptable);
 		// TODO return here a NativeScriptable object that understand the full hiearchy?

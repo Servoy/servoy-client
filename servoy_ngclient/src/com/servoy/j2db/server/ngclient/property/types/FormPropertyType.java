@@ -38,6 +38,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -153,7 +154,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		if (webComponentValue instanceof Form)
 		{

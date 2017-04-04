@@ -27,13 +27,13 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IRhinoNativeProxy;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -49,9 +49,9 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	private final PropertyDescription propertyDescription;
 	private Scriptable prototype;
 	private Scriptable parent;
-	private final BaseWebObject baseWebObject;
+	private final INGWebObject baseWebObject;
 
-	public RhinoMapOrArrayWrapper(Object wrappedValue, BaseWebObject baseWebObject, PropertyDescription propertyDescription, Scriptable startScriptable)
+	public RhinoMapOrArrayWrapper(Object wrappedValue, INGWebObject baseWebObject, PropertyDescription propertyDescription, Scriptable startScriptable)
 	{
 		this.baseWebObject = baseWebObject;
 		this.wrappedValue = wrappedValue;
@@ -171,7 +171,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 				IPropertyType< ? > type = pd.getType();
 				// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
 				return !(type instanceof ISabloComponentToRhino< ? >) ||
-					((ISabloComponentToRhino)type).isValueAvailableInRhino(getAsSabloValue(name), pd, baseWebObject);
+					((ISabloComponentToRhino)type).isValueAvailableInRhino(getAsSabloValue(name), pd, baseWebObject.getUnderlyingWebObject());
 			}
 		}
 		return false;
@@ -326,7 +326,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 				IPropertyType< ? > type = pd.getType();
 				// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
 				if (!(type instanceof ISabloComponentToRhino< ? >) ||
-					((ISabloComponentToRhino)type).isValueAvailableInRhino(entry.getValue(), pd, baseWebObject))
+					((ISabloComponentToRhino)type).isValueAvailableInRhino(entry.getValue(), pd, baseWebObject.getUnderlyingWebObject()))
 				{
 					result.add(entry.getKey());
 				}

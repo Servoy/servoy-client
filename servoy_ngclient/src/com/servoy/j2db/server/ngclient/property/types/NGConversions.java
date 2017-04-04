@@ -35,6 +35,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
@@ -198,7 +199,7 @@ public class NGConversions
 		 * @param startScriptable the Scriptable in Rhino that this value is requested for
 		 * @return the converted value, ready to be used in Rhino; can return Scriptable.NOT_FOUND if the property is not available in scripting.
 		 */
-		Object toRhinoValue(T webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable);
+		Object toRhinoValue(T webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable);
 
 	}
 
@@ -215,7 +216,7 @@ public class NGConversions
 		 * @param startScriptable the Scriptable in Rhino that this value is requested for
 		 * @return the converted value, ready to be used in Rhino; can return Scriptable.NOT_FOUND if the property is not available in scripting.
 		 */
-		Object fromServerRhinoToRhinoValue(T serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
+		Object fromServerRhinoToRhinoValue(T serverSideScriptingReturnValue, PropertyDescription pd, INGWebObject componentOrService,
 			Scriptable startScriptable);
 
 	}
@@ -235,7 +236,7 @@ public class NGConversions
 		 * @param componentOrService the component or service to which the given value belongs to
 		 * @return the converted value, ready to be set in Sablo component/service; if the property is read-only it should just return "previousComponentValue".
 		 */
-		T toSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService);
+		T toSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, INGWebObject componentOrService);
 
 	}
 
@@ -409,7 +410,7 @@ public class NGConversions
 	 * Conversion 4.1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 * @param startScriptable the Scriptable in Rhino that this value is requested for
 	 */
-	public Object convertSabloComponentToRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object convertSabloComponentToRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
@@ -431,7 +432,7 @@ public class NGConversions
 	/**
 	 * Conversion 4.2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
-	public <T> T convertRhinoToSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public <T> T convertRhinoToSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		T sabloVal;
 		IPropertyType< ? > type = (pd != null ? pd.getType() : null);
@@ -448,7 +449,7 @@ public class NGConversions
 		return sabloVal;
 	}
 
-	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		if (pd == null) return serverSideScriptingReturnValue;

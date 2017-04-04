@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
@@ -27,7 +28,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class WebFormComponent extends Container implements IContextProvider
+public class WebFormComponent extends Container implements IContextProvider, INGWebObject
 {
 	public static final String TAG_SCOPE = "scope";
 
@@ -316,4 +317,9 @@ public class WebFormComponent extends Container implements IContextProvider
 		return dataAdapterList;
 	}
 
+	@Override
+	public BaseWebObject getUnderlyingWebObject()
+	{
+		return this;
+	}
 }

@@ -47,6 +47,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -188,7 +189,7 @@ public class EventExecutor
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
 						newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
 							new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
-							parameterPropertyDescription, component, null);
+							parameterPropertyDescription, (INGWebObject)component, null);
 					}
 					//TODO? if in propertyDesc.getAsPropertyDescription().getConfig() we have  "type":"${dataproviderType}" and parameterPropertyDescription.getType() is Object
 					//then get the type from the dataprovider and try to convert the json to that type instead of simply object

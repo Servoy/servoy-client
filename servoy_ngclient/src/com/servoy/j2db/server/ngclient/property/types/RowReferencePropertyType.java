@@ -30,6 +30,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebBaseFunction;
@@ -84,7 +85,7 @@ public class RowReferencePropertyType extends DefaultPropertyType<String> implem
 	}
 
 	@Override
-	public Object toRhinoValue(final String webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(final String webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		// TODO change this to another function class as it's not a call-to-client function in it's javadoc maybe? this is actually all on server
 		return new WebBaseFunction(null)

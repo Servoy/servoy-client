@@ -25,7 +25,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList.IAttachAware;
 import org.sablo.specification.property.ChangeAwareList.IAttachHandler;
@@ -33,6 +32,8 @@ import org.sablo.specification.property.ConvertedList;
 import org.sablo.specification.property.IWrappedBaseListProvider;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.WrappingContext;
+
+import com.servoy.j2db.server.ngclient.INGWebObject;
 
 /**
  * This list is able to act as a Sablo wrap-aware map that is based on a (native or otherwise) Rhino JS array value.
@@ -61,13 +62,13 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 {
 
 	protected Map<Integer, SabloT> previousValues;
-	protected BaseWebObject componentOrService;
+	protected INGWebObject componentOrService;
 	protected final PropertyDescription elementTypeDefinition;
 	protected final Scriptable rhinoScriptable;
 	protected ConvertedList<SabloWT, SabloT> sabloWrappedBaseList;
 	protected IAttachHandler<SabloWT> attachHandler;
 
-	public RhinoNativeArrayWrapperList(NativeArray rhinoArray, PropertyDescription elementTypeDefinition, BaseWebObject componentOrService)
+	public RhinoNativeArrayWrapperList(NativeArray rhinoArray, PropertyDescription elementTypeDefinition, INGWebObject componentOrService)
 	{
 		this(new NativeArrayProxyList<Object>(rhinoArray), elementTypeDefinition, componentOrService, rhinoArray);
 	}
@@ -83,7 +84,7 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		this.attachHandler = attachHandler;
 	}
 
-	public RhinoNativeArrayWrapperList(List<Object> rhinoBasedList, PropertyDescription elementTypeDefinition, BaseWebObject componentOrService,
+	public RhinoNativeArrayWrapperList(List<Object> rhinoBasedList, PropertyDescription elementTypeDefinition, INGWebObject componentOrService,
 		Scriptable rhinoScriptable)
 	{
 		super(rhinoBasedList);
@@ -154,7 +155,7 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		{
 			IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
 			return wt.wrap(value, null /* we never store the wrapped value here... */, elementTypeDefinition,
-				new WrappingContext(componentOrService, elementTypeDefinition.getName()));
+				new WrappingContext(componentOrService.getUnderlyingWebObject(), elementTypeDefinition.getName()));
 		}
 		else return (SabloWT)value;
 	}

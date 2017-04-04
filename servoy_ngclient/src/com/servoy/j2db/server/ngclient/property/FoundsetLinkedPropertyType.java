@@ -37,6 +37,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
@@ -237,7 +238,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	}
 
 	@Override
-	public Object toRhinoValue(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService,
+	public Object toRhinoValue(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, INGWebObject componentOrService,
 		Scriptable startScriptable)
 	{
 		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(webComponentValue.getWrappedValue(), getConfig(pd).wrappedPropertyDescription,
@@ -246,12 +247,13 @@ public class FoundsetLinkedPropertyType<YF, YT>
 
 	@Override
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(Object rhinoValue, FoundsetLinkedTypeSabloValue<YF, YT> previousComponentValue,
-		PropertyDescription pd, BaseWebObject componentOrService)
+		PropertyDescription pd, INGWebObject componentOrService)
 	{
 		if (previousComponentValue == null)
 		{
 			FoundsetLinkedTypeSabloValue<YF, YT> flts = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, (YF)rhinoValue,
-				getConfig(pd).wrappedPropertyDescription, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService);
+				getConfig(pd).wrappedPropertyDescription, ((WebFormComponent)componentOrService.getUnderlyingWebObject()).getFormElement(),
+				(WebFormComponent)componentOrService.getUnderlyingWebObject());
 			return flts;
 		}
 		else

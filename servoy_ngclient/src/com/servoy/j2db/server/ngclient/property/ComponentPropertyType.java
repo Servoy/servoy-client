@@ -47,6 +47,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -239,7 +240,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
 		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
-			throws JSONException
+		throws JSONException
 	{
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
@@ -371,7 +372,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public Object toRhinoValue(ComponentTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(ComponentTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		if (webComponentValue != null)
 		{

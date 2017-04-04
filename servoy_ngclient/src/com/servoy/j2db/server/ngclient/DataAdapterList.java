@@ -109,7 +109,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
 		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
-		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
+		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, (INGWebObject)webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
 	}
 
 	@Override

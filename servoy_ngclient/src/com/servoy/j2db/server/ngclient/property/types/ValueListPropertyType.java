@@ -56,6 +56,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -281,7 +282,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	@Override
 	public ValueListTypeSabloValue toSabloComponentValue(Object rhinoValue, ValueListTypeSabloValue previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 //		Object vl = componentOrService.getProperty(pd.getName()); // this only works for when ValueListTypeSabloValue is a non-nested property (so not in an array or custom object)
 		ValueListTypeSabloValue newValue = previousComponentValue;
@@ -338,7 +339,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		if (webComponentValue != null)
 		{

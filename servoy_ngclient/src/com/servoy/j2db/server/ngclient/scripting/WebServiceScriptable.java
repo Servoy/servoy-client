@@ -47,6 +47,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -199,7 +200,7 @@ public class WebServiceScriptable implements Scriptable
 			try
 			{
 				// find spec for method
-				BaseWebObject serviceWebObject = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+				INGWebObject serviceWebObject = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 				WebObjectFunctionDefinition functionSpec = serviceSpecification.getApiFunction(methodName);
 				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
@@ -254,7 +255,7 @@ public class WebServiceScriptable implements Scriptable
 					{
 						Object retValue = ((Function)serverSideFunction).call(cx, scope, thisObj, args);
 						retValue = NGConversions.INSTANCE.convertServerSideRhinoToRhinoValue(retValue, apiFunction.getReturnType(),
-							(BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName()), null);
+							(INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName()), null);
 						return retValue;
 					}
 				};
@@ -264,7 +265,7 @@ public class WebServiceScriptable implements Scriptable
 		{
 			return new WebServiceFunction(application.getWebsocketSession(), apiFunction, serviceSpecification.getName());
 		}
-		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+		INGWebObject service = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		Object value = service.getProperty(name);
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
@@ -318,7 +319,7 @@ public class WebServiceScriptable implements Scriptable
 		if (desc != null)
 		{
 			Object previousVal = service.getProperty(name);
-			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, desc, service);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, desc, (INGWebObject)service);
 
 			if (val != previousVal) service.setProperty(name, val);
 		}

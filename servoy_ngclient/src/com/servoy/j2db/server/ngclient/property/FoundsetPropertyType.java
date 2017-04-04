@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -150,7 +151,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public Object toRhinoValue(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		return new FoundsetTypeSableValueWrapper(startScriptable, webComponentValue, pd);
 	}
@@ -287,7 +288,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 	@Override
 	public FoundsetTypeSabloValue toSabloComponentValue(Object rhinoValue, FoundsetTypeSabloValue previousComponentValue, PropertyDescription pd,
-		BaseWebObject componentOrService)
+		INGWebObject componentOrService)
 	{
 		FoundsetTypeSabloValue newSabloValue = null;
 

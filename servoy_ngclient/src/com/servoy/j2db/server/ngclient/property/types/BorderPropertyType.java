@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -434,7 +435,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	}
 
 	@Override
-	public Border toSabloComponentValue(Object rhinoValue, Border previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public Border toSabloComponentValue(Object rhinoValue, Border previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		if (rhinoValue instanceof String)
 		{
@@ -450,7 +451,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	}
 
 	@Override
-	public Object toRhinoValue(Border webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Border webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
 		if (webComponentValue != null)
 		{

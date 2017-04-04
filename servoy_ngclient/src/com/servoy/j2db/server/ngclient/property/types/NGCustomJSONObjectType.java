@@ -45,11 +45,13 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
+import com.servoy.j2db.server.ngclient.ComponentOrServiceExtension;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementExtension;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
@@ -203,7 +205,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public Map<String, SabloT> toSabloComponentValue(final Object rhinoValue, final Map<String, SabloT> previousComponentValue, PropertyDescription pd,
-		final BaseWebObject componentOrService)
+		final INGWebObject componentOrService)
 	{
 		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
 
@@ -226,9 +228,14 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 			if (rhinoValue instanceof NativeObject)
 			{
-				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), componentOrService,
+				ComponentOrServiceExtension<SabloT, SabloWT> ext = componentOrService instanceof BaseWebObject
+					? new ComponentOrServiceExtension<SabloT, SabloWT>(getCustomJSONTypeDefinition(), (BaseWebObject)componentOrService)
+					: (ComponentOrServiceExtension)componentOrService;
+				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), ext,
 					getChildPropsThatNeedWrapping());
-				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, pd, new WrappingContext(componentOrService, pd.getName()));
+				ext.setPropertyValues((Map<SabloT, SabloWT>)rhinoMap);
+				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, pd,
+					new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
 				cam.markAllChanged();
 				return cam;
 
@@ -255,9 +262,18 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
-		return webComponentValue == null ? null : new RhinoMapOrArrayWrapper(webComponentValue, componentOrService, pd, startScriptable);
+		if (webComponentValue != null)
+		{
+			ComponentOrServiceExtension<SabloT, SabloWT> ext = componentOrService instanceof BaseWebObject
+				? new ComponentOrServiceExtension<SabloT, SabloWT>(getCustomJSONTypeDefinition(), (BaseWebObject)componentOrService)
+				: (ComponentOrServiceExtension)componentOrService;
+			RhinoMapOrArrayWrapper rhinoValue = new RhinoMapOrArrayWrapper(webComponentValue, ext, pd, startScriptable);
+			ext.setPropertyValues((Map<SabloT, SabloWT>)rhinoValue.getWrappedValue());
+			return rhinoValue;
+		}
+		return null;
 	}
 
 	@Override
