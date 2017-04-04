@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.sablo.BaseWebObject;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.impl.ClientService;
 
@@ -54,5 +55,11 @@ public class ServoyClientService extends ClientService implements IContextProvid
 	public BaseWebObject getUnderlyingWebObject()
 	{
 		return this;
+	}
+
+	@Override
+	public PropertyDescription getPropertyDescription(String name)
+	{
+		return specification.getProperty(name);
 	}
 }

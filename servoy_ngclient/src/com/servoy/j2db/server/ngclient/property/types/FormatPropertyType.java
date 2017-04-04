@@ -240,23 +240,22 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 		return getSabloValue(null, formElement, pd, component);
 	}
 
-	private Object getSabloValue(Object formElementValue, INGFormElement formElement, PropertyDescription pd, INGWebObject component)
+	private Object getSabloValue(Object value, INGFormElement formElement, PropertyDescription pd, INGWebObject component)
 	{
 		IApplication application = ((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getApplication();
-		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
+		if (value == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || value == DESIGN_DEFAULT)
 		{
-			formElementValue = null;
+			value = null;
 		}
 
-		if (formElementValue instanceof String || formElementValue == null)
+		if (value instanceof String || value == null)
 		{
 			String dataproviderId = null;
 			if (pd.getConfig() instanceof String[])
 			{
 				for (String element : (String[])pd.getConfig())
 				{
-					PropertyDescription forProperty = component.getProperties().contentType != null ? component.getProperties().contentType.getProperty(element)
-						: formElement.getProperty(element);
+					PropertyDescription forProperty = formElement != null ? formElement.getProperty(element) : component.getPropertyDescription(element);
 					if (forProperty != null)
 					{
 						IPropertyType< ? > type = forProperty.getType();
@@ -266,19 +265,16 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 						}
 						if (type instanceof DataproviderPropertyType)
 						{
-							dataproviderId = DataAdapterList.getDataProviderID(component.getProperty(element));
-							if (dataproviderId == null)//TODO check why is it still null...
-							{
-								dataproviderId = (String)formElement.getPropertyValue(element);
-							}
-
-							PropertyDescription property = component.getProperties().contentType != null
-								? component.getProperties().contentType.getProperty(element) : formElement.getProperty(element);
+							dataproviderId = formElement != null ? (String)formElement.getPropertyValue(element)
+								: DataAdapterList.getDataProviderID(component.getProperty(element));
+							PropertyDescription property = component.getPropertyDescription(element) != null ? component.getPropertyDescription(element)
+								: formElement.getProperty(element);
 							Object config = property.getConfig();
 							// if it is a dataprovider type. look if it is foundset linked
 							if (config instanceof FoundsetLinkedConfig && ((FoundsetLinkedConfig)config).getForFoundsetName() != null)
 							{
-								Object json = formElement.getPropertyValue(((FoundsetLinkedConfig)config).getForFoundsetName());
+								String foundsetName = ((FoundsetLinkedConfig)config).getForFoundsetName();
+								Object json = formElement != null ? formElement.getPropertyValue(foundsetName) : component.getProperty(foundsetName);
 								if (json instanceof JSONObject)
 								{
 									// get the foundset selector and try to resolve the table
@@ -300,8 +296,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 										// dataprovider lookup below
 										if (dataProvider != null)
 										{
-											return ComponentFormat.getComponentFormat((String)formElementValue, dataProvider.getDataProviderType(),
-												application);
+											return ComponentFormat.getComponentFormat((String)value, dataProvider.getDataProviderType(), application);
 										}
 									}
 									catch (RepositoryException e)
@@ -314,7 +309,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 						}
 						else if (type instanceof ValueListPropertyType)
 						{
-							Object id = formElement.getPropertyValue(element);
+							Object id = formElement != null ? formElement.getPropertyValue(element) : component.getProperty(element);
 							int valuelistID = Utils.getAsInteger(id);
 							ValueList val = null;
 							if (valuelistID > 0)
@@ -368,7 +363,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 										{
 											dpType = dataProvider.getDataProviderType();
 										}
-										return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+										return ComponentFormat.getComponentFormat((String)value, dpType, application);
 									}
 									else if (val.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 									{
@@ -376,7 +371,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 											Types.OTHER, null, null, true);
 										if (realValuelist.hasRealValues())
 										{
-											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+											return ComponentFormat.getComponentFormat((String)value, dpType, application);
 										}
 									}
 									else if (val.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
@@ -388,7 +383,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 											((GlobalMethodValueList)realValuelist).fill(null, "", null);
 											if (realValuelist.hasRealValues())
 											{
-												return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+												return ComponentFormat.getComponentFormat((String)value, dpType, application);
 											}
 										}
 									}
@@ -402,13 +397,13 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 					}
 				}
 			}
-			ComponentFormat format = ComponentFormat.getComponentFormat((String)formElementValue, dataproviderId,
+			ComponentFormat format = ComponentFormat.getComponentFormat((String)value, dataproviderId,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
 					((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm()),
 				application, true);
 			return format;
 		}
-		return formElementValue;
+		return value;
 	}
 
 	@Override
@@ -430,6 +425,6 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 	@Override
 	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
-		return getSabloValue(rhinoValue, ((WebFormComponent)componentOrService.getUnderlyingWebObject()).getFormElement(), pd, componentOrService);
+		return getSabloValue(rhinoValue, null, pd, componentOrService);
 	}
 }

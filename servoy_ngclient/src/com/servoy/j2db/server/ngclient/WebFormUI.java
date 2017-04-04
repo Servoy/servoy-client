@@ -991,4 +991,10 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		return this;
 	}
+
+	@Override
+	public PropertyDescription getPropertyDescription(String name)
+	{
+		return FORM_SPEC.getProperty(name);
+	}
 }

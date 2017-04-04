@@ -1,11 +1,9 @@
 package com.servoy.j2db.server.ngclient;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.websocket.TypedData;
 
 public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObject
 {
@@ -22,7 +20,7 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	@Override
 	public Object getProperty(String name)
 	{
-		return rhinoMap.get(name);
+		return rhinoMap.containsKey(name) ? rhinoMap.get(name) : underlyingWebObject.getProperty(name);
 	}
 
 	@Override
@@ -31,14 +29,14 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 		return underlyingWebObject;
 	}
 
-	@Override
-	public TypedData<Map<String, Object>> getProperties()
-	{
-		return new TypedData<Map<String, Object>>(new HashMap<String, Object>(customJSONTypeDefinition.getCustomJSONProperties()), customJSONTypeDefinition);
-	}
-
 	public void setPropertyValues(Map<SabloT, SabloWT> rhinoMap)
 	{
 		this.rhinoMap = rhinoMap;
+	}
+
+	@Override
+	public PropertyDescription getPropertyDescription(String name)
+	{
+		return customJSONTypeDefinition.getProperty(name);
 	}
 }

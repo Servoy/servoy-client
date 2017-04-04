@@ -322,4 +322,10 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	{
 		return this;
 	}
+
+	@Override
+	public PropertyDescription getPropertyDescription(String name)
+	{
+		return formElement.getProperty(name);
+	}
 }
