@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
@@ -187,7 +186,7 @@ public class NGConversions
 		 * @param componentOrService the component to which the given value belongs to
 		 * @return true if this property value is available in Javascript and false otherwise
 		 */
-		boolean isValueAvailableInRhino(T webComponentValue, PropertyDescription pd, BaseWebObject componentOrService);
+		boolean isValueAvailableInRhino(T webComponentValue, PropertyDescription pd, INGWebObject componentOrService);
 
 		/**
 		 * Converts from a Sablo value to a Rhino usable representation of the value.

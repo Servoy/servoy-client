@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -111,7 +110,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Font webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Font webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

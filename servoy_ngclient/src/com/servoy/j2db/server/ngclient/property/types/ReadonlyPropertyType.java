@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -87,8 +86,8 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	}
 
 	@Override
-	public ReadonlySabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
-			WebFormComponent component, DataAdapterList dataAdapterList)
+	public ReadonlySabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
 	{
 		return new ReadonlySabloValue((ReadonlyConfig)pd.getConfig(), !(Boolean)formElement.getPropertyValue(((ReadonlyConfig)pd.getConfig()).getOppositeOf()));
 	}
@@ -126,7 +125,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(ReadonlySabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(ReadonlySabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

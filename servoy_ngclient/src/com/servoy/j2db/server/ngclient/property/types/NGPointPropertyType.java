@@ -23,7 +23,6 @@ import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -65,7 +64,7 @@ public class NGPointPropertyType extends PointPropertyType implements IDesignToF
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Point webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Point webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

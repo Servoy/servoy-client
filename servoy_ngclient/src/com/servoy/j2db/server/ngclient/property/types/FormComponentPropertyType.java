@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -108,7 +107,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

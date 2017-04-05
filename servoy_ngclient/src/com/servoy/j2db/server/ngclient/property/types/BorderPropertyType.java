@@ -36,7 +36,6 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -445,7 +444,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Border webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Border webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

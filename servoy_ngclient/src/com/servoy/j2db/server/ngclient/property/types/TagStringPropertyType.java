@@ -276,7 +276,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(BasicTagStringTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(BasicTagStringTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

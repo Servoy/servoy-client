@@ -407,7 +407,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

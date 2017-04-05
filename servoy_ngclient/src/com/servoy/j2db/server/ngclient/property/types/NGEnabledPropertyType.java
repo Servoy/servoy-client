@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.EnabledPropertyType;
@@ -56,7 +55,7 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements ISablo
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
 	@Override
-	public boolean isValueAvailableInRhino(Boolean webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Boolean webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		return true;
 	}

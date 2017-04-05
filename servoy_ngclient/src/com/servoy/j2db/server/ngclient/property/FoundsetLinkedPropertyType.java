@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -228,7 +227,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public boolean isValueAvailableInRhino(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
 	{
 		if (wrappedType instanceof ISabloComponentToRhino)
 			return ((ISabloComponentToRhino<YT>)wrappedType).isValueAvailableInRhino(webComponentValue.getWrappedValue(),

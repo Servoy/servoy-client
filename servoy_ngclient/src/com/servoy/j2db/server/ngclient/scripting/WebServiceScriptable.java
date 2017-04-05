@@ -294,7 +294,7 @@ public class WebServiceScriptable implements Scriptable
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
 		{
-			BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+			INGWebObject service = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 			IPropertyType< ? > type = desc.getType();
 			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
@@ -377,10 +377,10 @@ public class WebServiceScriptable implements Scriptable
 	public Object[] getIds()
 	{
 		ArrayList<String> al = new ArrayList<>();
-		BaseWebObject service = null;
+		INGWebObject service = null;
 		if (application != null)
 		{
-			service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+			service = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		}
 		for (String name : serviceSpecification.getAllPropertiesNames())
 		{
