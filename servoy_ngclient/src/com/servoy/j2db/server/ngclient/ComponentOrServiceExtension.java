@@ -8,10 +8,10 @@ import org.sablo.specification.PropertyDescription;
 public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObject
 {
 	private final PropertyDescription customJSONTypeDefinition;
-	private final BaseWebObject underlyingWebObject;
+	private final INGWebObject underlyingWebObject;
 	private Map<SabloT, SabloWT> rhinoMap;
 
-	public ComponentOrServiceExtension(PropertyDescription customJSONTypeDefinition, BaseWebObject componentOrService)
+	public ComponentOrServiceExtension(PropertyDescription customJSONTypeDefinition, INGWebObject componentOrService)
 	{
 		this.customJSONTypeDefinition = customJSONTypeDefinition;
 		this.underlyingWebObject = componentOrService;
@@ -26,7 +26,7 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	@Override
 	public BaseWebObject getUnderlyingWebObject()
 	{
-		return underlyingWebObject;
+		return underlyingWebObject instanceof BaseWebObject ? (BaseWebObject)underlyingWebObject : underlyingWebObject.getUnderlyingWebObject();
 	}
 
 	public void setPropertyValues(Map<SabloT, SabloWT> rhinoMap)
