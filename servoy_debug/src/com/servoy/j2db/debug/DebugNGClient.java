@@ -38,6 +38,8 @@ import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -113,6 +115,22 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		super(wsSession);
 		this.designerCallback = designerCallback;
 		getWebsocketSession().registerServerService("developerService", new DeveloperServiceHandler(this));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ClientState#createDataServer()
+	 */
+	@Override
+	protected IDataServer createDataServer()
+	{
+		IDataServer dataServer = super.createDataServer();
+		if (dataServer != null)
+		{
+			dataServer = new ProfileDataServer(new ValidatingDelegateDataServer(dataServer, this));
+		}
+		return dataServer;
 	}
 
 	@Override

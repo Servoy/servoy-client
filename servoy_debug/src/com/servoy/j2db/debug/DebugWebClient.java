@@ -37,6 +37,7 @@ import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -374,7 +375,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		IDataServer dataServer = super.createDataServer();
 		if (dataServer != null)
 		{
-			dataServer = new ProfileDataServer(dataServer);
+			dataServer = new ProfileDataServer(new ValidatingDelegateDataServer(dataServer, this));
 		}
 		return dataServer;
 	}
