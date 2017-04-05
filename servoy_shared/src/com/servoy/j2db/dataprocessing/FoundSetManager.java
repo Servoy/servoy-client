@@ -100,7 +100,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private static final Entry<String, SoftReference<RelatedFoundSet>>[] EMPTY_ENTRY_ARRAY = new Map.Entry[0];
 
 	private final IApplication application;
-	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<Object, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -840,7 +840,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private void initMembers()
 	{
 		sharedDataSourceFoundSet = new ConcurrentHashMap<String, FoundSet>(64);
-		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<IFoundSetListener, FoundSet>(32));
+		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<Object, FoundSet>(32));
 		foundSets = Collections.synchronizedSet(new WeakHashSet<FoundSet>(64));
 		noTableFoundSet = null;
 
@@ -1418,7 +1418,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getTable(l.getDataSource());
 		}
 
-		FoundSet foundset = separateFoundSets.get(l);
+		FoundSet foundset = l.getSharedFoundsetName() != null ? separateFoundSets.get(l.getSharedFoundsetName()) : separateFoundSets.get(l);
 		if (foundset == null)
 		{
 			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(l.getDataSource());
@@ -1429,6 +1429,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			globalFoundSetEventListener.foundSetCreated(foundset);
 		}
 		return foundset;
+	}
+
+	@Override
+	public IFoundSet getNamedFoundSet(String name)
+	{
+		return separateFoundSets.get(name);
 	}
 
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException
