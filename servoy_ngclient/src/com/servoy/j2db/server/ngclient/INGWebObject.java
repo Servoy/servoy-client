@@ -13,4 +13,6 @@ public interface INGWebObject
 	PropertyDescription getPropertyDescription(String name);
 
 	BaseWebObject getUnderlyingWebObject();
+
+	PropertyDescription getSpecification();
 }

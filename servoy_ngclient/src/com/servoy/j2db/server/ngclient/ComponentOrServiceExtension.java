@@ -53,4 +53,10 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 		}
 		return null;
 	}
+
+	@Override
+	public PropertyDescription getSpecification()
+	{
+		return customJSONTypeDefinition;
+	}
 }
