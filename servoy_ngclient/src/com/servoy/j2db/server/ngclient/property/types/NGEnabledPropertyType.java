@@ -70,7 +70,7 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements ISablo
 	@Override
 	public Object toRhinoValue(Boolean webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
 	{
-		Object v = componentOrService.getUnderlyingWebObject().getRawPropertyValue(pd.getName(), true);//TODO getUnderlying object or getValue??
+		Object v = componentOrService.getRawPropertyValue(pd.getName(), true);
 		if (v != null)
 		{
 			return ((NGEnabledSabloValue)v).getComponentValue();

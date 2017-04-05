@@ -8,6 +8,8 @@ public interface INGWebObject
 
 	Object getProperty(String name);
 
+	Object getRawPropertyValue(String name, boolean b);
+
 	PropertyDescription getPropertyDescription(String name);
 
 	BaseWebObject getUnderlyingWebObject();
