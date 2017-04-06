@@ -1,7 +1,10 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Collection;
+
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IPropertyType;
 
 public interface INGWebObject
 {
@@ -14,5 +17,5 @@ public interface INGWebObject
 
 	BaseWebObject getUnderlyingWebObject();
 
-	PropertyDescription getSpecification();
+	Collection<PropertyDescription> getProperties(IPropertyType< ? > type);
 }

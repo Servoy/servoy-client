@@ -2,6 +2,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -327,5 +329,11 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public PropertyDescription getPropertyDescription(String name)
 	{
 		return formElement.getProperty(name);
+	}
+
+	@Override
+	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
+	{
+		return formElement.getProperties(type);
 	}
 }

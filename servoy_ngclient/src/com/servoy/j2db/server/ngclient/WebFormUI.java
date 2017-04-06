@@ -28,6 +28,7 @@ import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -996,5 +997,11 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public PropertyDescription getPropertyDescription(String name)
 	{
 		return FORM_SPEC.getProperty(name);
+	}
+
+	@Override
+	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
+	{
+		return FORM_SPEC.getProperties(type);
 	}
 }

@@ -1,9 +1,13 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IPropertyType;
 
 public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObject
 {
@@ -37,7 +41,8 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	@Override
 	public PropertyDescription getPropertyDescription(String name)
 	{
-		return customJSONTypeDefinition.getProperty(name);
+		return customJSONTypeDefinition.getProperty(name) != null ? customJSONTypeDefinition.getProperty(name)
+			: underlyingWebObject.getPropertyDescription(name);
 	}
 
 	@Override
@@ -55,8 +60,11 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	}
 
 	@Override
-	public PropertyDescription getSpecification()
+	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
 	{
-		return customJSONTypeDefinition;
+		List<PropertyDescription> properties = new ArrayList<PropertyDescription>();
+		properties.addAll(customJSONTypeDefinition.getProperties(type));
+		properties.addAll(underlyingWebObject.getProperties(type));
+		return properties;
 	}
 }

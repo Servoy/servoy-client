@@ -17,9 +17,12 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Collection;
+
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.impl.ClientService;
 
 /**
@@ -61,5 +64,11 @@ public class ServoyClientService extends ClientService implements IContextProvid
 	public PropertyDescription getPropertyDescription(String name)
 	{
 		return specification.getProperty(name);
+	}
+
+	@Override
+	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
+	{
+		return specification.getProperties(type);
 	}
 }

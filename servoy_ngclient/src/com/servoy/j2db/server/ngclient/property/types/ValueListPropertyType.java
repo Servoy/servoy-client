@@ -233,7 +233,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		if (dataproviderID != null)
 		{
 			Collection<PropertyDescription> properties = formElement != null ? formElement.getProperties(FormatPropertyType.INSTANCE)
-				: component.getSpecification().getProperties(FormatPropertyType.INSTANCE);
+				: component.getProperties(FormatPropertyType.INSTANCE);
 			for (PropertyDescription formatPd : properties)
 			{
 				// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
