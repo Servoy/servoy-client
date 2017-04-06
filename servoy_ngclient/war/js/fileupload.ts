@@ -81,7 +81,7 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     	$modalInstance.dismiss();
     };
 })
-.factory("$svyFileuploadUtils", function($modal,$svyI18NService){
+.factory("$svyFileuploadUtils", function($uibModal,$svyI18NService){
 	var uploadUrl, titleText, isMultiSelect;
 	return {
 		open : function (url, title, multiselect) {
@@ -90,7 +90,7 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
 			isMultiSelect = multiselect;
 			var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addFile","servoy.filechooser.upload.addFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel", "servoy.filechooser.error")
 		    x.then(function(result) {
-				$modal.open({
+				$uibModal.open({
 		        	templateUrl: 'templates/upload.html',
 		        	controller: 'FileuploadController'
 		        });
