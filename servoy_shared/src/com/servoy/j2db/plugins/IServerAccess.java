@@ -39,6 +39,12 @@ import com.servoy.j2db.util.UUID;
 public interface IServerAccess extends IPluginAccess
 {
 	/**
+	 * Get the broadcast interface where you can listen to b
+	 * @return
+	 */
+	public IDataNotifyService getDataNotifyService();
+
+	/**
 	 * Register a webservice in the application web server Note on the server 'init(servletConfig)' is never called, only 'init()'. The service comes available
 	 * as http://<host>[:port]/servoy-service/<webServiceAlias>
 	 *
