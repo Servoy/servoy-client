@@ -192,7 +192,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 				boolean ok = true;
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				if (controller != null)
+				if (controller != null && !controller.isDestroyed())
 				{
 					boolean isVisible = args.getBoolean("visible");
 					WebFormComponent containerComponent = null;

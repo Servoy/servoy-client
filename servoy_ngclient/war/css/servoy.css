@@ -213,11 +213,11 @@ div.svy-label-with-focus:focus{
 }
 .ui-select-bootstrap > .ui-select-match {
 	padding:0px;
-  overflow:hidden;
+	overflow:hidden;
 }
 .ui-select-search
 {
-	width:100%;
+	width:100%!important;
 	height:100%;
 	padding: 1px 5px;
 }
@@ -246,6 +246,7 @@ div.svy-label-with-focus:focus{
 .ui-select-choices
 {
 	overflow-x: hidden;
+	min-width: inherit;
 }
 
 .svyPortalGridStyle .form-control[readonly]
