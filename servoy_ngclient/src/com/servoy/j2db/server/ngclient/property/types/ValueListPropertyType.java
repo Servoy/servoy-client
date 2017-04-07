@@ -228,7 +228,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	protected ComponentFormat getComponentFormat(PropertyDescription pd, DataAdapterList dataAdapterList, INGFormElement formElement, ValueListConfig config,
 		String dataproviderID, INGWebObject component)
 	{
-		String format = null;
+		ComponentFormat formatValue = null;
 		INGApplication application = dataAdapterList.getApplication();
 		if (dataproviderID != null)
 		{
@@ -240,17 +240,34 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
 					(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
 				{
-					Object formatValue = formElement != null ? formElement.getPropertyValue(formatPd.getName()) : component.getProperty(formatPd.getName());
-					if (formatValue != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+					if (formElement != null)
 					{
-						format = (String)formatValue;
-						break;
+						Object v = formElement.getPropertyValue(formatPd.getName()); // form element value for format is a String
+						if (v != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+						{
+							formatValue = ComponentFormat.getComponentFormat((String)v, dataproviderID,
+								application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()),
+								application);
+							break;
+						}
+					}
+					else
+					{
+						formatValue = (ComponentFormat)component.getProperty(formatPd.getName()); // here format is either null or already a ComponentFormat
+						if (formatValue != null) break;
 					}
 				}
 			}
 		}
-		return ComponentFormat.getComponentFormat(format, dataproviderID,
-			application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
+
+		if (formatValue == null)
+		{
+			// we didn't find any format; just create a new one (for default formatting I guess)
+			formatValue = ComponentFormat.getComponentFormat(null, dataproviderID,
+				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
+		}
+
+		return formatValue;
 	}
 
 	protected IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat fieldFormat, String dataproviderID)
