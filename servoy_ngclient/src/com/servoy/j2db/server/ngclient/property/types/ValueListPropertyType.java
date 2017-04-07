@@ -298,55 +298,72 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public ValueListTypeSabloValue toSabloComponentValue(Object rhinoValue, ValueListTypeSabloValue previousComponentValue, PropertyDescription pd,
 		INGWebObject componentOrService)
 	{
-		ValueListTypeSabloValue newValue = previousComponentValue;
-
-		if (rhinoValue instanceof String && componentOrService.getUnderlyingWebObject() instanceof WebFormComponent)
+		if (previousComponentValue == null)
 		{
-			// the new value is a valuelist name
-			WebFormComponent component = (WebFormComponent)componentOrService.getUnderlyingWebObject();
-
-			ValueList val = null;
-			IValueList valueList = null;
-			ValueListConfig config = (ValueListConfig)pd.getConfig();
-			String dataproviderID = (pd.getConfig() != null ? DataAdapterList.getDataProviderID(componentOrService.getProperty(config.getFor())) : null);
-			DataAdapterList dataAdapterList = (DataAdapterList)component.getDataAdapterList();
-			valueList = getIValueList(rhinoValue, pd, null, componentOrService, dataAdapterList, val, valueList, config, dataproviderID);
-			newValue = valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd,
-				getComponentFormat(pd, dataAdapterList, null, config, dataproviderID, componentOrService)) : null;
+			return rhinoValue instanceof String ? createValuelistByName(rhinoValue, pd, componentOrService) : null;
 		}
-		else if (previousComponentValue != null)
+
+		ValueListTypeSabloValue newValue = previousComponentValue;
+		ParsedFormat format = null;
+		int type = -1;
+		INGApplication application = previousComponentValue.dataAdapterList.getApplication();
+		IValueList list = previousComponentValue.getValueList();
+
+		if (list.getName().equals(rhinoValue))
 		{
-			// see if it's a setValuelistItems equivalent
-			ParsedFormat format = null;
-			int type = -1;
-			INGApplication application = previousComponentValue.dataAdapterList.getApplication();
-			IValueList list = previousComponentValue.getValueList();
+			//no need to create a new value if we have the same valuelist name
+			return previousComponentValue;
+		}
 
-			IValueList newVl = null;
-			if (list != null && list instanceof CustomValueList && (rhinoValue instanceof JSDataSet || rhinoValue instanceof IDataSet))
+		IValueList newVl = null;
+		// see if it's a setValuelistItems equivalent
+		if (list != null && list instanceof CustomValueList && (rhinoValue instanceof JSDataSet || rhinoValue instanceof IDataSet))
+		{
+			ValueList valuelist = application.getFlattenedSolution().getValueList(list.getName());
+			if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 			{
-				String name = list.getName();
-				ValueList valuelist = application.getFlattenedSolution().getValueList(name);
-				if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
+				format = ((CustomValueList)list).getFormat();
+				type = ((CustomValueList)list).getValueType();
+				newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
+
+				if (newVl != null)
 				{
-					format = ((CustomValueList)list).getFormat();
-					type = ((CustomValueList)list).getValueType();
-					newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
+					ValueListConfig config = (ValueListConfig)pd.getConfig();
+					Object dpPropertyValue = componentOrService.getProperty(config.getFor());
+					String dataproviderID = DataAdapterList.getDataProviderID(dpPropertyValue);
 
-					if (newVl != null)
-					{
-						ValueListConfig config = (ValueListConfig)pd.getConfig();
-						Object dpPropertyValue = componentOrService.getProperty(config.getFor());
-						String dataproviderID = DataAdapterList.getDataProviderID(dpPropertyValue);
-
-						newValue = new ValueListTypeSabloValue(newVl, previousComponentValue.dataAdapterList, config, dataproviderID, pd,
-							new ComponentFormat(format, type, type));
-					}
+					newValue = new ValueListTypeSabloValue(newVl, previousComponentValue.dataAdapterList, config, dataproviderID, pd,
+						new ComponentFormat(format, type, type));
 				}
 			}
-
 		}
+		else if (rhinoValue instanceof String)
+		{
+			//the rhino value is a different valuelist name 
+			newValue = createValuelistByName(rhinoValue, pd, componentOrService);
+		}
+
 		return newValue;
+
+	}
+
+	/**
+	 * @param rhinoValue
+	 * @param pd
+	 * @param componentOrService
+	 * @return
+	 */
+	private ValueListTypeSabloValue createValuelistByName(Object rhinoValue, PropertyDescription pd, INGWebObject componentOrService)
+	{
+		WebFormComponent component = (WebFormComponent)componentOrService.getUnderlyingWebObject();
+		ValueList val = null;
+		IValueList valueList = null;
+		ValueListConfig config = (ValueListConfig)pd.getConfig();
+		DataAdapterList dataAdapterList = (DataAdapterList)component.getDataAdapterList();
+		String dataproviderID = (pd.getConfig() != null ? DataAdapterList.getDataProviderID(componentOrService.getProperty(config.getFor())) : null);
+		valueList = getIValueList(rhinoValue, pd, null, componentOrService, dataAdapterList, val, valueList, config, dataproviderID);
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd,
+			getComponentFormat(pd, dataAdapterList, null, config, dataproviderID, componentOrService)) : null;
 	}
 
 	@Override
