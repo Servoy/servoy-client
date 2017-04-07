@@ -15,9 +15,7 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +33,6 @@ import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
-import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -363,23 +360,9 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (webComponentValue != null)
 		{
-			try
+			if (webComponentValue.valueList != null)
 			{
-				INGApplication application = webComponentValue.dataAdapterList.getApplication();
-				if (webComponentValue.valueList != null)
-				{
-					List<Object[]> rows = new ArrayList<Object[]>();
-					for (int i = 0; i < webComponentValue.valueList.getSize(); i++)
-					{
-						rows.add(new Object[] { webComponentValue.valueList.getElementAt(i), webComponentValue.valueList.getRealElementAt(i) });
-					}
-					return new JSDataSet(application, new BufferedDataSet(new String[] { "displayValue", "realValue" }, //$NON-NLS-1$ //$NON-NLS-2$
-						rows));
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
+				return webComponentValue.valueList.getName();
 			}
 		}
 		return null;
