@@ -1424,7 +1424,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(l.getDataSource());
 			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
 			if (createEmptyFoundsets) foundset.clear();
-			separateFoundSets.put(l, foundset);
+			separateFoundSets.put(l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, foundset);
 			// inform global foundset event listeners that a new foundset has been created
 			globalFoundSetEventListener.foundSetCreated(foundset);
 		}
