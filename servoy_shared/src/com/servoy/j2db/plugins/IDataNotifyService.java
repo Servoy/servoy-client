@@ -39,12 +39,17 @@ public interface IDataNotifyService
 	public void deregisterDataNotifyListener(IDataNotifyListener listener);
 
 	/**
+	 * Returns a list of datasources that are current in use (over all clients)
+	 */
+	public String[] getUsedDataSources();
+
+	/**
 	 * Tell the system to do a full flush on the given datasource
 	 *
 	 * @param dataSource
 	 * @throws RemoteException
 	 */
-	public void flushCachedDatabaseData(String dataSource) throws RemoteException;
+	public void flushCachedDatabaseData(String dataSource);
 
 	/**
 	 * Tell the system to trigger a data notification on the given table for the given pk set.
