@@ -35,6 +35,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.crypto.Cipher;
@@ -328,13 +329,85 @@ public final class Settings extends SortedProperties
 
 	private static final String enc_prefix = "encrypted:"; //keep in sync with IWarExportModel.enc_prefix
 
+	private static String START_DELIMITER = "${";
+	private static String STOP_DELIMITER = "}";
+	private static int START_DELIMITER_LENGTH = START_DELIMITER.length();
+	private static int STOP_DELIMITER_LENGTH = STOP_DELIMITER.length();
+
+	public static String substituteProperties(String value, ArrayList<String> processedKeys)
+	{
+		ArrayList<String> keysToCheckForRecursion = processedKeys;
+		StringBuffer buffer = new StringBuffer();
+		int position = 0;
+		int startDelimiterIndex;
+		int endDelimiterIndex;
+
+		while ((startDelimiterIndex = value.indexOf(START_DELIMITER, position)) >= 0 &&
+			(endDelimiterIndex = value.indexOf(STOP_DELIMITER, startDelimiterIndex)) >= 0)
+		{
+			buffer.append(value.substring(position, startDelimiterIndex));
+
+			startDelimiterIndex += START_DELIMITER_LENGTH;
+
+			String keyToSubstitute = value.substring(startDelimiterIndex, endDelimiterIndex);
+
+			if (!Utils.stringIsEmpty(keyToSubstitute))
+			{
+				String replacement = System.getProperty(keyToSubstitute);
+
+				if (replacement == null)
+				{
+					replacement = Settings.getInstance().getProperty(keyToSubstitute);
+				}
+
+				if (!Utils.stringIsEmpty(replacement))
+				{
+					if (keysToCheckForRecursion == null)
+					{
+						keysToCheckForRecursion = new ArrayList<String>();
+					}
+
+					if (keysToCheckForRecursion.contains(keyToSubstitute))
+					{
+						buffer.append("!!RECURSIVELY NESTED KEY!!");
+						Debug.warn("Recursive nested keys found while reading " + Settings.FILE_NAME + ": " +
+							Utils.stringJoin(keysToCheckForRecursion.iterator(), " -> ") + " -> " + keyToSubstitute);
+					}
+					else
+					{
+						keysToCheckForRecursion.add(keyToSubstitute);
+
+						buffer.append(substituteProperties(replacement, keysToCheckForRecursion));
+					}
+				}
+			}
+			position = endDelimiterIndex + STOP_DELIMITER_LENGTH;
+		}
+
+		return position == 0 ? value : buffer.append(value.substring(position, value.length())).toString();
+	}
+
+	private static void substituteAllProperties()
+	{
+		Iterator<Entry<Object, Object>> it = Settings.getInstance().entrySet().iterator();
+
+		while (it.hasNext())
+		{
+			Map.Entry<String, String> entry = (Map.Entry)it.next();
+			entry.setValue(substituteProperties(entry.getValue(), null));
+		}
+	}
+
 	@Override
 	public synchronized void load(InputStream inStream) throws IOException
 	{
 		//1 load them in
 		super.load(inStream);
 
-		//2 convert properties to unencrypted form
+		//2 substitute keys in values (like ${myKey} with value
+		substituteAllProperties();
+
+		//3 convert properties to unencrypted form
 		try
 		{
 			Cipher desCipher = Cipher.getInstance("DESede"); //$NON-NLS-1$
