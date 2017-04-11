@@ -334,9 +334,8 @@ public final class Settings extends SortedProperties
 	private static int START_DELIMITER_LENGTH = START_DELIMITER.length();
 	private static int STOP_DELIMITER_LENGTH = STOP_DELIMITER.length();
 
-	public static String substituteProperties(String value, ArrayList<String> processedKeys)
+	private String substituteProperties(String value, ArrayList<String> processedKeys)
 	{
-		ArrayList<String> keysToCheckForRecursion = processedKeys;
 		StringBuffer buffer = new StringBuffer();
 		int position = 0;
 		int startDelimiterIndex;
@@ -357,11 +356,13 @@ public final class Settings extends SortedProperties
 
 				if (replacement == null)
 				{
-					replacement = Settings.getInstance().getProperty(keyToSubstitute);
+					replacement = getProperty(keyToSubstitute);
 				}
 
 				if (!Utils.stringIsEmpty(replacement))
 				{
+					ArrayList<String> keysToCheckForRecursion = processedKeys;
+
 					if (keysToCheckForRecursion == null)
 					{
 						keysToCheckForRecursion = new ArrayList<String>();
@@ -387,9 +388,9 @@ public final class Settings extends SortedProperties
 		return position == 0 ? value : buffer.append(value.substring(position, value.length())).toString();
 	}
 
-	private static void substituteAllProperties()
+	private void substituteAllProperties()
 	{
-		Iterator<Entry<Object, Object>> it = Settings.getInstance().entrySet().iterator();
+		Iterator<Entry<Object, Object>> it = entrySet().iterator();
 
 		while (it.hasNext())
 		{
