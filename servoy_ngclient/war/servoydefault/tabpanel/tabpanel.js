@@ -100,7 +100,19 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 	    	  			{
 	    	  				$scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
 	    	  			}	
-	  			}	
+	    	  		}
+	    	  		else if (newValue === true && oldValue === false && !$scope.model.selectedTab)
+	    	  		{
+	    	  			for(var i=0;i<$scope.model.tabs.length;i++) {
+	    					if ($scope.model.tabs[i].active) {
+	    						if ($scope.model.selectedTab != $scope.model.tabs[i])
+	    						{
+	    							$scope.select($scope.model.tabs[i]);
+	    						} 
+	    						break;
+	    					}
+	    				}
+	    	  		}
 	  		  });
 			 
 			$scope.getTemplateUrl = function() {
@@ -109,6 +121,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				else return "servoydefault/tabpanel/tabpanel.html";
 			}
 			$scope.getActiveTabUrl = function() {
+				if (!$scope.model.visible) return "";
+				
 				for(var i=0;i<$scope.model.tabs.length;i++) {
 					if ($scope.model.tabs[i].active) {
 						if ($scope.model.selectedTab != $scope.model.tabs[i])
@@ -200,6 +214,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.select = function(tab) {
+				if (!$scope.model.visible) return ;
 				if(isValidTab(tab)) {
 					if (!tab.active) {
 						tab.active = true;
