@@ -200,7 +200,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						cellTemplate += " svy-portal-cell='true'";
 					} 
 					cellTemplate += '/>';					
-					
+					editableCellTemplate = null;
 					
 					if($scope.readOnlyOptimizedMode && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {						
 						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';						
