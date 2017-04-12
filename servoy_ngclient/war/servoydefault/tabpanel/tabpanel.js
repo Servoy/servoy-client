@@ -97,7 +97,19 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 	    	  			{
 	    	  				$scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
 	    	  			}	
-	  			}	
+	    	  		}
+	    	  		else if (newValue === true && oldValue === false && !$scope.model.selectedTab)
+	    	  		{
+	    	  			for(var i=0;i<$scope.model.tabs.length;i++) {
+	    					if ($scope.model.tabs[i].active) {
+	    						if ($scope.model.selectedTab != $scope.model.tabs[i])
+	    						{
+	    							$scope.select($scope.model.tabs[i]);
+	    						} 
+	    						break;
+	    					}
+	    				}
+	    	  		}
 	  		  });
 			 
 			$scope.getTemplateUrl = function() {
@@ -106,6 +118,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				else return "servoydefault/tabpanel/tabpanel.html";
 			}
 			$scope.getActiveTabUrl = function() {
+				if (!$scope.model.visible) return "";
+				
 				for(var i=0;i<$scope.model.tabs.length;i++) {
 					if ($scope.model.tabs[i].active) {
 						if ($scope.model.selectedTab != $scope.model.tabs[i])
@@ -171,6 +185,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.select = function(tab) {
+				if (!$scope.model.visible) return ;
 				if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
 				if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId && tab.relationName == $scope.model.selectedTab.relationName) || (tab == $scope.model.selectedTab)) return;
 				var selectEvent = $window.event ? $window.event : null;
