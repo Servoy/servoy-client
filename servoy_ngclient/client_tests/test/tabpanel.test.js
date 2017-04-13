@@ -60,6 +60,7 @@ describe('servoydefaultTabpanel component', function() {
 				},
 				name: 'tabs',
 				enabled: true,
+				visible: true,
 				svyMarkupId: "something"
 					
 			}
