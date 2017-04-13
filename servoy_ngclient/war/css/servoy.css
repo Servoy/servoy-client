@@ -1,4 +1,4 @@
-.dropdown-menu[typeahead-popup] > li > a
+.dropdown-menu[uib-typeahead-popup] > li > a
 { 
 	min-height: 20px; 
 }
