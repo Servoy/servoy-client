@@ -192,7 +192,7 @@ public class EditProvider implements FocusListener, PropertyChangeListener, Item
 			{
 				isAdjusting++;
 			}
-			else
+			else if (isAdjusting > 0)
 			{
 				isAdjusting--;
 			}
