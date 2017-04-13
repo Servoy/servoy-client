@@ -359,6 +359,11 @@ public final class Settings extends SortedProperties
 					replacement = getProperty(keyToSubstitute);
 				}
 
+				if (replacement == null)
+				{
+					replacement = System.getenv(keyToSubstitute);
+				}
+
 				if (!Utils.stringIsEmpty(replacement))
 				{
 					ArrayList<String> keysToCheckForRecursion = processedKeys;
