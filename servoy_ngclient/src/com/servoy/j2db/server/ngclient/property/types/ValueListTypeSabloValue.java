@@ -121,7 +121,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		for (int i = 0; i < size; i++)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("realValue", (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i));
+			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i);
+			map.put("realValue", realValue);
+			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
 			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : valueList.getElementAt(i);
 			if (displayValue instanceof Timestamp)
 			{
@@ -133,7 +135,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 			array.add(map);
 		}
-		if (!containsDpValue)
+		if (!containsDpValue && dpRealValue != null)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("realValue", dpRealValue);
