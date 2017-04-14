@@ -366,21 +366,15 @@ public final class Settings extends SortedProperties
 
 				if (!Utils.stringIsEmpty(replacement))
 				{
-					ArrayList<String> keysToCheckForRecursion = processedKeys;
-
-					if (keysToCheckForRecursion == null)
-					{
-						keysToCheckForRecursion = new ArrayList<String>();
-					}
-
-					if (keysToCheckForRecursion.contains(keyToSubstitute))
+					if (processedKeys != null && processedKeys.contains(keyToSubstitute))
 					{
 						buffer.append("!!RECURSIVELY NESTED KEY!!");
 						Debug.warn("Recursive nested keys found while reading " + Settings.FILE_NAME + ": " +
-							Utils.stringJoin(keysToCheckForRecursion.iterator(), " -> ") + " -> " + keyToSubstitute);
+							Utils.stringJoin(processedKeys.iterator(), " -> ") + " -> " + keyToSubstitute);
 					}
 					else
 					{
+						ArrayList<String> keysToCheckForRecursion = processedKeys != null ? new ArrayList<String>(processedKeys) : new ArrayList<String>();
 						keysToCheckForRecursion.add(keyToSubstitute);
 
 						buffer.append(substituteProperties(replacement, keysToCheckForRecursion));
