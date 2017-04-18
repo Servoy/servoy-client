@@ -40,6 +40,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -76,6 +77,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
+		// TODO shouldn't this just return always null? (never allow a form property to be set from the client?)
 		if (newJSONValue instanceof JSONObject)
 		{
 			Iterator<String> it = ((JSONObject)newJSONValue).keys();
@@ -143,7 +145,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		writer.value(formName);
 		if (CurrentWindow.get() instanceof INGClientWindow)
 		{
-			((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName);
+			((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement());
 		}
 		return writer;
 	}
@@ -207,7 +209,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 			writer.value(form.getName());
 			if (CurrentWindow.get() instanceof INGClientWindow)
 			{
-				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(form.getName());
+				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(form.getName(), formElementContext.getFormElement());
 			}
 		}
 		return writer;

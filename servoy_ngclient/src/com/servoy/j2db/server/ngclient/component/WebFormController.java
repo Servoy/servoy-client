@@ -667,6 +667,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				if ((comp instanceof WebFormComponent) && ((WebFormComponent)comp).getFormElement().getPersistIfAvailable() instanceof TabPanel)
 				{
+					Object visibleTabPanel = comp.getProperty("visible");
+					if (visibleTabPanel instanceof Boolean && !((Boolean)visibleTabPanel).booleanValue()) continue;
+
 					Object tabIndex = comp.getProperty("tabIndex");
 					Object tabs = comp.getProperty("tabs");
 					if (tabs instanceof List && ((List)tabs).size() > 0)
@@ -793,5 +796,19 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 
 		return new RuntimeWebComponent[0];
+	}
+
+	/*
+	 * @see com.servoy.j2db.IFormController#hasParentForm()
+	 */
+	@Override
+	public boolean hasParentForm()
+	{
+		IWebFormController pfc = getParentFormController();
+		if (pfc != null)
+		{
+			return !pfc.isDestroyed();
+		}
+		return false;
 	}
 }

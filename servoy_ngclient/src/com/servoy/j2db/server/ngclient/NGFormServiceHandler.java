@@ -192,18 +192,30 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 				boolean ok = true;
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				if (controller != null)
+				if (controller != null && !controller.isDestroyed())
 				{
 					boolean isVisible = args.getBoolean("visible");
 					WebFormComponent containerComponent = null;
+					String relationName = null;
 					if (parentForm != null)
 					{
 						containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
-
-						if (isVisible && containerComponent != null)
+					}
+					if (isVisible)
+					{
+						if (containerComponent == null)
 						{
-							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
+							throw new IllegalArgumentException("Showing a form " + formName + " then parent form " + parentForm + " and compponent " +
+								args.getString("bean") + " must be set and valid");
 						}
+						if (!parentForm.isFormVisible() || !containerComponent.isVisible())
+						{
+							throw new IllegalAccessException("Can't show form " + formName + " when the parent form " + parentForm + " or the component + " +
+								containerComponent + " is not visible");
+						}
+						relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null),
+							containerComponent.getFormElement());
+						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 					}
 					ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
 					if (ok && parentForm != null)
@@ -212,27 +224,25 @@ public class NGFormServiceHandler extends FormServiceHandler
 						{
 							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 						}
-						String relation = null;
-						if (isVisible && args.has("relation") && !args.isNull("relation") && !"".equals(args.getString("relation")))
+						if (isVisible && relationName != null)
 						{
-							relation = args.getString("relation");
 							FoundSet parentFs = parentForm.getFormModel();
 							IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
 							if (selectedRecord != null)
 							{
-								controller.loadRecords(selectedRecord.getRelatedFoundSet(relation));
+								controller.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
 							}
 							else
 							{
 								// no selected record, then use prototype so we can get global relations
-								controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relation));
+								controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
 							}
 						}
 
 						if (isVisible)
 						{
 							// was shown
-							parentForm.getFormUI().getDataAdapterList().addVisibleChildForm(controller, relation, true);
+							parentForm.getFormUI().getDataAdapterList().addVisibleChildForm(controller, relationName, true);
 						}
 						else
 						{
@@ -283,6 +293,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				IWebFormController form = getApplication().getFormManager().getForm(formName);
 				if (form != null)
 				{
+					checkAndSetParentWindow(formName); // maybe the form was destroyed because of memory limits, make sure we set the parent window
 					String windowName = form.getFormUI().getParentWindowName();
 					NGRuntimeWindow window = null;
 					if (windowName != null && (window = getApplication().getRuntimeWindowManager().getWindow(windowName)) != null)
@@ -376,10 +387,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 							// find spec for method
 							WebObjectSpecification componentSpec = webComponent.getSpecification();
-							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
+							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getInternalApiFunction(componentMethodName)
+								: null);
 							if (functionSpec == null)
 							{
-								functionSpec = (componentSpec != null ? componentSpec.getServerApiFunction(componentMethodName) : null);
+								functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
 							}
 							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 

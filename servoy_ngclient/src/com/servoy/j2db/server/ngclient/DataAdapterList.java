@@ -657,6 +657,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public String getDataProviderID(WebFormComponent webComponent, String beanProperty)
 	{
 		Object propertyValue = webComponent.getProperty(beanProperty);
+		return getDataProviderID(propertyValue);
+	}
+
+	public static String getDataProviderID(Object propertyValue)
+	{
 		if (propertyValue instanceof DataproviderTypeSabloValue) return ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
 		if (propertyValue instanceof FoundsetLinkedTypeSabloValue &&
 			((FoundsetLinkedTypeSabloValue)propertyValue).getWrappedValue() instanceof DataproviderTypeSabloValue)

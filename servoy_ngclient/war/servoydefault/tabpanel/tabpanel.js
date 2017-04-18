@@ -24,6 +24,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 					});
 				}
 			}
+
 			$scope.bgstyle = {}
 			$scope.waitingForServerVisibility = {}
 
@@ -31,7 +32,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			     // if the selected tab is already set then this is a reload of the form and we need to call formWillShow
 				delete $scope.model.selectedTab;
 			}
-			
+
 			function refresh() {
 				var i = 0;
 				var realTabIndex = 1;
@@ -54,13 +55,11 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			    
 				if ($scope.model.tabs){
 					var selectedTabNotFound = true;
-					
 					for(i=0; i<$scope.model.tabs.length; i++) {
 						
 						if (i === realTabIndex)
-						{	
+						{
 							$scope.model.tabs[i].active = true;
-							 
 						}
 						else 
 							$scope.model.tabs[i].active = false;
@@ -73,6 +72,10 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 					
 					if (selectedTabNotFound)
 						delete $scope.model.selectedTab;
+
+					$timeout(function() {
+						updateActiveTabIndex();
+					}, 0);
 				}
 			}
 
@@ -97,7 +100,19 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 	    	  			{
 	    	  				$scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
 	    	  			}	
-	  			}	
+	    	  		}
+	    	  		else if (newValue === true && oldValue === false && !$scope.model.selectedTab)
+	    	  		{
+	    	  			for(var i=0;i<$scope.model.tabs.length;i++) {
+	    					if ($scope.model.tabs[i].active) {
+	    						if ($scope.model.selectedTab != $scope.model.tabs[i])
+	    						{
+	    							$scope.select($scope.model.tabs[i]);
+	    						} 
+	    						break;
+	    					}
+	    				}
+	    	  		}
 	  		  });
 			 
 			$scope.getTemplateUrl = function() {
@@ -106,6 +121,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				else return "servoydefault/tabpanel/tabpanel.html";
 			}
 			$scope.getActiveTabUrl = function() {
+				if (!$scope.model.visible) return "";
+				
 				for(var i=0;i<$scope.model.tabs.length;i++) {
 					if ($scope.model.tabs[i].active) {
 						if ($scope.model.selectedTab != $scope.model.tabs[i])
@@ -144,7 +161,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				}
 				return "";
 			}
-
+			
 			function setFormVisible(tab,event) {
 				if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName);
 				if ($log.debugEnabled) $log.debug("svy * selectedTab = '" + tab.containsFormId + "' -- " + new Date().getTime());
@@ -159,6 +176,32 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				} 
 			}
 
+			function updateActiveTabIndex() {
+				if($scope.model.tabs) {
+					$scope.model.activeTabIndex = 0;
+
+					for(var i=0;i<$scope.model.tabs.length;i++) {
+						if ($scope.model.tabs[i].active)
+						{
+							$scope.model.activeTabIndex = i;
+							break;
+						}
+					}
+				}
+			}
+			
+			function isValidTab(tab) {
+				if($scope.model.tabs) {
+					for(var i=0;i<$scope.model.tabs.length;i++) {
+						if ($scope.model.tabs[i] === tab)
+						{
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+
 			$scope.getTabIndex = function(tab) {
 				if(tab) {
 					for(var i=0;i<$scope.model.tabs.length;i++) {
@@ -171,41 +214,49 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.select = function(tab) {
-				if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
-				if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId && tab.relationName == $scope.model.selectedTab.relationName) || (tab == $scope.model.selectedTab)) return;
-				var selectEvent = $window.event ? $window.event : null;
-				if ($scope.model.selectedTab) {
-					if ($scope.model.selectedTab.containsFormId && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
-					{
-						var formInWait = $scope.model.selectedTab.containsFormId;
-						$scope.waitingForServerVisibility[formInWait] = true;
-						var currentSelectedTab = $scope.model.selectedTab;
-						var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId,null,null,tab.containsFormId, tab.relationName);
-						if ($log.debugEnabled) $log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
-						promise.then(function(ok) {
-							if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
-							delete $scope.waitingForServerVisibility[formInWait];
-							if (!tab.active)
-							{
-								// visibility changed again, just ignore this
-								if ($log.debugEnabled) $log.debug("svy * Tab '" + tab.containsFormId + "': no longer active, ignore making it visible");
-								// it could be that the server was sending the correct state in the mean time already at the same time 
-								// we try to hide it. just call show again to be sure.
-								if (currentSelectedTab == $scope.model.selectedTab && $scope.model.selectedTab.active) $scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName);
-								return;
-							}
-							if (ok) {
-								setFormVisible(tab,selectEvent);
-							}
-							else {
-								tab.active = false;
-								$scope.model.selectedTab.active = true;
-							}
-						})
+				if (!$scope.model.visible) return ;
+				if(isValidTab(tab)) {
+					if (!tab.active) {
+						tab.active = true;
+						updateActiveTabIndex();
 					}
-				}
-				else {
-					setFormVisible(tab, selectEvent);
+					if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
+					if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId && tab.relationName == $scope.model.selectedTab.relationName) || (tab == $scope.model.selectedTab)) return;
+					var selectEvent = $window.event ? $window.event : null;
+					if ($scope.model.selectedTab) {
+						if ($scope.model.selectedTab.containsFormId && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
+						{
+							var formInWait = $scope.model.selectedTab.containsFormId;
+							$scope.waitingForServerVisibility[formInWait] = true;
+							var currentSelectedTab = $scope.model.selectedTab;
+							var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId,null,null,tab.containsFormId, tab.relationName);
+							if ($log.debugEnabled) $log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
+							promise.then(function(ok) {
+								if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
+								delete $scope.waitingForServerVisibility[formInWait];
+								if (!tab.active)
+								{
+									// visibility changed again, just ignore this
+									if ($log.debugEnabled) $log.debug("svy * Tab '" + tab.containsFormId + "': no longer active, ignore making it visible");
+									// it could be that the server was sending the correct state in the mean time already at the same time 
+									// we try to hide it. just call show again to be sure.
+									if (currentSelectedTab == $scope.model.selectedTab && $scope.model.selectedTab.active) $scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName);
+									return;
+								}
+								if (ok) {
+									setFormVisible(tab,selectEvent);
+								}
+								else {
+									tab.active = false;
+									$scope.model.selectedTab.active = true;
+									updateActiveTabIndex(false);
+								}
+							})
+						}
+					}
+					else {
+						setFormVisible(tab, selectEvent);
+					}
 				}
 			}
 

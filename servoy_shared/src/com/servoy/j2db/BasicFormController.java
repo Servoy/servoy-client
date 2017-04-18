@@ -960,7 +960,7 @@ public abstract class BasicFormController
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-		throws Exception
+			throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
@@ -1212,6 +1212,11 @@ public abstract class BasicFormController
 		return form.getGlobalRelationNamedFoundset();
 	}
 
+	@Override
+	public String getSharedFoundsetName()
+	{
+		return form.getSharedFoundsetName();
+	}
 
 	public void foundSetChanged(FoundSetEvent e)
 	{

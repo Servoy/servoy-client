@@ -108,50 +108,56 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		List<Map<String, Object>> jsonValue = null;
-		if (filteredValuelist != null)
+
+		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
+		int size = Math.min(config.getMaxCount(), vlSize);
+		Object dpRealValue = null;
+		Object dpDisplayValue = null;
+		boolean containsDpValue = false;
+		if (vlSize > config.getMaxCount() && dataproviderID != null && previousRecord != null)
 		{
-			int size = Math.min(config.getMaxCount(), filteredValuelist.getSize());
-			List<Map<String, Object>> array = new ArrayList<>(size);
-			for (int i = 0; i < size; i++)
+			Object dpvalue = previousRecord.getValue(dataproviderID);
+			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
+			if (dpindex != -1)
 			{
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("realValue", filteredValuelist.getRealElementAt(i));
-				Object displayValue = filteredValuelist.getElementAt(i);
-				if (!(displayValue instanceof Timestamp))
-				{
-					map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
-				}
-				else map.put("displayValue", displayValue);
-
-				array.add(map);
+				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
+				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
 			}
-			logMaxSizeExceptionIfNecessary(filteredValuelist.getValueList().getName(), filteredValuelist.getSize());
-			jsonValue = array;
 		}
-		else
+		List<Map<String, Object>> array = new ArrayList<>(size);
+		for (int i = 0; i < size; i++)
 		{
-
-
-			int size = Math.min(config.getMaxCount(), valueList.getSize());
-			List<Map<String, Object>> array = new ArrayList<>(size);
-			for (int i = 0; i < size; i++)
+			Map<String, Object> map = new HashMap<String, Object>();
+			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i);
+			map.put("realValue", realValue);
+			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
+			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : valueList.getElementAt(i);
+			if (displayValue instanceof Timestamp)
 			{
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("realValue", valueList.getRealElementAt(i));
-				Object displayValue = valueList.getElementAt(i);
-				if (displayValue instanceof Timestamp)
-				{
-					map.put("displayValue", displayValue);
-				}
-				else
-				{
-					map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
-				}
-				array.add(map);
+				map.put("displayValue", displayValue);
 			}
-			logMaxSizeExceptionIfNecessary(valueList.getName(), valueList.getSize());
-			jsonValue = array;
+			else
+			{
+				map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+			}
+			array.add(map);
 		}
+		if (!containsDpValue && dpRealValue != null)
+		{
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("realValue", dpRealValue);
+			if (dpDisplayValue instanceof Timestamp)
+			{
+				map.put("displayValue", dpDisplayValue);
+			}
+			else
+			{
+				map.put("displayValue", dpDisplayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(dpDisplayValue.toString()) : "");
+			}
+			array.add(map);
+		}
+		logMaxSizeExceptionIfNecessary(valueList.getName(), vlSize);
+		jsonValue = array;
 
 		return jsonValue;
 	}
@@ -215,14 +221,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			revertFilter();
 		}
 
-		if (!fireChangeEvent) valueList.removeListDataListener(this);
+		if (filteredValuelist == null && !fireChangeEvent) valueList.removeListDataListener(this);
 		try
 		{
 			valueList.fill(record);
 		}
 		finally
 		{
-			if (!fireChangeEvent) valueList.addListDataListener(this);
+			if (filteredValuelist == null && !fireChangeEvent) valueList.addListDataListener(this);
 		}
 		previousRecord = record;
 	}

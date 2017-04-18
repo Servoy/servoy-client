@@ -1,10 +1,10 @@
-<accordion close-others="true" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-accordion"'>
-	<accordion-group ng-repeat="tab in model.tabs" is-open="tab.active">
-		<accordion-heading>
+<div uib-accordion close-others="true" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-accordion"'>
+	<div uib-accordion-group ng-repeat="tab in model.tabs" is-open="tab.active">
+		<uib-accordion-heading>
 			<span ng-bind='tab.text' ng-click="select(tab)"></span>
-		</accordion-heading>
+		</uib-accordion-heading>
 		<div ng-style="viewportStyle">
 			<div ng-include="tab.active ? getActiveTabUrl() : null" sablo-tabseq='1' sablo-tabseq-config="{container: true}" style="position:relative;left:0px;top:0px;width:100%;height:100%;"></div>
 		</div>
-	</accordion-group>
-</accordion>
+	</div>
+</div>

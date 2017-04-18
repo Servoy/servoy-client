@@ -1316,10 +1316,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					WebObjectSpecification serviceSpec = webServiceScriptable.getServiceSpecification(); // get specification from plugins scope (which uses getScriptName() of service, then use the getClientService using the real name, to make sure client service is created if needed)
 					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceSpec.getName());
 
-					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
+					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getInternalApiFunction(serviceMethodName) : null);
 					if (functionSpec == null)
 					{
-						functionSpec = (serviceSpec != null ? serviceSpec.getServerApiFunction(serviceMethodName) : null);
+						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
 					}
 					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 

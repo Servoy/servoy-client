@@ -172,6 +172,12 @@ public abstract class BasicFormManager implements IBasicFormManager
 			return false;
 		}
 
+		// it has a parent form, that is not destroyed, form is used when parent form is visible, skip delete
+		if (fp.hasParentForm())
+		{
+			return false;
+		}
+
 		//  cannot be deleted if a global var has a ref
 		ScopesScope scopesScope = application.getScriptEngine().getScopesScope();
 		if (hasReferenceInScriptable(scopesScope, fp, new HashSet<Scriptable>()))

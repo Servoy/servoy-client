@@ -68,6 +68,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 */
 	public static final String NAMED_FOUNDSET_SEPARATE = "separate"; //$NON-NLS-1$
 
+	public static final String NAMED_FOUNDSET_SEPARATE_PREFIX = NAMED_FOUNDSET_SEPARATE + "_"; //$NON-NLS-1$
+
+	public static final int NAMED_FOUNDSET_SEPARATE_PREFIX_LENGTH = NAMED_FOUNDSET_SEPARATE_PREFIX.length();
+
 	/**
 	 * Constant used for prefixing the namedFoundset property. Prefixes global relations within the namedFoundset property.
 	 */
@@ -1424,7 +1428,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 */
 	public boolean getUseSeparateFoundSet()
 	{
-		return NAMED_FOUNDSET_SEPARATE.equals(getNamedFoundSet());
+		String foundsetName = getNamedFoundSet();
+		return foundsetName != null && foundsetName.startsWith(NAMED_FOUNDSET_SEPARATE);
 	}
 
 	/**
@@ -1446,6 +1451,19 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		else
 		{
 			return nfs.substring(NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH);
+		}
+	}
+
+	public String getSharedFoundsetName()
+	{
+		String nfs = getNamedFoundSet();
+		if (nfs == null || !nfs.startsWith(NAMED_FOUNDSET_SEPARATE_PREFIX))
+		{
+			return null;
+		}
+		else
+		{
+			return nfs.substring(NAMED_FOUNDSET_SEPARATE_PREFIX_LENGTH);
 		}
 	}
 

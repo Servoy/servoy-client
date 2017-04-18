@@ -62,6 +62,20 @@ public interface INGClientWindow extends IWindow
 	/**
 	 * @param formName
 	 */
-	void registerAllowedForm(String formName);
+	void registerAllowedForm(String formName, INGFormElement element);
+
+	/**
+	 * @param relationName
+	 * @param element
+	 */
+	String registerAllowedRelation(String relationName, INGFormElement element);
+
+	/**
+	 * @param formName
+	 * @param uuidRelationName
+	 * @param element
+	 * @return
+	 */
+	String isVisibleAllowed(String formName, String uuidRelationName, INGFormElement element) throws IllegalAccessException;
 
 }

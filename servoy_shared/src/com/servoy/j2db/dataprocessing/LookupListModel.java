@@ -775,6 +775,11 @@ public class LookupListModel extends AbstractListModel
 		return alReal.get(index);
 	}
 
+	public int realValueIndexOf(Object element)
+	{
+		return alReal.indexOf(element);
+	}
+
 	public Iterator<Object> iterator()
 	{
 		if (alDisplay.size() > 0)

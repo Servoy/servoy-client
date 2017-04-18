@@ -109,6 +109,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 				if (func != null) apiFunctions.put(def.getName(), func);
 				else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
+			for (WebObjectFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
+			{
+				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
+			}
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (String propName : specs.keySet())
 			{

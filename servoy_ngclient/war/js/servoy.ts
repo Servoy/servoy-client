@@ -253,7 +253,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			
 			if (!contextMatch) return null;
 			
-			var jsEvent = {svyType: 'JSEvent', eventType: eventType};
+			var jsEvent = {svyType: 'JSEvent', eventType: eventType, "timestamp":new Date().getTime()};
 			
 			var modifiers = (event.altKey ? 8 : 0) | (event.shiftKey ? 1 : 0) | (event.ctrlKey ? 2 : 0) | (event.metaKey ? 4 : 0);
 			jsEvent['modifiers'] = modifiers;

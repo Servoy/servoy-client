@@ -123,9 +123,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
-					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
-					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };
+				QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
+				QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
+				QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };
 			}
 		});
 	}
@@ -2760,6 +2760,31 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			throw new RuntimeException("Can't get new foundset for: " + dataSource, e); //$NON-NLS-1$
 		}
+	}
+
+	/**
+	 * Returns a named foundset object created under a specific name. If foundset does not exist, null will be returned.
+	 * Alternative method: datasources.db.server_name.table_name.getFoundSet(name)
+	 *
+	 * @sample
+	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
+	 * var fs = databaseManager.getNamedFoundSet('myname')
+	 * // same as datasources.db.example_data.orders.getFoundSet('myname')
+	 * var ridx = fs.newRecord()
+	 * var record = fs.getRecord(ridx)
+	 * record.emp_name = 'John'
+	 * databaseManager.saveData()
+	 *
+	 * @param name The named foundset name
+	 *
+	 * @return An existing named(separate) foundset.
+	 */
+	@JSFunction
+	public IJSFoundSet getNamedFoundSet(String name) throws ServoyException
+	{
+		checkAuthorized();
+		return (FoundSet)application.getFoundSetManager().getNamedFoundSet(name);
 	}
 
 	/**

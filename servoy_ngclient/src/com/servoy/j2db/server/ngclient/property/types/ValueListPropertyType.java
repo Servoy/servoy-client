@@ -285,14 +285,23 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public ValueListTypeSabloValue toSabloComponentValue(Object rhinoValue, ValueListTypeSabloValue previousComponentValue, PropertyDescription pd,
 		BaseWebObject componentOrService)
 	{
-		Object vl = componentOrService.getProperty(pd.getName());
-		ParsedFormat format = null;
-		int type = -1;
-		if (vl != null)
+//		Object vl = componentOrService.getProperty(pd.getName()); // this only works for when ValueListTypeSabloValue is a non-nested property (so not in an array or custom object)
+		ValueListTypeSabloValue newValue = previousComponentValue;
+
+		if (rhinoValue instanceof String && componentOrService instanceof WebFormComponent)
 		{
-			ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
-			INGApplication application = value.dataAdapterList.getApplication();
-			IValueList list = value.getValueList();
+			// the new value is a valuelist name
+			newValue = toSabloComponentValue(rhinoValue, pd, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService,
+				(DataAdapterList)((WebFormComponent)componentOrService).getDataAdapterList());
+		}
+		else if (previousComponentValue != null)
+		{
+			// see if it's a setValuelistItems equivalent
+			ParsedFormat format = null;
+			int type = -1;
+			INGApplication application = previousComponentValue.dataAdapterList.getApplication();
+			IValueList list = previousComponentValue.getValueList();
+
 			IValueList newVl = null;
 			if (list != null && list instanceof CustomValueList && (rhinoValue instanceof JSDataSet || rhinoValue instanceof IDataSet))
 			{
@@ -303,22 +312,25 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 					format = ((CustomValueList)list).getFormat();
 					type = ((CustomValueList)list).getValueType();
 					newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
+
+					if (newVl != null)
+					{
+						ValueListConfig config = (ValueListConfig)pd.getConfig();
+
+						// FIXME this won't work for valuelists nested in arrays of objects (for example columns in servoy extra table)
+						// only if custom object properties start providing a special componentOrService value that also looks inside the custom object properties not just starting in component/service root
+						// it's the same problem as in case SVY-10932 - where the format property has to do something similar
+						Object dpPropertyValue = componentOrService.getProperty(config.getFor());
+						String dataproviderID = DataAdapterList.getDataProviderID(dpPropertyValue);
+
+						newValue = new ValueListTypeSabloValue(newVl, previousComponentValue.dataAdapterList, config, dataproviderID, pd,
+							new ComponentFormat(format, type, type), previousComponentValue.formElement);
+					}
 				}
 			}
 
-			ValueListConfig config = (ValueListConfig)pd.getConfig();
-			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
-				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
-			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd,
-				new ComponentFormat(format, type, type), value.formElement) : previousComponentValue;
 		}
-		else if (rhinoValue instanceof String && componentOrService instanceof WebFormComponent)
-		{
-			//valuelist name
-			return toSabloComponentValue(rhinoValue, pd, ((WebFormComponent)componentOrService).getFormElement(), (WebFormComponent)componentOrService,
-				(DataAdapterList)((WebFormComponent)componentOrService).getDataAdapterList());
-		}
-		return null;
+		return newValue;
 	}
 
 	@Override
