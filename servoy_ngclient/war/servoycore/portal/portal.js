@@ -1285,19 +1285,23 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}
 					});
 
-					// size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
-//					$scope.$watch('foundset.viewPort.size', function(newVal, oldVal) {
-//						if (requestViewPortSize != newVal) requestViewPortSize = -1;
-//						testNumberOfRows();
-//					});
-					$scope.$watch('foundset', function(newVal, oldVal) {
-						if (!$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK]){
-							$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK] = function (newValue) {
-								if (requestViewPortSize != newValue) requestViewPortSize = -1;
-								testNumberOfRows();
-							}
-							if (requestViewPortSize != $scope.foundset.viewPort.size) requestViewPortSize = -1;
+					// size can change server-side if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
+					var foundsetListener = function(foundsetChanges) {
+						var vpSizeChange = foundsetChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_SIZE_CHANGED];
+						if (vpSizeChange) {
+							if (requestViewPortSize != vpSizeChange.newValue) requestViewPortSize = -1;
 							testNumberOfRows();
+						}
+					};
+					$scope.$watch('foundset', function(newVal, oldVal) {
+						if (oldVal && newVal !== oldVal) oldVal.removeChangeListener(foundsetListener);
+						if (newVal) {
+							newVal.addChangeListener(foundsetListener);
+							
+							// simulate a change initially to see if we need to adjust anything right away
+							var ch = {};
+							ch[$foundsetTypeConstants.NOTIFY_VIEW_PORT_SIZE_CHANGED] = { oldValue : $scope.foundset.viewPort.size, newValue : $scope.foundset.viewPort.size };
+							foundsetListener(ch);
 						}
 					});
 

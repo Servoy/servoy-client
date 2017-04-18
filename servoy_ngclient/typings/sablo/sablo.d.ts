@@ -103,6 +103,7 @@ declare namespace sablo {
         getSession():WSSession,
         isConnected(): boolean,
         isReconnecting(): boolean,
+		addIncommingMessageHandlingDoneTask(func: ()=>void): void,
         disconnect():void,
         getURLParameter(name:string): string
 	}
