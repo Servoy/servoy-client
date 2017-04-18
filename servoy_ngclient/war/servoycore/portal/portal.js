@@ -1294,8 +1294,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}
 					};
 					$scope.$watch('foundset', function(newVal, oldVal) {
-						if (oldVal && newVal !== oldVal) oldVal.removeChangeListener(foundsetListener);
-						if (newVal) {
+						if (oldVal && oldVal.removeChangeListener && newVal !== oldVal) oldVal.removeChangeListener(foundsetListener);
+						if (newVal && newVal.addChangeListener) {
 							newVal.addChangeListener(foundsetListener);
 							
 							// simulate a change initially to see if we need to adjust anything right away
