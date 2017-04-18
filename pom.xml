@@ -16,9 +16,9 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 	    <maven.compiler.target>1.7</maven.compiler.target>
 		<sablo.version>8.1.2.3031-SNAPSHOT</sablo.version>
-		<servoy-repo.url>${project.baseUri}../../servoy-osgi-target/eclipse_target/compile_target/install/</servoy-repo.url>
-		<servoy-deltapack.url>${project.baseUri}../../servoy-osgi-target/eclipse_target/compile_target/install/deltapack/</servoy-deltapack.url>
-		<servoy-shiplibs.url>${project.baseUri}../../servoy-osgi-target/eclipse_target/ship_plugins/</servoy-shiplibs.url>
+		<servoy-repo.url>http://developer.servoy.com/p2_repository/compile_target/install/</servoy-repo.url>
+		<servoy-deltapack.url>http://developer.servoy.com/p2_repository/compile_target/install/deltapack/</servoy-deltapack.url>
+		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
 	<repositories>
@@ -143,11 +143,6 @@
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-jarsigner-plugin</artifactId>
 		    <version>1.4</version>
-		    <configuration>
-		     <keystore>${project.basedir}/../../build/eclipse_build/keystore</keystore>
-		     <alias>ServoyClient</alias>
-		     <tsa>http://sha256timestamp.ws.symantec.com/sha256/timestamp</tsa>
-		    </configuration>
 		    <executions>
 		     <execution>
 		      <id>sign</id>
