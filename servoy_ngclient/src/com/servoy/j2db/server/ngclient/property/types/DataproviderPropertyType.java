@@ -153,7 +153,14 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public DataproviderTypeSabloValue toSabloComponentValue(Object rhinoValue, DataproviderTypeSabloValue previousComponentValue, PropertyDescription pd,
 		INGWebObject componentOrService)
 	{
-		return previousComponentValue; // the property is read-only in Rhino
+		if (rhinoValue instanceof String && (previousComponentValue != null || componentOrService instanceof WebFormComponent))
+		{
+			return new DataproviderTypeSabloValue((String)rhinoValue,
+				(DataAdapterList)(previousComponentValue != null ? previousComponentValue.dataAdapterList
+					: ((WebFormComponent)componentOrService.getUnderlyingWebObject()).getDataAdapterList()),
+				(WebFormComponent)componentOrService.getUnderlyingWebObject(), pd);
+		}
+		return previousComponentValue;
 	}
 
 	@Override

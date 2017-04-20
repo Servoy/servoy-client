@@ -229,9 +229,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					boolean changed = (viewPortChangeMonitor == null);
 
 					if (viewPortChangeMonitor != null) foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					ViewportDataChangeMonitor< ? > old = viewPortChangeMonitor;
 					viewPortChangeMonitor = new ViewportDataChangeMonitor<>(changeMonitor,
 						new FoundsetLinkedViewportRowDataProvider<YF, YT>(foundsetPropValue.getDataAdapterList(), pd, FoundsetLinkedTypeSabloValue.this));
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
+					if (old != null) viewPortChangeMonitor.viewPortCompletelyChanged = old.viewPortCompletelyChanged;
 
 					// register the first dataprovider used by the wrapped property to the foundset for sorting
 					if (idForFoundset == null /* the rest of the condition should always be true */ && targetDataLinks.dataProviderIDs != null &&
@@ -242,7 +244,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, targetDataLinks.dataProviderIDs[0]);
 					}
 
-					if (changed) changeMonitor.valueChanged();
+					if (changed)
+					{
+						changeMonitor.valueChanged();
+						viewPortChangeMonitor.viewPortCompletelyChanged();
+					}
 				} // else we will send single value to client as it is not record dependent and the client can just duplicate that to match foundset viewport size
 			}
 
