@@ -288,8 +288,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				}
 				super.destroy();
 				IWindow window = CurrentWindow.safeGet();
-				if (window instanceof NGClientWindow)
+				if (window instanceof NGClientWindow && application.isSolutionLoaded())
 				{
+
 					((NGClientWindow)window).destroyForm(getName());
 				}
 			}
