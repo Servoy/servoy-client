@@ -271,7 +271,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void destroy()
 	{
-		if (isFormVisible())
+		if (isFormVisible() && application.isSolutionLoaded())
 		{
 			destroyOnHide = true;
 		}
