@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.servoy.base.persistence.BaseColumn;
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -61,19 +62,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
  * _____________________________________________________________ Declaration of attributes
  */
 	public static final int[] allDefinedTypes = new int[] { TEXT, INTEGER, NUMBER, DATETIME, MEDIA };
-
-	// column flags
-	public static final int NORMAL_COLUMN = 0;
-	public static final int PK_COLUMN = 1;
-	public static final int USER_ROWID_COLUMN = 2;
-	public static final int UUID_COLUMN = 4;
-	public static final int EXCLUDED_COLUMN = 8;
-
-	public static final int IDENT_COLUMNS = PK_COLUMN + USER_ROWID_COLUMN;
-	public static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;
-
-	public static final int[] allDefinedRowIdents = new int[] { NORMAL_COLUMN, PK_COLUMN, USER_ROWID_COLUMN };
-	public static final int[] allDefinedOtherFlags = new int[] { UUID_COLUMN, EXCLUDED_COLUMN };
 
 	private final ITable table;
 	private String plainSQLName;
@@ -978,7 +966,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			{
 				return flags;
 			}
-			return dbPK ? Column.PK_COLUMN : 0;
+			return dbPK ? IBaseColumn.PK_COLUMN : 0;
 		}
 		return columnInfo.getFlags();
 	}
