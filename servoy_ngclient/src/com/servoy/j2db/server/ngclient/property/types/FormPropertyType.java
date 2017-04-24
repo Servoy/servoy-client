@@ -145,7 +145,11 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		writer.value(formName);
 		if (CurrentWindow.get() instanceof INGClientWindow)
 		{
-			((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement());
+			// if this is a web component that triggered it, register to only allow this form for that component
+			if (dataConverterContext.getWebObject() instanceof WebFormComponent)
+				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement());
+			// else register it for null then this form is allowed globally (a form in dialog of popup)
+			else((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, null);
 		}
 		return writer;
 	}

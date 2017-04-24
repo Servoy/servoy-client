@@ -203,19 +203,23 @@ public class NGFormServiceHandler extends FormServiceHandler
 					}
 					if (isVisible)
 					{
-						if (containerComponent == null)
+						// if the parent container form and component are give then check for those
+						if (parentForm != null && containerComponent != null)
 						{
-							throw new IllegalArgumentException("Showing a form " + formName + " then parent form " + parentForm + " and compponent " +
-								args.getString("bean") + " must be set and valid");
+							if (!parentForm.isFormVisible() || !containerComponent.isVisible())
+							{
+								throw new IllegalAccessException("Can't show form " + formName + " when the parent form " + parentForm +
+									" or the component + " + containerComponent + " is not visible");
+							}
+							relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null),
+								containerComponent.getFormElement());
+							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 						}
-						if (!parentForm.isFormVisible() || !containerComponent.isVisible())
+						else
 						{
-							throw new IllegalAccessException("Can't show form " + formName + " when the parent form " + parentForm + " or the component + " +
-								containerComponent + " is not visible");
+							// else this form can only be allowed for the "null" component
+							relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null), null);
 						}
-						relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null),
-							containerComponent.getFormElement());
-						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 					}
 					ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
 					if (ok && parentForm != null)
