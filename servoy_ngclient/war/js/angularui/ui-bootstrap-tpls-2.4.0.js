@@ -6894,7 +6894,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       $q.when(parserResult.source(originalScope, locals)).then(function(matches) {
         //it might happen that several async queries were in progress if a user were typing fast
         //but we are interested only in responses that correspond to the current view value
-        var onCurrentRequest = inputValue === modelCtrl.$viewValue;
+        var onCurrentRequest = inputValue === modelCtrl.$viewValue || inputValue === "";
         if (onCurrentRequest && hasFocus) {
           if (matches && matches.length > 0) {
             scope.activeIdx = focusFirst ? 0 : -1;
@@ -7100,13 +7100,16 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       }
     });
 
+    var onFocus = $parse(attrs.typeaheadOnFocus);
+   
     element.on('focus', function (evt) {
-      hasFocus = true;
-      if (minLength === 0 && !modelCtrl.$viewValue) {
-        $timeout(function() {
-          getMatchesAsync(modelCtrl.$viewValue, evt);
-        }, 0);
-      }
+    	hasFocus = true;
+    	if (onFocus(originalScope,{}))
+    	{
+    		$timeout(function() {
+    			getMatchesAsync("", evt);
+    		}, 0);
+    	}
     });
 
     element.on('blur', function(evt) {
