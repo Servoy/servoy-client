@@ -7039,7 +7039,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       //return focus to the input element if a match was selected via a mouse click event
       // use timeout to avoid $rootScope:inprog error
       if (scope.$eval(attrs.typeaheadFocusOnSelect) !== false) {
-        $timeout(function() { element[0].focus(); }, 0, false);
+        $timeout(function() { ignoreNextFocusGain = true; element[0].focus(); }, 0, false);
       }
     };
 
@@ -7101,14 +7101,23 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
     });
 
     var onFocus = $parse(attrs.typeaheadOnFocus);
-   
+    var ignoreNextFocusGain= false;
+    
     element.on('focus', function (evt) {
     	hasFocus = true;
-    	if (onFocus(originalScope,{}))
+    	if (element.is('[readonly]')) { ignoreNextFocusGain = false;return;}
+    	if (!ignoreNextFocusGain)
     	{
-    		$timeout(function() {
-    			getMatchesAsync("", evt);
-    		}, 0);
+    		if (onFocus === angular.noop || onFocus(originalScope,{}))
+        	{
+        		$timeout(function() {
+        			getMatchesAsync("", evt);
+        		}, 0);
+        	}
+    	}
+    	else
+    	{
+    		ignoreNextFocusGain = false;
     	}
     });
 
