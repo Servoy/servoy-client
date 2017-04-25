@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -210,8 +211,9 @@ public class CustomArrayPropertyRhinoTest
 
 		changes = component.getAndClearChanges();
 		assertEquals(
-			"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"svy_types\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
-			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext));
+			new JSONObject(
+				"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"svy_types\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}").toString(),
+			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
 
 		// now simulate another request cycle that makes some change to the property from javascript
 		rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, component, topLevel);
