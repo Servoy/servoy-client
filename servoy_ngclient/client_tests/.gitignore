@@ -29,3 +29,5 @@ node_modules
 /test-results.xml
 /development_mode.properties
 /run_tests_personal.properties
+/PhantomJS_2.1.1_(Windows_8_0.0.0)/
+/sablo/
