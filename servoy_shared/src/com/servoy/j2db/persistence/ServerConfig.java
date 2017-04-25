@@ -438,4 +438,19 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	{
 		TEMPLATES.clear();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "ServerConfig [serverName=" + serverName + ", userName=" + userName + ", serverUrl=" + serverUrl + ", connectionProperties=" +
+			connectionProperties + ", driver=" + driver + ", catalog=" + catalog + ", schema=" + schema + ", maxActive=" + maxActive + ", maxIdle=" + maxIdle +
+			", maxPreparedStatementsIdle=" + maxPreparedStatementsIdle + ", connectionValidationType=" + connectionValidationType + ", validationQuery=" +
+			validationQuery + ", dataModelCloneFrom=" + dataModelCloneFrom + ", enabled=" + enabled + ", skipSysTables=" + skipSysTables + ", idleTimeout=" +
+			idleTimeout + ", dialectClass=" + dialectClass + "]";
+	}
 }
