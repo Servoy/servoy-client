@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -37,6 +38,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IBasicWebComponent;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -94,8 +96,8 @@ class PersistBasedFormElementImpl
 				// convert from persist design-time value (which might be non-json) to the expected value
 				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);
 
-				jsonMap.remove(StaticContentSpecLoader.PROPERTY_BEANXML); // this is handled separately as NG component definition
-				jsonMap.remove(StaticContentSpecLoader.PROPERTY_JSON); // this is handled separately as NG component definition
+				jsonMap.remove(IContentSpecConstantsBase.PROPERTY_BEANXML); // this is handled separately as NG component definition
+				jsonMap.remove(IContentSpecConstants.PROPERTY_JSON); // this is handled separately as NG component definition
 				try
 				{
 					// add beanXML (which is actually a JSON string here) defined properties to the map
