@@ -3630,7 +3630,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
       var ignoreNextFocusGain= false;
       var onFocus = $parse(attrs.typeaheadOnFocus);
-      if (onFocus(originalScope,{}))
+      if (onFocus === angular.noop || onFocus(originalScope,{}))
       {
           element.bind('focus',  function(ev) {
         	  if (element.is('[readonly]')) { ignoreNextFocusGain = false;return;}
