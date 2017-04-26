@@ -489,35 +489,43 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 		return ComponentFactoryHelper.createBorderString(border);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
 	@Override
 	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
-		try
+		if (!(Boolean)propertyDescription.getConfig())
 		{
-			if (newValue instanceof String)
+			try
 			{
-				String val = (String)newValue;
-				if (val.startsWith("{"))
-				{
-					return fromJSON(new JSONObject((String)newValue), null, propertyDescription, null, null);
-				}
-				return ComponentFactoryHelper.createBorder(val);
+				return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+					propertyDescription, null, null);
 			}
-		}
-		catch (Exception e)
-		{
-			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
-			return null;
+			catch (Exception e)
+			{
+				Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+				return null;
+			}
 		}
 		return newValue;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
 	@Override
 	public Object toDesignValue(Object value, PropertyDescription pd)
 	{
 		if (value instanceof Border)
 		{
-			return ComponentFactoryHelper.createBorderString(value);
+			JSONStringer writer = new JSONStringer();
+			toJSON(writer, null, (Border)value, pd, null, null);
+			return new JSONObject(writer.toString());
 		}
 		return value;
 	}
