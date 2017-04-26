@@ -69,7 +69,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  *
  */
 public class BorderPropertyType extends DefaultPropertyType<Border>
-	implements IConvertedPropertyType<Border>, IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>,
+	implements IConvertedPropertyType<Border>, IDesignToFormElement<Object, Border, Border>, IFormElementToTemplateJSON<Border, Border>,
 	IRhinoToSabloComponent<Border>, ISabloComponentToRhino<Border>, IRhinoDesignConverter, IDesignValueConverter<Object>
 {
 	private static final String TYPE = "type";
@@ -427,9 +427,10 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	}
 
 	@Override
-	public Border toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
+	public Border toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
+		if (designValue instanceof String) return ComponentFactoryHelper.createBorder((String)designValue);
 		return fromJSON(designValue, null, pd, null, null);
 	}
 
