@@ -120,19 +120,24 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	@Override
 	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
-		if (!(Boolean)propertyDescription.getConfig())
+		try
 		{
-			try
+			if (newValue instanceof String)
 			{
-				return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
-					propertyDescription, null, null);
-			}
-			catch (Exception e)
-			{
-				Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
-				return null;
+				String val = (String)newValue;
+				if (val.startsWith("{"))
+				{
+					return fromJSON(new JSONObject((String)newValue), null, propertyDescription, null, null);
+				}
+				return PersistHelper.createColor(val);
 			}
 		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
+
 		return newValue;
 	}
 
@@ -141,9 +146,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	{
 		if (value instanceof Font)
 		{
-			JSONStringer writer = new JSONStringer();
-			toJSON(writer, null, (Font)value, pd, null, null);
-			return new JSONObject(writer.toString());
+			return PersistHelper.createFontString((Font)value);
 		}
 		return value;
 	}
