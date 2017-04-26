@@ -48,6 +48,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -416,7 +417,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		return json != null && Boolean.valueOf(json.optBoolean("stringformat"));
+		return null;
 	}
 
 	@Override
@@ -497,10 +498,14 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	@Override
 	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
-		if (!(Boolean)propertyDescription.getConfig())
+		if (!IContentSpecConstants.PROPERTY_BORDERTYPE.equals(propertyDescription.getName()))
 		{
 			try
 			{
+				if (newValue instanceof String && !((String)newValue).startsWith("{"))
+				{
+					return ComponentFactoryHelper.createBorder((String)newValue);
+				}
 				return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
 					propertyDescription, null, null);
 			}
@@ -523,9 +528,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	{
 		if (value instanceof Border)
 		{
-			JSONStringer writer = new JSONStringer();
-			toJSON(writer, null, (Border)value, pd, null, null);
-			return new JSONObject(writer.toString());
+			return ComponentFactoryHelper.createBorderString(value);
 		}
 		return value;
 	}
