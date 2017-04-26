@@ -44,7 +44,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					newValue = ($scope.model.tabOrientation == -2? $scope.model.size.width:$scope.model.size.height)
 					multiplier = 1/2;
 				}
-				else if ($scope.model.divLocation > 0 && $scope.model.divLocation < 1)
+				else if ($scope.model.divLocation > 0 && $scope.model.divLocation <= 1)
 				{
 					multiplier = $scope.model.divLocation;
 				}	
