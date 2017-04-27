@@ -58,6 +58,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 	function applyBeanLayout(beanModel, beanLayout, beanData, containerSize, isApplyBeanData) {
 
+		if (!beanLayout) return;
 		var runtimeChanges = !isApplyBeanData && ( beanData.size != undefined || beanData.location != undefined );
 		//beanData.anchors means anchors changed or must be initialized
 		if ((beanData.anchors || runtimeChanges) && containerSize && $solutionSettings.enableAnchoring) {
@@ -374,7 +375,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 					for (var beanName in beanDatas) {
 						// initialize with design data
-						layout[beanName] = { position: 'absolute' }
+						if (formProperties.absoluteLayout) layout[beanName] = { position: 'absolute' }
 
 						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
