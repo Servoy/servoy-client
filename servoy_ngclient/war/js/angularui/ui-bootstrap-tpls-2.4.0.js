@@ -7055,10 +7055,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       /**
        * if there's nothing selected (i.e. focusFirst) and enter or tab is hit
        * or
-       * shift + tab is pressed to bring focus to the previous element
+       * tab is pressed to bring focus to the previous element
        * then clear the results
        */
-      if (scope.activeIdx === -1 && shouldSelect || evt.which === 9 && !!evt.shiftKey) {
+      if (scope.activeIdx === -1 && shouldSelect || evt.which === 9) {
         resetMatches();
         scope.$digest();
         return;
