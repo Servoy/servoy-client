@@ -1,5 +1,5 @@
 angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
-.controller("FileuploadController", function($scope, $modalInstance, $upload, $svyFileuploadUtils,$svyI18NService) {
+.controller("FileuploadController", function($scope, $uibModalInstance, $upload, $svyFileuploadUtils,$svyI18NService) {
     
     $scope.getTitleText = function() {
     	return $svyFileuploadUtils.getTitleText();
@@ -78,7 +78,7 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     };
     
     $scope.dismiss = function() {
-    	$modalInstance.dismiss();
+    	$uibModalInstance.dismiss();
     };
 })
 .factory("$svyFileuploadUtils", function($uibModal,$svyI18NService){
