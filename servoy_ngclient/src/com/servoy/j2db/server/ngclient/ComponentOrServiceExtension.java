@@ -3,17 +3,17 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.IPropertyType;
 
 public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObject
 {
 	private final PropertyDescription customJSONTypeDefinition;
 	private final INGWebObject underlyingWebObject;
-	private Map<SabloT, SabloWT> rhinoMap;
+	private ChangeAwareMap<SabloT, SabloWT> rhinoMap;
 
 	public ComponentOrServiceExtension(PropertyDescription customJSONTypeDefinition, INGWebObject componentOrService)
 	{
@@ -33,9 +33,9 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 		return underlyingWebObject instanceof BaseWebObject ? (BaseWebObject)underlyingWebObject : underlyingWebObject.getUnderlyingWebObject();
 	}
 
-	public void setPropertyValues(Map<SabloT, SabloWT> rhinoMap)
+	public void setPropertyValues(ChangeAwareMap<SabloT, SabloWT> map)
 	{
-		this.rhinoMap = rhinoMap;
+		this.rhinoMap = map;
 	}
 
 	@Override
@@ -48,9 +48,9 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	@Override
 	public Object getRawPropertyValue(String name, boolean getDefault)
 	{
-		if (rhinoMap.containsKey(name))
+		if (rhinoMap.getBaseMap().containsKey(name))
 		{
-			return rhinoMap.get(name);
+			return rhinoMap.getBaseMap().get(name);
 		}
 		if (getPropertyDescription(name).hasDefault())
 		{

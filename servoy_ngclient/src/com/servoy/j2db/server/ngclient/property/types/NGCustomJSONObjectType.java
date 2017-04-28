@@ -231,10 +231,10 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 					componentOrService);
 				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), ext,
 					getChildPropsThatNeedWrapping());
-				ext.setPropertyValues((Map<SabloT, SabloWT>)rhinoMap);
 				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, pd,
 					new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
 				cam.markAllChanged();
+				ext.setPropertyValues(cam);
 				return cam;
 
 				// if we really want to remove the extra-conversion map above and convert all to a new map we could do it by executing the code below after a toJSON is called (so after a request finishes,
@@ -267,7 +267,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			ComponentOrServiceExtension<SabloT, SabloWT> ext = new ComponentOrServiceExtension<SabloT, SabloWT>(getCustomJSONTypeDefinition(),
 				componentOrService);
 			RhinoMapOrArrayWrapper rhinoValue = new RhinoMapOrArrayWrapper(webComponentValue, ext, pd, startScriptable);
-			ext.setPropertyValues((Map<SabloT, SabloWT>)rhinoValue.getWrappedValue());
+			ext.setPropertyValues((ChangeAwareMap<SabloT, SabloWT>)rhinoValue.getWrappedValue());
 			return rhinoValue;
 		}
 		return null;
