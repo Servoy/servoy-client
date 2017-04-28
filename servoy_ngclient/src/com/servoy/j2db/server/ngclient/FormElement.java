@@ -33,7 +33,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
-import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.SpecReloadSubject.ISpecReloadListener;
@@ -83,7 +82,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public final class FormElement implements IWebComponentInitializer, INGFormElement
+public final class FormElement implements INGFormElement
 {
 
 	public static final String DROPPABLE = "droppable";
