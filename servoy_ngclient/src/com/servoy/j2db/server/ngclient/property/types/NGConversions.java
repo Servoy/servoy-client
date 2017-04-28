@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -265,8 +266,7 @@ public class NGConversions
 			{
 				try
 				{
-					return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.jsonNullToNull(designValue), pd, flattenedSolution, formElement,
-						propertyPath);
+					return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
 				}
 				catch (Exception e)
 				{
@@ -437,7 +437,8 @@ public class NGConversions
 		IPropertyType< ? > type = (pd != null ? pd.getType() : null);
 		if (type instanceof IRhinoToSabloComponent< ? >)
 		{
-			sabloVal = ((IRhinoToSabloComponent<T>)type).toSabloComponentValue(rhinoValue, previousComponentValue, pd, componentOrService);
+			sabloVal = ((IRhinoToSabloComponent<T>)type).toSabloComponentValue(rhinoValue instanceof CharSequenceBuffer ? rhinoValue.toString() : rhinoValue,
+				previousComponentValue, pd, componentOrService);
 		}
 		else
 		{

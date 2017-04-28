@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead', ['servoy'])
-.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants) {
+.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants','$applicationService', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$applicationService) {
 	return {
 		restrict: 'E',
 		require: 'ngModel',
@@ -8,6 +8,24 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			svyServoyapi: "=",
 			handlers: "=svyHandlers",
 			api: "=svyApi"
+		},
+		controller: function ($scope) {
+			var showValues = null;
+			if ($scope.model.clientProperty && $scope.model.clientProperty['TypeAhead'] && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== null && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== undefined )
+			{
+				showValues = $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'];
+			}
+			if (showValues === null)
+			{
+				showValues = $applicationService.getUIProperty('TypeAhead.showPopupOnFocusGain');
+			}	
+			$scope.canShowValues = function(){
+				if (showValues !== undefined && showValues != null)
+				{
+					return showValues;
+				}
+				return true;
+			};
 		},
 		link: function($scope, $element, $attrs, ngModel) {
 

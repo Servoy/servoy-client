@@ -49,7 +49,6 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
 import com.servoy.j2db.persistence.ClientMethodTemplatesLoader;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -836,7 +835,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			IApplicationServerAccess asa = getApplicationServerAccess();
 			if (asa != null)
 			{
-				return new ValidatingDelegateDataServer(asa.getDataServer());
+				return asa.getDataServer();
 			}
 		}
 		catch (RemoteException e)

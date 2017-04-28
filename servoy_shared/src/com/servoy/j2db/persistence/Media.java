@@ -32,7 +32,8 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 	public static final long serialVersionUID = 468097341226347599L;
 
 	private transient byte[] media_data;
-	private transient long lastModifiedTime = -1;
+	// this shouldn't be transient, because of the solution serialize, then the last modified should be kept.
+	private long lastModifiedTime = -1;
 	byte[] perm_media_data; //only used in runtime/application server
 
 	Media(ISupportChilds parent, int element_id, UUID uuid)
@@ -85,6 +86,7 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 				{
 					// Lazy loading of media data.
 					media_data = getRootObject().getRepository().getMediaBlob(getBlobId());
+					lastModifiedTime = System.currentTimeMillis();
 				}
 			}
 			catch (Exception ex)

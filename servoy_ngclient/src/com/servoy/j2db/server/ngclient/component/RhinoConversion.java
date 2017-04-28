@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -84,6 +85,10 @@ public class RhinoConversion
 		if (propertyValue instanceof RhinoMapOrArrayWrapper)
 		{
 			return ((RhinoMapOrArrayWrapper)propertyValue).getWrappedValue();
+		}
+		if (propertyValue instanceof CharSequenceBuffer)
+		{
+			return propertyValue.toString();
 		}
 		return propertyValue;
 	}

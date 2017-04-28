@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * Dummy class for listing methods for JavaScript types in a manner that
  * suits our documentation generator.
- * 
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Date", scriptingName = "Date")
@@ -33,7 +33,7 @@ public class Date
 {
 	/**
 	 * Use the current date and time to create an instance of the object date.
-	 * 
+	 *
 	 * @sample
 	 * var date = new Date();
 	 */
@@ -43,9 +43,9 @@ public class Date
 
 	/**
 	 * Use the date specified by the string to create the instance of the date object. String format is "month day, year hours:minutes:seconds".
-	 * 
+	 *
 	 * @param dateString
-	 * 
+	 *
 	 * @sample
 	 * var date = new Date(dateString);
 	 */
@@ -55,11 +55,11 @@ public class Date
 
 	/**
 	 * Create an instance of date with the specified values.
-	 * 
+	 *
 	 * @param year
 	 * @param month
 	 * @param day
-	 * 
+	 *
 	 * @sample
 	 * var date = new Date(year, month, day);
 	 */
@@ -69,14 +69,14 @@ public class Date
 
 	/**
 	 * Create an instance of date with the specified values.
-	 * 
+	 *
 	 * @param year
 	 * @param month
 	 * @param day
 	 * @param hours
 	 * @param minutes
 	 * @param seconds
-	 * 
+	 *
 	 * @sample
 	 * var date = new Date(year, month, day, hours, minutes, seconds);
 	 */
@@ -87,7 +87,7 @@ public class Date
 
 	/**
 	 * Create an instance of date with the specified values.
-	 * 
+	 *
 	 * @param year
 	 * @param month
 	 * @param day
@@ -95,7 +95,7 @@ public class Date
 	 * @param minutes
 	 * @param seconds
 	 * @param milliseconds
-	 * 
+	 *
 	 * @sample
 	 * var date = new Date(year, month, day, hours, minutes, seconds, milliseconds)
 	 */
@@ -106,9 +106,9 @@ public class Date
 
 	/**
 	 * Create instance of date. The argument is the number of milliseconds since 1 January 1970 00:00:00 UTC.
-	 * 
+	 *
 	 * @param milliseconds
-	 * 
+	 *
 	 * @sample
 	 * var date = new Date(milliseconds);
 	 */
@@ -119,36 +119,36 @@ public class Date
 
 	/**
 	 * Returns the milliseconds elapsed since 1 January 1970 00:00:00 UTC up until now.
-	 * 
+	 *
 	 * @sample
 	 * var timestamp = Date.now();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/now
 	 */
 	@JSFunction
-	public Date now()
+	public Number now()
 	{
 		return null;
 	}
 
 	/**
 	 * Takes a date string (such as "Dec 25, 1995") and returns the number of milliseconds since January 1, 1970, 00:00:00 UTC.
-	 * 
+	 *
 	 * @sample
 	 * var str = Date.parse("Wed, 09 Aug 1995 00:00:00 GMT");
 	 * application.output(str);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse
 	 */
 	@JSFunction
-	public Date parse(String s)
+	public Number parse(String s)
 	{
 		return null;
 	}
 
 	/**
-	 * Takes comma-delimited date parameters and returns the number of milliseconds between January 1, 1970, 00:00:00, universal time and the specified time. 
-	 * 
+	 * Takes comma-delimited date parameters and returns the number of milliseconds between January 1, 1970, 00:00:00, universal time and the specified time.
+	 *
 	 * @param year A year after 1900.
 	 * @param month A number between 0 and 11.
 	 *
@@ -159,21 +159,7 @@ public class Date
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/UTC
 	 */
 	@JSFunction
-	public Date UTC(Number year, Number month)
-	{
-		return null;
-	}
-
-	/**
-	* @clonedesc UTC(Number, Number)
-	* @sampleas UTC(Number, Number)
-	* 
-	* @param year A year after 1900.
-	* @param month A number between 0 and 11.
-	* @param date A number between 1 and 31.   
-	*/
-	@JSFunction
-	public Date UTC(Number year, Number month, Number date)
+	public Number UTC(Number year, Number month)
 	{
 		return null;
 	}
@@ -185,11 +171,9 @@ public class Date
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
 	* @param date A number between 1 and 31.
-	* @param hrs A number between 0 and 23. 
-	*   
 	*/
 	@JSFunction
-	public Date UTC(Number year, Number month, Number date, Number hrs)
+	public Number UTC(Number year, Number month, Number date)
 	{
 		return null;
 	}
@@ -197,16 +181,15 @@ public class Date
 	/**
 	* @clonedesc UTC(Number, Number)
 	* @sampleas UTC(Number, Number)
-	* 
+	*
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
 	* @param date A number between 1 and 31.
 	* @param hrs A number between 0 and 23.
-	* @param min A number between 0 and 59. 
-	*   
+	*
 	*/
 	@JSFunction
-	public Date UTC(Number year, Number month, Number date, Number hrs, Number min)
+	public Number UTC(Number year, Number month, Number date, Number hrs)
 	{
 		return null;
 	}
@@ -214,17 +197,16 @@ public class Date
 	/**
 	* @clonedesc UTC(Number, Number)
 	* @sampleas UTC(Number, Number)
-	* 
+	*
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
 	* @param date A number between 1 and 31.
 	* @param hrs A number between 0 and 23.
 	* @param min A number between 0 and 59.
-	* @param sec A number between 0 and 59. 
-	*   
+	*
 	*/
 	@JSFunction
-	public Date UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec)
+	public Number UTC(Number year, Number month, Number date, Number hrs, Number min)
 	{
 		return null;
 	}
@@ -232,18 +214,36 @@ public class Date
 	/**
 	* @clonedesc UTC(Number, Number)
 	* @sampleas UTC(Number, Number)
-	* 
+	*
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
 	* @param date A number between 1 and 31.
 	* @param hrs A number between 0 and 23.
 	* @param min A number between 0 and 59.
 	* @param sec A number between 0 and 59.
-	* @param ms A number between 0 and 999. 
-	*   
+	*
 	*/
 	@JSFunction
-	public Date UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec, Number ms)
+	public Number UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec)
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc UTC(Number, Number)
+	* @sampleas UTC(Number, Number)
+	*
+	* @param year A year after 1900.
+	* @param month A number between 0 and 11.
+	* @param date A number between 1 and 31.
+	* @param hrs A number between 0 and 23.
+	* @param min A number between 0 and 59.
+	* @param sec A number between 0 and 59.
+	* @param ms A number between 0 and 999.
+	*
+	*/
+	@JSFunction
+	public Number UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec, Number ms)
 	{
 		return null;
 	}
@@ -252,7 +252,7 @@ public class Date
 	 * Gets the day of month.
 	 *
 	 * @sample date.getDate();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getDate
 	 */
 	@JSFunction
@@ -265,7 +265,7 @@ public class Date
 	 * Gets the day of the week (sunday = 0).
 	 *
 	 * @sample date.getDay();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getDay
 	 */
 	@JSFunction
@@ -278,7 +278,7 @@ public class Date
 	 * Gets the full year of the date.
 	 *
 	 * @sample date.getFullYear();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getFullYear
 	 */
 	@JSFunction
@@ -291,7 +291,7 @@ public class Date
 	 * Gets the hours of the date.
 	 *
 	 * @sample date.getHours();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getHours
 	 */
 	@JSFunction
@@ -304,7 +304,7 @@ public class Date
 	 * Gets the milliseconds of the date.
 	 *
 	 * @sample date.getMilliseconds();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMilliseconds
 	 */
 	@JSFunction
@@ -317,7 +317,7 @@ public class Date
 	 * Gets the minutes of the date.
 	 *
 	 * @sample date.getMinutes();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMinutes
 	 */
 	@JSFunction
@@ -330,7 +330,7 @@ public class Date
 	 * Gets the month of the date.
 	 *
 	 * @sample date.getMonth();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMonth
 	 */
 	@JSFunction
@@ -343,7 +343,7 @@ public class Date
 	 * Gets the seconds of the date.
 	 *
 	 * @sample date.getSeconds();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getSeconds
 	 */
 	@JSFunction
@@ -356,7 +356,7 @@ public class Date
 	 * The value returned by the getTime method is the number of milliseconds since 1 January 1970 00:00:00.
 	 *
 	 * @sample date.getTime();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getTime
 	 */
 	@JSFunction
@@ -369,7 +369,7 @@ public class Date
 	 * Gets the number of minutes between GMT and this date.
 	 *
 	 * @sample date.getTimezoneOffset();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getTimezoneOffset
 	 */
 	@JSFunction
@@ -382,7 +382,7 @@ public class Date
 	 * Gets the UTC date.
 	 *
 	 * @sample date.getUTCDate();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCDate
 	 */
 	@JSFunction
@@ -395,7 +395,7 @@ public class Date
 	 * Gets the day in UTC time.
 	 *
 	 * @sample date.getUTCDay();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCDay
 	 */
 	@JSFunction
@@ -408,7 +408,7 @@ public class Date
 	 * Gets the full year in UTC time.
 	 *
 	 * @sample date.getUTCFullYear();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCFullYear
 	 */
 	@JSFunction
@@ -421,7 +421,7 @@ public class Date
 	 * Gets the hours in UTC time.
 	 *
 	 * @sample date.getUTCHours();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCHours
 	 */
 	@JSFunction
@@ -434,7 +434,7 @@ public class Date
 	 * Gets the milliseconds in UTC time.
 	 *
 	 * @sample date.getUTCMilliseconds();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMilliseconds
 	 */
 	@JSFunction
@@ -447,7 +447,7 @@ public class Date
 	 * Gets the minutes in UTC time.
 	 *
 	 * @sample date.getUTCMinutes();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMinutes
 	 */
 	@JSFunction
@@ -460,7 +460,7 @@ public class Date
 	 * Gets the month in UTC time.
 	 *
 	 * @sample date.getUTCMonth();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMonth
 	 */
 	@JSFunction
@@ -473,7 +473,7 @@ public class Date
 	 * Gets the seconds in UTC time.
 	 *
 	 * @sample date.getUTCSeconds();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCSeconds
 	 */
 	@JSFunction
@@ -484,11 +484,11 @@ public class Date
 
 	/**
 	 * Gets the year of the date.
-	 * 
+	 *
 	 * @deprecated Obsolete method, replaced by {@link #getFullYear())}.
-	 * 
+	 *
 	 * @sample date.getYear();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getYear
 	 */
 	@Deprecated
@@ -501,9 +501,9 @@ public class Date
 	 * Sets the date.
 	 *
 	 * @sample date.setDate(integer);
-	 * 
+	 *
 	 * @param dayValue
-	 *  
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setDate
 	 */
 	@JSFunction
@@ -515,9 +515,9 @@ public class Date
 	 * Sets the full year of the date.
 	 *
 	 * @sample date.setFullYear(integer);
-	 * 
-	 * @param yearValue 
-	 * 
+	 *
+	 * @param yearValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setFullYear
 	 */
 	@JSFunction
@@ -528,9 +528,9 @@ public class Date
 	/**
 	* @clonedesc setFullYear(Number)
 	* @sampleas setFullYear(Number)
-	* 
-	* @param yearValue 
-	* @param monthValue  
+	*
+	* @param yearValue
+	* @param monthValue
 	*/
 	@JSFunction
 	public void setFullYear(Number yearValue, Number monthValue)
@@ -540,10 +540,10 @@ public class Date
 	/**
 	* @clonedesc setFullYear(Number)
 	* @sampleas setFullYear(Number)
-	* 
-	* @param yearValue 
-	* @param monthValue 
-	* @param dayValue 
+	*
+	* @param yearValue
+	* @param monthValue
+	* @param dayValue
 	*/
 	@JSFunction
 	public void setFullYear(Number yearValue, Number monthValue, Number dayValue)
@@ -554,9 +554,9 @@ public class Date
 	 * Sets the hours of the date.
 	 *
 	 * @sample date.setHours(integer);
-	 * 
-	 * @param hoursValue 
-	 * 
+	 *
+	 * @param hoursValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setHours
 	 */
 	@JSFunction
@@ -567,10 +567,10 @@ public class Date
 	/**
 	 * @clonedesc setHours(Number)
 	 * @sampleas setHours(Number)
-	 * 
-	 * @param hoursValue 
+	 *
+	 * @param hoursValue
 	 * @param minutesValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setHours(Number hoursValue, Number minutesValue)
@@ -581,8 +581,8 @@ public class Date
 	 *
 	 * @clonedesc setHours(Number)
 	 * @sampleas setHours(Number)
-	 * 
-	 * @param hoursValue 
+	 *
+	 * @param hoursValue
 	 * @param minutesValue
 	 * @param secondsValue
 	 */
@@ -594,12 +594,12 @@ public class Date
 	/**
 	 * @clonedesc setHours(Number)
 	 * @sampleas setHours(Number)
-	 * 
-	 * @param hoursValue 
-	 * @param minutesValue 
+	 *
+	 * @param hoursValue
+	 * @param minutesValue
 	 * @param secondsValue
 	 * @param msValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setHours(Number hoursValue, Number minutesValue, Number secondsValue, Number msValue)
@@ -610,9 +610,9 @@ public class Date
 	 * Sets the milliseconds of the date.
 	 *
 	 * @sample date.setMilliseconds(integer);
-	 * 
-	 * @param millisecondsValue 
-	 * 
+	 *
+	 * @param millisecondsValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setMilliseconds
 	 */
 	@JSFunction
@@ -624,9 +624,9 @@ public class Date
 	 * Sets the minutes of the date.
 	 *
 	 * @sample date.setMinutes(integer);
-	 * 
-	 * @param minutesValue 
-	 * 
+	 *
+	 * @param minutesValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setMinutes
 	 */
 	@JSFunction
@@ -637,8 +637,8 @@ public class Date
 	/**
 	 * @clonedesc setMinutes(Number)
 	 * @sampleas setMinutes(Number)
-	 * 
-	 * @param minutesValue 
+	 *
+	 * @param minutesValue
 	 * @param secondsValue
 	 */
 	@JSFunction
@@ -649,11 +649,11 @@ public class Date
 	/**
 	 * @clonedesc setMinutes(Number)
 	 * @sampleas setMinutes(Number)
-	 * 
-	 * @param minutesValue 
+	 *
+	 * @param minutesValue
 	 * @param secondsValue
 	 * @param msValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setMinutes(Number minutesValue, Number secondsValue, Number msValue)
@@ -664,9 +664,9 @@ public class Date
 	 * Sets the month of the date.
 	 *
 	 * @sample date.setMonth(integr);
-	 * 
-	 * @param monthValue  
-	 * 
+	 *
+	 * @param monthValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setMonth
 	 */
 	@JSFunction
@@ -677,10 +677,10 @@ public class Date
 	/**
 	 * @clonedesc setMonth(Number)
 	 * @sampleas setMonth(Number)
-	 * 
-	 * @param monthValue 
-	 * @param dayValue 
-	 * 
+	 *
+	 * @param monthValue
+	 * @param dayValue
+	 *
 	 */
 	@JSFunction
 	public void setMonth(Number monthValue, Number dayValue)
@@ -691,9 +691,9 @@ public class Date
 	 * Sets the seconds of the date.
 	 *
 	 * @sample date.setSeconds(integer);
-	 * 
-	 * @param secondsValue 
-	 * 
+	 *
+	 * @param secondsValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setSeconds
 	 */
 	@JSFunction
@@ -704,10 +704,10 @@ public class Date
 	/**
 	 * @clonedesc setSeconds(Number)
 	 * @sampleas setSeconds(Number)
-	 * 
-	 * @param secondsValue 
+	 *
+	 * @param secondsValue
 	 * @param msValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setSeconds(Number secondsValue, Number msValue)
@@ -718,9 +718,9 @@ public class Date
 	 * Sets the milliseconds of the date.
 	 *
 	 * @sample date.setTime(integer);
-	 * 
-	 * @param timeValue 
-	 * 
+	 *
+	 * @param timeValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setTime
 	 */
 	@JSFunction
@@ -732,9 +732,9 @@ public class Date
 	 * Sets the UTC date.
 	 *
 	 * @sample date.setUTCDate(integer);
-	 * 
+	 *
 	 * @param dayValue
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCDate
 	 */
 	@JSFunction
@@ -746,9 +746,9 @@ public class Date
 	 * Sets the year in UTC time.
 	 *
 	 * @sample date.setUTCFullYear(integer);
-	 * 
-	 * @param yearValue 
-	 * 
+	 *
+	 * @param yearValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCFullYear
 	 */
 	@JSFunction
@@ -759,10 +759,10 @@ public class Date
 	/**
 	 * @clonedesc setUTCFullYear(Number)
 	 * @sampleas setUTCFullYear(Number)
-	 * 
-	 * @param yearValue 
+	 *
+	 * @param yearValue
 	 * @param monthValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCFullYear(Number yearValue, Number monthValue)
@@ -772,11 +772,11 @@ public class Date
 	/**
 	 * @clonedesc setUTCFullYear(Number)
 	 * @sampleas setUTCFullYear(Number)
-	 * 
-	 * @param yearValue 
+	 *
+	 * @param yearValue
 	 * @param monthValue
 	 * @param dayValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCFullYear(Number yearValue, Number monthValue, Number dayValue)
@@ -787,9 +787,9 @@ public class Date
 	 * Sets the hours in UTC time.
 	 *
 	 * @sample date.setUTCHours(integer);
-	 * 
-	 * @param hoursValue 
-	 * 
+	 *
+	 * @param hoursValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCHours
 	 */
 	@JSFunction
@@ -800,10 +800,10 @@ public class Date
 	/**
 	 * @clonedesc setUTCHours(Number)
 	 * @sampleas setUTCHours(Number)
-	 * 
-	 * @param hoursValue 
+	 *
+	 * @param hoursValue
 	 * @param minutesValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCHours(Number hoursValue, Number minutesValue)
@@ -813,11 +813,11 @@ public class Date
 	/**
 	 * @clonedesc setUTCHours(Number)
 	 * @sampleas setUTCHours(Number)
-	 * 
-	 * @param hoursValue 
+	 *
+	 * @param hoursValue
 	 * @param minutesValue
 	 * @param secondsValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCHours(Number hoursValue, Number minutesValue, Number secondsValue)
@@ -827,12 +827,12 @@ public class Date
 	/**
 	 * @clonedesc setUTCHours(Number)
 	 * @sampleas setUTCHours(Number)
-	 * 
-	 * @param hoursValue 
+	 *
+	 * @param hoursValue
 	 * @param minutesValue
 	 * @param secondsValue
 	 * @param msValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCHours(Number hoursValue, Number minutesValue, Number secondsValue, Number msValue)
@@ -843,9 +843,9 @@ public class Date
 	 * Sets the milliseconds in UTC time.
 	 *
 	 * @sample date.setUTCMilliseconds(integer);
-	 * 
-	 * @param millisecondsValue 
-	 * 
+	 *
+	 * @param millisecondsValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCMilliseconds
 	 */
 	@JSFunction
@@ -857,9 +857,9 @@ public class Date
 	 * Sets the minutes in UTC time.
 	 *
 	 * @sample date.setUTCMinutes(integer);
-	 * 
-	 * @param minutesValue 
-	 * 
+	 *
+	 * @param minutesValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCMinutes
 	 */
 	@JSFunction
@@ -870,8 +870,8 @@ public class Date
 	/**
 	 * @clonedesc setUTCMinutes(Number)
 	 * @sampleas setUTCMinutes(Number)
-	 * 
-	 * @param minutesValue 
+	 *
+	 * @param minutesValue
 	 * @param secondsValue
 	 */
 	@JSFunction
@@ -882,11 +882,11 @@ public class Date
 	/**
 	 * @clonedesc setUTCMinutes(Number)
 	 * @sampleas setUTCMinutes(Number)
-	 * 
-	 * @param minutesValue 
+	 *
+	 * @param minutesValue
 	 * @param secondsValue
 	 * @param msValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCMinutes(Number minutesValue, Number secondsValue, Number msValue)
@@ -897,9 +897,9 @@ public class Date
 	 * Sets the month in UTC time.
 	 *
 	 * @sample date.setUTCMonth(integer);
-	 * 
-	 * @param monthValue  
-	 * 
+	 *
+	 * @param monthValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCMonth
 	 */
 	@JSFunction
@@ -910,10 +910,10 @@ public class Date
 	/**
 	 * @clonedesc setUTCMonth(Number)
 	 * @sampleas setUTCMonth(Number)
-	 * 
-	 * @param monthValue 
+	 *
+	 * @param monthValue
 	 * @param dayValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCMonth(Number monthValue, Number dayValue)
@@ -924,9 +924,9 @@ public class Date
 	 * Sets the seconds in UTC time.
 	 *
 	 * @sample date.setUTCSeconds(integer);
-	 * 
-	 * @param secondsValue 
-	 * 
+	 *
+	 * @param secondsValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCSeconds
 	 */
 	@JSFunction
@@ -937,10 +937,10 @@ public class Date
 	/**
 	 * @clonedesc setUTCSeconds(Number)
 	 * @sampleas setUTCSeconds(Number)
-	 * 
-	 * @param secondsValue 
+	 *
+	 * @param secondsValue
 	 * @param msValue
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void setUTCSeconds(Number secondsValue, Number msValue)
@@ -949,13 +949,13 @@ public class Date
 
 	/**
 	 * Sets the year of the date.
-	 * 
+	 *
 	 * @deprecated Obsolete method, replaced by {@link #setFullYear())}.
-	 * 
+	 *
 	 * @sample date.setYear(integer);
-	 * 
-	 * @param yearValue 
-	 * 
+	 *
+	 * @param yearValue
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setYear
 	 */
 	@Deprecated
@@ -967,7 +967,7 @@ public class Date
 	 * Returns a string version of the date.
 	 *
 	 * @sample date.toDateString();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toDateString
 	 */
 	@JSFunction
@@ -980,7 +980,7 @@ public class Date
 	 * Returns a string version of the local time zone of the date.
 	 *
 	 * @sample date.toLocaleDateString();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toLocaleDateString
 	 */
 	@JSFunction
@@ -993,7 +993,7 @@ public class Date
 	 * Returns a string version of the local time zone of the date.
 	 *
 	 * @sample date.toLocaleString();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toLocaleString
 	 */
 	@JSFunction
@@ -1006,7 +1006,7 @@ public class Date
 	 * Returns a string version of the local time zone of the date.
 	 *
 	 * @sample date.toLocaleTimeString();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toLocaleTimeString
 	 */
 	@JSFunction
@@ -1019,7 +1019,7 @@ public class Date
 	 * Returns a string version of the date.
 	 *
 	 * @sample date.toTimeString();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toTimeString
 	 */
 	@JSFunction
@@ -1032,7 +1032,7 @@ public class Date
 	 * Returns a string version of the UTC value of the date.
 	 *
 	 * @sample date.toUTCString();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toUTCString
 	 */
 	@JSFunction
@@ -1045,7 +1045,7 @@ public class Date
 	 * Return integer milliseconds count
 	 *
 	 * @sample date.valueOf(integer);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/valueOf
 	 */
 	@JSFunction

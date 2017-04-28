@@ -3629,11 +3629,15 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       });
 
       var ignoreNextFocusGain= false;
-      element.bind('focus',  function(ev) {
-    	  if (element.is('[readonly]')) { ignoreNextFocusGain = false;return;}
-    	  if (!ignoreNextFocusGain) getMatchesAsync("");
-    	  else ignoreNextFocusGain = false;
-      });
+      var onFocus = $parse(attrs.typeaheadOnFocus);
+      if (onFocus === angular.noop || onFocus(originalScope,{}))
+      {
+          element.bind('focus',  function(ev) {
+        	  if (element.is('[readonly]')) { ignoreNextFocusGain = false;return;}
+        	  if (!ignoreNextFocusGain) getMatchesAsync("");
+        	  else ignoreNextFocusGain = false;
+          });
+      }	  
       
       var getMatchesAsync = function(inputValue) {
 

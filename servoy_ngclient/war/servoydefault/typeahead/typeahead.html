@@ -15,5 +15,6 @@
        typeahead="value.displayValue  | formatFilter:model.format.display:model.format.type
        			  for value in model.valuelistID.filterList($viewValue)"
 	   typeahead-on-select="doSelect($item, $model, $label, $event)"
+	   typeahead-on-focus="canShowValues()"
        ng-blur="doSvyApply()" id="{{::model.svyMarkupId}}"
        ng-focus="startEdit()"/>

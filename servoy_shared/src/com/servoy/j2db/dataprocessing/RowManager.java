@@ -62,6 +62,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SoftReferenceWithData;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -138,6 +139,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				{
 					str = Utils.encodeBASE64((byte[])val); // UUID
 				}
+				else if (val instanceof UUID)
+				{
+					// make sure UUID PKs are matched regardless of casing
+					str = val.toString().toLowerCase();
+				}
 				else if (val instanceof String && ((String)val).length() == 36 && ((String)val).split("-").length == 5) //$NON-NLS-1$
 				{
 					// make sure UUID PKs are matched regardless of casing (MSQ Sqlserver returns uppercase UUID strings for uniqueidentifier columns)
@@ -146,6 +152,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				else if (val instanceof Date)
 				{
 					str = Long.toString(((Date)val).getTime());
+				}
+				else if (val instanceof Float && ((Float)val).longValue() == ((Float)val).floatValue())
+				{
+					str = Long.toString(((Float)val).longValue());
+				}
+				else if (val instanceof Double && ((Double)val).longValue() == ((Double)val).doubleValue())
+				{
+					str = Long.toString(((Double)val).longValue());
 				}
 				else
 				{
@@ -1266,7 +1280,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		// only act on new foundsets or size changes for related foundsets
 		if (e.getType() == FoundSetEvent.NEW_FOUNDSET ||
 			(e.getType() == FoundSetEvent.CONTENTS_CHANGED && (e.getChangeType() == FoundSetEvent.CHANGE_INSERT ||
-				e.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED || e.getChangeType() == FoundSetEvent.CHANGE_DELETE)))
+			e.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED || e.getChangeType() == FoundSetEvent.CHANGE_DELETE)))
 		{
 			if (sourceFoundset instanceof RelatedFoundSet && !sourceFoundset.isInFindMode())
 			{
