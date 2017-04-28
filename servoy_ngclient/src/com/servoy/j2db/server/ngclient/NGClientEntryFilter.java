@@ -85,7 +85,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
 		"js/numeral.js", //
 		"js/languages.js", //
-		"js/angular-file-upload/dist/angular-file-upload.min.js", //
+		"js/angular-file-upload/dist/ng-file-upload.js", //
 		"js/bootstrap-window/js/Window.js", //
 		"js/bootstrap-window/js/WindowManager.js", //
 		"js/bindonce.js" };

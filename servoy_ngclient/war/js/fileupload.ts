@@ -1,5 +1,5 @@
-angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
-.controller("FileuploadController", function($scope, $modalInstance, $upload, $svyFileuploadUtils,$svyI18NService) {
+angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
+.controller("FileuploadController", function($scope, $modalInstance, Upload, $svyFileuploadUtils,$svyI18NService) {
     
     $scope.getTitleText = function() {
     	return $svyFileuploadUtils.getTitleText();
@@ -10,14 +10,31 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     }
     
     $scope.isFileSelected = function() {
-    	return $scope.uploadFiles && $scope.uploadFiles.length; 
+    	return $scope.uploadFiles != null; 
     }    
     
     $scope.doRemove = function(f) {
-    	var idx = $scope.uploadFiles.indexOf(f);
-    	$scope.uploadFiles.splice(idx, 1);
+    	if($scope.uploadFiles.length) {
+	    	var idx = $scope.getUploadFiles().indexOf(f);
+	    	$scope.uploadFiles.splice(idx, 1);
+    	}
+    	else {
+    		$scope.uploadFiles = null;
+    	}
     	progress = 0;
     	$scope.errorText = "";
+    }
+    
+    $scope.getUploadFiles = function() {
+    	if($scope.uploadFiles) {
+    		if($scope.uploadFiles.length) {
+    			return $scope.uploadFiles;
+    		}
+    		else {
+    			return [$scope.uploadFiles];
+    		}
+    	}
+    	return null;
     }
     
     $scope.i18n_upload = "Upload"
@@ -50,7 +67,7 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     
     
     $scope.getProgress = function(postFix) {
-    	if (progress)return progress + postFix;
+    	if (progress)return Math.round(progress) + postFix;
     	return "";
     }
     
@@ -58,9 +75,9 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     	$scope.errorText = "";
     	progress = 0;
     	if($scope.isFileSelected()) {
-    		$scope.upload = $upload.upload({
+    		$scope.upload = Upload.upload({
     			url: $svyFileuploadUtils.getUploadUrl(),
-    			file: $scope.uploadFiles
+    			file: $scope.getUploadFiles()
     		}).progress(function(evt) {
     			var current = 100.0 * evt.loaded / evt.total;
     			if (current < progress) {
