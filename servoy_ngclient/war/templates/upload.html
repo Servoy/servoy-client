@@ -3,11 +3,11 @@
 	<table class="svy-upload-table" ng-if="isFileSelected()">
 		<caption>{{::i18_selectedFiles}}</caption>
 		<thead><tr><th>{{::i18n_name}}</th><th></th></tr></thead>
-		<tr ng-repeat="f in uploadFiles"><td>{{f.name}}</td><td><div class="svy-btn svy-btn-danger" ng-click="doRemove(f)">{{::i18n_remove}}</div></td></tr>
+		<tr ng-repeat="f in getUploadFiles()"><td>{{f.name}}</td><td><div class="svy-btn svy-btn-danger" ng-click="doRemove(f)">{{::i18n_remove}}</div></td></tr>
 	</table>
 	<div ng-if="!isFileSelected()"><span>{{::i18n_nothingSelected}}</span></div>
 	<br>
-	<div class="svy-btn svy-btn-primary" ng-file-select ng-model="uploadFiles" ng-multiple="isMultiSelect()">{{::i18n_chooseFiles}}</div>
+	<div class="svy-btn svy-btn-primary" ngf-select ng-model="uploadFiles" ngf-multiple="isMultiSelect()">{{::i18n_chooseFiles}}</div>
    	<div class="svy-btn svy-btn-success" ng-click="doUpload()">{{::i18n_upload}}</div>
    	<div class="svy-btn svy-btn-info" ng-click="dismiss()">{{::i18n_cancel}}</div>
    	<br><br>
