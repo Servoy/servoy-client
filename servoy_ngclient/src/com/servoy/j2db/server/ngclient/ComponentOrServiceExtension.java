@@ -46,7 +46,7 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	}
 
 	@Override
-	public Object getRawPropertyValue(String name, boolean getDefault)
+	public Object getRawPropertyValue(String name, boolean getDefaultFromSpecAsWellIfNeeded)
 	{
 		PropertyDescription customPD = customJSONTypeDefinition.getProperty(name);
 		if (customPD != null)
