@@ -48,15 +48,17 @@ public class ComponentOrServiceExtension<SabloT, SabloWT> implements INGWebObjec
 	@Override
 	public Object getRawPropertyValue(String name, boolean getDefault)
 	{
-		if (rhinoMap.getBaseMap().containsKey(name))
+		PropertyDescription customPD = customJSONTypeDefinition.getProperty(name);
+		if (customPD != null)
 		{
-			return rhinoMap.getBaseMap().get(name);
+			if (rhinoMap.getBaseMap().containsKey(name))
+			{
+				return rhinoMap.getBaseMap().get(name);
+			}
+			return BaseWebObject.getDefaultFromPD(getDefaultFromSpecAsWellIfNeeded, customPD);
 		}
-		if (getPropertyDescription(name).hasDefault())
-		{
-			return getPropertyDescription(name).getDefaultValue();
-		}
-		return null;
+
+		return underlyingWebObject.getRawPropertyValue(name, getDefaultFromSpecAsWellIfNeeded);
 	}
 
 	@Override
