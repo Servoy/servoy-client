@@ -13,7 +13,9 @@
 		"VIEWPORT_MOBILE_DENY_ZOOM" : { "type": "int", "default": 2 },
 		"VIEWPORT_MOBILE_DENY_ZOOM_OUT" : { "type": "int", "default": 3 },
 		"VIEWPORT_MOBILE_DENY_ZOOM_IN" : { "type": "int", "default": 4 },
-		"contributedTags" : "tag[]"
+		"contributedTags" : "tag[]",
+		"styleclasses" : {"type":"formstyleclass[]", "pushToServer": "shallow", "tags": { "scope": "private" }}, 
+		
 	},
 	
 	"api" :
@@ -40,6 +42,18 @@
 			                 { "name" : "attrValueToFind", "type" : "string" },
 			                 { "name" : "newTag", "type" : "tag" } ],
 			"returns": "tag"
+		},
+		"addFormStyleClass" :{
+			"parameters" : [ { "name" : "formname", "type" : "string" },
+							 { "name" : "styleclass", "type" : "string" }]
+		},
+		"removeFormStyleClass" :{
+			"parameters" : [ { "name" : "formname", "type" : "string" },
+							 { "name" : "styleclass", "type" : "string" }]
+		},
+		"getFormStyleClass" :{
+			"parameters" : [ { "name" : "formname", "type" : "string" }],
+			"returns": "string"
 		}
 	},
 	
@@ -51,6 +65,10 @@
 		"attribute" : {
 			"name" : "string",
 			"value" : "string"
+		},
+		"formstyleclass" : {
+			"formname" : "string",
+			"styleclass" : "string"
 		}
 	}
 	

@@ -246,7 +246,7 @@ public class FormLayoutGenerator
 		{
 			writer.print(" style=\"height:100%\"");
 		}
-		writer.print("svy-layout-update svy-autosave ");
+		writer.print("svy-layout-update svy-form-class-update svy-autosave ");
 		// skip the scrollbars for forms in table or list view then the portal component does this.
 		if (design || !isTableOrListView(form))
 		{
