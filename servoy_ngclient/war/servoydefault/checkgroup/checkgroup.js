@@ -27,6 +27,9 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             if(!$scope.model.valuelistID) return; // not loaded yet
             if(isValueListNull($scope.model.valuelistID[0])) allowNullinc=1;
             setSelectionFromDataprovider();
+            
+            // set same tabindex on all checkboxes
+            $element.find("input").attr("tabindex",$element.children().attr("tabindex"));
           })
           
           
