@@ -28,14 +28,11 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.ChangeAwareList;
-import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.types.IRhinoNativeProxy;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Utils;
@@ -56,16 +53,8 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		this.baseWebObject = baseWebObject;
 		this.wrappedValue = wrappedValue;
 		this.propertyDescription = propertyDescription;
-		Object baseObject = null;
-		if (wrappedValue instanceof ChangeAwareList< ? , ? >) baseObject = ((ChangeAwareList)wrappedValue).getBaseList();
-		if (wrappedValue instanceof ChangeAwareMap< ? , ? >) baseObject = ((ChangeAwareMap)wrappedValue).getBaseMap();
 
-		if (baseObject instanceof IRhinoNativeProxy)
-		{
-			// allow it to use for example methods defined in Rhino although it's properties are kept in a Java map or array
-			setPrototype(((IRhinoNativeProxy)baseObject).getBaseRhinoScriptable());
-		}
-		else if (wrappedValue instanceof List)
+		if (wrappedValue instanceof List)
 		{
 			// allow it to use native JS array methods
 			NativeArray proto = new NativeArray(0);

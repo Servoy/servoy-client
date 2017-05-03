@@ -59,6 +59,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -183,47 +184,39 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		{
 			return ((RhinoMapOrArrayWrapper)rhinoValue).getWrappedValue();
 		}
-		else if (previousSpecialArray != null && previousSpecialArray.getBaseList() instanceof IRhinoNativeProxy &&
-			((IRhinoNativeProxy)previousSpecialArray.getBaseList()).getBaseRhinoScriptable() == rhinoValue)
-		{
-			return previousComponentValue; // this can get called a lot when a native Rhino wrapper list and proxy are in use; don't create new values each time
-			// something is accessed in the wrapper+converter+proxy list cause that messes up references
-		}
 		else
 		{
 			// if it's some kind of array
-
-			List<SabloT> rhinoArray = null;
+			List<SabloT> rhinoArrayCopy = null; // we always make a new copy to simplify code; so previous Rhino reference in js code should no longer be used after this conversion
+			PropertyDescription elementPD = getCustomJSONTypeDefinition();
 
 			if (rhinoValue instanceof NativeArray)
 			{
-				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>((NativeArray)rhinoValue, getCustomJSONTypeDefinition(), componentOrService);
+				rhinoArrayCopy = new ArrayList<SabloT>();
+				NativeArray nativeArray = (NativeArray)rhinoValue;
+				for (int i = 0; i < nativeArray.size(); i++)
+				{
+					rhinoArrayCopy.add(
+						(SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(nativeArray.get(i), null, elementPD, componentOrService));
+				}
 			}
 			else if (rhinoValue instanceof NativeJavaArray)
 			{
-				// rhinoValue.unwrap() will be a java static array []
-				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>(Arrays.asList(((NativeJavaArray)rhinoValue).unwrap()),
-					getCustomJSONTypeDefinition(), componentOrService, (Scriptable)rhinoValue);
+				rhinoArrayCopy = new ArrayList<SabloT>();
+				NativeJavaArray nativeJavaArray = (NativeJavaArray)rhinoValue;
+				int length = ((Integer)nativeJavaArray.get("length", nativeJavaArray)).intValue();
+				for (int i = 0; i < length; i++)
+				{
+					rhinoArrayCopy.add((SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(nativeJavaArray.get(i, nativeJavaArray), null,
+						elementPD, componentOrService));
+				}
 			}
+			else Debug.warn("Cannot convert value assigned from solution scripting into array property type; new value = " + rhinoValue + "; property = " +
+				pd.getName() + "; component name = " + componentOrService.getUnderlyingWebObject().getName());
 
-			if (rhinoArray != null)
+			if (rhinoArrayCopy != null)
 			{
-				ChangeAwareList<SabloT, SabloWT> cal = wrap(rhinoArray, (ChangeAwareList<SabloT, SabloWT>)previousComponentValue, pd,
-					new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
-				cal.markAllChanged();
-				return cal;
-
-				// if we really want to remove the extra-conversion list above and convert all to a new list we could do it by executing the code below after a toJSON is called (so after a request finishes,
-				// we consider that in the next request the user will only use property reference again taken from service/component, so the new converted list, not anymore the array that was created in JS directly,
-				// but this still won't work if the user really holds on to that old/initial reference and changes it...); actually if the initial value is used, it will not be change-aware anyway...
-//				int i = 0;
-//				for (Object rv : rhinoArray)
-//				{
-//					convertedArray.add(NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rv,
-//						(previousSpecialArray != null && previousSpecialArray.size() > i) ? previousSpecialArray.get(i) : null, getCustomJSONTypeDefinition(),
-//						componentOrService));
-//					i++;
-//				}
+				return wrap(rhinoArrayCopy, previousSpecialArray, pd, new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
 			}
 		}
 		return previousComponentValue; // or should we return null or throw exception here? incompatible thing was assigned

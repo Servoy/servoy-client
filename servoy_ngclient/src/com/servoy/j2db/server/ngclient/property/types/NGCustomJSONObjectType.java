@@ -61,6 +61,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
@@ -213,42 +214,46 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			return (Map<String, SabloT>)((RhinoMapOrArrayWrapper)rhinoValue).getWrappedValue();
 		}
-		else if (previousSpecialMap != null && previousSpecialMap.getBaseMap() instanceof IRhinoNativeProxy &&
-			((IRhinoNativeProxy)previousSpecialMap.getBaseMap()).getBaseRhinoScriptable() == rhinoValue)
-		{
-			return previousComponentValue; // this can get called a lot when a native Rhino wrapper map and proxy are in use; don't create new values each time
-			// something is accessed in the wrapper+converter+proxy map cause that messes up references
-		}
 		else
 		{
 			// if it's some kind of object, convert it (in depth, iterate over children)
-
-			RhinoNativeObjectWrapperMap<SabloT, SabloWT> rhinoMap = null;
-
 			if (rhinoValue instanceof NativeObject)
 			{
-				ComponentOrServiceExtension<SabloT, SabloWT> ext = new ComponentOrServiceExtension<SabloT, SabloWT>(getCustomJSONTypeDefinition(),
-					componentOrService);
-				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), ext,
-					getChildPropsThatNeedWrapping());
-				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, pd,
-					new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
-				cam.markAllChanged();
-				ext.setPropertyValues(cam);
-				return cam;
+				Map<String, SabloT> rhinoObjectCopy = new HashMap<>();
+				NativeObject rhinoNativeObject = (NativeObject)rhinoValue;
 
-				// if we really want to remove the extra-conversion map above and convert all to a new map we could do it by executing the code below after a toJSON is called (so after a request finishes,
-				// we consider that in the next request the user will only use property reference again taken from service/component, so the new converted map, not anymore the object that was created in JS directly,
-				// but this still won't work if the user really holds on to that old/initial reference and changes it...); actually if the initial value is used, it will not be change-aware anyway...
-//				for (Entry<String, Object> e : rhinoMap.entrySet())
-//				{
-//					convertedMap.put(
-//						e.getKey(),
-//						NGConversions.INSTANCE.convertRhinoToSabloComponentValue(e.getValue(),
-//							previousComponentValue != null ? previousComponentValue.get(e.getKey()) : null,
-//							getCustomJSONTypeDefinition().getProperty(e.getKey()), componentOrService));
-//				}
+				ComponentOrServiceExtension<SabloT, SabloWT> componentOrServiceExtension = new ComponentOrServiceExtension<SabloT, SabloWT>(
+					getCustomJSONTypeDefinition(), componentOrService);
+
+				Object[] keys = rhinoNativeObject.getIds();
+				Object value;
+				String keyAsString;
+				for (Object key : keys)
+				{
+					if (key instanceof String)
+					{
+						keyAsString = (String)key;
+						value = rhinoNativeObject.get(keyAsString, rhinoNativeObject);
+					}
+					else if (key instanceof Number)
+					{
+						keyAsString = String.valueOf(((Number)key).intValue());
+						value = rhinoNativeObject.get(((Number)key).intValue(), rhinoNativeObject);
+					}
+					else throw new RuntimeException("JS Object key must be either String or Number.");
+
+					rhinoObjectCopy.put(keyAsString, (SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, null,
+						getCustomJSONTypeDefinition().getProperty(keyAsString), componentOrServiceExtension));
+				}
+
+				ChangeAwareMap<SabloT, SabloWT> retVal = wrap(rhinoObjectCopy, previousSpecialMap, pd,
+					new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
+				componentOrServiceExtension.setPropertyValues(retVal);
+
+				return retVal;
 			}
+			else Debug.warn("Cannot convert value assigned from solution scripting into custom object property type; new value = " + rhinoValue +
+				"; property = " + pd.getName() + "; component name = " + componentOrService.getUnderlyingWebObject().getName());
 		}
 		return previousComponentValue; // or should we return null or throw exception here? incompatible thing was assigned
 	}
