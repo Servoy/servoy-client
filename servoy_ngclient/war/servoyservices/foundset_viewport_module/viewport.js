@@ -4,10 +4,10 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 	var CONVERSIONS = "viewportConversions"; // data conversion info
 
-	var CHANGE = 0;
-	var INSERT = 1;
-	var DELETE = 2;
-
+	var CHANGE = $foundsetTypeConstants.ROWS_CHANGED;
+	var INSERT = $foundsetTypeConstants.ROWS_INSERTED;
+	var DELETE = $foundsetTypeConstants.ROWS_DELETED;
+	
 	var DATAPROVIDER_KEY = "dp";
 	var VALUE_KEY = "value";
 
@@ -174,7 +174,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					// apply the conversions
 					var rowConversionUpdate = (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[relIdx] : undefined;
 					if (rowConversionUpdate) $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope, componentModelGetter);
-					//if the rowUpdate contains '_svyRowId' then we know it's the entire/complete row object
+					// if the rowUpdate contains '_svyRowId' then we know it's the entire/complete row object
 					if (simpleRowValue || rowUpdate.rows[relIdx][$foundsetTypeConstants.ROW_ID_COL_KEY]) {
 						viewPort[j] = rowUpdate.rows[relIdx];
 
@@ -217,20 +217,17 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				}
 				// insert might have made obsolete some records in cache; remove those; for inserts
 				// !!! rowUpdate.endIndex by convention means the new length of the viewport
-				if (viewPort.length > rowUpdate.endIndex) {
+				rowUpdate.removedFromVPEnd = viewPort.length - rowUpdate.endIndex; // prepare rowUpdate for listener notifications
+				if (rowUpdate.removedFromVPEnd > 0) {
 					// remove conversion info for these rows as well
 					if (internalState[CONVERSIONS]) {
 						for (j = rowUpdate.endIndex; j < viewPort.length; j++)
 							removeRowConversionInfo(j, internalState);
 					}
 
-					viewPort.splice(rowUpdate.endIndex, viewPort.length - rowUpdate.endIndex);
-
-//					// workaround follows for a bug in ng-grid (changing the row references while the array has the same length doesn't trigger a UI update)
-//					// see https://github.com/angular-ui/ng-grid/issues/1279
-//					viewPortHolder[viewPortPropertyName] = viewPort.splice(0); // changes array reference completely while keeping contents
-//					viewPort = viewPortHolder[viewPortPropertyName];
+					viewPort.splice(rowUpdate.endIndex, rowUpdate.removedFromVPEnd);
 				}
+				rowUpdate.endIndex = rowUpdate.startIndex + rowUpdate.rows.length - 1; // prepare rowUpdate for listener notifications
 			} else if (rowUpdate.type == DELETE) {
 				if (rowUpdateConversions && rowUpdateConversions[i]) $sabloConverters.convertFromServerToClient(rowUpdate, rowUpdateConversions[i], undefined, componentScope, componentModelGetter);
 
@@ -245,13 +242,10 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					viewPort.push(rowUpdate.rows[j]);
 					updateRowConversionInfo(viewPort.length - 1, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
-//				if (oldLength == viewPort.length) {
-//				// workaround follows for a bug in ng-grid (changing the row references while the array has the same length doesn't trigger a UI update)
-//				// see https://github.com/angular-ui/ng-grid/issues/1279
-//				viewPortHolder[viewPortPropertyName] = viewPort.splice(0); // changes array reference completely while keeping contents
-//				viewPort = viewPortHolder[viewPortPropertyName];
-//				}
+				
+				rowUpdate.appendedToVPEnd = rowUpdate.rows.length;
 			}
+			delete rowUpdate.rows; // prepare rowUpdate for listener notifications
 		}
 	};
 

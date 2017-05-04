@@ -1321,7 +1321,8 @@ uis.directive('uiSelect',
 
         // Hold on to a reference to the .ui-select-container element for appendToBody support
         var placeholder = null,
-            originalWidth = '';
+            originalWidth = '',
+            originalHeight = '';
 
         function positionDropdown() {
           // Remember the absolute position of the element
@@ -1333,9 +1334,10 @@ uis.directive('uiSelect',
           placeholder[0].style.height = offset.height + 'px';
           element.after(placeholder);
 
-          // Remember the original value of the element width inline style, so it can be restored
+          // Remember the original value of the element width and height inline style, so it can be restored
           // when the dropdown is closed
           originalWidth = element[0].style.width;
+          originalHeight = element[0].style.height;
 
           // Now move the actual dropdown element to the end of the body
           $document.find('body').append(element);
@@ -1344,6 +1346,7 @@ uis.directive('uiSelect',
           element[0].style.left = offset.left + 'px';
           element[0].style.top = offset.top + 'px';
           element[0].style.width = offset.width + 'px';
+          element[0].style.height = offset.height + 'px';
         }
 
         function resetDropdown() {
@@ -1360,6 +1363,7 @@ uis.directive('uiSelect',
           element[0].style.left = '';
           element[0].style.top = '';
           element[0].style.width = originalWidth;
+          element[0].style.height = originalHeight;
 
           // Set focus back on to the moved element
           $select.setFocus();

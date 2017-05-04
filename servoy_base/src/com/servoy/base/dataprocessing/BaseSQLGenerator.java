@@ -399,9 +399,10 @@ public class BaseSQLGenerator
 						// for like, value2 may be the escape character
 						if (value2 != null && operator == IBaseSQLCondition.BETWEEN_OPERATOR)
 						{
-							operand = new Object[] { typeConverter.getAsRightType(c.getDataProviderType(), c.getFlags(), valueConverter == null ? value
-								: valueConverter.convertFromObject(value), null, c.getLength(), false), typeConverter.getAsRightType(c.getDataProviderType(),
-								c.getFlags(), valueConverter == null ? value2 : valueConverter.convertFromObject(value2), null, c.getLength(), false) };
+							operand = new Object[] { typeConverter.getAsRightType(c.getDataProviderType(), c.getFlags(),
+								valueConverter == null ? value : valueConverter.convertFromObject(value), null, c.getLength(),
+								false), typeConverter.getAsRightType(c.getDataProviderType(), c.getFlags(),
+									valueConverter == null ? value2 : valueConverter.convertFromObject(value2), null, c.getLength(), false) };
 						}
 						else if (operator == IBaseSQLCondition.LIKE_OPERATOR)
 						{
@@ -426,13 +427,16 @@ public class BaseSQLGenerator
 					{
 						// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
 						// the left outer join does not cause a match with the null value.
-						if (addNullPkNotNullCondition && nullCheck != NULLCHECK_NONE)
+						// Skip this if the search is on the related pk column, the user explicitly wants to find records that have no related record (left outer join)
+						if (addNullPkNotNullCondition && nullCheck != NULLCHECK_NONE && (c.getFlags() & IBaseColumn.IDENT_COLUMNS) == 0)
 						{
 							// in case of composite pk, checking only the first pk column is enough
-							condition = queryFactory.and(condition, queryFactory.createCompareCondition(IBaseSQLCondition.NOT_OPERATOR,
-								queryFactory.createQueryColumn(columnTable, firstForeignPKColumn.getID(), firstForeignPKColumn.getSQLName(),
-									firstForeignPKColumn.getType(), firstForeignPKColumn.getLength(), firstForeignPKColumn.getScale(),
-									firstForeignPKColumn.getFlags()), null));
+							condition = queryFactory.and(condition,
+								queryFactory.createCompareCondition(IBaseSQLCondition.NOT_OPERATOR,
+									queryFactory.createQueryColumn(columnTable, firstForeignPKColumn.getID(), firstForeignPKColumn.getSQLName(),
+										firstForeignPKColumn.getType(), firstForeignPKColumn.getLength(), firstForeignPKColumn.getScale(),
+										firstForeignPKColumn.getFlags()),
+									null));
 						}
 					}
 

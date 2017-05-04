@@ -266,8 +266,7 @@ public class NGConversions
 			{
 				try
 				{
-					return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.jsonNullToNull(designValue), pd, flattenedSolution, formElement,
-						propertyPath);
+					return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
 				}
 				catch (Exception e)
 				{

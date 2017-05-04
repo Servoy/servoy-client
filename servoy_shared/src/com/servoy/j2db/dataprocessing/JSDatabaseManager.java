@@ -2167,9 +2167,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public String getDataSourceServerName(String dataSource)
 	{
-		String[] retval = DataSourceUtilsBase.getDBServernameTablename(dataSource);
-		if (retval == null) return null;
-		return retval[0];
+		return DataSourceUtils.getDataSourceServerName(dataSource);
 	}
 
 	/**
@@ -2190,9 +2188,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public String getDataSourceTableName(String dataSource)
 	{
-		String[] retval = DataSourceUtilsBase.getDBServernameTablename(dataSource);
-		if (retval == null) return null;
-		return retval[1];
+		return DataSourceUtils.getDataSourceTableName(dataSource);
 	}
 
 	/**
@@ -2309,18 +2305,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public JSTable js_getTable(String dataSource) throws ServoyException
 	{
-		String serverName = null;
-		String tableName = null;
-		if (dataSource != null)
+		ITable table = application.getFoundSetManager().getTable(dataSource);
+		if (table != null)
 		{
-			String[] server_table = DataSourceUtilsBase.getDBServernameTablename(dataSource);
-			if (server_table != null)
-			{
-				serverName = server_table[0];
-				tableName = server_table[1];
-			}
+			return new JSTable(table, application.getSolution().getServer(table.getServerName()));
 		}
-		return js_getTable(serverName, tableName);
+		return null;
 	}
 
 	/**

@@ -19,12 +19,25 @@ package com.servoy.base.persistence;
 
 /**
  * Generic interface for columns
- * 
+ *
  * @author rgansevles
  *
  */
 public interface IBaseColumn
 {
+	// column flags
+	static final int NORMAL_COLUMN = 0;
+	static final int PK_COLUMN = 1;
+	static final int USER_ROWID_COLUMN = 2;
+	static final int UUID_COLUMN = 4;
+	static final int EXCLUDED_COLUMN = 8;
+
+	static final int IDENT_COLUMNS = PK_COLUMN + USER_ROWID_COLUMN;
+	static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;
+
+	static final int[] allDefinedRowIdents = new int[] { NORMAL_COLUMN, PK_COLUMN, USER_ROWID_COLUMN };
+	static final int[] allDefinedOtherFlags = new int[] { UUID_COLUMN, EXCLUDED_COLUMN };
+
 	int getDataProviderType();
 
 	int getLength();

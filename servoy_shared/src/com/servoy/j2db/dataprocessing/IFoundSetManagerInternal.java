@@ -158,5 +158,5 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * Get the named foundset.
 	 * @since 8.2
 	 */
-	public IFoundSet getNamedFoundSet(String name);
+	public IFoundSet getNamedFoundSet(String name) throws ServoyException;
 }

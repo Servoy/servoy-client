@@ -2,6 +2,8 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 //CustomJSONArray type ------------------------------------------
 .run(function ($sabloConverters, $sabloUtils) {
 	var UPDATES = "u";
+	var REMOVES = "r";
+	var ADDITIONS = "a";
 	var INDEX = "i";
 	var INITIALIZE = "in";
 	var VALUE = "v";
@@ -152,7 +154,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 							}
 						}
 					}
-				} else if (serverJSONValue && serverJSONValue[UPDATES]) {
+				} else if (serverJSONValue && (serverJSONValue[UPDATES] || serverJSONValue[REMOVES] || serverJSONValue[ADDITIONS])) {
 					// granular updates received;
 
 					if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an array value was set completely in browser and the child elements need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child elements
@@ -162,27 +164,64 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
 					// we ignore this update and expect a fresh full copy of the array from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
 					if (internalState[CONTENT_VERSION] == serverJSONValue[CONTENT_VERSION]) {
-						var updates = serverJSONValue[UPDATES];
-						var conversionInfos = serverJSONValue[$sabloConverters.TYPES_KEY];
-						var i;
-						for (i in updates) {
-							var update = updates[i];
-							var idx = update[INDEX];
-							var val = update[VALUE];
-
-							var conversionInfo = null;
-							if (conversionInfos && conversionInfos[i] && conversionInfos[i][VALUE]) {
-								conversionInfo = conversionInfos[i][VALUE];
+						if (serverJSONValue[REMOVES])
+						{
+							var removes = serverJSONValue[REMOVES];
+							for (var idx in removes)
+							{
+								currentClientValue.splice(removes[idx], 1 );
 							}
+						}
+						if (serverJSONValue[ADDITIONS])
+						{
+							var additions = serverJSONValue[ADDITIONS];
+							var conversionInfos = serverJSONValue[$sabloConverters.TYPES_KEY];
+							var i;
+							for (i in additions) {
+								var element = additions[i];
+								var idx = element[INDEX];
+								var val = element[VALUE];
 
-							if (conversionInfo) {
-								internalState.conversionInfo[idx] = conversionInfo;
-								currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, componentModelGetter);
-							} else currentClientValue[idx] = val;
+								var conversionInfo = null;
+								if (conversionInfos && conversionInfos[i] && conversionInfos[i][VALUE]) {
+									conversionInfo = conversionInfos[i][VALUE];
+								}
 
-							if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-								// child is able to handle it's own change mechanism
-								val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, idx));
+								if (conversionInfo) {
+									internalState.conversionInfo[idx] = conversionInfo;
+									val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, componentModelGetter);
+								}
+								currentClientValue.splice(idx, 0, val);
+
+								if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+									val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, idx));
+								}
+							}
+						}
+						if (serverJSONValue[UPDATES])
+						{
+							var updates = serverJSONValue[UPDATES];
+							var conversionInfos = serverJSONValue[$sabloConverters.TYPES_KEY];
+							var i;
+							for (i in updates) {
+								var update = updates[i];
+								var idx = update[INDEX];
+								var val = update[VALUE];
+
+								var conversionInfo = null;
+								if (conversionInfos && conversionInfos[i] && conversionInfos[i][VALUE]) {
+									conversionInfo = conversionInfos[i][VALUE];
+								}
+
+								if (conversionInfo) {
+									internalState.conversionInfo[idx] = conversionInfo;
+									currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, componentModelGetter);
+								} else currentClientValue[idx] = val;
+
+								if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+									// child is able to handle it's own change mechanism
+									val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, idx));
+								}
 							}
 						}
 					}

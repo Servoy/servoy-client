@@ -136,7 +136,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// handle any valuelist specific websocket incomming traffic
-		if (previousSabloValue != null && newJSONValue instanceof String)
+		if (previousSabloValue != null && (newJSONValue == null || newJSONValue instanceof String))
 		{
 			// currently the only thing that can come from client is a filter request...
 			previousSabloValue.filterValuelist((String)newJSONValue);

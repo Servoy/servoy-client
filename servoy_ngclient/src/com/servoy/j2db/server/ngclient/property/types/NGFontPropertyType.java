@@ -29,6 +29,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -44,16 +45,18 @@ import com.servoy.j2db.util.PersistHelper;
 /**
  * @author acostescu
  */
-public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>,
-	IRhinoDesignConverter, IRhinoToSabloComponent<Font>, ISabloComponentToRhino<Font>, IDesignValueConverter<Font>
+public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<Object, Font, Font>, IFormElementToTemplateJSON<Font, Font>,
+	IRhinoDesignConverter, IRhinoToSabloComponent<Font>, ISabloComponentToRhino<Font>, IDesignValueConverter<Object>
 {
 
 	public final static NGFontPropertyType NG_INSTANCE = new NGFontPropertyType();
 
 	@Override
-	public Font toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
+	public Font toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
+
+		if (designValue instanceof String) return PersistHelper.createFont((String)designValue);
 		return fromJSON(designValue, null, pd, null, null);
 	}
 
@@ -116,18 +119,26 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	}
 
 	@Override
-	public Font fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
-		try
+		if (!IContentSpecConstants.PROPERTY_FONTTYPE.equals(propertyDescription.getName()))
 		{
-			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
-				propertyDescription, null, null);
+			try
+			{
+				if (newValue instanceof String && !((String)newValue).startsWith("{"))
+				{
+					return PersistHelper.createFont((String)newValue);
+				}
+				return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
+					propertyDescription, null, null);
+			}
+			catch (Exception e)
+			{
+				Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+				return null;
+			}
 		}
-		catch (Exception e)
-		{
-			Debug.error("can't parse '" + newValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
-			return null;
-		}
+		return newValue;
 	}
 
 	@Override
@@ -135,9 +146,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	{
 		if (value instanceof Font)
 		{
-			JSONStringer writer = new JSONStringer();
-			toJSON(writer, null, (Font)value, pd, null, null);
-			return new JSONObject(writer.toString());
+			return PersistHelper.createFontString((Font)value);
 		}
 		return value;
 	}
