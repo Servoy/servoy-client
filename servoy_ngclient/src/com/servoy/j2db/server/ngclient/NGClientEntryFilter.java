@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
+import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
 import org.sablo.websocket.IWebsocketSessionFactory;
@@ -71,6 +72,14 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String FORMS_PATH = "forms/";
 
 	public static final String ANGULAR_JS = "js/angular_1.6.3.js";
+	public static final String[][] ANGULAR_JS_MODULES = { //
+		{ "angular-animate", "js/angular-modules/1.6.3/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.6.3/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.6.3/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.6.3/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.6.3/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.6.3/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.6.3/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3TH_PARTY_CSS = { //
@@ -481,7 +490,7 @@ public class NGClientEntryFilter extends WebEntry
 			allIndexCSS = new ArrayList<String>();
 			allIndexCSS.add("wro/" + SERVOY_CSS_THIRDPARTY_SVYGRP + group_id + ".css");
 			//get all css contributions which do not support grouping
-			allIndexCSS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE)[0]);
+			allIndexCSS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[0]);
 			allIndexCSS.add("wro/" + SERVOY_CSS_CONTRIBUTIONS_SVYGRP + group_id + ".css");
 		}
 		else
@@ -503,7 +512,7 @@ public class NGClientEntryFilter extends WebEntry
 			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
 			allIndexJS.add("wro/" + SERVOY_APP_SVYGRP + group_id + ".js");
 			//get all contributions which do not support grouping
-			allIndexJS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE)[1]);
+			allIndexJS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[1]);
 			allIndexJS.add("wro/" + SERVOY_CONTRIBUTIONS_SVYGRP + group_id + ".js");
 		}
 		else
@@ -515,6 +524,41 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		if (ApplicationServerRegistry.get().isDeveloperStartup()) allIndexJS.add("js/debug.js");
 		return allIndexJS;
+	}
+
+	public static final IContributionEntryFilter CONTRIBUTION_ENTRY_FILTER = new IContributionEntryFilter()
+	{
+		@Override
+		public JSONObject filterContributionEntry(JSONObject contributionEntry)
+		{
+			String name = contributionEntry.optString("name");
+
+			// replace angular module js with the one from Servoy, to ensure correct version is used
+			if (name != null)
+			{
+				int firstDotIdx;
+				if ((firstDotIdx = name.indexOf('.')) > 0)
+				{
+					name = name.substring(0, firstDotIdx);
+				}
+
+				for (String[] angularModules : ANGULAR_JS_MODULES)
+				{
+					if (angularModules[0].equals(name))
+					{
+						contributionEntry.put("url", angularModules[1]);
+						break;
+					}
+				}
+
+			}
+			return contributionEntry;
+		}
+	};
+
+	public JSONObject filterContributionEntry(JSONObject contributionEntry)
+	{
+		return CONTRIBUTION_ENTRY_FILTER.filterContributionEntry(contributionEntry);
 	}
 
 	@Override
