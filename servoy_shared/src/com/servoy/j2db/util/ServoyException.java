@@ -469,7 +469,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 				return Messages.getString("servoy.foundSet.error.noAccess"); //$NON-NLS-1$
 
 			case NO_DELETE_ACCESS :
-				return Messages.getString("servoy.foundSet.error.noDeleteAccess"); //$NON-NLS-1$
+				return Messages.getString("servoy.foundSet.error.noDeleteAccess", tagValues); //$NON-NLS-1$
 
 			case NO_CREATE_ACCESS :
 				return Messages.getString("servoy.foundSet.error.noCreateAccess"); //$NON-NLS-1$

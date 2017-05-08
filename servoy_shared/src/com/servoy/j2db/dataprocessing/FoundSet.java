@@ -1926,11 +1926,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
@@ -4017,7 +4017,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (!hasAccess(IRepository.DELETE))
 			{
-				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS);
+				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { table.getName() });
 			}
 
 			boolean hasRelationsWithDelete = false;
@@ -4177,7 +4177,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (!hasAccess(IRepository.DELETE) && (state == null || state.existInDataSource()))
 		{
-			throw new ApplicationException(ServoyException.NO_DELETE_ACCESS);
+			throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { sheet.getTable().getName() });
 		}
 
 		if (state != null && !(state instanceof PrototypeState) && !findMode)
