@@ -74,6 +74,7 @@ public final class Settings extends SortedProperties
 	public static final String RMI_CONNECTION_TIMEOUT = "rmi.connection.timeout";
 
 	public static final String TRUST_DATA_AS_HTML_SETTING = "servoy.clientTrustDataAsHtml"; //$NON-NLS-1$
+	public static final String USER_HOME = "servoy.user.home";
 
 	private boolean loadedFromServer = false;
 	private File file;
