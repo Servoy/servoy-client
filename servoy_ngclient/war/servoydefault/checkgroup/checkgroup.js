@@ -12,10 +12,16 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
          $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
          $element.children().first().css($svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
 //         angular.extend($scope.style,);
-
+         
           var allowNullinc=0;
           
           $scope.selection= []
+          
+          $scope.tabIndexChanged = function()
+          {
+        	  // set same tabindex on all checkboxes
+              $element.find("input").attr("tabindex",$element.children().attr("tabindex")); 
+          }
           
           $scope.$watch('model.dataProviderID', function() { 
              setSelectionFromDataprovider();
@@ -27,9 +33,6 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             if(!$scope.model.valuelistID) return; // not loaded yet
             if(isValueListNull($scope.model.valuelistID[0])) allowNullinc=1;
             setSelectionFromDataprovider();
-            
-            // set same tabindex on all checkboxes
-            $element.find("input").attr("tabindex",$element.children().attr("tabindex"));
           })
           
           
