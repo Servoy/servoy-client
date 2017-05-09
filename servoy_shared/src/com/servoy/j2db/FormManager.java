@@ -204,10 +204,12 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{
+				hideFormIfVisible(currentContainer.getController());
 				currentContainer.setController(null);
 			}
 			if (mainContainer.getController() != null && loginForm.getName().equals(mainContainer.getController().getForm().getName()))
 			{
+				hideFormIfVisible(mainContainer.getController());
 				mainContainer.setController(null);
 			}
 			loginForm = null;//clear and continue
