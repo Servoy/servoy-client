@@ -11,7 +11,7 @@
  				svy-rightclick='handlers.onRightClickMethodID($event)'
  				ng-style="style"
  				svy-margin='model.margin'>{{($select.selected ? $select.selected : model.dataProviderID) | showDisplayValue:model.valuelistID | formatFilter:model.format.display:model.format.type}}</ui-select-match>
-            <ui-select-choices repeat="item.realValue as item in model.valuelistID | filter: $select.search">
+            <ui-select-choices repeat="item.realValue as item in model.valuelistID | filter: { displayValue : $select.search}">
               <div ng-style="style" >{{item.realValue | showDisplayValue:model.valuelistID | formatFilter:model.format.display:model.format.type}}</div>
             </ui-select-choices>
      </ui-select>
