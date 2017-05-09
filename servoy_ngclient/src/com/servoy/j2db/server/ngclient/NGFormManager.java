@@ -158,6 +158,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{
+				hideFormIfVisible(currentContainer.getController());
 				currentContainer.setController(null);
 			}
 			loginForm = null;//clear and continue
@@ -366,6 +367,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		loginForm = null;
 		for (IFormController controller : createdFormControllers.values())
 		{
+			hideFormIfVisible(controller);
 			controller.destroy();
 		}
 
