@@ -147,7 +147,7 @@ public class WebServiceScriptable implements Scriptable
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);
+			Debug.error("error creating server side scripting object: " + serverScript, ex);
 		}
 		finally
 		{
