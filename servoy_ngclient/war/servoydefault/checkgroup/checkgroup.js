@@ -17,10 +17,10 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
           
           $scope.selection= []
           
-          $scope.tabIndexChanged = function()
+          $scope.tabIndexChanged = function(tabindex)
           {
         	  // set same tabindex on all checkboxes
-              $element.find("input").attr("tabindex",$element.children().attr("tabindex")); 
+              $element.find("input").attr("tabindex",tabindex); 
           }
           
           $scope.$watch('model.dataProviderID', function() { 
@@ -33,6 +33,8 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             if(!$scope.model.valuelistID) return; // not loaded yet
             if(isValueListNull($scope.model.valuelistID[0])) allowNullinc=1;
             setSelectionFromDataprovider();
+            
+            $scope.tabIndexChanged($element.children().attr("tabindex"));
           })
           
           
