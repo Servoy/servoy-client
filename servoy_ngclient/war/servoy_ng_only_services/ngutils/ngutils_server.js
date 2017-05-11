@@ -79,18 +79,18 @@ $scope.api.removeFormStyleClass = function(formname,styleclass)
 {
 	if ($scope.model.styleclasses && $scope.model.styleclasses[formname]) 
 	{
-		var arr = $scope.model.styleclasses[formname].styleclass.split(" ");
+		var arr = $scope.model.styleclasses[formname].split(" ");
 		var index = arr.indexOf(styleclass);
 		if (index >= 0)
 		{
 			arr.splice(index, 1);
 			if (arr.length == 0)
 			{
-				$scope.model.styleclasses[formname] = null;
+				delete $scope.model.styleclasses[formname];
 			}
 			else
 			{
-				$scope.model.styleclasses[formname].styleclass = arr.join(" ");
+				$scope.model.styleclasses[formname] = arr.join(" ");
 			}	
 		}
 	}	
