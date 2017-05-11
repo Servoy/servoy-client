@@ -4767,7 +4767,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (javascriptRecord && !hasAccess(IRepository.INSERT))
 		{
-			throw new ApplicationException(ServoyException.NO_CREATE_ACCESS);
+			throw new ApplicationException(ServoyException.NO_CREATE_ACCESS, new Object[] { getTable().getName() });
 		}
 
 		if (rowData == null && relationName != null)
@@ -6745,7 +6745,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (!hasAccess(IRepository.READ))
 		{
 			fireDifference(getSize(), 0);
-			throw new ApplicationException(ServoyException.NO_ACCESS);
+			throw new ApplicationException(ServoyException.NO_ACCESS, new Object[] { getSQLSheet().getTable().getName() });
 		}
 
 		IDataSet dataSet = SQLGenerator.getEmptyDataSetForDummyQuery(theQuery);

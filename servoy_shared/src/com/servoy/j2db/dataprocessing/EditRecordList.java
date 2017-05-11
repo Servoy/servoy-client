@@ -1001,7 +1001,7 @@ public class EditRecordList
 		boolean doesExistInDB = rowData.existInDB();
 		if (doesExistInDB && !hasAccess(table, IRepository.UPDATE))
 		{
-			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS);
+			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS, new Object[] { table.getName() });
 		}
 
 		GlobalTransaction gt = fsm.getGlobalTransaction();
