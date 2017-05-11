@@ -277,14 +277,7 @@ public class WebServiceScriptable implements Scriptable
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
 		{
-			if (desc.getType() instanceof ISabloComponentToRhino< ? >)
-			{
-				return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, desc, service, start);
-			}
-			else
-			{
-				return value; // types that don't implement the sablo <-> rhino conversions are by default available and their value is accessible directly
-			}
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, desc, service, start);
 		}
 		else return getParentScope().get(name, start);
 	}
