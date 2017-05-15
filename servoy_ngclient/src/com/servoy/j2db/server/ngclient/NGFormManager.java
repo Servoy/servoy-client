@@ -371,6 +371,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			controller.destroy();
 		}
 
+		possibleForms.clear();
+
 		// cleanup windows (containers)
 		NGRuntimeWindowManager wm = ((INGApplication)application).getRuntimeWindowManager();
 		wm.destroy(reload);
