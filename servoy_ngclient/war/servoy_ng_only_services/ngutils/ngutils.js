@@ -131,21 +131,15 @@ angular.module('ngclientutils', [ 'servoy' ])
 			if (scope.model.styleclasses)
 			{
 				var formname = $element.attr('ng-controller');
-				if (formname)
+				if (formname && scope.model.styleclasses[formname])
 				{
-					for (var i = 0;i< scope.model.styleclasses.length;i++)
-					{ 
-						if (formname == scope.model.styleclasses[i].formname)
+					var arr = scope.model.styleclasses[formname].split(" ");
+					for (var j=0;j<arr.length;j++)
+					{
+						if (!$element.hasClass(arr[j]))
 						{
-							var arr = scope.model.styleclasses[i].styleclass.split(" ");
-							for (var j=0;j<arr.length;j++)
-							{
-								if (!$element.hasClass(arr[j]))
-								{
-									$element.addClass(arr[j]);
-								}
-							}
-						}	 
+							$element.addClass(arr[j]);
+						}
 					}
 				}
 			}	
@@ -184,12 +178,13 @@ angular.module('ngclientutils', [ 'servoy' ])
 			
 			scope.$watch("model.styleclasses", function(newVal, oldVal) {
 				if (newVal) {
-					for (var i = 0;i< newVal.length;i++)
+					var keys = Object.keys(newVal);
+					for (var i = 0;i< keys.length;i++)
 					{ 
-						var el = $("div[ng-controller='"+newVal[i].formname+"']");
+						var el = $("div[ng-controller='"+keys[i]+"']");
 						if (el.length >0)
 						{
-							var arr = newVal[i].styleclass.split(" ");
+							var arr = newVal[keys[i]].split(" ");
 							for (var j=0;j<arr.length;j++)
 							{
 								if (!el.hasClass(arr[j]))
@@ -201,26 +196,20 @@ angular.module('ngclientutils', [ 'servoy' ])
 					}
 					if (oldVal)
 					{
-						for (var i = 0;i< oldVal.length;i++)
+						var keys = Object.keys(oldVal)
+						for (var i = 0;i< keys.length;i++)
 						{ 
-							var arr = oldVal[i].styleclass.split(" ");
-							var newStyle;
+							var formname = keys[i];
+							var arr = oldVal[formname].split(" ");
+							var newStyle = newVal[formname];
 							var el = null;
-							for (var j = 0;j< newVal.length;j++)
-							{ 
-								if (newVal[j].formname == oldVal[i].formname)
-								{
-									newStyle = newVal[j];
-									break;
-								}
-							}
 							for (var j=0;j<arr.length;j++)
 							{
-								if (!newStyle || newStyle.styleclass.split(" ").indexOf(arr[j]) < 0)
+								if (!newStyle || newStyle.split(" ").indexOf(arr[j]) < 0)
 								{
 									if (!el)
 									{
-										el =  $("div[ng-controller='"+oldVal[i].formname+"']");
+										el =  $("div[ng-controller='"+formname+"']");
 									}	
 									el.removeClass(arr[j]);
 								}	

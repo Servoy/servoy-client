@@ -14,7 +14,7 @@
 		"VIEWPORT_MOBILE_DENY_ZOOM_OUT" : { "type": "int", "default": 3 },
 		"VIEWPORT_MOBILE_DENY_ZOOM_IN" : { "type": "int", "default": 4 },
 		"contributedTags" : "tag[]",
-		"styleclasses" : {"type":"formstyleclass[]", "pushToServer": "shallow", "tags": { "scope": "private" }}, 
+		"styleclasses" : {"type":"object", "pushToServer": "shallow", "tags": { "scope": "private" }}, 
 		
 	},
 	
@@ -65,11 +65,6 @@
 		"attribute" : {
 			"name" : "string",
 			"value" : "string"
-		},
-		"formstyleclass" : {
-			"formname" : "string",
-			"styleclass" : "string"
 		}
 	}
-	
 }

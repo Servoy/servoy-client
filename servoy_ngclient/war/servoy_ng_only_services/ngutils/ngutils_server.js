@@ -61,65 +61,37 @@ $scope.model.contributedTags = []; // so that the bind-once watch gets remove on
 
 $scope.api.addFormStyleClass = function(formname,styleclass)
 {
-	if (!$scope.model.styleclasses) $scope.model.styleclasses = [];
-	var found = false;
-	for (var i = 0;i< $scope.model.styleclasses.length;i++)
-	{ 
-		if (formname == $scope.model.styleclasses[i].formname)
-		{
-			found = true;
-			$scope.model.styleclasses[i].styleclass += ' '+styleclass;
-			break;
-		}	 
-	}
-	if (!found)
-	{
-		$scope.model.styleclasses[$scope.model.styleclasses.length] = {'formname' : formname, 'styleclass' : styleclass};
-	}
+	if (!$scope.model.styleclasses) $scope.model.styleclasses = {};
+	if (!$scope.model.styleclasses[formname]) $scope.model.styleclasses[formname] = styleclass;
+	else $scope.model.styleclasses[formname] += ' ' + styleclass;
 }
 
 $scope.api.getFormStyleClass = function(formname)
 {
 	if ($scope.model.styleclasses) 
 	{
-		for (var i = 0;i< $scope.model.styleclasses.length;i++)
-		{ 
-			if (formname == $scope.model.styleclasses[i].formname)
-			{
-				return $scope.model.styleclasses[i].styleclass ;
-			}	 
-		}
+		return $scope.model.styleclasses[formname];
 	}	
 	return null;	
 }
 
 $scope.api.removeFormStyleClass = function(formname,styleclass)
 {
-	if ($scope.model.styleclasses) 
+	if ($scope.model.styleclasses && $scope.model.styleclasses[formname]) 
 	{
-		for (var i = 0;i< $scope.model.styleclasses.length;i++)
-		{ 
-			if (formname == $scope.model.styleclasses[i].formname)
+		var arr = $scope.model.styleclasses[formname].split(" ");
+		var index = arr.indexOf(styleclass);
+		if (index >= 0)
+		{
+			arr.splice(index, 1);
+			if (arr.length == 0)
 			{
-				var arr = $scope.model.styleclasses[i].styleclass.split(" ");
-				var index = arr.indexOf(styleclass);
-				if (index >= 0)
-				{
-					arr.splice(index, 1);
-					if (arr.length == 0)
-					{
-						for(var j = i; j < $scope.model.styleclasses.length - 1; j++) {
-							$scope.model.styleclasses[j] = $scope.model.tabs[j + 1];
-						}
-						$scope.model.styleclasses.length = $scope.model.styleclasses.length - 1;
-					}
-					else
-					{
-						$scope.model.styleclasses[i].styleclass = arr.join(" ");
-					}	
-				}
-				break;
+				delete $scope.model.styleclasses[formname];
 			}
+			else
+			{
+				$scope.model.styleclasses[formname] = arr.join(" ");
+			}	
 		}
 	}	
 }

@@ -17,13 +17,22 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sablo.InMemPackageReader;
+import org.sablo.IndexPageEnhancer;
+import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.ICustomType;
@@ -31,6 +40,7 @@ import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
+import com.servoy.j2db.server.ngclient.NGClientEntryFilter;
 import com.servoy.j2db.server.ngclient.property.types.NGDatePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ServoyStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -49,6 +59,12 @@ public class WebComponentSpecTest
 	public void setup()
 	{
 		Types.getTypesInstance().registerTypes();
+	}
+
+	@After
+	public void tearDown()
+	{
+		WebComponentSpecProvider.disposeInstance();
 	}
 
 	@Test
@@ -93,6 +109,35 @@ public class WebComponentSpecTest
 		Assert.assertEquals(2, libs.length());
 		Assert.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
 		Assert.assertEquals(libs.optJSONObject(1).optString("url"), "/something.js");
+	}
+
+	@Test
+	public void testLibsWithAngularEnry() throws JSONException
+	{
+		String property = "{name:'test',definition:'/test.js', libraries:[{name:'angular-animate', version:'1.5.8', url:'js/angular-modules/1.5.8/angular-animate.js', mimetype:'text/javascript'},{name:'something', version:'1', url:'/something.js', mimetype:'text/javascript'}],model: {}}";
+
+		String manifest = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.8.4\nCreated-By: 1.7.0_05-b06 (Oracle Corporation)\n\nName: mycomponent.spec\nWeb-Component: True\n";
+
+		HashMap<String, String> components = new HashMap<>();
+		components.put("mycomponent.spec", property);
+		WebComponentSpecProvider.init(new IPackageReader[] { new InMemPackageReader(manifest, components) });
+		WebServiceSpecProvider.init(new IPackageReader[0]);
+
+
+		Object[] contributions = IndexPageEnhancer.getAllContributions(null, null, null);
+
+		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
+		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
+
+		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.5.8/angular-animate.js"));
+
+		contributions = IndexPageEnhancer.getAllContributions(null, null, NGClientEntryFilter.CONTRIBUTION_ENTRY_FILTER);
+
+		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
+		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
+
+		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.6.3/angular-animate.js"));
+
 	}
 
 	@Test

@@ -166,7 +166,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 
 		if (!foundset.hasAccess(IRepository.UPDATE))
 		{
-			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS);
+			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS, new Object[] { foundset.getTable().getName() });
 		}
 		// first stop all edits, 'force' stop the edit by saying that it is a javascript stop
 		if (application.getFoundSetManager().getEditRecordList().stopEditing(true) != ISaveConstants.STOPPED) return false;

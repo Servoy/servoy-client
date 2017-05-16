@@ -463,16 +463,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 				return tagValues[0] != null ? tagValues[0].toString() : ""; //$NON-NLS-1$
 
 			case NO_MODIFY_ACCESS :
-				return Messages.getString("servoy.foundSet.error.noModifyAccess"); //$NON-NLS-1$
+				return Messages.getString("servoy.foundSet.error.noModifyAccess", tagValues); //$NON-NLS-1$
 
 			case NO_ACCESS :
-				return Messages.getString("servoy.foundSet.error.noAccess"); //$NON-NLS-1$
+				return Messages.getString("servoy.foundSet.error.noAccess", tagValues); //$NON-NLS-1$
 
 			case NO_DELETE_ACCESS :
-				return Messages.getString("servoy.foundSet.error.noDeleteAccess"); //$NON-NLS-1$
+				return Messages.getString("servoy.foundSet.error.noDeleteAccess", tagValues); //$NON-NLS-1$
 
 			case NO_CREATE_ACCESS :
-				return Messages.getString("servoy.foundSet.error.noCreateAccess"); //$NON-NLS-1$
+				return Messages.getString("servoy.foundSet.error.noCreateAccess", tagValues); //$NON-NLS-1$
 
 			case NO_RELATED_CREATE_ACCESS :
 				return Messages.getString("servoy.foundset.error.createRelatedRecordsNotAllowed", tagValues); //$NON-NLS-1$
