@@ -29,6 +29,6 @@ public class FoxProTemplate extends ServerTemplateDefinition
 	{
 		super(new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, "com.hxtt.sql.dbf.DBFDriver", null,
 			null, ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, 0 /* disable PS pool */, ServerConfig.VALIDATION_TYPE_DEFAULT, null, null,
-			true, false, -1, null));
+			true, false, false, -1, null));
 	}
 }

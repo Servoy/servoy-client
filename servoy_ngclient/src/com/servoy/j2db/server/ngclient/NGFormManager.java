@@ -383,6 +383,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 		clearLeaseHistory();
 
+		possibleForms.clear();
+
 		// cleanup windows (containers)
 		NGRuntimeWindowManager wm = ((INGApplication)application).getRuntimeWindowManager();
 		wm.destroy(reload);
