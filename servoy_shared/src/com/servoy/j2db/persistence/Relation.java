@@ -1069,6 +1069,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			{
 				relation.valid = Boolean.FALSE;
 			}
+
+			if (relation.valid == Boolean.FALSE)
+			{
+				Debug.warn(
+					"Relation '" + relation.getName() + "' is invalid because the datasource '" + relation.getForeignDataSource() + "' can't be resolved");
+			}
+
 		}
 		// default to true
 		return relation.valid == null || relation.valid.booleanValue();
