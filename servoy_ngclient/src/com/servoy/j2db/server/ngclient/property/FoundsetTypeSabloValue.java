@@ -323,7 +323,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
 			changeMonitor.checkHadMoreRows();
-			if (foundset.isMultiSelect()) changeMonitor.multiSelectChanged();
+			if (foundset != null && foundset.isMultiSelect()) changeMonitor.multiSelectChanged();
 
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
 
