@@ -1,10 +1,9 @@
 <div class='svy-checkgroup input-sm svy-padding-xs'
-     style="width:100%; height:100%" >
+     style="width:100%; height:100%" sablo-tabseq='model.tabSeq' sablotabseqcallback='tabIndexChanged($tabindex)'>
   <label class='svy-check-radio'
   		 ng-repeat="item in  model.valuelistID  | filter:notNullOrEmpty('realValue')">
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
            ng-disabled="model.enabled == false || model.editable == false"
-           sablo-tabseq='model.tabSeq'
            ng-click="checkBoxClicked($event,$index)"
            svy-click='handlers.onActionMethodID($event)'
            svy-focusgained='handlers.onFocusGainedMethodID($event)'/>

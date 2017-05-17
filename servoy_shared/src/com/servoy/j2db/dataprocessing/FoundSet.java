@@ -3994,7 +3994,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (!hasAccess(IRepository.DELETE))
 			{
-				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS);
+				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { table.getName() });
 			}
 
 			boolean hasRelationsWithDelete = false;
@@ -4154,7 +4154,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (!hasAccess(IRepository.DELETE) && (state == null || state.existInDataSource()))
 		{
-			throw new ApplicationException(ServoyException.NO_DELETE_ACCESS);
+			throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { sheet.getTable().getName() });
 		}
 
 		if (state != null && !(state instanceof PrototypeState) && !findMode)
@@ -4190,12 +4190,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 
 				// check for related data
-				Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
+				FlattenedSolution flattenedSolution = fsm.getApplication().getFlattenedSolution();
+				Iterator<Relation> it = flattenedSolution.getRelations(sheet.getTable(), true, false);
 				while (it.hasNext())
 				{
 					Relation rel = it.next();
-					if (!rel.getAllowParentDeleteWhenHavingRelatedRecords() && !rel.isExactPKRef(fsm.getApplication().getFlattenedSolution()) &&
-						!rel.isGlobal())
+					if (Relation.isValid(rel, flattenedSolution) && !rel.getAllowParentDeleteWhenHavingRelatedRecords() &&
+						!rel.isExactPKRef(fsm.getApplication().getFlattenedSolution()) && !rel.isGlobal())
 					{
 						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 						if (set != null && set.getSize() > 0)
@@ -4214,11 +4215,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 
 					// delete the related data
-					it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
+					it = flattenedSolution.getRelations(sheet.getTable(), true, false);
 					while (it.hasNext())
 					{
 						Relation rel = it.next();
-						if (rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
+						if (Relation.isValid(rel, flattenedSolution) && rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
 						{
 							IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 							if (set != null)
@@ -4767,7 +4768,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (javascriptRecord && !hasAccess(IRepository.INSERT))
 		{
-			throw new ApplicationException(ServoyException.NO_CREATE_ACCESS);
+			throw new ApplicationException(ServoyException.NO_CREATE_ACCESS, new Object[] { getTable().getName() });
 		}
 
 		if (rowData == null && relationName != null)
@@ -6745,7 +6746,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (!hasAccess(IRepository.READ))
 		{
 			fireDifference(getSize(), 0);
-			throw new ApplicationException(ServoyException.NO_ACCESS);
+			throw new ApplicationException(ServoyException.NO_ACCESS, new Object[] { getSQLSheet().getTable().getName() });
 		}
 
 		IDataSet dataSet = SQLGenerator.getEmptyDataSetForDummyQuery(theQuery);
