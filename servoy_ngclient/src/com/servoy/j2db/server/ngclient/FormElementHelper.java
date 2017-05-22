@@ -74,6 +74,8 @@ import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.xmlxport.ISolutionImportListener;
+import com.servoy.j2db.util.xmlxport.SolutionImportNotifier;
 
 /**
  * Class used to cache FormElements that can be cached.
@@ -81,7 +83,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-public class FormElementHelper implements IFormElementCache
+public class FormElementHelper implements IFormElementCache, ISolutionImportListener
 {
 	public final static RuntimeProperty<String> FORM_COMPONENT_TEMPLATE_NAME = new RuntimeProperty<String>()
 	{
@@ -99,6 +101,11 @@ public class FormElementHelper implements IFormElementCache
 	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
 
 	private final Map<IPersist, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
+
+	private FormElementHelper()
+	{
+		SolutionImportNotifier.setNGClientImportListener(this);
+	}
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -630,6 +637,12 @@ public class FormElementHelper implements IFormElementCache
 			fs.close(null);
 		}
 		globalFlattendSolutions.clear();
+	}
+
+	@Override
+	public void afterImport()
+	{
+		reload();
 	}
 
 	public void flush(Collection<IPersist> changes)
