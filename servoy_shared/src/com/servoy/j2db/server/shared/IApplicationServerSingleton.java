@@ -80,6 +80,8 @@ public interface IApplicationServerSingleton
 
 	boolean isDeveloperStartup();
 
+	boolean isServerStartup();
+
 	IWebClientSessionFactory getWebClientSessionFactory();
 
 	int getUsedRMIRegistryPort();
