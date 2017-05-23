@@ -17,24 +17,27 @@
 
 package com.servoy.j2db.util.xmlxport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author lvostinar
  *
  */
 public class SolutionImportNotifier
 {
-	private static ISolutionImportListener ngClientImportListener;
+	private static final List<ISolutionImportListener> listeners = new ArrayList<>();
 
-	public static void setNGClientImportListener(ISolutionImportListener importListener)
+	public static void addImportListener(ISolutionImportListener importListener)
 	{
-		ngClientImportListener = importListener;
+		listeners.add(importListener);
 	}
 
 	public static void fireSolutionImported()
 	{
-		if (ngClientImportListener != null)
+		for (ISolutionImportListener importListener : listeners)
 		{
-			ngClientImportListener.afterImport();
+			importListener.afterImport();
 		}
 	}
 }

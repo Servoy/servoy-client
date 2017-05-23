@@ -103,7 +103,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 	private FormElementHelper()
 	{
-		SolutionImportNotifier.setNGClientImportListener(this);
+		SolutionImportNotifier.addImportListener(this);
 	}
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
