@@ -425,4 +425,10 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	{
 		return false;
 	}
+
+	@Override
+	public boolean isServerStartup()
+	{
+		return false;
+	}
 }
