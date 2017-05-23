@@ -109,7 +109,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		boolean containsDpValue = false;
 		if (vlSize > config.getMaxCount() && dataproviderID != null && previousRecord != null)
 		{
-			Object dpvalue = previousRecord.getValue(dataproviderID);
+			Object dpvalue = dataAdapterList.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
 			if (dpindex != -1)
 			{
