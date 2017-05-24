@@ -262,7 +262,13 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 						}
 						if (valueType == Types.OTHER)
 						{
-							realValues.add(str[1]);
+							Object realValue = str[1];
+							if (str[1] != null && str[1].startsWith("%%") && ScopesUtils.isVariableScope(str[1].substring(2)) && str[1].endsWith("%%"))
+							{
+								realValue = application.getFoundSetManager().getScopesScopeProvider().getDataProviderValue(
+									str[1].substring(2, str[1].length() - 2));
+							}
+							realValues.add(realValue);
 						}
 						else
 						{
