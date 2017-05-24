@@ -332,7 +332,7 @@ public class Debug
 				// just ignore
 			}
 		}
-		return null;
+		return "";
 	}
 
 	public static void error(Object s)
