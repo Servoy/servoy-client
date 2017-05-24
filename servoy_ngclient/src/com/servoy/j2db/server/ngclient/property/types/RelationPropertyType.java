@@ -80,7 +80,7 @@ public class RelationPropertyType extends DefaultPropertyType<RelatedFoundSet>
 			writer.key(key);
 		}
 		String relationName = formElementValue;
-		if (CurrentWindow.get() instanceof INGClientWindow)
+		if (CurrentWindow.safeGet() instanceof INGClientWindow)
 		{
 			relationName = ((INGClientWindow)CurrentWindow.get()).registerAllowedRelation(relationName, formElementContext.getFormElement());
 		}
