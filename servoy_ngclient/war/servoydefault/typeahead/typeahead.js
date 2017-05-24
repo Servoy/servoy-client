@@ -100,7 +100,8 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					if ($scope.model.valuelistID) {
 						var hasMatchingDisplayValue = false;
 						for (var i = 0; i < $scope.model.valuelistID.length; i++) {
-							if ($scope.value === $scope.model.valuelistID[i].displayValue) {
+							// compare trimmed values, typeahead will trim the selected value
+							if ($.trim($scope.value) === $.trim($scope.model.valuelistID[i].displayValue)) {
 								hasMatchingDisplayValue = true;
 								$scope.model.dataProviderID = $scope.model.valuelistID[i].realValue;
 								break;
