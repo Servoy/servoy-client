@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
@@ -62,6 +63,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
@@ -88,6 +90,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public final static RuntimeProperty<String> FORM_COMPONENT_TEMPLATE_NAME = new RuntimeProperty<String>()
 	{
 	};
+	public final static RuntimeProperty<String> FORM_COMPONENT_FORM_NAME = new RuntimeProperty<String>()
+	{
+	};
 	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
 	{
 	};
@@ -100,7 +105,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
 
-	private final Map<IPersist, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
+	private final Map<UUID, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
 
 	private FormElementHelper()
 	{
@@ -224,6 +229,17 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	private List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
+		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
+		for (IFormElement formElement : persistElements)
+		{
+			elements.add(new FormElement(formElement, fs, new PropertyPath(), parent.getDesignId() != null));
+		}
+		return elements;
+	}
+
+	private List<IFormElement> generateFormComponentPersists(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
+	{
+		List<IFormElement> elements = new ArrayList<>();
 		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement element : formelements)
 		{
@@ -234,11 +250,11 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				UUID newElementUUID = null;
 				synchronized (formComponentElementsUUIDS)
 				{
-					Map<UUID, UUID> map = formComponentElementsUUIDS.get(parent.getPersistIfAvailable());
+					Map<UUID, UUID> map = formComponentElementsUUIDS.get(parent.getPersistIfAvailable().getUUID());
 					if (map == null)
 					{
 						map = new HashMap<>();
-						formComponentElementsUUIDS.put(parent.getPersistIfAvailable(), map);
+						formComponentElementsUUIDS.put(parent.getPersistIfAvailable().getUUID(), map);
 					}
 					newElementUUID = map.get(element.getUUID());
 					if (newElementUUID == null)
@@ -254,6 +270,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
 				}
 				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, elementName);
+				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, parent.getForm().getName());
 				JSONObject elementJson = json.optJSONObject(elementName);
 				if (elementJson != null)
 				{
@@ -303,7 +320,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				}
 				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
 				element.setName(name != null ? (name + '$' + pd.getName() + '$' + elementName) : elementName);
-				elements.add(new FormElement(element, fs, new PropertyPath(), parent.getDesignId() != null));
+				elements.add(element);
 			}
 		}
 		return elements;
@@ -670,6 +687,14 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		FlattenedSolution flattenedSolution) // TODO more args will be needed here such as the tabSeq property name or description
 	{
 		if (persistIfAvailable == null) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
+		if (flattenedForm.isFormComponent() && persistIfAvailable instanceof AbstractBase)
+		{
+			String mainFormName = ((AbstractBase)persistIfAvailable).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
+			if (mainFormName != null)
+			{
+				flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
+			}
+		}
 		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
 		Map<TabSeqProperty, Integer> cachedTabSeq = null;
 		if (formWasModifiedViaSolutionModel)
@@ -689,7 +714,17 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			{
 				public int compare(TabSeqProperty o1, TabSeqProperty o2)
 				{
-					return TabSeqComparator.compareTabSeq(o1.getSeqValue(), o1.element, o2.getSeqValue(), o2.element);
+					int seq1 = o1.getSeqValue();
+					int seq2 = o2.getSeqValue();
+					if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
+					{
+						int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
+						if (positionComparator != 0)
+						{
+							return positionComparator;
+						}
+					}
+					return TabSeqComparator.compareTabSeq(seq1, o1.element, seq2, o2.element);
 				}
 			});
 			Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
@@ -716,6 +751,64 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								else
 								{
 									cachedTabSeq.put(new TabSeqProperty(formElement, tabSeqProperty.getName()), Integer.valueOf(-2));
+								}
+							}
+						}
+						properties = specification.getProperties(FormComponentPropertyType.INSTANCE);
+						if (properties != null && properties.size() > 0)
+						{
+							FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formElement, flattenedSolution, null, true);
+							for (PropertyDescription property : properties)
+							{
+								Object frmValue = formComponentEl.getPropertyValue(property.getName());
+								Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
+								if (frm == null) continue;
+
+								List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm,
+									flattenedSolution);
+
+								for (IFormElement element : elements)
+								{
+									if (element instanceof ISupportTabSeq)
+									{
+										if (((ISupportTabSeq)element).getTabSeq() >= 0)
+										{
+											selected.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
+												formElement.getLocation()));
+										}
+										else
+										{
+											cachedTabSeq.put(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
+												Integer.valueOf(-2));
+										}
+									}
+									else if (FormTemplateGenerator.isWebcomponentBean(element))
+									{
+										String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
+										WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+											nestedDomponentType);
+										if (specification != null)
+										{
+											Collection<PropertyDescription> nestedProperties = nestedSpecification.getProperties(
+												NGTabSeqPropertyType.NG_INSTANCE);
+											if (nestedProperties != null && nestedProperties.size() > 0)
+											{
+												IBasicWebComponent webComponent = (IBasicWebComponent)element;
+												for (PropertyDescription tabSeqProperty : nestedProperties)
+												{
+													int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
+													if (tabseq >= 0)
+													{
+														selected.add(new TabSeqProperty(element, tabSeqProperty.getName(), formElement.getLocation()));
+													}
+													else
+													{
+														cachedTabSeq.put(new TabSeqProperty(element, tabSeqProperty.getName()), Integer.valueOf(-2));
+													}
+												}
+											}
+										}
+									}
 								}
 							}
 						}
@@ -749,8 +842,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				flattenedForm.setRuntimeProperty(FORM_TAB_SEQUENCE, new Pair<>(Long.valueOf(flattenedForm.getLastModified()), cachedTabSeq));
 			}
 		}
-
-		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(flattenedForm.findChild(persistIfAvailable.getUUID()), pd.getName()));
+		IPersist realPersist = flattenedForm.findChild(persistIfAvailable.getUUID());
+		if (realPersist == null)
+		{
+			realPersist = persistIfAvailable;
+		}
+		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(realPersist, pd.getName()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;
@@ -760,11 +857,18 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	{
 		public IPersist element;
 		public String propertyName;
+		public Point locationOffset;
 
 		public TabSeqProperty(IPersist element, String propertyName)
 		{
+			this(element, propertyName, null);
+		}
+
+		public TabSeqProperty(IPersist element, String propertyName, Point locationOffset)
+		{
 			this.element = element;
 			this.propertyName = propertyName;
+			this.locationOffset = locationOffset;
 		}
 
 		public int getSeqValue()
@@ -791,6 +895,17 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				return ((ISupportTabSeq)element).getTabSeq();
 			}
 			return -1;
+		}
+
+		public Point getLocation()
+		{
+			Point location = new Point();
+			if (element instanceof ISupportBounds)
+			{
+				location.setLocation(((ISupportBounds)element).getLocation().x + (locationOffset != null ? locationOffset.x : 0),
+					((ISupportBounds)element).getLocation().y + (locationOffset != null ? locationOffset.y : 0));
+			}
+			return location;
 		}
 
 		@Override
