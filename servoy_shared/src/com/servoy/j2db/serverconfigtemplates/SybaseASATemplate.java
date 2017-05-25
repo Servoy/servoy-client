@@ -28,6 +28,6 @@ public class SybaseASATemplate extends ServerTemplateDefinition
 	public SybaseASATemplate()
 	{
 		super(new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", null,
-			"com.sybase.jdbc3.jdbc.SybDriver", null, null, true, false, null));
+			"com.sybase.jdbc4.jdbc.SybDriver", null, null, true, false, null));
 	}
 }
