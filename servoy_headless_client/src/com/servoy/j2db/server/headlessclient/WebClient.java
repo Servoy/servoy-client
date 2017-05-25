@@ -279,9 +279,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (wrc != null && wrc.getWebRequest() != null)
 		{
 			Cookie[] cookies = wrc.getWebRequest().getCookies();
-			for (Cookie element : cookies)
+			if (cookies != null)
 			{
-				retval.add(element.getName());
+				for (Cookie element : cookies)
+				{
+					retval.add(element.getName());
+				}
 			}
 		}
 
