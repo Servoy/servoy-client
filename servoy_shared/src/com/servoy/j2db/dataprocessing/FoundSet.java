@@ -1926,11 +1926,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
@@ -4213,12 +4213,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 
 				// check for related data
-				Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
+				FlattenedSolution flattenedSolution = fsm.getApplication().getFlattenedSolution();
+				Iterator<Relation> it = flattenedSolution.getRelations(sheet.getTable(), true, false);
 				while (it.hasNext())
 				{
 					Relation rel = it.next();
-					if (!rel.getAllowParentDeleteWhenHavingRelatedRecords() && !rel.isExactPKRef(fsm.getApplication().getFlattenedSolution()) &&
-						!rel.isGlobal())
+					if (Relation.isValid(rel, flattenedSolution) && !rel.getAllowParentDeleteWhenHavingRelatedRecords() &&
+						!rel.isExactPKRef(fsm.getApplication().getFlattenedSolution()) && !rel.isGlobal())
 					{
 						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 						if (set != null && set.getSize() > 0)
@@ -4238,11 +4239,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 
 					// delete the related data
-					it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
+					it = flattenedSolution.getRelations(sheet.getTable(), true, false);
 					while (it.hasNext())
 					{
 						Relation rel = it.next();
-						if (rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
+						if (Relation.isValid(rel, flattenedSolution) && rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
 						{
 							IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 							if (set != null)

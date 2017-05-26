@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
@@ -208,11 +209,14 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 							if (styleClass == null) styleClass = "";
 							if ("addStyleClass".equals(nameFinal))
 							{
-								styleClass = styleClass + " " + args[0];
+								if (!Pattern.compile("(?<!\\S)\\b" + Pattern.quote(args[0].toString()) + "\\b(?!\\S)").matcher(styleClass).find())
+								{
+									styleClass = styleClass + " " + args[0];
+								}
 							}
 							else
 							{
-								styleClass = styleClass.replaceAll(args[0].toString(), "");
+								styleClass = styleClass.replaceAll("(?<!\\S)\\b" + Pattern.quote(args[0].toString()) + "\\b(?!\\S)", "");
 							}
 							component.setProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), styleClass);
 						}

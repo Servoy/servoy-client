@@ -211,7 +211,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		{
 			writer.key(key);
 			writer.value(form.getName());
-			if (CurrentWindow.get() instanceof INGClientWindow)
+			if (CurrentWindow.safeGet() instanceof INGClientWindow)
 			{
 				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(form.getName(), formElementContext.getFormElement());
 			}

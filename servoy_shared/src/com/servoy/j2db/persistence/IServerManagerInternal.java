@@ -29,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitable;
  */
 public interface IServerManagerInternal extends IServerManager
 {
-	void init(IServiceRegistry serviceRegistry) throws Exception;
+	void init(IServiceRegistry serviceRegistry, boolean appServerStartup) throws Exception;
 
 	IServer deleteServer(ServerConfig oldServerConfig);
 

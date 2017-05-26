@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 
@@ -1112,5 +1113,17 @@ public class PersistHelper
 			flattenedPersist = new FlattenedLayoutContainer(ff, (LayoutContainer)flattenedPersist);
 		}
 		return flattenedPersist;
+	}
+
+	public static ScriptMethod getOverridenMethod(ScriptMethod element)
+	{
+		Form parent = (Form)getSuperPersist((Form)element.getParent());
+		while (parent != null)
+		{
+			if (parent.getScriptMethod(element.getName()) != null) return parent.getScriptMethod(element.getName());
+			parent = (Form)getSuperPersist(parent);
+		}
+		return null;
+
 	}
 }

@@ -1019,7 +1019,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						},
 						function(serverRows){
 							//canceled 
-							if (serverRows === 'canceled'){
+							if (typeof serverRows === 'string'){
 								return;
 							}
 							//reject
