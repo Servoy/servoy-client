@@ -122,6 +122,8 @@ import de.rtner.security.auth.spi.PBKDF2Parameters;
  */
 public final class Utils
 {
+	private static final String COOKIE_BASE64_PREFIX = "B64p_";
+
 	/**
 	 * The password hash prefix if it is the new PBKDF2 password or a md5 hash.
 	 */
@@ -3120,5 +3122,51 @@ public final class Utils
 		if (defaultValue == null) defaultValue = scriptable.toString();
 		processed.put(scriptable, defaultValue.toString());
 		return defaultValue.toString();
+	}
+
+
+	/**
+	 * Reads a cookie, and decodes it if it was stored in Base64 using {@link #encodeCookieValue(String)}.
+	 * @param value the cookie contents.
+	 * @return the useful cookie contents.
+	 */
+	public static String decodeCookieValue(String value)
+	{
+		String cookieValue = value;
+		if (cookieValue != null && cookieValue.startsWith(COOKIE_BASE64_PREFIX))
+		{
+			try
+			{
+				cookieValue = new BufferedReader(new InputStreamReader(
+					new ByteArrayInputStream(Utils.decodeBASE64(cookieValue.substring(COOKIE_BASE64_PREFIX.length()))), "UTF-8")).readLine();
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				Debug.error(e);
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
+		}
+		return cookieValue;
+	}
+
+	/**
+	 * Encodes a value into Base64 so that it can be stored in a cookie without special character problems.
+	 * @param value the useful value that needs to be encoded.
+	 * @return the encoded value that can be decoded using {@link #decodeCookieValue(String)}.
+	 */
+	public static String encodeCookieValue(String value)
+	{
+		try
+		{
+			return COOKIE_BASE64_PREFIX + Utils.encodeBASE64(value.getBytes("UTF-8"));
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			Debug.error(e);
+			return value;
+		}
 	}
 }

@@ -29,17 +29,18 @@ import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.locator.IResourceStreamLocator;
 
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class ServoyPageExpiredPage extends WebPage implements IMarkupResourceStreamProvider
 {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 */
 	public ServoyPageExpiredPage()
 	{
@@ -59,7 +60,7 @@ public class ServoyPageExpiredPage extends WebPage implements IMarkupResourceStr
 			{
 				if ("servoy.webclient.pageexpired.page".equals(element.getName()))
 				{
-					htmlfile = WebClient.decodeCookieValue(element.getValue());
+					htmlfile = Utils.decodeCookieValue(element.getValue());
 					break;
 				}
 			}
