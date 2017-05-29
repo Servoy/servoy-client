@@ -81,6 +81,21 @@ public class MemDataSource extends DefaultJavaScope
 			// maybe added later
 			fill();
 			val = super.get(dsname, start);
+			try
+			{
+				String datasource = DataSourceUtils.createInmemDataSource(dsname);
+				if ((val == null || val == Scriptable.NOT_FOUND) && application.getFoundSetManager().dataSourceExists(datasource))
+				{
+					// must initialize it
+					application.getFoundSetManager().getTable(datasource);
+					fill();
+					val = super.get(dsname, start);
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
 		}
 
 		return val;
