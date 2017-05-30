@@ -250,7 +250,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		RECORD_IS_LOCKED = fsm.getApplication().getI18NMessage("servoy.foundSet.recordLocked"); //$NON-NLS-1$
 		NO_RECORD = fsm.getApplication().getI18NMessage("servoy.foundSet.noRecord"); //$NON-NLS-1$
-		NO_ACCESS = fsm.getApplication().getI18NMessage("servoy.foundSet.error.noModifyAccess"); //$NON-NLS-1$
+		NO_ACCESS = fsm.getApplication().getI18NMessage("servoy.foundSet.error.noModifyAccess", new Object[] { getDataSource() }); //$NON-NLS-1$
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
 		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
@@ -1904,11 +1904,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
