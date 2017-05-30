@@ -351,7 +351,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			path = url;
 		}
-		index = path.indexOf(";");
+		index = path.indexOf(";jsessionid");
 		if (index > 0)
 		{
 			path = path.substring(0, index);
