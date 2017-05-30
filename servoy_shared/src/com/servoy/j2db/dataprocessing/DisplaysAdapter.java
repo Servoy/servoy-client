@@ -331,7 +331,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			//don't transfer focus to menu bar.. (macosx)
 			//application.getMainApplicationFrame().getJMenuBar().requestFocus();
 			application.looseFocus();
-			application.reportWarningInStatus(application.getI18NMessage("servoy.foundSet.error.noModifyAccess")); //$NON-NLS-1$
+			application.reportWarningInStatus(
+				application.getI18NMessage("servoy.foundSet.error.noModifyAccess", new Object[] { state.getParentFoundSet().getDataSource() })); //$NON-NLS-1$
 		}
 	}
 
