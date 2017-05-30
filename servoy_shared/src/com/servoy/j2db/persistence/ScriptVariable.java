@@ -265,9 +265,10 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		StringBuffer sb = new StringBuffer();
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(Column.getDisplayTypeString(getVariableType()));
+		sb.append("&nbsp;");
 		sb.append(getName());
 		sb.append("</b> "); //$NON-NLS-1$
-		sb.append("<pre>defaultvalue: "); //$NON-NLS-1$
+		sb.append("<br><pre>defaultvalue: "); //$NON-NLS-1$
 		sb.append(getDefaultValue());
 		sb.append("</pre>");
 		return sb.toString();
