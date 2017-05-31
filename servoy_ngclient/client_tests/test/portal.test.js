@@ -204,7 +204,7 @@ describe("Test portal suite", function() {
 	it("should have column definitions for normal portal", function() {
 		var portalScope = scope.$$childHead;
 		expect(portalScope.model.multiLine).not.toBeDefined();
-		expect(portalScope.columnDefinitions[0].cellTemplate).toBe('<servoydefault-button name="svy_1" svy-model="grid.appScope.getMergedCellModel(row, 0, rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, 0, rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, 0)" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, 0)"/>');
+		expect(portalScope.columnDefinitions[0].cellTemplate).toBe('<servoydefault-button name="svy_1" svy-model="grid.appScope.getMergedCellModel(row, 0, rowRenderIndex, rowElementHelper)" svy-api="grid.appScope.cellApiWrapper(row, 0, rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, 0)" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, 0)"/>');
 	});
 
 	it("should have column definitions for multiline portal", function() {
@@ -214,7 +214,7 @@ describe("Test portal suite", function() {
 		$compile(newtemplate)(scope); //need to compile it again so that angular calls link and creates a multiline portal
 		scope.$apply();
 		portalScope = scope.$$childTail;
-		expect(portalScope.columnDefinitions[0].cellTemplate).toBe('<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(0)" ><servoydefault-button name="svy_1" svy-model="grid.appScope.getMergedCellModel(row, 0, rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, 0, rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, 0)" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, 0)"/></div><div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(1)" ><servoydefault-button name="svy_2" svy-model="grid.appScope.getMergedCellModel(row, 1, rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, 1, rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, 1)" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, 1)"/></div>');
+		expect(portalScope.columnDefinitions[0].cellTemplate).toBe('<div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(0)" ><servoydefault-button name="svy_1" svy-model="grid.appScope.getMergedCellModel(row, 0, rowRenderIndex, rowElementHelper)" svy-api="grid.appScope.cellApiWrapper(row, 0, rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, 0)" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, 0)"/></div><div ng-class=\'"svy-listviewwrapper"\' ng-style="grid.appScope.getMultilineComponentWrapperStyle(1)" ><servoydefault-button name="svy_2" svy-model="grid.appScope.getMergedCellModel(row, 1, rowRenderIndex, rowElementHelper)" svy-api="grid.appScope.cellApiWrapper(row, 1, rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, 1)" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, 1)"/></div>');
 		expect(portalScope.columnDefinitions[0].width).toBe(111);
 
 	});
