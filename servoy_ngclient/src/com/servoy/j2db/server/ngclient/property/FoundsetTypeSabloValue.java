@@ -270,6 +270,17 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				{
 					newFoundset = (IFoundSetInternal)o;
 				}
+				else
+				{
+					try
+					{
+						newFoundset = (IFoundSetInternal)getFoundSetManager().getNamedFoundSet(foundsetSelector);
+					}
+					catch (ServoyException e)
+					{
+						Debug.error(e);
+					}
+				}
 			}
 		}
 		else // DataSourceUtils.isDatasourceUri(foundsetSelector)

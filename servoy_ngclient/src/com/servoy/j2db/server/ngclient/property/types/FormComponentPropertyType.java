@@ -158,6 +158,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
 				fs).getCacheUUID();
 			writer.value(uuid);
+			writer.key("absoluteLayout");
+			writer.value(!form.isResponsiveLayout());
 		}
 		return writer;
 	}
@@ -237,7 +239,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				{
 					if (element.getName() != null)
 					{
-						WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(FormTemplateGenerator.getComponentTypeName(element));
+						WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+							FormTemplateGenerator.getComponentTypeName(element));
 						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
 						if (properties.size() > 0)
 						{
