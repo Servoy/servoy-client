@@ -241,7 +241,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction locate(Object string1, Object string2)
 	{
-		return locate(string1, string2, 0);
+		return locate(string1, string2, 1);
 	}
 
 	/**
