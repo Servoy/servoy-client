@@ -20,7 +20,7 @@ package com.servoy.j2db.querybuilder;
 
 /**
  * Functions to be used in queries.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -80,6 +80,11 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	 * Create trim(column) expression
 	 */
 	IQueryBuilderFunction trim(Object arg);
+
+	/**
+	 * Create trim([leading | trailing | both] [characters] from column)
+	 */
+	IQueryBuilderFunction trim(String leading_trailing_both, String characters, String fromKeyword, Object value);
 
 	/**
 	 * Create length(column) expression
