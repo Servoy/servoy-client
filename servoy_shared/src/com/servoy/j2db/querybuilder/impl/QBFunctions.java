@@ -209,7 +209,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction substring(Object arg, int pos)
 	{
-		return substring(arg, pos, Integer.MAX_VALUE);
+		return substring(arg, pos, Integer.MAX_VALUE - pos);
 	}
 
 	/**
