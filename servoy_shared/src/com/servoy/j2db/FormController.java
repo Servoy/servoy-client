@@ -1174,20 +1174,23 @@ public class FormController extends BasicFormController
 						// Check Web components always have a name! Because name can't be set
 						((IComponent)src).setName(name);
 					}
-					try
+					IScriptable scriptObject = ((IScriptableProvider)src).getScriptObject();
+					if (scriptObject != null)
 					{
-						Context.enter();
-						IScriptable scriptObject = ((IScriptableProvider)src).getScriptObject();
-						JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptObject.getClass(), ScriptableObject.getTopLevelScope(formScope));
-						thisObject = new NativeJavaObject(formScope, scriptObject, jm);
+						try
+						{
+							Context.enter();
+							JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptObject.getClass(), ScriptableObject.getTopLevelScope(formScope));
+							thisObject = new NativeJavaObject(formScope, scriptObject, jm);
 
-						es.setLocked(false);
-						es.put(name, es, thisObject);
-						es.setLocked(true);
-					}
-					finally
-					{
-						Context.exit();
+							es.setLocked(false);
+							es.put(name, es, thisObject);
+							es.setLocked(true);
+						}
+						finally
+						{
+							Context.exit();
+						}
 					}
 				}
 			}
