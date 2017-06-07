@@ -2,7 +2,7 @@
 	"name": "servoycore-slider",
 	"displayName": "Slider",
 	"version": 1,
-	"icon": "servoycore/slider/SLIDER16.png",
+	"icon": "servoycore/slider/slider.png",
 	"definition": "servoycore/slider/slider.js", 
 	"libraries": [{"name":"jquery-ui.custom", "version":"1.9.2", "url":"servoycore/slider/css/jquery-ui-1.9.2.custom.css", "mimetype":"text/css"},
 				  {"name":"jquery-ui.min.css", "version":"1.11.4", "url":"servoycore/slider/css/jquery-ui.min.css", "mimetype":"text/css"},

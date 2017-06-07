@@ -2,7 +2,7 @@
 	"name": "servoydefault-splitpane",
 	"displayName": "Split Pane",
 	"version": 1,
-	"icon": "servoydefault/splitpane/split.gif",
+	"icon": "servoydefault/splitpane/split.png",
 	"definition": "servoydefault/splitpane/splitpane.js",
 	"serverscript": "servoydefault/splitpane/splitpane_server.js",
 	"libraries": [{"name":"bg-splitter", "version":"1", "url":"servoydefault/splitpane/bg-splitter/js/splitter.js", "mimetype":"text/javascript"},{"name":"bg-splitter", "version":"1", "url":"servoydefault/splitpane/bg-splitter/css/style.css", "mimetype":"text/css"}],

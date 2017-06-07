@@ -2,7 +2,7 @@
 	"name": "servoydefault-htmlarea",
 	"displayName": "Html Area",
 	"version": 1,
-	"icon": "servoydefault/htmlarea/H1_C16.png",
+	"icon": "servoydefault/htmlarea/html_area.png",
 	"definition": "servoydefault/htmlarea/htmlarea.js",
 	"libraries": [{"name":"tinymce", "version":"4.0.20", "url":"servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "mimetype":"text/javascript", "group":false},{"name":"ui-tinymce", "version":"1", "url":"servoydefault/htmlarea/lib/ui-tinymce.js", "mimetype":"text/javascript"}],
 	"model":

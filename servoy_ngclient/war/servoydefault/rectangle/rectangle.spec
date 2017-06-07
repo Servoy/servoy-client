@@ -2,7 +2,7 @@
 	"name": "servoydefault-rectangle",
 	"displayName": "Rectangle",
 	"version": 1,
-	"icon": "servoydefault/rectangle/rectangle.gif",
+	"icon": "servoydefault/rectangle/rectangle.png",
 	"definition": "servoydefault/rectangle/rectangle.js",
 	"libraries": [],
 	"model":
