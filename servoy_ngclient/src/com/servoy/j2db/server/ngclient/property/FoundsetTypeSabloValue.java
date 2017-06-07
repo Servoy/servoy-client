@@ -59,9 +59,11 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -637,7 +639,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (columnName == null || Utils.equalObjects(columnName, dataProvider))
 			{
 				Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
-				PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
+				PropertyDescription pd = getDataProviderPropertyDescription(dataProvider);
 
 				// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)
 				//			if (pd != null)
@@ -655,6 +657,26 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				clientConversionInfo.popNode();
 			}
 		}
+	}
+
+	/**
+	 * @param dataProvider
+	 * @return
+	 */
+	private PropertyDescription getDataProviderPropertyDescription(String dataProvider)
+	{
+		if (parentDAL != null)
+		{
+			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication().getFlattenedSolution(), parentDAL.getForm().getForm(),
+				foundset.getTable(), false);
+		}
+		else if (webObject instanceof WebFormComponent)
+		{
+			IDataAdapterList dl = ((WebFormComponent)webObject).getDataAdapterList();
+			return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication().getFlattenedSolution(), dl.getForm().getForm(),
+				foundset.getTable(), false);
+		}
+		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
 	}
 
 	public void browserUpdatesReceived(Object jsonValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
@@ -860,8 +882,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 									IRecordInternal record = foundset.getRecord(recordIndex);
 									// convert Dates where it's needed
 
-									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable(),
-										false); // this should be enough for when only foundset dataproviders are used
+									PropertyDescription dataProviderPropDesc = getDataProviderPropertyDescription(dataProviderName); // this should be enough for when only foundset dataproviders are used
 									ValueReference<Boolean> returnValueAdjustedIncommingValueForRow = new ValueReference<Boolean>(Boolean.FALSE);
 									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext,
 										returnValueAdjustedIncommingValueForRow);
