@@ -2,7 +2,7 @@
 	"name": "servoydefault-combobox",
 	"displayName": "Combobox ",
 	"version": 1,
-	"icon": "servoydefault/combobox/SELECT16.png",
+	"icon": "servoydefault/combobox/combobox.png",
 	"definition": "servoydefault/combobox/combobox.js",
 	"libraries": [{"name":"ui-select", "version":"0.8.1", "url":"servoydefault/combobox/lib/select.js", "mimetype":"text/javascript"},{"name":"ui-select", "version":"0.8.0", "url":"servoydefault/combobox/lib/select.css", "mimetype":"text/css"}],
 	"model":

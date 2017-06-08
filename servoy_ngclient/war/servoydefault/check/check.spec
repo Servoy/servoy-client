@@ -2,7 +2,7 @@
 	"name": "servoydefault-check",
 	"displayName": "Check",
 	"version": 1,
-	"icon": "servoydefault/check/CHECKBOX16.png",
+	"icon": "servoydefault/check/checkbox.png",
 	"definition": "servoydefault/check/check.js",
 	"libraries": [],
 	"model":

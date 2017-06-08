@@ -2,7 +2,7 @@
 	"name": "servoycore-portal",
 	"displayName": "Portal",
 	"version": 1,
-	"icon": "servoycore/portal/portal.gif",
+	"icon": "servoycore/portal/portal.png",
 	"definition": "servoycore/portal/portal.js",
 	"serverscript": "servoycore/portal/portal_server.js",
 	"libraries": [{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoycore/portal/js/ui-grid.js", "mimetype":"text/javascript"},
