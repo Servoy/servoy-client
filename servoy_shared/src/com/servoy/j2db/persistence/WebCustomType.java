@@ -143,11 +143,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 					Object mergedProperty = ((JSONObject)mergedParentProperty).opt(jsonKey);
 					if (mergedProperty instanceof JSONArray)
 					{
-						int idx = getIndex();
-						if (idx < ((JSONArray)mergedProperty).length())
-						{
-							mergedProperty = ((JSONArray)mergedProperty).get(idx);
-						}
+						mergedProperty = ((JSONArray)mergedProperty).opt(getIndex());
 					}
 					if (mergedProperty instanceof JSONObject)
 					{
