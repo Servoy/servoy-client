@@ -184,7 +184,7 @@ public class TableScope extends LazyCompilationScope
 				setUsedDataProviderTracker(null);
 			}
 
-			Object o = scriptEngine.executeFunction(calculation, this, calculation, (Object[])array[1], false, false);
+			Object o = scriptEngine.executeFunction(calculation, this, getFunctionParentScriptable(), (Object[])array[1], false, false);
 			if (o instanceof Undefined && record != null) o = record.getRawData().getValue(name);//record value trick
 			return o;
 		}
