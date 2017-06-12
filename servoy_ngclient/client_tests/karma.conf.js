@@ -72,8 +72,8 @@ module.exports = function(config){
     //autoWatch : true,
     reporters: ['dots', 'junit'],
     junitReporter: {
-          outputFile: 'test-results.xml'
-    }
+        outputFile: '../../target/TEST-phantomjs-karma.xml'
+  }
   /*,  alternative format
     junitReporter : {
       outputFile: 'test_out/unit.xml',
