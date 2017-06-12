@@ -284,6 +284,45 @@ public class FormWrapper
 		properties.remove(StaticContentSpecLoader.PROPERTY_SHOWINMENU.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_DEFAULTPAGEFORMAT.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_INITIALSORT.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_PAPERPRINTSCALE.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_PAPERPRINTSCALE.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_NAMEDFOUNDSET.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_SELECTIONMODE.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_NAVIGATORID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID.getPropertyName());
 	}
 
 	public String getContainerSizesString() throws JSONException, IllegalArgumentException
