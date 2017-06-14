@@ -63,12 +63,12 @@ public class DataException extends ServoyException
 	private static String getChainedMessage(SQLException ex)
 	{
 		SQLException e = ex.getNextException();
-		StringBuilder sb = new StringBuilder(ex.getMessage());
+		StringBuilder sb = new StringBuilder(String.valueOf(ex.getMessage()));
 		while (e != null)
 		{
 			sb.append("\nNextException: SQL Error: ").append(e.getErrorCode()) //
-			.append(", SQLState: ").append(e.getSQLState()) //
-			.append(", Message: ").append(e.getMessage());
+				.append(", SQLState: ").append(e.getSQLState()) //
+				.append(", Message: ").append(e.getMessage());
 			e = e.getNextException();
 		}
 		return sb.toString();
@@ -115,7 +115,7 @@ public class DataException extends ServoyException
 	@Override
 	public String getMessage()
 	{
-		return msg;
+		return super.getMessage() + '\n' + msg;
 	}
 
 	public String getSQL()
