@@ -378,6 +378,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		return true;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String getMessage()
 	{
@@ -496,17 +497,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 			case UNEXPECTED_UPDATE_COUNT :
 				return "Update/insert failed, unexpected nr of records affected: expected " + tagValues[0] + ", actual " + tagValues[1]; //$NON-NLS-1$ //$NON-NLS-2$
 
+			case BAD_SQL_SYNTAX :
+				return "Bad SQL syntax";
+
 			default :
-			{
 				if (errorCode == 0 && getCause() != null)
 				{
 					return super.getMessage();
 				}
-				else
-				{
-					return Messages.getString("servoy.applicationException.errorCode", new Object[] { new Integer(errorCode) }); //$NON-NLS-1$
-				}
-			}
+
+				return Messages.getString("servoy.applicationException.errorCode", new Object[] { new Integer(errorCode) }); //$NON-NLS-1$
 		}
 	}
 
