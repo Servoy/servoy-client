@@ -31,6 +31,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
@@ -633,31 +634,35 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		//cleanup here before script engine is destroyed
 		if (canClose || force)
 		{
-			WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
-			for (WebObjectSpecification serviceSpecification : serviceSpecifications)
+			SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
+			if (specProviderState != null)
 			{
-				WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
-				if (apiFunction != null && getScriptEngine() != null)
+				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebComponentSpecifications();
+				for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 				{
-					PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
-					if (scope != null)
+					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+					if (apiFunction != null && getScriptEngine() != null)
 					{
-						Scriptable service = (Scriptable)scope.get(serviceSpecification.getScriptingName(), null);
-						Object api = service.get(apiFunction.getName(), null);
-						if (api instanceof Function)
+						PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
+						if (scope != null)
 						{
-							Context context = Context.enter();
-							try
+							Scriptable service = (Scriptable)scope.get(serviceSpecification.getScriptingName(), null);
+							Object api = service.get(apiFunction.getName(), null);
+							if (api instanceof Function)
 							{
-								((Function)api).call(context, scope, service, null);
-							}
-							catch (Exception ex)
-							{
-								Debug.error(ex);
-							}
-							finally
-							{
-								Context.exit();
+								Context context = Context.enter();
+								try
+								{
+									((Function)api).call(context, scope, service, null);
+								}
+								catch (Exception ex)
+								{
+									Debug.error(ex);
+								}
+								finally
+								{
+									Context.exit();
+								}
 							}
 						}
 					}

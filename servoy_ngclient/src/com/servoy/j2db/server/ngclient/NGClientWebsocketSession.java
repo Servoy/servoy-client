@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
+import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.BaseWebsocketSession;
@@ -343,7 +344,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IClientService createClientService(String name)
 	{
-		WebObjectSpecification spec = WebServiceSpecProvider.getSpecProviderState().getWebComponentSpecification(name);
+		SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
+		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebComponentSpecification(name);
 		if (spec == null) spec = new WebObjectSpecification(name, "", IPackageReader.WEB_SERVICE, name, null, null, null, "", null);
 		return new ServoyClientService(name, spec, this);
 	}
