@@ -31,6 +31,8 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.sablo.CustomObjectContext;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
@@ -44,18 +46,17 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
-import com.servoy.j2db.server.ngclient.ComponentOrServiceExtension;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementExtension;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -66,7 +67,7 @@ import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
- * A JSON array type that is Servoy NG client aware as well.
+ * A custom JSON object type that is Servoy NG client aware as well.
  * So it adds all conversions from {@link NGConversions}.
  *
  * @author acostescu
@@ -126,7 +127,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 							flattenedSolution, formElement, propertyPath));
 						propertyPath.backOneLevel();
 					}
-					else if (pd.getType().defaultValue(pd) != null)
+					else if (pd.getType().defaultValue(pd) != null || pd.getType() instanceof IFormElementDefaultValueToSabloComponent)
 					{
 						propertyPath.add(pd.getName());
 						formElementValues.put(pd.getName(), (FormElementT)NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
@@ -205,7 +206,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public Map<String, SabloT> toSabloComponentValue(final Object rhinoValue, final Map<String, SabloT> previousComponentValue, PropertyDescription pd,
-		final INGWebObject componentOrService)
+		final IWebObjectContext webObjectContext)
 	{
 		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
 
@@ -222,12 +223,13 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				Map<String, SabloT> rhinoObjectCopy = new HashMap<>();
 				NativeObject rhinoNativeObject = (NativeObject)rhinoValue;
 
-				ComponentOrServiceExtension<SabloT, SabloWT> componentOrServiceExtension = new ComponentOrServiceExtension<SabloT, SabloWT>(
-					getCustomJSONTypeDefinition(), componentOrService);
+				CustomObjectContext<SabloT, SabloWT> customObjectContext = createComponentOrServiceExtension(webObjectContext);
 
 				Object[] keys = rhinoNativeObject.getIds();
 				Object value;
 				String keyAsString;
+
+				// perform the rhino-to-sablo conversions
 				for (Object key : keys)
 				{
 					if (key instanceof String)
@@ -243,36 +245,42 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 					else throw new RuntimeException("JS Object key must be either String or Number.");
 
 					rhinoObjectCopy.put(keyAsString, (SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, null,
-						getCustomJSONTypeDefinition().getProperty(keyAsString), componentOrServiceExtension));
+						getCustomJSONTypeDefinition().getProperty(keyAsString), customObjectContext));
 				}
 
-				ChangeAwareMap<SabloT, SabloWT> retVal = wrap(rhinoObjectCopy, previousSpecialMap, pd,
-					new WrappingContext(componentOrService.getUnderlyingWebObject(), pd.getName()));
-				componentOrServiceExtension.setPropertyValues(retVal);
+				// create the new change-aware-map based on the converted sub-properties
+				ChangeAwareMap<SabloT, SabloWT> retVal = internalWrap(rhinoObjectCopy, previousSpecialMap, pd,
+					new WrappingContext(webObjectContext.getUnderlyingWebObject(), pd.getName()), customObjectContext);
 
+				// after it is returned it and it's sub-properties will at some point get "attached" (ISmartPropertyValue)
 				return retVal;
 			}
 			else Debug.warn("Cannot convert value assigned from solution scripting into custom object property type; new value = " + rhinoValue +
-				"; property = " + pd.getName() + "; component name = " + componentOrService.getUnderlyingWebObject().getName());
+				"; property = " + pd.getName() + "; component name = " + webObjectContext.getUnderlyingWebObject().getName());
 		}
 		return previousComponentValue; // or should we return null or throw exception here? incompatible thing was assigned
 	}
 
+	protected CustomObjectContext<SabloT, SabloWT> createComponentOrServiceExtension(final IWebObjectContext webObjectContext)
+	{
+		CustomObjectContext<SabloT, SabloWT> componentOrServiceExtension = new CustomObjectContext<SabloT, SabloWT>(getCustomJSONTypeDefinition(),
+			webObjectContext);
+		return componentOrServiceExtension;
+	}
+
 	@Override
-	public boolean isValueAvailableInRhino(Map<String, SabloT> webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Map<String, SabloT> webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
 	@Override
-	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
 		if (webComponentValue != null)
 		{
-			ComponentOrServiceExtension<SabloT, SabloWT> ext = new ComponentOrServiceExtension<SabloT, SabloWT>(getCustomJSONTypeDefinition(),
-				componentOrService);
+			CustomObjectContext<SabloT, SabloWT> ext = ((ChangeAwareMap<SabloT, SabloWT>)webComponentValue).getOrCreateComponentOrServiceExtension();
 			RhinoMapOrArrayWrapper rhinoValue = new RhinoMapOrArrayWrapper(webComponentValue, ext, pd, startScriptable);
-			ext.setPropertyValues((ChangeAwareMap<SabloT, SabloWT>)rhinoValue.getWrappedValue());
 			return rhinoValue;
 		}
 		return null;
@@ -287,6 +295,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			for (Entry<String, PropertyDescription> entry : desc.getProperties().entrySet())
 			{
 				FormElementT value = object.get(entry.getKey());
+				value = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (value != null && entry.getValue().getType() instanceof ISupportTemplateValue< ? >)
 				{
 					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value, entry.getValue(), formElementContext))

@@ -38,6 +38,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -47,7 +48,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -200,7 +200,7 @@ public class WebServiceScriptable implements Scriptable
 			try
 			{
 				// find spec for method
-				INGWebObject serviceWebObject = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+				IWebObjectContext serviceWebObject = (IWebObjectContext)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 				WebObjectFunctionDefinition functionSpec = serviceSpecification.getApiFunction(methodName);
 				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
@@ -255,7 +255,7 @@ public class WebServiceScriptable implements Scriptable
 					{
 						Object retValue = ((Function)serverSideFunction).call(cx, scope, thisObj, args);
 						retValue = NGConversions.INSTANCE.convertServerSideRhinoToRhinoValue(retValue, apiFunction.getReturnType(),
-							(INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName()), null);
+							(IWebObjectContext)application.getWebsocketSession().getClientService(serviceSpecification.getName()), null);
 						return retValue;
 					}
 				};
@@ -265,7 +265,7 @@ public class WebServiceScriptable implements Scriptable
 		{
 			return new WebServiceFunction(application.getWebsocketSession(), apiFunction, serviceSpecification.getName());
 		}
-		INGWebObject service = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+		IWebObjectContext service = (IWebObjectContext)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		Object value = service.getProperty(name);
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
@@ -294,7 +294,7 @@ public class WebServiceScriptable implements Scriptable
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
 		{
-			INGWebObject service = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+			IWebObjectContext service = (IWebObjectContext)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 			IPropertyType< ? > type = desc.getType();
 			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
@@ -319,7 +319,7 @@ public class WebServiceScriptable implements Scriptable
 		if (desc != null)
 		{
 			Object previousVal = service.getProperty(name);
-			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, desc, (INGWebObject)service);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, desc, (IWebObjectContext)service);
 
 			if (val != previousVal) service.setProperty(name, val);
 		}
@@ -377,10 +377,10 @@ public class WebServiceScriptable implements Scriptable
 	public Object[] getIds()
 	{
 		ArrayList<String> al = new ArrayList<>();
-		INGWebObject service = null;
+		IWebObjectContext service = null;
 		if (application != null)
 		{
-			service = (INGWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+			service = (IWebObjectContext)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		}
 		for (String name : serviceSpecification.getAllPropertiesNames())
 		{

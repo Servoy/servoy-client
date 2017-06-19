@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
@@ -35,7 +36,6 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
@@ -161,6 +161,7 @@ public class NGConversions
 
 		/**
 		 * Converts from a FormElement default value to a Sablo default value to be set in the web component.
+		 *
 		 * @param pd the spec description of the property
 		 * @param formElement the form element
 		 * @param component the component to which the returned value will be assigned as a property
@@ -184,10 +185,10 @@ public class NGConversions
 		 *
 		 * @param webComponentValue the Sablo value
 		 * @param pd the spec description of the property/type
-		 * @param componentOrService the component to which the given value belongs to
+		 * @param webObjectContext the web object context (component, service, ...) to which the given value belongs to
 		 * @return true if this property value is available in Javascript and false otherwise
 		 */
-		boolean isValueAvailableInRhino(T webComponentValue, PropertyDescription pd, INGWebObject componentOrService);
+		boolean isValueAvailableInRhino(T webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext);
 
 		/**
 		 * Converts from a Sablo value to a Rhino usable representation of the value.
@@ -195,11 +196,11 @@ public class NGConversions
 		 *
 		 * @param webComponentValue the Sablo value
 		 * @param pd the spec description of the property/type
-		 * @param componentOrService the component or service to which the given value belongs to
+		 * @param webObjectContext the web object context (component, service, ...) to which the given value belongs to
 		 * @param startScriptable the Scriptable in Rhino that this value is requested for
 		 * @return the converted value, ready to be used in Rhino; can return Scriptable.NOT_FOUND if the property is not available in scripting.
 		 */
-		Object toRhinoValue(T webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable);
+		Object toRhinoValue(T webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext, Scriptable startScriptable);
 
 	}
 
@@ -212,11 +213,11 @@ public class NGConversions
 		 *
 		 * @param serverSideScriptingReturnValue the server Rhino value
 		 * @param pd the spec description of the property/type
-		 * @param componentOrService the component or service to which the given value belongs to
+		 * @param webObjectContext the web object context (component, service, ...) to which the given value belongs to
 		 * @param startScriptable the Scriptable in Rhino that this value is requested for
 		 * @return the converted value, ready to be used in Rhino; can return Scriptable.NOT_FOUND if the property is not available in scripting.
 		 */
-		Object fromServerRhinoToRhinoValue(T serverSideScriptingReturnValue, PropertyDescription pd, INGWebObject componentOrService,
+		Object fromServerRhinoToRhinoValue(T serverSideScriptingReturnValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 			Scriptable startScriptable);
 
 	}
@@ -233,10 +234,10 @@ public class NGConversions
 		 * @param previousComponentValue the previous (current) value available in the component for the property if any.
 		 * @param rhinoValue the Rhino value to be converted
 		 * @param pd the spec description of the property/type
-		 * @param componentOrService the component or service to which the given value belongs to
+		 * @param webObjectContext the web object context (component, service, ...) to which the given value belongs to
 		 * @return the converted value, ready to be set in Sablo component/service; if the property is read-only it should just return "previousComponentValue".
 		 */
-		T toSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, INGWebObject componentOrService);
+		T toSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext);
 
 	}
 
@@ -275,6 +276,11 @@ public class NGConversions
 				}
 			}
 		}
+		return defaultDesignToFormElementValue(designValue);
+	}
+
+	public Object defaultDesignToFormElementValue(Object designValue)
+	{
 		return ServoyJSONObject.jsonNullToNull(designValue);
 	}
 
@@ -308,23 +314,28 @@ public class NGConversions
 		 * @see IToJSONConverter#toJSONValue(JSONWriter, Object, PropertyDescription, DataConversion, ConversionLocation)
 		 */
 		@Override
-		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers,
-			FormElementContext formElementContext) throws JSONException, IllegalArgumentException
+		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription propertyDescription,
+			DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException, IllegalArgumentException
 		{
-			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
+			IPropertyType< ? > type = (propertyDescription != null ? propertyDescription.getType() : null);
 
 			if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || type instanceof IFormElementDefaultValueToSabloComponent)
 			{
+				// if it's a IFormElementDefaultValueToSabloComponent that means that it will NOT be using type.defaultValue(propertyDescription) at runtime; so
+				// we don't want it to go on the else branch where it would write type.defaultValue(propertyDescription) toJSON; instead we either write
+				// a null or don't write anything - depending also on if the type is IFormElementToTemplateJSON/ISupportTemplateValue
+
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, formElementContext);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, propertyDescription, browserConversionMarkers,
+						formElementContext);
 				}
-				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, valueType, formElementContext))
+				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, propertyDescription, formElementContext))
 				{
 					return writer;
 				}
-				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers, formElementContext))
+				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, browserConversionMarkers, formElementContext))
 				{
 					JSONUtils.addKeyIfPresent(writer, key);
 					writer.value(value);
@@ -332,9 +343,10 @@ public class NGConversions
 			}
 			else if (type != null)
 			{
-				// use conversion 5.1 to convert from default sablo type value to browser JSON in this case
-				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(valueType), valueType, browserConversionMarkers,
-					null); // webObject will always be null - this is template JSON
+				// so then this is a default value for that property... that is NON-NULL
+				// use conversion 5.1 to convert from DEFAULT sablo type value to browser JSON in this case
+				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(propertyDescription), propertyDescription,
+					browserConversionMarkers, null); // webObject will always be null - this is template JSON
 			}
 			return writer;
 		}
@@ -375,7 +387,7 @@ public class NGConversions
 	}
 
 	// FormElement value of property is only one across all client sessions, so properties that need to have
-	// special behavior in cached template form only or those that have a modifyable object in form element and want to make copies of it for
+	// special behavior in cached template form only or those that have a modifiable object in form element and want to make copies of it for
 	// each client will implement this conversion
 	/**
 	 * Conversion 3 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
@@ -387,6 +399,7 @@ public class NGConversions
 		IPropertyType< ? > type = pd.getType();
 		if (formElementValue != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 		{
+			// .spec default value is handled here as well - so that spec default does end up as a set property not as TYPE_DEFAULT_VALUE_MARKER; see FormElement.initTemplateProperties
 			if (type instanceof IFormElementToSabloComponent)
 			{
 				retval = ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component, dal);
@@ -409,7 +422,7 @@ public class NGConversions
 	 * Conversion 4.1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 * @param startScriptable the Scriptable in Rhino that this value is requested for
 	 */
-	public Object convertSabloComponentToRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService,
+	public Object convertSabloComponentToRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
 		if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
@@ -418,11 +431,11 @@ public class NGConversions
 		IPropertyType< ? > type = (pd != null ? pd.getType() : null);
 		if (type instanceof ISabloComponentToRhino< ? >)
 		{
-			rhinoVal = ((ISabloComponentToRhino)type).toRhinoValue(webComponentValue, pd, componentOrService, startScriptable);
+			rhinoVal = ((ISabloComponentToRhino)type).toRhinoValue(webComponentValue, pd, webObjectContext, startScriptable);
 		}
 		else
 		{
-			return RhinoConversion.defaultToRhino(webComponentValue, pd, componentOrService, startScriptable);
+			return RhinoConversion.defaultToRhino(webComponentValue, pd, webObjectContext, startScriptable);
 		}
 
 		return rhinoVal;
@@ -431,25 +444,25 @@ public class NGConversions
 	/**
 	 * Conversion 4.2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
-	public <T> T convertRhinoToSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public <T> T convertRhinoToSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		T sabloVal;
 		IPropertyType< ? > type = (pd != null ? pd.getType() : null);
 		if (type instanceof IRhinoToSabloComponent< ? >)
 		{
 			sabloVal = ((IRhinoToSabloComponent<T>)type).toSabloComponentValue(rhinoValue instanceof CharSequenceBuffer ? rhinoValue.toString() : rhinoValue,
-				previousComponentValue, pd, componentOrService);
+				previousComponentValue, pd, webObjectContext);
 		}
 		else
 		{
 			IServoyDataConverterContext dataConverterContext = null;
-			if (componentOrService instanceof IContextProvider) dataConverterContext = ((IContextProvider)componentOrService).getDataConverterContext();
+			if (webObjectContext instanceof IContextProvider) dataConverterContext = ((IContextProvider)webObjectContext).getDataConverterContext();
 			sabloVal = (T)RhinoConversion.defaultFromRhino(rhinoValue, previousComponentValue, pd, dataConverterContext);
 		}
 		return sabloVal;
 	}
 
-	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, INGWebObject componentOrService,
+	public Object convertServerSideRhinoToRhinoValue(Object serverSideScriptingReturnValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
 		if (pd == null) return serverSideScriptingReturnValue;
@@ -458,7 +471,7 @@ public class NGConversions
 		IPropertyType< ? > type = pd.getType();
 		if (type instanceof IServerRhinoToRhino< ? >)
 		{
-			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);
+			rhinoVal = ((IServerRhinoToRhino)type).fromServerRhinoToRhinoValue(serverSideScriptingReturnValue, pd, webObjectContext, startScriptable);
 		}
 
 		return rhinoVal;

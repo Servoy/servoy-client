@@ -69,6 +69,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
@@ -325,7 +326,7 @@ public final class FormElement implements INGFormElement
 						map.put(pd.getName(), ((IDesignDefaultToFormElement< ? , ? , ? >)pd.getType()).toDefaultFormElementValue(pd, fs, this, propertyPath));
 						propertyPath.backOneLevel();
 					}
-					else if (pd.getType().defaultValue(pd) != null)
+					else if (pd.getType().defaultValue(pd) != null || pd.getType() instanceof IFormElementDefaultValueToSabloComponent)
 					{
 						// remember that we can use type specified default value when this gets transformed to JSON
 						map.put(pd.getName(), NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
@@ -503,7 +504,7 @@ public final class FormElement implements INGFormElement
 	/**
 	 * Returns the actual value that this FormElement keeps for the requested property.<br>
 	 * It is possible that it will return a {@link IFromDesignToFormElement#TYPE_DEFAULT_VALUE_MARKER} in case
-	 * the type has a default value bu there was no design value or spec. defined default value for this property.
+	 * the type has a default value but there was no design value or spec. defined default value for this property.
 	 */
 	public Object getRawPropertyValue(String propertyName)
 	{
@@ -531,7 +532,7 @@ public final class FormElement implements INGFormElement
 	}
 
 	@Override
-	public PropertyDescription getProperty(String name)
+	public PropertyDescription getPropertyDescription(String name)
 	{
 		if (getWebComponentSpec() != null)
 		{

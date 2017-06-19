@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,15 +32,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -78,7 +78,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableModelListener
+public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableModelListener, IHasUnderlyingState
 {
 
 	public static final String FORM_FOUNDSET_SELECTOR = "";
@@ -140,7 +140,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected final DataAdapterList parentDAL;
 
-	protected BaseWebObject webObject;
+	protected IWebObjectContext webObjectContext;
+	private final List<IChangeListener> attachListeners = new ArrayList<>();
 
 	protected final FoundsetPropertyTypeConfig specConfig;
 	private String lastSortString;
@@ -157,9 +158,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		viewPort = new FoundsetTypeViewport(changeMonitor, specConfig);
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		recordDataLinkedPropertyIDToColumnDP = new HashMap<String, String>();
-		// foundsetSelector as defined in component design XML.
+		// foundsetSelector as defined in component design json
 		if (designJSONValue != null)
 		{
+			// IMPORTANT if any changes are made in the way we store the form element json (designJSONValue) please change code in FormatPropertyType that uses it as well!
 			foundsetSelector = ((JSONObject)designJSONValue).optString(FoundsetPropertyType.FOUNDSET_SELECTOR, null);
 			initializeDataproviders(((JSONObject)designJSONValue).optJSONObject(FoundsetPropertyType.DATAPROVIDERS_KEY_FOR_DESIGN));
 		}
@@ -207,10 +209,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundset;
 	}
 
-	@Override
-	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject webObject)
+	public String getFoundsetSelector()
 	{
-		this.webObject = webObject;
+		return foundsetSelector;
+	}
+
+	@Override
+	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
+	{
+		this.webObjectContext = webObjectCntxt;
 		dataAdapterList = null;
 		changeMonitor.setChangeNotifier(changeNotifier);
 
@@ -232,6 +239,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 		// register parent record changed listener
 		if (parentDAL != null) parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
+
+		fireAttachedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now
 	}
 
 	/**
@@ -252,6 +261,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		if (foundsetSelector == null) return; // this foundset is only meant to be set from Rhino scripting; do not automatically set it and do not automatically clear it once it's set from Rhino
 
 		IFoundSetInternal newFoundset = null;
+
+		// IMPORTANT if more options are added for foundsetSelector please update code in FormatPropertyType that uses the foundset selector as well
 		if (FORM_FOUNDSET_SELECTOR.equals(foundsetSelector))
 		{
 			// it is the form's foundset then
@@ -262,7 +273,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 		else if (!DataSourceUtils.isDatasourceUri(foundsetSelector))
 		{
-			// is is a relation then
+			// it is a relation then
 			if (record != null)
 			{
 				Object o = record.getValue(foundsetSelector);
@@ -338,7 +349,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected boolean updateColumnFormatsIfNeeded()
 	{
-		if (specConfig.sendDefaultFormats && columnFormats == null && getFoundset() != null && webObject != null)
+		if (specConfig.sendDefaultFormats && columnFormats == null && getFoundset() != null && webObjectContext != null)
 		{
 			columnFormats = new HashMap<>();
 			for (Entry<String, String> dp : dataproviders.entrySet())
@@ -422,11 +433,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			destinationJSON.key((update ? UPDATE_PREFIX : "") + COLUMN_FORMATS).object();
 			if (columnFormats != null)
 			{
-				IConvertedPropertyType<Object> formatPropertyType = (IConvertedPropertyType<Object>)TypesRegistry.getType(FormatPropertyType.TYPE_NAME); // just get it nicely in case it's overridden in designer for example
+				FormatPropertyType formatPropertyType = (FormatPropertyType)TypesRegistry.getType(FormatPropertyType.TYPE_NAME); // just get it nicely in case it's overridden in designer for example
 
 				for (Entry<String, ComponentFormat> columnFormat : columnFormats.entrySet())
 				{
-					formatPropertyType.toJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), null, null, dataConverterContext);
+					formatPropertyType.writeComponentFormatToJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), null, dataConverterContext);
 				}
 			} // else just an empty object if fine (but we do write it because when changing dataproviders from scripting it could change from something to null and the client should know about it)
 			destinationJSON.endObject();
@@ -856,7 +867,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 								if (recordIndex != -1)
 								{
-									IWebFormUI formUI = getFormUI(); // this will no longer be needed once 'component' type handles the global/form variables
 									IRecordInternal record = foundset.getRecord(recordIndex);
 									// convert Dates where it's needed
 
@@ -878,6 +888,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											catch (IllegalArgumentException e)
 											{
 												// TODO handle the validaton errors.
+												IWebFormUI formUI = getFormUI();
 												formUI.getController().getApplication().reportError(
 													"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
 											}
@@ -927,16 +938,17 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		// this method gets called by linked component type property/properties
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
-		if (dataAdapterList == null && webObject instanceof WebComponent)
+		if (dataAdapterList == null && webObjectContext != null && webObjectContext.getUnderlyingWebObject() instanceof WebComponent)
 		{
 			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
+			if (foundset != null) dataAdapterList.setFindMode(foundset.isInFindMode());
 		}
 		return dataAdapterList;
 	}
 
 	protected IWebFormUI getFormUI()
 	{
-		return ((WebComponent)webObject).findParent(IWebFormUI.class);
+		return ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class);
 	}
 
 	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
@@ -981,7 +993,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public String toString()
 	{
 		return "Foundset '" + (foundset != null ? foundset.getDataSource() : null) + " on property '" + propertyName +
-			"': foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
+			"': foundset type property on component " +
+			(webObjectContext != null ? webObjectContext.getUnderlyingWebObject().getName() : "- not yet attached -");
 	}
 
 	public void setRecordDataLinkedPropertyIDToColumnDP(String id, String dataprovider)
@@ -1033,6 +1046,32 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		if (getFoundset() != null && e.getColumn() == TableModelEvent.ALL_COLUMNS && e.getFirstRow() == 0)
 		{
 			if (!Utils.equalObjects(lastSortString, getSortStringAsNames())) changeMonitor.foundsetSortChanged();
+		}
+	}
+
+
+	@Override
+	public void addStateChangeListener(IChangeListener valueChangeListener)
+	{
+		if (!attachListeners.contains(valueChangeListener)) attachListeners.add(valueChangeListener);
+	}
+
+	@Override
+	public void removeStateChangeListener(IChangeListener valueChangeListener)
+	{
+		attachListeners.remove(valueChangeListener);
+	}
+
+	protected void fireAttachedListeners()
+	{
+		if (attachListeners.size() > 0)
+		{
+			// just in case any listeners will end up trying to alter underlyingValueChangeListeners - avoid a ConcurrentModificationException
+			IChangeListener[] copyOfListeners = attachListeners.toArray(new IChangeListener[attachListeners.size()]);
+			for (IChangeListener l : copyOfListeners)
+			{
+				l.valueChanged();
+			}
 		}
 	}
 

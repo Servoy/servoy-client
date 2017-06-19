@@ -18,12 +18,12 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.mozilla.javascript.Scriptable;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.EnabledSabloValue;
 
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
@@ -48,28 +48,16 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements ISablo
 		return oldValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
-	 */
 	@Override
-	public boolean isValueAvailableInRhino(Boolean webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Boolean webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
-	 */
 	@Override
-	public Object toRhinoValue(Boolean webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Boolean webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
-		Object v = componentOrService.getRawPropertyValue(pd.getName(), true);
+		Object v = componentOrService.getRawPropertyValue(pd.getName());
 		if (v != null)
 		{
 			return ((NGEnabledSabloValue)v).getComponentValue();

@@ -453,10 +453,9 @@ public class FoundsetTest extends AbstractSolutionTest
 		BrowserConverterContext allowBrowserConverterContext2 = new BrowserConverterContext(form.getFormUI().getWebComponent("mydynamiccustombean"),
 			PushToServerEnum.allow);
 
-		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
-			true);
+		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mydynamiccustombean").getRawPropertyValue(
-			"myfoundset", true);
+			"myfoundset");
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(1, 1);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
@@ -494,8 +493,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertNotNull(form);
 		WebFormComponent wc1 = form.getFormUI().getWebComponent("mycustombean");
 		WebFormComponent wc2 = form.getFormUI().getWebComponent("mydynamiccustombean");
-		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)wc1.getRawPropertyValue("myfoundset", true);
-		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)wc2.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)wc1.getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)wc2.getRawPropertyValue("myfoundset");
 
 		BrowserConverterContext allowBrowserConverterContext2 = new BrowserConverterContext(wc1, PushToServerEnum.allow);
 
@@ -535,7 +534,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 
 		// right now the viewport change monitor will NOT ignore updates because the value is directly sent to the client (through the updateController code)
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
@@ -569,7 +568,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(0, form.getFormModel().getSize());
@@ -605,8 +604,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
-			true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setPreferredViewportSize(1);
@@ -670,8 +668,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
-			true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
 		rawPropertyValue.changeMonitor.clearChanges();
@@ -694,7 +691,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustomseparatefoundsetbean");
 
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setPreferredViewportSize(7);
@@ -718,7 +715,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustomseparatefoundsetbean");
 
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 
@@ -766,7 +763,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
 
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(0, 2);

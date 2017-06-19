@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.IllegalComponentAccessException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
@@ -104,7 +105,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected ComponentDataLinkedPropertyListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
 	protected final List<String> recordBasedProperties;
 
-	protected WebFormComponent parentComponent;
+	private IWebObjectContext webObjectContext;
+	private IChangeListener foundsetStateChangeListener;
 	protected IChangeListener monitor;
 	protected PropertyDescription componentPropertyDescription;
 
@@ -134,20 +136,19 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	}
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, org.sablo.BaseWebObject parentComp)
+	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectCtxt)
 	{
 		componentIsCreated = false;
-		this.parentComponent = (WebFormComponent)parentComp;
+		this.webObjectContext = webObjectCtxt;
 		this.monitor = changeMonitor;
 
 		if (childComponent != null)
 		{
 			childComponent.dispose();
 		}
-		createComponentIfNeededAndPossible();
 		if (forFoundsetTypedPropertyName != null)
 		{
-			this.parentComponent.addPropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener = new PropertyChangeListener()
+			this.webObjectContext.addPropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener = new PropertyChangeListener()
 			{
 				@Override
 				public void propertyChange(PropertyChangeEvent evt)
@@ -156,6 +157,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			});
 		}
+		createComponentIfNeededAndPossible();
 	}
 
 	private void setDataproviderNameToFoundset()
@@ -180,11 +182,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		if (forFoundsetPropertyListener != null)
 		{
-			parentComponent.removePropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener);
+			webObjectContext.removePropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener);
 
 			FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
 			if (foundsetPropValue != null)
 			{
+				if (foundsetStateChangeListener != null)
+				{
+					foundsetPropValue.removeStateChangeListener(foundsetStateChangeListener);
+					foundsetStateChangeListener = null;
+				}
 				if (viewPortChangeMonitor != null) foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 				if (dataLinkedPropertyRegistrationListener != null)
 				{
@@ -193,33 +200,39 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			}
 		}
-		if (readonlyPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
+		if (readonlyPropertyListener != null) webObjectContext.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
 	}
 
 	private FoundsetTypeSabloValue getFoundsetValue()
 	{
-		if (parentComponent != null)
+		if (webObjectContext != null)
 		{
 			if (forFoundsetTypedPropertyName != null)
 			{
-				return (FoundsetTypeSabloValue)parentComponent.getProperty(forFoundsetTypedPropertyName);
+				return (FoundsetTypeSabloValue)webObjectContext.getProperty(forFoundsetTypedPropertyName);
 			}
 		}
 		return null;
+	}
+
+	private WebFormComponent getParentComponent()
+	{
+		return (WebFormComponent)webObjectContext.getUnderlyingWebObject();
 	}
 
 	protected void createComponentIfNeededAndPossible()
 	{
 		// this method should get called only after init() got called on all properties from this component (including this one)
 		// so now we should be able to find a potentially linked foundset property value
-		if (componentIsCreated || parentComponent == null) return;
+		if (componentIsCreated || webObjectContext == null) return;
 
 		final FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+		if (foundsetPropValue != null) foundsetPropValue.addStateChangeListener(getFoundsetStateChangeListener());
 
-		if (foundsetPropValue == null && forFoundsetTypedPropertyName != null) return;
+		if ((foundsetPropValue == null || foundsetPropValue.getDataAdapterList() == null) && forFoundsetTypedPropertyName != null) return; // foundset property value is not yet set or not yet attached to component
 
 		componentIsCreated = true;
-		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+		IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
 		final IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
 
 		if (foundsetPropValue != null)
@@ -228,7 +241,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			((FoundsetDataAdapterList)dal).addDataLinkedPropertyRegistrationListener(createDataLinkedPropertyRegistrationListener());
 		}
 
-		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent,
+		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, getParentComponent(),
 			formUI.getController().getForm());
 
 		if (foundsetPropValue != null)
@@ -351,22 +364,36 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			setDataproviderNameToFoundset();
 		}
 
-		addPropertyChangeListener(WebFormUI.READONLY, parentComponent.getProperty(WebFormUI.READONLY));
+		addPropagatingPropertyChangeListener(WebFormUI.READONLY, webObjectContext.getProperty(WebFormUI.READONLY));
 
 
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
-	private void addPropertyChangeListener(final String property, Object initialValue)
+	private IChangeListener getFoundsetStateChangeListener()
 	{
-		if (parentComponent.getSpecification().getProperty(property) != null && childComponent.getSpecification().getProperty(property) != null)
+		if (foundsetStateChangeListener == null) foundsetStateChangeListener = new IChangeListener()
 		{
-			PropertyDescription propertyDescChild = childComponent.getSpecification().getProperty(property);
+			@Override
+			public void valueChanged()
+			{
+				createComponentIfNeededAndPossible();
+			}
+		};
+
+		return foundsetStateChangeListener;
+	}
+
+	private void addPropagatingPropertyChangeListener(final String property, Object initialValue)
+	{
+		if (webObjectContext.getPropertyDescription(property) != null && childComponent.getPropertyDescription(property) != null)
+		{
+			PropertyDescription propertyDescChild = childComponent.getPropertyDescription(property);
 			if (childComponent.getProperty(property) == null || !propertyDescChild.hasDefault() ||
 				childComponent.getProperty(property).equals(propertyDescChild.getDefaultValue()))
 			{
 				setChildProperty(property, initialValue);
-				this.parentComponent.addPropertyChangeListener(property, readonlyPropertyListener = new PropertyChangeListener()
+				this.webObjectContext.addPropertyChangeListener(property, readonlyPropertyListener = new PropertyChangeListener()
 				{
 					@Override
 					public void propertyChange(PropertyChangeEvent evt)
@@ -844,7 +871,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						else
 						{
 							childComponent.putBrowserProperty(propertyName, value);
-							IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+							IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
 							dal = formUI.getDataAdapterList();
 						}
 						if (forFoundsetTypedPropertyName != null && !recordBasedProperties.contains(propertyName))
@@ -904,7 +931,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					}
 					else
 					{
-						IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+						IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
 						dal = formUI.getDataAdapterList();
 					}
 

@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -28,14 +29,16 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
+import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -94,14 +97,20 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	@Override
 	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
+		return getDataLinks(formElementValue, formElement.getForm());
+	}
+
+	protected TargetDataLinks getDataLinks(String formElementValue, Form form)
+	{
 		// formElementValue is the data provider id string here
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
 		// not linked for globals or form variables; linked for the rest - the rest should mean record based dataprovider
-		boolean recordDP = !ScopesUtils.isVariableScope(formElementValue) && formElement.getForm().getScriptVariable(formElementValue) == null;
+		boolean recordDP = !ScopesUtils.isVariableScope(formElementValue) && (form == null || form.getScriptVariable(formElementValue) == null);
 		// TODO - if it's global relation only, then record based constructor param should be false
 		return new TargetDataLinks(new String[] { formElementValue }, recordDP);
 	}
+
 
 	@Override
 	public boolean valueInTemplate(String object, PropertyDescription pd, FormElementContext formElementContext)
@@ -113,7 +122,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public DataproviderTypeSabloValue toSabloComponentValue(String formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return formElementValue != null ? new DataproviderTypeSabloValue(formElementValue, dataAdapterList, component, pd) : null;
+		return formElementValue != null ? new DataproviderTypeSabloValue(formElementValue, dataAdapterList, component.getDataConverterContext(), pd) : null;
 	}
 
 	@Override
@@ -144,27 +153,30 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(DataproviderTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public boolean isValueAvailableInRhino(DataproviderTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
 	@Override
 	public DataproviderTypeSabloValue toSabloComponentValue(Object rhinoValue, DataproviderTypeSabloValue previousComponentValue, PropertyDescription pd,
-		INGWebObject componentOrService)
+		IWebObjectContext webObjectContext)
 	{
-		if (rhinoValue instanceof String && (previousComponentValue != null || componentOrService instanceof WebFormComponent))
+		if (rhinoValue == null) return null;
+
+		IDataAdapterList dal = NGComponentDALContext.getDataAdapterList(webObjectContext);
+		if (rhinoValue instanceof String && !(previousComponentValue != null && rhinoValue.equals(previousComponentValue.getDataProviderID())) &&
+			(previousComponentValue != null || dal != null))
 		{
-			return new DataproviderTypeSabloValue((String)rhinoValue,
-				(DataAdapterList)(previousComponentValue != null ? previousComponentValue.dataAdapterList
-					: ((WebFormComponent)componentOrService.getUnderlyingWebObject()).getDataAdapterList()),
-				(WebFormComponent)componentOrService.getUnderlyingWebObject(), pd);
+			// so it is a DPid string, not the same one that we had before and we have a place to take the dataAdapterList from; create a new value
+			return new DataproviderTypeSabloValue((String)rhinoValue, dal != null ? dal : previousComponentValue.dataAdapterList,
+				((WebFormComponent)webObjectContext.getUnderlyingWebObject()).getDataConverterContext(), pd);
 		}
 		return previousComponentValue;
 	}
 
 	@Override
-	public Object toRhinoValue(DataproviderTypeSabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService,
+	public Object toRhinoValue(DataproviderTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService,
 		Scriptable startScriptable)
 	{
 		return webComponentValue != null ? webComponentValue.getDataProviderID() : null;
@@ -173,9 +185,14 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	@Override
 	public boolean isFindModeAware(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
+		return isFindModeAware(formElementValue, formElement.getForm());
+	}
+
+	protected boolean isFindModeAware(String formElementValue, Form form)
+	{
 		if (formElementValue == null) return false;
 
-		TargetDataLinks dataLinks = getDataLinks(formElementValue, pd, flattenedSolution, formElement);
+		TargetDataLinks dataLinks = getDataLinks(formElementValue, form);
 		return dataLinks.recordLinked;
 	}
 

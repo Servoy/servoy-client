@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +30,16 @@ import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IPropertyDescriptionProvider;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.FormAndTableDataProviderLookup;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.CustomValueList;
@@ -43,15 +48,28 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
+import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.IColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IDataAdapterList;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.ValuelistPropertyDependencies;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -60,30 +78,186 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener
+public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener
 {
 
-	protected IValueList valueList;
-	protected LookupListModel filteredValuelist;
-	protected IChangeListener changeMonitor;
-	protected final DataAdapterList dataAdapterList;
-	protected final String dataproviderID;
-	protected final ValueListConfig config;
-	private IRecordInternal previousRecord;
+	private boolean initialized;
+
+	// values that we have from the start or before initialization
+	private final Object valuelistIdentifier;
 	private final PropertyDescription vlPD;
-	protected BaseWebObject component;
-	private final ComponentFormat format;
+	private final IDataAdapterList dataAdapterListToUse; // can be component DAL or, if we have a for: dataprovider in spec and that dataprovider is for: foundsetProperty it will be the DAL of that foundset property (through the courtesy of FoundsetLinkedPropertyType as future case SVY-11204)
+	private IWebObjectContext webObjectContext;
+
+	private final ValuelistPropertyDependencies propertyDependencies;
+	private boolean waitForDataproviderIfNull;
+	private boolean waitForFormatIfNull;
+
+	private IChangeListener changeMonitor;
+
+	// values available after the ValueListTypeSabloValue initialization was completed
+	private IValueList valueList;
+	private String dataproviderID;
+	private ComponentFormat format;
+	private FoundsetTypeSabloValue foundsetSabloValue;
+	private String foundsetDatasource, formatParsedString; // just to be able to detect when they change
+
+	private IRecordInternal previousRecord;
+	private LookupListModel filteredValuelist;
 	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
-	public ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID,
-		PropertyDescription vlPD, ComponentFormat format)
+	/**
+	 * Creates a new ValueListTypeSabloValue that is not ready yet for operation.<br/>
+	 * It will be initialized once it has everything it needs.
+	 *
+	 * @param valuelistIdentifier the id or uuid of the valuelist persist or the valuelist's name.
+	 * @param propertyDependencies if the spec declares a for: dataproviderProperty or if the spec declares a for: valuelist for format properties that point to this valuelist type, or the forDPPropertyName
+	 *                             uses a foundset property then all these dependencies to other properties are given using this param. Format dependency is really only used I think when you have
+	 *                             a custom valuelist with date values (without separate display values) - to convert the String defined dates in the
+	 *                             custom valuelist into actual Date values. The DP or foundset property dependencies are relevant to be able to find the correct DP type to use.
+	 * @param waitForDataproviderIfNull can only be true when initialized based on FormElement values; if we know that this valuelist is for a dataprovider property and that property is not supposed
+	 *                                  to be null (form element value for that is not null), this is then true; this is useful to wait for a non-null
+	 *                                  runtime dataprovider value before initializing the valuelist value, because initially the runtime values are
+	 *                                  set into and 'attached' to the component one by one; and we want to avoid initializing the valuelist twice (once with null DP
+	 *                                  and then once with the correct DP)
+	 * @param waitForFormatIfNull similar to "waitForDataproviderIfNull"; set when we need to wait for the format property to be non-null before init
+	 * @param pd the PropertyDescription for this valuelist property.
+	 * @param dataAdapterListToUse the DAL of the component; this is only used if we DO NOT have a for: dataproviderProperty that is linked to a
+	 *                                 foundset property
+	 */
+	public ValueListTypeSabloValue(Object valuelistIdentifier, PropertyDescription vlPD, ValuelistPropertyDependencies propertyDependencies,
+		boolean waitForDataproviderIfNull, boolean waitForFormatIfNull, IDataAdapterList dataAdapterListToUse)
 	{
-		this.valueList = valueList;
-		this.dataAdapterList = dataAdapterList;
-		this.config = config;
-		this.dataproviderID = dataproviderID;
+		this.valuelistIdentifier = valuelistIdentifier;
 		this.vlPD = vlPD;
-		this.format = format;
+		this.propertyDependencies = propertyDependencies;
+		this.waitForDataproviderIfNull = waitForDataproviderIfNull;
+		this.waitForFormatIfNull = waitForFormatIfNull;
+		this.dataAdapterListToUse = dataAdapterListToUse;
+
+		this.initialized = false;
+	}
+
+	/**
+	 * Returns either the id or uuid or the name of the valuelist (persist).
+	 */
+	public Object getValuelistIdentifier()
+	{
+		return valuelistIdentifier;
+	}
+
+	@Override
+	public void attachToBaseObject(IChangeListener monitor, IWebObjectContext webObjectCntxt)
+	{
+		this.changeMonitor = monitor;
+		this.webObjectContext = webObjectCntxt;
+
+		if (propertyDependencies.dataproviderPropertyName != null)
+			webObjectContext.addPropertyChangeListener(propertyDependencies.dataproviderPropertyName, this);
+		if (propertyDependencies.foundsetPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
+		if (propertyDependencies.formatPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.formatPropertyName, this);
+
+		initializeIfPossibleAndNeeded(); // adds more listeners if needed (for example for underlying sablo value of a foundset linked value)
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		// a sablo value that we are interested in changed
+		initializeIfPossibleAndNeeded();
+	}
+
+	@Override
+	public void valueChanged()
+	{
+		// the underlying sablo value of a foundset linked value that we are interested in changed
+		initializeIfPossibleAndNeeded();
+	}
+
+	private void initializeIfPossibleAndNeeded()
+	{
+		// some dependent property has changed
+
+		// get the new values
+		String newDataproviderID = null;
+		String newFormatString = null;
+		FoundsetTypeSabloValue newFoundsetSabloValue = null;
+		String newFoundsetDatasource = null;
+
+		if (propertyDependencies.foundsetPropertyName != null)
+		{
+			newFoundsetSabloValue = (FoundsetTypeSabloValue)webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
+			newFoundsetDatasource = (newFoundsetSabloValue != null && newFoundsetSabloValue.getFoundset() != null)
+				? newFoundsetSabloValue.getFoundset().getDataSource() : null;
+		}
+
+		if (propertyDependencies.formatPropertyName != null)
+		{
+			FormatTypeSabloValue formatSabloValue = ((FormatTypeSabloValue)webObjectContext.getProperty(propertyDependencies.formatPropertyName));
+			ComponentFormat componentFormat = (formatSabloValue != null ? formatSabloValue.getComponentFormat() : null);
+			newFormatString = ((componentFormat != null && componentFormat.parsedFormat != null) ? componentFormat.parsedFormat.getFormatString() : null);
+
+			if (formatSabloValue != null) formatSabloValue.addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
+		}
+		if (propertyDependencies.dataproviderPropertyName != null)
+		{
+			Object dataproviderValue = webObjectContext.getProperty(propertyDependencies.dataproviderPropertyName);
+			if (dataproviderValue instanceof IHasUnderlyingState) // if it's foundset linked; otherwise this will be false
+			{
+				((IHasUnderlyingState)dataproviderValue).addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
+			}
+
+			newDataproviderID = DataAdapterList.getDataProviderID(dataproviderValue); // this will only return non-null if dataproviderValue != null && it is initialized (so foundset is already operational)
+		}
+
+		// see if anything we are interested in changed, of if it's not yet initialized (a detach + attach could happen where everything is still equal, but the detach did clear the vl/format and set initialized to false; for example a table column remove and then add back)
+		if (!Utils.stringSafeEquals(newDataproviderID, dataproviderID) || !Utils.stringSafeEquals(newFormatString, formatParsedString) ||
+			newFoundsetSabloValue != foundsetSabloValue || !Utils.stringSafeEquals(newFoundsetDatasource, foundsetDatasource) || !initialized)
+		{
+			// so something did change
+			dataproviderID = newDataproviderID;
+			foundsetSabloValue = newFoundsetSabloValue;
+			foundsetDatasource = newFoundsetDatasource;
+			formatParsedString = newFormatString;
+
+			if ((!waitForDataproviderIfNull || dataproviderID != null) && (!waitForFormatIfNull || newFormatString != null) &&
+				(propertyDependencies.foundsetPropertyName == null || newFoundsetSabloValue != null))
+			{
+				// we don't have a "waitForFoundsetIfNull" because if we really have a foundset-linked-dataprovider, then that one is not initialized until the foundset != null anyway; so we won't get to this place becauuse the dataprovider property would not be ready
+
+				// in case we previously already had an operational valuelist, clear it up as we have new dependency values
+				clearUpRuntimeValuelistAndFormat();
+
+				// initialize now
+				initializeValuelistAndFormat();
+
+				if (valueList != null)
+				{
+					valueList.addListDataListener(this);
+
+					// register data link and find mode listeners as needed
+					TargetDataLinks dataLinks = getDataLinks();
+					dataAdapterListToUse.addDataLinkedProperty(this, dataLinks);
+
+					// reset the initial wait for flags as we have the initial value; any other change in dependent properties has to be treated right away without additional waiting (even if they change to null)
+					waitForDataproviderIfNull = false;
+					waitForFormatIfNull = false;
+
+					initialized = true;
+				}
+				else
+				{
+					Debug.error("Cannot instantiate valuelist (does it exist in the solution?) '" + valuelistIdentifier + "' for property " + vlPD + " of " +
+						webObjectContext, new RuntimeException());
+					clearUpRuntimeValuelistAndFormat();
+				}
+			}
+		}
+	}
+
+	private ValueListConfig getConfig()
+	{
+		return (ValueListConfig)vlPD.getConfig();
 	}
 
 	public IValueList getValueList()
@@ -91,9 +265,29 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		return valueList;
 	}
 
-	public void setValueList(IValueList valueList)
+	public TargetDataLinks getDataLinks()
 	{
-		this.valueList = valueList;
+		IDataProvider[] dependedDataProviders = valueList.getDependedDataProviders();
+		if (dependedDataProviders == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
+		if (dependedDataProviders.length == 0) return TargetDataLinks.LINKED_TO_ALL;
+
+		boolean recordLinked = false;
+		String[] dataproviders = new String[dependedDataProviders.length];
+		for (int i = 0; i < dataproviders.length; i++)
+		{
+			dataproviders[i] = dependedDataProviders[i].getDataProviderID();
+			recordLinked = recordLinked || (dependedDataProviders[i] instanceof IColumn || dependedDataProviders[i] instanceof ColumnWrapper);
+		}
+		return new TargetDataLinks(dataproviders, recordLinked);
+	}
+
+	public void setNewCustomValuelistInstance(IValueList vl)
+	{
+		// this gets called when items are set specifically for this component (so comp.setValuelistItems(...) in case of legacy or comp.myValuelistProp = someJSDataSet or IDataSet)
+		if (valueList != null) valueList.removeListDataListener(this); // remove listener from old custom vl
+		this.valueList = vl;
+		if (valueList != null) valueList.addListDataListener(this);
+
 		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
 	}
@@ -103,13 +297,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		List<Map<String, Object>> jsonValue = null;
 
 		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
-		int size = Math.min(config.getMaxCount(), vlSize);
+		int size = Math.min(getConfig().getMaxCount(), vlSize);
 		Object dpRealValue = null;
 		Object dpDisplayValue = null;
 		boolean containsDpValue = false;
-		if (vlSize > config.getMaxCount() && dataproviderID != null && previousRecord != null)
+		if (vlSize > getConfig().getMaxCount() && dataproviderID != null && previousRecord != null)
 		{
-			Object dpvalue = dataAdapterList.getValueObject(previousRecord, dataproviderID);
+			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
 			if (dpindex != -1)
 			{
@@ -131,7 +325,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 			else
 			{
-				map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+				map.put("displayValue", displayValue != null ? dataAdapterListToUse.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
 			}
 			array.add(map);
 		}
@@ -145,7 +339,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 			else
 			{
-				map.put("displayValue", dpDisplayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(dpDisplayValue.toString()) : "");
+				map.put("displayValue",
+					dpDisplayValue != null ? dataAdapterListToUse.getApplication().getI18NMessageIfPrefixed(dpDisplayValue.toString()) : "");
 			}
 			array.add(map);
 		}
@@ -161,45 +356,60 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	 */
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
 	{
-		if (config.getMaxCount() < valuelistSize && config.shouldLogWhenOverMax()) dataAdapterList.getApplication().reportJSError(
-			"Valuelist " + valueListName + " fully loaded with " + config.getMaxCount() + " rows, more rows are discarded!!", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (getConfig().getMaxCount() < valuelistSize && getConfig().shouldLogWhenOverMax()) dataAdapterListToUse.getApplication().reportJSError(
+			"Valuelist " + valueListName + " fully loaded with " + getConfig().getMaxCount() + " rows, more rows are discarded!!", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-	}
-
-	@Override
-	public void attachToBaseObject(IChangeListener monitor, BaseWebObject component)
-	{
-		this.changeMonitor = monitor;
-		this.component = component;
-		valueList.addListDataListener(this);
-
-		FormElement formElement = ((WebFormComponent)component).getFormElement();
-		// register data link and find mode listeners as needed
-		TargetDataLinks dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD,
-			((WebFormComponent)component).getDataConverterContext().getSolution(), formElement);
-
-		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 	}
 
 	protected FlattenedSolution getFlattenedSolution()
 	{
-		return component != null ? ((WebFormComponent)component).getFormElement().getFlattendSolution() : null; // we could also find formUI and get the flattened solution from there but I think it should be the same one
+		return webObjectContext != null ? ((WebFormComponent)webObjectContext.getUnderlyingWebObject()).getFormElement().getFlattendSolution() : null; // we could also find formUI and get the flattened solution from there but I think it should be the same one
+	}
+
+	private void clearUpRuntimeValuelistAndFormat()
+	{
+		if (valueList != null)
+		{
+			if (filteredValuelist != null)
+			{
+				filteredValuelist.removeListDataListener(this);
+			}
+			else
+			{
+				valueList.removeListDataListener(this);
+			}
+
+			dataAdapterListToUse.removeDataLinkedProperty(this);
+
+		}
+		valueList = null;
+		format = null;
 	}
 
 	@Override
 	public void detach()
 	{
-		dataAdapterList.removeDataLinkedProperty(this);
+		clearUpRuntimeValuelistAndFormat();
+
+		if (propertyDependencies.dataproviderPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.dataproviderPropertyName, this);
+
+			Object dataproviderValue = webObjectContext.getProperty(propertyDependencies.dataproviderPropertyName);
+			if (dataproviderValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)dataproviderValue).removeStateChangeListener(this);
+		}
+		if (propertyDependencies.foundsetPropertyName != null) webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
+		if (propertyDependencies.formatPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.formatPropertyName, this);
+			Object formatPropertyValue = webObjectContext.getProperty(propertyDependencies.formatPropertyName);
+			if (formatPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)formatPropertyValue).removeStateChangeListener(this);
+		}
 
 		this.changeMonitor = null;
-		if (filteredValuelist != null)
-		{
-			filteredValuelist.removeListDataListener(this);
-		}
-		else
-		{
-			valueList.removeListDataListener(this);
-		}
+		webObjectContext = null;
+
+		initialized = false;
 	}
 
 	@Override
@@ -224,6 +434,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion) throws IllegalArgumentException, JSONException
 	{
+		if (!initialized)
+		{
+			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext);
+			return;
+		}
 		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
 		DataConversion clientConversionsInsideValuelist = new DataConversion();
@@ -261,6 +476,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	 */
 	public void filterValuelist(String filterString)
 	{
+		if (!initialized)
+		{
+			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext);
+			return;
+		}
+
 		this.filterStringForResponse = filterString;
 		if (filteredValuelist == null)
 		{
@@ -268,9 +489,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			{
 				try
 				{
-					filteredValuelist = new LookupListModel(dataAdapterList.getApplication(),
-						new LookupValueList(valueList.getValueList(), dataAdapterList.getApplication(),
-							ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), dataproviderID, format != null ? format.uiType : 0,
+					filteredValuelist = new LookupListModel(dataAdapterListToUse.getApplication(),
+						new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
+							ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
 								format != null ? format.parsedFormat : null, valueList.getValueList()),
 							format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null));
 				}
@@ -281,11 +502,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 			else if (valueList instanceof CustomValueList)
 			{
-				filteredValuelist = new LookupListModel(dataAdapterList.getApplication(), (CustomValueList)valueList);
+				filteredValuelist = new LookupListModel(dataAdapterListToUse.getApplication(), (CustomValueList)valueList);
 			}
 			else if (valueList instanceof LookupValueList)
 			{
-				filteredValuelist = new LookupListModel(dataAdapterList.getApplication(), (LookupValueList)valueList);
+				filteredValuelist = new LookupListModel(dataAdapterListToUse.getApplication(), (LookupValueList)valueList);
 			}
 			else if (valueList instanceof ColumnBasedValueList)
 			{
@@ -307,7 +528,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			try
 			{
-				filteredValuelist.fill(dataAdapterList.getRecord(), dataproviderID, filterString, false);
+				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, false);
 				if (changeMonitor != null) changeMonitor.valueChanged();
 			}
 			catch (ServoyException e)
@@ -334,6 +555,95 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void contentsChanged(ListDataEvent e)
 	{
 		if (changeMonitor != null) changeMonitor.valueChanged();
+	}
+
+
+	private void initializeValuelistAndFormat()
+	{
+		INGApplication application = dataAdapterListToUse.getApplication();
+		ValueList valuelistPersist = getValuelistPersist(valuelistIdentifier, application);
+
+		format = getComponentFormat(vlPD, dataAdapterListToUse, getConfig(), dataproviderID, webObjectContext);
+		if (valuelistPersist != null)
+		{
+			valueList = getRealValueList(application, valuelistPersist, format, dataproviderID);
+		}
+		else
+		{
+			if ("autoVL".equals(getConfig().getDefaultValue()))
+			{
+				ITable table = getTableForDp();
+				if (dataproviderID != null && table != null && table.getColumnType(dataproviderID) != 0)
+				{
+					valueList = new ColumnBasedValueList(application, table.getServerName(), table.getName(), dataproviderID);
+				}
+				else
+				{
+					// not supported empty valuelist (based on relations) just return an empty valuelist
+					valueList = new CustomValueList(application, null, "", false, IColumnTypes.TEXT, null);
+				}
+			}
+		}
+	}
+
+	public static ValueList getValuelistPersist(Object valuelistId, IApplication application)
+	{
+		ValueList valuelistPersist = null;
+
+		int valuelistID = Utils.getAsInteger(valuelistId);
+		if (valuelistID > 0)
+		{
+			valuelistPersist = application.getFlattenedSolution().getValueList(valuelistID);
+		}
+		else
+		{
+			UUID uuid = Utils.getAsUUID(valuelistId, false);
+			if (uuid != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+			else if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
+		}
+		return valuelistPersist;
+	}
+
+	/**
+	 * If this valuelist is for a dataprovider and that dataprovider is for a foundset (or even from form's foundset) then this method gives the correct table to search in for that DP.
+	 * The DP might not be from this table though, it could still be a global variable or form variable.
+	 *
+	 * @return the table to search DP in
+	 */
+	private ITable getTableForDp()
+	{
+		ITable table;
+		if (foundsetSabloValue != null) table = foundsetSabloValue.getFoundset().getTable();
+		else
+		{
+			IWebFormUI formUI = ((WebFormComponent)webObjectContext.getUnderlyingWebObject()).findParent(WebFormUI.class);
+			table = formUI.getController().getTable();
+		}
+		return table;
+	}
+
+	private ComponentFormat getComponentFormat(PropertyDescription vlPD, IDataAdapterList dataAdapterList, ValueListConfig config, String dpID,
+		IPropertyDescriptionProvider comp)
+	{
+		INGApplication application = dataAdapterList.getApplication();
+
+		return ComponentFormat.getComponentFormat(formatParsedString, dpID,
+			new FormAndTableDataProviderLookup(application.getFlattenedSolution(), dataAdapterList.getForm().getForm(), getTableForDp()), application);
+	}
+
+	private IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat format, String dpID)
+	{
+		return com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, format.dpType, format.parsedFormat, dpID);
+	}
+
+	public IDataAdapterList getDataAdapterList()
+	{
+		return dataAdapterListToUse;
+	}
+
+	protected boolean isInitialized()
+	{
+		return initialized;
 	}
 
 }

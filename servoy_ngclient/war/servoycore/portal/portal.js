@@ -18,12 +18,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			// START TEST MODELS
 
 			// rowProxyObjects[pk][elementIndex].
-			//                                  .mergedCellModel  - is the actual cell element svyModel cache
-			//                                  .cellApi          - is the actual cell element API cache
-			//                                  .cellHandlers     - is the actual cell element handlers cache
-			//                                  .cellServoyApi 	  - is the actual cell element Servoy Api cache
-			// cellAPICaches[renderedRowIndex][elementIndex]       - is the actual cell element API cache
-			// cellChangeNotifierCaches[renderedRowIndex][elementIndex]       - is cache of the $sabloConstants.modelChangeNotifier after cell cache is destroyed, so it can be reused
+			//                                  .mergedCellModel         - is the actual cell element svyModel cache
+			//                                  .cellHandlers            - is the actual cell element handlers cache
+			//                                  .cellServoyApi 	         - is the actual cell element Servoy Api cache
+			// cellAPICaches[renderedRowIndex][elementIndex]             - is the actual cell element API cache
+			// cellChangeNotifierCaches[renderedRowIndex][elementIndex]  - is cache of the $sabloConstants.modelChangeNotifier after cell cache is destroyed, so it can be reused
 			var rowProxyObjects = {};
 			var cellAPICaches = {};
 			var cellChangeNotifierCaches = {};

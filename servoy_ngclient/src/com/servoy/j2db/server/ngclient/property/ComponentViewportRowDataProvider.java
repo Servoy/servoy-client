@@ -116,7 +116,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
 	{
 		PropertyDescription t = component.getSpecification().getProperty(propertyName);
-		Object val = component.getRawPropertyValue(propertyName, true);
+		Object val = component.getRawPropertyValue(propertyName);
 		if (t != null && val != null)
 		{
 			clientConversionInfo.pushNode(propertyName);

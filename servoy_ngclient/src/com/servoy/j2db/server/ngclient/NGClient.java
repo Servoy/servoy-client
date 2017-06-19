@@ -49,7 +49,6 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
-import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -69,7 +68,6 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
-import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -1164,12 +1162,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				((CustomValueList)valueList).setValueType(guessedType);
 				((CustomValueList)valueList).fillWithArrayValues(displayValues, realValues);
-				IBasicFormManager fm = getFormManager();
-				List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
-				for (IFormController form : cachedFormControllers)
-				{
-					((WebFormController)form).getFormUI().refreshValueList(valueList);
-				}
 			}
 		}
 	}

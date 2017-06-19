@@ -22,8 +22,8 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -45,22 +45,15 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 
 	private IChangeListener changeMonitor;
 	private final DataAdapterList dataAdapterList;
-	private BaseWebObject component;
+	private IWebObjectContext webObjectContext;
 
 
-	/**
-	 * @param config
-	 */
 	public FindModeSabloValue(FindModeConfig config, DataAdapterList dataAdapterList)
 	{
 		this.config = config;
 		this.dataAdapterList = dataAdapterList;
 	}
 
-	/**
-	 * @param writer
-	 * @return
-	 */
 	public JSONWriter toJSON(JSONWriter writer)
 	{
 		try
@@ -74,35 +67,20 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 		return writer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
-	 */
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, BaseWebObject component)
+	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
 	{
 		this.changeMonitor = changeMonitor;
-		this.component = component;
+		this.webObjectContext = webObjectContext;
 		if (dataAdapterList != null) dataAdapterList.addFindModeAwareProperty(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.ISmartPropertyValue#detach()
-	 */
 	@Override
 	public void detach()
 	{
 		if (dataAdapterList != null) dataAdapterList.removeFindModeAwareProperty(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue#findModeChanged(boolean)
-	 */
 	@Override
 	public void findModeChanged(boolean newFindMode)
 	{
@@ -112,7 +90,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 
 			if (!Boolean.TRUE.equals(dataAdapterList.getApplication().getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
-				Object readOnlyValue = component.getProperty(WebFormUI.READONLY);
+				Object readOnlyValue = webObjectContext.getProperty(WebFormUI.READONLY);
 				try
 				{
 					// if this is a ReadonlySabloValue then let it know the findmode is changing so it can ignore this
@@ -123,9 +101,9 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 						Set<String> configPropertiesNames = config.configPropertiesNames();
 						for (String propertyName : configPropertiesNames)
 						{
-							if (component.getProperty(propertyName) instanceof Boolean)
+							if (webObjectContext.getProperty(propertyName) instanceof Boolean)
 							{
-								saveOldConfigValues.put(propertyName, (Boolean)component.getProperty(propertyName));
+								saveOldConfigValues.put(propertyName, (Boolean)webObjectContext.getProperty(propertyName));
 							}
 							else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
 								"\" is NOT a Boolean in the actual component model. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
@@ -137,7 +115,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 							Object configuredPropertyValue = config.getConfiguredPropertyValueOf(propertyName);
 							if (configuredPropertyValue instanceof Boolean)
 							{
-								component.setProperty(propertyName, configuredPropertyValue);
+								webObjectContext.setProperty(propertyName, configuredPropertyValue);
 							}
 							else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
 								"\" is NOT a Boolean. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
@@ -148,7 +126,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 						//when we exit findmode, we put back the old values
 						for (String propertyName : saveOldConfigValues.keySet())
 						{
-							component.setProperty(propertyName, saveOldConfigValues.get(propertyName));
+							webObjectContext.setProperty(propertyName, saveOldConfigValues.get(propertyName));
 						}
 						saveOldConfigValues.clear();
 					}

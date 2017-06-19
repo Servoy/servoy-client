@@ -17,10 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.Collection;
-
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.IPropertyDescriptionProvider;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -29,7 +26,7 @@ import com.servoy.j2db.persistence.IPersist;
  * @author lvostinar
  *
  */
-public interface INGFormElement
+public interface INGFormElement extends IPropertyDescriptionProvider
 {
 	IPersist getPersistIfAvailable();
 
@@ -39,9 +36,6 @@ public interface INGFormElement
 
 	String getName();
 
-	Collection<PropertyDescription> getProperties(IPropertyType< ? > type);
-
-	PropertyDescription getProperty(String name);
-
 	Form getForm();
+
 }

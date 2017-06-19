@@ -39,15 +39,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class ComponentFactory
 {
-	/**
-	 * @param application
-	 * @param dataAdapterList
-	 * @param fe
-	 * @param parentToAddTo
-	 * @param form
-	 * @param name
-	 * @return
-	 */
+
 	public static WebFormComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, Container parentToAddTo,
 		Form form)
 	{
@@ -67,14 +59,18 @@ public class ComponentFactory
 
 		WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
 
+		// first convert formElement-to-Sablo and store them in the webComponent
 		for (String propName : fe.getRawPropertyValues().keySet())
 		{
-			//TODO this if should not be necessary. currently in the case of "printable" hidden property
+			// TODO this if should not be necessary. currently in the case of "printable" hidden property
 			if (componentSpec.getProperty(propName) == null) continue;
 			Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
-			if (value == null) continue;
 			fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent);
 		}
+
+		// then after all of them are converted above attach them to the webComponent (so that when attach is called on any ISmartPropertyValue at least all the other properties are converted
+		// this could help initialize smart properties that depend on each other faster then if we would convert and then attach right away each value)
+		webComponent.propertiesInitialized();
 
 		// overwrite accessible
 		if (persist != null)

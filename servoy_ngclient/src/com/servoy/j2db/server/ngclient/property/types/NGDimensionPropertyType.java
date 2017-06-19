@@ -23,6 +23,7 @@ import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -31,7 +32,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -65,19 +65,19 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Dimension webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public boolean isValueAvailableInRhino(Dimension webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
 	@Override
-	public Object toRhinoValue(Dimension webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Dimension webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
 		return PersistHelper.createDimensionString(webComponentValue);
 	}
 
 	@Override
-	public Dimension toSabloComponentValue(Object rhinoValue, Dimension previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public Dimension toSabloComponentValue(Object rhinoValue, Dimension previousComponentValue, PropertyDescription pd, IWebObjectContext componentOrService)
 	{
 		if (rhinoValue instanceof Object[])
 		{

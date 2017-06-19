@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -32,7 +33,6 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -50,8 +50,6 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	public static final ReadonlyPropertyType INSTANCE = new ReadonlyPropertyType();
 	public static final String TYPE_NAME = "readOnly";
-
-	private static final ReadonlySabloValue defaultValue = new ReadonlySabloValue(null, false);
 
 	@Override
 	public String getName()
@@ -102,7 +100,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	@Override
 	public ReadonlySabloValue defaultValue(PropertyDescription pd)
 	{
-		return defaultValue;
+		return null; // toSabloComponentDefaultValue will be used instead
 	}
 
 	@Override
@@ -119,20 +117,20 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	@SuppressWarnings("boxing")
 	@Override
 	public ReadonlySabloValue toSabloComponentValue(Object rhinoValue, ReadonlySabloValue previousComponentValue, PropertyDescription pd,
-		INGWebObject componentOrService)
+		IWebObjectContext componentOrService)
 	{
 		return new ReadonlySabloValue((ReadonlyConfig)pd.getConfig(), (Boolean)rhinoValue, previousComponentValue.getOldOppositeOfValue());
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(ReadonlySabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public boolean isValueAvailableInRhino(ReadonlySabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
 	@SuppressWarnings("boxing")
 	@Override
-	public Object toRhinoValue(ReadonlySabloValue webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(ReadonlySabloValue webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
 		return webComponentValue.getValue();//
 	}

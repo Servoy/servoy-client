@@ -240,16 +240,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			int total = (showValues | returnValues);
 
 			//more than one value -> concat
-			boolean concatShowValues = false;
-			if ((showValues != 1) && (showValues != 2) && (showValues != 4))
-			{
-				concatShowValues = true;
-			}
-			boolean concatReturnValues = false;
-			if ((returnValues != 1) && (returnValues != 2) && (returnValues != 4))
-			{
-				concatReturnValues = true;
-			}
+			boolean concatShowValues = willConcat(showValues);
+			boolean concatReturnValues = willConcat(returnValues);
 
 			boolean singleColumn = (total & 7) == 1 || (total & 7) == 2 || (total & 7) == 4;
 
@@ -371,6 +363,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			Debug.error(ex);
 		}
+	}
+
+	public static boolean willConcat(int selectedColumnValuesBitmask)
+	{
+		boolean concatShowValues = false;
+		if ((selectedColumnValuesBitmask != 1) && (selectedColumnValuesBitmask != 2) && (selectedColumnValuesBitmask != 4))
+		{
+			concatShowValues = true;
+		} // else it's a combination; it can't be 0
+		return concatShowValues;
 	}
 
 	protected void setContainsCalculationFlag(ITable t)

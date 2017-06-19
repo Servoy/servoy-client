@@ -39,6 +39,10 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			return data
 		if (data === "")
 			return data;
+		
+		data = Number(data); // just to make sure that if it was a string representing a number we turn it into a number
+		if (typeof data === 'number' && isNaN(data)) return ""; // cannot format something that is not a number
+		
 		var initialData = data;
 		var partchedFrmt = servoyFormat; // patched format for numeraljs format
 		var i, j;
@@ -720,7 +724,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				type = 'DATETIME';
 			}
 
-			if (((typeof input === 'string') || (input instanceof String)) && type !== "TEXT") return input;
+			// commented out because in case one uses a INTEGER dp + format + DB-col(INTEGER)-valuelist we might receive strings
+			// instead of ints (display values of DB valuelist do .toString() on server); don't know why that is; $formatterUtils.format can handle that correctly though and it should work the same here (portal vs. extra table)
+			// if (((typeof input === 'string') || (input instanceof String)) && type !== "TEXT") return input;
 
 			ret = $formatterUtils.format(input, servoyFormat, type);
 		} catch (e) {

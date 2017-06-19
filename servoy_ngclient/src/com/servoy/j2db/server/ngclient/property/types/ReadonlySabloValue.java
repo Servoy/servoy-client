@@ -22,11 +22,10 @@ import java.beans.PropertyChangeListener;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.property.ISmartPropertyValue;
 
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -38,7 +37,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	private boolean savedOppositeOfValue;
 
-	private WebFormComponent webComponent;
+	private IWebObjectContext webObjectContext;
 
 	private PropertyChangeListener oppositeOfListener;
 
@@ -68,9 +67,9 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
 	 */
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, BaseWebObject component)
+	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectCntxt)
 	{
-		this.webComponent = (WebFormComponent)component;
+		this.webObjectContext = webObjectCntxt;
 		if (readOnly && !oppositeValue())
 		{
 			addOppositeOfListener();
@@ -108,23 +107,23 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 			}
 		};
 
-		webComponent.addPropertyChangeListener(configuration.getOppositeOf(), oppositeOfListener);
+		webObjectContext.addPropertyChangeListener(configuration.getOppositeOf(), oppositeOfListener);
 	}
 
 
 	private void setOppositeValue(boolean b)
 	{
 
-		webComponent.setProperty(configuration.getOppositeOf(), b);
+		webObjectContext.setProperty(configuration.getOppositeOf(), b);
 	}
 
 
 	private boolean oppositeValue()
 	{
-		if (configuration != null && webComponent != null)
+		if (configuration != null && webObjectContext != null)
 		{
-			Object value = webComponent.getProperty(configuration.getOppositeOf());
-			if (value == null) value = webComponent.getSpecification().getProperty(configuration.getOppositeOf()).getDefaultValue();
+			Object value = webObjectContext.getProperty(configuration.getOppositeOf());
+			if (value == null) value = webObjectContext.getPropertyDescription(configuration.getOppositeOf()).getDefaultValue();
 			if (value != null) return (boolean)value;
 		}
 		return true;
@@ -138,9 +137,9 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	@Override
 	public void detach()
 	{
-		if (webComponent != null && oppositeOfListener != null)
+		if (webObjectContext != null && oppositeOfListener != null)
 		{
-			webComponent.removePropertyChangeListener(configuration.getOppositeOf(), oppositeOfListener);
+			webObjectContext.removePropertyChangeListener(configuration.getOppositeOf(), oppositeOfListener);
 		}
 	}
 

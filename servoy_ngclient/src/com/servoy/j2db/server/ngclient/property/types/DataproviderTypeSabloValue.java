@@ -30,8 +30,8 @@ import javax.swing.event.ListSelectionListener;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
@@ -61,11 +61,9 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
@@ -85,9 +83,8 @@ import com.servoy.j2db.util.UUID;
 public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue
 {
 	protected final String dataProviderID;
-	protected final DataAdapterList dataAdapterList;
+	protected final IDataAdapterList dataAdapterList;
 	protected final IServoyDataConverterContext servoyDataConverterContext;
-	private final FormElement formElement;
 
 	protected Object value;
 
@@ -109,8 +106,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private IModificationListener relatedRecordModificationListener;
 	private ArrayList<IRecordInternal> relatedRecords = new ArrayList<IRecordInternal>();
 	private String relationName;
+	private IWebObjectContext webObjectContext;
 
-	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
+	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
+		PropertyDescription dpPD)
 	{
 		if (dataProviderID.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
@@ -157,9 +156,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			};
 		}
 		this.dataAdapterList = dataAdapterList;
-		this.servoyDataConverterContext = component.getDataConverterContext();
+		this.servoyDataConverterContext = servoyDataConverterContext;
 		this.dpPD = dpPD;
-		this.formElement = component.getFormElement();
 	}
 
 	protected DataproviderConfig getDataProviderConfig()
@@ -186,19 +184,19 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	}
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject component)
+	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
 	{
-		FormElement formElement = ((WebFormComponent)component).getFormElement();
-
 		this.changeMonitor = changeNotifier;
+		this.webObjectContext = webObjectCntxt;
 
 		// register data link and find mode listeners as needed
-		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
+		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID,
+			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null);
 		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 
 		// they weren't cached in form element; get them again
-		boolean isFindModeAware = ((DataproviderPropertyType)dpPD.getType()).isFindModeAware(dataProviderID, dpPD, servoyDataConverterContext.getSolution(),
-			formElement);
+		boolean isFindModeAware = ((DataproviderPropertyType)dpPD.getType()).isFindModeAware(dataProviderID,
+			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null);
 		if (isFindModeAware) dataAdapterList.addFindModeAwareProperty(this);
 
 		DataproviderConfig config = (DataproviderConfig)dpPD.getConfig();
@@ -206,7 +204,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		Object dtPropVal = null;
 		if (dtpn != null)
 		{
-			dtPropVal = formElement.getPropertyValue(dtpn);
+			dtPropVal = webObjectCntxt.getProperty(dtpn);
 			if (dtPropVal == null) dtPropVal = Boolean.FALSE;
 		}
 		displaysTags = dtpn != null && ((Boolean)dtPropVal).booleanValue() == true || (dtpn == null && config.shouldDisplayTags());
@@ -232,6 +230,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
 		}
 		relatedFoundsetSelectionListener = null;
+
+		webObjectContext = null;
+		changeMonitor = null;
 	}
 
 	@Override
@@ -252,18 +253,19 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		// TODO can type or fieldFormat change, for example in scripting the format is reset (but type shouldn't really change)
 		IDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
 			servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null);
-		Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(FormatPropertyType.TYPE_NAME));
+
 		for (PropertyDescription formatPd : properties)
 		{
-			// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+			// see whether format if "for" this property (dataprovider)
 			Object formatConfig = formatPd.getConfig();
 			if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
 			{
 				INGApplication application = servoyDataConverterContext.getApplication();
-				String format = (String)formElement.getPropertyValue(formatPd.getName());
-				if (format != null)
+				FormatTypeSabloValue formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPd.getName());
+				if (formatSabloValue != null && formatSabloValue.getFormatDesignValue() != null)
 				{
-					fieldFormat = ComponentFormat.getComponentFormat(format, dataProviderID, dpLookup, application);
+					fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
 					break;
 				}
 			}

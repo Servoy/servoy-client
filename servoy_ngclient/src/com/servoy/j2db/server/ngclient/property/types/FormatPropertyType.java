@@ -15,7 +15,6 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.sql.Types;
 import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Locale;
@@ -27,6 +26,8 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
+import org.sablo.IPropertyDescriptionProvider;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -39,23 +40,12 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.servoy.base.persistence.constants.IValueListConstants;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
-import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
-import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.IDataProvider;
-import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
@@ -64,25 +54,23 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
-import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * TODO is format really mapped on a special object (like ParsedFormat)
  * maybe this should go into Servoy
- * @author jcompagner
  *
+ * @author jcompagner
  */
-public class FormatPropertyType extends DefaultPropertyType<Object>
-	implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>,
-	ISabloComponentToRhino<Object> /* <ComponentFormat */, IRhinoToSabloComponent<Object> /* <ComponentFormat */
+@SuppressWarnings("nls")
+public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue> implements IConvertedPropertyType<FormatTypeSabloValue>,
+	ISupportTemplateValue<String>, IFormElementDefaultValueToSabloComponent<String, FormatTypeSabloValue>, ISabloComponentToRhino<FormatTypeSabloValue>,
+	IRhinoToSabloComponent<FormatTypeSabloValue>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
 
 	public static final FormatPropertyType INSTANCE = new FormatPropertyType();
 	public static final String TYPE_NAME = "format";
-	private static Object DESIGN_DEFAULT = new Object();
 
 	private FormatPropertyType()
 	{
@@ -94,11 +82,9 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 		return TYPE_NAME;
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-
 		if (json != null && json.has("for"))
 		{
 			try
@@ -129,38 +115,44 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object/* ComponentFormat */ defaultValue(PropertyDescription pd)
+	public FormatTypeSabloValue defaultValue(PropertyDescription pd)
 	{
-		return DESIGN_DEFAULT;
+		return null; // toSabloComponentDefaultValue will be used instead
 	}
 
 	@Override
-	public Object/* ComponentFormat */ fromJSON(Object newValue, Object/* ComponentFormat */ previousValue, PropertyDescription pd,
+	public FormatTypeSabloValue fromJSON(Object newValue, FormatTypeSabloValue previousValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		// TODO remove when these types are design-aware and we know exactly how to deal with FormElement values (a refactor is to be done soon)
-		return newValue;
-
-		// ?
-//		return null;
+		// format property types cannot be changed from client
+		return previousValue;
 	}
 
 	@Override
 	// @formatter:off
-	public JSONWriter toJSON(JSONWriter writer, String key, Object/* ComponentFormat */formatValue,
+	public JSONWriter toJSON(JSONWriter writer, String key, FormatTypeSabloValue formatValue,
 		PropertyDescription pdd/* if this arg is needed in the future please also handle it in foundset property type! that uses null */,
 		DataConversion cc/* if this arg is needed in the future please also handle it in foundset property type! then that will need to handle client side conversions as well */,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	// @formatter:on
 	{
-		ComponentFormat format;
-		if (formatValue == null || formatValue instanceof String)
+		if (formatValue == null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
 			return writer.value(null);
 		}
-		format = (ComponentFormat)formatValue;
+		if (!formatValue.isInitialized())
+		{
+			Debug.warn("Trying to send to client an uninitialized format property: " + formatValue + " of " + dataConverterContext.getWebObject());
+			return writer;
+		}
 
+		return writeComponentFormatToJSON(writer, key, formatValue.getComponentFormat(), cc, dataConverterContext);
+	}
+
+	public JSONWriter writeComponentFormatToJSON(JSONWriter writer, String key, ComponentFormat format, DataConversion dataConversions,
+		IBrowserConverterContext dataConverterContext)
+	{
 		Map<String, Object> map = new HashMap<>();
 		String type = Column.getDisplayTypeString(format.uiType);
 		map.put("type", type);
@@ -218,213 +210,158 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 		if (isAllUppercase) map.put("uppercase", Boolean.valueOf(isAllUppercase));
 		else if (isAllLowercase) map.put("lowercase", Boolean.valueOf(isAllLowercase));
 
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, cc, null);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, dataConversions, null); // here dataConversions is not used I think, could be null
 	}
 
 	@Override
-	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElementContext formElementContext)
+	public boolean valueInTemplate(String formElementValue, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return false;
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+	public FormatTypeSabloValue toSabloComponentValue(String formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(formElementValue, formElement, pd, component);
+		// we have all the info we need in the form element; we don't need here the runtime values for valuelist, dp or foundset properties if they are specified in .spec
+		FormatPropertyDependencies propertyDependencies = getPropertyDependencies(pd, formElement);
+		String dataproviderID = null;
+		Object valuelistID = null;
+		String foundsetID = null;
+
+		if (propertyDependencies.dataproviderPropertyName != null)
+		{
+			dataproviderID = (String)formElement.getPropertyValue(propertyDependencies.dataproviderPropertyName);
+
+			// if it is a dataprovider type. look if it is foundset linked
+			if (propertyDependencies.foundsetPropertyName != null)
+			{
+				JSONObject formElementValOfFoundset = (JSONObject)formElement.getPropertyValue(propertyDependencies.foundsetPropertyName);
+				if (formElementValOfFoundset != null) foundsetID = formElementValOfFoundset.optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
+			}
+		}
+
+		if (propertyDependencies.valueListPropertyName != null) valuelistID = formElement.getPropertyValue(propertyDependencies.valueListPropertyName);
+
+		return new FormatTypeSabloValue(formElementValue, propertyDependencies, dataproviderID, valuelistID, foundsetID, component);
 	}
 
 	@Override
-	public Object toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
+	public FormatTypeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(null, formElement, pd, component);
+		return toSabloComponentValue(null, pd, formElement, component, dataAdapterList);
 	}
 
-	private Object getSabloValue(Object value, INGFormElement formElement, PropertyDescription pd, INGWebObject component)
+	private FormatPropertyDependencies getPropertyDependencies(PropertyDescription pd, IPropertyDescriptionProvider pdProvider)
 	{
-		IApplication application = ((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getApplication();
-		if (value == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || value == DESIGN_DEFAULT)
-		{
-			value = null;
-		}
+		String forDataproviderPropertyName = null;
+		String forFoundsetPropertyName = null;
+		String forValuelistPropertyName = null;
 
-		if (value instanceof String || value == null)
+		if (pd.getConfig() instanceof String[])
 		{
-			String dataproviderId = null;
-			if (pd.getConfig() instanceof String[])
+			for (String dependency : (String[])pd.getConfig())
 			{
-				for (String element : (String[])pd.getConfig())
+				// IMPORTANT: here we iterate over the for: configs to identify any dataprovider or valuelist properties that this format is meant for
+				//
+				// if you have for: [valuelist, dataprovider] then 2 things can happen:
+				// - valuelist if it has both real and display values - forces the type; it is either TEXT (custom vl., global method vl.) or the 'display' column type in case it's a DB valuelist
+				// - valuelist if not real/display but only one kind of values: here it is required in docs in the spec file that the valuelist property also defines "for": dataprovider if format
+				//   defines both "for" valuelist and "for" dataprovider => valuelist doesn't force the type and then the dataprovider will decide the type
+				//
+				// if you have just for: dataprovider the the dataprovider property determines the type
+				// if you have just for: valuelist (TODO) - this is currently not properly supported - as here we should get the type always from the VL (for both display and real values) - as we don't have a dataprovider to fall back on
+
+				PropertyDescription forProperty = pdProvider.getPropertyDescription(dependency);
+				if (forProperty != null)
 				{
-					PropertyDescription forProperty = formElement != null ? formElement.getProperty(element) : component.getPropertyDescription(element);
-					if (forProperty != null)
+					IPropertyType< ? > type = forProperty.getType();
+					if (type instanceof IYieldingType< ? , ? >)
 					{
-						IPropertyType< ? > type = forProperty.getType();
-						if (type instanceof IYieldingType< ? , ? >)
+						type = ((IYieldingType)type).getPossibleYieldType();
+					}
+					if (type instanceof DataproviderPropertyType)
+					{
+						if (forDataproviderPropertyName == null)
 						{
-							type = ((IYieldingType)type).getPossibleYieldType();
-						}
-						if (type instanceof DataproviderPropertyType)
-						{
-							dataproviderId = formElement != null ? (String)formElement.getPropertyValue(element)
-								: DataAdapterList.getDataProviderID(component.getProperty(element));
-							PropertyDescription property = component.getPropertyDescription(element) != null ? component.getPropertyDescription(element)
-								: formElement.getProperty(element);
-							Object config = property.getConfig();
-							// if it is a dataprovider type. look if it is foundset linked
+							forDataproviderPropertyName = dependency;
+
+							// see if it's foundset linked
+							Object config = forProperty.getConfig();
 							if (config instanceof FoundsetLinkedConfig && ((FoundsetLinkedConfig)config).getForFoundsetName() != null)
 							{
-								String foundsetName = ((FoundsetLinkedConfig)config).getForFoundsetName();
-								Object json = formElement != null ? formElement.getPropertyValue(foundsetName) : component.getProperty(foundsetName);
-								if (json instanceof JSONObject)
-								{
-									// get the foundset selector and try to resolve the table
-									String fs = ((JSONObject)json).optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
-									ITable table = application.getFlattenedSolution().getTable(fs);
-									if (table == null)
-									{
-										// table not found is the foundset selector a relation.
-										Relation[] relations = application.getFlattenedSolution().getRelationSequence(fs);
-										if (relations != null && relations.length > 0)
-										{
-											table = application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource());
-										}
-									}
-									try
-									{
-										IDataProvider dataProvider = application.getFlattenedSolution().getDataProviderForTable(table, dataproviderId);
-										// the dataprovider is found through the table, returns for this the ComponentFormat, if not fall through through the forms
-										// dataprovider lookup below
-										if (dataProvider != null)
-										{
-											return ComponentFormat.getComponentFormat((String)value, dataProvider.getDataProviderType(), application);
-										}
-									}
-									catch (RepositoryException e)
-									{
-										Debug.error(e);
-									}
-								}
-							}
-							break;
-						}
-						else if (type instanceof ValueListPropertyType)
-						{
-							Object id = formElement != null ? formElement.getPropertyValue(element) : component.getProperty(element);
-							int valuelistID = Utils.getAsInteger(id);
-							ValueList val = null;
-							if (valuelistID > 0)
-							{
-								val = application.getFlattenedSolution().getValueList(valuelistID);
-							}
-							else
-							{
-								UUID uuid = Utils.getAsUUID(id, false);
-								if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
-							}
-							if (val != null)
-							{
-								int dpType = IColumnTypes.TEXT;
-								IDataProvider dataProvider = null;
-								ITable table;
-								try
-								{
-									if (val.getRelationName() != null)
-									{
-										Relation[] relations = application.getFlattenedSolution().getRelationSequence(val.getRelationName());
-										table = application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource());
-									}
-									else
-									{
-										table = application.getFlattenedSolution().getTable(val.getDataSource());
-									}
-
-									if (table != null)
-									{
-										String dp = null;
-										int showDataProviders = val.getShowDataProviders();
-										if (showDataProviders == 1)
-										{
-											dp = val.getDataProviderID1();
-										}
-										else if (showDataProviders == 2)
-										{
-											dp = val.getDataProviderID2();
-										}
-										else if (showDataProviders == 4)
-										{
-											dp = val.getDataProviderID3();
-										}
-
-										if (dp != null)
-										{
-											dataProvider = application.getFlattenedSolution().getDataProviderForTable(table, dp);
-										}
-										if (dataProvider != null)
-										{
-											dpType = dataProvider.getDataProviderType();
-										}
-										return ComponentFormat.getComponentFormat((String)value, dpType, application);
-									}
-									else if (val.getValueListType() == IValueListConstants.CUSTOM_VALUES)
-									{
-										IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
-											Types.OTHER, null, null, true);
-										if (realValuelist.hasRealValues())
-										{
-											return ComponentFormat.getComponentFormat((String)value, dpType, application);
-										}
-									}
-									else if (val.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
-									{
-										IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
-											Types.OTHER, null, null, true);
-										if (realValuelist instanceof GlobalMethodValueList)
-										{
-											((GlobalMethodValueList)realValuelist).fill(null, "", null);
-											if (realValuelist.hasRealValues())
-											{
-												return ComponentFormat.getComponentFormat((String)value, dpType, application);
-											}
-										}
-									}
-								}
-								catch (Exception ex)
-								{
-									Debug.error(ex);
-								}
+								forFoundsetPropertyName = ((FoundsetLinkedConfig)config).getForFoundsetName();
 							}
 						}
+						else Debug.warn(
+							"Format property '" + pd + " declares in .spec file to be for more then one dataprovider property; this is incorrect. (" +
+								forDataproviderPropertyName + "," + dependency + ")");
+					}
+					else if (type instanceof ValueListPropertyType)
+					{
+						if (forValuelistPropertyName == null) forValuelistPropertyName = dependency;
+						else Debug.warn("Format property '" + pd + " declares in .spec file to be for more then one valuelist property; this is incorrect. (" +
+							forDataproviderPropertyName + "," + dependency + ")");
 					}
 				}
 			}
-			ComponentFormat format = ComponentFormat.getComponentFormat((String)value, dataproviderId,
-				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-					((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm()),
-				application, true);
-			return format;
 		}
-		return value;
+
+		return new FormatPropertyDependencies(forDataproviderPropertyName, forFoundsetPropertyName, forValuelistPropertyName);
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public boolean isValueAvailableInRhino(FormatTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, INGWebObject componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(FormatTypeSabloValue formatValue, PropertyDescription pd, IWebObjectContext webObjectContext, Scriptable startScriptable)
 	{
-		if (webComponentValue instanceof ComponentFormat)
+		if (formatValue != null)
 		{
-			return ((ComponentFormat)webComponentValue).parsedFormat.getFormatString();
+			if (!formatValue.isInitialized())
+			{
+				Debug.warn("Trying to send to client an uninitialized format property: " + formatValue + "(" + pd + ") of " + webObjectContext);
+			}
+			else return formatValue.getComponentFormat().parsedFormat.getFormatString();
 		}
 		return null;
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, INGWebObject componentOrService)
+	public FormatTypeSabloValue toSabloComponentValue(Object rhinoValue, FormatTypeSabloValue previousComponentValue, PropertyDescription formatPD,
+		IWebObjectContext webObjectContext)
 	{
-		return getSabloValue(rhinoValue, null, pd, componentOrService);
+		// we only accept strings or nulls from Rhino
+		if (rhinoValue != null && !(rhinoValue instanceof String))
+			throw new IllegalArgumentException("You can only assing a string as format for format property types: " + rhinoValue + " - " + formatPD.getName() +
+				" - " + webObjectContext.getUnderlyingWebObject().getName());
+
+		return new FormatTypeSabloValue((String)rhinoValue, getPropertyDependencies(formatPD, webObjectContext));
 	}
+
+
+	/**
+	 * Just a container for keeping names of properties that a format property can depend on based on the .spec file.
+	 *
+	 * @author acostescu
+	 */
+	protected static class FormatPropertyDependencies
+	{
+
+		public final String dataproviderPropertyName;
+		public final String foundsetPropertyName;
+		public final String valueListPropertyName;
+
+		public FormatPropertyDependencies(String dataproviderPropertyName, String foundsetPropertyName, String valueListPropertyName)
+		{
+			this.dataproviderPropertyName = dataproviderPropertyName;
+			this.valueListPropertyName = valueListPropertyName;
+			this.foundsetPropertyName = foundsetPropertyName;
+		}
+	}
+
 }

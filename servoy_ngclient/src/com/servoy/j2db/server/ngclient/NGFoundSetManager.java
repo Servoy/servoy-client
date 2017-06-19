@@ -25,6 +25,8 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
+import org.sablo.specification.property.CustomJSONObjectType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.TypedData;
 
@@ -41,7 +43,11 @@ import com.servoy.j2db.util.Pair;
 /**
  * @author gboros
  *
+ * @deprecated now you can use a combination of "to server-side component scripting calls" combined with foundset ref (new one, not old one) and record ref types
+ * to do what you need with foundsets in any component; there is no need for this service anymore - and this service uses lots of hard-coded stuff...
+ * see SVY-10825 for more information
  */
+@Deprecated
 public class NGFoundSetManager extends FoundSetManager implements IServerService
 {
 	public static final String FOUNDSET_SERVICE = "$foundsetManager"; //$NON-NLS-1$
@@ -108,7 +114,11 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 					foundsetinfoMap.put("childrelationinfo", childrelationinfo);
 				}
 
-				foundsets.add(new ChangeAwareMap(foundsetinfoMap));
+				CustomJSONObjectType dummyCustomObjectTypeForChildRelationInfo = (CustomJSONObjectType)TypesRegistry.createNewType(
+					CustomJSONObjectType.TYPE_NAME, "svy__dummyCustomObjectTypeForDeprecatedFMServiceChildRelationInfo");
+				PropertyDescription dummyPD = new PropertyDescription("", dummyCustomObjectTypeForChildRelationInfo);
+				dummyCustomObjectTypeForChildRelationInfo.setCustomJSONDefinition(dummyPD);
+				foundsets.add(new ChangeAwareMap(foundsetinfoMap, null, dummyPD));
 			}
 		}
 		else if ("getRelatedFoundSetHash".equals(methodName))

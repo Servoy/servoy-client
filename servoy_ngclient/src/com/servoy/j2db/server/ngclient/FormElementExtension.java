@@ -33,13 +33,13 @@ import com.servoy.j2db.persistence.IPersist;
  */
 public class FormElementExtension implements INGFormElement
 {
-	private final INGFormElement formElement;
+	private final INGFormElement parentFormElementContext;
 	private final Map<String, ? > extensionValues;
 	private final PropertyDescription extensionPropertyDescription;
 
 	public FormElementExtension(INGFormElement formElement, Map<String, ? > extensionValues, PropertyDescription extensionPropertyDescription)
 	{
-		this.formElement = formElement;
+		this.parentFormElementContext = formElement;
 		this.extensionValues = extensionValues;
 		this.extensionPropertyDescription = extensionPropertyDescription;
 	}
@@ -47,7 +47,7 @@ public class FormElementExtension implements INGFormElement
 	@Override
 	public IPersist getPersistIfAvailable()
 	{
-		return formElement.getPersistIfAvailable();
+		return parentFormElementContext.getPersistIfAvailable();
 	}
 
 	@Override
@@ -57,26 +57,26 @@ public class FormElementExtension implements INGFormElement
 		{
 			return extensionValues.get(propertyName);
 		}
-		return formElement.getPropertyValue(propertyName);
+		return parentFormElementContext.getPropertyValue(propertyName);
 	}
 
 	@Override
 	public String getDesignId()
 	{
-		return formElement.getDesignId();
+		return parentFormElementContext.getDesignId();
 	}
 
 	@Override
 	public String getName()
 	{
-		return formElement.getName();
+		return parentFormElementContext.getName();
 	}
 
 	@Override
 	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
 	{
 		Collection<PropertyDescription> properties = new ArrayList<PropertyDescription>();
-		properties.addAll(formElement.getProperties(type));
+		properties.addAll(parentFormElementContext.getProperties(type));
 		if (extensionPropertyDescription != null)
 		{
 			properties.addAll(extensionPropertyDescription.getProperties(type));
@@ -85,7 +85,7 @@ public class FormElementExtension implements INGFormElement
 	}
 
 	@Override
-	public PropertyDescription getProperty(String name)
+	public PropertyDescription getPropertyDescription(String name)
 	{
 		if (extensionPropertyDescription != null)
 		{
@@ -95,13 +95,13 @@ public class FormElementExtension implements INGFormElement
 				return pd;
 			}
 		}
-		return formElement.getProperty(name);
+		return parentFormElementContext.getPropertyDescription(name);
 	}
 
 	@Override
 	public Form getForm()
 	{
-		return formElement.getForm();
+		return parentFormElementContext.getForm();
 	}
 
 

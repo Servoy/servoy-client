@@ -33,6 +33,7 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.sablo.IWebObjectContext;
 import org.sablo.InMemPackageReader;
 import org.sablo.WebComponent;
 import org.sablo.specification.Package.IPackageReader;
@@ -48,7 +49,6 @@ import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 
@@ -148,7 +148,7 @@ public class CustomArrayPropertyRhinoTest
 			}
 		};
 		Scriptable rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD,
-			(INGWebObject)component, topLevel);
+			(IWebObjectContext)component, topLevel);
 		assertEquals("Just some text", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
 		cam.put("text", "Just some text 2");
 		assertEquals(1, cam.getChangedKeys().size());
@@ -215,7 +215,7 @@ public class CustomArrayPropertyRhinoTest
 			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext));
 
 		// now simulate another request cycle that makes some change to the property from javascript
-		rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, (INGWebObject)component,
+		rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, (IWebObjectContext)component,
 			topLevel);
 		Scriptable v = ((Scriptable)rhinoVal.get(0, rhinoVal));
 		v = (Scriptable)v.get("active", v);

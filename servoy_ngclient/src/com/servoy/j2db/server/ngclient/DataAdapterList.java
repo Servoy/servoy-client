@@ -18,6 +18,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.Container;
+import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -109,7 +110,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
 		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
-		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, (INGWebObject)webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
+		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, (IWebObjectContext)webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
 	}
 
 	@Override
@@ -438,7 +439,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (formController != null) setupModificationListener(dpID); // see if we need to listen to global/form scope changes
 		}
 
-		allComponentPropertiesLinkedToData.add(propertyValue);
+		if (!allComponentPropertiesLinkedToData.contains(propertyValue)) allComponentPropertiesLinkedToData.add(propertyValue);
 	}
 
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
@@ -452,13 +453,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (x.size() == 0) it.remove();
 			}
 		}
-		// TODO keep track & unregister when needed global/form scope listeners: so undo setupModificationListener(dpID);
+		// TODO keep track & unregister when needed global/form scope listeners: so undo setupModificationListener(dpID)? they are only max two listeners and they are removed at destroy anyway, but if there are no DPs needing it anymore...
 		allComponentPropertiesLinkedToData.remove(propertyValue);
 	}
 
 	public void addFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)
 	{
-		findModeAwareProperties.add(propertyValue);
+		if (!findModeAwareProperties.contains(propertyValue)) findModeAwareProperties.add(propertyValue);
 	}
 
 	public void removeFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)

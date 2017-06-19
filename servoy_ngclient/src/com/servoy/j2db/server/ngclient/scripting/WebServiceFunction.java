@@ -22,11 +22,11 @@ import java.io.IOException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.websocket.IWebsocketSession;
 
-import com.servoy.j2db.server.ngclient.INGWebObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 
 /**
@@ -56,7 +56,7 @@ public class WebServiceFunction extends WebBaseFunction
 			for (int i = 0; i < args.length; i++)
 			{
 				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getProperty(Integer.toString(i)),
-					(INGWebObject)session.getClientService(serviceName));
+					(IWebObjectContext)session.getClientService(serviceName));
 			}
 		}
 		try
@@ -72,7 +72,7 @@ public class WebServiceFunction extends WebBaseFunction
 				return cx.getWrapFactory().wrap(cx, scope,
 					NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
 						session.getClientService(serviceName).executeServiceCall(definition.getName(), args), retPD,
-						(INGWebObject)session.getClientService(serviceName), thisObj),
+						(IWebObjectContext)session.getClientService(serviceName), thisObj),
 					null);
 			}
 		}

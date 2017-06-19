@@ -28,6 +28,9 @@ import org.sablo.WebComponent;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 
 /**
  * @author jcompagner
@@ -82,4 +85,13 @@ public interface IDataAdapterList extends ITagResolver
 	void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables, Set<IWebFormController> childFormsThatWereNotified);
 
 	boolean stopUIEditing(boolean looseFocus);
+
+	void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks dataLinks);
+
+	void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue);
+
+	void removeFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue);
+
+	void addFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue);
+
 }

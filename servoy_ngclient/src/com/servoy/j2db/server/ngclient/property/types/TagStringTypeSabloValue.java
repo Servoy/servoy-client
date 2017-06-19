@@ -17,8 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -67,7 +67,7 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	}
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject component)
+	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectContext)
 	{
 		this.changeMonitor = changeNotifier;
 		getDataAdapterList().addDataLinkedProperty(this, dataLinks);

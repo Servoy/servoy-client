@@ -37,18 +37,18 @@ public class FormAndTableDataProviderLookup implements IDataProviderLookup
 
 	private final Form form;
 
-	public FormAndTableDataProviderLookup(FlattenedSolution flattenedSolution, Form form, ITable td)
+	public FormAndTableDataProviderLookup(FlattenedSolution flattenedSolution, Form form, ITable table)
 	{
 		this.flattenedSolution = flattenedSolution;
 		this.form = form;
-		tableDisplay = td;
+		tableDisplay = table;
 		formProviders = Collections.synchronizedMap(new HashMap<String, IDataProvider>());
 	}
 
 	public IDataProvider getDataProvider(String id) throws RepositoryException
 	{
 		if (id == null) return null;
-		IDataProvider retval = this.flattenedSolution.getGlobalDataProvider(id);
+		IDataProvider retval = this.flattenedSolution.getGlobalDataProvider(id); // this getGlobalDataProvider handles related DPs as well like a.b.c
 		if (retval == null)
 		{
 			retval = formProviders.get(id);
