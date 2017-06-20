@@ -17,6 +17,10 @@
 package com.servoy.j2db.util.xmlxport;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONObject;
 
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -27,6 +31,7 @@ import com.servoy.j2db.persistence.Solution;
 public interface IXMLExporter
 {
 	void exportSolutionToFile(Solution solution, File file, String version, int buildNumber, boolean exportMetaData, boolean exportSampleData,
-		int nrOfExportSampleData, boolean exportI18N, boolean exportUserInfo, boolean includeModules, boolean protect,
-		ITableDefinitionsManager tableDefManager, IMetadataDefManager metadataDefManager, boolean exportSolution) throws RepositoryException;
+		int nrOfExportSampleData, boolean exportI18N, boolean exportUserInfo, boolean includeModules, boolean protect, ITableDefinitionsManager tableDefManager,
+		IMetadataDefManager metadataDefManager, boolean exportSolution, JSONObject importSettings, Map<String, List<File>> modulesWebPackages)
+		throws RepositoryException;
 }

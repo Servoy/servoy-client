@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.util.Debug;
@@ -723,13 +724,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		{
 			types = ((Wrapper)types).unwrap();
 		}
-		int[] intTypes = null;
+		ColumnType[] columnTypes = null;
 		if (types instanceof Object[])
 		{
-			intTypes = new int[((Object[])types).length];
+			columnTypes = new ColumnType[((Object[])types).length];
 			for (int i = 0; i < ((Object[])types).length; i++)
 			{
-				intTypes[i] = Utils.getAsInteger(((Object[])types)[i]);
+				columnTypes[i] = ColumnType.getColumnType(Utils.getAsInteger(((Object[])types)[i]));
 			}
 		}
 
@@ -738,7 +739,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// invent column names if none defined yet
 			makeColumnMap();
 		}
-		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, intTypes /* inferred from dataset when null */, pkNames);
+		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, columnTypes /* inferred from dataset when null */, pkNames);
 		if (dataSource != null)
 		{
 			// create a new foundSet for the temp table

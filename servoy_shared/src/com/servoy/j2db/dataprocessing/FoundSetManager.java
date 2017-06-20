@@ -51,6 +51,7 @@ import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.EnumDataProvider;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -65,6 +66,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
@@ -99,7 +101,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private static final Entry<String, SoftReference<RelatedFoundSet>>[] EMPTY_ENTRY_ARRAY = new Map.Entry[0];
 
 	private final IApplication application;
-	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<Object, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -839,7 +841,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private void initMembers()
 	{
 		sharedDataSourceFoundSet = new ConcurrentHashMap<String, FoundSet>(64);
-		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<IFoundSetListener, FoundSet>(32));
+		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<Object, FoundSet>(32));
 		foundSets = Collections.synchronizedSet(new WeakHashSet<FoundSet>(64));
 		noTableFoundSet = null;
 
@@ -1417,15 +1419,42 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getTable(l.getDataSource());
 		}
 
-		FoundSet foundset = separateFoundSets.get(l);
+		FoundSet foundset = l.getSharedFoundsetName() != null ? separateFoundSets.get(l.getSharedFoundsetName()) : separateFoundSets.get(l);
 		if (foundset == null)
 		{
-			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(l.getDataSource());
-			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
-			if (createEmptyFoundsets) foundset.clear();
-			separateFoundSets.put(l, foundset);
-			// inform global foundset event listeners that a new foundset has been created
-			globalFoundSetEventListener.foundSetCreated(foundset);
+			foundset = createSeparateFoundset(l.getDataSource(), l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, defaultSortColumns);
+		}
+		return foundset;
+	}
+
+	private FoundSet createSeparateFoundset(String datasource, Object key, List<SortColumn> defaultSortColumns) throws ServoyException
+	{
+		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(datasource);
+		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
+		if (createEmptyFoundsets) foundset.clear();
+		separateFoundSets.put(key, foundset);
+		// inform global foundset event listeners that a new foundset has been created
+		globalFoundSetEventListener.foundSetCreated(foundset);
+		return foundset;
+	}
+
+	@Override
+	public IFoundSet getNamedFoundSet(String name) throws ServoyException
+	{
+		if (name == null) throw new RuntimeException("can't ask for a named foundset with a null name");
+		IFoundSet foundset = separateFoundSets.get(name);
+		if (foundset == null)
+		{
+			Iterator<Form> forms = application.getFlattenedSolution().getForms(false);
+			while (forms.hasNext())
+			{
+				Form form = forms.next();
+				if (name.equals(form.getSharedFoundsetName()))
+				{
+					foundset = createSeparateFoundset(form.getDataSource(), name, getSortColumns(form.getDataSource(), form.getInitialSort()));
+					break;
+				}
+			}
 		}
 		return foundset;
 	}
@@ -2200,7 +2229,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
 				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
-				targetTid, types, pkNames);
+				targetTid, ColumnType.getColumnTypes(types), pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2497,7 +2526,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, int[] intTypes, String[] pkNames) throws ServoyException
+	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 	{
 		if (name == null)
 		{
@@ -2508,7 +2537,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		FlattenedSolution s = application.getFlattenedSolution();
 
 		IDataSet fixedDataSet = dataSet;
-		int[] fixedIntTypes = intTypes;
+		ColumnType[] fixedColumnTypes = columnTypes;
+		if (fixedColumnTypes == null) fixedColumnTypes = BufferedDataSetInternal.getColumnTypeInfo(dataSet);
 
 		// get column def from the first in-mem datasource found
 		ServoyJSONObject columnsDef = null;
@@ -2519,54 +2549,44 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			columnsDef = tn.getColumns();
 		}
 
+		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
 		if (columnsDef != null)
 		{
-			// if this is a desigenr defined in mem table, then look if the types of the dataset
-			// are the same as in one defined in the developer.
-			if (fixedIntTypes == null) fixedIntTypes = dataSet.getColumnTypes();
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
-			ArrayList<String> inmemColumnNames = new ArrayList<String>();
-			ArrayList<String> inmemPKs = new ArrayList<String>();
-			int[] inmemColumnTypes = null;
-			ArrayList<Integer> inmemColumnTypesA = new ArrayList<Integer>();
+			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>();
+			String[] inmemColumnNames = new String[tableInfo.columnInfoDefSet.size()];
+			List<String> inmemPKs = new ArrayList<String>();
+			ColumnType[] inmemColumnTypes = new ColumnType[tableInfo.columnInfoDefSet.size()];
 			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
 			{
 				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
-				inmemColumnNames.add(cid.name);
-				inmemColumnTypesA.add(Integer.valueOf(cid.columnType.getSqlType()));
-				if ((cid.flags & Column.IDENT_COLUMNS) > 0)
+				inmemColumnNames[j] = cid.name;
+				inmemColumnTypes[j] = cid.columnType;
+				if ((cid.flags & Column.IDENT_COLUMNS) != 0)
 				{
 					inmemPKs.add(cid.name);
 				}
+				columnInfoDefinitions.put(cid.name, cid);
 			}
 			if (pkNames == null && inmemPKs.size() > 0)
 			{
-				pkNames = inmemPKs.toArray(new String[0]);
-			}
-			if (inmemColumnTypesA.size() > 0)
-			{
-				inmemColumnTypes = new int[inmemColumnTypesA.size()];
-				for (int i = 0; i < inmemColumnTypesA.size(); i++)
-					inmemColumnTypes[i] = inmemColumnTypesA.get(i).intValue();
+				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
 			}
 
-
-			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames.toArray(new String[inmemColumnNames.size()])) ||
-				!Arrays.equals(fixedIntTypes, inmemColumnTypes))
+			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames) || !Arrays.equals(fixedColumnTypes, inmemColumnTypes))
 			{
-				fixedIntTypes = inmemColumnTypes;
-				fixedDataSet = new BufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]), fixedIntTypes, dataSet.getRows());
-				if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames.toArray(new String[inmemColumnNames.size()])) && dataSet.getColumnCount() > 0)
+				fixedColumnTypes = inmemColumnTypes;
+				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames, fixedColumnTypes, dataSet.getRows(), dataSet.hadMoreRows());
+				if (dataSet.getColumnCount() > 0 && !Arrays.equals(dataSet.getColumnNames(), inmemColumnNames))
 				{
 					Debug.warn("Dataset column names definition does not match inmem table definition for datasource : " + dataSource);
 				}
-				if (!Arrays.equals(intTypes, inmemColumnTypes) && intTypes != null)
+				if (columnTypes != null && !Arrays.equals(columnTypes, inmemColumnTypes))
 				{
 					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource);
 				}
 			}
 		}
-
 
 		// check if column names width matches rows
 		if (fixedDataSet.getRowCount() > 0 && fixedDataSet.getRow(0).length != fixedDataSet.getColumnCount())
@@ -2593,7 +2613,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 
-
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
 			if (gt != null)
@@ -2604,7 +2623,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			table = application.getDataServer().insertDataSet(application.getClientID(), fixedDataSet, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-				fixedIntTypes /* inferred from dataset when null */, pkNames);
+				fixedColumnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);

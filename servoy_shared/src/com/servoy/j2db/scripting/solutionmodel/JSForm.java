@@ -413,7 +413,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		ScriptMethod method = getForm().getScriptMethod(name);
 		if (method != null)
 		{ // first remove from scopes , then remove from model copy - !important
-				//removeMethodFromScopes(method);
+			//removeMethodFromScopes(method);
 			getForm().removeChild(method);
 			refreshFromScopes();
 			return true;
@@ -1899,6 +1899,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		{
 			return namedFoundset.substring(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH);
 		}
+		if (namedFoundset != null && namedFoundset.startsWith(Form.NAMED_FOUNDSET_SEPARATE_PREFIX))
+		{
+			return namedFoundset.substring(Form.NAMED_FOUNDSET_SEPARATE_PREFIX_LENGTH);
+		}
 		return namedFoundset;
 	}
 
@@ -1928,8 +1932,16 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		}
 		else
 		{
-			// see if it is intended as a global relation
-			setNamedFoundSetAsGlobalRelation(application.getFlattenedSolution().getRelation(arg));
+			Relation relation = application.getFlattenedSolution().getRelation(arg);
+			if (relation != null)
+			{
+				// see if it is intended as a global relation
+				setNamedFoundSetAsGlobalRelation(relation);
+			}
+			else
+			{
+				getForm().setNamedFoundSet(Form.NAMED_FOUNDSET_SEPARATE_PREFIX + arg);
+			}
 		}
 	}
 

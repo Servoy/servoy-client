@@ -360,4 +360,5 @@ public interface IBasicFormManager extends IFormManager
 	 */
 	public boolean isCurrentTheMainContainer();
 
+	public void touch(IFormController fp);
 }

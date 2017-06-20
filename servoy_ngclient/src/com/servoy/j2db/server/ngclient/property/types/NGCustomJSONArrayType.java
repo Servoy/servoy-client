@@ -73,7 +73,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
 public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
 	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
 	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>,
-	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter, IDesignValueConverter
+	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter, IDesignValueConverter<Object>, II18NPropertyType<Object>
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -283,7 +283,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
@@ -385,5 +385,24 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			return jsonArray;
 		}
 		return value;
+	}
+
+	@Override
+	public Object resetI18nValue(Object property, PropertyDescription pd, WebFormComponent component)
+	{
+		PropertyDescription arrayElementPD = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
+		if (arrayElementPD.getType() instanceof II18NPropertyType)
+		{
+			if (property instanceof List< ? > && ((List< ? >)property).size() > 0)
+			{
+				List<Object> list = (List<Object>)property;
+				for (int i = 0; i < list.size(); i++)
+				{
+					Object o = list.get(i);
+					list.set(i, ((II18NPropertyType<Object>)arrayElementPD.getType()).resetI18nValue(o, arrayElementPD, component));
+				}
+			}
+		}
+		return property;
 	}
 }

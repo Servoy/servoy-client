@@ -43,7 +43,6 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -68,9 +67,10 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
-	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
-	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType, IRhinoDesignConverter
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>
+	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
+	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
+	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -93,11 +93,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String def = null;
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
+		boolean lazyLoading = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			if (json.has("max")) max = json.optInt("max");
+			if (json.has("lazyLoading")) lazyLoading = json.optBoolean("lazyLoading");
 			if (json.has("tags"))
 			{
 				try
@@ -111,7 +113,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				}
 			}
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading);
 	}
 
 	@Override
@@ -125,7 +127,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// handle any valuelist specific websocket incomming traffic
-		if (previousSabloValue != null && newJSONValue instanceof String)
+		if (previousSabloValue != null && (newJSONValue == null || newJSONValue instanceof String))
 		{
 			// currently the only thing that can come from client is a filter request...
 			previousSabloValue.filterValuelist((String)newJSONValue);
@@ -199,7 +201,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
 		return null; // we don't have the IValueList yet (that is a runtime thing, not a form element thing); so for now say "not linked to data"; at runtime when valuelist sablo value might add
 		// itself as a listener to the DataAdapterList, any ComponentTypeSabloValue or FoundsetLinkedSabloValue using that should/will update their state
@@ -221,10 +223,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				// weird; but we are going to create a new value anyway so it doesn't matter much
 				return createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext);
 			}
+			else if (rhinoValue == null) return null;// weird; but we are going to return null anyway so it doesn't matter much that it is not initialized
 			else
 			{
-				Debug.warn(
-					"Trying to make changes (assignment) to an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext);
+				// we cannot set values from a dataset if the previous value is not ready for it
+				Debug.error(
+					"Trying to make changes (assignment) to an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext,
+					new RuntimeException());
 				return previousComponentValue;
 			}
 		}
@@ -367,6 +372,17 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			return application.getScriptEngine().getSolutionModifier().getValueList(list.getName());
 		}
 		return null;
+	}
+
+	@Override
+	public ValueListTypeSabloValue resetI18nValue(ValueListTypeSabloValue propertyValue, PropertyDescription pd, WebFormComponent component)
+	{
+		// have to test if a real valuelist is there because a "autoVL" valuelist doesn't have an actual valuelist but is based on the column itself.
+		if (propertyValue != null)
+		{
+			propertyValue.resetI18nValue();
+		}
+		return propertyValue;
 	}
 
 	/**

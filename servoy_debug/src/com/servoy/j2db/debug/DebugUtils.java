@@ -165,6 +165,13 @@ public class DebugUtils
 				else if (detail != null)
 				{
 					msg += "\n" + detail;
+					String scriptstack = Debug.getScriptStacktraceFromContext(msg);
+					if (scriptstack != null) msg += "\n" + scriptstack;
+				}
+				else
+				{
+					String scriptstack = Debug.getScriptStacktraceFromContext(msg);
+					if (scriptstack != null) msg += "\n" + scriptstack;
 				}
 				debugger.outputStdErr(msg.toString() + '\n');
 			}

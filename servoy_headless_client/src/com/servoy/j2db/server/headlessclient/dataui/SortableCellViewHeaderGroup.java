@@ -53,6 +53,7 @@ import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -108,6 +109,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 		direction = Utils.getAsBoolean(sorted.get(name));
 		direction = !direction;
 
+		FormController fc = null;
 		try
 		{
 			Iterator<IPersist> it = cellview.getAllObjects();
@@ -122,7 +124,6 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 						if (fs != null)
 						{
 							WebForm wf = listView.findParent(WebForm.class);
-							FormController fc = null;
 							if (wf != null) fc = wf.getController();
 							GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
 							int labelForOnActionMethodId = 0;
@@ -138,8 +139,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 								event.setModifiers(modifiers);
 								event.setElementName(gc.getName());
 								fc.executeFunction(String.valueOf(labelForOnActionMethodId),
-									Utils.arrayMerge((new Object[] { event }),
-										Utils.parseJSExpressions(gc.getFlattenedMethodArguments("onActionMethodID"))), //$NON-NLS-1$
+									Utils.arrayMerge((new Object[] { event }), Utils.parseJSExpressions(gc.getFlattenedMethodArguments("onActionMethodID"))), //$NON-NLS-1$
 									true, null, false, "onActionMethodID"); //$NON-NLS-1$
 							}
 							String id = ((ISupportDataProviderID)element).getDataProviderID();
@@ -210,11 +210,9 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 										event.setType(JSEvent.EventType.none);
 										event.setFormName(view.getDataAdapterList().getFormController().getName());
 										event.setModifiers(modifiers);
-										fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()),
-											Utils.arrayMerge(
-												(new Object[] { dataProvider == null ? id
-													: dataProvider.getDataProviderID(), Boolean.valueOf(direction), event }),
-												Utils.parseJSExpressions(fc.getForm().getFlattenedMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
+										fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()), Utils.arrayMerge(
+											(new Object[] { dataProvider == null ? id : dataProvider.getDataProviderID(), Boolean.valueOf(direction), event }),
+											Utils.parseJSExpressions(fc.getForm().getFlattenedMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
 											true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
 									}
 								}
@@ -235,7 +233,21 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			if (fc != null)
+			{
+				if (e instanceof ServoyException)
+				{
+					((ServoyException)e).setContext(fc.toString());
+				}
+				else
+				{
+					ServoyException se = new ServoyException();
+					se.initCause(e);
+					se.setContext(fc.toString());
+					e = se;
+				}
+			}
+			Debug.error("error sorting foundset: " + sorted, e);
 		}
 	}
 

@@ -17,11 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Arrays;
+
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 
 /**
@@ -82,6 +84,13 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 			}
 			return this;
 		}
+
+		@Override
+		public String toString()
+		{
+			return "DataLinks " + (recordLinked ? "(recordLinked)" : "") + ": " + Arrays.asList(dataProviderIDs);
+		}
+
 	}
 
 	/**
@@ -93,6 +102,6 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 	 * @param value this is the template/form element value of the property.
 	 * @return some TargetDataLinks if this value depends on foundset record or scripting variables or {@link TargetDataLinks#NOT_LINKED_TO_DATA} if not. Another predifined value you can use is {@link TargetDataLinks#LINKED_TO_ALL}.
 	 */
-	TargetDataLinks getDataLinks(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement);
+	TargetDataLinks getDataLinks(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement);
 
 }

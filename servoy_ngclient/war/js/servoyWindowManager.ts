@@ -272,6 +272,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 						title:'',
 						opacity:1,
 						undecorated:false,
+						cssClassName:null,
 						size:null,
 						location:null,
 						navigatorForm:null,
@@ -479,6 +480,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		setUndecorated:function(name,undecorated){
 			if(instances[name]){
 				instances[name].undecorated = undecorated;
+			}
+		},
+		setCSSClassName:function(name,cssClassName){
+			if(instances[name]){
+				instances[name].cssClassName = cssClassName;
 			}
 		},
 		setOpacity:function(name,opacity){

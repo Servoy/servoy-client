@@ -66,6 +66,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowDat
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IWrapperDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
@@ -138,14 +139,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectCtxt)
 	{
-		componentIsCreated = false;
+		// the code below that clears component should not be needed as detach will do these and it should never happen that attach is called twice in a row without a detach in-between
+		// but due to some code in ChangeAwareList.detach(int idx, WT el, boolean remove) that might skip the actual detach to improve operation of Rhino side .splice ... it can happen that the value gets attached twice
+		if (componentIsCreated) detach();
+
 		this.webObjectContext = webObjectCtxt;
 		this.monitor = changeMonitor;
 
-		if (childComponent != null)
-		{
-			childComponent.dispose();
-		}
 		if (forFoundsetTypedPropertyName != null)
 		{
 			this.webObjectContext.addPropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener = new PropertyChangeListener()
@@ -166,7 +166,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		Collection<PropertyDescription> dp = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE);
 		if (dp.size() > 0)
 		{
-			//get the first dataprovider property for now
+			// get the first dataprovider property for now
 			PropertyDescription propertyDesc = dp.iterator().next();
 			Object propertyValue = childComponent.getProperty(propertyDesc.getName());
 			if (propertyValue != null)
@@ -192,15 +192,43 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					foundsetPropValue.removeStateChangeListener(foundsetStateChangeListener);
 					foundsetStateChangeListener = null;
 				}
-				if (viewPortChangeMonitor != null) foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+				if (viewPortChangeMonitor != null)
+				{
+					foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					viewPortChangeMonitor = null;
+				}
 				if (dataLinkedPropertyRegistrationListener != null)
 				{
 					FoundsetDataAdapterList dal = foundsetPropValue.getDataAdapterList();
 					if (dal != null) dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
 				}
+				foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(childComponent.getName(), null);
 			}
 		}
 		if (readonlyPropertyListener != null) webObjectContext.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
+
+		// unregister this component from formcontroller "elements" scope if needed
+		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+		if (formUI != null && componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag("addToElementsScope")))
+		{
+			formUI.removeComponentFromElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
+		}
+
+		if (childComponent != null)
+		{
+			childComponent.dispose();
+			childComponent = null;
+		}
+		componentIsCreated = false;
+
+		if (recordBasedProperties != null)
+		{
+			recordBasedProperties.clear();
+			recordBasedProperties.addAll(formElementValue.recordBasedProperties);
+		}
+
+		this.monitor = null;
+		this.parentComponent = null;
 	}
 
 	private FoundsetTypeSabloValue getFoundsetValue()
@@ -1071,6 +1099,19 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	public String toString()
 	{
 		return "Child component value: " + childComponent;
+	}
+
+
+	public void resetI18nValue()
+	{
+		for (Entry<String, PropertyDescription> p : childComponent.getSpecification().getProperties().entrySet())
+		{
+			if (p.getValue().getType() instanceof II18NPropertyType)
+			{
+				childComponent.setProperty(p.getKey(),
+					((II18NPropertyType)p.getValue().getType()).resetI18nValue(childComponent.getProperty(p.getKey()), p.getValue(), childComponent));
+			}
+		}
 	}
 
 }

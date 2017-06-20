@@ -74,6 +74,7 @@ public final class Settings extends SortedProperties
 	public static final String RMI_CONNECTION_TIMEOUT = "rmi.connection.timeout";
 
 	public static final String TRUST_DATA_AS_HTML_SETTING = "servoy.clientTrustDataAsHtml"; //$NON-NLS-1$
+	public static final String USER_HOME = "servoy.user.home";
 
 	private boolean loadedFromServer = false;
 	private File file;
@@ -327,6 +328,53 @@ public final class Settings extends SortedProperties
 	}
 
 	private static final String enc_prefix = "encrypted:"; //keep in sync with IWarExportModel.enc_prefix
+	private static String START_DELIMITER = "${";
+	private static String STOP_DELIMITER = "}";
+	private static int START_DELIMITER_LENGTH = START_DELIMITER.length();
+	private static int STOP_DELIMITER_LENGTH = STOP_DELIMITER.length();
+
+	public String substituteProperties(String value)
+	{
+		if (value == null) return null;
+
+		StringBuffer buffer = new StringBuffer();
+		int position = 0;
+		int startDelimiterIndex;
+		int endDelimiterIndex;
+
+		while ((startDelimiterIndex = value.indexOf(START_DELIMITER, position)) >= 0 &&
+			(endDelimiterIndex = value.indexOf(STOP_DELIMITER, startDelimiterIndex)) >= 0)
+		{
+			buffer.append(value.substring(position, startDelimiterIndex));
+
+			startDelimiterIndex += START_DELIMITER_LENGTH;
+
+			String keyToSubstitute = value.substring(startDelimiterIndex, endDelimiterIndex);
+
+			if (!Utils.stringIsEmpty(keyToSubstitute))
+			{
+				String replacement = System.getProperty(keyToSubstitute);
+
+				if (replacement == null)
+				{
+					replacement = super.getProperty(keyToSubstitute);
+				}
+
+				if (replacement == null)
+				{
+					replacement = System.getenv(keyToSubstitute);
+				}
+
+				if (!Utils.stringIsEmpty(replacement))
+				{
+					buffer.append(replacement);
+				}
+			}
+			position = endDelimiterIndex + STOP_DELIMITER_LENGTH;
+		}
+
+		return position == 0 ? value : buffer.append(value.substring(position, value.length())).toString();
+	}
 
 	@Override
 	public synchronized void load(InputStream inStream) throws IOException
@@ -753,6 +801,25 @@ public final class Settings extends SortedProperties
 	{
 		// we do no more support repository team provider
 		if (Settings.START_AS_TEAMPROVIDER_SETTING.equals(key)) return Boolean.FALSE.toString();
-		return super.getProperty(key);
+		String value = super.getProperty(key);
+		int i = 0;
+		// 5 iterations of replacement
+		for (i = 0; i < 5; i++)
+		{
+			String newValue = substituteProperties(value);
+			if (Utils.equalObjects(newValue, value))
+			{
+				break;
+			}
+			else
+			{
+				value = newValue;
+			}
+		}
+		if (i == 5)
+		{
+			Debug.warn("too many levels while replacing variables for:" + key);
+		}
+		return value;
 	}
 }

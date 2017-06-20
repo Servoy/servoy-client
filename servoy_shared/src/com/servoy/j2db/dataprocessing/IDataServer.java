@@ -20,14 +20,17 @@ package com.servoy.j2db.dataprocessing;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * Interface for manipulation database data
@@ -172,15 +175,16 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 * @param serverName
 	 * @param tableName when null a temporary table will be created
 	 * @param tid transaction id
-	 * @param types see java.sql.Types
+	 * @param columnTypes column types
 	 * @param pkNames
+	 * @param columnInfoDefinitions
 	 * @return the table where the set was inserted into
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
-		String[] pkNames) throws ServoyException, RemoteException;
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException;
 
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
@@ -206,7 +210,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException;
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException;
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException;
 

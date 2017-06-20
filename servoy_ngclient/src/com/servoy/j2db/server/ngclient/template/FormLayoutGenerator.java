@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -25,7 +26,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PackageSpecification;
@@ -54,6 +57,7 @@ import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -242,7 +246,7 @@ public class FormLayoutGenerator
 		{
 			writer.print(" style=\"height:100%\"");
 		}
-		writer.print("svy-layout-update svy-autosave ");
+		writer.print("svy-layout-update svy-form-class-update svy-autosave ");
 		// skip the scrollbars for forms in table or list view then the portal component does this.
 		if (design || !isTableOrListView(form))
 		{
@@ -527,6 +531,28 @@ public class FormLayoutGenerator
 			writer.print(".svy_servoyApi'");
 		}
 
+		if (fe.getPersistIfAvailable() instanceof BaseComponent)
+		{
+			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getAttributes());
+			for (Entry<String, String> entry : attributes.entrySet())
+			{
+				writer.print(" ");
+				try
+				{
+					StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
+					if (entry.getValue() != null && entry.getValue().length() > 0)
+					{
+						writer.print("=\"");
+						StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
+						writer.print("\"");
+					}
+				}
+				catch (IOException e)
+				{
+					Debug.error(e);
+				}
+			}
+		}
 		writer.print(">");
 		writer.print("</");
 		writer.print(fe.getTagname());

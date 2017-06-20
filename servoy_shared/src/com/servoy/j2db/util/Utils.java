@@ -471,14 +471,25 @@ public final class Utils
 	 */
 	public static int getAsInteger(String s)
 	{
-		if (s == null) return 0;
+		return getAsInteger(s, 0);
+	}
+
+	/**
+	 * Try to parse the given string as an integer
+	 *
+	 * @param s the string to parse
+	 * @return the parsed integer - or 0 (zero) if the parse doesn't succeed
+	 */
+	public static int getAsInteger(Object obj, int defaultValue)
+	{
+		if (obj == null) return defaultValue;
 		try
 		{
-			return new Double(s.replace(',', '.')).intValue();
+			return new Double(obj.toString().replace(',', '.')).intValue();
 		}
 		catch (Exception ex)
 		{
-			return 0;
+			return defaultValue;
 		}
 	}
 

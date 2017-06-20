@@ -1,11 +1,10 @@
-<tabset  ng-class='(model.styleClass ? model.styleClass : "")  + " svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
-    <tab ng-repeat="tab in model.tabs"
-    	 active="tab.active" select="select(tab)" disabled="tab.disabled || !model.enabled || !tab.containsFormId" >
-      <tab-heading  svy-mnemonic='tab.mnemonic'>
+<uib-tabset active="model.activeTabIndex" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
+    <uib-tab ng-repeat="tab in model.tabs" select="select(tab)" disabled="tab.disabled || !model.enabled || !tab.containsFormId">
+      <uib-tab-heading  svy-mnemonic='tab.mnemonic'>
       	<img ng-hide="tab.imageMediaID == ''"  ng-src='{{tab.imageMediaID}}'/>
         <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
         	  ng-bind='tab.text'></span>
-      </tab-heading>
+      </uib-tab-heading>
       <div ng-include="getForm(tab)" sablo-tabseq='1' sablo-tabseq-config="{container: true}" ng-style='getTabsHeight()' style="position:absolute;top:40px;left:0;right:0;bottom:0;overflow:hidden"></div>
     </tab>
-</tabset>
+</uib-tabset>

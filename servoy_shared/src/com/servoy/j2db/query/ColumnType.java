@@ -17,10 +17,13 @@
 package com.servoy.j2db.query;
 
 import java.io.Serializable;
+import java.sql.Types;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.base.query.BaseColumnType;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
@@ -81,5 +84,49 @@ public class ColumnType extends BaseColumnType implements Serializable, IWriteRe
 	public static void clearInstances()
 	{
 		instances.clear();
+	}
+
+	/** Convert {@link java.sql.Types} to {@link ColumnType}
+	 *
+	 * @param types
+	 * @return
+	 */
+	public static ColumnType[] getColumnTypes(int[] types)
+	{
+		if (types == null)
+		{
+			return null;
+		}
+
+		ColumnType[] columnTypes = new ColumnType[types.length];
+		for (int i = 0; i < types.length; i++)
+		{
+			columnTypes[i] = getColumnType(types[i]);
+		}
+
+		return columnTypes;
+	}
+
+	/** Convert {@link java.sql.Types} to {@link ColumnType}
+	 *
+	 * @param type
+	 * @return
+	 */
+	public static ColumnType getColumnType(int type)
+	{
+		switch (type)
+		{
+			case Types.CHAR :
+				return getInstance(type, 255, 0);
+			case Types.DECIMAL :
+				return getInstance(type, 19, 2);
+		}
+		switch (Column.mapToDefaultType(type))
+		{
+			case IColumnTypes.MEDIA :
+			case IColumnTypes.TEXT :
+				return getInstance(type, Integer.MAX_VALUE, 0);
+		}
+		return getInstance(type, 0, 0);
 	}
 }

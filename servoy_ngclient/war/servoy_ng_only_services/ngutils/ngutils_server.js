@@ -58,3 +58,40 @@ $scope.api.cleanup = function()
 }
 
 $scope.model.contributedTags = []; // so that the bind-once watch gets remove on the client even if there are no headers set (undefined -> [] will remove the watch)
+
+$scope.api.addFormStyleClass = function(formname,styleclass)
+{
+	if (!$scope.model.styleclasses) $scope.model.styleclasses = {};
+	if (!$scope.model.styleclasses[formname]) $scope.model.styleclasses[formname] = styleclass;
+	else $scope.model.styleclasses[formname] += ' ' + styleclass;
+}
+
+$scope.api.getFormStyleClass = function(formname)
+{
+	if ($scope.model.styleclasses) 
+	{
+		return $scope.model.styleclasses[formname];
+	}	
+	return null;	
+}
+
+$scope.api.removeFormStyleClass = function(formname,styleclass)
+{
+	if ($scope.model.styleclasses && $scope.model.styleclasses[formname]) 
+	{
+		var arr = $scope.model.styleclasses[formname].split(" ");
+		var index = arr.indexOf(styleclass);
+		if (index >= 0)
+		{
+			arr.splice(index, 1);
+			if (arr.length == 0)
+			{
+				delete $scope.model.styleclasses[formname];
+			}
+			else
+			{
+				$scope.model.styleclasses[formname] = arr.join(" ");
+			}	
+		}
+	}	
+}

@@ -29,12 +29,14 @@ import java.util.Set;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * Proxy class around a {@link IDataServer} instance for switchServer support.
@@ -262,18 +264,18 @@ public class DataServerProxy implements IDataServer
 		ds.logMessage(msg);
 	}
 
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
-		String[] pkNames) throws ServoyException, RemoteException
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
-		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, types, pkNames);
+		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}
 
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
 	{
 		return ds.insertQueryResult(client_id, getMappedServerName(queryServerName), queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid, types, pkNames);
+			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid, columnTypes, pkNames);
 	}
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException

@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.WebComponent;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -66,10 +68,12 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IPerfomanceRegistry;
@@ -255,6 +259,19 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		if (send && !("".equals(l.getLanguage()) && "".equals(l.getCountry())))
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
 				new Object[] { l.getLanguage(), l.getCountry() });
+		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
+		Map< ? , ? > cachedValueList = (Map< ? , ? >)getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+		if (cachedValueList != null) cachedValueList.clear();
+		List<IFormController> allControllers = getFormManager().getCachedFormControllers();
+		for (IFormController fc : allControllers)
+		{
+			IWebFormUI formUI = (IWebFormUI)fc.getFormUI();
+			Collection<WebComponent> components = formUI.getComponents();
+			for (WebComponent component : components)
+			{
+				if (component instanceof WebFormComponent) NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification());
+			}
+		}
 	}
 
 	@Override
@@ -887,6 +904,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
+		if (NGCONSTANTS.WINDOW_TIMEOUT.equals(name))
+		{
+			if (val != null && (!(val instanceof Number) || ((Number)val).longValue() <= 0))
+			{
+				return false;
+			}
+
+			getWebsocketSession().setSessionWindowTimeout(val == null ? null : Long.valueOf(((Number)val).longValue()));
+			return true;
+		}
+
 		if (val == null || val instanceof Boolean || val instanceof Number || val instanceof String)
 		{
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty", new Object[] { name, val });
@@ -902,7 +930,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public Object getClientProperty(Object name)
 	{
-		return (uiProperties == null) ? null : uiProperties.get(name);
+		if (NGCONSTANTS.WINDOW_TIMEOUT.equals(name))
+		{
+			return Long.valueOf(getWebsocketSession().getWindowTimeout());
+		}
+
+		return uiProperties == null ? null : uiProperties.get(name);
 	}
 
 	@Override
@@ -1275,7 +1308,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					WebObjectSpecification serviceSpec = webServiceScriptable.getServiceSpecification(); // get specification from plugins scope (which uses getScriptName() of service, then use the getClientService using the real name, to make sure client service is created if needed)
 					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceSpec.getName());
 
-					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
+					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getInternalApiFunction(serviceMethodName) : null);
+					if (functionSpec == null)
+					{
+						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
+					}
 					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 					// apply conversion
@@ -1287,7 +1324,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 					}
 
-					Object retVal = webServiceScriptable.executeScopeFunction(serviceMethodName, arrayOfJavaConvertedMethodArgs);
+					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
 					if (functionSpec != null && functionSpec.getReturnType() != null)
 					{
 						retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type

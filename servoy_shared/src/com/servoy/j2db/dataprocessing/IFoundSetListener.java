@@ -24,7 +24,7 @@ import com.servoy.j2db.persistence.ITable;
 
 /**
  * Used to listend for new foundsets
- * 
+ *
  * @author jblok
  * @since Servoy 5.0
  */
@@ -45,5 +45,7 @@ public interface IFoundSetListener extends EventListener
 	public boolean wantSharedFoundSet();
 
 	public String getGlobalRelationNamedFoundset();
+
+	public String getSharedFoundsetName();
 
 }

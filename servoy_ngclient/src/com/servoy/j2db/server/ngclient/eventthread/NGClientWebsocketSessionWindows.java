@@ -27,6 +27,7 @@ import org.sablo.websocket.IWindow;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
 
 /**
@@ -133,12 +134,53 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	}
 
 	@Override
-	public void touchForm(Form flattenedForm, String realInstanceName, boolean async)
+	public void touchForm(Form flattenedForm, String realInstanceName, boolean async, boolean testForValidForm)
 	{
 		for (INGClientWindow window : getSession().getWindows())
 		{
-			window.touchForm(flattenedForm, realInstanceName, async);
+			window.touchForm(flattenedForm, realInstanceName, async, testForValidForm);
 		}
+	}
+
+	@Override
+	public void registerAllowedForm(String formName, INGFormElement element)
+	{
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			window.registerAllowedForm(formName, element);
+		}
+	}
+
+	@Override
+	public String registerAllowedRelation(String relationName, INGFormElement element)
+	{
+		// this just registers it on all windows and returns the last...
+		// the generation of the name is should be stable so all windows should return the same value
+		String generatedRelationName = relationName;
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			generatedRelationName = window.registerAllowedRelation(relationName, element);
+		}
+		return generatedRelationName;
+	}
+
+	@Override
+	public String isVisibleAllowed(String formName, String uuidRelationName, INGFormElement element) throws IllegalAccessException
+	{
+		// only fail when all windows dont allow it.
+		IllegalAccessException ex = null;
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			try
+			{
+				return window.isVisibleAllowed(formName, uuidRelationName, element);
+			}
+			catch (IllegalAccessException e)
+			{
+				ex = e;
+			}
+		}
+		throw ex;
 	}
 
 	@Override

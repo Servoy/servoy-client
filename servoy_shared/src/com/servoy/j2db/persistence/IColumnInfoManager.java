@@ -16,6 +16,10 @@
 */
 package com.servoy.j2db.persistence;
 
+import java.util.HashMap;
+
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
+
 /**
  * Interface for repository component that manages the column info.
  *
@@ -31,4 +35,6 @@ public interface IColumnInfoManager extends IColumnInfoProvider
 	public void removeAllColumnInfo(ITable t) throws RepositoryException;
 
 	public void updateAllColumnInfo(ITable t) throws RepositoryException;
+
+	public void setTableColumnInfos(ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws RepositoryException;
 }

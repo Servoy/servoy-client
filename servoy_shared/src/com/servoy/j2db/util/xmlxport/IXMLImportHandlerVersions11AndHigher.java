@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.servoy.j2db.persistence.I18NUtil.MessageEntry;
@@ -33,6 +34,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -45,8 +47,8 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	void getRootObjectIdForImport(ImportInfo importInfo, RootObjectImportInfo rootObjectImportInfo) throws RepositoryException;
 
-	IRootObject importRootObject(RootObjectImportInfo rootObjectImportInfo) throws IllegalAccessException, IntrospectionException, InvocationTargetException,
-		RepositoryException;
+	IRootObject importRootObject(RootObjectImportInfo rootObjectImportInfo)
+		throws IllegalAccessException, IntrospectionException, InvocationTargetException, RepositoryException;
 
 	void importSecurityInfo(ImportInfo importInfo, RootObjectImportInfo rootObjectImportInfo) throws ServoyException;
 
@@ -56,8 +58,8 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	void importSampleData(JarFile jarFile, ImportInfo importInfo);
 
-	void importBlobs(JarFile jarFile, List<String> blobs, ImportInfo importInfo, Map<String, byte[]> digestMap) throws IOException, RepositoryException,
-		NoSuchAlgorithmException;
+	void importBlobs(JarFile jarFile, List<String> blobs, ImportInfo importInfo, Map<String, byte[]> digestMap)
+		throws IOException, RepositoryException, NoSuchAlgorithmException;
 
 	void checkDatabaseInfo(ImportInfo importInfo, ImportTransactable importTransactable) throws RepositoryException;
 
@@ -83,8 +85,8 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	String getPropertyValue(String oldValue);
 
-	IPersist loadDeletedObjectByElementId(IRootObject rootObject, int elementId, ISupportChilds parent) throws RepositoryException, IllegalAccessException,
-		IntrospectionException, InvocationTargetException;
+	IPersist loadDeletedObjectByElementId(IRootObject rootObject, int elementId, ISupportChilds parent)
+		throws RepositoryException, IllegalAccessException, IntrospectionException, InvocationTargetException;
 
 	void setStyleActiveRelease(IRootObject[] rootObjects) throws RepositoryException;
 
@@ -93,4 +95,8 @@ public interface IXMLImportHandlerVersions11AndHigher
 	void setAskForImportServerName(boolean askForImportServerName);
 
 	void checkMovedObjects(ImportInfo importInfo) throws RepositoryException, SQLException;
+
+	void loadWebPackage(String solutionName, String webPackageName, JarFile jarFile, JarEntry jarEntry);
+
+	List<Pair<String, byte[]>> getWebPackages(String solutionName);
 }

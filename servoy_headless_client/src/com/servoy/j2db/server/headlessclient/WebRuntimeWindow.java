@@ -90,8 +90,8 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 				}
 				else
 				{
-					((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, isUndecorated() ? false : resizable, closeAll ||
-						!legacyV3Behavior, (windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds, getOpacity(), getTransparent());
+					((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, isUndecorated() ? false : resizable,
+						closeAll || !legacyV3Behavior, (windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds, getOpacity(), getTransparent());
 				}
 			}
 		}
@@ -366,5 +366,16 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		{
 			mp.resetBounds(windowName);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#setCSSClass(java.lang.String)
+	 */
+	@Override
+	public void setCSSClass(String cssClassName)
+	{
+		// ignored
 	}
 }

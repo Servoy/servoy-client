@@ -64,7 +64,7 @@ import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 @SuppressWarnings("nls")
 public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue> implements IConvertedPropertyType<FormatTypeSabloValue>,
 	ISupportTemplateValue<String>, IFormElementDefaultValueToSabloComponent<String, FormatTypeSabloValue>, ISabloComponentToRhino<FormatTypeSabloValue>,
-	IRhinoToSabloComponent<FormatTypeSabloValue>
+	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -362,6 +362,16 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 			this.valueListPropertyName = valueListPropertyName;
 			this.foundsetPropertyName = foundsetPropertyName;
 		}
+	}
+
+	@Override
+	public FormatTypeSabloValue resetI18nValue(FormatTypeSabloValue value, PropertyDescription pd, WebFormComponent component)
+	{
+		if (value != null)
+		{
+			value.resetI18nValue();
+		}
+		return value;
 	}
 
 }

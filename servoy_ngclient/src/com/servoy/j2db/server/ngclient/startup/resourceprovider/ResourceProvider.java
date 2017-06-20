@@ -82,8 +82,8 @@ public class ResourceProvider implements Filter
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
 
 	// TODO add comment; what is the key? resource name, package name, ...?
-	private static final Map<String, IPackageReader> componentReaders = new ConcurrentHashMap<>();
-	private static final Map<String, IPackageReader> serviceReaders = new ConcurrentHashMap<>();
+	private static final Map<String, List<IPackageReader>> componentReaders = new ConcurrentHashMap<>();
+	private static final Map<String, List<IPackageReader>> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
 
 	private static String getName(IPackageReader reader)
@@ -101,53 +101,98 @@ public class ResourceProvider implements Filter
 		return name;
 	}
 
-	public synchronized static void setPackages(Collection<IPackageReader> newPackages)
+	public synchronized static void setPackages(Collection<List<IPackageReader>> newPackages)
 	{
-		List<String> toRemoveComponentNames = new ArrayList<String>();
-		List<String> toRemoveServiceNames = new ArrayList<String>();
-		for (String iPackageReaderName : componentReaders.keySet())
+		List<IPackageReader> toRemoveComponentNames = new ArrayList<>();
+		List<IPackageReader> toRemoveServiceNames = new ArrayList<>();
+		for (List<IPackageReader> lst : componentReaders.values())
 		{
-			toRemoveComponentNames.add(iPackageReaderName);
+			for (IPackageReader reader : lst)
+			{
+				toRemoveComponentNames.add(reader);
+			}
 		}
-		for (String iPackageReaderName : serviceReaders.keySet())
+		for (List<IPackageReader> lst : serviceReaders.values())
 		{
-			toRemoveServiceNames.add(iPackageReaderName);
+			for (IPackageReader reader : lst)
+			{
+				toRemoveServiceNames.add(reader);
+			}
 		}
 		componentReaders.clear();
 		serviceReaders.clear();
-		for (IPackageReader reader : newPackages)
+		for (IPackageReader reader : flatten(newPackages))
 		{
-			if (IPackageReader.WEB_SERVICE.equals(reader.getPackageType())) serviceReaders.put(getName(reader), reader);
-			else componentReaders.put(getName(reader), reader);
+			if (IPackageReader.WEB_SERVICE.equals(reader.getPackageType()))
+			{
+				addReader(serviceReaders, reader);
+			}
+			else
+			{
+				addReader(componentReaders, reader);
+			}
 		}
 
 		WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
 		WebServiceSpecProvider webServiceSpecProvider = WebServiceSpecProvider.getInstance();
 		if (webComponentSpecProvider == null || webServiceSpecProvider == null) initSpecProvider();
-		if (webComponentSpecProvider != null) webComponentSpecProvider.updatePackages(toRemoveComponentNames, componentReaders.values());
-		if (webServiceSpecProvider != null) webServiceSpecProvider.updatePackages(toRemoveServiceNames, serviceReaders.values());
+		if (webComponentSpecProvider != null) webComponentSpecProvider.updatePackages(toRemoveComponentNames, flatten(componentReaders.values()));
+		if (webServiceSpecProvider != null) webServiceSpecProvider.updatePackages(toRemoveServiceNames, flatten(serviceReaders.values()));
 
 	}
 
-	public synchronized static void updatePackageResources(Collection<String> componentsToRemove, Collection<IPackageReader> componentsToAdd,
-		Collection<String> servicesToRemove, Collection<IPackageReader> servicesToAdd)
+	/**
+	 * @param reader
+	 * @param name
+	 */
+	private static void addReader(Map<String, List<IPackageReader>> map, IPackageReader reader)
 	{
-		for (String reader : componentsToRemove)
+		String name = getName(reader);
+		List<IPackageReader> list = map.get(name);
+		if (list == null)
 		{
-			componentReaders.remove(reader);
+			list = new ArrayList<>(3);
+			map.put(name, list);
+		}
+		list.add(reader);
+	}
+
+	/**
+	 * @param values
+	 * @return
+	 */
+	private static List<IPackageReader> flatten(Collection<List<IPackageReader>> values)
+	{
+		List<IPackageReader> lst = new ArrayList<>();
+		for (List<IPackageReader> list : values)
+		{
+			lst.addAll(list);
+		}
+		return lst;
+	}
+
+
+	public synchronized static void updatePackageResources(Collection<IPackageReader> componentsToRemove, Collection<IPackageReader> componentsToAdd,
+		Collection<IPackageReader> servicesToRemove, Collection<IPackageReader> servicesToAdd)
+	{
+		for (IPackageReader reader : componentsToRemove)
+		{
+			List<IPackageReader> list = componentReaders.get(reader.getPackageName());
+			list.remove(reader);
 		}
 		for (IPackageReader reader : componentsToAdd)
 		{
-			componentReaders.put(getName(reader), reader);
+			addReader(componentReaders, reader);
 		}
 
-		for (String reader : servicesToRemove)
+		for (IPackageReader reader : servicesToRemove)
 		{
-			serviceReaders.remove(reader);
+			List<IPackageReader> list = serviceReaders.get(reader.getPackageName());
+			list.remove(reader);
 		}
 		for (IPackageReader reader : servicesToAdd)
 		{
-			serviceReaders.put(getName(reader), reader);
+			addReader(serviceReaders, reader);
 		}
 
 		WebComponentSpecProvider webComponentSpecProvider = WebComponentSpecProvider.getInstance();
@@ -190,8 +235,8 @@ public class ResourceProvider implements Filter
 
 		registerTypes();
 
-		List<IPackageReader> componentPackages = new ArrayList<>(componentReaders.values());
-		List<IPackageReader> servicePackages = new ArrayList<>(serviceReaders.values());
+		List<IPackageReader> componentPackages = flatten(componentReaders.values());
+		List<IPackageReader> servicePackages = flatten(serviceReaders.values());
 
 		for (URL url : Utils.iterate(Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true)))
 		{
@@ -426,10 +471,11 @@ public class ResourceProvider implements Filter
 			{
 				String packageName = URLDecoder.decode(pathInfo.substring(0, index), "UTF8");
 				packageName = packageName.startsWith("/") ? packageName.substring(1) : packageName;
-				IPackageReader reader = componentReaders.get(packageName);
-				if (reader != null)
+				List<IPackageReader> reader = componentReaders.get(packageName);
+				if (reader != null && !reader.isEmpty())
 				{
-					url = reader.getUrlForPath(pathInfo.substring(index));
+					// just take the first?
+					url = reader.get(0).getUrlForPath(pathInfo.substring(index));
 					if (url == null)
 					{
 						Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the component package");
@@ -438,9 +484,10 @@ public class ResourceProvider implements Filter
 				else
 				{
 					reader = serviceReaders.get(packageName);
-					if (reader != null)
+					if (reader != null && !reader.isEmpty())
 					{
-						url = reader.getUrlForPath(pathInfo.substring(index));
+						// just take the first?
+						url = reader.get(0).getUrlForPath(pathInfo.substring(index));
 						if (url == null)
 						{
 							Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the service package");
@@ -564,6 +611,13 @@ public class ResourceProvider implements Filter
 		}
 
 		@Override
+		public void clearError()
+		{
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
 		public URL getPackageURL()
 		{
 			return null;
@@ -598,22 +652,28 @@ public class ResourceProvider implements Filter
 	}
 
 
-	public static String getServicePackageNameForFile(File file)
+	public static IPackageReader getServicePackageReader(File file)
 	{
-		for (Entry<String, IPackageReader> entry : serviceReaders.entrySet())
+		for (Entry<String, List<IPackageReader>> entry : serviceReaders.entrySet())
 		{
-			File resource = entry.getValue().getResource();
-			if (resource != null && resource.equals(file)) return entry.getKey();
+			for (IPackageReader pr : entry.getValue())
+			{
+				File resource = pr.getResource();
+				if (resource != null && resource.equals(file)) return pr;
+			}
 		}
 		return null;
 	}
 
-	public static String getComponentPackageNameForFile(File file)
+	public static IPackageReader getComponentPackageReader(File file)
 	{
-		for (Entry<String, IPackageReader> entry : componentReaders.entrySet())
+		for (Entry<String, List<IPackageReader>> entry : componentReaders.entrySet())
 		{
-			File resource = entry.getValue().getResource();
-			if (resource != null && resource.equals(file)) return entry.getValue().getPackageName();
+			for (IPackageReader pr : entry.getValue())
+			{
+				File resource = pr.getResource();
+				if (resource != null && resource.equals(file)) return pr;
+			}
 		}
 		return null;
 	}

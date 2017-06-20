@@ -527,7 +527,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		mainForm.put("name", currentForm.getName());
 
 		Map<String, Object> navigatorForm = getNavigatorProperties(currentForm);
-		NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), null, true);
+		NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("switchForm",
 			new Object[] { getName(), mainForm, navigatorForm });
 		sendTitle(title);
@@ -581,7 +581,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					navSize.put("width", navForm.getSize().width);
 					navSize.put("height", navForm.getSize().height);
 					navigatorForm.put("size", navSize);
-					NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null, true);
+					NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null, true, false);
 				}
 			}
 		}
@@ -613,5 +613,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroy",
 			new Object[] { getName() });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#setCSSClass(java.lang.String)
+	 */
+	@Override
+	public void setCSSClass(String cssClassName)
+	{
+		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setCSSClassName",
+			new Object[] { getName(), cssClassName });
 	}
 }

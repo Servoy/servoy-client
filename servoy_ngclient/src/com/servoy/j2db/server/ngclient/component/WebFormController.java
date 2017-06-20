@@ -266,11 +266,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	}
 
-	@Override
-	public void touch()
-	{
-	}
-
 	private boolean destroyOnHide;
 
 	@Override
@@ -739,7 +734,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 
 		}
-
 		if (!visible && destroyOnHide)
 		{
 			Runnable run = new Runnable()
@@ -751,7 +745,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			};
 			invokeLaterRunnables.add(run);
 		}
-
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
 		return notifyVisibleSuccess;
@@ -804,5 +797,19 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 
 		return new RuntimeWebComponent[0];
+	}
+
+	/*
+	 * @see com.servoy.j2db.IFormController#hasParentForm()
+	 */
+	@Override
+	public boolean hasParentForm()
+	{
+		IWebFormController pfc = getParentFormController();
+		if (pfc != null)
+		{
+			return !pfc.isDestroyed();
+		}
+		return false;
 	}
 }

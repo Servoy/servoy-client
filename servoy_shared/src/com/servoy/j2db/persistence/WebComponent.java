@@ -318,6 +318,20 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		webObjectImpl.reload();
 	}
 
+	/**
+	 * returns the attribute value of the given attribute name.
+	 * these attributes will be generated on the tag.
+	 *
+	 * @param name
+	 * @return the value of the attribute
+	 */
+	public String getAttribute(String name)
+	{
+		Object value = getCustomProperty(new String[] { "attributes", name });
+		if (value instanceof String) return (String)value;
+		return null;
+	}
+
 	@Override
 	public String toString()
 	{

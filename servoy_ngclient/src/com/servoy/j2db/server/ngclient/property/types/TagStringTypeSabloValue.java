@@ -96,10 +96,10 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (super.equals(obj) && obj instanceof TagStringTypeSabloValue)
+		if (obj instanceof TagStringTypeSabloValue)
 		{
 			TagStringTypeSabloValue value = (TagStringTypeSabloValue)obj;
-			return value.pd == pd && value.formElement == formElement;
+			return value.pd == pd && value.formElement == formElement && value.getTagReplacedValue().equals(getTagReplacedValue());
 		}
 		return false;
 	}

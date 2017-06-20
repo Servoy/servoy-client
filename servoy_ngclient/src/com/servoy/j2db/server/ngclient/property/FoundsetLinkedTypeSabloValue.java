@@ -646,7 +646,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	}
 
 	@Override
-	public String toString()
+	public String toString() 
 	{
 		return "foundsetLinked(" + wrappedSabloValue + ")";
 	}

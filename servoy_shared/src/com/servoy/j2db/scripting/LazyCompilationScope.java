@@ -67,9 +67,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		}
 	}
 
-	/**
-	 * @return the scriptLookup
-	 */
 	public ISupportScriptProviders getScriptLookup()
 	{
 		return scriptLookup;
@@ -85,9 +82,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return functionParent;
 	}
 
-	/**
-	 * @see com.servoy.j2db.scripting.DefaultScope#has(int, org.mozilla.javascript.Scriptable)
-	 */
 	@Override
 	public boolean has(int index, Scriptable start)
 	{
@@ -99,15 +93,22 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		put(sm, function, true);
 	}
 
-	public void put(IScriptProvider sm, Object function, boolean overwriteInitialValue)
+	/**
+	 * @return true if the value was changed/put and false otherwise (depending on the value of 'overwriteInitialValue' and the presence of sm)
+	 */
+	public boolean put(IScriptProvider sm, Object function, boolean overwriteInitialValue)
 	{
 		if (!overwriteInitialValue && allVars.containsKey(sm.getDataProviderID()))
 		{
-			return;
+			return false;
 		}
+
 		remove(sm.getName());
+
 		allVars.put(sm.getDataProviderID(), function);
 		idVars.put(new Integer(sm.getID()), sm.getDataProviderID());
+
+		return true;
 	}
 
 	public Object remove(IScriptProvider sm)
@@ -142,11 +143,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return o;
 	}
 
-	/**
-	 * @param name
-	 * @param start
-	 * @return
-	 */
 	protected final Object getImpl(String name, Scriptable start)
 	{
 		IScriptProvider sp = getScriptProvider(name);
@@ -182,9 +178,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return super.get(name, start);
 	}
 
-	/**
-	 * @param name
-	 */
 	private IScriptProvider getScriptProvider(String name)
 	{
 		Object o = allVars.get(name);
@@ -192,10 +185,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return null;
 	}
 
-	/**
-	 * @param sp
-	 * @return
-	 */
 	protected Scriptable getFunctionSuper(IScriptProvider sp)
 	{
 		return null;
@@ -238,9 +227,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return (o instanceof Function ? (Function)o : null);
 	}
 
-	/**
-	 * @param persist
-	 */
 	public void reload()
 	{
 		Iterator<Object> it = allVars.values().iterator();
@@ -259,20 +245,17 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 
 	public abstract String getScopeName();
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
-		return "LazyCompilationScope[parent:" + (getParentScope() == this ? "this" : getParentScope()) + ", scriptLookup:" + scriptLookup + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+		return "LazyCompilationScope[parent:" + (getParentScope() == this ? "this" : getParentScope()) + ", scriptLookup:" + scriptLookup + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	@Override
-	public void remove(String name)
+	public Object remove(String name)
 	{
 		Utils.mapRemoveByValue(name, idVars);
-		super.remove(name);
+		return super.remove(name);
 	}
 
 	@Override

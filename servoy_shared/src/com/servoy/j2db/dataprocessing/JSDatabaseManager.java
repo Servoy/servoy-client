@@ -1098,7 +1098,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param sql_query The custom sql.
 	 * @param arguments Specified arguments or null if there are no arguments.
 	 * @param max_returned_rows The maximum number of rows returned by the query.
-	 * @param types The column types
+	 * @param columnTypes The column types
 	 * @param pkNames array of pk names, when null a hidden pk-column will be added
 	 *
 	 * @return datasource containing the results of the query or null if the parameters are wrong.
@@ -2753,6 +2753,31 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Returns a named foundset object created under a specific name. If foundset does not exist, null will be returned.
+	 * Alternative method: datasources.db.server_name.table_name.getFoundSet(name)
+	 *
+	 * @sample
+	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
+	 * var fs = databaseManager.getNamedFoundSet('myname')
+	 * // same as datasources.db.example_data.orders.getFoundSet('myname')
+	 * var ridx = fs.newRecord()
+	 * var record = fs.getRecord(ridx)
+	 * record.emp_name = 'John'
+	 * databaseManager.saveData()
+	 *
+	 * @param name The named foundset name
+	 *
+	 * @return An existing named(separate) foundset.
+	 */
+	@JSFunction
+	public IJSFoundSet getNamedFoundSet(String name) throws ServoyException
+	{
+		checkAuthorized();
+		return (FoundSet)application.getFoundSetManager().getNamedFoundSet(name);
+	}
+
+	/**
 	 * Returns a foundset object for a specified pk query.
 	 *
 	 * @sampleas getFoundSet(String)
@@ -3888,15 +3913,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			String name = String.valueOf(args[0]);
 			if (args[1] instanceof IDataSet && args[2] instanceof Object[])
 			{
-
-				int[] intTypes = new int[((Object[])args[2]).length];
+				ColumnType[] columnTypes = new ColumnType[((Object[])args[2]).length];
 				for (int i = 0; i < ((Object[])args[2]).length; i++)
 				{
-					intTypes[i] = Utils.getAsInteger(((Object[])(args[2]))[i]);
+					columnTypes[i] = ColumnType.getColumnType(Utils.getAsInteger(((Object[])(args[2]))[i]));
 				}
 				try
 				{
-					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], intTypes, null);
+					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], columnTypes, null);
 				}
 				catch (ServoyException e)
 				{

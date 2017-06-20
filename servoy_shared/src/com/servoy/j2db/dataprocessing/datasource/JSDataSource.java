@@ -31,6 +31,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Scope for datasources.db.myserver.mytable or datasources.mem['dsname']
@@ -100,6 +101,30 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	public IFoundSet getFoundSet() throws ServoyException
 	{
 		return application.getFoundSetManager().getFoundSet(datasource);
+	}
+
+	/**
+	 * Returns a named foundset object for a specified name. If named foundset datasource does not match current datasource will not be returned.
+	 * If named foundset is not created will return null.
+	 *
+	 * @sample
+	 * var fs = datasources.db.example_data.orders.getFoundSet('myname')
+	 * var ridx = fs.newRecord()
+	 * var record = fs.getRecord(ridx)
+	 * record.emp_name = 'John'
+	 * databaseManager.saveData()
+	 *
+	 * @return An existing named foundset for the datasource.
+	 */
+	@JSFunction
+	public IFoundSet getFoundSet(String name) throws ServoyException
+	{
+		IFoundSet foundset = application.getFoundSetManager().getNamedFoundSet(name);
+		if (Utils.equalObjects(foundset.getDataSource(), datasource))
+		{
+			return foundset;
+		}
+		return null;
 	}
 
 	/**

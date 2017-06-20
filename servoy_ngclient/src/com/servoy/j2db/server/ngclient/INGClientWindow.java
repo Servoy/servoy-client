@@ -54,9 +54,28 @@ public interface INGClientWindow extends IWindow
 
 	void destroyForm(String name);
 
-	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
+	void touchForm(Form flattenedForm, String realInstanceName, boolean async, boolean testForValidForm);
 
 	@Override
 	INGClientWebsocketSession getSession();
+
+	/**
+	 * @param formName
+	 */
+	void registerAllowedForm(String formName, INGFormElement element);
+
+	/**
+	 * @param relationName
+	 * @param element
+	 */
+	String registerAllowedRelation(String relationName, INGFormElement element);
+
+	/**
+	 * @param formName
+	 * @param uuidRelationName
+	 * @param element
+	 * @return
+	 */
+	String isVisibleAllowed(String formName, String uuidRelationName, INGFormElement element) throws IllegalAccessException;
 
 }

@@ -44,6 +44,7 @@ declare namespace servoy {
 		storeBounds:boolean,
 		opacity:number,
 		undecorated:boolean,
+		cssClassName:string,
 		resizable:boolean,
 		transparent:boolean,
 		bsWindowInstance:any,  // bootstrap-window instance , available only after creation
@@ -75,6 +76,7 @@ declare namespace servoy {
 		setSize(name:string,size:{width:number,height:number}):void,
 		getSize(name):{width:number,height:number},
 		setUndecorated(name:string,undecorated:boolean):void,
+		setCSSClassName(name:string,cssClassName:string):void,
 		setOpacity(name:string,opacity:number):void,
 		setResizable(name:string,resizable:boolean):void,
 		setTransparent(name:string,transparent:boolean):void,

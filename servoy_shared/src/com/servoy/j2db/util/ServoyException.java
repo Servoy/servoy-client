@@ -22,6 +22,7 @@ import java.io.Writer;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -337,6 +338,8 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 
 	private String scriptStackTrace;
 
+	protected String context;
+
 	public ServoyException()
 	{
 		this(0, null);
@@ -353,6 +356,20 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		this.errorCode = errorCode;
 		tagValues = values;
 		fillScriptStack();
+	}
+
+	@Override
+	public synchronized Throwable initCause(Throwable cause)
+	{
+		Throwable retValue = super.initCause(cause);
+		if (cause instanceof RhinoException)
+		{
+			// if the cause is a RhinoException then reset the scriptStackTrace and recalculate it
+			// so that this cause is used to get a full script stack.
+			scriptStackTrace = null;
+			fillScriptStack();
+		}
+		return retValue;
 	}
 
 	/**
@@ -476,7 +493,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 				return Messages.getString("servoy.applicationException.maintenanceMode"); //$NON-NLS-1$
 
 			case ABSTRACT_FORM :
-				return Messages.getString("servoy.formPanel.error.cannotShowForm"); //$NON-NLS-1$
+				return Messages.getString("servoy.formPanel.error.cannotShowForm", tagValues); //$NON-NLS-1$
 
 			case InternalCodes.OPERATION_CANCELLED :
 				return "Operation cancelled"; //$NON-NLS-1$
@@ -610,6 +627,11 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		return result.toString();
 	}
 
+	public String js_getContext()
+	{
+		return context;
+	}
+
 	/**
 	 * Returns the script stack trace for this ServoyException if this could be created.
 	 *
@@ -632,8 +654,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		{
 			try
 			{
-				EcmaError jsError = ScriptRuntime.constructError(getMessage(), getMessage());
-				scriptStackTrace = jsError.getScriptStackTrace();
+				// if the cause is a rhino exception (ecma error or javascript exception) then use that scriptstack trace.
+				if (getCause() instanceof RhinoException)
+				{
+					scriptStackTrace = ((RhinoException)getCause()).getScriptStackTrace();
+				}
+				else
+				{
+					EcmaError jsError = ScriptRuntime.constructError(getMessage(), getMessage());
+					scriptStackTrace = jsError.getScriptStackTrace();
+				}
 			}
 			catch (Exception e)
 			{
@@ -661,5 +691,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 			return "ServoyException"; //$NON-NLS-1$
 		}
 		return super.toString();
+	}
+
+	public ServoyException setContext(String context)
+	{
+		this.context = context;
+		return this;
+	}
+
+	public String getContext()
+	{
+		return this.context;
 	}
 }

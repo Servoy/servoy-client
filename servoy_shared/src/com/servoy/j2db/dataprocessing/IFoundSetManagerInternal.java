@@ -26,6 +26,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
@@ -94,7 +95,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IApplication getApplication();
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, int[] intTypes, String[] pkNames) throws ServoyException;
+	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames) throws ServoyException;
 
 	public boolean removeDataSource(String uri) throws RepositoryException;
 
@@ -152,4 +153,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public Collection<String> getInMemDataSourceNames();
 
 	boolean dataSourceExists(String dataSource) throws RepositoryException;
+
+	/**
+	 * Get the named foundset.
+	 * @since 8.2
+	 */
+	public IFoundSet getNamedFoundSet(String name) throws ServoyException;
 }

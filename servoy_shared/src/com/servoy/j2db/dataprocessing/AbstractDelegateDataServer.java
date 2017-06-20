@@ -19,17 +19,20 @@ package com.servoy.j2db.dataprocessing;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * Base delegate wrapper for {@link IDataServer}.
@@ -458,17 +461,18 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @param serverName
 	 * @param tableName
 	 * @param tid
-	 * @param types
+	 * @param columnTypes
 	 * @param pkNames
+	 * @param columnInfoDefinitions
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[], java.lang.String[])
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ColumnType[], java.lang.String[], java.util.HashMap)
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
-		String[] pkNames) throws ServoyException, RemoteException
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
-		return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types, pkNames);
+		return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}
 
 	/**
@@ -485,19 +489,19 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @param targetServerName
 	 * @param targetTableName
 	 * @param targetTid
-	 * @param types
+	 * @param columnTypes
 	 * @param pkNames
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertQueryResult(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, boolean, int, int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[], java.lang.String[])
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertQueryResult(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, boolean, int, int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ColumnType[], java.lang.String[])
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
 	{
 		return dataserver.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
-			dataSource, targetServerName, targetTableName, targetTid, types, pkNames);
+			dataSource, targetServerName, targetTableName, targetTid, columnTypes, pkNames);
 	}
 
 	/**

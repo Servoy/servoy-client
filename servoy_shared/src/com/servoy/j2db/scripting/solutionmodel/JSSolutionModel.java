@@ -99,14 +99,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			public Class< ? >[] getAllReturnedTypes()
 			{
 				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, //
-				FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
-				SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
-				VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
-				JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
-				JSList.class, JSInsetList.class, //
-				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
-				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-				JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class//
+					FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
+					SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
+					VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
+					JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
+					JSList.class, JSInsetList.class, //
+					JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
+					JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
+					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class//
 				};
 			}
 		});
@@ -255,13 +255,49 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm newForm(String name, ISMForm superForm)
 	{
+		return newForm(name, superForm, null);
+	}
+
+	/**
+	 * Creates a new form with the given JSForm as its super form.
+	 * Use this function in the case when the super form is a logical form (no parts/UI).
+	 *
+	 * @sample
+	 * //creates 2 forms with elements on them; shows the parent form, waits 2 seconds and shows the child form
+	 * var mySuperForm = solutionModel.newForm('mySuperForm', 'db:/my_server/my_table', null, false, 800, 600);
+	 * var label1 = mySuperForm.newLabel('LabelName', 20, 20, 120, 30);
+	 * label1.text = 'DataProvider';
+	 * label1.background = 'red';
+	 * mySuperForm.newTextField('myDataProvider', 140, 20, 140,20);
+	 * forms['mySuperForm'].controller.show();
+	 * application.sleep(2000);
+	 * var mySubForm = solutionModel.newForm('mySubForm', mySuperForm);
+	 * var label2 = mySuperForm.newLabel('SubForm Label', 20, 120, 120, 30);
+	 * label2.background = 'green';
+	 * forms['mySuperForm'].controller.recreateUI();
+	 * forms['mySubForm'].controller.show();
+	 *
+	 * @param name The name of the new form
+	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
+	 * @param isResponsive
+	 * @return a new JSForm object
+	 */
+	@JSFunction
+	public JSForm newForm(String name, ISMForm superForm, Boolean isResponsive)
+	{
 		if (superForm == null)
 		{
 			throw new IllegalArgumentException("superForm cannot be null");
 		}
+		if (isResponsive != null && (superForm.isResponsiveLayout() || superForm.getParts().length > 0))
+		{
+			throw new IllegalArgumentException(
+				"Cannot set the layout type of the child form because the superform '" + superForm.getName() + "' is not a logical form.");
+		}
 		try
 		{
 			Form form = createNewForm(null, name, null, superForm.getShowInMenu(), ((JSForm)superForm).getSupportChild().getSize());
+			if (isResponsive != null) form.setResponsiveLayout(isResponsive.booleanValue());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			application.getFormManager().addForm(form, false);
 			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());

@@ -123,6 +123,29 @@ angular.module('ngclientutils', [ 'servoy' ])
 		}
 	}
 }])
+.directive('svyFormClassUpdate', function($services) {
+	return {
+		restrict: 'A', 
+		controller: function($scope, $element, $attrs) {
+			var scope = $services.getServiceScope('ngclientutils');
+			if (scope.model.styleclasses)
+			{
+				var formname = $element.attr('ng-controller');
+				if (formname && scope.model.styleclasses[formname])
+				{
+					var arr = scope.model.styleclasses[formname].split(" ");
+					for (var j=0;j<arr.length;j++)
+					{
+						if (!$element.hasClass(arr[j]))
+						{
+							$element.addClass(arr[j]);
+						}
+					}
+				}
+			}	
+		}
+	};   
+})
 .run(["$services","$window",function($services,$window)
 		{
 			var scope = $services.getServiceScope('ngclientutils');
@@ -147,6 +170,49 @@ angular.module('ngclientutils', [ 'servoy' ])
 								}
 								el.setAttribute("hhsManagedTag", "");
 								headEl.append(el);
+							}
+						}
+					}
+				}
+			},true);
+			
+			scope.$watch("model.styleclasses", function(newVal, oldVal) {
+				if (newVal) {
+					var keys = Object.keys(newVal);
+					for (var i = 0;i< keys.length;i++)
+					{ 
+						var el = $("div[ng-controller='"+keys[i]+"']");
+						if (el.length >0)
+						{
+							var arr = newVal[keys[i]].split(" ");
+							for (var j=0;j<arr.length;j++)
+							{
+								if (!el.hasClass(arr[j]))
+								{
+									el.addClass(arr[j]);
+								}
+							}
+						}	
+					}
+					if (oldVal)
+					{
+						var keys = Object.keys(oldVal)
+						for (var i = 0;i< keys.length;i++)
+						{ 
+							var formname = keys[i];
+							var arr = oldVal[formname].split(" ");
+							var newStyle = newVal[formname];
+							var el = null;
+							for (var j=0;j<arr.length;j++)
+							{
+								if (!newStyle || newStyle.split(" ").indexOf(arr[j]) < 0)
+								{
+									if (!el)
+									{
+										el =  $("div[ng-controller='"+formname+"']");
+									}	
+									el.removeClass(arr[j]);
+								}	
 							}
 						}
 					}

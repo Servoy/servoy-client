@@ -462,7 +462,7 @@ public class LookupListModel extends AbstractListModel
 			{
 				Object[] row = processRow(set.getRow(i));
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null && !display.equals("")) //$NON-NLS-1$
+				if (display != null)
 				{
 					alDisplay.add(display);
 					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
@@ -630,7 +630,7 @@ public class LookupListModel extends AbstractListModel
 			{
 				Object[] row = processRow(set.getRow(i));
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null && !display.equals("")) //$NON-NLS-1$
+				if (display != null)
 				{
 					alDisplay.add(display);
 					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));

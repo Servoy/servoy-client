@@ -20,6 +20,7 @@ package com.servoy.j2db.debug;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -35,12 +36,14 @@ import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * A wrapper/proxy around the actual {@link IDataServer} to profile queries to the database.
@@ -54,10 +57,12 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 {
 	private final List<IDataCallListener> listeners = new ArrayList<IDataCallListener>();
 
+
 	public ProfileDataServer(IDataServer dataserver)
 	{
 		super(dataserver);
 	}
+
 
 	/**
 	 * @param client_id
@@ -582,20 +587,20 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @param serverName
 	 * @param tableName
 	 * @param tid
-	 * @param types
+	 * @param columnTypes
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[], String[])
 	 */
 	@Override
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
-		String[] pkNames) throws ServoyException, RemoteException
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types, pkNames);
+			return super.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 		}
 		finally
 		{
@@ -625,13 +630,13 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	@Override
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
 			return super.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
-				dataSource, targetServerName, targetTableName, targetTid, types, pkNames);
+				dataSource, targetServerName, targetTableName, targetTid, columnTypes, pkNames);
 		}
 		finally
 		{

@@ -25,6 +25,7 @@ import java.util.List;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -238,9 +239,13 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 			{
 				databaseSequenceName = null;
 			}
-			else if (databaseSequenceName.length() > 50)
+			else
 			{
-				databaseSequenceName = databaseSequenceName.substring(0, 50);
+				int maxLength = Utils.getAsInteger(Settings.getInstance().getProperty("ServerManager.databasesequence.maxlength"), 50);
+				if (databaseSequenceName.length() > maxLength)
+				{
+					databaseSequenceName = databaseSequenceName.substring(0, maxLength);
+				}
 			}
 		}
 		this.databaseSequenceName = databaseSequenceName;

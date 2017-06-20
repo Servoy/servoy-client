@@ -20,7 +20,10 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
 
 import org.sablo.Container;
@@ -37,6 +40,7 @@ import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
 import com.servoy.j2db.util.Debug;
@@ -54,6 +58,9 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
 
 	private final WeakHashSet<IWebFormUI> pendingApiCallFormsOnNextResponse = new WeakHashSet<>();
+
+	private final ConcurrentMap<String, WeakHashSet<INGFormElement>> allowedForms = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, WeakHashMap<INGFormElement, String>> allowedRelation = new ConcurrentHashMap<>();
 
 	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
 	{
@@ -137,7 +144,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (!isDelayedApiCall(receiver, apiFunction))
 		{
-			touchForm(form.getForm(), form.getName(), false);
+			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
@@ -160,11 +167,64 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	public void touchForm(Form form, String realInstanceName, boolean async)
+	public void registerAllowedForm(String formName, INGFormElement element)
+	{
+		WeakHashSet<INGFormElement> weakSet = allowedForms.get(formName);
+		if (weakSet == null)
+		{
+			weakSet = new WeakHashSet<>();
+			WeakHashSet<INGFormElement> current = allowedForms.putIfAbsent(formName, weakSet);
+			if (current != null) weakSet = current;
+		}
+		weakSet.add(element);
+	}
+
+	@Override
+	public String registerAllowedRelation(String relationName, INGFormElement element)
+	{
+		String relName = "-1";
+		if (relationName != null)
+		{
+			Relation relation = getSession().getClient().getFlattenedSolution().getRelation(relationName);
+			if (relation != null)
+			{
+				relName = Integer.toHexString(relation.getID());
+			}
+		}
+
+		WeakHashMap<INGFormElement, String> weakSet = allowedRelation.get(relName);
+		if (weakSet == null)
+		{
+			weakSet = new WeakHashMap<>();
+			WeakHashMap<INGFormElement, String> current = allowedRelation.putIfAbsent(relName, weakSet);
+			if (current != null) weakSet = current;
+		}
+		weakSet.put(element, relationName);
+		return relName;
+	}
+
+	@Override
+	public String isVisibleAllowed(String formName, String uuidRelationName, INGFormElement element) throws IllegalAccessException
+	{
+		WeakHashSet<INGFormElement> weakHashSet = allowedForms.get(formName);
+		if (weakHashSet != null && weakHashSet.contains(element))
+		{
+			if (uuidRelationName == null) return null;
+			WeakHashMap<INGFormElement, String> relationMap = allowedRelation.get(uuidRelationName);
+			if (relationMap != null && relationMap.containsKey(element)) return relationMap.get(element);
+		}
+		throw new IllegalAccessException("Can't show form " + formName + " for component + " + element);
+	}
+
+	@Override
+	public void touchForm(Form form, String realInstanceName, boolean async, boolean testForValidForm)
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-
+		if (testForValidForm && !allowedForms.containsKey(formName) && getEndpoint().getFormUrl(formName) == null)
+		{
+			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
+		}
 		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, false).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
@@ -189,7 +249,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		else
 		{
 			formUrl = getEndpoint().getFormUrl(formName);
-			Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
+			if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
@@ -204,7 +264,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
 						new Object[] { formName });
 				}
-				Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
+				if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
 				// really send the changes
 				try
 				{
@@ -371,7 +431,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			synchronized (formUrl)
 			{
 				getEndpoint().setAttachedToDOM(formName, resolved);
-				Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
+				if (Debug.isDebugEnabled())
+					Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
 				if (resolved) getSession().getEventDispatcher().resume(formUrl);
 			}
 		}

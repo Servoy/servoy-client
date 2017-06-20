@@ -228,6 +228,11 @@ public abstract class AbstractSolutionTest
 		}
 
 		@Override
+		public void clearError()
+		{
+		}
+
+		@Override
 		public String getPackageType()
 		{
 			try

@@ -59,11 +59,11 @@ import com.servoy.j2db.util.Text;
  * @author jcompagner
  * @author acostescu
  */
-public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTypeSabloValue>
-	implements IFormElementToTemplateJSON<String, BasicTagStringTypeSabloValue>, ISupportTemplateValue<String>,
-	IDataLinkedType<String, BasicTagStringTypeSabloValue>, IFormElementToSabloComponent<String, BasicTagStringTypeSabloValue>,
-	IConvertedPropertyType<BasicTagStringTypeSabloValue>, ISabloComponentToRhino<BasicTagStringTypeSabloValue>,
-	IRhinoToSabloComponent<BasicTagStringTypeSabloValue>, ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>
+public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTypeSabloValue> implements
+	IFormElementToTemplateJSON<String, BasicTagStringTypeSabloValue>, ISupportTemplateValue<String>, IDataLinkedType<String, BasicTagStringTypeSabloValue>,
+	IFormElementToSabloComponent<String, BasicTagStringTypeSabloValue>, IConvertedPropertyType<BasicTagStringTypeSabloValue>,
+	ISabloComponentToRhino<BasicTagStringTypeSabloValue>, IRhinoToSabloComponent<BasicTagStringTypeSabloValue>,
+	ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>, II18NPropertyType<BasicTagStringTypeSabloValue>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -156,7 +156,16 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			// TODO currently htmlParsingAllowed will be true here as well (the method is never called with true/false); but if that is needed in the future, we need to let TagStringTypeSabloValue of htmlParsingAllowed == false as well)
 			// data links are required; register them to DAL; normally DAL can't be null here
-			sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription, component.getFormElement());
+			if (designValue != newDesignValue || designValue.contains("%%i18n:"))
+			{
+				sabloValue = new I18NTagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription,
+					component.getFormElement(), designValue);
+			}
+			else
+			{
+				sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription,
+					component.getFormElement());
+			}
 		}
 		else
 		// just some static string
@@ -168,7 +177,14 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 			}
 
 			// no data links required
-			sabloValue = new BasicTagStringTypeSabloValue(staticValue, dal);
+			if (designValue != newDesignValue || designValue.contains("%%i18n:"))
+			{
+				sabloValue = new BasicI18NTagStringTypeSabloValue(staticValue, dal, designValue);
+			}
+			else
+			{
+				sabloValue = new BasicTagStringTypeSabloValue(staticValue, dal);
+			}
 		}
 
 		return sabloValue;
@@ -222,7 +238,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, final FormElement formElement)
+	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, final INGFormElement formElement)
 	{
 		final Set<String> dataProviders = new HashSet<>();
 		final boolean recordDP[] = new boolean[1];
@@ -289,5 +305,18 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 		if (((TagStringConfig)pd.getConfig()).useParsedValueInRhino()) return webComponentValue.getTagReplacedValue();
 		else return webComponentValue.getDesignValue();
+	}
+
+	@Override
+	public BasicTagStringTypeSabloValue resetI18nValue(BasicTagStringTypeSabloValue value, PropertyDescription pd, WebFormComponent component)
+	{
+		if (value instanceof II18NValue)
+		{
+			String i18nKey = ((II18NValue)value).getI18NKey();
+			BasicTagStringTypeSabloValue sabloComponentValue = TagStringPropertyType.INSTANCE.toSabloComponentValue(i18nKey, pd, component.getFormElement(),
+				component, ((II18NValue)value).getDataAdapterList());
+			return sabloComponentValue;
+		}
+		return value;
 	}
 }

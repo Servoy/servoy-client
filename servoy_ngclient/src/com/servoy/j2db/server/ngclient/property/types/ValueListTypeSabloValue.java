@@ -384,6 +384,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		valueList = null;
 		format = null;
+
+		initialized = false;
 	}
 
 	@Override
@@ -408,13 +410,16 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		this.changeMonitor = null;
 		webObjectContext = null;
-
-		initialized = false;
 	}
 
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
+		if (valueList.getValueList().getLazyLoading() && valueList.getSize() == 0 && getConfig().getLazyLoading() && filteredValuelist == null)
+		{
+			// lazy load, wait for initial filter to load the valuelist
+			return;
+		}
 		if ((previousRecord != null && !previousRecord.equals(record)) || Utils.equalObjects(dataProvider, dataproviderID))
 		{
 			revertFilter();
@@ -644,6 +649,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected boolean isInitialized()
 	{
 		return initialized;
+	}
+
+	protected void resetI18nValue()
+	{
+		// probably client language has changed - completely refresh the valuelist to make sure it reflects the new language (it might use i18n)
+		clearUpRuntimeValuelistAndFormat();
+		initializeIfPossibleAndNeeded();
 	}
 
 }

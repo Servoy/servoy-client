@@ -9,7 +9,7 @@ var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
 
-).config(['$controllerProvider', '$translateProvider', function($controllerProvider: angular.IControllerProvider, $translateProvider) {
+).config(['$controllerProvider', '$translateProvider', '$qProvider', function($controllerProvider: angular.IControllerProvider, $translateProvider, $qProvider) {
 	controllerProvider = $controllerProvider;
 	
 	// TODO: check if this does not break some translated values
@@ -18,6 +18,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $translateProvider.useLoader('translateFilterServoyI18Loader');
     $translateProvider.useMissingTranslationHandler('translateFilterServoyI18nMessageLoader');
     $translateProvider.forceAsyncReload(true);
+    
+    // added for "Possibly unhandled rejection with Angular 1.5.9" - https://github.com/angular-ui/ui-router/issues/2889
+    $qProvider.errorOnUnhandledRejections(false);
 	
 }]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q:angular.IQService, $solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters, $sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
 
@@ -773,7 +776,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			//get component root node
 			var componentRoot =null;
 			componentRoot= element;
-			while(!componentRoot.isolateScope() && componentRoot.size() > 0){
+			while(!componentRoot.isolateScope() && componentRoot.length > 0){
 				componentRoot = componentRoot.parent();
 			}
 			componentRoot.hover(function(){
@@ -1141,10 +1144,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties',
-                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$modal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$uibModal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties',
+                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$uibModal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties) {
 	var showDefaultLoginWindow = function() {
-		$modal.open({
+		$uibModal.open({
 			templateUrl: 'templates/login.html',
 			controller: 'LoginController',
 			windowClass: 'login-window',

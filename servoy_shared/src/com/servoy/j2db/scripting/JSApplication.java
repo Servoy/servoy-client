@@ -81,6 +81,7 @@ import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.scripting.info.LOGGINGLEVEL;
+import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.ui.IComponent;
@@ -127,7 +128,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSWindow.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSWindow.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
 	}
 
 	@Deprecated

@@ -52,7 +52,7 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	private transient int fileVersion = AbstractRepository.repository_version;
 
-	SolutionMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
+	public SolutionMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
 	{
 		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;

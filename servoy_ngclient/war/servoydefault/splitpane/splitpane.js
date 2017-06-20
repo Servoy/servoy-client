@@ -44,7 +44,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					newValue = ($scope.model.tabOrientation == -2? $scope.model.size.width:$scope.model.size.height)
 					multiplier = 1/2;
 				}
-				else if ($scope.model.divLocation > 0 && $scope.model.divLocation < 1)
+				else if ($scope.model.divLocation > 0 && $scope.model.divLocation <= 1)
 				{
 					multiplier = $scope.model.divLocation;
 				}	
@@ -66,22 +66,38 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 
 				var pos = $scope.model.divLocation;
 				var divSize = $scope.model.divSize;
-				if (!divSize || divSize <1) divSize = 5;
+				if ((!divSize && divSize !== 0) || divSize <0) divSize = 5;
 				if($scope.model.tabOrientation == -3) { 
-					if(pos < 1) {
+					if(pos <= 1) {
 						pos = $scope.model.size.height * pos;
 					}
 					jqueryDivEl.css('top', pos + 'px');
 					splitPane1.css('height', pos + 'px');
 					splitPane2.css('top', (pos+divSize) + 'px');
+					if (divSize === 0)
+					{
+						splitPane2.css('border-top-width','0px');
+					}
+					else
+					{
+						splitPane2.css('border-top-width','1px');
+					}	
 				}
 				else {
-					if(pos < 1) {
+					if(pos <= 1) {
 						pos = $scope.model.size.width * pos;
 					}
 					jqueryDivEl.css('left', pos + 'px');
 					splitPane1.css('width', pos + 'px');
 					splitPane2.css('left', (pos+divSize) + 'px');
+					if (divSize === 0)
+					{
+						splitPane2.css('border-left-width','0px');
+					}
+					else
+					{
+						splitPane2.css('border-left-width','1px');
+					}
 				}
 			}
 
@@ -149,7 +165,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 
 			//called when the divider location is changed from server side scripting
 			$scope.$watch('model.divLocation', function(newValue, oldValue){
-				if (newValue && newValue  !== oldValue) {
+				if ((newValue || newValue === 0) && newValue  !== oldValue) {
 					processDivLocation();
 					if($scope.handlers.onChangeMethodID) {
 						$scope.$evalAsync(function() {

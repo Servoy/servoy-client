@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ISmartPropertyValue;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -44,6 +45,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
+import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType.FormatPropertyDependencies;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -312,15 +314,21 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 					}
 					else if (valuelistPersist.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
 					{
-						IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true, Types.OTHER,
-							null, null, true);
-						if (realValuelist instanceof GlobalMethodValueList)
+						PropertyDescription vlPD = webObjectCntxt.getPropertyDescription(propertyDependencies.valueListPropertyName);
+						boolean lazyLoad = valuelistPersist.getLazyLoading() && vlPD.getConfig() instanceof ValueListConfig &&
+							((ValueListConfig)vlPD.getConfig()).getLazyLoading();
+						if (!lazyLoad)
 						{
-							((GlobalMethodValueList)realValuelist).fill(null, "", null);
-							if (realValuelist.hasRealValues())
+							IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true,
+								Types.OTHER, null, null, true);
+							if (realValuelist instanceof GlobalMethodValueList)
 							{
-								// if global method vl has both real and display values, it seems that the display values are always TEXT (format is for those)
-								return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
+								((GlobalMethodValueList)realValuelist).fill(null, "", null);
+								if (realValuelist.hasRealValues())
+								{
+									// if global method vl has both real and display values, it seems that the display values are always TEXT (format is for those)
+									return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
+								}
 							}
 						}
 					}
@@ -367,6 +375,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 				((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm());
 
 		ComponentFormat format = ComponentFormat.getComponentFormat(formatValue, dataproviderId, dataProviderLookup, application, true);
+
 		return format;
 	}
 
@@ -392,6 +401,16 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 			{
 				l.valueChanged();
 			}
+		}
+	}
+
+	protected void resetI18nValue()
+	{
+		// the current language of the client probably changed; make sure to refresh i18n key formats
+		if (formatDesignValue.startsWith("i18n:"))
+		{
+			componentFormat = null; // dump old format
+			initializeIfPossibleAndNeeded(); // reinitialize if everything is available
 		}
 	}
 

@@ -173,7 +173,6 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public void dispose()
 	{
-		((DataAdapterList)dataAdapterList).componentDisposed(this);
 		super.dispose();
 	}
 

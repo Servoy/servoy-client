@@ -60,6 +60,7 @@ public abstract class RelatedFoundSet extends FoundSet
 {
 
 	private static NativeJavaMethod maxRecord;
+
 	static
 	{
 		try
@@ -995,35 +996,16 @@ public abstract class RelatedFoundSet extends FoundSet
 			try
 			{
 				long time = System.currentTimeMillis();
-				int oldSize = getRawSize();
-				String transaction_id = fsm.getTransactionID(sheet);
-				QuerySelect sqlSelect = getPksAndRecords().getQuerySelectForReading();
 
-				IDataSet pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, Math.max(getSelectedIndex(), fsm.chunkSize) + fsm.chunkSize,
-					IDataServer.FOUNDSET_LOAD_QUERY);
+				reloadWithCurrentQuery(Math.max(getSelectedIndex(), fsm.chunkSize) + fsm.chunkSize, false, true);
+
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() + ": Related CheckForUpdate DB time: " + (System.currentTimeMillis() - time) + " pks: " + //$NON-NLS-1$//$NON-NLS-2$
-						pks.getRowCount() + ", SQL: " + sqlSelect.toString()); //$NON-NLS-1$
+						getPksAndRecords().getPks().getRowCount() + ", SQL: " + getPksAndRecords().getQuerySelectForReading().toString()); //$NON-NLS-1$
 				}
 
-				// optimistic locking, if the query has been changed in the mean time forget about the refresh
-				synchronized (getPksAndRecords())
-				{
-					if (sqlSelect != getPksAndRecords().getQuerySelectForReading())
-					{
-						Debug.trace("checkQueryForUpdates: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-						mustQueryForUpdates = false;
-						return;
-					}
-					getPksAndRecords().setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
-					mustQueryForUpdates = false;
-				}
-				//do kind of browseAll/refresh from db.
-				// differences: selected record isn't tried to keep in sync with pk, new records are handled different.
-				// boolean must be false before clear (that fires a aggregate change so again a getRecord())
-				clearInternalState(true);
-				fireDifference(oldSize, getRawSize());
+				mustQueryForUpdates = false;
 			}
 			catch (ServoyException ex)
 			{

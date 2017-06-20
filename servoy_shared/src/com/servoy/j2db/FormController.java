@@ -1344,18 +1344,6 @@ public class FormController extends BasicFormController
 		}
 	}
 
-
-	/**
-	 *
-	 */
-	public void touch()
-	{
-		if (!isFormVisible && fm != null)
-		{
-			fm.touch(this);
-		}
-	}
-
 	public void recomputeTabSequence(int baseTabSequenceIndex)
 	{
 		application.getDataRenderFactory().reapplyTabSequence(getFormUI(), baseTabSequenceIndex);
@@ -1396,5 +1384,14 @@ public class FormController extends BasicFormController
 	public IStyleRule getBodyStyle()
 	{
 		return bodyRule;
+	}
+
+	/*
+	 * @see com.servoy.j2db.IFormController#hasParentForm()
+	 */
+	@Override
+	public boolean hasParentForm()
+	{
+		return false;
 	}
 }

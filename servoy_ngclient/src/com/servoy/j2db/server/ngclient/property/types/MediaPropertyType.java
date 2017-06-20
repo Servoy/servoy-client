@@ -20,6 +20,8 @@ import java.awt.Dimension;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IWrapperType;
@@ -37,13 +39,16 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.solutionmodel.JSMedia;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ImageLoader;
@@ -53,8 +58,8 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType extends DefaultPropertyType<Object>
-	implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
+public class MediaPropertyType extends DefaultPropertyType<Object> implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>,
+	IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, ISabloComponentToRhino<Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
@@ -146,6 +151,8 @@ public class MediaPropertyType extends DefaultPropertyType<Object>
 		{
 			UUID uuid = Utils.getAsUUID(value, false);
 			if (uuid != null) media = (Media)flattenedSolution.searchPersist(uuid);
+			else if (value != null) media = flattenedSolution.getMedia(value.toString());
+
 		}
 		if (media != null)
 		{
@@ -233,5 +240,37 @@ public class MediaPropertyType extends DefaultPropertyType<Object>
 			return application.getScriptEngine().getSolutionModifier().getMedia(media.getName());
 		}
 		return null;
+	}
+
+
+	@Override
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
+	}
+
+	@Override
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		UUID uuid = Utils.getAsUUID(webComponentValue, false);
+		if (uuid != null && componentOrService instanceof WebFormComponent)
+		{
+			Media media = (Media)((DataAdapterList)((WebFormComponent)componentOrService).getDataAdapterList()).getApplication().getFlattenedSolution().searchPersist(
+				uuid);
+			if (media != null)
+			{
+				return media.getName();
+			}
+		}
+		if (webComponentValue instanceof Integer && componentOrService instanceof WebFormComponent)
+		{
+			Media media = ((DataAdapterList)((WebFormComponent)componentOrService).getDataAdapterList()).getApplication().getFlattenedSolution().getMedia(
+				((Integer)webComponentValue).intValue());
+			if (media != null)
+			{
+				return media.getName();
+			}
+		}
+		return webComponentValue;
 	}
 }

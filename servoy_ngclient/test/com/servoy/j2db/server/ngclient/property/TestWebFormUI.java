@@ -859,4 +859,12 @@ public class TestWebFormUI implements IWebFormUI
 		return null;
 	}
 
+
+	@Override
+	public void removeComponentFromElementsScope(FormElement element, WebObjectSpecification webComponentSpec, WebFormComponent childComponent)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
 }

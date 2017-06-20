@@ -34,7 +34,7 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @SuppressWarnings("nls")
-public class LayoutContainer extends AbstractContainer implements ISupportBounds
+public class LayoutContainer extends AbstractContainer implements ISupportBounds, ISupportAttributes
 {
 
 	private static final long serialVersionUID = 1L;
@@ -196,9 +196,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		putCustomProperty(new String[] { "attributes", name }, value);
 	}
 
-	/**
-	 *
-	 */
+	@Override
 	public Map<String, String> getAttributes()
 	{
 		Object customProperty = getCustomProperty(new String[] { "attributes" });
@@ -208,6 +206,12 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		}
 		return Collections.emptyMap();
 
+	}
+
+	@Override
+	public void putAttributes(Map<String, String> value)
+	{
+		putCustomProperty(new String[] { "attributes" }, value);
 	}
 
 	@Override

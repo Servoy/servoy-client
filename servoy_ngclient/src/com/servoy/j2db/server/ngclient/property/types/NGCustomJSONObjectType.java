@@ -78,7 +78,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
 	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
 	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>, IFindModeAwareType<Map<String, FormElementT>, Map<String, SabloT>>,
-	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter
+	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter, II18NPropertyType<Map<String, SabloT>>
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -334,7 +334,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public TargetDataLinks getDataLinks(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
-		FormElement formElement)
+		INGFormElement formElement)
 	{
 		if (ServoyJSONObject.isJavascriptNullOrUndefined(formElementValue)) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
@@ -397,6 +397,24 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			return result;
 		}
 		return value;
+	}
+
+	@Override
+	public Map<String, SabloT> resetI18nValue(Map<String, SabloT> property, PropertyDescription pd, WebFormComponent component)
+	{
+		if (property != null)
+		{
+			PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
+			for (String prop : property.keySet())
+			{
+				if (customPd.getProperty(prop).getType() instanceof II18NPropertyType)
+				{
+					property.put(prop, (SabloT)((II18NPropertyType)customPd.getProperty(prop).getType()).resetI18nValue(property.get(prop),
+						customPd.getProperty(prop), component));
+				}
+			}
+		}
+		return property;
 	}
 
 }
