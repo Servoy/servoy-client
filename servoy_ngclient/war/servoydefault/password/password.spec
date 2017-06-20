@@ -2,7 +2,7 @@
 	"name": "servoydefault-password",
 	"displayName": "Password Field",
 	"version": 1,
-	"icon": "servoydefault/password/password_field_16.png",
+	"icon": "servoydefault/password/password_field.png",
 	"definition": "servoydefault/password/password.js",
 	"libraries": [],
 	"model":

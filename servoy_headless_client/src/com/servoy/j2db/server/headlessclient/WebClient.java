@@ -17,13 +17,9 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.awt.Dimension;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -85,7 +81,6 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebClient extends SessionClient implements IWebClientApplication
 {
-	private static final String COOKIE_BASE64_PREFIX = "B64p_";
 	private Map<Object, Object> uiProperties;
 
 	protected WebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution) throws Exception
@@ -262,7 +257,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				{
 					if (name.equals(element.getName()))
 					{
-						return decodeCookieValue(element.getValue());
+						return Utils.decodeCookieValue(element.getValue());
 					}
 				}
 			}
@@ -279,9 +274,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (wrc != null && wrc.getWebRequest() != null)
 		{
 			Cookie[] cookies = wrc.getWebRequest().getCookies();
-			for (Cookie element : cookies)
+			if (cookies != null)
 			{
-				retval.add(element.getName());
+				for (Cookie element : cookies)
+				{
+					retval.add(element.getName());
+				}
 			}
 		}
 
@@ -353,6 +351,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			path = url;
 		}
+		index = path.indexOf(";jsessionid");
+		if (index > 0)
+		{
+			path = path.substring(0, index);
+		}
 		if (!path.startsWith("/")) path = "/" + path;
 
 
@@ -372,7 +375,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 		if (value != null)
 		{
-			Cookie cookie = new Cookie(name, encodeCookieValue(value));
+			Cookie cookie = new Cookie(name, Utils.encodeCookieValue(value));
 			cookie.setMaxAge(Integer.MAX_VALUE);
 			cookie.setPath(path);
 			// when in secure request, browser does not send cookie over insecure request
@@ -380,51 +383,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				((WebRequestCycle)RequestCycle.get()).getWebRequest().getHttpServletRequest().isSecure());
 			// Add the cookie
 			((WebRequestCycle)RequestCycle.get()).getWebResponse().addCookie(cookie);
-		}
-	}
-
-	/**
-	 * Reads a cookie, and decodes it if it was stored in Base64 using {@link #encodeCookieValue(String)}.
-	 * @param value the cookie contents.
-	 * @return the useful cookie contents.
-	 */
-	public static String decodeCookieValue(String value)
-	{
-		String cookieValue = value;
-		if (cookieValue != null && cookieValue.startsWith(COOKIE_BASE64_PREFIX))
-		{
-			try
-			{
-				cookieValue = new BufferedReader(new InputStreamReader(
-					new ByteArrayInputStream(Utils.decodeBASE64(cookieValue.substring(COOKIE_BASE64_PREFIX.length()))), "UTF-8")).readLine();
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				Debug.error(e);
-			}
-			catch (IOException e)
-			{
-				Debug.error(e);
-			}
-		}
-		return cookieValue;
-	}
-
-	/**
-	 * Encodes a value into Base64 so that it can be stored in a cookie without special character problems.
-	 * @param value the useful value that needs to be encoded.
-	 * @return the encoded value that can be decoded using {@link #decodeCookieValue(String)}.
-	 */
-	public static String encodeCookieValue(String value)
-	{
-		try
-		{
-			return COOKIE_BASE64_PREFIX + Utils.encodeBASE64(value.getBytes("UTF-8"));
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			Debug.error(e);
-			return value;
 		}
 	}
 

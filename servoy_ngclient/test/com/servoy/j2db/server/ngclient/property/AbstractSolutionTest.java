@@ -275,10 +275,11 @@ public abstract class AbstractSolutionTest
 		}
 		else
 		{
+			File userDir = new File(System.getProperty("user.dir"));
 			componentsReaders = getReaders(
-				new File[] { new File(f.getAbsoluteFile() + "/../war/servoycore/"), new File(f.getAbsoluteFile() + "/../war/servoydefault/") },
+				new File[] { new File(userDir.getAbsoluteFile() + "/../war/servoycore/"), new File(userDir.getAbsoluteFile() + "/../war/servoydefault/") },
 				inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
-			servicesReaders = getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null);
+			servicesReaders = getReaders(new File[] { new File(userDir.getAbsoluteFile(), "/../war/servoyservices/") }, null);
 		}
 
 		WebComponentSpecProvider.init(componentsReaders);

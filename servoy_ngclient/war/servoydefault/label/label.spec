@@ -2,7 +2,7 @@
 	"name": "servoydefault-label",
 	"displayName": "Label",
 	"version": 1,
-	"icon": "servoydefault/label/text.gif",
+	"icon": "servoydefault/label/label.png",
 	"definition": "servoydefault/label/label.js",
 	"libraries": [],
 	"model":

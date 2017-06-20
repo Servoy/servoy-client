@@ -1,0 +1,20 @@
+{
+  "name": "ngclient-ts-compile",
+  "description": "A module that setsup typescript for the ts file compilation",
+  "dependencies": {
+    "karma": "~1.5.0",
+    "karma-jasmine": "~1.1.0",
+    "karma-chrome-launcher": "~2.0.0",
+    "karma-phantomjs-launcher": "~1.0.4",
+    "karma-firefox-launcher": "~1.0.1",
+    "karma-ie-launcher": "~1.0.0",
+    "karma-coverage": "~1.1.1",
+    "karma-junit-reporter": "~1.2.0",
+    "karma-ng-html2js-preprocessor": "~1.0.0",
+    "jasmine-core": "~2.5.2",
+    "typescript": "~2.2.2"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.servoy</groupId>
+		<artifactId>servoy-client</artifactId>
+		<version>8.2.0.3100</version>
+	</parent>
+	<artifactId>servoy_ngclient</artifactId>
+	<version>8.2.0.3100</version>
+	<packaging>eclipse-plugin</packaging>
+	<properties>
+		<sablo-version>8.2.0.3100-SNAPSHOT</sablo-version>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>copy_product_and_libs</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.sablo</groupId>
+									<artifactId>sablo-core</artifactId>
+									<version>${sablo.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.basedir}/client_tests/sablo/</outputDirectory>
+									<includes>META-INF/resources/**/*</includes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+
+					<!-- 1. Install node and npm locally -->
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<configuration>
+							<nodeVersion>v6.10.1</nodeVersion>
+							<npmVersion>4.4.4</npmVersion>
+						</configuration>
+					</execution>
+
+					<!-- 2. Install karma and karma plugins -->
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+					</execution>
+
+					<!-- 3. npm run build -->
+					<execution>
+						<id>npm run build</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+
+					<!-- 4. Run karma tests -->
+					<execution>
+						<id>javascript tests</id>
+						<phase>test</phase>	
+						<goals>
+							<goal>karma</goal>
+						</goals>
+						<configuration>
+							<karmaConfPath>client_tests/karma.conf</karmaConfPath>
+							<failOnError>true</failOnError>	
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-junit</artifactId>
+						<version>1.8.4</version>
+					</dependency>
+
+					<dependency>
+						<groupId>junit</groupId>
+						<artifactId>junit</artifactId>
+						<version>4.12</version>
+						<!--scope>test</scope -->
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<id>run_test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<delete dir="${project.build.directory}/junit" />
+								<mkdir dir="${project.build.directory}/junit" />
+								<junit timeout="60000" fork="yes" forkmode="once"
+									dir="${project.build.directory}" maxmemory="1024m"
+									haltonfailure="false" haltonerror="false" errorProperty="test.failed"
+									failureProperty="test.failed" printsummary="on">
+									<classpath refid="maven.test.classpath" />
+									<formatter type="brief" usefile="false" />
+									<formatter type="xml" extension=".xml" />
+									<!-- needed for tools such as CruiseControl/Jenkins that are not 
+										compatible with "xml.suites" <formatter type="xml.suites" /> -->
+									<batchtest todir="${project.build.directory}/junit">
+										<fileset dir="${project.basedir}/test">
+											<include name="**/*Test.java" />
+											<exclude name="**/*Abstract*.java" />
+										</fileset>
+									</batchtest>
+								</junit>
+								<junitreport todir="${project.build.directory}/junit"
+									tofile="Aggregated-TESTS-TestSuites.xml">
+									<fileset dir="${project.build.directory}/junit">
+										<!--<include name="TEST-*.xml" /> -->
+										<include name="TEST-*.xml" />
+									</fileset>
+									<!-- <report format="noframes-suiteaware" todir="${junit.result.dir}" 
+										/> -->
+									<report format="noframes" todir="${project.build.directory}/junit" />
+								</junitreport>
+								<fail if="test.failed">Test fail</fail>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

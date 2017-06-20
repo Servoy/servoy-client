@@ -258,7 +258,7 @@ public class ContentSpec
 	/**
 	 * The content spec elements mapped by their content id.
 	 */
-	private TreeMap<Integer, Element> contentSpecElements = null;
+	private final TreeMap<Integer, Element> contentSpecElements;
 
 	/**
 	 * A map containing all object types by object type id to maps of mapping the property name of each of their properties to their respective content spec
@@ -386,7 +386,7 @@ public class ContentSpec
 
 	public void clear()
 	{
-		objectTypes.clear();
+		if (objectTypes != null) objectTypes.clear();
 		contentSpecElements.clear();
 	}
 }

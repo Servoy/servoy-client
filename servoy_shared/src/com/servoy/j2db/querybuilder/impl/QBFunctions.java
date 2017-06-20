@@ -115,7 +115,32 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction trim(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.trim, new IQuerySelectValue[] { createOperand(value) });
+		// ansi standard trim()
+		return trim("BOTH", " ", "FROM", value);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#trim(String, String, String, Object)
+	 * @param leading_trailing_both 'leading', 'trailing' or 'both'
+	 * @param characters characters to remove
+	 * @param fromKeyword 'from'
+	 * @param value value to trim
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * // show shipname but remove trailing space
+	 * query.result.add(query.functions.trim('trailing', ' ', 'from', query.columns.shipname));
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBFunction trim(String leading_trailing_both, String characters, String fromKeyword, Object value)
+	{
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.trim,
+			new IQuerySelectValue[] { //
+				new QueryColumnValue(leading_trailing_both, null, true), // keyword
+				new QueryColumnValue(characters, null, false), // value
+				new QueryColumnValue(fromKeyword, null, true), // keyword
+				createOperand(value) //
+			});
 	}
 
 	protected IQuerySelectValue createOperand(Object value)
@@ -168,8 +193,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction cast(Object value, String type)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.cast, new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null,
-			true) });
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.cast,
+			new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
 	}
 
 	/**
@@ -184,8 +209,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction substring(Object arg, int pos)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.substring,
-			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(pos)) });
+		return substring(arg, pos, Integer.MAX_VALUE - pos);
 	}
 
 	/**
@@ -211,13 +235,13 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param string2 string to search in
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
-	 * query.where.add(query.columns.shipname.locate('amp').eq(query.functions.locate('Sample', 'amp')))
+	 * query.where.add(query.columns.shipname.locate('amp').eq(query.functions.locate('amp', 'Sample')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
 	public QBFunction locate(Object string1, Object string2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.locate, new IQuerySelectValue[] { createOperand(string1), createOperand(string2), });
+		return locate(string1, string2, 1);
 	}
 
 	/**
@@ -227,7 +251,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param start start pos
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
-	 * query.where.add(query.columns.shipname.locate('amp', 1).eq(query.functions.locate('Sample', 'amp', 1)))
+	 * query.where.add(query.columns.shipname.locate('amp', 1).eq(query.functions.locate('amp', 'Sample', 1)))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction

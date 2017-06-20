@@ -2,7 +2,7 @@
 	"name": "servoydefault-button",
 	"displayName": "Button",
 	"version": 1,
-	"icon": "servoydefault/button/button.gif",
+	"icon": "servoydefault/button/button.png",
 	"definition": "servoydefault/button/button.js",
 	"libraries": [],
 	"model":

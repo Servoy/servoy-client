@@ -2,7 +2,7 @@
 	"name": "servoydefault-imagemedia",
 	"displayName": "Image Media",
 	"version": 1,
-	"icon": "servoydefault/imagemedia/IMG16.png",
+	"icon": "servoydefault/imagemedia/media.png",
 	"definition": "servoydefault/imagemedia/imagemedia.js",
 	"libraries": [],
 	"model":

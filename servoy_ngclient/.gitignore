@@ -4,3 +4,6 @@
 /build.xml
 /${buildDirectory}
 /@dot
+/node/
+/target/
+/node_modules/

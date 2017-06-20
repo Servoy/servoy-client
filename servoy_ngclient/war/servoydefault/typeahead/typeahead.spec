@@ -2,7 +2,7 @@
 	"name": "servoydefault-typeahead",
 	"displayName": "Type Ahead ",
 	"version": 1,
-	"icon": "servoydefault/typeahead/bhdropdownlisticon.gif",
+	"icon": "servoydefault/typeahead/typeahead.png",
 	"definition": "servoydefault/typeahead/typeahead.js",
 	"libraries": [],
 	"model":

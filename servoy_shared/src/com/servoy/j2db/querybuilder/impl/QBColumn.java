@@ -150,8 +150,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition between(Object value1, Object value2)
 	{
-		return createCondition(new CompareCondition(IBaseSQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(),
-			new Object[] { createOperand(value1), createOperand(value2) }));
+		return createCondition(
+			new CompareCondition(IBaseSQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(value1), createOperand(value2) }));
 	}
 
 	/**
@@ -197,15 +197,16 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	{
 		QueryColumn qColumn = getQuerySelectValue().getColumn();
 		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
-			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, qColumn == null ? null : qColumn.getColumnType(),
-				qColumn == null ? 0 : qColumn.getFlags()) }, true));
+			new Object[][] { values == null ? new Object[0]
+				: getRoot().createOperands(values, qColumn == null ? null : qColumn.getColumnType(), qColumn == null ? 0 : qColumn.getFlags()) },
+			true));
 	}
 
 	@Override
 	public QBCondition in(String customQuery, Object[] args)
 	{
-		return createCondition(new SetCondition(IBaseSQLCondition.IN_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, new QueryCustomSelect(
-			customQuery, args), true));
+		return createCondition(
+			new SetCondition(IBaseSQLCondition.IN_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, new QueryCustomSelect(customQuery, args), true));
 	}
 
 	/**
@@ -503,7 +504,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBFunction locate(Object arg)
 	{
-		return getRoot().functions().locate(this, arg);
+		return getRoot().functions().locate(arg, this);
 	}
 
 	/**
@@ -516,7 +517,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBFunction locate(Object arg, int start)
 	{
-		return getRoot().functions().locate(this, arg, start);
+		return getRoot().functions().locate(arg, this, start);
 	}
 
 	/**

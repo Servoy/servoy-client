@@ -16,10 +16,8 @@ module.exports = function(config){
        'lib/angular-mocks*.js',
        
        // sablo and ngclient scripts
-       '../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
-       '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
-       '../../../sablo/sablo/META-INF/resources/sablo/*.js', /* use this when running from Git */
-       '../../sablo/META-INF/resources/sablo/*.js',  /* use this when running from SVN-git bridge */
+       'sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
+       'sablo/META-INF/resources/sablo/*.js', /* use this when running from Git */
        '../war/js/numeral.js',
        '../war/js/**/*.js',
        
@@ -74,8 +72,8 @@ module.exports = function(config){
     //autoWatch : true,
     reporters: ['dots', 'junit'],
     junitReporter: {
-          outputFile: 'test-results.xml'
-    }
+        outputFile: '../../target/TEST-phantomjs-karma.xml'
+  }
   /*,  alternative format
     junitReporter : {
       outputFile: 'test_out/unit.xml',

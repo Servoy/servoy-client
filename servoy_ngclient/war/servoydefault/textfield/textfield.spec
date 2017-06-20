@@ -2,7 +2,7 @@
 	"name": "servoydefault-textfield",
 	"displayName": "Text Field",
 	"version": 1,
-	"icon": "servoydefault/textfield/textinput.png",
+	"icon": "servoydefault/textfield/textfield.png",
 	"definition": "servoydefault/textfield/textfield.js",
 	"libraries": [],
 	"model":

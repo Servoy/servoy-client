@@ -53,7 +53,6 @@ import com.servoy.j2db.server.ngclient.FormElementExtension;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
-import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -190,11 +189,6 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			Map<String, SabloT> map = new HashMap<>(formElementValue.size());
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
-				if (e.getValue() instanceof ComponentTypeFormElementValue &&
-					!((ComponentTypeFormElementValue)e.getValue()).isSecurityViewable(dal.getApplication().getFlattenedSolution()))
-				{
-					continue;
-				}
 				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(), getCustomJSONTypeDefinition().getProperty(e.getKey()),
 					new FormElementExtension(formElement, formElementValue, getCustomJSONTypeDefinition()), component, dal);
 				if (v != null) map.put(e.getKey(), (SabloT)v);

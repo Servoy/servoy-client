@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -95,8 +96,9 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.endObject();
 
 		Assert.assertEquals(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\"}}",
-			stringWriter.toString());
+			new JSONObject(
+				"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\"}}").toString(),
+			new JSONObject(stringWriter.toString()).toString());
 		webComponent.setProperty("tabIndex", "tab2");
 
 		stringWriter = new StringWriter();
@@ -106,8 +108,9 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.endObject();
 
 		Assert.assertEquals(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":\"tab2\"}}",
-			stringWriter.toString());
+			new JSONObject(
+				"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":\"tab2\"}}").toString(),
+			new JSONObject(stringWriter.toString()).toString());
 
 		webComponent.setProperty("tabIndex", Integer.valueOf(3));
 
@@ -118,7 +121,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.endObject();
 
 		Assert.assertEquals(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":3}}",
-			stringWriter.toString());
+			new JSONObject(
+				"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":3}}").toString(),
+			new JSONObject(stringWriter.toString()).toString());
 	}
 }

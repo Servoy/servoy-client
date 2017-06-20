@@ -2,7 +2,7 @@
 	"name": "servoydefault-radio",
 	"displayName": "Radio",
 	"version": 1,
-	"icon": "servoydefault/radio/RADIO16.png",
+	"icon": "servoydefault/radio/radiobutton.png",
 	"definition": "servoydefault/radio/radio.js",
 	"libraries": [],
 	"model":
