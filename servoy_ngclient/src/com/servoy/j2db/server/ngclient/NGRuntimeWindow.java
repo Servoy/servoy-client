@@ -452,7 +452,14 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 
 		String titleArg = getTitle();
-		titleArg = titleArg == null ? formName : titleArg;
+		if (titleArg == null && controller != null)
+		{
+			titleArg = controller.getForm().getTitleText();
+		}
+		if (titleArg == null)
+		{
+			titleArg = formName;
+		}
 		titleArg = getApplication().getI18NMessageIfPrefixed(titleArg);
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("show",
 			new Object[] { getName(), formName, titleArg });
