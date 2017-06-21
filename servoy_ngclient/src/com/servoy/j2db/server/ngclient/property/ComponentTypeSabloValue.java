@@ -208,7 +208,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (readonlyPropertyListener != null) webObjectContext.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
 
 		// unregister this component from formcontroller "elements" scope if needed
-		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+		WebFormComponent parentComponent = getParentComponent();
+		IWebFormUI formUI = parentComponent != null ? parentComponent.findParent(IWebFormUI.class) : null;
 		if (formUI != null && componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag("addToElementsScope")))
 		{
 			formUI.removeComponentFromElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
@@ -228,7 +229,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		this.monitor = null;
-		this.parentComponent = null;
+		this.webObjectContext = null;
 	}
 
 	private FoundsetTypeSabloValue getFoundsetValue()
@@ -245,7 +246,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	private WebFormComponent getParentComponent()
 	{
-		return (WebFormComponent)webObjectContext.getUnderlyingWebObject();
+		return webObjectContext != null ? (WebFormComponent)webObjectContext.getUnderlyingWebObject() : null;
 	}
 
 	protected void createComponentIfNeededAndPossible()

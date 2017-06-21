@@ -63,7 +63,6 @@ import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -681,10 +680,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
-	/**
-	 * @param dataProvider
-	 * @return
-	 */
 	private PropertyDescription getDataProviderPropertyDescription(String dataProvider)
 	{
 		if (parentDAL != null)
@@ -692,10 +687,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication().getFlattenedSolution(), parentDAL.getForm().getForm(),
 				foundset.getTable(), false);
 		}
-		else if (webObject instanceof WebFormComponent)
+		else
 		{
-			IDataAdapterList dl = ((WebFormComponent)webObject).getDataAdapterList();
-			return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication().getFlattenedSolution(), dl.getForm().getForm(),
+			IDataAdapterList dl = NGComponentDALContext.getDataAdapterList(webObjectContext);
+			if (dl != null) return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication().getFlattenedSolution(), dl.getForm().getForm(),
 				foundset.getTable(), false);
 		}
 		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);

@@ -52,10 +52,12 @@
 					<!-- 1. Install node and npm locally -->
 					<execution>
 						<id>install node and npm</id>
+						<phase>test</phase>
 						<goals>
 							<goal>install-node-and-npm</goal>
 						</goals>
 						<configuration>
+							<skipTests>${maven.test.skip}</skipTests>
 							<nodeVersion>v6.10.1</nodeVersion>
 							<npmVersion>4.4.4</npmVersion>
 						</configuration>
@@ -64,18 +66,24 @@
 					<!-- 2. Install karma and karma plugins -->
 					<execution>
 						<id>npm install</id>
+						<phase>test</phase>
 						<goals>
 							<goal>npm</goal>
 						</goals>
+						<configuration>
+							<skipTests>${maven.test.skip}</skipTests>
+						</configuration>
 					</execution>
 
 					<!-- 3. npm run build -->
 					<execution>
 						<id>npm run build</id>
+						<phase>test</phase>
 						<goals>
 							<goal>npm</goal>
 						</goals>
 						<configuration>
+							<skipTests>${maven.test.skip}</skipTests>
 							<arguments>run build</arguments>
 						</configuration>
 					</execution>
@@ -88,6 +96,7 @@
 							<goal>karma</goal>
 						</goals>
 						<configuration>
+							<skipTests>${maven.test.skip}</skipTests>
 							<karmaConfPath>client_tests/karma.conf</karmaConfPath>
 							<failOnError>true</failOnError>	
 						</configuration>
@@ -119,6 +128,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
+							<skip>${maven.test.skip}</skip>
 							<target>
 								<delete dir="${project.build.directory}/junit" />
 								<mkdir dir="${project.build.directory}/junit" />
