@@ -343,10 +343,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, webComponentSpec.getProperties().get(name), component);
 
 		if (val != previousVal) component.setProperty(name, val);
-		// force size & location push as that maybe different on the client (if form anchored or table columns were changed as width or location)
+		// always force size & location push as that maybe different on the client (if form anchored or table columns were changed as width or location)
 		if ("size".equals(name) || "location".equals(name))
 		{
-			component.flagPropertyAsDirty(name, true);
+			component.markPropertyAsChangedByRef(name);
 		}
 	}
 

@@ -401,6 +401,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		try
 		{
 			getController().setRendering(true);
+			// converter here is always ChangesToJSONConverter except for some unit tests
 			return super.writeAllComponentsChanges(w, keyInParent, converter, clientDataConversions);
 		}
 		finally

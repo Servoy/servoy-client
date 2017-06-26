@@ -37,6 +37,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.persistence.Column;
@@ -92,7 +93,7 @@ public abstract class NGUtils
 			if (column != null)
 			{
 				ColumnInfo ci = column.getColumnInfo();
-				if (ci != null && ci.hasFlag(Column.UUID_COLUMN))
+				if (ci != null && ci.hasFlag(IBaseColumn.UUID_COLUMN))
 				{
 					return UUID_DATAPROVIDER_CACHED_PD;
 				}
@@ -155,6 +156,7 @@ public abstract class NGUtils
 		JSONStringer w = new JSONStringer();
 		DataConversion conversions = new DataConversion();
 		w.object();
+		// converter here is always ChangesToJSONConverter except for some unit tests
 		formUI.writeAllComponentsChanges(w, "changes", converter, conversions);
 		JSONUtils.writeClientConversions(w, conversions);
 		w.endObject();

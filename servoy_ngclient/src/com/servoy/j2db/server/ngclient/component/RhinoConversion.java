@@ -128,7 +128,7 @@ public class RhinoConversion
 					if (!Utils.equalObjects(((Map)webComponentValue).get(name), value))
 					{
 						((Map)webComponentValue).put(name, value);
-						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().flagPropertyAsDirty(pd.getName(), true);
+						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 					}
 				}
 
@@ -137,7 +137,7 @@ public class RhinoConversion
 				{
 					super.delete(name);
 					((Map)webComponentValue).remove(name);
-					if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().flagPropertyAsDirty(pd.getName(), true);
+					if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 				}
 			};
 			for (Object key : ((Map)webComponentValue).keySet())

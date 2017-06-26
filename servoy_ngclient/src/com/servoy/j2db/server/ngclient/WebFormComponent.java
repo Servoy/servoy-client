@@ -262,10 +262,26 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	}
 
 	@Override
-	public boolean flagPropertyAsDirty(String key, boolean dirty)
+	public boolean markPropertyAsChangedByRef(String key)
 	{
-		boolean modified = super.flagPropertyAsDirty(key, dirty);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, dirty);
+		boolean modified = super.markPropertyAsChangedByRef(key);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true);
+		return modified;
+	}
+
+	@Override
+	public boolean clearChangedStatusForProperty(String key)
+	{
+		boolean modified = super.clearChangedStatusForProperty(key);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, false);
+		return modified;
+	}
+
+	@Override
+	public boolean markPropertyContentsUpdated(String key)
+	{
+		boolean modified = super.markPropertyContentsUpdated(key);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true);
 		return modified;
 	}
 

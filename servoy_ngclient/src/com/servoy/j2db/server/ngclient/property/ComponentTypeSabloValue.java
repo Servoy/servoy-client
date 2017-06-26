@@ -41,6 +41,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
+import org.sablo.websocket.TypedDataWithChangeInfo;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
@@ -314,7 +315,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							// else this change was probably determined by the fact that we reuse components, changing the record in the DAL to get data for a specific row;
 							// so we need to clear component changes for this property because we do not notify the parent here (we want to ignore the change) so
 							// we shouldn't keep the property marked as dirty - thus blocking future property changes to generate a valueChanged on parent's monitor
-							childComponent.flagPropertyAsDirty(propertyName, false);
+							childComponent.clearChangedStatusForProperty(propertyName);
 						}
 					}
 					else
@@ -530,7 +531,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		DataConversion conversions = new DataConversion();
 		// send component model (when linked to foundset only props that are not record related)
-		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType, conversions);
+		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, null, destinationJSON, allProps, conversions);
 		JSONUtils.writeClientConversions(destinationJSON, conversions);
 
 		destinationJSON.endObject();
@@ -555,7 +556,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
-		TypedData<Map<String, Object>> changes = childComponent.getAndClearChanges();
+		TypedDataWithChangeInfo changes = childComponent.getAndClearChanges();
 		removeRecordDependentProperties(changes);
 
 		boolean modelChanged = (changes.content.size() > 0);
@@ -576,7 +577,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 			DataConversion conversions = new DataConversion();
 			// send component model (when linked to foundset only props that are not record related)
-			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, destinationJSON, changes.content, changes.contentType, conversions);
+			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, FullValueToJSONConverter.INSTANCE, destinationJSON, changes, conversions);
 			JSONUtils.writeClientConversions(destinationJSON, conversions);
 
 			destinationJSON.endObject();
@@ -703,8 +704,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				DataConversion dataConversion = new DataConversion();
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, dataConversion,
 					formElementContext);
-				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
-					dataConversion);
+				// always use full to JSON converter here; second arg. is null due to that
+				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, null, writer, runtimeProperties, dataConversion);
 				JSONUtils.writeClientConversions(writer, dataConversion);
 				writer.endObject();
 			}
@@ -903,10 +904,15 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
 							dal = formUI.getDataAdapterList();
 						}
+
+
 						if (forFoundsetTypedPropertyName != null && !recordBasedProperties.contains(propertyName))
 						{
-							childComponent.flagPropertyAsDirty(propertyName, true);
+							// TODO why is this needed? so if it's a dataprovider that is not linked to a record but inside a foundset linked component and it is changed on client
+							// and pushed to server... why do we need to send it back to client? I think this 'if' should be removed
+							childComponent.markPropertyAsChangedByRef(propertyName);
 						}
+
 						// apply change to record/dp
 						dal.pushChanges(childComponent, propertyName);
 					}

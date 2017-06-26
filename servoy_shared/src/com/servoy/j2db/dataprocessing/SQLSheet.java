@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
@@ -131,7 +132,7 @@ public class SQLSheet
 
 		Integer retVal = allCalculationsTypes.get(dataProviderID);
 		return new VariableInfo((retVal != null ? retVal.intValue() : 0), Integer.MAX_VALUE /* allow unlimited value for unstored calcs */,
-			Column.NORMAL_COLUMN);
+			IBaseColumn.NORMAL_COLUMN);
 	}
 
 	public boolean containsCalculation(String dataProviderID)
@@ -278,7 +279,7 @@ public class SQLSheet
 				else
 				{
 					ColumnInfo ci = c.getColumnInfo();
-					if (c.getRowIdentType() != Column.NORMAL_COLUMN && ci != null && ci.hasSequence())
+					if (c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && ci != null && ci.hasSequence())
 					{
 						//this is here for safety, it can happen that a form has (unwanted) still a related foundset which is created by relation based on primary key
 						array[i] = c.getNewRecordValue(app);
@@ -420,7 +421,7 @@ public class SQLSheet
 				}
 			}
 
-			if ((variableInfo.flags & Column.UUID_COLUMN) != 0)
+			if ((variableInfo.flags & IBaseColumn.UUID_COLUMN) != 0)
 			{
 				// this is a UUID column, convert from UUID
 				UUID uuid = Utils.getAsUUID(convertedValue, false);
@@ -439,7 +440,7 @@ public class SQLSheet
 			}
 		}
 
-		if (variableInfo.type != IColumnTypes.MEDIA || (variableInfo.flags & Column.UUID_COLUMN) != 0)
+		if (variableInfo.type != IColumnTypes.MEDIA || (variableInfo.flags & IBaseColumn.UUID_COLUMN) != 0)
 		{
 			try
 			{
@@ -474,7 +475,7 @@ public class SQLSheet
 			String dataProviderID = getColumnNames()[columnIndex];
 			VariableInfo variableInfo = getCalculationOrColumnVariableInfo(dataProviderID, columnIndex);
 
-			if ((variableInfo.flags & Column.UUID_COLUMN) != 0)
+			if ((variableInfo.flags & IBaseColumn.UUID_COLUMN) != 0)
 			{
 				// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
 				value = Utils.getAsUUID(value, false);
@@ -492,13 +493,15 @@ public class SQLSheet
 					}
 					catch (Exception e)
 					{
-						Debug.error(e);
+						Debug.error("Exception caught while running the column converter.", e);
 						throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
 							new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }), e);
 					}
 				}
 				else
 				{
+					Debug.error("Column '" + dataProviderID +
+						"' does have column converter information, but either the converter (type) is not available or the converter information is incorrect.");
 					throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }));
 				}

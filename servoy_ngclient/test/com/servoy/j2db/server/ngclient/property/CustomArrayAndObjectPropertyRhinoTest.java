@@ -34,7 +34,6 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.sablo.IWebObjectContext;
 import org.sablo.InMemPackageReader;
 import org.sablo.WebComponent;
 import org.sablo.specification.Package.IPackageReader;
@@ -57,7 +56,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class CustomArrayPropertyRhinoTest
+public class CustomArrayAndObjectPropertyRhinoTest
 {
 
 	@Before
@@ -135,8 +134,10 @@ public class CustomArrayPropertyRhinoTest
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
 		assertEquals(0, component.getAndClearChanges().content.size());
-		assertEquals(0, cal.getChangedIndexes().size());
-		assertEquals(0, cam.getChangedKeys().size());
+		assertEquals(0, cal.getIndexesChangedByRef().size());
+		assertEquals(0, cal.getIndexesWithContentUpdates().size());
+		assertEquals(0, cam.getKeysChangedByRef().size());
+		assertEquals(0, cam.getKeysWithUpdates().size());
 
 		// check changing java => change reflected in Rhino
 		ScriptableObject topLevel = new ScriptableObject()
@@ -148,23 +149,23 @@ public class CustomArrayPropertyRhinoTest
 				return "test_top_level_scope";
 			}
 		};
-		Scriptable rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD,
-			(IWebObjectContext)component, topLevel);
+		Scriptable rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, component,
+			topLevel);
 		assertEquals("Just some text", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
 		cam.put("text", "Just some text 2");
-		assertEquals(1, cam.getChangedKeys().size());
-		assertEquals("text", cam.getChangedKeys().iterator().next());
-		assertEquals(1, cal.getChangedIndexes().size());
-		assertEquals(Integer.valueOf(0), cal.getChangedIndexes().iterator().next());
+		assertEquals(1, cam.getKeysChangedByRef().size());
+		assertEquals("text", cam.getKeysChangedByRef().iterator().next());
+		assertEquals(1, cal.getIndexesWithContentUpdates().size());
+		assertEquals(Integer.valueOf(0), cal.getIndexesWithContentUpdates().iterator().next());
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
 		assertEquals("Just some text 2", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
 		cam.put("active", new ArrayList());
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
-		assertEquals(2, cam.getChangedKeys().size());
-		assertTrue(cam.getChangedKeys().contains("text"));
-		assertTrue(cam.getChangedKeys().contains("active"));
+		assertEquals(2, cam.getKeysChangedByRef().size());
+		assertTrue(cam.getKeysChangedByRef().contains("text"));
+		assertTrue(cam.getKeysChangedByRef().contains("active"));
 		cam.remove("active");
 		assertTrue(!cal.mustSendAll());
 		assertTrue(cam.mustSendAll());
@@ -180,8 +181,10 @@ public class CustomArrayPropertyRhinoTest
 		assertEquals(0, component.getAndClearChanges().content.size());
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
-		assertEquals(0, cal.getChangedIndexes().size());
-		assertEquals(0, cam.getChangedKeys().size());
+		assertEquals(0, cal.getIndexesChangedByRef().size());
+		assertEquals(0, cal.getIndexesWithContentUpdates().size());
+		assertEquals(0, cam.getKeysChangedByRef().size());
+		assertEquals(0, cam.getKeysWithUpdates().size());
 
 		// assign some native values
 		NativeObject oneO = new NativeObject();
@@ -189,45 +192,67 @@ public class CustomArrayPropertyRhinoTest
 		NativeArray activeA1 = new NativeArray(0);
 //		activeA1.setPrototype(ScriptableObject.getArrayPrototype(topLevel));
 		NativeObject activeA1Obj = new NativeObject();
-		NativeObject activeA2Obj = new NativeObject();
+//		NativeObject activeA2Obj = new NativeObject();
 //		activeA1Obj.setPrototype(ScriptableObject.getObjectPrototype(topLevel));
 		rhinoVal.put(0, rhinoVal, oneO);
+		Scriptable oneOScriptable = (Scriptable)rhinoVal.get(0, rhinoVal); // same as 'cam' but in it's Rhino representation
 		assertTrue(!cal.mustSendAll());
-		assertTrue(cal.getChangedIndexes().size() == 1);
+		assertEquals(1, cal.getIndexesChangedByRef().size());
+		assertEquals(0, cal.getIndexesWithContentUpdates().size());
 		cam = ((ChangeAwareMap< ? , ? >)cal.get(0));
 		activeA1Obj.put("field", activeA1Obj, 11);
 		activeA1.put(0, activeA1, activeA1Obj);
-		oneO.put("active", oneO, activeA1);
+		oneOScriptable.put("active", oneOScriptable, activeA1);
 		assertEquals(11, ((Map)((List)((Map)cal.get(0)).get("active")).get(0)).get("field"));
-		assertTrue(cam.mustSendAll());
-		assertTrue(!cal.mustSendAll());
-		assertEquals(1, cal.getChangedIndexes().size());
+		((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.22);
 
-		// now change the native values using initial ref to see if it changed in java
-		activeA1Obj.put("field", activeA1Obj, 98);
-		assertEquals(98, ((Map)((List)((Map)cal.get(0)).get("active")).get(0)).get("field"));
-		activeA1.put(1, activeA1, activeA2Obj);
-		activeA2Obj.put("field", activeA2Obj, 45);
-		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
+		assertEquals(1, cam.getKeysChangedByRef().size());
+		assertEquals(0, cam.getKeysWithUpdates().size());
+		assertTrue(cam.getKeysChangedByRef().contains("active"));
+		assertTrue(!cal.mustSendAll());
+		assertEquals(1, cal.getIndexesChangedByRef().size()); // we havent cleared changes yet; so initial assignment still needs tosend full value
+		assertEquals(0, cal.getIndexesWithContentUpdates().size());
+
+		// now change the native values using initial ref to see if it changed in java; this is no longer supported after case SVY-11027
+//		activeA1Obj.put("field", activeA1Obj, 98);
+//		assertEquals(98, ((Map)((List)((Map)cal.get(0)).get("active")).get(0)).get("field"));
+//		activeA1.put(1, activeA1, activeA2Obj);
+//		activeA2Obj.put("field", activeA2Obj, 45);
+//		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
 
 		changes = component.getAndClearChanges();
 		assertEquals(
 			new JSONObject(
-				"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"svy_types\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}").toString(),
+				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"vEr\":3,\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"x\":[{\"v\":{\"vEr\":5,\"svy_types\":{\"active\":\"JSON_arr\"},\"v\":{\"active\":{\"vEr\":2,\"svy_types\":{\"0\":\"JSON_obj\"},\"v\":[{\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}]}}},\"i\":0}]}}").toString(),
 			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
 
+		((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
+
+		assertEquals(0, cam.getKeysChangedByRef().size());
+		assertEquals(1, cam.getKeysWithUpdates().size());
+
+		changes = component.getAndClearChanges();
+		assertEquals(
+			new JSONObject(
+				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"vEr\":3,\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"vEr\":5,\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"vEr\":2,\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"vEr\":2,\"u\":[{\"v\":0.33,\"k\":\"percent\"}]},\"i\":0}]},\"k\":\"active\"}]},\"i\":0}]}}").toString(),
+			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
+
+		((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
+		((Map)((List)((Map)cal.get(0)).get("active")).get(1)).put("percent", 0.99);
+		component.getAndClearChanges();
 		// now simulate another request cycle that makes some change to the property from javascript
-		rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, (IWebObjectContext)component,
-			topLevel);
+		rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, component, topLevel);
 		Scriptable v = ((Scriptable)rhinoVal.get(0, rhinoVal));
 		v = (Scriptable)v.get("active", v);
 		v = (Scriptable)v.get(1, v);
-		assertEquals(45, v.get("field", v));
-		v.put("field", v, 56);
-		assertEquals(56, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
+		assertEquals(0.99, v.get("percent", v));
+		v.put("percent", v, 0.56);
+		assertEquals(0.56, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("percent"));
 		assertTrue(!cam.mustSendAll());
 		assertTrue(!cal.mustSendAll());
-		assertEquals(1, cal.getChangedIndexes().size());
-		assertEquals(1, cam.getChangedKeys().size());
+		assertEquals(1, cal.getIndexesWithContentUpdates().size());
+		assertEquals(0, cal.getIndexesChangedByRef().size());
+		assertEquals(1, cam.getKeysWithUpdates().size());
+		assertEquals("active", cam.getKeysWithUpdates().iterator().next());
 	}
 }
