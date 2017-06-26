@@ -1297,10 +1297,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public String getServerURL()
 	{
 		String url = application.getServerURL().toString();
-		// if it does has a / in it (after http(s)://) and it doesn't end with /
-		// add a / because this means that we are in a context then the urls should
-		// be http://hostname:port/context/
-		if (url.indexOf('/', 8) != -1 && !url.endsWith("/")) //$NON-NLS-1$
+		// if it doesn't end with / add it
+		// it is needed in a context (the urls should be http://hostname:port/context/)
+		// and it has to be the same in the developer
+		if (!url.endsWith("/")) //$NON-NLS-1$
 		{
 			url += '/';
 		}
