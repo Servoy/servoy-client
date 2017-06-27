@@ -50,6 +50,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						break;
 					}
 				}
+				$scope.refreshValue();
 			});
 
 			$scope.$watch('model.dataProviderID', function() {
@@ -111,7 +112,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						{
 							if (hasRealValues) 
 							{
-								$scope.model.dataProviderID = null;
+								// if we still have old value do not set it to null
+								if ($scope.model.dataProviderID !== $scope.value)
+								{
+									$scope.model.dataProviderID = null;
+								}	
 							}
 							else
 							{

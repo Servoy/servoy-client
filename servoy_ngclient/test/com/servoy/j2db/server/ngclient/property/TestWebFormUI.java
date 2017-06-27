@@ -852,6 +852,11 @@ public class TestWebFormUI implements IWebFormUI
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getRuntimeWebComponent(java.lang.String)
+	 */
 	@Override
 	public RuntimeWebComponent getRuntimeWebComponent(String name)
 	{
