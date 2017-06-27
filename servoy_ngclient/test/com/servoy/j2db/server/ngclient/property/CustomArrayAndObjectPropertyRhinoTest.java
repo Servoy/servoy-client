@@ -222,8 +222,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 		changes = component.getAndClearChanges();
 		assertEquals(
-			new JSONObject(
-				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"vEr\":3,\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"x\":[{\"v\":{\"vEr\":5,\"svy_types\":{\"active\":\"JSON_arr\"},\"v\":{\"active\":{\"vEr\":2,\"svy_types\":{\"0\":\"JSON_obj\"},\"v\":[{\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}]}}},\"i\":0}]}}").toString(),
+			new JSONObject("{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"svy_types\":{\"0\":\"JSON_obj\"},\"vEr\":2}},\"svy_types\":{\"active\":\"JSON_arr\"},\"vEr\":5},\"i\":0}],\"vEr\":3}}").toString(),
 			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
 
 		((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
@@ -233,8 +232,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 		changes = component.getAndClearChanges();
 		assertEquals(
-			new JSONObject(
-				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"vEr\":3,\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"vEr\":5,\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"vEr\":2,\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"vEr\":2,\"u\":[{\"v\":0.33,\"k\":\"percent\"}]},\"i\":0}]},\"k\":\"active\"}]},\"i\":0}]}}").toString(),
+				new JSONObject("{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}").toString(),
 			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
 
 		((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
