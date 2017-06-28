@@ -49,8 +49,10 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.util.ServoyException;
@@ -110,20 +112,6 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 	public void testFieldWithValueList() throws RepositoryException
 	{
 		Form form = solution.getForm("test");
-		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client))
-		{
-			@Override
-			protected boolean isFormDataprovider(String dataprovider)
-			{
-				return false;
-			}
-
-			@Override
-			protected boolean isGlobalDataprovider(String dataprovider)
-			{
-				return false;
-			}
-		};
 
 		Assert.assertNotNull(form);
 		ValueList vl = solution.getValueList("test");
@@ -135,9 +123,12 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		field.setDisplayType(Field.TYPE_AHEAD);
 		field.setValuelistID(vl.getID());
 
+		WebFormUI formUI = new WebFormUI(client.getFormManager().getForm(form.getName())); // needed for a valuelist property type that searches it's form's table via the webform ui
+		IDataAdapterList dataAdapterList = formUI.getDataAdapterList();
+		
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
-		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
+		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), formUI, form);
 		Object property = wc.getProperty("valuelistID");
 		Assert.assertTrue(property != null ? property.getClass().getName() : "null",
 			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);

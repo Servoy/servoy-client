@@ -257,6 +257,7 @@ public abstract class AbstractSolutionTest
 	@Before
 	public void buildSolution() throws Exception
 	{
+		TestNGClient.initSettings();
 		Types.getTypesInstance().registerTypes();
 
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -266,6 +267,7 @@ public abstract class AbstractSolutionTest
 		InMemPackageReader inMemPackageReader = getTestComponents();
 		if (f.isFile() && f.getName().startsWith("servoy_ngclient_") && f.getName().endsWith(".jar"))
 		{
+			// it is running from bundles/jars
 			ZipFile zipFile = new ZipFile(f);
 			componentsReaders = inMemPackageReader != null
 				? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile,
@@ -275,11 +277,12 @@ public abstract class AbstractSolutionTest
 		}
 		else
 		{
-			File userDir = new File(System.getProperty("user.dir"));
+			// it is running from sources/projects
+			File ngClientProjDir = new File(f.getParentFile(), "servoy_ngclient");
 			componentsReaders = getReaders(
-				new File[] { new File(userDir.getAbsoluteFile() + "/../war/servoycore/"), new File(userDir.getAbsoluteFile() + "/../war/servoydefault/") },
+				new File[] { new File(ngClientProjDir.getAbsoluteFile() + "/war/servoycore/"), new File(ngClientProjDir.getAbsoluteFile() + "/war/servoydefault/") },
 				inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
-			servicesReaders = getReaders(new File[] { new File(userDir.getAbsoluteFile(), "/../war/servoyservices/") }, null);
+			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, null);
 		}
 
 		WebComponentSpecProvider.init(componentsReaders);

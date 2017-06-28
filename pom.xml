@@ -57,6 +57,7 @@
 				<module>servoy_smart_client</module>
 				<module>servoy_headless_client</module>
 				<module>servoy_ngclient</module>
+				<module>servoy_ngclient.tests</module>
 				<module>servoy_debug</module>
 			</modules>
 		</profile>

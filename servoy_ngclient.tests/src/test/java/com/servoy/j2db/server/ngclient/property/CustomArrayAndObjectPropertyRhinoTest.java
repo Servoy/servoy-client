@@ -48,6 +48,8 @@ import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -221,9 +223,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 //		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
 
 		changes = component.getAndClearChanges();
-		assertEquals(
-			new JSONObject("{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"svy_types\":{\"0\":\"JSON_obj\"},\"vEr\":2}},\"svy_types\":{\"active\":\"JSON_arr\"},\"vEr\":5},\"i\":0}],\"vEr\":3}}").toString(),
-			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
+		JSONAssert.assertEquals(
+			"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"svy_types\":{\"0\":\"JSON_obj\"},\"vEr\":2}},\"svy_types\":{\"active\":\"JSON_arr\"},\"vEr\":5},\"i\":0}],\"vEr\":3}}",
+			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 		((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
 
@@ -231,9 +233,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 		assertEquals(1, cam.getKeysWithUpdates().size());
 
 		changes = component.getAndClearChanges();
-		assertEquals(
-				new JSONObject("{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}").toString(),
-			new JSONObject(JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext)).toString());
+		JSONAssert.assertEquals(
+				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}",
+			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 		((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
 		((Map)((List)((Map)cal.get(0)).get("active")).get(1)).put("percent", 0.99);

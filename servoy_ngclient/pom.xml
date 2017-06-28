@@ -103,67 +103,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.ant</groupId>
-						<artifactId>ant-junit</artifactId>
-						<version>1.8.4</version>
-					</dependency>
-
-					<dependency>
-						<groupId>junit</groupId>
-						<artifactId>junit</artifactId>
-						<version>4.12</version>
-						<!--scope>test</scope -->
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<id>run_test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<skip>${maven.test.skip}</skip>
-							<target>
-								<delete dir="${project.build.directory}/junit" />
-								<mkdir dir="${project.build.directory}/junit" />
-								<junit timeout="60000" fork="yes" forkmode="once"
-									dir="${project.build.directory}" maxmemory="1024m"
-									haltonfailure="false" haltonerror="false" errorProperty="test.failed"
-									failureProperty="test.failed" printsummary="on">
-									<classpath refid="maven.test.classpath" />
-									<formatter type="brief" usefile="false" />
-									<formatter type="xml" extension=".xml" />
-									<!-- needed for tools such as CruiseControl/Jenkins that are not 
-										compatible with "xml.suites" <formatter type="xml.suites" /> -->
-									<batchtest todir="${project.build.directory}/junit">
-										<fileset dir="${project.basedir}/test">
-											<include name="**/*Test.java" />
-											<exclude name="**/*Abstract*.java" />
-										</fileset>
-									</batchtest>
-								</junit>
-								<junitreport todir="${project.build.directory}/junit"
-									tofile="Aggregated-TESTS-TestSuites.xml">
-									<fileset dir="${project.build.directory}/junit">
-										<!--<include name="TEST-*.xml" /> -->
-										<include name="TEST-*.xml" />
-									</fileset>
-									<!-- <report format="noframes-suiteaware" todir="${junit.result.dir}" 
-										/> -->
-									<report format="noframes" todir="${project.build.directory}/junit" />
-								</junitreport>
-								<fail if="test.failed">Test fail</fail>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 

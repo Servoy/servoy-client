@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -72,8 +73,10 @@ import com.servoy.j2db.server.shared.PerformanceAggregator;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -98,7 +101,7 @@ public class TestNGClient extends NGClient
 			@Override
 			public void init() throws Exception
 			{
-				//override default init, shouldnt make another client.
+				// override default init, shouldnt make another client.
 			}
 
 			@Override
@@ -169,11 +172,35 @@ public class TestNGClient extends NGClient
 		WebsocketSessionManager.addSession(getWebsocketSession());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ClientState#createDataServer()
-	 */
+	public static void initSettings()
+	{
+		Settings settings = Settings.getInstance();
+
+		settings.setProperty("log4j.appender.stdout", "org.apache.log4j.ConsoleAppender");
+		settings.setProperty("log4j.appender.stdout.layout", "org.apache.log4j.PatternLayout");
+		settings.setProperty("log4j.appender.stdout.layout.ConversionPattern", "%d %p [%t] %c - %m%n");
+		settings.setProperty("log4j.debug", "false");
+		settings.setProperty("log4j.logger.com.org.sablo.websocket", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.dataprocessing.editedRecords", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.datasource", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.datasource.ClientManager", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.persistence.XMLExporter", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.persistence.XMLInMemoryImportHandlerVersions11AndHigher", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.server", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.server.main.WebServer", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.server.ngclient.property.types", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.server.persistence.Server", "WARN");
+		settings.setProperty("log4j.logger.com.servoy.j2db.util.Debug", "WARN");
+		settings.setProperty("log4j.logger.org.apache.wicket", "WARN");
+		settings.setProperty("log4j.logger.org.apache.wicket.request.target.component.listener.BehaviorRequestTarget", "ERROR");
+		settings.setProperty("log4j.logger.org.sablo", "WARN");
+		settings.setProperty("log4j.logger.org.sablo.specification.property", "WARN");
+		settings.setProperty("log4j.rootCategory", "WARN, stdout");
+
+		PropertyConfigurator.configure(settings);
+		Debug.init();
+	}
+
 	@Override
 	protected IDataServer createDataServer()
 	{
@@ -282,7 +309,11 @@ public class TestNGClient extends NGClient
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 				int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 			{
-				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
+				return dataSetMap.values().iterator().next(); // don't know the
+																// datasource,
+																// just return
+																// the first
+																// dataset
 			}
 
 			@Override
@@ -296,7 +327,11 @@ public class TestNGClient extends NGClient
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 				int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
-				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
+				return dataSetMap.values().iterator().next(); // don't know the
+																// datasource,
+																// just return
+																// the first
+																// dataset
 			}
 
 			@Override
@@ -331,7 +366,11 @@ public class TestNGClient extends NGClient
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 				int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
-				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
+				return dataSetMap.values().iterator().next(); // don't know the
+																// datasource,
+																// just return
+																// the first
+																// dataset
 			}
 
 			@Override

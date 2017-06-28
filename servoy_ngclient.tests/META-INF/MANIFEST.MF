@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unit tests for servoy_ngclient bundle
+Bundle-SymbolicName: servoy_ngclient.tests
+Bundle-Version: 8.2.0.3100
+Bundle-Vendor: Servoy
+Fragment-Host: servoy_ngclient
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.servoy.j2db.server.ngclient.component.spec,
+ com.servoy.j2db.server.ngclient.property
+Require-Bundle: org.junit,
+ org.skyscreamer.jsonassert
+Import-Package: org.apache.log4j
