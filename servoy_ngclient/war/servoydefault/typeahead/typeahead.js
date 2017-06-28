@@ -50,7 +50,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						break;
 					}
 				}
-				$scope.refreshValue();
+//				$scope.refreshValue();
 			});
 
 			$scope.$watch('model.dataProviderID', function() {
