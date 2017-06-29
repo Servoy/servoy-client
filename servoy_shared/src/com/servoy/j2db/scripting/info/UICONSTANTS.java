@@ -271,6 +271,20 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String NG_BLOCK_DUPLICATE_EVENTS = IApplication.BLOCK_DUPLICATE_EVENTS;
 
+
+	/**
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty()..
+	 *
+	 * If set to true, the component will display the date as it is on the server
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.NG_USE_SERVER_TIMEZONE, true)
+	 */
+	public static final String NG_NO_DATE_CONVERSION = IApplication.NG_NO_DATE_CONVERSION;
+
 	/**
 	 * Property that can be set using application.putClientProperty().
 	 *
