@@ -29,6 +29,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
@@ -42,6 +43,7 @@ import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
@@ -59,6 +61,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGEnabledPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
+import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -941,6 +944,28 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void clearCachedFormElements()
 	{
 		cachedElements.clear();
+	}
+
+	@Override
+	public void refreshValueList(IValueList valuelist)
+	{
+		for (WebComponent component : getComponents())
+		{
+			WebFormComponent comp = (WebFormComponent)component;
+			Collection<PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
+			for (PropertyDescription vlProp : valuelistProps)
+			{
+				ValueListTypeSabloValue propertyValue = (ValueListTypeSabloValue)comp.getProperty(vlProp.getName());
+				if (propertyValue != null)
+				{
+					IValueList vl = propertyValue.getValueList();
+					if (vl.getValueList() == valuelist.getValueList())
+					{
+						propertyValue.setValueList(valuelist);
+					}
+				}
+			}
+		}
 	}
 
 	public List<FormElement> getFormElements()

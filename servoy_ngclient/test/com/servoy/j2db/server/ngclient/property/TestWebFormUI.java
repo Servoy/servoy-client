@@ -38,6 +38,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -862,6 +863,18 @@ public class TestWebFormUI implements IWebFormUI
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#refreshValueList(com.servoy.j2db.dataprocessing.IValueList)
+	 */
+	@Override
+	public void refreshValueList(IValueList valuelist)
+	{
+		// TODO Auto-generated method stub
+
 	}
 
 }
