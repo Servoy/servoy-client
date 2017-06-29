@@ -407,7 +407,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 	protected void resetI18nValue()
 	{
 		// the current language of the client probably changed; make sure to refresh i18n key formats
-		if (formatDesignValue.startsWith("i18n:"))
+		if (formatDesignValue != null && formatDesignValue.startsWith("i18n:"))
 		{
 			componentFormat = null; // dump old format
 			initializeIfPossibleAndNeeded(); // reinitialize if everything is available
