@@ -378,8 +378,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		loginForm = null;
 		for (IFormController controller : createdFormControllers.values())
 		{
-			hideFormIfVisible(controller);
 			controller.destroy();
+			hideFormIfVisible(controller);
 		}
 		clearLeaseHistory();
 
