@@ -380,7 +380,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		// have to test if a real valuelist is there because a "autoVL" valuelist doesn't have an actual valuelist but is based on the column itself.
 		if (propertyValue != null)
 		{
-			return propertyValue.resetI18nValue();
+			propertyValue.resetI18nValue();
 		}
 		return propertyValue;
 	}
