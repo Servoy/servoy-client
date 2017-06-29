@@ -651,11 +651,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		return initialized;
 	}
 
-	protected void resetI18nValue()
+	protected ValueListTypeSabloValue resetI18nValue()
 	{
-		// probably client language has changed - completely refresh the valuelist to make sure it reflects the new language (it might use i18n)
+		// probably client language has changed - destroy this object (clean everything up) and return a new wrapper
 		clearUpRuntimeValuelistAndFormat();
-		initializeIfPossibleAndNeeded();
+		return new ValueListTypeSabloValue(valuelistIdentifier, vlPD, propertyDependencies, waitForDataproviderIfNull, waitForFormatIfNull,
+			dataAdapterListToUse);
 	}
 
 }
