@@ -190,8 +190,13 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 					}
 				} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 					// granular updates received;
-					
-					if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an object value was set completely in browser and the child values need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child values
+					if (!currentClientValue) {
+						// if the current value was just a null value we need to make a new value
+						currentClientValue = {};
+						newValue = currentClientValue;
+						initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION])
+					}
+					else  if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an object value was set completely in browser and the child values need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child values
 					
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 
