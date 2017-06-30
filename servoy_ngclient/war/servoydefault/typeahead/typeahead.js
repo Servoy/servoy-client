@@ -50,13 +50,17 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						break;
 					}
 				}
+				if (hasRealValues)
+				{
+					$scope.refreshValue(false);
+				}	
 			});
 
 			$scope.$watch('model.dataProviderID', function() {
-				$scope.refreshValue();
+				$scope.refreshValue(true);
 			});
 
-			$scope.refreshValue= function (){
+			$scope.refreshValue= function (retrieveFromServer){
 				if (!hasRealValues)
 				{
 					$scope.value = $scope.model.dataProviderID;
@@ -74,7 +78,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
         						}
         					}
 					}
-					if(!found)
+					if(retrieveFromServer && !found)
 					{
 						$scope.value = null;
 						$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(function(displayValue) {
