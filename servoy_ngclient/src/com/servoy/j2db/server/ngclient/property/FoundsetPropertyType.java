@@ -308,6 +308,10 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		//    any of the keys above are optional except "foundset"
 		// 2. or it can directly be a IFoundSetInternal value in which case dataproviders is considered empty
 
+		if (rhinoValue instanceof FoundsetTypeSableValueWrapper)
+		{
+			return ((FoundsetTypeSableValueWrapper)rhinoValue).webComponentValue;
+		}
 		if (rhinoValue instanceof NativeObject)
 		{
 			NativeObject obj = (NativeObject)rhinoValue;
