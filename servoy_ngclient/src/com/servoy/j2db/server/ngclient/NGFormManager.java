@@ -287,16 +287,20 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	public void setCurrentControllerJS(IWebFormController currentController)
 	{
-		SolutionScope ss = application.getScriptEngine().getSolutionScope();
-		Context.enter();
-		try
+		if (currentController != null)
 		{
-			ss.put("currentcontroller", ss, //$NON-NLS-1$
-				new NativeJavaObject(ss, currentController.initForJSUsage(), new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class)));
-		}
-		finally
-		{
-			Context.exit();
+			SolutionScope ss = application.getScriptEngine().getSolutionScope();
+			Context.enter();
+			try
+			{
+				ss.put("currentcontroller", ss, //$NON-NLS-1$
+					new NativeJavaObject(ss, currentController.initForJSUsage(),
+						new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class)));
+			}
+			finally
+			{
+				Context.exit();
+			}
 		}
 	}
 

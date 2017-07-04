@@ -1107,6 +1107,7 @@ public abstract class BasicFormController
 		}
 		formScope = null;
 		destroyed = true;
+		isFormVisible = false;
 	}
 
 	public void unload()
