@@ -618,7 +618,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private ITable getTableForDp()
 	{
 		ITable table;
-		if (foundsetSabloValue != null && foundsetSabloValue.getFoundset() != null) table = foundsetSabloValue.getFoundset().getTable();
+		if (foundsetSabloValue != null) table = foundsetSabloValue.getFoundset().getTable();
 		else
 		{
 			IWebFormUI formUI = ((WebFormComponent)webObjectContext.getUnderlyingWebObject()).findParent(WebFormUI.class);
