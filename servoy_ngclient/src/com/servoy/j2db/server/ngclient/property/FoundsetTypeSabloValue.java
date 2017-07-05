@@ -142,7 +142,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	protected final DataAdapterList parentDAL;
 
 	protected IWebObjectContext webObjectContext;
-	private final List<IChangeListener> attachListeners = new ArrayList<>();
+	private final List<IChangeListener> underlyingStateListeners = new ArrayList<>();
 
 	protected final FoundsetPropertyTypeConfig specConfig;
 	private String lastSortString;
@@ -241,7 +241,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// register parent record changed listener
 		if (parentDAL != null) parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
 
-		fireAttachedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now
+		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
 	}
 
 	/**
@@ -356,6 +356,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				((ISwingFoundSet)foundset).addTableModelListener(this);
 			}
 			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
+
+			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the underlying foundset itself
 		}
 	}
 
@@ -1080,21 +1082,21 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	@Override
 	public void addStateChangeListener(IChangeListener valueChangeListener)
 	{
-		if (!attachListeners.contains(valueChangeListener)) attachListeners.add(valueChangeListener);
+		if (!underlyingStateListeners.contains(valueChangeListener)) underlyingStateListeners.add(valueChangeListener);
 	}
 
 	@Override
 	public void removeStateChangeListener(IChangeListener valueChangeListener)
 	{
-		attachListeners.remove(valueChangeListener);
+		underlyingStateListeners.remove(valueChangeListener);
 	}
 
-	protected void fireAttachedListeners()
+	protected void fireUnderlyingStateChangedListeners()
 	{
-		if (attachListeners.size() > 0)
+		if (underlyingStateListeners.size() > 0)
 		{
 			// just in case any listeners will end up trying to alter underlyingValueChangeListeners - avoid a ConcurrentModificationException
-			IChangeListener[] copyOfListeners = attachListeners.toArray(new IChangeListener[attachListeners.size()]);
+			IChangeListener[] copyOfListeners = underlyingStateListeners.toArray(new IChangeListener[underlyingStateListeners.size()]);
 			for (IChangeListener l : copyOfListeners)
 			{
 				l.valueChanged();

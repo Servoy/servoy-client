@@ -221,8 +221,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			formatParsedString = newFormatString;
 
 			if ((!waitForDataproviderIfNull || dataproviderID != null) && (!waitForFormatIfNull || newFormatString != null) &&
-				(propertyDependencies.foundsetPropertyName == null || newFoundsetSabloValue != null))
+				(propertyDependencies.foundsetPropertyName == null || (newFoundsetSabloValue != null && newFoundsetSabloValue.getFoundset() != null)))
 			{
+				// see if all we need is here
+
 				// we don't have a "waitForFoundsetIfNull" because if we really have a foundset-linked-dataprovider, then that one is not initialized until the foundset != null anyway; so we won't get to this place becauuse the dataprovider property would not be ready
 
 				// in case we previously already had an operational valuelist, clear it up as we have new dependency values
@@ -251,6 +253,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 						webObjectContext, new RuntimeException());
 					clearUpRuntimeValuelistAndFormat();
 				}
+			}
+			else
+			{
+				// so we don't have yet all we need
+				// make sure value is cleared/uninitialized (just in case something became unavailable that was available before)
+				clearUpRuntimeValuelistAndFormat();
 			}
 		}
 	}
