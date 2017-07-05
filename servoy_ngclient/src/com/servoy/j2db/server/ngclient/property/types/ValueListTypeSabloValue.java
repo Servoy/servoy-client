@@ -78,6 +78,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener
 {
 
@@ -189,6 +190,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			newFoundsetSabloValue = (FoundsetTypeSabloValue)webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
 			newFoundsetDatasource = (newFoundsetSabloValue != null && newFoundsetSabloValue.getFoundset() != null)
 				? newFoundsetSabloValue.getFoundset().getDataSource() : null;
+
+			if (newFoundsetSabloValue != null) newFoundsetSabloValue.addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
 		}
 
 		if (propertyDependencies.formatPropertyName != null)
@@ -253,12 +256,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 						webObjectContext, new RuntimeException());
 					clearUpRuntimeValuelistAndFormat();
 				}
+				if (changeMonitor != null) changeMonitor.valueChanged();
 			}
-			else
+			else if (initialized)
 			{
 				// so we don't have yet all we need
 				// make sure value is cleared/uninitialized (just in case something became unavailable that was available before)
 				clearUpRuntimeValuelistAndFormat();
+				if (changeMonitor != null) changeMonitor.valueChanged();
 			}
 		}
 	}
@@ -408,7 +413,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			Object dataproviderValue = webObjectContext.getProperty(propertyDependencies.dataproviderPropertyName);
 			if (dataproviderValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)dataproviderValue).removeStateChangeListener(this);
 		}
-		if (propertyDependencies.foundsetPropertyName != null) webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
+		if (propertyDependencies.foundsetPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
+
+			Object foundsetValue = webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
+			if (foundsetValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)foundsetSabloValue).removeStateChangeListener(this);
+		}
 		if (propertyDependencies.formatPropertyName != null)
 		{
 			webObjectContext.removePropertyChangeListener(propertyDependencies.formatPropertyName, this);
@@ -449,7 +460,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		if (!initialized)
 		{
-			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext);
+			// we are still waiting for some dependency before we can initialize the valuelist; when that will be ready we will send the appropriate value to client
+			if (key != null) writer.key(key);
+			writer.value(null);
 			return;
 		}
 		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
