@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ClientState;
@@ -64,6 +65,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.ColumnType;
@@ -1008,7 +1010,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					try
 					{
-						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null);
+						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false);
 					}
 					catch (Exception e)
 					{
@@ -2526,7 +2528,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
+	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad)
+		throws ServoyException
 	{
 		if (name == null)
 		{
@@ -2543,10 +2546,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		// get column def from the first in-mem datasource found
 		ServoyJSONObject columnsDef = null;
 		Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
-		while (tblIte.hasNext() && columnsDef == null)
+		int onLoadMethodId = -1;
+		while (tblIte.hasNext())
 		{
 			TableNode tn = tblIte.next();
-			columnsDef = tn.getColumns();
+			if (columnsDef == null) columnsDef = tn.getColumns();
+			if (onLoadMethodId == -1) onLoadMethodId = tn.getOnFoundSetLoadMethodID();
 		}
 
 		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
@@ -2562,7 +2567,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
 				inmemColumnNames[j] = cid.name;
 				inmemColumnTypes[j] = cid.columnType;
-				if ((cid.flags & Column.IDENT_COLUMNS) != 0)
+				if ((cid.flags & IBaseColumn.IDENT_COLUMNS) != 0)
 				{
 					inmemPKs.add(cid.name);
 				}
@@ -2628,6 +2633,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				inMemDataSources.put(dataSource, table);
 				fireTableEvent(table);
+				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
+				{
+					IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
+					((FoundSet)sharedFoundSet).executeFoundsetTrigger(new Object[] { dataSource }, StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID,
+						false);
+				}
 				refreshFoundSetsFromDB(dataSource, null, false);
 				return dataSource;
 			}

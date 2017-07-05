@@ -37,6 +37,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSDatabaseManager;
@@ -777,7 +778,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -866,7 +867,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2127,7 +2128,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						else
 						{
 							Object value = dataSetRow[0];
-							if (column.hasFlag(Column.UUID_COLUMN))
+							if (column.hasFlag(IBaseColumn.UUID_COLUMN))
 							{
 								// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
 								value = Utils.getAsUUID(value, false);
@@ -2658,7 +2659,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2685,7 +2686,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3877,7 +3878,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException
@@ -3920,7 +3921,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 				try
 				{
-					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], columnTypes, null);
+					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], columnTypes, null, true);
 				}
 				catch (ServoyException e)
 				{

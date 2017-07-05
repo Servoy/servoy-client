@@ -95,7 +95,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IApplication getApplication();
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames) throws ServoyException;
+	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad)
+		throws ServoyException;
 
 	public boolean removeDataSource(String uri) throws RepositoryException;
 

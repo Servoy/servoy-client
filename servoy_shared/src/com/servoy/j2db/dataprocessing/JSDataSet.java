@@ -739,7 +739,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// invent column names if none defined yet
 			makeColumnMap();
 		}
-		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, columnTypes /* inferred from dataset when null */, pkNames);
+		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, columnTypes /* inferred from dataset when null */, pkNames,
+			true);
 		if (dataSource != null)
 		{
 			// create a new foundSet for the temp table
