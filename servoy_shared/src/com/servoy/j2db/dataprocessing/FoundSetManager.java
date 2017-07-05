@@ -2636,8 +2636,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
 				{
 					IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
-					((FoundSet)sharedFoundSet).executeFoundsetTrigger(new Object[] { dataSource }, StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID,
-						false);
+					((FoundSet)sharedFoundSet).executeFoundsetTrigger(new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false);
 				}
 				refreshFoundSetsFromDB(dataSource, null, false);
 				return dataSource;
