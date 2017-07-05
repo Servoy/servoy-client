@@ -58,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  * Filter and entrypoint for webapp
  * @author jcompagner
  */
-@WebFilter(urlPatterns = { "/solutions/*", "/spec/*" })
+@WebFilter(filterName = "ngclientfilter", urlPatterns = { "/solutions/*", "/spec/*" })
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
