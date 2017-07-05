@@ -33,6 +33,7 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.IRhinoPrototypeProvider;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Utils;
@@ -64,8 +65,15 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		else if (wrappedValue instanceof Map)
 		{
 			// allow it to use native JS array methods
-			NativeObject proto = new NativeObject();
-			if (startScriptable != null) proto.setPrototype(ScriptableObject.getObjectPrototype(startScriptable));
+			Scriptable proto;
+
+			if (wrappedValue instanceof IRhinoPrototypeProvider) proto = ((IRhinoPrototypeProvider)wrappedValue).getRhinoPrototype(); // for example window_server.js popup menus create objects with prototypes; and while we do change the object ('instrument' it) we want to keep the prototype the same so that all the functions defined in it still work
+			else
+			{
+				// standard object
+				proto = new NativeObject();
+				if (startScriptable != null) proto.setPrototype(ScriptableObject.getObjectPrototype(startScriptable));
+			}
 			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
 		}
 		if (startScriptable != null) parent = ScriptableObject.getTopLevelScope(startScriptable);

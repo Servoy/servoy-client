@@ -37,6 +37,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -204,13 +205,14 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	{
 		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
 
-		final ChangeAwareMap<SabloT, SabloWT> previousSpecialMap = (ChangeAwareMap<SabloT, SabloWT>)previousComponentValue;
 		if (rhinoValue instanceof RhinoMapOrArrayWrapper)
 		{
 			return (Map<String, SabloT>)((RhinoMapOrArrayWrapper)rhinoValue).getWrappedValue();
 		}
 		else
 		{
+			final ChangeAwareMap<SabloT, SabloWT> previousSpecialMap = (ChangeAwareMap<SabloT, SabloWT>)previousComponentValue;
+
 			// if it's some kind of object, convert it (in depth, iterate over children)
 			if (rhinoValue instanceof NativeObject)
 			{
@@ -243,7 +245,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				}
 
 				// create the new change-aware-map based on the converted sub-properties
-				ChangeAwareMap<SabloT, SabloWT> retVal = internalWrap(rhinoObjectCopy, previousSpecialMap, pd,
+				ChangeAwareMap<SabloT, SabloWT> retVal = wrapAndKeepRhinoPrototype(rhinoObjectCopy, rhinoNativeObject.getPrototype(), previousSpecialMap, pd,
 					new WrappingContext(webObjectContext.getUnderlyingWebObject(), pd.getName()), customObjectContext);
 
 				// after it is returned it and it's sub-properties will at some point get "attached" (ISmartPropertyValue)
@@ -253,6 +255,21 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				"; property = " + pd.getName() + "; component name = " + webObjectContext.getUnderlyingWebObject().getName());
 		}
 		return previousComponentValue; // or should we return null or throw exception here? incompatible thing was assigned
+	}
+
+	protected ChangeAwareMap<SabloT, SabloWT> wrapAndKeepRhinoPrototype(Map<String, SabloT> value, Scriptable prototype,
+		ChangeAwareMap<SabloT, SabloWT> previousValue, PropertyDescription propertyDescription, IWrappingContext dataConverterContext,
+		CustomObjectContext<SabloT, SabloWT> initialComponentOrServiceExtension)
+	{
+		Map<String, SabloT> wrappedMap = wrapMap(value, propertyDescription, dataConverterContext);
+		if (wrappedMap != null)
+		{
+			// ok now we have the map or wrap map (depending on if child types are IWrapperType or not)
+			// wrap this further into a change-aware map; this is used to be able to track changes and perform server to browser full or granular updates
+			return new ChangeAwareMapWithPrototype<SabloT, SabloWT>(wrappedMap, prototype,
+				previousValue != null ? previousValue.getListContentVersion() + 1 : 1, initialComponentOrServiceExtension, getCustomJSONTypeDefinition());
+		}
+		return null;
 	}
 
 	protected CustomObjectContext<SabloT, SabloWT> createComponentOrServiceExtension(final IWebObjectContext webObjectContext)
