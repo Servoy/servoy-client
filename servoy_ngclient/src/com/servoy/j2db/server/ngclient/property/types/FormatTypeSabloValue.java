@@ -33,6 +33,7 @@ import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
@@ -47,7 +48,6 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType.FormatPropertyDependencies;
-import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -343,30 +343,12 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 		if (dataproviderId != null && foundsetId != null)
 		{
-			ITable table = null;
-			if (FoundsetTypeSabloValue.FORM_FOUNDSET_SELECTOR.equals(foundsetId))
-			{
-				// it is the form's foundset then; nothing more to do here - it will search in the form's dataproviderLookup anyway below if we leave table == null
-			}
-			else if (!DataSourceUtils.isDatasourceUri(foundsetId))
-			{
-				// it is a relation then, not a datasource (separate or named foundset)
-				Relation[] relations = application.getFlattenedSolution().getRelationSequence(foundsetId);
-				if (relations != null && relations.length > 0)
-				{
-					table = application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource());
-				}
-			}
-			else // DataSourceUtils.isDatasourceUri(foundsetName)
-			{
-				// if this is a separate or named foundset selector or it is a foundset value that was set from Rhino
-				table = application.getFlattenedSolution().getTable(foundsetId);
-			}
+			Form form = ((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
+			ITable table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetId, application, form);
 
 			if (table != null)
 			{
-				dataProviderLookup = new FormAndTableDataProviderLookup(application.getFlattenedSolution(),
-					((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm(), table);
+				dataProviderLookup = new FormAndTableDataProviderLookup(application.getFlattenedSolution(), form, table);
 			} // else it will be searched for in form's context and table as below
 		} // else there is no "for DP or it's just a normal DP, not foundset-linked; see below - it will search for it's type using the form's dataproviderLookup
 

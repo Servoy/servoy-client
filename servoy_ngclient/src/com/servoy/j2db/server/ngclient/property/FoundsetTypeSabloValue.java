@@ -56,6 +56,10 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -259,11 +263,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	 */
 	protected void updateFoundset(IRecordInternal record)
 	{
+		// IMPORTANT if the following code regarding foundsetSelector is changed please update code in getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(...) below as well
 		if (foundsetSelector == null) return; // this foundset is only meant to be set from Rhino scripting; do not automatically set it and do not automatically clear it once it's set from Rhino
 
 		IFoundSetInternal newFoundset = null;
 
-		// IMPORTANT if more options are added for foundsetSelector please update code in FormatPropertyType that uses the foundset selector as well
 		if (FORM_FOUNDSET_SELECTOR.equals(foundsetSelector))
 		{
 			// it is the form's foundset then
@@ -318,6 +322,48 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			}
 		}
 		updateFoundset(newFoundset);
+	}
+
+	public static ITable getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(String foundsetId, INGApplication application, Form form)
+	{
+		// IMPORTANT if the following code regarding foundsetSelector is changed please update code in updateFoundset(IRecordInternal record) above as well
+		ITable table = null;
+
+		if (FoundsetTypeSabloValue.FORM_FOUNDSET_SELECTOR.equals(foundsetId))
+		{
+			// it is the form's foundset then
+			IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+			if (foundSetManager == null)
+			{
+				table = application.getFlattenedSolution().getTable(form.getDataSource());
+			}
+			else
+			{
+				try
+				{
+					table = foundSetManager.getTable(form.getDataSource());
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+				}
+			}
+		}
+		else if (!DataSourceUtils.isDatasourceUri(foundsetId))
+		{
+			// it is a relation then, not a datasource (separate or named foundset)
+			Relation[] relations = application.getFlattenedSolution().getRelationSequence(foundsetId);
+			if (relations != null && relations.length > 0)
+			{
+				table = application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource());
+			}
+		}
+		else // DataSourceUtils.isDatasourceUri(foundsetName)
+		{
+			// if this is a separate or named foundset selector or it is a foundset value that was set from Rhino
+			table = application.getFlattenedSolution().getTable(foundsetId);
+		}
+		return table;
 	}
 
 	protected IFoundSetManagerInternal getFoundSetManager()

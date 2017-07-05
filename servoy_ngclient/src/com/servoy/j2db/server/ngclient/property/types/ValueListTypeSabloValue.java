@@ -56,6 +56,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -100,8 +101,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private IValueList valueList;
 	private String dataproviderID;
 	private ComponentFormat format;
-	private FoundsetTypeSabloValue foundsetSabloValue;
-	private String foundsetDatasource, formatParsedString; // just to be able to detect when they change
+	private String formatParsedString;
+	private FoundsetTypeSabloValue foundsetPropertySabloValue;
+	private ITable foundsetPropertyTable;
 
 	private IRecordInternal previousRecord;
 	private LookupListModel filteredValuelist;
@@ -182,16 +184,27 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		// get the new values
 		String newDataproviderID = null;
 		String newFormatString = null;
-		FoundsetTypeSabloValue newFoundsetSabloValue = null;
-		String newFoundsetDatasource = null;
+		FoundsetTypeSabloValue newFoundsetPropertySabloValue = null;
+		ITable newFoundsetPropertyTable = null;
 
 		if (propertyDependencies.foundsetPropertyName != null)
 		{
-			newFoundsetSabloValue = (FoundsetTypeSabloValue)webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
-			newFoundsetDatasource = (newFoundsetSabloValue != null && newFoundsetSabloValue.getFoundset() != null)
-				? newFoundsetSabloValue.getFoundset().getDataSource() : null;
+			newFoundsetPropertySabloValue = (FoundsetTypeSabloValue)webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
 
-			if (newFoundsetSabloValue != null) newFoundsetSabloValue.addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
+			if (newFoundsetPropertySabloValue != null)
+			{
+				newFoundsetPropertySabloValue.addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
+				if (newFoundsetPropertySabloValue.getFoundset() != null)
+				{
+					newFoundsetPropertyTable = newFoundsetPropertySabloValue.getFoundset().getTable();
+				}
+				else
+				{
+					newFoundsetPropertyTable = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(
+						newFoundsetPropertySabloValue.getFoundsetSelector(), dataAdapterListToUse.getApplication(),
+						((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm());
+				}
+			}
 		}
 
 		if (propertyDependencies.formatPropertyName != null)
@@ -215,16 +228,16 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		// see if anything we are interested in changed, of if it's not yet initialized (a detach + attach could happen where everything is still equal, but the detach did clear the vl/format and set initialized to false; for example a table column remove and then add back)
 		if (!Utils.stringSafeEquals(newDataproviderID, dataproviderID) || !Utils.stringSafeEquals(newFormatString, formatParsedString) ||
-			newFoundsetSabloValue != foundsetSabloValue || !Utils.stringSafeEquals(newFoundsetDatasource, foundsetDatasource) || !initialized)
+			newFoundsetPropertySabloValue != foundsetPropertySabloValue || !Utils.safeEquals(foundsetPropertyTable, newFoundsetPropertyTable) || !initialized)
 		{
 			// so something did change
 			dataproviderID = newDataproviderID;
-			foundsetSabloValue = newFoundsetSabloValue;
-			foundsetDatasource = newFoundsetDatasource;
+			foundsetPropertySabloValue = newFoundsetPropertySabloValue;
+			foundsetPropertyTable = newFoundsetPropertyTable;
 			formatParsedString = newFormatString;
 
 			if ((!waitForDataproviderIfNull || dataproviderID != null) && (!waitForFormatIfNull || newFormatString != null) &&
-				(propertyDependencies.foundsetPropertyName == null || (newFoundsetSabloValue != null && newFoundsetSabloValue.getFoundset() != null)))
+				(propertyDependencies.foundsetPropertyName == null || (newFoundsetPropertySabloValue != null && newFoundsetPropertyTable != null)))
 			{
 				// see if all we need is here
 
@@ -418,7 +431,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
 
 			Object foundsetValue = webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
-			if (foundsetValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)foundsetSabloValue).removeStateChangeListener(this);
+			if (foundsetValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)foundsetPropertySabloValue).removeStateChangeListener(this);
 		}
 		if (propertyDependencies.formatPropertyName != null)
 		{
@@ -460,7 +473,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		if (!initialized)
 		{
-			// we are still waiting for some dependency before we can initialize the valuelist; when that will be ready we will send the appropriate value to client
+			// this is not expected; we should already have all that is needed to initialize the value before the first toJSON executes
+			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext + ". Will send null for now.");
+
+			// we are still waiting for some dependency before we can initialize the valuelist? when that will be ready we will send the appropriate value to client
 			if (key != null) writer.key(key);
 			writer.value(null);
 			return;
@@ -639,7 +655,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private ITable getTableForDp()
 	{
 		ITable table;
-		if (foundsetSabloValue != null) table = foundsetSabloValue.getFoundset().getTable();
+		if (foundsetPropertySabloValue != null) table = foundsetPropertyTable;
 		else
 		{
 			IWebFormUI formUI = ((WebFormComponent)webObjectContext.getUnderlyingWebObject()).findParent(WebFormUI.class);

@@ -325,9 +325,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			else
 			{
 				// should never happen
+				String warnMsg;
 				if (!webComponentValue.isInitialized())
-					Debug.warn("Trying to get vl. name from an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext);
-				else Debug.warn("Trying to get vl. name from an initialize valuelist property failed for an unknown reason: " + pd + " of " + webObjectContext); // this should happen even less then never :)
+					warnMsg = "Trying to get vl. name from an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext;
+				else warnMsg = "Trying to get vl. name from an initialize valuelist property failed for an unknown reason: " + pd + " of " + webObjectContext; // this should happen even less then never :)
+
+				Debug.warn(warnMsg);
+				throw new RuntimeException(warnMsg);
 			}
 		}
 		return null;
