@@ -80,12 +80,14 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public void checkModification()
 	{
 		parent.checkModification();
+		LayoutContainer tempPersist = layoutContainer;
 		if (!isCopy)
 		{
 			// then get the replace the item with the item of the copied relation.
 			setLayoutContainer((LayoutContainer)parent.getSupportChild().getChild(getLayoutContainer().getUUID()));
 			isCopy = true;
 		}
+		layoutContainer = (LayoutContainer)JSBase.getOverridePersistIfNeeded(tempPersist, layoutContainer, getJSParent());
 	}
 
 	@Override

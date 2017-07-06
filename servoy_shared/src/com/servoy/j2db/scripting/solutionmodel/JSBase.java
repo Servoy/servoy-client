@@ -94,26 +94,32 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 			baseComponent = (T)parent.getSupportChild().getChild(baseComponent.getUUID());
 			isCopy = true;
 		}
-		if (tempPersist != null && tempPersist.getAncestor(IRepository.FORMS) != null)
+		baseComponent = (T)getOverridePersistIfNeeded(tempPersist, baseComponent, getJSParent());
+	}
+
+	public static AbstractBase getOverridePersistIfNeeded(AbstractBase persist, AbstractBase finalPersist, IJSParent parent)
+	{
+		AbstractBase baseComponent = finalPersist;
+		if (persist != null && persist.getAncestor(IRepository.FORMS) != null)
 		{
-			IJSParent< ? > jsparent = getJSParent();
+			IJSParent< ? > jsparent = parent;
 			while (jsparent != null)
 			{
 				if (jsparent.getSupportChild() instanceof Form) break;
 				jsparent = jsparent.getJSParent();
 			}
 			if (jsparent != null && jsparent.getSupportChild() instanceof Form &&
-				!jsparent.getSupportChild().getUUID().equals(tempPersist.getAncestor(IRepository.FORMS).getUUID()))
+				!jsparent.getSupportChild().getUUID().equals(persist.getAncestor(IRepository.FORMS).getUUID()))
 			{
 				// inherited persist
 				try
 				{
-					IPersist parentPersist = tempPersist;
+					IPersist parentPersist = persist;
 					while (PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist) != null)
 					{
 						parentPersist = PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist);
 					}
-					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false, false);
+					baseComponent = (AbstractBase)persist.cloneObj(parent.getSupportChild(), false, null, false, false, false);
 					baseComponent.copyPropertiesMap(null, true);
 					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getID());
 				}
@@ -123,6 +129,7 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 				}
 			}
 		}
+		return baseComponent;
 	}
 
 	@Override
