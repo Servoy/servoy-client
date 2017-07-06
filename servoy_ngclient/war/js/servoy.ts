@@ -171,9 +171,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							{
 								var index = dataproviderString.indexOf('.');
 								if (index > 0) {
-									var modelString = dataproviderString.substring(0,index);
-									var modelFunction = $parse(modelString);
-									var beanModel = modelFunction(scope);
 									var propertyname = dataproviderString.substring(index+1);
 									var svyServoyApi = findAttribute(element, scope.$parent, "svy-servoyApi");
 									if (svyServoyApi && svyServoyApi.apply) {
