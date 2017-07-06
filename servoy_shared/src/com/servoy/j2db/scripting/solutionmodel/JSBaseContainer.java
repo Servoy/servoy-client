@@ -225,7 +225,8 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	}
 
 	/**
-	 * Returns a JSLayoutContainer that has the given name.
+	 * Returns a JSLayoutContainer that has the given name of this container.
+	 * Use findLayoutContainer() method to find a JSLayoutContainter through the hierarchy
 	 *
 	 * @sample
 	 * var container = myForm.getLayoutContainer("row1");
@@ -1892,7 +1893,8 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	}
 
 	/**
-	 * Returns a JSWebComponent that has the given name.
+	 * Returns a JSWebComponent that has the given name that is a child of this layout container.
+	 * Use findWebComponent() to find a webcomponent through the hierarchy
 	 *
 	 * @sample
 	 * var btn = myForm.getWebComponent("mycomponent");
