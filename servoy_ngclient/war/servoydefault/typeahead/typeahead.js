@@ -52,7 +52,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				}
 				if (hasRealValues)
 				{
-					$scope.refreshValue(false);
+					//$scope.refreshValue(false);
 				}	
 			});
 
