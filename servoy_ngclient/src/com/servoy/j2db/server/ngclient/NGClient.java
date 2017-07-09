@@ -3,6 +3,7 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
@@ -122,6 +123,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	private boolean registered = false;
 
 	private volatile long lastAccessed;
+
+	private URL serverURL;
 
 	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
@@ -299,24 +302,24 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public Locale getLocale()
 	{
-		if (locale == null) initLocaleAndTimeZone();
+		if (locale == null) initFromClientBrowserinformation();
 		return super.getLocale();
 	}
 
 	@Override
 	public TimeZone getTimeZone()
 	{
-		if (timeZone == null) initLocaleAndTimeZone();
+		if (timeZone == null) initFromClientBrowserinformation();
 		return super.getTimeZone();
 	}
 
-	private void initLocaleAndTimeZone()
+	private void initFromClientBrowserinformation()
 	{
-		Object retValue = null;
+		Object retValue;
 
 		try
 		{
-			retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUtcOffsetsAndLocale", null);
+			retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getClientBrowserInformation", null);
 		}
 		catch (IOException e)
 		{
@@ -325,29 +328,42 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 		if (retValue instanceof JSONObject)
 		{
-			String userAgent = ((JSONObject)retValue).optString("userAgent");
+			JSONObject jsonObject = (JSONObject)retValue;
+			String url = jsonObject.optString("serverURL");
+			if (url != null)
+			{
+				try
+				{
+					serverURL = new URL(url);
+				}
+				catch (MalformedURLException e)
+				{
+					Debug.error(e);
+				}
+			}
+			String userAgent = jsonObject.optString("userAgent");
 			if (userAgent != null)
 			{
 				getClientInfo().addInfo("useragent:" + userAgent);
 			}
-			String platform = ((JSONObject)retValue).optString("platform");
+			String platform = jsonObject.optString("platform");
 			if (platform != null)
 			{
 				getClientInfo().addInfo("platform:" + platform);
 			}
-			String remote_ipaddress = ((JSONObject)retValue).optString("remote_ipaddress");
+			String remote_ipaddress = jsonObject.optString("remote_ipaddress");
 			if (remote_ipaddress != null)
 			{
 				getClientInfo().setHostAddress(remote_ipaddress);
 			}
-			String remote_host = ((JSONObject)retValue).optString("remote_host");
+			String remote_host = jsonObject.optString("remote_host");
 			if (remote_host != null)
 			{
 				getClientInfo().setHostName(remote_host);
 			}
 			if (timeZone == null)
 			{
-				String utc = ((JSONObject)retValue).optString("utcOffset");
+				String utc = jsonObject.optString("utcOffset");
 				if (utc != null)
 				{
 					// apparently it is platform dependent on whether you get the
@@ -393,7 +409,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 						timeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + utc);
 					}
 
-					String dstOffset = ((JSONObject)retValue).optString("utcDstOffset");
+					String dstOffset = jsonObject.optString("utcDstOffset");
 					if (timeZone != null && dstOffset != null)
 					{
 						TimeZone dstTimeZone = null;
@@ -465,7 +481,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			}
 			if (locale == null)
 			{
-				String browserLocale = ((JSONObject)retValue).optString("locale");
+				String browserLocale = jsonObject.optString("locale");
 				if (browserLocale != null)
 				{
 					String[] languageAndCountry = browserLocale.split("-");
@@ -820,29 +836,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public URL getServerURL()
 	{
-		try
+		if (serverURL == null)
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getLocation", null);
-			if (retValue instanceof String)
-			{
-				String url = (String)retValue;
-				int index = url.indexOf("/solutions/");
-				if (index != -1)
-				{
-					url = url.substring(0, index);
-				}
-				if (!url.toLowerCase().startsWith("http"))
-				{
-					url = "http://" + url;
-				}
-				return new URL(url);
-			}
+			initFromClientBrowserinformation();
 		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-		return super.getServerURL();
+		return serverURL;
 	}
 
 	@Override

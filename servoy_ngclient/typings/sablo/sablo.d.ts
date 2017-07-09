@@ -9,14 +9,17 @@ declare namespace sablo {
 	}
 	interface FormState {
 		model:any;
-		layout:any;
+		api:any;
 		properties: any;
-		style:any;
 		initializing:boolean;
-		initialDataRequested: boolean;
-		blockPostLinkInHidden: boolean;
-		resolving: boolean;
-		getScope(): angular.IScope;			
+		layout?:any;
+		style?:any;
+		initialDataRequested?: boolean;
+		blockPostLinkInHidden?: boolean;
+		resolving?: boolean;
+		resolved?: boolean;
+		getScope?(): angular.IScope;
+		addWatches?():void			
 	}
 	interface WSSession {
 		callService<T>(serviceName:string, methodName:string, argsObject, async:boolean):angular.IPromise<T>;
@@ -40,10 +43,10 @@ declare namespace sablo {
         getSessionId(): string;
         getWindowName(): string;
         getWindowId(): string;
-        getWindowUrl(): string;
+        getWindowUrl(name:string): string;
         applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope:angular.IScope):void ;
         getComponentChanges(now, prev, beanConversionInfo, parentSize, property): any;
-        getChangeNotifierGenerator(formName:string, beanName:string):(string);
+        getChangeNotifierGenerator(formName:string, beanName:string):(property:string)=>void;
         getFormState(name:string): angular.IPromise<FormState>;
         getFormStateWithData(name:string): angular.IPromise<FormState>;
         getFormStateEvenIfNotYetResolved(name:string): FormState;
@@ -53,7 +56,7 @@ declare namespace sablo {
         hasFormStateWithData(name:string):boolean;
         clearFormState(name:string): void;
         initFormState(formName, beanDatas, formProperties, formScope, resolve): FormState;
-        updateScopeForState(formName: string, formScope: angular.IScope, state: FormState): FormState;
+        updateScopeForState(formName: string, formScope: angular.IScope, state: FormState): void;
         resolveFormState(formName:string, skipTestResolving:boolean): FormState;
 		resolveFormState(formName:string): FormState;
         unResolveFormState(formName:string): void;
@@ -105,7 +108,9 @@ declare namespace sablo {
         isReconnecting(): boolean,
 		addIncomingMessageHandlingDoneTask(func: ()=>void): void,
         disconnect():void,
-        getURLParameter(name:string): string
+        getURLParameter(name:string): string,
+        setPathname(pathname: string): void,
+        getPathname(): string
 	}
 
 }

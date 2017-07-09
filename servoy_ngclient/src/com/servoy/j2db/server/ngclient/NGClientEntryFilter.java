@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -58,7 +59,7 @@ import com.servoy.j2db.util.Utils;
  * Filter and entrypoint for webapp
  * @author jcompagner
  */
-@WebFilter(filterName = "ngclientfilter", urlPatterns = { "/solutions/*", "/spec/*" })
+@WebFilter(urlPatterns = { "/solutions/*", "/spec/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
@@ -231,6 +232,7 @@ public class NGClientEntryFilter extends WebEntry
 		try
 		{
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
+			HttpServletResponse response = (HttpServletResponse)servletResponse;
 			String uri = request.getRequestURI();
 			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
@@ -291,28 +293,27 @@ public class NGClientEntryFilter extends WebEntry
 								Form form = (f != null ? fs.getFlattenedForm(f) : null);
 								if (form != null)
 								{
-									if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
-										fs.getLastModifiedTime())) return;
+									if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return;
 
-									HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
+									HTTPUtils.setNoCacheHeaders(response);
 
 									boolean html = uri.endsWith(".html");
-									PrintWriter w = servletResponse.getWriter();
+									PrintWriter w = response.getWriter();
 									if (html && form.isResponsiveLayout())
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/html");
+										response.setContentType("text/html");
 										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".html"))
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/html");
+										response.setContentType("text/html");
 										FormLayoutGenerator.generateRecordViewForm(w, form, formName,
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
 											Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".js"))
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+										response.setContentType("text/" + (html ? "html" : "javascript"));
 										new FormTemplateGenerator(
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
 											false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl", w);
@@ -323,17 +324,21 @@ public class NGClientEntryFilter extends WebEntry
 							}
 							else
 							{
-								//prepare for possible index.html lookup
+								// prepare for possible index.html lookup
 								Map<String, String> variableSubstitution = new HashMap<String, String>();
+
+								variableSubstitution.put("contextPath", request.getContextPath());
+								variableSubstitution.put("pathname", uri);
+
 								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
 
-								String ipaddr = ((HttpServletRequest)servletRequest).getHeader("X-Forwarded-For");//incase there is a forwarding proxy //$NON-NLS-1$
+								String ipaddr = request.getHeader("X-Forwarded-For");// in case there is a forwarding proxy
 								if (ipaddr == null)
 								{
-									ipaddr = servletRequest.getRemoteAddr();
+									ipaddr = request.getRemoteAddr();
 								}
 								variableSubstitution.put("ipaddr", ipaddr);
-								variableSubstitution.put("hostaddr", servletRequest.getRemoteHost());
+								variableSubstitution.put("hostaddr", request.getRemoteHost());
 								variableSubstitution.put("utcoffset",
 									String.valueOf(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (1000 * 60 * 60)));
 
@@ -405,9 +410,9 @@ public class NGClientEntryFilter extends WebEntry
 				CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
 				if (message != null)
 				{
-					HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
-					((HttpServletResponse)servletResponse).setContentType("text/plain");
-					servletResponse.getWriter().write(message.toString());
+					HTTPUtils.setNoCacheHeaders(response);
+					response.setContentType("text/plain");
+					response.getWriter().write(message.toString());
 					return;
 				}
 

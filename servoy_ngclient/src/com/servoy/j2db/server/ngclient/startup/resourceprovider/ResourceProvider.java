@@ -46,6 +46,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -76,7 +77,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-@WebFilter(urlPatterns = { "/*" })
+@WebFilter(urlPatterns = { "/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 public class ResourceProvider implements Filter
 {
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());

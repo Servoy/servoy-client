@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -54,7 +55,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-@WebFilter(urlPatterns = { "/servoy-ngclient/solutions.js", "/servoy-ngclient" })
+@WebFilter(urlPatterns = { "/servoy-ngclient/solutions.js", "/servoy-ngclient" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 @SuppressWarnings("nls")
 public class SelectNGSolutionFilter implements Filter
 {

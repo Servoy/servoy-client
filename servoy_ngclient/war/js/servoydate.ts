@@ -11,7 +11,7 @@ angular.module('servoydate',[]).factory("$svyDateUtils", function($applicationSe
 		getSameAsOnServer : function (d, beanModel) {
 			if(isNoDateConversion(beanModel)) {
                 var newDate = new Date(d.getTime());
-                var utcOffsets = $applicationService.getUtcOffsetsAndLocale();
+                var utcOffsets = $applicationService.getClientBrowserInformation();
                 var utcDiff = utcOffsets.utcDstOffset - utcOffsets.remote_utcOffset;
                 newDate.setHours(newDate.getHours() - utcDiff);
                 return newDate;
@@ -22,7 +22,7 @@ angular.module('servoydate',[]).factory("$svyDateUtils", function($applicationSe
 		getSameAsOnClient: function(d, beanModel) {
             if(isNoDateConversion(beanModel)) {
                 var newDate = new Date(d.getTime());
-                var utcOffsets = $applicationService.getUtcOffsetsAndLocale();
+                var utcOffsets = $applicationService.getClientBrowserInformation();
                 var utcDiff = utcOffsets.utcDstOffset - utcOffsets.remote_utcOffset;
                 newDate.setHours(newDate.getHours() + utcDiff);
                 return newDate;
