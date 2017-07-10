@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.persistence.ScriptVariable;
 
 /**
@@ -44,7 +45,7 @@ public class SolutionScope extends DefaultScope
 	{
 		if (destroyed)
 		{
-			throw new RuntimeException("killing current script, client/solution already terminated");
+			throw new ExitScriptException("killing current script, client/solution already terminated");
 		}
 		// legacy globals.x -> scopes.globals.x
 		if (ScriptVariable.GLOBAL_SCOPE.equals(name))
@@ -59,7 +60,7 @@ public class SolutionScope extends DefaultScope
 	{
 		if (destroyed)
 		{
-			throw new RuntimeException("killing current script, client/solution already terminated");
+			throw new ExitScriptException("killing current script, client/solution already terminated");
 		}
 		return super.has(name, start);
 	}
@@ -75,5 +76,6 @@ public class SolutionScope extends DefaultScope
 	public void destroy()
 	{
 		this.destroyed = true;
+		super.destroy();
 	}
 }
