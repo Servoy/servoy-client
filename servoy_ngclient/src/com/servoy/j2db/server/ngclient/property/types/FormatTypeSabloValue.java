@@ -241,7 +241,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 		INGApplication application = ((WebFormComponent)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getApplication();
 		IDataProviderLookup dataProviderLookup = null;
 
-		// IMPORTANT: here we iterate over the for: configs
+		// IMPORTANT: here we use the for: configs in .spec file
 		//
 		// if you have for: [valuelist, dataprovider] then 2 things can happen:
 		// - valuelist if it has both real and display values - forces the type; it is either TEXT (custom vl., global method vl.) or the 'display' column type in case it's a DB valuelist

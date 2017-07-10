@@ -67,6 +67,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 
+@SuppressWarnings("nls")
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
 

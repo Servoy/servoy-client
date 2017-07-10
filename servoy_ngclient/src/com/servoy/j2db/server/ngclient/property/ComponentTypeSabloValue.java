@@ -908,8 +908,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 						if (forFoundsetTypedPropertyName != null && !recordBasedProperties.contains(propertyName))
 						{
-							// TODO why is this needed? so if it's a dataprovider that is not linked to a record but inside a foundset linked component and it is changed on client
-							// and pushed to server... why do we need to send it back to client? I think this 'if' should be removed
+							// a global or form var that in case of a foundset linked component will apply the value on the child component but, as it knows it is comming from the browser,
+							// the child component will not notify it as a changed value; we need that though as we need to resend that value for all rows back to client, not just currently selected one
 							childComponent.markPropertyAsChangedByRef(propertyName);
 						}
 
