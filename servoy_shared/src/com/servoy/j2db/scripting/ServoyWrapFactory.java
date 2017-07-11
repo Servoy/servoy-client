@@ -33,6 +33,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrapFactory;
 
+import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -64,6 +65,10 @@ public final class ServoyWrapFactory extends WrapFactory
 	@Override
 	public Object wrap(Context cx, Scriptable scope, Object obj, Class staticType)
 	{
+		if (application.getSolution() == null)
+		{
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
 		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable || obj instanceof String || obj instanceof CharSequenceBuffer ||
 			obj instanceof Number || obj instanceof Boolean)
 		{

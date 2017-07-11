@@ -52,7 +52,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 {
 	private volatile IFormController _fp;
 	private volatile LazyCompilationScope[] extendScopes;
-	private boolean isSolutionClosed = false;
 
 	public FormScope(IFormController fp, ISupportScriptProviders[] extendsHierarchy)
 	{
@@ -164,7 +163,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public void destroy()
 	{
-		if (_fp != null) isSolutionClosed = _fp.getApplication().isSolutionLoaded();
 		_fp = null;
 		extendScopes = null;
 		setPrototype(null);
@@ -174,8 +172,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		if (isSolutionClosed) throw new ExitScriptException("killing current script, client/solution already terminated");
-		if (_fp == null) return NOT_FOUND;
+		if (_fp == null)
+		{
+			Debug.warn("Error accessing a form that is already destroyed for getting: " + name);
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
 
 		_fp.touch();
 		if ("alldataproviders".equals(name)) //$NON-NLS-1$
@@ -333,7 +334,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		if (isSolutionClosed) throw new ExitScriptException("killing current script, client/solution already terminated");
+		if (_fp == null)
+		{
+			Debug.warn("Error accessing a form that is already destroyed for getting: " + name);
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
 		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 			"allvariables".equals(name)) return true; //$NON-NLS-1$
 
