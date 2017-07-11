@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.sablo.IWebObjectContext;
@@ -49,6 +48,9 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	private Scriptable parent;
 	private final IWebObjectContext webObjectContext;
 
+	/**
+	 * When calling this constructor make sure you have a Rhino context; so Context.getCurrentContext() should be != null; it is ok as long as JS calls this code.
+	 */
 	public RhinoMapOrArrayWrapper(Object wrappedValue, IWebObjectContext webObjectContext, PropertyDescription propertyDescription, Scriptable startScriptable)
 	{
 		this.webObjectContext = webObjectContext;
@@ -58,9 +60,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		if (wrappedValue instanceof List)
 		{
 			// allow it to use native JS array methods
-			NativeArray proto = new NativeArray(0);
-			if (startScriptable != null) proto.setPrototype(ScriptableObject.getArrayPrototype(startScriptable));
-			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+			setPrototype(Context.getCurrentContext().newArray(startScriptable, 0)); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
 		}
 		else if (wrappedValue instanceof Map)
 		{
@@ -71,8 +71,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 			else
 			{
 				// standard object
-				proto = new NativeObject();
-				if (startScriptable != null) proto.setPrototype(ScriptableObject.getObjectPrototype(startScriptable));
+				proto = Context.getCurrentContext().newObject(startScriptable);
 			}
 			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
 		}
