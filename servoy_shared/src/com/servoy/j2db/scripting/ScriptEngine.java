@@ -403,6 +403,7 @@ public class ScriptEngine implements IScriptSupport
 	{
 		ScriptObjectRegistry.removeEntryFromCache(toplevelScope);
 
+		solutionScope.destroy();
 		jsApplication.destroy();
 		scopesScope.destroy();
 		jsdbm.destroy();

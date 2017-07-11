@@ -24,6 +24,7 @@ import java.util.List;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
@@ -59,13 +60,14 @@ public class GlobalScope extends ScriptVariableScope
 
 			public ScriptMethod getScriptMethod(int methodId)
 			{
-				return null; // is not used in lazy compilation scope 
+				return null; // is not used in lazy compilation scope
 			}
 		});
 		this.scopeName = scopeName;
 		this.application = application;
 	}
 
+	@Override
 	public String getScopeName()
 	{
 		return scopeName;
@@ -111,13 +113,13 @@ public class GlobalScope extends ScriptVariableScope
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		if (application == null || application.getSolution() == null)
+		if (application == null)
 		{
 			if (Debug.tracing())
 			{
 				Debug.trace("Trying to get a global scope property on an already closed solution", new RuntimeException());
 			}
-			return Scriptable.NOT_FOUND;
+			throw new ExitScriptException("killing current script, client/solution already terminated");
 		}
 
 		if ("allrelations".equals(name)) //$NON-NLS-1$
@@ -192,11 +194,20 @@ public class GlobalScope extends ScriptVariableScope
 		return o;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.scripting.ScriptVariableScope#getDataproviderEventName(java.lang.String)
-	 */
+	@Override
+	public boolean has(String name, Scriptable start)
+	{
+		if (application == null)
+		{
+			if (Debug.tracing())
+			{
+				Debug.trace("Trying to get a global scope property on an already closed solution", new RuntimeException());
+			}
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
+		return super.has(name, start);
+	}
+
 	@Override
 	protected String getDataproviderEventName(String name)
 	{
