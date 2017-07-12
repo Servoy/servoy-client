@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.property.types.Types;
+import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -293,12 +294,21 @@ public class NGClientEntryFilter extends WebEntry
 								Form form = (f != null ? fs.getFlattenedForm(f) : null);
 								if (form != null)
 								{
+									boolean html = uri.endsWith(".html");
+									PrintWriter w = response.getWriter();
+									if (request.getParameter("svy_designvalue") != null)
+									{
+										response.setContentType("text/html");
+										DesignFormLayoutStructureGenerator.generateLayout(form, fs, w);
+										w.flush();
+										return;
+
+									}
+
 									if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return;
 
 									HTTPUtils.setNoCacheHeaders(response);
 
-									boolean html = uri.endsWith(".html");
-									PrintWriter w = response.getWriter();
 									if (html && form.isResponsiveLayout())
 									{
 										response.setContentType("text/html");
