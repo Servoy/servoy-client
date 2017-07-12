@@ -158,7 +158,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
 				fs).getCacheUUID();
 			writer.value(uuid);
-			writer.key("absoluteLayout");
+			writer.key("svy_absoluteLayout");
 			writer.value(!form.isResponsiveLayout());
 		}
 		return writer;
