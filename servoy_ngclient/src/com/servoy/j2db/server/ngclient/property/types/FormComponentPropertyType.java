@@ -160,6 +160,10 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			writer.value(uuid);
 			writer.key("svy_absoluteLayout");
 			writer.value(!form.isResponsiveLayout());
+			writer.key("svy_formHeight");
+			writer.value(form.getSize().height);
+			writer.key("svy_formWidth");
+			writer.value(form.getSize().width);
 		}
 		return writer;
 	}
