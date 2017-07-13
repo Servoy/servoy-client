@@ -125,7 +125,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 	    	scope.api.getLocationX = $apifunctions.getX(element[0]);
 	    	scope.api.getLocationY = $apifunctions.getY(element[0]);
 	    	
-	    	Object.defineProperty(scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
+	    	Object.defineProperty(scope.model, $sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
 	    		var child = element.find("span.ui-select-toggle")
 				switch(property) {
 					case "borderType":
@@ -150,9 +150,9 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			function pushValues() {
 				if (element.find("span.ui-select-toggle").length > 0) {
-					var modelChangFunction = scope.model[$sabloConstants.modelChangeNotifier];
+					var modelChangeFunction = scope.model[$sabloConstants.modelChangeNotifier];
 					for (var key in scope.model) {
-						modelChangFunction(key,scope.model[key]);
+						modelChangeFunction(key,scope.model[key]);
 					}
 				}
 				else $timeout(pushValues);
