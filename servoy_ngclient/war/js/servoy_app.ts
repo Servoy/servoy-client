@@ -375,8 +375,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 					for (var beanName in beanDatas) {
 						// initialize with design data
-						//the '$' is used for formcomponent parent lookup
-						if (formProperties.absoluteLayout || beanName.indexOf("$") !== -1 && beanDatas[beanName.slice(0,beanName.indexOf("$"))].svy_absoluteLayout) layout[beanName] = { position: 'absolute' }
+						if (formProperties.absoluteLayout[''] || formProperties.absoluteLayout[beanName]) layout[beanName] = { position: 'absolute' }
 
 						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);

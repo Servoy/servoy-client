@@ -75,7 +75,8 @@ public class FormWrapper
 	private final boolean design;
 	private Collection<IFormElement> baseComponents;
 	private final Map<String, String> formComponentTemplates = new HashMap<>();
-	private final Map<String, Dimension> formComponentParentSizes = new HashMap<String, Dimension>();
+	private final Map<String, Dimension> formComponentParentSizes = new HashMap<>();
+	private final Map<String, Boolean> formComponentsLayout = new HashMap<>();
 	private final JSONObject runtimeData;
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, IServoyDataConverterContext context, boolean design, JSONObject runtimeData)
@@ -211,6 +212,10 @@ public class FormWrapper
 					{
 						components.add((IFormElement)element.getPersistIfAvailable());
 						formComponentParentSizes.put(element.getName(), frmSize);
+						if (!frm.isResponsiveLayout())
+						{
+							formComponentsLayout.put(element.getName(), Boolean.TRUE);
+						}
 						checkFormComponents(components, element);
 					}
 					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
@@ -257,12 +262,15 @@ public class FormWrapper
 	// called by ftl template
 	public String getPropertiesString() throws JSONException, IllegalArgumentException
 	{
+		getBaseComponents();
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
 		properties.put("designSize", form.getSize());
 		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) &&
 			FormElementHelper.INSTANCE.hasExtraParts(form));
-		properties.put("absoluteLayout", !form.isResponsiveLayout());
+		HashMap<String, Boolean> absolute = new HashMap<>(formComponentsLayout);
+		absolute.put("", !form.isResponsiveLayout());
+		properties.put("absoluteLayout", absolute);
 		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
