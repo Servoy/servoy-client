@@ -157,13 +157,16 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			writer.key(key);
 			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
 				fs).getCacheUUID();
+			writer.object();
+			writer.key("uuid");
 			writer.value(uuid);
-			writer.key("svy_absoluteLayout");
-			writer.value(!form.isResponsiveLayout());
-			writer.key("svy_formHeight");
+			writer.key("formHeight");
 			writer.value(form.getSize().height);
-			writer.key("svy_formWidth");
+			writer.key("formWidth");
 			writer.value(form.getSize().width);
+			writer.key("absoluteLayout");
+			writer.value(!form.isResponsiveLayout());
+			writer.endObject();
 		}
 		return writer;
 	}

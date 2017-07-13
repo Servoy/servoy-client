@@ -121,7 +121,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			callServerSideApi: function(methodName,args) {
 				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
 			},
-			getFormComponentElements: function(propertyName, templateUUID) {
+			getFormComponentElements: function(propertyName, formComponentValue) {
 				var newScope = $scope.$new(false,$scope);
 				newScope.model = {}
 				newScope.api = {};
@@ -148,7 +148,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 						newScope.handlers[key.substr(prefix.length)] = $scope.handlers[key];
 					}
 				}
-				return $compile($templateCache.get(templateUUID))(newScope);
+				return $compile($templateCache.get(formComponentValue.uuid))(newScope);
 			},
 			isInDesigner: function() {
 				return false;
