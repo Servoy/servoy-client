@@ -376,15 +376,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		return jsonValue;
 	}
 
-	/**
-	 * @param valuelistSize
-	 *
-	 */
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
 	{
 		if (getConfig().getMaxCount() < valuelistSize && getConfig().shouldLogWhenOverMax()) dataAdapterListToUse.getApplication().reportJSError(
 			"Valuelist " + valueListName + " fully loaded with " + getConfig().getMaxCount() + " rows, more rows are discarded!!", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
 	}
 
 	protected FlattenedSolution getFlattenedSolution()

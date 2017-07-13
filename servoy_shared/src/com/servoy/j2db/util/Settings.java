@@ -306,6 +306,30 @@ public final class Settings extends SortedProperties
 
 	}
 
+	public static void removeServerLogForwardingToDeveloperAppenderFromRootCategory(Properties settings)
+	{
+		String rootCategory = settings.getProperty("log4j.rootCategory", "");
+		String[] catElements = rootCategory.split(" *, *");
+
+		// just remove the "debugconsole" appender from rootCategory if needed
+		StringBuilder sb = new StringBuilder(rootCategory.length() + 20);
+		boolean hasToBeRemoved = false;
+		for (String s : catElements)
+		{
+			if ("debugconsole".equals(s)) hasToBeRemoved = true; // don't add it to the appender; and mark that we need to write back change to "log4j.rootCategory"
+			else
+			{
+				sb.append(s);
+				sb.append(", ");
+			}
+		}
+		if (hasToBeRemoved)
+		{
+			if (sb.length() > 0) sb.setLength(sb.length() - 2); // remove last ", " if present
+			settings.setProperty("log4j.rootCategory", sb.toString());
+		}
+	}
+
 	/**
 	 * Remove old or moved settings.
 	 */
@@ -488,6 +512,7 @@ public final class Settings extends SortedProperties
 
 		//no need to store those
 		Object appServerDir = remove(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
+		removeServerLogForwardingToDeveloperAppenderFromRootCategory(this);
 
 		removeObsoleteSettings();
 
