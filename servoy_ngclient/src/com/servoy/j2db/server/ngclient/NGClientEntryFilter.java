@@ -335,12 +335,13 @@ public class NGClientEntryFilter extends WebEntry
 							else
 							{
 								// prepare for possible index.html lookup
-								Map<String, String> variableSubstitution = new HashMap<String, String>();
+								Map<String, Object> variableSubstitution = new HashMap<>();
 
-								variableSubstitution.put("contextPath", request.getContextPath());
+								variableSubstitution.put("contextPath", request.getContextPath() + '/');
 								variableSubstitution.put("pathname", uri);
+								variableSubstitution.put("querystring", request.getQueryString() == null ? "" : request.getQueryString());
 
-								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
+								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 
 								String ipaddr = request.getHeader("X-Forwarded-For");// in case there is a forwarding proxy
 								if (ipaddr == null)
@@ -350,8 +351,7 @@ public class NGClientEntryFilter extends WebEntry
 								variableSubstitution.put("ipaddr", ipaddr);
 								variableSubstitution.put("hostaddr", request.getRemoteHost());
 								variableSubstitution.put("utcoffset",
-									String.valueOf(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (1000 * 60 * 60)));
-
+									Integer.valueOf(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (1000 * 60 * 60)));
 
 								// push some translations to the client, in case the client cannot connect back
 								JSONObject defaultTranslations = new JSONObject();
@@ -371,10 +371,9 @@ public class NGClientEntryFilter extends WebEntry
 								Media headExtension = fs.getMedia("head-index-contributions.html");
 								if (headExtension != null)
 								{
-									BufferedReader reader = null;
-									try
+									try (BufferedReader reader = new BufferedReader(
+										new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8")))
 									{
-										reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8"));
 										String line;
 										for (int count = 0; count < 1000 && (line = reader.readLine()) != null; count++)
 										{
@@ -387,19 +386,6 @@ public class NGClientEntryFilter extends WebEntry
 									catch (Exception e)
 									{
 										Debug.error(e);
-									}
-									finally
-									{
-										if (reader != null)
-										{
-											try
-											{
-												reader.close();
-											}
-											catch (IOException e)
-											{
-											}
-										}
 									}
 								}
 								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, extraMeta, variableSubstitution);

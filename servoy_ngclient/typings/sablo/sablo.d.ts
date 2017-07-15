@@ -110,7 +110,9 @@ declare namespace sablo {
         disconnect():void,
         getURLParameter(name:string): string,
         setPathname(pathname: string): void,
-        getPathname(): string
+        getPathname(): string,
+        setQueryString(queryString: string): void,
+        getQueryString(): string
 	}
 
 }
