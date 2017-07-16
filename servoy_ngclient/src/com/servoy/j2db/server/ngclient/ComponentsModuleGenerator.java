@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.util.HTTPUtils;
 
-import com.servoy.j2db.util.HTTPUtils;
 
 /**
  * @author jcompagner
@@ -68,8 +68,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 	{
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
 		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
-		generateModules(sb,
-			components != null ? components : getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
+		generateModules(sb, components != null ? components : getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		return sb;

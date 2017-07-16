@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
+import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -52,7 +53,6 @@ import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -339,7 +339,7 @@ public class NGClientEntryFilter extends WebEntry
 
 								variableSubstitution.put("contextPath", request.getContextPath() + '/');
 								variableSubstitution.put("pathname", uri);
-								variableSubstitution.put("querystring", request.getQueryString() == null ? "" : request.getQueryString());
+								variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap()));
 
 								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 
