@@ -724,7 +724,7 @@ uis.controller('uiSelectCtrl',
           }
         }
         _resetSearchInput();
-        $scope.$broadcast('uis:select', item);
+        $scope.$broadcast('uis:select', item, $event);
 
         if (ctrl.closeOnSelect) {
           ctrl.close(skipFocusser);
@@ -1705,7 +1705,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         scope.$evalAsync(); //To force $digest
       };
 
-      scope.$on('uis:select', function (event, item) {
+      scope.$on('uis:select', function (event, item, originalEvent) {
         if($select.selected.length >= $select.limit) {
           return;
         }
@@ -1717,7 +1717,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
           $select.onSelectCallback(scope, {
             $item: item,
             $model: $select.parserResult.modelMapper(scope, locals),
-            $event: event
+            $event: originalEvent
           });
         });
         $selectMultiple.updateModel();
@@ -2061,7 +2061,7 @@ uis.directive('uiSelectSingle', ['$timeout','$compile', function($timeout, $comp
         $select.selected = ngModel.$viewValue;
       };
 
-      scope.$on('uis:select', function (event, item) {
+      scope.$on('uis:select', function (event, item, originalEvent) {
         $select.selected = item;
         var locals = {};        
         locals[$select.parserResult.itemName] = item;
@@ -2070,7 +2070,7 @@ uis.directive('uiSelectSingle', ['$timeout','$compile', function($timeout, $comp
           $select.onSelectCallback(scope, {
             $item: item,
             $model: $select.parserResult.modelMapper(scope, locals),
-            $event: event
+            $event: originalEvent
           });
         });
       });
