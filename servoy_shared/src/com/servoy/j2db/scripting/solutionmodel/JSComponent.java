@@ -18,7 +18,9 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
@@ -542,6 +544,74 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 			designTimePropertyNames = propsMap.keySet().toArray(new String[propsMap.size()]);
 		}
 		return designTimePropertyNames;
+	}
+
+	/** Returns the attribute names of an element.
+	 *
+	 * @sample
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * var attributes = fld.getAttributes();
+	 * for (var i = 0; i < attributes.length; i++)
+	 * {
+	 * 		application.output(fld.getAttribute(attributes[i]));
+	 * }
+	 */
+	@JSFunction
+	public String[] getAttributes()
+	{
+		Set<String> keySet = getBaseComponent(false).getAttributes().keySet();
+		return keySet.toArray(new String[keySet.size()]);
+	}
+
+	/** Get the value of an attribute of the element.
+	 * @param name the name of the attribute
+	 *
+	 * @sampleas getAttributes()
+	 */
+	@JSFunction
+	public Object getAttribute(String name)
+	{
+		return getBaseComponent(false).getAttributes().get(name);
+	}
+
+	/** Set the attribute value of an element.
+	 *
+	 * @param name the name of the attribute
+	 * @param value the value of the attribute
+	 *
+	 * @sample
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * fld.setAttribute('keylistener', 'callback')
+	 */
+	@JSFunction
+	public void setAttribute(String name, String value)
+	{
+		T comp = getBaseComponent(true);
+		Map<String, String> attributes = new HashMap<String, String>(comp.getAttributes());
+		attributes.put(name, value);
+		comp.putAttributes(attributes);
+	}
+
+	/** Remove the attribute of an element.
+	 *
+	 * @param name the name of the attribute
+	 * @return the deleted attribute value
+	 *
+	 * @sample
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * fld.removeAttribute('keylistener')
+	 */
+	@JSFunction
+	public String removeAttribute(String name)
+	{
+		T comp = getBaseComponent(true);
+		Map<String, String> attributes = new HashMap<String, String>(comp.getAttributes());
+		String result = attributes.remove(name);
+		comp.putAttributes(attributes);
+		return result;
 	}
 
 	/**
