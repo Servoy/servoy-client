@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.scripting;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.jar.JarFile;
 
 import org.json.JSONException;
 import org.mozilla.javascript.BaseFunction;
@@ -67,9 +69,17 @@ public class WebServiceScriptable implements Scriptable
 	private static Script getScript(Context context, URL serverScript) throws URISyntaxException, IOException
 	{
 		Pair<Script, Long> pair = scripts.get(serverScript.toURI());
-		URLConnection openConnection = serverScript.openConnection();
-		openConnection.setUseCaches(false);
-		long lastModified = openConnection.getLastModified();
+		long lastModified = -1;
+		URLConnection connection = serverScript.openConnection();
+		connection.setUseCaches(false);
+		if (connection instanceof JarURLConnection)
+		{
+			try (JarFile jarFile = ((JarURLConnection)connection).getJarFile())
+			{
+				lastModified = new File(jarFile.getName()).lastModified();
+			}
+		}
+		else lastModified = connection.getLastModified();
 		if (pair == null || pair.getRight().longValue() < lastModified)
 		{
 			String name = "";

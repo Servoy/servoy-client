@@ -40,6 +40,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -74,7 +75,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
+import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
 
 import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
@@ -1560,39 +1563,65 @@ public final class Utils
 
 	public static String getURLContent(URL url)
 	{
-		StringBuffer sb = new StringBuffer();
-		String charset = null;
 		try
 		{
 			URLConnection connection = url.openConnection();
-			InputStream is = connection.getInputStream();
-			final String type = connection.getContentType();
-			if (type != null)
+			connection.setUseCaches(false);
+			if (connection instanceof JarURLConnection)
 			{
-				final String[] parts = type.split(";");
-				for (int i = 1; i < parts.length && charset == null; i++)
+				try (JarFile jarFile = ((JarURLConnection)connection).getJarFile())
 				{
-					final String t = parts[i].trim();
-					final int index = t.toLowerCase().indexOf("charset=");
-					if (index != -1) charset = t.substring(index + 8);
+					String file = ((JarURLConnection)connection).getEntryName();
+					ZipEntry entry = jarFile.getEntry(file);
+					try (InputStream is = jarFile.getInputStream(entry))
+					{
+						return readInputStream(is, null);
+					}
 				}
 			}
-			InputStreamReader isr = null;
-			if (charset != null) isr = new InputStreamReader(is, charset);
-			else isr = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(isr);
+			else
+			{
+				InputStream is = connection.getInputStream();
+				final String type = connection.getContentType();
+				String charset = null;
+				if (type != null)
+				{
+					final String[] parts = type.split(";");
+					for (int i = 1; i < parts.length && charset == null; i++)
+					{
+						final String t = parts[i].trim();
+						final int index = t.toLowerCase().indexOf("charset=");
+						if (index != -1) charset = t.substring(index + 8);
+					}
+				}
+				return readInputStream(is, charset);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return "";
+	}
+
+	/**
+	 * @param charset
+	 * @throws UnsupportedEncodingException
+	 * @throws IOException
+	 */
+	private static String readInputStream(InputStream is, String charset) throws UnsupportedEncodingException, IOException
+	{
+		StringBuffer sb = new StringBuffer();
+		InputStreamReader isr = null;
+		if (charset != null) isr = new InputStreamReader(is, charset);
+		else isr = new InputStreamReader(is);
+		try (BufferedReader br = new BufferedReader(isr))
+		{
 			int read = 0;
 			while ((read = br.read()) != -1)
 			{
 				sb.append((char)read);
 			}
-			br.close();
-			isr.close();
-			is.close();
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
 		}
 		return sb.toString();
 	}
