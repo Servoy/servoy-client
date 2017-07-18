@@ -58,4 +58,6 @@ public interface IChildWebObject extends IBasicWebObject
 	@Override
 	IBasicWebObject getParent();
 
+	void resetUUID();
+
 }
