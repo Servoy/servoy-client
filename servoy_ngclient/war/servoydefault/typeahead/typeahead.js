@@ -81,9 +81,12 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					if(retrieveFromServer && !found)
 					{
 						$scope.value = null;
-						$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(function(displayValue) {
+						if (angular.isDefined($scope.model.valuelistID)) 
+						{
+							$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(function(displayValue) {
 								$scope.value = displayValue;
-						});
+							});
+						}
 					}	
 				}	 
 			}

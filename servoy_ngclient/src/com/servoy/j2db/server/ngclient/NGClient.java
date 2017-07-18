@@ -652,7 +652,15 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			@Override
 			public void run()
 			{
-				retValue[0] = doCallCloseSolutionMethod(force);
+				try
+				{
+					J2DBGlobals.setServiceProvider(NGClient.this);
+					retValue[0] = doCallCloseSolutionMethod(force);
+				}
+				finally
+				{
+					J2DBGlobals.setServiceProvider(null);
+				}
 			}
 		};
 		if (CurrentWindow.exists()) run.run();
