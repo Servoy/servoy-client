@@ -281,7 +281,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false
 	 *
 	 * @sample
-	 * application.putClientProperty(APP_UI_PROPERTY.NG_USE_SERVER_TIMEZONE, true)
+	 * application.putClientProperty(APP_UI_PROPERTY.NG_NO_DATE_CONVERSION, true)
 	 */
 	public static final String NG_NO_DATE_CONVERSION = IApplication.NG_NO_DATE_CONVERSION;
 
