@@ -151,8 +151,11 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			function pushValues() {
 				if (element.find("span.ui-select-toggle").length > 0) {
 					var modelChangeFunction = scope.model[$sabloConstants.modelChangeNotifier];
-					for (var key in scope.model) {
-						modelChangeFunction(key,scope.model[key]);
+					if (modelChangeFunction)
+					{
+						for (var key in scope.model) {
+							modelChangeFunction(key,scope.model[key]);
+						}
 					}
 				}
 				else $timeout(pushValues);
