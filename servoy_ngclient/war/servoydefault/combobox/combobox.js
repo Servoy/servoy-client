@@ -151,11 +151,11 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			function pushValues() {
 				if (element.find("span.ui-select-toggle").length > 0) {
-					var modelChangFunction = scope.model[$sabloConstants.modelChangeNotifier];
+					var modelChangeFunction = scope.model[$sabloConstants.modelChangeNotifier];
 					if (modelChangeFunction)
 					{
 						for (var key in scope.model) {
-							modelChangFunction(key,scope.model[key]);
+							modelChangeFunction(key,scope.model[key]);
 						}
 					}
 				}
