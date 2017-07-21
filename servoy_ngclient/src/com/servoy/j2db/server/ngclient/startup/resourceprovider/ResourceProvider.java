@@ -329,10 +329,7 @@ public class ResourceProvider implements Filter
 					{
 						response.setContentType(connection.getContentType());
 					}
-					else
-					{
-						setContentType(response, url.getFile());
-					}
+					setContentType(response, url.getFile());
 					try (InputStream is = connection.getInputStream())
 					{
 						streamContent(response, url.getFile(), is);
@@ -388,6 +385,10 @@ public class ResourceProvider implements Filter
 		else if (file.toLowerCase().endsWith(".html"))
 		{
 			response.setContentType("text/html");
+		}
+		else if (file.toLowerCase().endsWith(".svg"))
+		{
+			response.setContentType("image/svg+xml");
 		}
 	}
 
