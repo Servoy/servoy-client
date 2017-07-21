@@ -378,7 +378,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 										if (realValuelist instanceof GlobalMethodValueList)
 										{
 											((GlobalMethodValueList)realValuelist).fill(null, "", null);
-											if (realValuelist.hasRealValues())
+											if (realValuelist.hasRealValues() || realValuelist.getSize() == 0)
 											{
 												return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 											}
