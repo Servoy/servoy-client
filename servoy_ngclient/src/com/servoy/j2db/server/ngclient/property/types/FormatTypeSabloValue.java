@@ -324,7 +324,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 							if (realValuelist instanceof GlobalMethodValueList)
 							{
 								((GlobalMethodValueList)realValuelist).fill(null, "", null);
-								if (realValuelist.hasRealValues())
+								if (realValuelist.hasRealValues() || realValuelist.getSize() == 0)
 								{
 									// if global method vl has both real and display values, it seems that the display values are always TEXT (format is for those)
 									return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
