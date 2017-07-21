@@ -332,13 +332,18 @@ public class LookupListModel extends AbstractListModel
 		fireChanges(prevSize);
 	}
 
+	public void fill(IRecordInternal parentState, String dataProviderID, String filter, boolean firstTime) throws ServoyException
+	{
+		fill(parentState, dataProviderID, filter, null, firstTime);
+	}
+
 	/**
 	 * @param firstTime
 	 * @param lookup
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public void fill(IRecordInternal parentState, String dataProviderID, String filter, boolean firstTime) throws ServoyException
+	public void fill(IRecordInternal parentState, String dataProviderID, String filter, Object realValue, boolean firstTime) throws ServoyException
 	{
 		int prevSize = alReal.size();
 
@@ -364,7 +369,12 @@ public class LookupListModel extends AbstractListModel
 		if (lookup instanceof GlobalMethodValueList)
 		{
 			GlobalMethodValueList clist = (GlobalMethodValueList)lookup;
-			clist.fill(realState, filter == null ? "" : filter, null);
+			String fixedFilter = filter == null ? "" : filter;
+			clist.fill(realState, fixedFilter, null);
+			if ("".equals(fixedFilter) && clist.isEmpty())
+			{
+				clist.fill(realState, fixedFilter, realValue);
+			}
 			for (int i = 0; i < clist.getSize(); i++)
 			{
 				Object display = clist.getElementAt(i);

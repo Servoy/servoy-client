@@ -38,7 +38,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 
 			$scope.findMode = false;
 
-			var hasRealValues = false;
+			var hasRealValues = undefined;
 
 			$scope.$watch('model.valuelistID', function() {
 				if (!$scope.model.valuelistID || $scope.model.valuelistID.length == 0) return; // not loaded yet or already filtered
@@ -57,7 +57,15 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			});
 
 			$scope.refreshValue= function (){
-				if (!hasRealValues)
+				if(hasRealValues == undefined) {
+					if (angular.isDefined($scope.model.valuelistID)) 
+					{
+						$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(function(displayValue) {
+							$scope.value = displayValue;
+						});
+					}
+				}
+				else if (!hasRealValues)
 				{
 					$scope.value = $scope.model.dataProviderID;
 				}
