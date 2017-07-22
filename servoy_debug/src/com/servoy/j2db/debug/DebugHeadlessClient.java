@@ -50,7 +50,7 @@ import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.headlessclient.DummyMainContainer;
-import com.servoy.j2db.server.headlessclient.SessionClient;
+import com.servoy.j2db.server.headlessclient.HeadlessClient;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.util.Debug;
@@ -61,7 +61,7 @@ import com.servoy.j2db.util.ServoyException;
  * Headless client when running from developer.
  * @author acostescu
  */
-public class DebugHeadlessClient extends SessionClient implements IDebugHeadlessClient
+public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadlessClient
 {
 	//This is needed for mobile client launch with switch to service option .
 	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
