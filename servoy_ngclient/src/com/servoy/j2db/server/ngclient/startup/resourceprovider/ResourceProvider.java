@@ -70,6 +70,7 @@ import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -309,7 +310,7 @@ public class ResourceProvider implements Filter
 						ZipEntry entry = jarFile.getEntry(file);
 						if (testLastModified(request, response, entry.getTime() / 1000 * 1000)) return;
 						response.setContentLength((int)entry.getSize());
-						setContentType(response, file);
+						response.setContentType(MimeTypes.guessContentTypeFromName(file));
 						try (InputStream is = jarFile.getInputStream(entry))
 						{
 							streamContent(response, file, is);
@@ -325,11 +326,7 @@ public class ResourceProvider implements Filter
 					if (testLastModified(request, response, connection.getLastModified() / 1000 * 1000)) return;
 					response.setContentLength(connection.getContentLength());
 
-					if (connection.getContentType() != null && connection.getContentType().indexOf("unknown") == -1)
-					{
-						response.setContentType(connection.getContentType());
-					}
-					setContentType(response, url.getFile());
+					response.setContentType(MimeTypes.guessContentTypeFromName(url.getFile()));
 					try (InputStream is = connection.getInputStream())
 					{
 						streamContent(response, url.getFile(), is);
@@ -365,30 +362,6 @@ public class ResourceProvider implements Filter
 		else
 		{
 			Utils.streamCopy(is, response.getOutputStream());
-		}
-	}
-
-	/**
-	 * @param response
-	 * @param file
-	 */
-	private void setContentType(ServletResponse response, String file)
-	{
-		if (file.toLowerCase().endsWith(".js"))
-		{
-			response.setContentType("text/javascript");
-		}
-		else if (file.toLowerCase().endsWith(".css"))
-		{
-			response.setContentType("text/css");
-		}
-		else if (file.toLowerCase().endsWith(".html"))
-		{
-			response.setContentType("text/html");
-		}
-		else if (file.toLowerCase().endsWith(".svg"))
-		{
-			response.setContentType("image/svg+xml");
 		}
 	}
 
