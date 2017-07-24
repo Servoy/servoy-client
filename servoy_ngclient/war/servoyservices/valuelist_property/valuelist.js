@@ -39,20 +39,25 @@ angular.module('valuelist_property', ['webSocketModule'])
 				Object.defineProperty(newValue, 'getDisplayValue', {
 					value: function(realValue) {
 						if (realValue) {
-							var key = realValue + '';
-							if (internalState.realToDisplayCache[key] !== undefined)
-							{
-								// if this is a promise return that.
-								if (internalState.realToDisplayCache[key] && angular.isFunction(internalState.realToDisplayCache[key].then)) return internalState.realToDisplayCache[key]; 
-								// if the value is in the cache then return a promise like object 
-								// that has a then function that will be resolved right away when called. So that it is more synch api. 
-								return {then:function(then){then(internalState.realToDisplayCache[key])}}
+							if(internalState.valuelistid == undefined) {
+								return {then:function(then) {then(realValue)}};
 							}
-							internalState.realToDisplayCache[key] = $sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:realValue,valuelist: internalState.valuelistid}).then(function(val) {
-								internalState.realToDisplayCache[key] = val;
-								return val;
-							});
-							return internalState.realToDisplayCache[key];
+							else {
+								var key = realValue + '';
+								if (internalState.realToDisplayCache[key] !== undefined)
+								{
+									// if this is a promise return that.
+									if (internalState.realToDisplayCache[key] && angular.isFunction(internalState.realToDisplayCache[key].then)) return internalState.realToDisplayCache[key]; 
+									// if the value is in the cache then return a promise like object 
+									// that has a then function that will be resolved right away when called. So that it is more synch api. 
+									return {then:function(then){then(internalState.realToDisplayCache[key])}}
+								}
+								internalState.realToDisplayCache[key] = $sabloApplication.callService('formService', 'getValuelistDisplayValue', {realValue:realValue,valuelist: internalState.valuelistid}).then(function(val) {
+									internalState.realToDisplayCache[key] = val;
+									return val;
+								});
+								return internalState.realToDisplayCache[key];
+							}
 						}
 						// the real value == null return a promise like function so that not constantly promises are made.
 						return {then:function(then) {then("")}}
