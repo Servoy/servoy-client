@@ -55,6 +55,11 @@ public abstract class ClientVersion
 		return majorVersion + "." + middleVersion + "." + minorVersion + "." + releaseNumber;
 	}
 
+	public static String getBundleVersionWithPostFix()
+	{
+		return majorVersion + "." + middleVersion + "." + minorVersion + "." + releaseNumber + "_" + versionPostfix;
+	}
+
 	public static int getMajorVersion()
 	{
 		return majorVersion;
