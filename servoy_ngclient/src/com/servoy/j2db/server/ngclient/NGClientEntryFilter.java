@@ -111,7 +111,6 @@ public class NGClientEntryFilter extends WebEntry
 		"js/servoyWindowManager.js", //
 		"js/servoyformat.js", //
 		"js/servoytooltip.js", //
-		"js/servoydate.js", //
 		"js/fileupload.js", //
 		"js/servoy-components.js", //
 		"js/servoy_alltemplates.js", //
