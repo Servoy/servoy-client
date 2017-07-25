@@ -39,7 +39,8 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			$scope.findMode = false;
 
 			var hasRealValues = undefined;
-
+			var editing = false;
+			
 			$scope.$watch('model.valuelistID', function() {
 				if (!$scope.model.valuelistID || $scope.model.valuelistID.length == 0) return; // not loaded yet or already filtered
 				hasRealValues = false;
@@ -50,9 +51,9 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						break;
 					}
 				}
-				if (hasRealValues)
+				if (hasRealValues && !editing)
 				{
-					//$scope.refreshValue(false);
+					$scope.refreshValue(false);
 				}	
 			});
 
@@ -98,8 +99,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					}	
 				}	 
 			}
-
-			var editing = false;
 
 			$scope.startEdit = function() {
 				editing = true;

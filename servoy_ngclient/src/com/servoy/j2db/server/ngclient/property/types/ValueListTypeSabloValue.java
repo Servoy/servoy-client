@@ -391,21 +391,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		if (valueList != null)
 		{
-			if (filteredValuelist != null)
-			{
-				filteredValuelist.removeListDataListener(this);
-			}
-			else
-			{
-				valueList.removeListDataListener(this);
-			}
-
+			valueList.removeListDataListener(this);
 			dataAdapterListToUse.removeDataLinkedProperty(this);
-
 		}
 		valueList = null;
 		format = null;
-
+		filteredValuelist = null;
 		initialized = false;
 	}
 
@@ -452,14 +443,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			revertFilter();
 		}
 
-		if (filteredValuelist == null && !fireChangeEvent) valueList.removeListDataListener(this);
+		if (!fireChangeEvent) valueList.removeListDataListener(this);
 		try
 		{
 			valueList.fill(record);
 		}
 		finally
 		{
-			if (filteredValuelist == null && !fireChangeEvent) valueList.addListDataListener(this);
+			if (!fireChangeEvent) valueList.addListDataListener(this);
 		}
 		previousRecord = record;
 	}
@@ -501,8 +492,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		if (filteredValuelist != null)
 		{
-			filteredValuelist.removeListDataListener(this);
-			valueList.addListDataListener(this);
 			filteredValuelist = null;
 			if (changeMonitor != null) changeMonitor.valueChanged();
 		}
@@ -556,8 +545,27 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 			if (filteredValuelist != null)
 			{
-				valueList.removeListDataListener(this);
-				filteredValuelist.addListDataListener(this);
+				filteredValuelist.addListDataListener(new ListDataListener()
+				{
+
+					@Override
+					public void intervalRemoved(ListDataEvent e)
+					{
+						if (changeMonitor != null) changeMonitor.valueChanged();
+					}
+
+					@Override
+					public void intervalAdded(ListDataEvent e)
+					{
+						if (changeMonitor != null) changeMonitor.valueChanged();
+					}
+
+					@Override
+					public void contentsChanged(ListDataEvent e)
+					{
+						if (changeMonitor != null) changeMonitor.valueChanged();
+					}
+				});
 			}
 		}
 
@@ -580,18 +588,21 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	@Override
 	public void intervalAdded(ListDataEvent e)
 	{
+		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
 	}
 
 	@Override
 	public void intervalRemoved(ListDataEvent e)
 	{
+		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
 	}
 
 	@Override
 	public void contentsChanged(ListDataEvent e)
 	{
+		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
 	}
 
