@@ -2,6 +2,7 @@
 /// <reference path="../../typings/numeraljs/numeraljs.d.ts" />
 /// <reference path="../../typings/defaults/window.d.ts" />
 /// <reference path="../../typings/sablo/sablo.d.ts" />
+/// <reference path="../../typings/sablo/sablo_app.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
 
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
@@ -475,9 +476,19 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		require: '?ngModel', // get a hold of NgModelController
 		link: function(scope, element, attrs, ngModel: angular.INgModelController) {
 			if(!ngModel || element.attr("svy-autoapply-disabled")) return; // do nothing if no ng-model
-
 			var dataproviderString = attrs['ngModel'];
-			var index = dataproviderString.indexOf('.');
+			var index = 0;
+
+			var splitDB = dataproviderString.split('.');
+			var scopeObj = scope;
+			for(var i = 0; (i < splitDB.length) && scopeObj; i++) {
+				scopeObj = scopeObj[splitDB[i]];
+				index += splitDB[i].length + (i ? 1 : 0);
+				if(scopeObj instanceof sablo_app.Model) {
+					break;
+				}
+			}
+
 			if (index > 0) {
 				var modelString = dataproviderString.substring(0,index);
 				var modelFunction = $parse(modelString);
