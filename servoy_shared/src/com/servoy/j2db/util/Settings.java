@@ -76,6 +76,8 @@ public final class Settings extends SortedProperties
 	public static final String TRUST_DATA_AS_HTML_SETTING = "servoy.clientTrustDataAsHtml"; //$NON-NLS-1$
 	public static final String USER_HOME = "servoy.user.home";
 
+	public static final String DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE = "servoy.developer.disableServerLogForwardingToDebugClientConsole"; //$NON-NLS-1$
+
 	private boolean loadedFromServer = false;
 	private File file;
 

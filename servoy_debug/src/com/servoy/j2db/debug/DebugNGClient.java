@@ -65,6 +65,7 @@ import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -188,7 +189,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		super.output(msg, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			DebugUtils.errorToDebugger(getScriptEngine(), msg.toString(), null);
+			errorToDebugger(msg.toString(), null, true);
 		}
 		else
 		{
@@ -199,28 +200,28 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail, true);
 		super.reportJSError(message, detail);
 	}
 
 	@Override
 	public void reportError(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail, true);
 		super.reportError(message, detail);
 	}
 
 	@Override
 	public void reportJSWarning(String s)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), s, null);
+		errorToDebugger(s, null, true);
 		super.reportJSWarning(s);
 	}
 
 	@Override
 	public void reportJSWarning(String s, Throwable t)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), s, t);
+		errorToDebugger(s, t, true);
 		super.reportJSWarning(s, t);
 	}
 
@@ -449,6 +450,14 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void errorToDebugger(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail, false);
+	}
+
+	private void errorToDebugger(String message, Object detail, boolean checkIfEnabled)
+	{
+		if (!checkIfEnabled || Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		{
+			DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		}
 	}
 }
