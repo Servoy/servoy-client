@@ -481,12 +481,18 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 			var splitDB = dataproviderString.split('.');
 			var scopeObj = scope;
+			var modelFound = false;
 			for(var i = 0; (i < splitDB.length) && scopeObj; i++) {
 				scopeObj = scopeObj[splitDB[i]];
 				index += splitDB[i].length + (i ? 1 : 0);
 				if(scopeObj instanceof sablo_app.Model) {
+					modelFound = true;
 					break;
 				}
+			}
+
+			if(!modelFound) {
+				index = dataproviderString.indexOf('.');
 			}
 
 			if (index > 0) {
