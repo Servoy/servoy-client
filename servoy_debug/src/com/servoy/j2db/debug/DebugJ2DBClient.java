@@ -1022,7 +1022,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		super.output(message, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			DebugUtils.errorToDebugger(getScriptEngine(), message.toString(), null);
+			errorToDebugger(message.toString(), null, true);
 		}
 		else
 		{
@@ -1036,21 +1036,21 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail, true);
 		super.reportJSError(message, detail);
 	}
 
 	@Override
 	public void reportJSWarning(String s)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), s, null);
+		errorToDebugger(s, null, true);
 		super.reportJSWarning(s);
 	}
 
 	@Override
 	public void reportJSWarning(String s, Throwable t)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), s, t);
+		errorToDebugger(s, t, true);
 		super.reportJSWarning(s, t);
 	}
 
@@ -1075,7 +1075,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void reportError(final Component parentComponent, String msg, Object detail)
 	{
 		String message = msg;
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail, true);
 		Debug.error(detail);
 		mainPanel.getToolkit().beep();
 		if (detail instanceof ServoyException)
@@ -1483,6 +1483,14 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public void errorToDebugger(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail, false);
+	}
+
+	private void errorToDebugger(String message, Object detail, boolean checkIfEnabled)
+	{
+		if (!checkIfEnabled || Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		{
+			DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		}
 	}
 }

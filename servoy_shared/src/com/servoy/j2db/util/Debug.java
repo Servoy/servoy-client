@@ -308,7 +308,7 @@ public class Debug
 		}
 		if (scriptStackTrace != null && !"".equals(scriptStackTrace))
 		{
-			scriptStackTrace += "\n" + scriptStackTrace;
+			scriptStackTrace = "\n" + scriptStackTrace;
 		}
 		return scriptStackTrace;
 	}
