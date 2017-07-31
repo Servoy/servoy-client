@@ -178,6 +178,18 @@ public class DebugUtils
 		}
 	}
 
+	public static void stderrToDebugger(IExecutingEnviroment engine, Object message)
+	{
+		if (engine instanceof RemoteDebugScriptEngine)
+		{
+			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+			if (debugger != null)
+			{
+				debugger.outputStdErr((message == null ? "<null>" : message.toString()) + '\n');
+			}
+		}
+	}
+
 	public static void stdoutToDebugger(IExecutingEnviroment engine, Object message)
 	{
 		if (engine instanceof RemoteDebugScriptEngine)

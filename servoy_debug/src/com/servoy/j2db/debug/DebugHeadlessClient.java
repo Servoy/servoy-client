@@ -299,7 +299,7 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		super.output(msg, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			errorToDebugger(msg.toString(), null, true);
+			errorToDebugger(msg.toString(), null);
 		}
 		else
 		{
@@ -333,7 +333,7 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		errorToDebugger(message, detail, true);
+		errorToDebugger(message, detail);
 		super.reportJSError(message, detail);
 	}
 
@@ -343,23 +343,14 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 	@Override
 	public void reportError(String message, Object detail)
 	{
-		errorToDebugger(message, detail, true);
+		errorToDebugger(message, detail);
 		super.reportError(message, detail);
 	}
 
 	@Override
-	public void errorToDebugger(String message, Object detail)
+	public void errorToDebugger(String message, Object errorDetail)
 	{
-		errorToDebugger(message, detail, false);
-	}
-
-	/**
-	 * @param message
-	 * @param detail
-	 */
-	private void errorToDebugger(String message, Object errorDetail, boolean checkIfEnabled)
-	{
-		if (!checkIfEnabled || Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
 			Object detail = errorDetail;
 			RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
@@ -412,6 +403,19 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 					debugger.outputStdErr(msg.toString() + '\n');
 				}
 			}
+		}
+	}
+
+	@Override
+	public void reportToDebugger(String messsage, boolean errorLevel)
+	{
+		if (!errorLevel)
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+		}
+		else
+		{
+			DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
 		}
 	}
 

@@ -1022,7 +1022,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		super.output(message, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			errorToDebugger(message.toString(), null, true);
+			DebugUtils.stderrToDebugger(getScriptEngine(), message);
 		}
 		else
 		{
@@ -1036,28 +1036,31 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		errorToDebugger(message, detail, true);
+		errorToDebugger(message, detail);
 		super.reportJSError(message, detail);
 	}
 
 	@Override
 	public void reportJSWarning(String s)
 	{
-		errorToDebugger(s, null, true);
+		errorToDebugger(s, null);
 		super.reportJSWarning(s);
 	}
 
 	@Override
 	public void reportJSWarning(String s, Throwable t)
 	{
-		errorToDebugger(s, t, true);
+		errorToDebugger(s, t);
 		super.reportJSWarning(s, t);
 	}
 
 	@Override
 	public void reportJSInfo(String s)
 	{
-		DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
+		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
+		}
 		super.reportJSInfo(s);
 	}
 
@@ -1075,7 +1078,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void reportError(final Component parentComponent, String msg, Object detail)
 	{
 		String message = msg;
-		errorToDebugger(message, detail, true);
+		errorToDebugger(message, detail);
 		Debug.error(detail);
 		mainPanel.getToolkit().beep();
 		if (detail instanceof ServoyException)
@@ -1477,20 +1480,27 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 	}
 
-	/*
-	 * @see com.servoy.j2db.IDebugClient#errorToDebugger(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public void errorToDebugger(String message, Object detail)
 	{
-		errorToDebugger(message, detail, false);
-	}
-
-	private void errorToDebugger(String message, Object detail, boolean checkIfEnabled)
-	{
-		if (!checkIfEnabled || Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
 			DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
 		}
 	}
+
+	@Override
+	public void reportToDebugger(String messsage, boolean errorLevel)
+	{
+		if (!errorLevel)
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+		}
+		else
+		{
+			DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
+		}
+	}
+
+
 }
