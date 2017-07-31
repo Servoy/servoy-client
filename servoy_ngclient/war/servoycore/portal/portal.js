@@ -1112,7 +1112,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 					if (tmpSelectedRowIdxs.length === 0 && newNGGridSelectedItems.length > 0) return;
 					
-					$scope.requestSelectionUpdate(tmpSelectedRowIdxs);
+					$timeout(function() {
+						$scope.requestSelectionUpdate(tmpSelectedRowIdxs);
+					}, 25);
 				}
 				gridApi.selection.on.rowSelectionChanged($scope,updateSelection);
 				gridApi.selection.on.rowSelectionChangedBatch($scope,updateSelection);
