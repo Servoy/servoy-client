@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -71,6 +73,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UUID;
 
@@ -570,7 +573,26 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
-			if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
+			if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getDisplayFormat() != null && oldValue instanceof Date &&
+				newJSONValue instanceof Number)
+			{
+				value = new Date(((Number)newJSONValue).longValue());
+				try
+				{
+					StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
+						dataAdapterList.getApplication().getLocale(), true);
+					formatter.setOriginal((Date)oldValue);
+					formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(value));
+					value = formatter.getMergedDate();
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+
+
+			}
+			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
 				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
 					serverSideValueIsNotTheSameAsClient);
