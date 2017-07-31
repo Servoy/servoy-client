@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.IServer;
@@ -2578,7 +2579,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
 			}
 
-			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames) || !Arrays.equals(fixedColumnTypes, inmemColumnTypes))
+			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames) || !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
 			{
 				fixedColumnTypes = inmemColumnTypes;
 				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames, fixedColumnTypes, new ArrayList<Object[]>(), false);
@@ -2588,7 +2589,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
 							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + Arrays.toString(inmemColumnNames));
 				}
-				if (columnTypes != null && !Arrays.equals(columnTypes, inmemColumnTypes))
+				if (columnTypes != null && !compareColumnTypes(columnTypes, inmemColumnTypes))
 				{
 					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
 						Arrays.toString(columnTypes) + ", types of in mem definition: " + Arrays.toString(inmemColumnTypes));
@@ -2817,5 +2818,26 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));
 
 		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
+	}
+
+	private static boolean compareColumnTypes(ColumnType[] a, ColumnType[] a2)
+	{
+		if (a == a2) return true;
+		if (a == null || a2 == null) return false;
+
+		int length = a.length;
+		if (a2.length != length) return false;
+
+		for (int i = 0; i < length; i++)
+		{
+			ColumnType o1 = a[i];
+			ColumnType o2 = a2[i];
+			if (o1 == null && o2 != null) return false;
+			if (o1 != null && o2 == null) return false;
+			// if they are not equal then test if this type is a TEXT column on both ends, then only type is needed
+			if (!o1.equals(o2) && !(o1.getSqlType() == o2.getSqlType() && o1.getSqlType() == IColumnTypes.TEXT)) return false;
+		}
+
+		return true;
 	}
 }
