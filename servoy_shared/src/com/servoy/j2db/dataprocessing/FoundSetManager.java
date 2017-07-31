@@ -2581,14 +2581,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames) || !Arrays.equals(fixedColumnTypes, inmemColumnTypes))
 			{
 				fixedColumnTypes = inmemColumnTypes;
-				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames, fixedColumnTypes, dataSet.getRows(), dataSet.hadMoreRows());
+				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames, fixedColumnTypes, new ArrayList<Object[]>(), false);
 				if (dataSet.getColumnCount() > 0 && !Arrays.equals(dataSet.getColumnNames(), inmemColumnNames))
 				{
-					Debug.warn("Dataset column names definition does not match inmem table definition for datasource : " + dataSource);
+					Debug.warn(
+						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
+							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + Arrays.toString(inmemColumnNames));
 				}
 				if (columnTypes != null && !Arrays.equals(columnTypes, inmemColumnTypes))
 				{
-					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource);
+					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
+						Arrays.toString(columnTypes) + ", types of in mem definition: " + Arrays.toString(inmemColumnTypes));
 				}
 			}
 		}
@@ -2631,6 +2634,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				fixedColumnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 			if (table != null)
 			{
+				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem definition) and it has rows
+				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset.
+				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
+				{
+					table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
+						tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
+				}
 				inMemDataSources.put(dataSource, table);
 				fireTableEvent(table);
 				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
