@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.shared;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -23,7 +24,7 @@ import java.util.Date;
  *
  * @author gerze
  */
-public interface IClientInformation extends com.servoy.j2db.server.IClientInformation
+public interface IClientInformation extends com.servoy.j2db.server.IClientInformation, Serializable
 {
 	/**
 	 * Gets the clientId of this client.
