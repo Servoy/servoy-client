@@ -341,12 +341,14 @@ public class Debug
 		if (log == null) return;
 		if (s instanceof Throwable)
 		{
-			error("Throwable", (Throwable)s);
+			String message = ((Throwable)s).getMessage();
+			if (Utils.stringIsEmpty(message)) message = "Throwable";
+			error(message, (Throwable)s);
 		}
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.error(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
+			log.error(String.valueOf(s) + getScriptStackTrace(String.valueOf(s), null));
 			if (wasInserted) insertClientInfo(false);
 
 		}
@@ -364,7 +366,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.info(message + getScriptStacktraceFromContext(message));
+			log.info(message + getScriptStackTrace(message, null));
 			if (wasInserted) insertClientInfo(false);
 
 		}
@@ -383,7 +385,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.info(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
+			log.info(String.valueOf(s) + getScriptStackTrace(String.valueOf(s), null));
 			if (wasInserted) insertClientInfo(false);
 		}
 	}
@@ -398,7 +400,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.warn(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
+		log.warn(String.valueOf(s) + getScriptStackTrace(String.valueOf(s), null));
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -407,7 +409,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.error(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
+		log.error(String.valueOf(s) + getScriptStackTrace(String.valueOf(s), null));
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -416,7 +418,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.debug(String.valueOf(s) + getScriptStacktraceFromContext(String.valueOf(s)));
+		log.debug(String.valueOf(s) + getScriptStackTrace(String.valueOf(s), null));
 		if (wasInserted) insertClientInfo(false);
 	}
 

@@ -8,32 +8,17 @@
 		<artifactId>servoy-client</artifactId>
 		<version>8.2.0.3101_rc1</version>
 	</parent>
-	<artifactId>servoy_base</artifactId>
-	<version>8.2.0.3101_rc1</version>
+	<artifactId>servoy_shared</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.0.0</version>
-				 <configuration>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
 				</configuration>
 				<executions>
 					<execution>
@@ -42,6 +27,8 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

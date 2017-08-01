@@ -35,6 +35,7 @@ import java.util.UUID;
 import org.apache.wicket.util.io.ByteArrayOutputStream;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.AbstractRemoteInvocationHandler;
 import com.servoy.j2db.util.Debug;
 
@@ -150,8 +151,11 @@ public class SerializingRemoteInvocationHandler<T extends Remote> extends Abstra
 		@Override
 		protected Object resolveObject(Object obj) throws IOException
 		{
-			Object o = map.get(obj);
-			if (o != null) return o;
+			if (obj instanceof ReplacedObject)
+			{
+				Object o = map.get(obj);
+				if (o != null) return o;
+			}
 			return super.resolveObject(obj);
 		}
 	}
