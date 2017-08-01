@@ -9,7 +9,6 @@
 		<version>8.2.0.3101_rc1</version>
 	</parent>
 	<artifactId>servoy_shared</artifactId>
-	<version>8.2.0.3101_rc1</version>
 	<packaging>eclipse-plugin</packaging>
 	<build>
 		<plugins>
