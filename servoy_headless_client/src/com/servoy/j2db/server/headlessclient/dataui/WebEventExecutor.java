@@ -75,7 +75,6 @@ import com.servoy.j2db.server.headlessclient.WebOnRenderHelper;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
@@ -168,8 +167,9 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		if (id != null && useAJAX)
 		{
-			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
-				!(component instanceof ILabel) && !(component instanceof WebBaseSelectBox.ISelector) && component instanceof FormComponent< ? >)
+			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay &&
+				((IDisplay)component).isReadOnly()) && !(component instanceof ILabel) && !(component instanceof WebBaseSelectBox.ISelector) &&
+				component instanceof FormComponent< ? >)
 			{
 				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -181,7 +181,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				// for ImageDisplay (that is an input with type='image') 'onclick' cannot be used, as it considered a submit button and any
 				// enter inside the input's form will fire the 'onclick' - as workaround, we use 'onmouseup'
-				component.add(new ServoyAjaxEventBehavior(component instanceof ImageDisplay ? "onmouseup" : "onclick", "ActionCmd") //$NON-NLS-1$ //$NON-NLS-2$
+				component.add(new ServoyAjaxEventBehavior(component instanceof WebDataImgMediaField ? "onmouseup" : "onclick", "ActionCmd") //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					private static final long serialVersionUID = 1L;
 
@@ -334,21 +334,19 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
 					{
-						WebEventExecutor.this.onEvent(
-							JSEvent.EventType.rightClick,
-							target,
-							component,
+						WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
 							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
-								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my"))), new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("glx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my"))), //$NON-NLS-1$
+							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("glx")),
 								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("gly")))); //$NON-NLS-1$
 					}
 
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall +
-							"+Servoy.Utils.getActionParams(event," + ((component instanceof SortableCellViewHeader) ? "true" : "false") + ")"); //$NON-NLS-1$
+						return super.generateCallbackScript(
+							partialCall + "+Servoy.Utils.getActionParams(event," + ((component instanceof SortableCellViewHeader) ? "true" : "false") + ")"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -692,8 +690,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				if (!isIndexSelected(fs, index) && !(fs instanceof FoundSet && ((FoundSet)fs).isMultiSelect()))
 				{
 					// setSelectedIndex failed, probably due to validation failed, do a blur()
-					if (target != null) target.appendJavascript("var toBlur = document.getElementById(\"" + component.getMarkupId() +
-						"\");if (toBlur) toBlur.blur();");
+					if (target != null)
+						target.appendJavascript("var toBlur = document.getElementById(\"" + component.getMarkupId() + "\");if (toBlur) toBlur.blur();");
 					return false;
 				}
 			}
@@ -1046,8 +1044,8 @@ public class WebEventExecutor extends BaseEventExecutor
 		boolean hasDropEvent)
 	{
 		StringBuilder sb = null;
-		if (hasDragEvent &&
-			(component instanceof WebBaseLabel || component instanceof WebBaseButton || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
+		if (hasDragEvent && (component instanceof WebBaseLabel || component instanceof WebBaseButton || component instanceof WebBaseSubmitLink ||
+			((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
 		else if (hasDropEvent) sb = sbAttachDrop;
 
 		if (sb != null)
