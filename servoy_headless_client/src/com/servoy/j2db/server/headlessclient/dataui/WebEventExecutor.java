@@ -76,7 +76,6 @@ import com.servoy.j2db.server.headlessclient.WebOnRenderHelper;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
@@ -183,7 +182,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				// for ImageDisplay (that is an input with type='image') 'onclick' cannot be used, as it considered a submit button and any
 				// enter inside the input's form will fire the 'onclick' - as workaround, we use 'onmouseup'
-				component.add(new ServoyAjaxEventBehavior(component instanceof ImageDisplay ? "onmouseup" : "onclick", "ActionCmd") //$NON-NLS-1$ //$NON-NLS-2$
+				component.add(new ServoyAjaxEventBehavior(component instanceof WebDataImgMediaField ? "onmouseup" : "onclick", "ActionCmd") //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					private static final long serialVersionUID = 1L;
 
