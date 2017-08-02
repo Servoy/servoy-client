@@ -194,6 +194,8 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		FlattenedSolution fs = formElementContext.getFlattenedSolution();
 		if (fs != null)
 		{

@@ -211,6 +211,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers,
 			formElementContext != null ? formElementContext.getFlattenedSolution() : null,
 			formElementContext != null ? formElementContext.getFormElement() : null);

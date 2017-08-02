@@ -64,6 +64,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
 		FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 

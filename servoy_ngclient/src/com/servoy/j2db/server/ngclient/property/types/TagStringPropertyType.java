@@ -109,7 +109,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
+		if (formElementValue == null) return writer;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (formElementValue != null && valueInTemplate(formElementValue, pd, formElementContext))
 		{

@@ -144,33 +144,29 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
-		if (formElementValue != null)
+		writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
+		DataConversion arrayConversionMarkers = new DataConversion();
+		for (Entry<String, FormElementT> e : formElementValue.entrySet())
 		{
-			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
-			DataConversion arrayConversionMarkers = new DataConversion();
-			for (Entry<String, FormElementT> e : formElementValue.entrySet())
-			{
-				arrayConversionMarkers.pushNode(e.getKey());
-				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
-				arrayConversionMarkers.popNode();
-			}
-			writer.endObject();
-			if (arrayConversionMarkers.getConversions().size() > 0)
-			{
-				writer.key(JSONUtils.TYPES_KEY).object();
-				JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
-				writer.endObject();
-			}
+			arrayConversionMarkers.pushNode(e.getKey());
+			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
+				getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
+			arrayConversionMarkers.popNode();
+		}
+		writer.endObject();
+		if (arrayConversionMarkers.getConversions().size() > 0)
+		{
+			writer.key(JSONUtils.TYPES_KEY).object();
+			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
 			writer.endObject();
 		}
-		else
-		{
-			writer.value(JSONObject.NULL);
-		}
+		writer.endObject();
+
 		return writer;
 	}
 
