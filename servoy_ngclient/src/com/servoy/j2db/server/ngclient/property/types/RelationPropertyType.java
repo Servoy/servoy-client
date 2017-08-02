@@ -75,6 +75,8 @@ public class RelationPropertyType extends DefaultPropertyType<RelatedFoundSet>
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		if (key != null)
 		{
 			writer.key(key);

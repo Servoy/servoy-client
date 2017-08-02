@@ -697,10 +697,7 @@ public final class FormElement implements INGFormElement
 		for (PropertyDescription pd : propDescription.values())
 		{
 			Object val = getRawPropertyValue(pd.getName());
-			if (val != null)
-			{
-				properties.put(pd.getName(), val);
-			}
+			properties.put(pd.getName(), val);
 		}
 
 		if (persistImpl == null || !persistImpl.isForm())

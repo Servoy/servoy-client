@@ -35,8 +35,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 /**
  * @author jcompagner
  */
-public class LabelForPropertyType extends DefaultPropertyType<String> implements IPropertyConverterForBrowser<String>,
-	IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>
+public class LabelForPropertyType extends DefaultPropertyType<String>
+	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>
 {
 
 	public static final LabelForPropertyType INSTANCE = new LabelForPropertyType();
@@ -86,6 +86,8 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.value(formElementValue);
 		return writer;

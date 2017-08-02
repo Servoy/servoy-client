@@ -81,6 +81,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
 		FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		// this just dumps an empty/dummy value
 		if (conversionMarkers != null) conversionMarkers.convert(TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
@@ -104,7 +106,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public FoundsetTypeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dal)
 	{
-		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal, (FoundsetPropertyTypeConfig)pd.getConfig());
+		return formElementValue != null ? new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal, (FoundsetPropertyTypeConfig)pd.getConfig()) : null;
 	}
 
 	@Override
@@ -140,7 +142,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			JSONUtils.addKeyIfPresent(writer, key);
 			sabloValue.changesToJSON(writer, clientConversion, dataConverterContext);
 		}
-		return null;
+		return writer;
 	}
 
 	@Override
@@ -152,20 +154,20 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			JSONUtils.addKeyIfPresent(writer, key);
 			sabloValue.toJSON(writer, clientConversion, dataConverterContext);
 		}
-		return null;
+		return writer;
 	}
 
 	@Override
 	public boolean isValueAvailableInRhino(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
-		return false;
+		return webComponentValue != null;
 	}
 
 	@Override
 	public Object toRhinoValue(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService,
 		Scriptable startScriptable)
 	{
-		return new FoundsetTypeSableValueWrapper(startScriptable, webComponentValue, pd);
+		return webComponentValue != null ? new FoundsetTypeSableValueWrapper(startScriptable, webComponentValue, pd) : Scriptable.NOT_FOUND;
 	}
 
 	@Override
@@ -173,7 +175,6 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	{
 		return TargetDataLinks.LINKED_TO_ALL; // if you change this you should call this method in FoundsetTypeSabloValue.attach as well when registering as listener to DAL
 	}
-
 
 	/**
 	 * @author jcompagner
@@ -183,11 +184,6 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		private final FoundsetTypeSabloValue webComponentValue;
 		private final PropertyDescription pd;
 
-		/**
-		 * @param parent
-		 * @param webComponentValue
-		 * @param pd
-		 */
 		private FoundsetTypeSableValueWrapper(Scriptable parent, FoundsetTypeSabloValue webComponentValue, PropertyDescription pd)
 		{
 			super(parent);
