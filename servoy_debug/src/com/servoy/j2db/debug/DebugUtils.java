@@ -185,7 +185,7 @@ public class DebugUtils
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
 			if (debugger != null)
 			{
-				debugger.outputStdErr((message == null ? "<null>" : message.toString()) + '\n');
+				debugger.outputStdErr((message == null ? "<null>" : message.toString().trim()) + System.lineSeparator());
 			}
 		}
 	}
@@ -197,7 +197,7 @@ public class DebugUtils
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
 			if (debugger != null)
 			{
-				debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
+				debugger.outputStdOut((message == null ? "<null>" : message.toString().trim()) + System.lineSeparator());
 			}
 		}
 	}
