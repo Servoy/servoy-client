@@ -175,6 +175,10 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 				}
 			}
 		}
+		else if (value != null)
+		{
+			Debug.warn("Invalid media value received: " + value + ", cannot resolve it.");
+		}
 		return url;
 	}
 
