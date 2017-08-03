@@ -132,6 +132,11 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						break;
 					}
 				}
+
+				if(!$scope.model.selectedTab && $scope.model.tabs.length) {
+					$scope.select($scope.model.tabs[0]);
+				}
+
 				if ($scope.model.selectedTab && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
 					return $scope.svyServoyapi.getFormUrl($scope.model.selectedTab.containsFormId);
 				else
