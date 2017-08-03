@@ -21,6 +21,7 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDebugClient;
 
 /**
  * @author gganea@servoy.com
@@ -38,21 +39,42 @@ public class ConsoleObject
 	@JSFunction
 	public void log(Object value)
 	{
-		app.reportJSInfo(value != null ? value.toString() : "null");
+		if (app instanceof IDebugClient)
+		{
+			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", false);
+		}
+		else
+		{
+			app.reportJSInfo(value != null ? value.toString() : "null");
+		}
 	}
 
 	@JSFunction
 	public void warn(Object value)
 	{
-		app.reportJSWarning(value != null ? value.toString() : "null");
+		if (app instanceof IDebugClient)
+		{
+			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", false);
+		}
+		else
+		{
+			app.reportJSWarning(value != null ? value.toString() : "null");
+		}
 	}
 
 	@JSFunction
 	public void error(Object value)
 	{
-		EvaluatorException e = new EvaluatorException(value != null ? value.toString() : "null");
-		app.reportJSWarning(e.getMessage());
-		app.reportJSWarning(e.getScriptStackTrace());
+		if (app instanceof IDebugClient)
+		{
+			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", true);
+		}
+		else
+		{
+			EvaluatorException e = new EvaluatorException(value != null ? value.toString() : "null");
+			app.reportJSWarning(e.getMessage());
+			app.reportJSWarning(e.getScriptStackTrace());
+		}
 	}
 
 }
