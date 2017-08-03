@@ -18,6 +18,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.Container;
+import org.sablo.IllegalComponentAccessException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -806,6 +807,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		// TODO should this all (startEdit) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
 
+		try
+		{
+			webComponent.checkPropertyProtection(property);
+		}
+		catch (IllegalComponentAccessException ex)
+		{
+			//ignore, this is just to check if we can edit it, if not, do not enter edit mode
+			return;
+		}
 		String dataProviderID = getDataProviderID(webComponent, property);
 		if (dataProviderID == null)
 		{
