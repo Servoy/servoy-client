@@ -305,11 +305,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			if (!isGlobalScopeListener)
 			{
-				Relation relationObj = formController.getApplication().getFlattenedSolution().getRelation(relation);
-				if (relationObj != null && relationObj.containsGlobal())
+				Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
+				if (relations != null)
 				{
-					formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
-					isGlobalScopeListener = true;
+					for (Relation relationObj : relations)
+					{
+						if (relationObj != null && relationObj.containsGlobal())
+						{
+							formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
+							isGlobalScopeListener = true;
+							break;
+						}
+					}
 				}
 			}
 		}
