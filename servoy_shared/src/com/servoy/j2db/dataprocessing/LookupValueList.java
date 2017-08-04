@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -66,7 +67,7 @@ public class LookupValueList implements IValueList
 	private final ValueList valueList;
 	private final IServiceProvider application;
 	private boolean dontQuery;
-	private final Table table;
+	private final ITable table;
 
 	private final int showValues;
 	private final int returnValues;
@@ -105,7 +106,7 @@ public class LookupValueList implements IValueList
 		maxValuelistRows = (maxRowsSetting > 0 && maxRowsSetting <= 1000) ? maxRowsSetting
 			: ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
 
-		table = (Table)application.getFoundSetManager().getTable(dataSource);
+		table = application.getFoundSetManager().getTable(dataSource);
 
 		showValues = list.getShowDataProviders();
 		returnValues = list.getReturnDataProviders();
