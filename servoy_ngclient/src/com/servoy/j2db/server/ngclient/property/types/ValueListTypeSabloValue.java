@@ -80,8 +80,10 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener
+public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener, IHasUnderlyingState
 {
+
+	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 
 	private boolean initialized;
 
@@ -604,6 +606,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
+		fireUnderlyingPropertyChangeListeners();
 	}
 
 
@@ -703,4 +706,28 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (changeMonitor != null) changeMonitor.valueChanged();
 	}
 
+	@Override
+	public void addStateChangeListener(IChangeListener valueChangeListener)
+	{
+		if (!underlyingValueChangeListeners.contains(valueChangeListener)) underlyingValueChangeListeners.add(valueChangeListener);
+	}
+
+	@Override
+	public void removeStateChangeListener(IChangeListener valueChangeListener)
+	{
+		underlyingValueChangeListeners.remove(valueChangeListener);
+	}
+
+	protected void fireUnderlyingPropertyChangeListeners()
+	{
+		if (underlyingValueChangeListeners.size() > 0)
+		{
+			// just in case any listeners will end up trying to alter underlyingValueChangeListeners - avoid a ConcurrentModificationException
+			IChangeListener[] copyOfListeners = underlyingValueChangeListeners.toArray(new IChangeListener[underlyingValueChangeListeners.size()]);
+			for (IChangeListener l : copyOfListeners)
+			{
+				l.valueChanged();
+			}
+		}
+	}
 }

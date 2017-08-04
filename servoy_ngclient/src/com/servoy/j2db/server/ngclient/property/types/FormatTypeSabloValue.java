@@ -80,6 +80,8 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 	private ComponentFormat componentFormat;
 
+	private IChangeListener valuelistContentChangeListener;
+
 	/**
 	 * Creates a new FormatTypeSabloValue that is aware of any changes to it's "for" properties (if it is for a dataprovider or valuelist property type in .spec).<br/>
 	 * It will be initialized (compute it's ComponentFormat) once it has everything it needs.
@@ -166,7 +168,24 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 		if (propertyDependencies.valueListPropertyName != null)
 		{
 			ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
-			if (valuelistSabloValue != null) newValuelistID = valuelistSabloValue.getValuelistIdentifier();
+			if (valuelistSabloValue != null)
+			{
+				if (valuelistContentChangeListener == null)
+				{
+					valuelistContentChangeListener = new IChangeListener()
+					{
+						@Override
+						public void valueChanged()
+						{
+							componentFormat = null;
+							initializeIfPossibleAndNeeded();
+						}
+					};
+				}
+
+				valuelistSabloValue.addStateChangeListener(valuelistContentChangeListener);
+				newValuelistID = valuelistSabloValue.getValuelistIdentifier();
+			}
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
@@ -228,7 +247,18 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 			Object dataproviderValue = webObjectContext.getProperty(propertyDependencies.dataproviderPropertyName);
 			if (dataproviderValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)dataproviderValue).removeStateChangeListener(this);
 		}
-		if (propertyDependencies.valueListPropertyName != null) webObjectContext.removePropertyChangeListener(propertyDependencies.valueListPropertyName, this);
+		if (propertyDependencies.valueListPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.valueListPropertyName, this);
+			if (valuelistContentChangeListener != null)
+			{
+				ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
+				if (valuelistSabloValue != null)
+				{
+					valuelistSabloValue.removeStateChangeListener(valuelistContentChangeListener);
+				}
+			}
+		}
 
 		this.changeMonitor = null;
 		webObjectContext = null;
