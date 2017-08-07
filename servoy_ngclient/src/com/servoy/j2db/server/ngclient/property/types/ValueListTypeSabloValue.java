@@ -592,6 +592,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
+		fireUnderlyingPropertyChangeListeners();
 	}
 
 	@Override
@@ -599,6 +600,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
+		fireUnderlyingPropertyChangeListeners();
 	}
 
 	@Override
