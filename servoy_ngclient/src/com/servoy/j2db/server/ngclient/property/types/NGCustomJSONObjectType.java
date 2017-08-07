@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -45,6 +44,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -394,8 +394,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			JSONObject obj = (JSONObject)value;
 			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
-			Context cx = Context.enter();
-			Scriptable result = cx.newObject(scope);
+			Scriptable result = DefaultScope.newObject(scope);
 			for (String key : obj.keySet())
 			{
 				if (IChildWebObject.UUID_KEY.equals(key)) continue;
