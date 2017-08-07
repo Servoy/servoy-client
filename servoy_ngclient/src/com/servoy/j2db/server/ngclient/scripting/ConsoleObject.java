@@ -54,7 +54,7 @@ public class ConsoleObject
 	{
 		if (app instanceof IDebugClient)
 		{
-			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", false);
+			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", true);
 		}
 		else
 		{
