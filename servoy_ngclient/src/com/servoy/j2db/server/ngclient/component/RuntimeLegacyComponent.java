@@ -650,6 +650,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				{
 					return IRuntimeComponent.RECTANGLE;
 				}
+				if (persist instanceof com.servoy.j2db.persistence.WebComponent)
+				{
+					return ((com.servoy.j2db.persistence.WebComponent)persist).getTypeName();
+				}
 			}
 
 			if ("name".equals(propertyName))
