@@ -77,13 +77,17 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		webObjectImpl = createWebObjectImpl();
 	}
 
-	/**
-	 * @return the webObjectImpl
-	 */
 	public WebObjectBasicImpl getImplementation()
 	{
 		return webObjectImpl;
 	}
+
+	// we can't add this here! this class should never use classes from org.sablo as it might end up in smart client which doesn't have those classes, not just in ngclient
+//	@Override
+//	public PropertyDescription getPropertyDescription()
+//	{
+//		return webObjectImpl instanceof WebObjectImpl ? ((WebObjectImpl)webObjectImpl).getPropertyDescription() : null;
+//	}
 
 	protected WebObjectBasicImpl createWebObjectImpl()
 	{
@@ -113,14 +117,14 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		super.clearChanged();
 		for (IChildWebObject x : getAllPersistMappedProperties())
 		{
-			if (x.isChanged()) x.clearChanged();
+			if (x != null && x.isChanged()) x.clearChanged();
 		}
 	}
 
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updatePersistMappedPropeties();
+		webObjectImpl.updateJSONFromPersistMappedPropeties();
 	}
 
 	@Override
@@ -150,6 +154,12 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (webObjectImpl == null || hasPersistProperty(propertyName)) value = super.getProperty(propertyName);
 		if (value == null) value = webObjectImpl.getProperty(propertyName);
 		return value;
+	}
+
+	@Override
+	public Object getPropertyDefaultValueClone(String propertyName)
+	{
+		return webObjectImpl != null ? webObjectImpl.getPropertyDefaultValue(propertyName) : null;
 	}
 
 	@Override

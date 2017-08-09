@@ -480,44 +480,48 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		fromSerializable(this, in.readObject());
 	}
 
-	public static JSONObject mergeAndDeepCloneJSON(JSONObject toCopyIn, JSONObject target)
+	public static JSONObject mergeAndDeepCloneJSON(JSONObject source, JSONObject destination)
 	{
-		for (String key : toCopyIn.keySet())
+		for (String key : source.keySet())
 		{
-			Object toCopy = toCopyIn.get(key);
-			Object current = target.opt(key);
-			if (toCopy instanceof JSONObject)
+			Object itemToCopyOrMerge = source.get(key);
+			Object destinationItem = destination.opt(key);
+			if (itemToCopyOrMerge instanceof JSONObject)
 			{
-				if (!(current instanceof JSONObject))
+				if (!(destinationItem instanceof JSONObject))
 				{
-					current = new JSONObject();
-					target.put(key, current);
+					destinationItem = new JSONObject();
+					destination.put(key, destinationItem);
 				}
-				mergeAndDeepCloneJSON((JSONObject)toCopy, (JSONObject)current);
+				mergeAndDeepCloneJSON((JSONObject)itemToCopyOrMerge, (JSONObject)destinationItem);
 			}
-			else target.put(key, toCopy);
+			else if (itemToCopyOrMerge instanceof JSONArray)
+			{
+				if (!(destinationItem instanceof JSONArray))
+				{
+					destinationItem = new JSONArray();
+					destination.put(key, destinationItem);
+				}
+				mergeAndDeepCloneJSON((JSONArray)itemToCopyOrMerge, (JSONArray)destinationItem);
+			}
+			else destination.put(key, itemToCopyOrMerge);
 		}
-		return target;
+		return destination;
 	}
 
 
-	/**
-	 * @param defaultJSON
-	 * @param jsonArray
-	 * @return
-	 */
-	public static JSONArray mergeAndDeepCloneJSON(JSONArray toCopyIn, JSONArray target)
+	public static JSONArray mergeAndDeepCloneJSON(JSONArray source, JSONArray destination)
 	{
-		for (int i = 0; i < toCopyIn.length(); i++)
+		for (int i = 0; i < source.length(); i++)
 		{
-			Object toCopy = toCopyIn.get(i);
-			Object current = target.opt(i);
+			Object toCopy = source.get(i);
+			Object current = destination.opt(i);
 			if (toCopy instanceof JSONObject)
 			{
 				if (!(current instanceof JSONObject))
 				{
 					current = new JSONObject();
-					target.put(i, current);
+					destination.put(i, current);
 				}
 				mergeAndDeepCloneJSON((JSONObject)toCopy, (JSONObject)current);
 			}
@@ -526,13 +530,30 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 				if (!(current instanceof JSONArray))
 				{
 					current = new JSONArray();
-					target.put(i, current);
+					destination.put(i, current);
 				}
 				mergeAndDeepCloneJSON((JSONArray)toCopy, (JSONArray)current);
 			}
-			else target.put(i, toCopy);
+			else destination.put(i, toCopy);
 		}
-		return target;
+		return destination;
+	}
+
+	public static Object deepCloneJSONArrayOrObj(Object value)
+	{
+		// first do a deep clone, because else we will change the default value of the property itself.
+		if (value instanceof JSONObject)
+		{
+			JSONObject defaultJSON = (JSONObject)value;
+			return ServoyJSONObject.mergeAndDeepCloneJSON(defaultJSON, new JSONObject());
+		}
+		else if (value instanceof JSONArray)
+		{
+			JSONArray defaultJSON = (JSONArray)value;
+			return ServoyJSONObject.mergeAndDeepCloneJSON(defaultJSON, new JSONArray());
+		}
+
+		return value;
 	}
 
 	static Object toSerializable(Object o)

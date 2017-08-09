@@ -57,7 +57,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		}
 	}
 
-	private transient final String jsonKey;
+	private transient String jsonKey;
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
 
@@ -108,7 +108,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updatePersistMappedPropeties();
+		webObjectImpl.updateJSONFromPersistMappedPropeties();
 		getParent().updateJSON();
 	}
 
@@ -141,10 +141,19 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 				if (mergedParentProperty instanceof JSONObject)
 				{
 					Object mergedProperty = ((JSONObject)mergedParentProperty).opt(jsonKey);
+
+					if (mergedProperty == null && parent instanceof IBasicWebObject)
+					{
+						// maybe it's a default value WebCustomType (that means it's JSON will probably not be present in parent);
+						// so if it has a default value, just return that so that (even non-persist) sub-properties of the default value are returned correctly
+						mergedProperty = ((IBasicWebObject)parent).getPropertyDefaultValueClone(jsonKey);
+					}
+
 					if (mergedProperty instanceof JSONArray)
 					{
 						mergedProperty = ((JSONArray)mergedProperty).opt(getIndex());
 					}
+
 					if (mergedProperty instanceof JSONObject)
 					{
 						value = mergedProperty;
@@ -158,6 +167,12 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		}
 		if (value == null) value = webObjectImpl.getProperty(propertyName);
 		return value;
+	}
+
+	@Override
+	public Object getPropertyDefaultValueClone(String propertyName)
+	{
+		return webObjectImpl != null ? webObjectImpl.getPropertyDefaultValue(propertyName) : null;
 	}
 
 	@Override
@@ -193,22 +208,30 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	}
 
 	/**
-	 * DO NOT USE this method! Use setProperty instead.
-	 * @param arg
+	 * DO NOT USE this method in general! Use setProperty instead.
+	 * @deprecated it is not really deprecated just marked as such so that it's usage is avoided in general (with the exception of who really should use it)
 	 */
+	@Deprecated
 	public void setJson(JSONObject arg)
 	{
 		webObjectImpl.setJson(arg);
 	}
 
 	/**
-	 * DO NOT USE this method! Use setProperty instead.
+	 * DO NOT USE this method in general! Use getProperty instead.
+	 * @deprecated it is not really deprecated just marked as such so that it's usage is avoided in general (with the exception of who really should use it)
 	 */
+	@Deprecated
 	public JSONObject getJson()
 	{
 		return webObjectImpl.getJson();
 	}
 
+	/**
+	 * DO NOT USE this method in general! Use getProperty instead.
+	 * @deprecated it is not really deprecated just marked as such so that it's usage is avoided in general (with the exception of who really should use it)
+	 */
+	@Deprecated
 	@Override
 	public JSONObject getFlattenedJson()
 	{
@@ -277,6 +300,12 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	public String getJsonKey()
 	{
 		return jsonKey;
+	}
+
+	@Override
+	public void setJsonKey(String newJsonKey)
+	{
+		jsonKey = newJsonKey;
 	}
 
 	/**
