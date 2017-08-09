@@ -891,7 +891,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				throw new RuntimeException("Cannot find form '" + form + "' in solution '" + getSolution() + "'");
 			}
 		}
-		return new FlattenedForm(this, myForm);
+		try
+		{
+			return new FlattenedForm(this, myForm);
+		}
+		catch (RuntimeException ex)
+		{
+			Debug.error("Error while creating full hierarchy form (flattened form) for: " + (myForm != null ? myForm.getName() : "<form not found>"), ex);
+			throw ex;
+		}
 	}
 
 	public void flushFlattenedFormCache()
