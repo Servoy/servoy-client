@@ -71,8 +71,8 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SERVOY_THIRDPARTY_SVYGRP = "servoy_thirdparty_svygrp";
 	public static final String SERVOY_CSS_CONTRIBUTIONS_SVYGRP = "servoy_css_contributions_svygrp";
 	public static final String SERVOY_CSS_THIRDPARTY_SVYGRP = "servoy_css_thirdparty_svygrp";
-	public static final String SOLUTIONS_PATH = "solutions/";
-	public static final String FORMS_PATH = "forms/";
+	public static final String SOLUTIONS_PATH = "/solutions/";
+	public static final String FORMS_PATH = "/forms/";
 
 	public static final String ANGULAR_JS = "js/angular_1.6.3.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
@@ -462,7 +462,7 @@ public class NGClientEntryFilter extends WebEntry
 	private String getSolutionNameFromURI(String uri)
 	{
 		int solutionIndex = uri.indexOf(SOLUTIONS_PATH);
-		if (solutionIndex > 0)
+		if (solutionIndex >= 0)
 		{
 			return uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
 		}
