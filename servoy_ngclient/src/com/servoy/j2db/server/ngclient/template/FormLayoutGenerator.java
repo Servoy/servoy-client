@@ -544,7 +544,7 @@ public class FormLayoutGenerator
 					if (entry.getValue() != null && entry.getValue().length() > 0)
 					{
 						writer.print("=\"");
-						writer.print(HtmlUtils.escapeMarkup(entry.getValue(), true, true));
+						writer.print(HtmlUtils.escapeMarkup(entry.getValue(), false, false));
 						writer.print("\"");
 					}
 				}
