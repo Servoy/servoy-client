@@ -11,9 +11,6 @@
 	<artifactId>servoy_ngclient</artifactId>
 	<version>8.2.0.3102_rc2</version>
 	<packaging>eclipse-plugin</packaging>
-	<properties>
-		<sablo-version>8.2.0.3100-SNAPSHOT</sablo-version>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
