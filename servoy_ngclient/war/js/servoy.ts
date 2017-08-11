@@ -436,7 +436,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			if(dismissDelay=== null || isNaN(dismissDelay)) dismissDelay = 5000;
 
 			function doShow(event) {
-	        	$svyTooltipUtils.showTooltip(event, tooltip, initialDelay, dismissDelay);
+				var tooltipText = typeof tooltip === 'function' ? tooltip() : tooltip;
+				if(tooltipText) {
+					$svyTooltipUtils.showTooltip(event, tooltipText, initialDelay, dismissDelay);
+				}
 	        }
 			function doHide(event) {
 	        	$svyTooltipUtils.hideTooltip();

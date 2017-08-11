@@ -40,7 +40,6 @@ angular.module('servoydefaultRadio', [ 'servoy' ]).directive('servoydefaultRadio
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
 
-			var tooltipState = null;
 			var className = null;
 			var element = $element.children().first();
 			var intputElement = element.children().first();
@@ -69,12 +68,6 @@ angular.module('servoydefaultRadio', [ 'servoy' ]).directive('servoydefaultRadio
 					case "horizontalAlignment":
 						$svyProperties.setHorizontalAlignment(element, value);
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
-						break;
 					case "enabled":
 						if (value)
 							intputElement.removeAttr("disabled");
@@ -97,6 +90,7 @@ angular.module('servoydefaultRadio', [ 'servoy' ]).directive('servoydefaultRadio
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

@@ -215,7 +215,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
 			
-			var tooltipState = null;
 			var formatState = null;
 			var className = null;
 			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
@@ -252,11 +251,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						if (value) $element.removeAttr("readonly");
 						else $element.attr("readonly","readonly");
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else tooltipState = $svyProperties.createTooltipState($element,value);
-					    break;
 					case "format":
 						if (formatState)
 							formatState(value);
@@ -273,6 +267,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						break;
 				}
 			}});
+			$svyProperties.createTooltipState($element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

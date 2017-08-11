@@ -220,7 +220,6 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);		
 			
 			var element = $element.children().first();
-			var tooltipState = null;
 			var className = null;
 			Object.defineProperty($scope.model, 	$sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -235,12 +234,6 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						break;
 					case "foreground":
 						$svyProperties.setCssProperty(element, "color", value);
-						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
 						break;
 					case "fontType":
 						$svyProperties.setCssProperty(element, "font", value);
@@ -259,6 +252,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];
