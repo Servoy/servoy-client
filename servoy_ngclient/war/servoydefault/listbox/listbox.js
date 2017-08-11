@@ -125,7 +125,6 @@ directive('servoydefaultListbox', [ '$parse', '$templateCache', '$http', '$compi
 				$scope.api.getLocationX = $apifunctions.getX($element[0]);
 				$scope.api.getLocationY = $apifunctions.getY($element[0]);
 	
-				var tooltipState = null;
 				var className = null;
 				var element = $element.children().first();
 				Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
@@ -168,15 +167,10 @@ directive('servoydefaultListbox', [ '$parse', '$templateCache', '$http', '$compi
 							if (className)
 								element.addClass(className);
 							break;
-						case "toolTipText":
-							if (tooltipState)
-								tooltipState(value);
-							else
-								tooltipState = $svyProperties.createTooltipState(element, value);
-							break;
 						}
 					}
 				});
+				$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 				var destroyListenerUnreg = $scope.$on("$destroy", function() {
 					destroyListenerUnreg();
 					delete $scope.model[$sabloConstants.modelChangeNotifier];

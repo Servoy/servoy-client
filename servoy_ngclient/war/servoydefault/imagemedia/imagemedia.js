@@ -108,7 +108,6 @@ angular.module('servoydefaultImagemedia', [ 'servoy' ]).directive(
 					$scope.api.getLocationY = $apifunctions.getY($element[0]);
 
 					var element = $element.children().first();
-					var tooltipState = null;
 					var className = null;
 					Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 						configurable : true,
@@ -116,12 +115,6 @@ angular.module('servoydefaultImagemedia', [ 'servoy' ]).directive(
 							switch (property) {
 							case "borderType":
 								$svyProperties.setBorder(element, value);
-								break;
-							case "toolTipText":
-								if (tooltipState)
-									tooltipState(value);
-								else
-									tooltipState = $svyProperties.createTooltipState(element, value);
 								break;
 							case "styleClass":
 								if (className)
@@ -133,6 +126,7 @@ angular.module('servoydefaultImagemedia', [ 'servoy' ]).directive(
 							}
 						}
 					});
+					$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 					var destroyListenerUnreg = $scope.$on("$destroy", function() {
 						destroyListenerUnreg();
 						delete $scope.model[$sabloConstants.modelChangeNotifier];
