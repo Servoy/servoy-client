@@ -75,7 +75,15 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			})
 
 			function disposeOfRowProxies(rowProxy,renderedRowIndex) {
+				if (renderedRowIndex !== undefined)
+				{
+					cellChangeNotifierCaches[renderedRowIndex] = []
+				}
 				for (var elIdx in rowProxy) {
+					if (renderedRowIndex !== undefined && rowProxy[elIdx].mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
+					{
+						cellChangeNotifierCaches[renderedRowIndex][elIdx] = rowProxy[elIdx].mergedCellModel[$sabloConstants.modelChangeNotifier];
+					}	
 					if (rowProxy[elIdx].unwatchFuncs) {
 						rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
 					}
@@ -183,7 +191,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
 					+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
-					+ ', rowRenderIndex, rowElementHelper)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
+					+ ', rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
 					+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
 					+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
@@ -201,7 +209,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
 						}
-						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm svy-padding-xs" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex, rowElementHelper)"' + handlers + ' tabIndex="-1"></div>';
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm svy-padding-xs" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex)"' + handlers + ' tabIndex="-1"></div>';
 					}
 
 
@@ -474,20 +482,6 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				return rowAPICache;
 			}
 
-
-			function getOrCreateRowModelChangeNotifierCache(renderedRowIndex, rowElementHelper) {
-				var rowModelChangeNotifierCache = cellChangeNotifierCaches[renderedRowIndex];
-				if (!rowModelChangeNotifierCache || (rowModelChangeNotifierCache.rowElement !== rowElementHelper.getRowElement())) {
-					cellChangeNotifierCaches[renderedRowIndex] = rowModelChangeNotifierCache = [];
-					rowModelChangeNotifierCache.rowElement = rowElementHelper.getRowElement();
-
-					rowModelChangeNotifierCache.rowElement.on('$destroy', function () {
-						if (cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex].rowElement == rowModelChangeNotifierCache.rowElement) delete cellChangeNotifierCaches[renderedRowIndex];
-					});
-				}
-				return rowModelChangeNotifierCache;
-			}
-
 			var rowCache = {};
 			function rowIdToViewportRelativeRowIndex(rowId) {
 				var result = rowCache[rowId];
@@ -598,7 +592,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			}
 
 			// merges component model and modelViewport (for record dependent properties like dataprovider/tagstring/...) the cell's element's model
-			$scope.getMergedCellModel = function(ngGridRow, elementIndex, renderedRowIndex, rowElementHelper) {
+			$scope.getMergedCellModel = function(ngGridRow, elementIndex, renderedRowIndex) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 
@@ -637,26 +631,28 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							cellProxies.unwatchFuncs = cellProxies.unwatchFuncs.concat($utils.bindTwoWayObjectProperty(cellData, propertyName, elements, [elementIndex, "modelViewport", function() { return rowIdToViewportRelativeRowIndex(rowId); }, propertyName], false, $scope));
 						}
 					}
-
+					// attach the model change notifier from the parent column model so that all calls are relayed to the cell.
+					if (!element.model[$sabloConstants.modelChangeNotifier]) {
+						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {configurable : true,value:function(property,value) {
+							for(var key in rowProxyObjects) {
+								// test if there is a column at this point for that index, it could be hidden and not created yet.
+								if (rowProxyObjects[key][elementIndex]) {
+									var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
+									// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same)
+									if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
+										mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
+									else return;
+								}
+							}
+						}});
+					}
+					if (!cellData.hasOwnProperty($sabloConstants.modelChangeNotifier) && cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex].length > elementIndex && cellChangeNotifierCaches[renderedRowIndex][elementIndex])
+					{
+						Object.defineProperty(cellData,$sabloConstants.modelChangeNotifier, {configurable : true,value:cellChangeNotifierCaches[renderedRowIndex][elementIndex]});
+						cellChangeNotifierCaches[renderedRowIndex][elementIndex] = null;
+					}	
 					cellProxies.mergedCellModel = cellModel = cellData;
 				}
-
-				var rowModelChangeNotifierCache = getOrCreateRowModelChangeNotifierCache(renderedRowIndex, rowElementHelper);
-
-				if(!rowModelChangeNotifierCache[elementIndex] && cellModel[$sabloConstants.modelChangeNotifier]) {
-					rowModelChangeNotifierCache[elementIndex] = {notifier: cellModel[$sabloConstants.modelChangeNotifier] };
-				}
-				if(rowModelChangeNotifierCache[elementIndex]) {
-					if(rowModelChangeNotifierCache[elementIndex].rowId && rowModelChangeNotifierCache[elementIndex].rowId != rowId) {
-						if(rowModelChangeNotifierCache[elementIndex].notifier) {
-							for(var key in cellModel) {
-								rowModelChangeNotifierCache[elementIndex].notifier(key, cellModel[key]);
-							}
-						}
-					}
-					rowModelChangeNotifierCache[elementIndex].rowId = rowId;
-				}
-
 				return cellModel;
 			}
 

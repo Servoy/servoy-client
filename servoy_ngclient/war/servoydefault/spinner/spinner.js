@@ -108,7 +108,6 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 					$scope.api.getLocationX = $apifunctions.getX($element[0]);
 					$scope.api.getLocationY = $apifunctions.getY($element[0]);
 
-					var tooltipState = null;
 					var className = null;
 					var element = $element.children().first();
 					
@@ -116,12 +115,6 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 						configurable : true,
 						value : function(property, value) {
 							switch (property) {
-							case "toolTipText":
-								if (tooltipState)
-									tooltipState(value);
-								else
-									tooltipState = $svyProperties.createTooltipState(element, value);
-								break;
 							case "styleClass":
 								if (className)
 									element.removeClass(className);
@@ -152,6 +145,7 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 							}
 						}
 					});
+					$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 					var destroyListenerUnreg = $scope.$on("$destroy", function() {
 						destroyListenerUnreg();
 						delete $scope.model[$sabloConstants.modelChangeNotifier];
