@@ -1336,14 +1336,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
         							var sorts = newVal.split(",");
         							if (sorts && sorts.length > 0)
         							{
-        								for (var i = 0; i < sorts.length; i++)
-        								{
-	        								var sort = sorts[i].split(" ");
-	        								if (sort.length == 2)
-	        								{
-	        									$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
-	        								}	
-        								}
+        								var sort = sorts[0].split(" ");
+	        							if (sort.length == 2)
+	        							{
+	        								//show the sort arrow icon only for the first (most significant) column
+	        								$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
+	        							}	
         							}	
         							delete $scope.sortFromServer;
         						}
