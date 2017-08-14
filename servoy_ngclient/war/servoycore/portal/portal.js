@@ -1148,6 +1148,8 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 				});
 				gridApi.core.on.sortChanged ($scope, function( grid, sortColumns ) {
+					if ($scope.sortFromServer) return;
+					
 					// call the server (through foundset type)
 					var columns = [];
 					var sortString = "";
@@ -1330,16 +1332,21 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
         						//check if we really received a new sort from the server
         						if (newVal !== oldVal && newVal != uiSortString)
         						{
+        							$scope.sortFromServer = true;
         							var sorts = newVal.split(",");
-        							if (sorts && sorts.length >0)
+        							if (sorts && sorts.length > 0)
         							{
-        								var sort = sorts[0].split(" ");
-        								if (sort.length == 2)
+        								for (var i = 0; i < sorts.length; i++)
         								{
-        									$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
-        								}	
+	        								var sort = sorts[i].split(" ");
+	        								if (sort.length == 2)
+	        								{
+	        									$scope.gridApi.grid.sortColumn($scope.gridApi.grid.getColumn(sort[0]),sort[1],false);
+	        								}	
+        								}
         							}	
-        						}	
+        							delete $scope.sortFromServer;
+        						}
         					});
 					}
 					
