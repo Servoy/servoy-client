@@ -184,12 +184,21 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		}
 	}
 
-	protected boolean isPersistMappedProperty(String key)
+	public static boolean isPersistMappedProperty(PropertyDescription childPd)
 	{
-		return isCustomJSONObjectOrArrayOfCustomJSONObject(key) || isComponentOrArrayOfComponent(key);
+		return isCustomJSONObjectOrArrayOfCustomJSONObject(childPd) || isComponentOrArrayOfComponent(childPd);
 	}
 
-	protected boolean isArrayOfCustomJSONObject(IPropertyType< ? > propertyType)
+	protected boolean isPersistMappedProperty(String key)
+	{
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
+
+		PropertyDescription childPd = propertyDescription.getProperty(key);
+		return isCustomJSONObjectOrArrayOfCustomJSONObject(childPd) || isComponentOrArrayOfComponent(childPd);
+	}
+
+	protected static boolean isArrayOfCustomJSONObject(IPropertyType< ? > propertyType)
 	{
 		boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
 		if (arrayReturnType)
@@ -205,15 +214,11 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	/**
 	 * Return true if this property is handled as a custom property persist and false otherwise.
-	 * @param key the subproperty name.
+	 * @param childPd the subproperty pd.
 	 * @return true if this property is handled as a custom property persist and false otherwise.
 	 */
-	protected boolean isCustomJSONObjectOrArrayOfCustomJSONObject(String key)
+	protected static boolean isCustomJSONObjectOrArrayOfCustomJSONObject(PropertyDescription childPd)
 	{
-		PropertyDescription propertyDescription = getPropertyDescription();
-		if (propertyDescription == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
-
-		PropertyDescription childPd = propertyDescription.getProperty(key);
 		if (childPd != null)
 		{
 			IPropertyType< ? > propertyType = childPd.getType();
@@ -222,12 +227,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return false;
 	}
 
-	protected boolean isComponent(IPropertyType< ? > propertyType)
+	protected static boolean isComponent(IPropertyType< ? > propertyType)
 	{
 		return ChildWebComponent.COMPONENT_PROPERTY_TYPE_NAME.equals(propertyType.getName());
 	}
 
-	protected boolean isArrayOfComponent(IPropertyType< ? > propertyType)
+	protected static boolean isArrayOfComponent(IPropertyType< ? > propertyType)
 	{
 		boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
 		if (arrayReturnType)
@@ -243,15 +248,11 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	/**
 	 * Return true if this property is handled as a custom property persist and false otherwise.
-	 * @param key the subproperty name.
+	 * @param childPd the subproperty pd.
 	 * @return true if this property is handled as a custom property persist and false otherwise.
 	 */
-	protected boolean isComponentOrArrayOfComponent(String key)
+	protected static boolean isComponentOrArrayOfComponent(PropertyDescription childPd)
 	{
-		PropertyDescription propertyDescription = getPropertyDescription();
-		if (propertyDescription == null) return false; // typeName is not yet set; so normally typed properties are not yet accessed
-
-		PropertyDescription childPd = propertyDescription.getProperty(key);
 		if (childPd != null)
 		{
 			IPropertyType< ? > propertyType = childPd.getType();
@@ -307,9 +308,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		Map<String, Object> persistMappedProperties = getPersistMappedProperties();
 		if (persistMappedProperties.containsKey(propertyName))
 		{
-			persistMappedProperties.remove(propertyName);
+			persistMappedProperties.remove(propertyName); // remove the persist
 			persistMappedPropetiesByUUID = null;
-			updateJSONFromPersistMappedPropeties();
+			updateJSONFromPersistMappedPropeties(); // remove it from json (as child persist is no longer there)
+
+			JSONObject json = getJson(); // this actually gets flattened json (ends up in AbstractBase that does that)
+			if (!ServoyJSONObject.isJavascriptNullOrUndefined(json) && json.has(propertyName))
+				updatePersistMappedPropertyFromJSON(propertyName, json.get(propertyName)); // in case there is an inherited value for this key set back inherited value
 			return true;
 		}
 		else
