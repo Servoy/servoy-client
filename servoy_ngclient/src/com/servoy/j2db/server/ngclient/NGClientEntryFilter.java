@@ -388,6 +388,11 @@ public class NGClientEntryFilter extends WebEntry
 										Debug.error(e);
 									}
 								}
+								if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
+								{
+									// make sure a session is created. when a ngclient is created, that one should set the timeout to 0
+									request.getSession(true);
+								}
 								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, extraMeta, variableSubstitution);
 								return;
 							}

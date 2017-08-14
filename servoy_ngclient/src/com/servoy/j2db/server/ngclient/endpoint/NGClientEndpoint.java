@@ -18,7 +18,9 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -27,6 +29,7 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import com.servoy.j2db.server.ngclient.GetHttpSessionConfigurator;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 
 /**
@@ -36,7 +39,7 @@ import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
  *
  */
 
-@ServerEndpoint(value = "/websocket/{sessionid}/{windowname}/{windowid}")
+@ServerEndpoint(value = "/websocket/{sessionid}/{windowname}/{windowid}", configurator = GetHttpSessionConfigurator.class)
 public class NGClientEndpoint extends BaseNGClientEndpoint
 {
 	public NGClientEndpoint()
@@ -44,12 +47,16 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
 	}
 
-	@Override
 	@OnOpen
 	public void start(Session newSession, @PathParam("sessionid") String sessionid, @PathParam("windowname") String windowname,
-		@PathParam("windowid") String windowid) throws Exception
+		@PathParam("windowid") String windowid, EndpointConfig config) throws Exception
 	{
 		super.start(newSession, sessionid, windowname, windowid);
+		HttpSession httpSession = (HttpSession)config.getUserProperties().get(HttpSession.class.getName());
+		if (httpSession != null)
+		{
+			newSession.getUserProperties().put(HttpSession.class.getName(), httpSession);
+		}
 	}
 
 	@Override
