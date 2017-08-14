@@ -101,4 +101,10 @@ public interface IClientInformation extends com.servoy.j2db.server.IClientInform
 	 * @return a date object or null if the client doesn't support this
 	 */
 	Date getLastAccessedTime();
+
+	/**
+	 * Gets the array of client information strings as seen on the admin page.
+	 * @return a String array with the client information
+	 */
+	String[] getClientInfos();
 }
