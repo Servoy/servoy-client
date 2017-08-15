@@ -38,8 +38,10 @@ import org.sablo.websocket.IWebsocketSession;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.server.ngclient.GetHttpSessionConfigurator;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -116,6 +118,14 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 					}
 				}
 			});
+		}
+		try
+		{
+			((NGClient)((INGClientWebsocketSession)session).getClient()).shutDown(true);
+		}
+		catch (Exception e1)
+		{
+			Debug.error("Error calling shutdown on client that had an exception when starting up: " + e.getMessage(), e1);
 		}
 	}
 

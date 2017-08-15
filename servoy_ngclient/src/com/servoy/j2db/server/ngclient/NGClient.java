@@ -138,31 +138,15 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		getWebsocketSession().registerServerService(I18NService.NAME, new I18NService(this));
 		getClientInfo().setApplicationType(getApplicationType());
-		try
+		applicationSetup();
+		applicationInit();
+		applicationServerInit();
+		IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+		if (registry == null)
 		{
-			applicationSetup();
-			applicationInit();
-			applicationServerInit();
-			IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-			if (registry == null)
-			{
-				registry = new DummyPerformanceRegistry();
-			}
-			perfRegistry = registry;
+			registry = new DummyPerformanceRegistry();
 		}
-		catch (Exception e)
-		{
-			// if exception directly do a shutdown, so that this client doesn't hang.
-			try
-			{
-				shutDown(true);
-			}
-			catch (Exception e2)
-			{
-				Debug.error("Cannot shutdown properly after client init failed", e2);
-			}
-			throw e;
-		}
+		perfRegistry = registry;
 	}
 
 	@Override
