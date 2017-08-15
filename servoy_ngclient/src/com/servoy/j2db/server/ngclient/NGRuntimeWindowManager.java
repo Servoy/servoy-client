@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -41,6 +42,8 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	public static final String WINDOW_SERVICE = "$windowService";
 
 	private String lastCurrentWindow = null;
+
+	private final HashMap<String, RuntimeWindow> modalWindowStack = new HashMap<>();
 
 	/**
 	 * @param application
@@ -138,6 +141,10 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		// so that code that is run through a scheduler or databroadcast will have a current container in scripting
 		// getCurrentWindowName will return null so that the system can still know the difference. (NGEvent that resets the current window)
 		NGRuntimeWindow currentWindow = (NGRuntimeWindow)super.getCurrentWindow();
+		if (currentWindow != null && modalWindowStack.get(currentWindow.getName()) != null)
+		{
+			return (NGRuntimeWindow)modalWindowStack.get(currentWindow.getName());
+		}
 		return currentWindow != null ? currentWindow : getWindow(lastCurrentWindow);
 	}
 
@@ -148,7 +155,12 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		// getCurrentWindow above does behave a bit different it will always return the last used window
 		// if there is no current window set, this way Scheduler jobs or other runnables that can run (on data broadcast)
 		// will just use the last used window as the current one
-		return super.getCurrentWindowName();
+		String currentWindowName = super.getCurrentWindowName();
+		if (currentWindowName != null && modalWindowStack.get(currentWindowName) != null)
+		{
+			return modalWindowStack.get(currentWindowName).getName();
+		}
+		return currentWindowName;
 	}
 
 	@Override
@@ -167,7 +179,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		{
 			// try to always just set the current parent if it is null
 			// this way we can later on use this to set the window back.
-			parent = getWindow(CurrentWindow.get().getUuid());
+			parent = getCurrentWindow();
 		}
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
@@ -220,5 +232,46 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		// sync api calls to client might need to touch forms... allow that even if event thread is currently blocked on that API call
 		return "touchForm".equals(methodName) ? IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL : dontCareLevel;
 	}
+
+	public void pushModalWindow(String name)
+	{
+		NGRuntimeWindow window = getWindow(name);
+		if (window != null)
+		{
+			JSWindow parent = window.getParent();
+			while (parent.js_getParent() != null)
+			{
+				parent = parent.js_getParent();
+			}
+
+			modalWindowStack.put(parent.js_getName(), window);
+		}
+	}
+
+	public void popModalWindow(String name)
+	{
+		NGRuntimeWindow window = getWindow(name);
+		if (window != null)
+		{
+			JSWindow parent = window.getParent();
+			while (parent.js_getParent() != null)
+			{
+				parent = parent.js_getParent();
+			}
+			RuntimeWindow currentWindow = modalWindowStack.get(parent.js_getName());
+			if (currentWindow != window)
+			{
+				throw new IllegalStateException("trying to pop modal window  " + name + " but this was not the one that was pushed: " + currentWindow == null
+					? "null" : currentWindow.getName());
+			}
+			if (currentWindow.getParent() != null)
+			{
+				modalWindowStack.put(parent.js_getName(), currentWindow.getParent().getImpl());
+			}
+			else modalWindowStack.remove(parent.js_getName());
+
+		}
+	}
+
 
 }
