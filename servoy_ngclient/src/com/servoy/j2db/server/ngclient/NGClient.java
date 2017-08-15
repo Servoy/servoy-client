@@ -1141,23 +1141,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		catch (final ApplicationException e)
 		{
 			((NGClientWebsocketSession)wsSession).setClient(this);
-			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if (e.getErrorCode() == ServoyException.NO_LICENSE)
-					{
-						getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setNoLicense",
-							new Object[] { getLicenseAndMaintenanceDetail() });
-					}
-					else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
-					{
-						getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setMaintenanceMode",
-							new Object[] { getLicenseAndMaintenanceDetail() });
-					}
-				}
-			});
 			throw e;
 		}
 		return registered;
@@ -1186,19 +1169,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 			});
 		}
-	}
-
-	private Map<String, Object> getLicenseAndMaintenanceDetail()
-	{
-		Map<String, Object> detail = new HashMap<>();
-		String url = Settings.getInstance().getProperty("servoy.webclient.pageexpired.url");
-		if (url != null)
-		{
-			detail.put("redirectUrl", url);
-			String redirectTimeout = Settings.getInstance().getProperty("servoy.webclient.pageexpired.redirectTimeout");
-			detail.put("redirectTimeout", Utils.getAsInteger(redirectTimeout));
-		}
-		return detail;
 	}
 
 	@Override

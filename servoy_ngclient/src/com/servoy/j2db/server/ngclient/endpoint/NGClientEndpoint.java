@@ -18,6 +18,9 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
@@ -29,8 +32,17 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWebsocketSession;
+
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.server.ngclient.GetHttpSessionConfigurator;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * WebsocketEndpoint for NGClient.
@@ -78,6 +90,47 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 	public void onError(Throwable t)
 	{
 		super.onError(t);
+	}
+
+	@Override
+	protected void handleException(final Exception e, final IWebsocketSession session)
+	{
+		if (e instanceof ApplicationException)
+		{
+			final ApplicationException ae = (ApplicationException)e;
+			// if the current window has no endpoint then quickly set it to this instance.
+			if (CurrentWindow.exists() && !CurrentWindow.get().hasEndpoint()) CurrentWindow.get().setEndpoint(this);
+			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows((INGClientWebsocketSession)session), new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if (ae.getErrorCode() == ServoyException.NO_LICENSE)
+					{
+						session.getClientService("$sessionService").executeAsyncServiceCall("setNoLicense", new Object[] { getLicenseAndMaintenanceDetail() });
+					}
+					else if (ae.getErrorCode() == ServoyException.MAINTENANCE_MODE)
+					{
+						session.getClientService("$sessionService").executeAsyncServiceCall("setMaintenanceMode",
+							new Object[] { getLicenseAndMaintenanceDetail() });
+					}
+				}
+			});
+		}
+	}
+
+
+	private Map<String, Object> getLicenseAndMaintenanceDetail()
+	{
+		Map<String, Object> detail = new HashMap<>();
+		String url = Settings.getInstance().getProperty("servoy.webclient.pageexpired.url");
+		if (url != null)
+		{
+			detail.put("redirectUrl", url);
+			String redirectTimeout = Settings.getInstance().getProperty("servoy.webclient.pageexpired.redirectTimeout");
+			detail.put("redirectTimeout", Utils.getAsInteger(redirectTimeout));
+		}
+		return detail;
 	}
 
 }
