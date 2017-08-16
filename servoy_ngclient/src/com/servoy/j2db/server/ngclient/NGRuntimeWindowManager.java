@@ -179,7 +179,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		{
 			// try to always just set the current parent if it is null
 			// this way we can later on use this to set the window back.
-			parent = windows.get(getCurrentWindowName());
+			parent = getCurrentWindow();
 		}
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
