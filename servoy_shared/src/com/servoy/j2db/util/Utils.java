@@ -3023,6 +3023,12 @@ public final class Utils
 		return keys;
 	}
 
+	public static String getScriptableString(Object obj)
+	{
+		if (obj instanceof Scriptable) return getScriptableString((Scriptable)obj);
+		if (obj instanceof Object[]) return getScriptableString((Object[])obj);
+		return String.valueOf(obj);
+	}
 
 	/**
 	 * Returns a js/json string representation of the given {@link Scriptable}

@@ -253,9 +253,18 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			// cannot get design only or private properties; make an exception for dp properties, should be able to get the dpid
 			if (!(component.getSpecification().getProperty(name).getType() instanceof DataproviderPropertyType))
 			{
+				component.getDataAdapterList().getApplication().reportJSWarning(
+					"Warn: Trying to get a property: " + name + "  that is a design or private spec  property property on component " + component.getName());
 				return Scriptable.NOT_FOUND;
 			}
 		}
+
+		if (component.getSpecification().getProperty(name) == null)
+		{
+			component.getDataAdapterList().getApplication().reportJSWarning(
+				"Warn: Trying to get a property: " + name + "  that is a not a spec property on component " + component.getName());
+		}
+
 
 		Object value = convertValue(name, component.getProperty(convertName(name)), webComponentSpec.getProperties().get(convertName(name)), start);
 
@@ -336,9 +345,15 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		if (component.isDesignOnlyProperty(name) && !StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
 		{
 			// cannot set design only or private properties
+			component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to set a property: " + name + " with a value: " +
+				Utils.getScriptableString(value) + "  that is a design time/private property on component " + component.getName());
 			return;
 		}
-
+		if (component.getSpecification().getProperty(name) == null)
+		{
+			component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to set a property: " + name + " with a value: " +
+				Utils.getScriptableString(value) + "  that is not a declared spec property  on component " + component.getName());
+		}
 		Object previousVal = component.getProperty(name);
 		Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, webComponentSpec.getProperties().get(name), component);
 
