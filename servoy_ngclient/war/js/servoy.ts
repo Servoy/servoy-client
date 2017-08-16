@@ -248,6 +248,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				if(parent.getAttribute("name")) targetElNameChain.push(parent.getAttribute("name"));
 				parent = parent.parentNode;
 			}
+			if (!form || form == 'MainController')  {
+				// form not found, search for an active dialog
+				var formInDialog = $('.svy-dialog.window.active').find("svy-formload").attr("formname");
+				if (formInDialog) form = formInDialog;
+			}
 			
 			if (!contextMatch) return null;
 			

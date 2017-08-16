@@ -92,7 +92,9 @@ angular.module('window',['servoy'])
 						pushedChanges = true;
 						$sabloTestability.block(true);
 						$timeout(function(callback,argsWithEvent) {
-							$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+							var formName = jsEvent.formName;
+							if (!formName) formName = callback.formname;
+							$window.executeInlineScript(formName,callback.script,argsWithEvent);
 							$sabloTestability.block(false);
 						},10,true,callback,argsWithEvent);
 						if (retValue && consumeEvent) retValue = false;
