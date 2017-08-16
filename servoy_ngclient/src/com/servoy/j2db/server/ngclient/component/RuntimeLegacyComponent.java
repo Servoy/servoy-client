@@ -349,7 +349,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				Utils.getScriptableString(value) + "  that is a design time/private property on component " + component.getName());
 			return;
 		}
-		if (component.getSpecification().getProperty(name) == null)
+		if (!"clientProperty".equals(name) && component.getSpecification().getProperty(name) == null)
 		{
 			component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to set a property: " + name + " with a value: " +
 				Utils.getScriptableString(value) + "  that is not a declared spec property  on component " + component.getName());
