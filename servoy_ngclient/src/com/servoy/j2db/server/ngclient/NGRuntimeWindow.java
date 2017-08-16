@@ -498,13 +498,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				try
 				{
-					getApplication().getRuntimeWindowManager().pushModalWindow(windowName);
 					getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT,
 						IEventDispatcher.NO_TIMEOUT);
 				}
 				finally
 				{
-					getApplication().getRuntimeWindowManager().popModalWindow(windowName);
 					if (perfId != null) performanceData.endSubAction(perfId);
 				}
 
