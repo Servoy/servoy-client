@@ -291,15 +291,17 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	public void reportJSWarning(String s)
 	{
 		errorToDebugger(s, null);
-		super.reportJSWarning(s);
+		Debug.warn(s);
 	}
 
 	@Override
 	public void reportJSWarning(String s, Throwable t)
 	{
 		errorToDebugger(s, t);
-		super.reportJSWarning(s, t);
+		if (t == null) Debug.warn(s);
+		else super.reportJSWarning(s, t);
 	}
+
 
 	@Override
 	public void reportJSInfo(String s)
