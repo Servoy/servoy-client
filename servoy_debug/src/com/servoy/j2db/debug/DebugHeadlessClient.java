@@ -337,6 +337,21 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		super.reportJSError(message, detail);
 	}
 
+	@Override
+	public void reportJSWarning(String s)
+	{
+		errorToDebugger(s, null);
+		Debug.warn(s);
+	}
+
+	@Override
+	public void reportJSWarning(String s, Throwable t)
+	{
+		errorToDebugger(s, t);
+		if (t == null) Debug.warn(s);
+		else super.reportJSWarning(s, t);
+	}
+
 	/**
 	 * @see com.servoy.j2db.ClientState#reportError(java.lang.String, java.lang.Object)
 	 */
