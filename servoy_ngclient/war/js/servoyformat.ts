@@ -235,19 +235,19 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					offset++;
 					break;
 				case 'U':
-					if (dataChar.match(/[a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar.toUpperCase()
 					break;
 				case 'L':
-					if (dataChar.match(/[a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar.toLowerCase()
 					break;
 				case 'A':
-					if (dataChar.match(/[0-9a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[0-9a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar;
 					break;
 				case '?':
-					if (dataChar.match(/[a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar
 					break;
 				case '*':
