@@ -158,13 +158,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			int startIdx = functionName.lastIndexOf('.');
 			String noPrefixFunctionName = functionName.substring(startIdx > -1 ? startIdx + 1 : 0, functionName.length());
 
-
 			Scriptable scope = null;
 			Function f = null;
 
 			if (functionName.startsWith("forms."))
 			{
+				String formName = functionName.substring("forms.".length(), startIdx);
 				FormScope formScope = formController.getFormScope();
+				// if this form controller doesn't match the formname of the script then take that scope
+				// this is a function that is on a form that is not the active window form.
+				if (!formController.getName().equals(formName))
+				{
+					formScope = getApplication().getFormManager().getForm(formName).getFormScope();
+				}
 
 				f = formScope.getFunctionByName(noPrefixFunctionName);
 				if (f != null && f != Scriptable.NOT_FOUND)
