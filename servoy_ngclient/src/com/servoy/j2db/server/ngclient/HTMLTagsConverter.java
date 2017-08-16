@@ -76,10 +76,10 @@ public class HTMLTagsConverter
 							browserArgumentsMap.append("'").append(browserArg).append("' : ").append(browserArg);
 						}
 						browserArgumentsMap.append("}");
-						String encryptedFormName = "";
+						String formName = "";
 						try
 						{
-							encryptedFormName = SecuritySupport.encrypt(Settings.getInstance(), context.getForm().getName());
+							formName = context.getForm().getName();
 							script = SecuritySupport.encrypt(Settings.getInstance(), script);
 						}
 						catch (Exception ex)
@@ -97,13 +97,12 @@ public class HTMLTagsConverter
 							{
 								attr.setValue("#");
 								attrs.put("onclick",
-									"executeInlineScript('" + encryptedFormName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
+									"executeInlineScript('" + formName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
 							}
 						}
 						else
 						{
-							attr.setValue(
-								"executeInlineScript('" + encryptedFormName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
+							attr.setValue("executeInlineScript('" + formName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
 						}
 					}
 					else if (replaceContent.startsWith(mediaPrefix))

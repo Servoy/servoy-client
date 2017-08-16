@@ -159,7 +159,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				{
 					String formName = ((FormScope)parentScope).getFormController().getName();
 					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + formName + "." + functionName + "()"));
-					map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+					map.put("formname", formName);
 				}
 				else if (parentScope instanceof GlobalScope)
 				{
@@ -192,14 +192,14 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			String formName = script.substring(7, script.indexOf('.', 7));
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
-			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+			map.put("formname", formName);
 		}
 		else if (script.contains("."))
 		{
 			// form method: formname.formmethod
 			String formName = script.substring(0, script.indexOf('.'));
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + script + "()"));
-			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+			map.put("formname", formName);
 		}
 		else
 		{
