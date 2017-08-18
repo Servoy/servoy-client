@@ -154,6 +154,18 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.getForm = function(tab) {
+				if(!$scope.model.selectedTab) {
+					for(var i=0;i<$scope.model.tabs.length;i++) {
+						if ($scope.model.tabs[i].active) {
+								$scope.select($scope.model.tabs[i]);
+							break;
+						}
+					}
+	
+					if(!$scope.model.selectedTab && $scope.model.tabs.length) {
+						$scope.select($scope.model.tabs[0]);
+					}
+				}
 				if ($scope.model.selectedTab && (tab.containsFormId == $scope.model.selectedTab.containsFormId) && (tab.relationName == $scope.model.selectedTab.relationName)) {
 					return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
 				}
@@ -222,6 +234,9 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				if (!$scope.model.visible) return ;
 				if(isValidTab(tab)) {
 					if (!tab.active) {
+						if($scope.model.selectedTab) {
+							$scope.model.selectedTab.active = false;
+						}
 						tab.active = true;
 						updateActiveTabIndex();
 					}
@@ -254,7 +269,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 								else {
 									tab.active = false;
 									$scope.model.selectedTab.active = true;
-									updateActiveTabIndex(false);
+									updateActiveTabIndex();
 								}
 							})
 						}
