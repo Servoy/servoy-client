@@ -134,6 +134,7 @@ public final class FormElement implements INGFormElement
 
 		propertyValues = new HashMap<String, Object>();
 		propertyValues.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), persist.getName());
+
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 		boolean addNameToPath = propertyPath.shouldAddElementNameAndClearFlag();
 		if (addNameToPath) propertyPath.add(getName());
@@ -141,6 +142,10 @@ public final class FormElement implements INGFormElement
 
 		adjustLocationRelativeToPart(fs, map);
 		initTemplateProperties(specProperties, map, fs, propertyPath);
+		if (!inDesigner && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getDataProviderID() != null)
+		{
+			map.put("hideText", true);
+		}
 
 		if (willTurnIntoErrorBean)
 		{
