@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
@@ -708,6 +709,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (columnName == null || Utils.equalObjects(columnName, dataProvider))
 			{
 				Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
+				if (value == Scriptable.NOT_FOUND) value = null; // if the given DP is invalid, then record.getValue(dataProvider) can return Rhino Scriptable.NOT_FOUND; we must handle that as that can't be sent to client conversion directly
+
 				PropertyDescription pd = getDataProviderPropertyDescription(dataProvider);
 
 				// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)
