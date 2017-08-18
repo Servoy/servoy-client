@@ -15,7 +15,7 @@
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":["valuelistID","dataProviderID"] , "type" :"format"},
-	        "hideText" : "boolean", 
+	        "hideText" : { "type" : "boolean", "tags": { "scope" :"private" } },
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "imageMediaID" : "media", 
 	        "labelFor" : "labelfor", 

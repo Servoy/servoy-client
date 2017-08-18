@@ -144,6 +144,7 @@ public final class FormElement implements INGFormElement
 		initTemplateProperties(specProperties, map, fs, propertyPath);
 		if (!inDesigner && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getDataProviderID() != null)
 		{
+			//legacy behavior, dpid has higher priority than text
 			map.put("hideText", true);
 		}
 
