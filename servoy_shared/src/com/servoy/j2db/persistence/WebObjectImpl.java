@@ -387,6 +387,9 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					{
 						defaultValue = ServoyJSONObject.deepCloneJSONArrayOrObj(defaultValue);
 
+						// IMPORTANT: PersistInheritenceDelegateLabelProvider.getText(...) uses the fact that json is not modified for child components here (so json.put below is commented out),
+						// which means that the json of the default child persist is not linked to this (parent) json in order to determine if a child persist is a default value or not
+						// if you modify this update that code as well accordingly
 						// json.put(propertyName, defaultValue); // we don't add the value to json as we don't want in the future to store the default values in .frm file
 						updatePersistMappedPropertyFromJSON(propertyName, defaultValue);
 
