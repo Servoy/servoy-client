@@ -797,6 +797,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					else if (update.has("sort"))
 					{
+						int requestID = update.getInt(ID_KEY);
 						JSONArray columns = update.getJSONArray("sort");
 						StringBuilder sort = new StringBuilder();
 						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
@@ -846,6 +847,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 								Debug.error("Cannot sort foundset by " + sort.toString(), e);
 							}
 						}
+						changeMonitor.requestIdHandled(requestID, true);
 					}
 					// {newClientSelection: newSelectedIndexesArray}
 					else if (update.has("newClientSelection"))
