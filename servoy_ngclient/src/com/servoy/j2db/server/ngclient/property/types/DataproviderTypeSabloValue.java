@@ -127,19 +127,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			Relation relation = dataAdapterList.getApplication().getFlattenedSolution().getRelation(dataProviderID.substring(0, dataProviderID.indexOf('.')));
 			if (relation != null && relation.isGlobal())
 			{
-
 				globalRelationName = relation.getName();
-				globalRelatedFoundsetListener = new IFoundSetEventListener()
-				{
-					@Override
-					public void foundSetChanged(FoundSetEvent e)
-					{
-						if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
-						{
-							dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
-						}
-					}
-				};
 			}
 			relationName = dataProviderID.substring(0, dataProviderID.lastIndexOf('.'));
 			relatedFoundsetSelectionListener = new ListSelectionListener()
@@ -300,10 +288,25 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					globalRelationName);
 				if (newRelatedFoundset != globalRelatedFoundset)
 				{
-					if (globalRelatedFoundset != null)
+					if (globalRelatedFoundsetListener == null)
+					{
+						globalRelatedFoundsetListener = new IFoundSetEventListener()
+						{
+							@Override
+							public void foundSetChanged(FoundSetEvent e)
+							{
+								if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+								{
+									dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
+								}
+							}
+						};
+					}
+					else if (globalRelatedFoundset != null)
 					{
 						globalRelatedFoundset.removeFoundSetEventListener(globalRelatedFoundsetListener);
 					}
+
 					globalRelatedFoundset = newRelatedFoundset;
 					globalRelatedFoundset.addFoundSetEventListener(globalRelatedFoundsetListener);
 				}
