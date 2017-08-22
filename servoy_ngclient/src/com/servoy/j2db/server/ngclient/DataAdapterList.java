@@ -511,11 +511,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			settingRecord = false;
 		}
-		for (IWebFormController form : visibleChildForms.keySet())
+		if (record != null)
 		{
-			if (visibleChildForms.get(form) != null && record != null)
+			for (IWebFormController form : visibleChildForms.keySet())
 			{
-				form.loadRecords(record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns()));
+				if (visibleChildForms.get(form) != null)
+				{
+					form.loadRecords(record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns()));
+				}
 			}
 		}
 
