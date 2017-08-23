@@ -201,8 +201,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						if ($scope.model.tabs[i].active)
 						{
 							$scope.model.activeTabIndex = i;
-							break;
 						}
+						$scope.model.tabs[i].isActive = $scope.model.tabs[i].active; 
 					}
 				}
 			}
