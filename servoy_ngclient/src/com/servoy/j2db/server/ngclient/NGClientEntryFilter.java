@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -100,7 +99,6 @@ public class NGClientEntryFilter extends WebEntry
 		"js/servoyWindowManager.js", //
 		"js/servoyformat.js", //
 		"js/servoytooltip.js", //
-		"js/servoydate.js", //
 		"js/fileupload.js", //
 		"js/servoy-components.js", //
 		"js/servoy_alltemplates.js", //
@@ -325,8 +323,6 @@ public class NGClientEntryFilter extends WebEntry
 								}
 								variableSubstitution.put("ipaddr", ipaddr);
 								variableSubstitution.put("hostaddr", servletRequest.getRemoteHost());
-								variableSubstitution.put("utcoffset",
-									String.valueOf(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (1000 * 60 * 60)));
 
 
 								// push some translations to the client, in case the client cannot connect back
