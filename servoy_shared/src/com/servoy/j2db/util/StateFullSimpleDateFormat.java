@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 /**
  * Only changes the field in the object which are being formatted, keeps the other fields intact
- * 
+ *
  * @author jcompagner, jblok
  */
 public class StateFullSimpleDateFormat extends SimpleDateFormat
@@ -61,6 +61,12 @@ public class StateFullSimpleDateFormat extends SimpleDateFormat
 			@Override
 			public void set(int field, int value)
 			{
+				if (field == Calendar.YEAR && value == 0)
+				{
+					// when editing, sometimes (using backspace) the year may be set to 0 which is not a valid date in GregorianCalendar.
+					// Setting year to 0 switches to era to BC.
+					return;
+				}
 				super.set(field, value);
 				stateFullCalendar.set(field, value);
 			}
@@ -87,7 +93,7 @@ public class StateFullSimpleDateFormat extends SimpleDateFormat
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.text.DateFormat#parse(java.lang.String)
 	 */
 	public Date parse(String source, Date original) throws ParseException
