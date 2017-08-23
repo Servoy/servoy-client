@@ -1099,10 +1099,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			}
 			if (httpSession != null)
 			{
-				AtomicInteger sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-				if (sessionCounter.decrementAndGet() == 0)
+				try
 				{
-					httpSession.invalidate();
+					AtomicInteger sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
+					if (sessionCounter.decrementAndGet() == 0)
+					{
+						httpSession.invalidate();
+					}
+				}
+				catch (Exception ignore)
+				{
+					// http session can already be invalid..
 				}
 				httpSession = null;
 			}
