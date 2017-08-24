@@ -15,14 +15,13 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -31,7 +30,6 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -73,8 +71,9 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 			// if no date conversion replace client time zone with server time zone
 			if (hasNoDateConversion(dataConverterContext))
 			{
-				sDate = removeTimeZone(sDate);
-				sDate += OffsetDateTime.now().getOffset().getId();
+				OffsetDateTime clientOffsetDateTime = OffsetDateTime.parse(sDate);
+				LocalDateTime clientLocalDateTime = clientOffsetDateTime.toLocalDateTime();
+				return Date.from(clientLocalDateTime.atZone(ZoneId.systemDefault()).toOffsetDateTime().toInstant());
 			}
 
 			OffsetDateTime odt = OffsetDateTime.parse(sDate);
@@ -89,12 +88,16 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	{
 		if (clientConversion != null) clientConversion.convert("svy_date"); //$NON-NLS-1$
 		JSONUtils.addKeyIfPresent(writer, key);
-		String sDate = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault()).toString();
+		String sDate;
 
 		// remove time zone info from sDate if no date conversion
 		if (hasNoDateConversion(dataConverterContext))
 		{
-			sDate = removeTimeZone(sDate);
+			sDate = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault()).toLocalDateTime().toString();
+		}
+		else
+		{
+			sDate = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault()).toString();
 		}
 
 		return writer.value(sDate);
@@ -102,35 +105,22 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 
 	private static boolean hasNoDateConversion(IBrowserConverterContext dataConverterContext)
 	{
-		boolean hasNoDateConversion = false;
+//		boolean hasNoDateConversion = false;
+//
+//		BaseWebObject wo = dataConverterContext.getWebObject();
+//		if (wo != null)
+//		{
+//			Object clientProperty = wo.getProperty("clientProperty");
+//			if (clientProperty instanceof Map< ? , ? >)
+//			{
+//				Map< ? , ? > clientPropertyMap = (Map< ? , ? >)clientProperty;
+//				Object noDateConversionObj = clientPropertyMap.get(IApplication.NG_NO_DATE_CONVERSION);
+//				hasNoDateConversion = noDateConversionObj instanceof Boolean && ((Boolean)noDateConversionObj).booleanValue();
+//			}
+//		}
+//
+//		return hasNoDateConversion;
 
-		BaseWebObject wo = dataConverterContext.getWebObject();
-		if (wo != null)
-		{
-			Object clientProperty = wo.getProperty("clientProperty");
-			if (clientProperty instanceof Map< ? , ? >)
-			{
-				Map< ? , ? > clientPropertyMap = (Map< ? , ? >)clientProperty;
-				Object noDateConversionObj = clientPropertyMap.get(IApplication.NG_NO_DATE_CONVERSION);
-				hasNoDateConversion = noDateConversionObj instanceof Boolean && ((Boolean)noDateConversionObj).booleanValue();
-			}
-		}
-
-		return hasNoDateConversion;
-	}
-
-	private static String removeTimeZone(String sDate)
-	{
-		String sDateWithoutTimeZone = sDate;
-		int tzIdx = sDateWithoutTimeZone.indexOf('+');
-		if (tzIdx == -1)
-		{
-			tzIdx = sDateWithoutTimeZone.indexOf('Z');
-		}
-		if (tzIdx != -1)
-		{
-			sDateWithoutTimeZone = sDateWithoutTimeZone.substring(0, tzIdx);
-		}
-		return sDateWithoutTimeZone;
+		return true;
 	}
 }
