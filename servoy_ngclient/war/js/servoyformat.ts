@@ -235,19 +235,19 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					offset++;
 					break;
 				case 'U':
-					if (dataChar.match(/[a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar.toUpperCase()
 					break;
 				case 'L':
-					if (dataChar.match(/[a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar.toLowerCase()
 					break;
 				case 'A':
-					if (dataChar.match(/[0-9a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[0-9a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar;
 					break;
 				case '?':
-					if (dataChar.match(/[a-zA-Z]/) == null) throw error
+					if (dataChar.match(/[a-zA-Z\u00C0-\u00ff]/) == null) throw error
 					ret += dataChar
 					break;
 				case '*':
@@ -715,7 +715,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		}
 	}
 }]).filter('formatFilter', function($formatterUtils) { /* this filter is used for display only*/
-	return function(input, servoyFormat, type) {
+	return function(input, servoyFormat, type, fullFormat) {
 		var ret = input;
 		try {
 			// TODO apply servoy default formatting from properties file here
@@ -729,6 +729,15 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			// if (((typeof input === 'string') || (input instanceof String)) && type !== "TEXT") return input;
 
 			ret = $formatterUtils.format(input, servoyFormat, type);
+			if (ret && fullFormat && type == 'TEXT' && fullFormat.uppercase)
+			{
+				ret = ret.toUpperCase();
+			}
+			if (ret && fullFormat && type == 'TEXT' && fullFormat.lowercase)
+			{
+				ret = ret.toLowerCase();
+			}
+				
 		} catch (e) {
 			console.log(e);
 			//TODO decide what to do when string doesn't correspod to format

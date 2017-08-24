@@ -58,6 +58,7 @@ import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -543,7 +544,7 @@ public class FormLayoutGenerator
 					if (entry.getValue() != null && entry.getValue().length() > 0)
 					{
 						writer.print("=\"");
-						StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
+						writer.print(HtmlUtils.escapeMarkup(entry.getValue(), false, false));
 						writer.print("\"");
 					}
 				}

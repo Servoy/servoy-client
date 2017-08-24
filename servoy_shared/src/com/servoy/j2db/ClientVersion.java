@@ -29,8 +29,8 @@ public abstract class ClientVersion
 	private static final int majorVersion = 8;
 	private static final int middleVersion = 2;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 3101;
-	private static final String versionPostfix = "rc1";
+	private static final int releaseNumber = 3103;
+	private static final String versionPostfix = "";
 
 	// make sure you keep this the same format, or make it work with extensions version comparing & xml schema
 	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : "");
@@ -53,6 +53,12 @@ public abstract class ClientVersion
 	public static String getBundleVersion()
 	{
 		return majorVersion + "." + middleVersion + "." + minorVersion + "." + releaseNumber;
+	}
+
+	public static String getBundleVersionWithPostFix()
+	{
+		if ("".equals(versionPostfix)) return getBundleVersion();
+		return majorVersion + "." + middleVersion + "." + minorVersion + "." + releaseNumber + "_" + versionPostfix;
 	}
 
 	public static int getMajorVersion()

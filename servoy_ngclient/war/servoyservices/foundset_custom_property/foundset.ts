@@ -260,8 +260,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					};
 					newValue.sort = function(columns) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * sort requested with " + JSON.stringify(columns));
-						internalState.requests.push({sort: columns});
+						var req = {sort: columns};
+						var requestID = getNewDeferId();
+						req[ID_KEY] = requestID;
+						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						return internalState.deferred[requestID].promise;
 					}
 					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * setPreferredViewportSize called with (" + size + ", " + sendSelectionViewportInitially + ", " + initialSelectionViewportCentered + ")");

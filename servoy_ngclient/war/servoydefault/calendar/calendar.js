@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar', [ 'servoy']).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService,$animate) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService,$animate) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -45,9 +45,8 @@ angular.module('servoydefaultCalendar', [ 'servoy']).directive('servoydefaultCal
 				if ($scope.model.findmode) {
 					ngModel.$setViewValue(child.children("input").val());
 				} else {
-					if (e.date) {
+					if (e.date)
 						ngModel.$setViewValue(e.date.toDate());
-					}
 					else
 						ngModel.$setViewValue(null);
 				}
@@ -272,7 +271,6 @@ angular.module('servoydefaultCalendar', [ 'servoy']).directive('servoydefaultCal
 
 			var element = $element.children().first();
 			var inputElement = element.children().first();
-			var tooltipState = null;
 			var className = null;
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -284,12 +282,6 @@ angular.module('servoydefaultCalendar', [ 'servoy']).directive('servoydefaultCal
 					case "margin":
 						if (value)
 							element.css(value);
-						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
 						break;
 					case "background":
 					case "transparent":
@@ -345,6 +337,7 @@ angular.module('servoydefaultCalendar', [ 'servoy']).directive('servoydefaultCal
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				if (angular.isDefined(theDateTimePicker)) { // can be undefined in find mode
 					theDateTimePicker.destroy();

@@ -4,9 +4,9 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>8.2.0.3101_rc1</version>
+		<version>8.2.0.3103</version>
 	</parent>
 	<artifactId>servoy_ngclient.tests</artifactId>
-	<version>8.2.0.3101_rc1</version>
+	<version>8.2.0.3103</version>
 	<packaging>eclipse-test-plugin</packaging>
 </project>

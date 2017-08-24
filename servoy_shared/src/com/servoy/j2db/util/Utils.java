@@ -83,6 +83,8 @@ import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
 
 import org.apache.commons.codec.binary.Base64;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.NativeJavaMethod;
@@ -91,6 +93,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.xml.XMLObject;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
@@ -2267,6 +2270,7 @@ public final class Utils
 		{
 			return false;
 		}
+		// at this point none of the two values is null
 
 		// Compare UUID with possible storage for UUID
 		if (oldObj.getClass() == UUID.class)
@@ -2391,6 +2395,11 @@ public final class Utils
 		if (ignoreCase && oldObj instanceof String && obj instanceof String)
 		{
 			return ((String)oldObj).equalsIgnoreCase((String)obj);
+		}
+
+		if (obj instanceof JSONArray || obj instanceof JSONObject) // || oldObj instanceof JSONArray || oldObj instanceof JSONObject it would be false anyway of obj is not one of those
+		{
+			return JSONUtils.areEqual(obj, oldObj);
 		}
 
 		return oldObj.equals(obj);
@@ -3014,6 +3023,12 @@ public final class Utils
 		return keys;
 	}
 
+	public static String getScriptableString(Object obj)
+	{
+		if (obj instanceof Scriptable) return getScriptableString((Scriptable)obj);
+		if (obj instanceof Object[]) return getScriptableString((Object[])obj);
+		return String.valueOf(obj);
+	}
 
 	/**
 	 * Returns a js/json string representation of the given {@link Scriptable}

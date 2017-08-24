@@ -72,7 +72,6 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 			var element = $element.children().first();
 			var inputElement = element.children().first();
 			var spanElement = element.children().last();
-			var tooltipState = null;
 			var className = null;
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -98,12 +97,6 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 					case "horizontalAlignment":
 						$svyProperties.setHorizontalAlignmentFlexbox(element, value);
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
-						break;
 					case "enabled":
 						if (value && $scope.model.editable)
 							inputElement.removeAttr("disabled");
@@ -126,6 +119,7 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

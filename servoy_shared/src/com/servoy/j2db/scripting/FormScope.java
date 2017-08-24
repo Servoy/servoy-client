@@ -217,8 +217,9 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		Object object = super.get(name, start);
 		if ((object == null || object == Scriptable.NOT_FOUND) && ("foundset".equals(name) || "elements".equals(name)))
 		{
-			Debug.error(Thread.currentThread().getName() + ": For form " + _fp +
-				" the foundset/elements were asked for but that was not (or was no longer) set. " + (this == _fp.getFormScope()), new RuntimeException());
+			Debug.error(
+				Thread.currentThread().getName() + ": For form " + _fp + " the foundset/elements were asked for but that was not (or was no longer) set. ",
+				new RuntimeException());
 			if (name.equals("foundset")) return _fp.getFormModel();
 		}
 		return object;

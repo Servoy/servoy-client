@@ -204,6 +204,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	public JSONWriter toTemplateJSONValue(final JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, final FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		FlattenedSolution clientFlattenedSolution = (formElementContext != null && formElementContext.getContext() != null)
 			? formElementContext.getContext().getSolution() : null;
 		if (!formElementValue.isSecurityViewable(clientFlattenedSolution))

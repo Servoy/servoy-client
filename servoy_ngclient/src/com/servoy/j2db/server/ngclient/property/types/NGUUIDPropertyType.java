@@ -55,7 +55,8 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	public UUID fromJSON(Object newJSONValue, UUID previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newJSONValue instanceof String && (previousSabloValue == null || !((String)newJSONValue).equals(previousSabloValue.toString()))) return UUID.fromString((String)newJSONValue);
+		if (newJSONValue instanceof String && (previousSabloValue == null || !((String)newJSONValue).equals(previousSabloValue.toString())))
+			return UUID.fromString((String)newJSONValue);
 		return null;
 	}
 
@@ -74,9 +75,10 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, UUID formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, UUID formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
+		FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 

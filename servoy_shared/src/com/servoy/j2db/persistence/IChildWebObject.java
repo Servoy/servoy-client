@@ -35,6 +35,8 @@ public interface IChildWebObject extends IBasicWebObject
 	 */
 	String getJsonKey();
 
+	void setJsonKey(String newJsonKey);
+
 	/**
 	 * In case this persist is nested inside a WebComponent or a WebCustomType via an array property, the index is the index of this persist inside the parent's array property specified by {@link #getJsonKey()}.
 	 */

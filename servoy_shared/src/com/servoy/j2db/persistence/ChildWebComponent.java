@@ -60,7 +60,7 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	public static final PropertyDescription ANCHORS_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(),
 		IntPropertyType.INSTANCE);
 
-	private transient final String jsonKey;
+	private transient String jsonKey;
 	private transient int index;
 
 	private final JSONObject fullJSONInFrmFile;
@@ -225,6 +225,12 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	public String getJsonKey()
 	{
 		return jsonKey;
+	}
+
+	@Override
+	public void setJsonKey(String newJsonKey)
+	{
+		jsonKey = newJsonKey;
 	}
 
 	public int getIndex()

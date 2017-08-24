@@ -17,16 +17,11 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-
-import com.servoy.j2db.persistence.RepositoryException;
-
 /**
  * @author lvostinar
  *
  */
 public interface IActiveSolutionImporter
 {
-	void doActiveSolutionImport() throws MalformedURLException, IOException, RepositoryException;
+	void doActiveSolutionImport() throws Exception;
 }

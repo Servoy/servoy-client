@@ -56,6 +56,7 @@ import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 
 /**
  * Headless client when running from developer.
@@ -336,6 +337,21 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		super.reportJSError(message, detail);
 	}
 
+	@Override
+	public void reportJSWarning(String s)
+	{
+		errorToDebugger(s, null);
+		Debug.warn(s);
+	}
+
+	@Override
+	public void reportJSWarning(String s, Throwable t)
+	{
+		errorToDebugger(s, t);
+		if (t == null) Debug.warn(s);
+		else super.reportJSWarning(s, t);
+	}
+
 	/**
 	 * @see com.servoy.j2db.ClientState#reportError(java.lang.String, java.lang.Object)
 	 */
@@ -346,62 +362,75 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		super.reportError(message, detail);
 	}
 
-	/**
-	 * @param message
-	 * @param detail
-	 */
+	@Override
 	public void errorToDebugger(String message, Object errorDetail)
 	{
-		Object detail = errorDetail;
-		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
-		if (engine != null)
+		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
-			DBGPDebugger debugger = engine.getDebugger();
-			if (debugger != null)
+			Object detail = errorDetail;
+			RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
+			if (engine != null)
 			{
-				RhinoException rhinoException = null;
-				if (detail instanceof Exception)
+				DBGPDebugger debugger = engine.getDebugger();
+				if (debugger != null)
 				{
-					Throwable exception = (Exception)detail;
-					while (exception != null)
+					RhinoException rhinoException = null;
+					if (detail instanceof Exception)
 					{
-						if (exception instanceof RhinoException)
+						Throwable exception = (Exception)detail;
+						while (exception != null)
 						{
-							rhinoException = (RhinoException)exception;
-							break;
+							if (exception instanceof RhinoException)
+							{
+								rhinoException = (RhinoException)exception;
+								break;
+							}
+							exception = exception.getCause();
 						}
-						exception = exception.getCause();
 					}
-				}
-				String msg = message;
-				if (rhinoException != null)
-				{
-					if (msg == null)
+					String msg = message;
+					if (rhinoException != null)
 					{
-						msg = rhinoException.getLocalizedMessage();
+						if (msg == null)
+						{
+							msg = rhinoException.getLocalizedMessage();
+						}
+						else msg += '\n' + rhinoException.getLocalizedMessage();
+						msg += '\n' + rhinoException.getScriptStackTrace();
 					}
-					else msg += '\n' + rhinoException.getLocalizedMessage();
-					msg += '\n' + rhinoException.getScriptStackTrace();
-				}
-				else if (detail instanceof Exception)
-				{
-					Object e = ((Exception)detail).getCause();
-					if (e != null)
+					else if (detail instanceof Exception)
 					{
-						detail = e;
+						Object e = ((Exception)detail).getCause();
+						if (e != null)
+						{
+							detail = e;
+						}
+						msg += "\n > " + detail.toString(); // complete stack?
+						if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+						{
+							msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+						}
 					}
-					msg += "\n > " + detail.toString(); // complete stack?
-					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+					else if (detail != null)
 					{
-						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+						msg += "\n" + detail;
 					}
+					debugger.outputStdErr(msg.toString() + '\n');
 				}
-				else if (detail != null)
-				{
-					msg += "\n" + detail;
-				}
-				debugger.outputStdErr(msg.toString() + '\n');
 			}
+		}
+	}
+
+	@Override
+	public void reportToDebugger(String messsage, boolean errorLevel)
+	{
+		if (!errorLevel)
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+		}
+		else
+		{
+			DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
 		}
 	}
 

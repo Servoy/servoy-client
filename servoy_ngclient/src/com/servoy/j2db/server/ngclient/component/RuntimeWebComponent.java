@@ -33,7 +33,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
-import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -44,6 +43,7 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -265,6 +265,18 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 				}
 			};
 		}
+		if ("getDesignTimeProperty".equals(name) && component.getFormElement().getPersistIfAvailable() instanceof AbstractBase)
+		{
+			return new Callable()
+			{
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					return Utils.parseJSExpression(
+						((AbstractBase)component.getFormElement().getPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
+				}
+			};
+		}
 		final Function func = apiFunctions.get(name);
 		if (func != null && isApiFunctionEnabled(name))
 		{
@@ -340,9 +352,11 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
 			return (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName));
 		}
-		if ("getFormName".equals(name)) //$NON-NLS-1$
+		switch (name)
 		{
-			return true;
+			case "getFormName" :
+			case "getDesigntimeProperty" :
+				return true;
 		}
 		return false;
 	}
@@ -393,8 +407,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 									for (PropertyDescription visibleProperty : visibleProperties)
 									{
 										previousVal = siblingComponent.getProperty(visibleProperty.getName());
-										val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, visibleProperty,
-												(IWebObjectContext)siblingComponent);
+										val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, visibleProperty, siblingComponent);
 
 										if (val != previousVal) siblingComponent.setProperty(name, val);
 									}

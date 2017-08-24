@@ -167,6 +167,8 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, YF formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
 		FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		browserConversionMarkers.convert(CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();

@@ -372,6 +372,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					instance.bsWindowInstance.$el.on("bswin.active", function(ev, active) {
 						$(ev.currentTarget).trigger(active ? "enableTabseq" : "disableTabseq");
 					});
+					instance.bsWindowInstance.$el.find(".window-header").focus();
 					instance.bsWindowInstance.setActive(true);
 				},function(reason){
 					throw reason;

@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -45,6 +44,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -144,33 +144,29 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
-		if (formElementValue != null)
+		writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
+		DataConversion arrayConversionMarkers = new DataConversion();
+		for (Entry<String, FormElementT> e : formElementValue.entrySet())
 		{
-			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
-			DataConversion arrayConversionMarkers = new DataConversion();
-			for (Entry<String, FormElementT> e : formElementValue.entrySet())
-			{
-				arrayConversionMarkers.pushNode(e.getKey());
-				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
-				arrayConversionMarkers.popNode();
-			}
-			writer.endObject();
-			if (arrayConversionMarkers.getConversions().size() > 0)
-			{
-				writer.key(JSONUtils.TYPES_KEY).object();
-				JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
-				writer.endObject();
-			}
+			arrayConversionMarkers.pushNode(e.getKey());
+			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
+				getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
+			arrayConversionMarkers.popNode();
+		}
+		writer.endObject();
+		if (arrayConversionMarkers.getConversions().size() > 0)
+		{
+			writer.key(JSONUtils.TYPES_KEY).object();
+			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
 			writer.endObject();
 		}
-		else
-		{
-			writer.value(JSONObject.NULL);
-		}
+		writer.endObject();
+
 		return writer;
 	}
 
@@ -398,8 +394,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			JSONObject obj = (JSONObject)value;
 			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
-			Context cx = Context.enter();
-			Scriptable result = cx.newObject(scope);
+			Scriptable result = DefaultScope.newObject(scope);
 			for (String key : obj.keySet())
 			{
 				if (IChildWebObject.UUID_KEY.equals(key)) continue;

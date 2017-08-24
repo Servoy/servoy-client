@@ -112,6 +112,11 @@ public class WebObjectBasicImpl
 		return null;
 	}
 
+	public Object getPropertyDefaultValue(String propertyName)
+	{
+		return null;
+	}
+
 	public <T extends IPersist> Iterator<T> getObjects(int tp)
 	{
 		return new TypeIterator<T>(getAllObjects(), tp);
@@ -143,7 +148,7 @@ public class WebObjectBasicImpl
 	{
 	}
 
-	public void updatePersistMappedPropeties()
+	public void updateJSONFromPersistMappedPropeties()
 	{
 	}
 

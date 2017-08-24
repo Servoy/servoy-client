@@ -21,7 +21,6 @@ angular.module('servoydefaultButton', [ 'servoy' ]).directive('servoydefaultButt
 			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
-			var tooltipState = null;
 			var className;
 			var element = $element.children().first();
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
@@ -68,15 +67,10 @@ angular.module('servoydefaultButton', [ 'servoy' ]).directive('servoydefaultButt
 						if (className)
 							element.addClass(className);
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
-						break;
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

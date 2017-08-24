@@ -1079,7 +1079,9 @@ describe("Test foundset_custom_property suite", function() {
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			var message = sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)
+			delete message[0].id
+			expect(message).toEqual(
 					[ { sort: [ { name: 'i', direction: 'asc' }, { name: 'd', direction: 'desc' } ] } ]
 			);
 			expect(getAndClearNotified()).toEqual(false);

@@ -19,6 +19,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalComponentAccessException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -157,13 +158,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			int startIdx = functionName.lastIndexOf('.');
 			String noPrefixFunctionName = functionName.substring(startIdx > -1 ? startIdx + 1 : 0, functionName.length());
 
-
 			Scriptable scope = null;
 			Function f = null;
 
 			if (functionName.startsWith("forms."))
 			{
+				String formName = functionName.substring("forms.".length(), startIdx);
 				FormScope formScope = formController.getFormScope();
+				// if this form controller doesn't match the formname of the script then take that scope
+				// this is a function that is on a form that is not the active window form.
+				if (!formController.getName().equals(formName))
+				{
+					formScope = getApplication().getFormManager().getForm(formName).getFormScope();
+				}
 
 				f = formScope.getFunctionByName(noPrefixFunctionName);
 				if (f != null && f != Scriptable.NOT_FOUND)
@@ -306,11 +313,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			if (!isGlobalScopeListener)
 			{
-				Relation relationObj = formController.getApplication().getFlattenedSolution().getRelation(relation);
-				if (relationObj != null && relationObj.containsGlobal())
+				Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
+				if (relations != null)
 				{
-					formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
-					isGlobalScopeListener = true;
+					for (Relation relationObj : relations)
+					{
+						if (relationObj != null && relationObj.containsGlobal())
+						{
+							formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
+							isGlobalScopeListener = true;
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -507,12 +521,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			settingRecord = false;
 		}
-		for (IWebFormController form : visibleChildForms.keySet())
+		if (record != null)
 		{
-			if (visibleChildForms.get(form) != null)
+			for (IWebFormController form : visibleChildForms.keySet())
 			{
-				form.loadRecords(
-					record != null ? record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns()) : null);
+				if (visibleChildForms.get(form) != null)
+				{
+					form.loadRecords(record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns()));
+				}
 			}
 		}
 
@@ -810,6 +826,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		// TODO should this all (startEdit) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
 
+		try
+		{
+			webComponent.checkPropertyProtection(property);
+		}
+		catch (IllegalComponentAccessException ex)
+		{
+			//ignore, this is just to check if we can edit it, if not, do not enter edit mode
+			return;
+		}
 		String dataProviderID = getDataProviderID(webComponent, property);
 		if (dataProviderID == null)
 		{

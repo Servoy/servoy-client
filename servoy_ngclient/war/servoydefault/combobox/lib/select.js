@@ -904,9 +904,9 @@ uis.controller('uiSelectCtrl',
       e.stopPropagation();
     }
 
-    $scope.$apply(function() {
+    var tagged = false;
 
-      var tagged = false;
+    $scope.$apply(function() {
 
       if (ctrl.items.length > 0 || ctrl.tagging.isActivated) {
         if(!_handleDropDownSelection(key) && !ctrl.searchEnabled) {

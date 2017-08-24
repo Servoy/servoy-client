@@ -1926,11 +1926,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
@@ -2686,7 +2686,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public Object js_forEach(Function callback)
 	{
-		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine()));
+		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine(), null));
+	}
+
+	/**
+	 * @clonedesc js_forEach(Function)
+	 *
+	 * @sampleas js_forEach(Function)
+	 *
+	 * @param callback The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
+	 * @param thisObject What the this object should be in the callback function (default it is the foundset)
+	 *
+	 * @return Object the return value of the callback
+	 *
+	 */
+	public Object js_forEach(Function callback, Scriptable thisObject)
+	{
+		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine(), thisObject));
 	}
 
 	/**
@@ -6978,11 +6994,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		private final Function callback;
 		private final IExecutingEnviroment scriptEngine;
+		private final Scriptable thisObject;
 
-		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine)
+		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine, Scriptable thisObject)
 		{
 			this.callback = callback;
 			this.scriptEngine = scriptEngine;
+			this.thisObject = thisObject;
 		}
 
 		@Override
@@ -6991,8 +7009,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Scriptable callbackScope = callback.getParentScope();
 			try
 			{
-				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record, Integer.valueOf(recordIndex + 1), foundset },
-					false, true);
+				return scriptEngine.executeFunction(callback, callbackScope, (Scriptable)(thisObject == null ? foundset : thisObject),
+					new Object[] { record, Integer.valueOf(recordIndex + 1), foundset }, false, true);
 			}
 			catch (Exception ex)
 			{

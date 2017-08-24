@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
@@ -28,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
@@ -71,8 +72,8 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SERVOY_THIRDPARTY_SVYGRP = "servoy_thirdparty_svygrp";
 	public static final String SERVOY_CSS_CONTRIBUTIONS_SVYGRP = "servoy_css_contributions_svygrp";
 	public static final String SERVOY_CSS_THIRDPARTY_SVYGRP = "servoy_css_thirdparty_svygrp";
-	public static final String SOLUTIONS_PATH = "solutions/";
-	public static final String FORMS_PATH = "forms/";
+	public static final String SOLUTIONS_PATH = "/solutions/";
+	public static final String FORMS_PATH = "/forms/";
 
 	public static final String ANGULAR_JS = "js/angular_1.6.3.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
@@ -333,6 +334,34 @@ public class NGClientEntryFilter extends WebEntry
 							}
 							else
 							{
+								if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
+								{
+									boolean maintenanceMode = wsSession == null &&
+										(ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() ||
+											ApplicationServerRegistry.get().getDataServer().isInGlobalMaintenanceMode());
+									if (maintenanceMode)
+									{
+										HttpSession session = request.getSession(false);
+										if (session != null)
+										{
+											AtomicInteger sessionCounter = (AtomicInteger)session.getAttribute(NGClient.HTTP_SESSION_COUNTER);
+											if (sessionCounter != null && sessionCounter.get() > 0)
+											{
+												// if there is a session and that session has one or more clients, then also allow this client. (or this can be even the same client doing a refresh)
+												maintenanceMode = false;
+											}
+										}
+									}
+									if (maintenanceMode)
+									{
+										response.getWriter().write("Server in maintenance mode");
+										response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+										return;
+									}
+									// make sure a session is created. when a ngclient is created, that one should set the timeout to 0
+									request.getSession(true);
+								}
+
 								// prepare for possible index.html lookup
 								Map<String, Object> variableSubstitution = new HashMap<>();
 
@@ -348,9 +377,7 @@ public class NGClientEntryFilter extends WebEntry
 									ipaddr = request.getRemoteAddr();
 								}
 								variableSubstitution.put("ipaddr", ipaddr);
-								variableSubstitution.put("hostaddr", request.getRemoteHost());
-								variableSubstitution.put("utcoffset",
-									Integer.valueOf(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (1000 * 60 * 60)));
+								variableSubstitution.put("hostaddr", servletRequest.getRemoteHost());
 
 								// push some translations to the client, in case the client cannot connect back
 								JSONObject defaultTranslations = new JSONObject();
@@ -461,7 +488,7 @@ public class NGClientEntryFilter extends WebEntry
 	private String getSolutionNameFromURI(String uri)
 	{
 		int solutionIndex = uri.indexOf(SOLUTIONS_PATH);
-		if (solutionIndex > 0)
+		if (solutionIndex >= 0)
 		{
 			return uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
 		}

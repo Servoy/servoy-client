@@ -194,7 +194,6 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
     	  $scope.api.getLocationY = $apifunctions.getY($element[0]);    
     	  
     	  var element = $element.children().first();
-    	  var tooltipState = null;
     	  var className = null;
     	  Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -234,12 +233,6 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
 						}
 						$svyProperties.setScrollbars(element, value);
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
-						break;
 //					case "enabled":
 //						if (value)
 //							element.removeAttr("disabled");
@@ -255,6 +248,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

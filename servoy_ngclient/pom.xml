@@ -6,14 +6,11 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>8.2.0.3101_rc1</version>
+		<version>8.2.0.3103</version>
 	</parent>
 	<artifactId>servoy_ngclient</artifactId>
-	<version>8.2.0.3101_rc1</version>
+	<version>8.2.0.3103</version>
 	<packaging>eclipse-plugin</packaging>
-	<properties>
-		<sablo-version>8.2.0.3100-SNAPSHOT</sablo-version>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -31,7 +28,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.sablo</groupId>
-									<artifactId>sablo-core</artifactId>
+									<artifactId>sablo</artifactId>
 									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>

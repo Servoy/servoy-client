@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -115,7 +116,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	@Override
 	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
-		Scriptable newObject = Context.getCurrentContext().newObject(startScriptable);
+		Scriptable newObject = DefaultScope.newObject(startScriptable);
 		// TODO return here a NativeScriptable object that understand the full hiearchy?
 		WebFormComponent webFormComponent = (WebFormComponent)componentOrService;
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
@@ -149,6 +150,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		FlattenedSolution fs = formElementContext.getFlattenedSolution();
 		Form form = getForm(formElementValue, fs);
 		if (form != null)

@@ -308,7 +308,8 @@
   		"foreground": "color",
   		"disabled": "boolean",
   		"imageMediaID": "media",
-  		"mnemonic": "string"
+  		"mnemonic": "string",
+		"isActive": { "type": "boolean", "default": false, "tags": { "scope": "runtime" }, "pushToServer": "shallow" }
   	}
 }
 	 
