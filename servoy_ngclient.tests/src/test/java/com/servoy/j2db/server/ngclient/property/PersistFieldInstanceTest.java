@@ -125,7 +125,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		WebFormUI formUI = new WebFormUI(client.getFormManager().getForm(form.getName())); // needed for a valuelist property type that searches it's form's table via the webform ui
 		IDataAdapterList dataAdapterList = formUI.getDataAdapterList();
-		
+
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), formUI, form);
@@ -266,7 +266,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
-		Assert.assertEquals("{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
+		Assert.assertEquals(
+			"{\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+			json);
 	}
 
 	@Test
