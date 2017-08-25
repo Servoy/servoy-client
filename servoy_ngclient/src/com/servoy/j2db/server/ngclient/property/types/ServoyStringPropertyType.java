@@ -72,7 +72,7 @@ public class ServoyStringPropertyType extends StringPropertyType
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		String value = sabloValue;
-		if (dataConverterContext.getWebObject() instanceof IContextProvider)
+		if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 		{
 			value = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getI18NMessageIfPrefixed(value);
 		}
