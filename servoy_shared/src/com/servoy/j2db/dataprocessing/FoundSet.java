@@ -5614,7 +5614,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 								}
 							}
 						}
-						else if (row == null && getSize() > 0)
+						else if (row == null && getSize() > 0 && (!e.isAggregateChange() || aggregateCache.size() > 0))
 						{
 							clearAggregates();
 							fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);

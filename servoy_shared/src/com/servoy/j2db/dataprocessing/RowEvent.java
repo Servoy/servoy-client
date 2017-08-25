@@ -35,18 +35,25 @@ class RowEvent extends EventObject
 	private final Row row;
 	private final int type;
 	private final Object data;
+	private final boolean isAggregateChange;
 
 	RowEvent(Object source, Row row, int type, Object data)
+	{
+		this(source, row, type, data, false);
+	}
+
+	RowEvent(Object source, Row row, int type, Object data, boolean isAggregateChange)
 	{
 		super(source);
 		this.row = row;
 		this.type = type;
 		this.data = data;
+		this.isAggregateChange = isAggregateChange;
 	}
 
 	/**
 	 * Returns the type.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getType()
@@ -56,7 +63,7 @@ class RowEvent extends EventObject
 
 	/**
 	 * Returns the row.
-	 * 
+	 *
 	 * @return Row
 	 */
 	public Row getRow()
@@ -79,5 +86,10 @@ class RowEvent extends EventObject
 	public Object[] getChangedColumnNames()
 	{
 		return (type == UPDATE || type == PK_UPDATED) && data instanceof Object[] ? (Object[])data : null;
+	}
+
+	public boolean isAggregateChange()
+	{
+		return isAggregateChange;
 	}
 }

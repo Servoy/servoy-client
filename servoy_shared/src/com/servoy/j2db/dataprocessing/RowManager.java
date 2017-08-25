@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.RowManager.RowFireNotifyChange.CalculationDependencyData;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
@@ -285,8 +286,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		Row row = new Row(this, data, sheet.getAllUnstoredCalculationNamesWithNoValue(), existInDB);
 		if (addToMap)
 		{
-			pkRowMap.put(row.getPKHashKey(), new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
-				referenceQueue));
+			pkRowMap.put(row.getPKHashKey(),
+				new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));
 			clearAndCheckCache();
 		}
 		return row;
@@ -453,7 +454,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		else if (action == ISQLActionTypes.UPDATE_ACTION && insertColumnDataOrChangedColumns != null)
 		{
 			// update of row that is not cached by this client
-			fireNotifyChange(null, null, insertColumnDataOrChangedColumns, RowEvent.UPDATE);
+			fireNotifyChange(null, null, insertColumnDataOrChangedColumns, RowEvent.UPDATE, true);
 		}
 
 		//we did not have row cached in memory no update is need, we will get the change if we query for row when needed
@@ -521,8 +522,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 			if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), values))
 			{
-				Debug.error(new RuntimeException(
-					"Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+				Debug.error(
+					new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 						" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 			}
 
@@ -595,9 +596,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void fireNotifyChange(IRowListener skip, Row r, Object[] changedColumns, int eventType)
 	{
+		fireNotifyChange(skip, r, changedColumns, eventType, false);
+	}
+
+	void fireNotifyChange(IRowListener skip, Row r, Object[] changedColumns, int eventType, boolean isAggregateChange)
+	{
 		if (listeners.size() > 0)
 		{
-			RowEvent e = new RowEvent(this, r, eventType, changedColumns);
+			RowEvent e = new RowEvent(this, r, eventType, changedColumns, isAggregateChange);
 
 			// First copy it to a array list for concurrent mod...
 			Object[] array = null;
@@ -716,9 +722,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(
-								new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(),
-									c.getFlags()), robj);
+							((QueryUpdate)sqlUpdate).addValue(new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(),
+								c.getLength(), c.getScale(), c.getFlags()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<String>(olddata.length - i);
@@ -756,8 +761,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				}
 
 				// TODO: ckeck for success
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(),
-					SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
+					new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
 			else
 			{
@@ -791,7 +796,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						int columnIndex = getSQLSheet().getColumnIndex(dataProviderID);
 						// HACK: DIRTY way, should use some kind of identifier preferably
-						if (c.getDatabaseDefaultValue() != null && row.getRawValue(columnIndex, false) == null && c.getRowIdentType() == Column.NORMAL_COLUMN)
+						if (c.getDatabaseDefaultValue() != null && row.getRawValue(columnIndex, false) == null &&
+							c.getRowIdentType() == IBaseColumn.NORMAL_COLUMN)
 						{
 							// The database has a default value, and the value is null, and this is an insert...
 							// Remove the column from the query entirely and make sure the default value is requeried from the db.
@@ -820,8 +826,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(),
-					SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
+					new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
 			}
 			Object[] pk = row.getPK();
 			IDataSet pks = new BufferedDataSet();
@@ -843,8 +849,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
-			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate, fsm.getTableFilterParams(
-				sheet.getServerName(), sqlUpdate), requerySelect);
+			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
+				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
 			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
 			if (changedColumns != null)
 			{
@@ -855,8 +861,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			if (tracking || usesLobs)
 			{
 				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData() != null ? new Object[][] { row.getRawOldColumnData() } : null,
-					row.getRawColumnData() != null ? new Object[][] { row.getRawColumnData() } : null, fsm.getApplication().getUserUID(),
-					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+					row.getRawColumnData() != null ? new Object[][] { row.getRawColumnData() } : null, fsm.getApplication().getUserUID(), fsm.getTrackingInfo(),
+					fsm.getApplication().getClientID());
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
@@ -887,10 +893,12 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		// run fires later (add this runnable here first because the runnables in EditRecordList are processed in reverse order)
 		runnables.add(new Runnable()
 		{
+
 			public void run()
 			{
 				fireNotifyChange(src, row, null, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
 			}
+
 		});
 
 		// may add fires for depending calcs
@@ -920,8 +928,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		if (!oldKeyHash.equals(newKeyHash))
 		{
 			final SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> srOld = pkRowMap.get(oldKeyHash);
-			pkRowMap.put(newKeyHash, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
-				referenceQueue));// (over)write new
+			pkRowMap.put(newKeyHash,
+				new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));// (over)write new
 			if (srOld != null)
 			{
 				// run fires later
@@ -940,8 +948,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			if (!pkRowMap.containsKey(newKeyHash))
 			{
-				pkRowMap.put(newKeyHash, new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row,
-					referenceQueue));
+				pkRowMap.put(newKeyHash,
+					new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));
 				clearAndCheckCache();
 			}
 		}
@@ -997,8 +1005,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			Object[] pk = r.getPK();
 			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 			{
-				Debug.error(new RuntimeException(
-					"Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+				Debug.error(
+					new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 						" in query " + sqlDelete + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
@@ -1183,8 +1191,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(), sheet.getTable().getCatalog(),
-			sheet.getTable().getSchema()));
+		QuerySelect blobSelect = new QuerySelect(
+			new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(), sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
@@ -1278,8 +1286,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		IFoundSet sourceFoundset = e.getSourceFoundset();
 
 		// only act on new foundsets or size changes for related foundsets
-		if (e.getType() == FoundSetEvent.NEW_FOUNDSET ||
-			(e.getType() == FoundSetEvent.CONTENTS_CHANGED && (e.getChangeType() == FoundSetEvent.CHANGE_INSERT ||
+		if (e.getType() == FoundSetEvent.NEW_FOUNDSET || (e.getType() == FoundSetEvent.CONTENTS_CHANGED && (e.getChangeType() == FoundSetEvent.CHANGE_INSERT ||
 			e.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED || e.getChangeType() == FoundSetEvent.CHANGE_DELETE)))
 		{
 			if (sourceFoundset instanceof RelatedFoundSet && !sourceFoundset.isInFindMode())
@@ -1876,7 +1883,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 * @param dependingPkHashKey
 	 * @param dependingCalc
 	 */
-	public void removeCalculationDependency(String pkHashKey, String dataproviderId, String dependingDataSource, String dependingPkHashKey, String dependingCalc)
+	public void removeCalculationDependency(String pkHashKey, String dataproviderId, String dependingDataSource, String dependingPkHashKey,
+		String dependingCalc)
 	{
 		SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> sr = pkRowMap.get(pkHashKey);
 		if (sr != null)
@@ -2026,8 +2034,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		public String toString()
 		{
 			StringBuilder builder = new StringBuilder();
-			builder.append("CalculationDependency [calc=").append(calc).append(", dataSource=").append(dataSource).append(", pkHashKey=").append(pkHashKey).append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				']');
+			builder.append("CalculationDependency [calc=").append(calc).append(", dataSource=").append(dataSource).append(", pkHashKey=").append( //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				pkHashKey).append(']');
 			return builder.toString();
 		}
 
