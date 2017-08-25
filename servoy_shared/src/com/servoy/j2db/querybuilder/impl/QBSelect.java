@@ -482,7 +482,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		else
 		{
 			// convert the value (especially UUID) to the type of the column
-			val = Column.getAsRightType(columnType.getSqlType(), flags, value, columnType.getLength(), !getRoot().isConversionLenient());
+			val = Column.getAsRightType(columnType.getSqlType(), flags, value, columnType.getLength(), !getRoot().isConversionLenient(), false);
 			if (val == null && value != null)
 			{
 				// safety-fallback, could not convert, let JDBC driver do the conversion, only when servoy.client.query.convert.lenient=true

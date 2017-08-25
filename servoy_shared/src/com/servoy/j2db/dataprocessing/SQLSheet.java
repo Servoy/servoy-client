@@ -444,7 +444,7 @@ public class SQLSheet
 		{
 			try
 			{
-				convertedValue = Column.getAsRightType(variableInfo.type, variableInfo.flags, convertedValue, null, variableInfo.length, null, true); // dont use timezone here, should only be done in ui related stuff
+				convertedValue = Column.getAsRightType(variableInfo.type, variableInfo.flags, convertedValue, null, variableInfo.length, null, true, true); // dont use timezone here, should only be done in ui related stuff
 			}
 			catch (Exception e)
 			{
