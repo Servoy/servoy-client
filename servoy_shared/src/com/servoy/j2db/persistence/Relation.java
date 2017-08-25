@@ -792,7 +792,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					{
 						if (value != null)
 						{
-							Column.getAsRightType(foreign[i].getDataProviderType(), foreign[i].getFlags(), value, foreign[i].getLength(), true);
+							Column.getAsRightType(foreign[i].getDataProviderType(), foreign[i].getFlags(), value, foreign[i].getLength(), true, false);
 							continue;
 						}
 					}

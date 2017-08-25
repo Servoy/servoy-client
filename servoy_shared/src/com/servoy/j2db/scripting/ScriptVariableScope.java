@@ -34,6 +34,7 @@ import org.mozilla.javascript.debug.Debugger;
 import org.mozilla.javascript.debug.IDebuggerWithWatchPoints;
 import org.mozilla.javascript.xml.XMLObject;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -418,7 +419,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 				value = unwrapped;
 				try
 				{
-					value = Column.getAsRightType(variableType.intValue(), Column.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true); // dont convert with timezone here, its not ui but from scripting
+					value = Column.getAsRightType(variableType.intValue(), IBaseColumn.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true, false); // dont convert with timezone here, its not ui but from scripting
 				}
 				catch (Exception e)
 				{
