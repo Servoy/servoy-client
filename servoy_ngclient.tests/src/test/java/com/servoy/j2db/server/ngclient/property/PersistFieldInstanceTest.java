@@ -267,7 +267,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
 		Assert.assertEquals(
-			"{\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+			"{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svy_types\":{\"atype\":\"JSON_obj\"}}",
 			json);
 	}
 
