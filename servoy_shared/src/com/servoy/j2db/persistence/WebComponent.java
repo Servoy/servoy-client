@@ -144,7 +144,8 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void clearProperty(String propertyName)
 	{
-		if (!webObjectImpl.clearProperty(propertyName)) super.clearProperty(propertyName);
+		super.clearProperty(propertyName);
+		webObjectImpl.clearProperty(propertyName);
 	}
 
 	@Override
