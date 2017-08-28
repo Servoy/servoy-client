@@ -15,13 +15,15 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -30,6 +32,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -67,17 +70,19 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		if (newValue instanceof String)
 		{
 			String sDate = (String)newValue;
-
 			// if no date conversion replace client time zone with server time zone
 			if (hasNoDateConversion(dataConverterContext))
 			{
-				OffsetDateTime clientOffsetDateTime = OffsetDateTime.parse(sDate);
-				LocalDateTime clientLocalDateTime = clientOffsetDateTime.toLocalDateTime();
-				return Date.from(clientLocalDateTime.atZone(ZoneId.systemDefault()).toOffsetDateTime().toInstant());
+				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(sDate);
+				LocalDateTime clientLocalDateTime = clientDateTime.toLocalDateTime();
+				DateTime dateTime = clientLocalDateTime.toDateTime(DateTimeZone.getDefault());
+				return dateTime.toDate();
 			}
-
-			OffsetDateTime odt = OffsetDateTime.parse(sDate);
-			return Date.from(odt.toInstant());
+			else
+			{
+				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(sDate);
+				return clientDateTime.toDate();
+			}
 		}
 		return null;
 	}
@@ -90,14 +95,15 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		JSONUtils.addKeyIfPresent(writer, key);
 		String sDate;
 
+		DateTime dt = new DateTime(value);
 		// remove time zone info from sDate if no date conversion
 		if (hasNoDateConversion(dataConverterContext))
 		{
-			sDate = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault()).toLocalDateTime().toString();
+			sDate = dt.toLocalDateTime().toString();
 		}
 		else
 		{
-			sDate = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault()).toString();
+			sDate = dt.toString();
 		}
 
 		return writer.value(sDate);
@@ -105,22 +111,18 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 
 	private static boolean hasNoDateConversion(IBrowserConverterContext dataConverterContext)
 	{
-//		boolean hasNoDateConversion = false;
-//
-//		BaseWebObject wo = dataConverterContext.getWebObject();
-//		if (wo != null)
-//		{
-//			Object clientProperty = wo.getProperty("clientProperty");
-//			if (clientProperty instanceof Map< ? , ? >)
-//			{
-//				Map< ? , ? > clientPropertyMap = (Map< ? , ? >)clientProperty;
-//				Object noDateConversionObj = clientPropertyMap.get(IApplication.NG_NO_DATE_CONVERSION);
-//				hasNoDateConversion = noDateConversionObj instanceof Boolean && ((Boolean)noDateConversionObj).booleanValue();
-//			}
-//		}
-//
-//		return hasNoDateConversion;
+		boolean hasNoDateConversion = false;
 
-		return true;
+		BaseWebObject wo = dataConverterContext.getWebObject();
+		if (wo != null)
+		{
+			Object formatSabloValue = wo.getProperty(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName());
+			if (formatSabloValue instanceof FormatTypeSabloValue)
+			{
+				hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
+			}
+		}
+
+		return hasNoDateConversion;
 	}
 }
