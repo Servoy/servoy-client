@@ -17,13 +17,22 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.Date;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -31,7 +40,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 
 /**
  *
- * @author acostescu
+ * @author acostescu, gboros
  */
 public class NGDatePropertyType extends DatePropertyType implements IDesignToFormElement<Long, Date, Date>, IFormElementToTemplateJSON<Date, Date>
 {
@@ -54,4 +63,66 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	}
 
 
+	@Override
+	public Date fromJSON(Object newValue, Date previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
+	{
+		if (newValue instanceof String)
+		{
+			String sDate = (String)newValue;
+			// if no date conversion replace client time zone with server time zone
+			if (hasNoDateConversion(dataConverterContext))
+			{
+				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(sDate);
+				LocalDateTime clientLocalDateTime = clientDateTime.toLocalDateTime();
+				DateTime dateTime = clientLocalDateTime.toDateTime(DateTimeZone.getDefault());
+				return dateTime.toDate();
+			}
+			else
+			{
+				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(sDate);
+				return clientDateTime.toDate();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, String key, Date value, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
+	{
+		if (clientConversion != null) clientConversion.convert("svy_date"); //$NON-NLS-1$
+		JSONUtils.addKeyIfPresent(writer, key);
+		String sDate;
+
+		DateTime dt = new DateTime(value);
+		// remove time zone info from sDate if no date conversion
+		if (hasNoDateConversion(dataConverterContext))
+		{
+			sDate = dt.toLocalDateTime().toString();
+		}
+		else
+		{
+			sDate = dt.toString();
+		}
+
+		return writer.value(sDate);
+	}
+
+	private static boolean hasNoDateConversion(IBrowserConverterContext dataConverterContext)
+	{
+		boolean hasNoDateConversion = false;
+
+		BaseWebObject wo = dataConverterContext.getWebObject();
+		if (wo != null)
+		{
+			Object formatSabloValue = wo.getProperty(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName());
+			if (formatSabloValue instanceof FormatTypeSabloValue)
+			{
+				hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
+			}
+		}
+
+		return hasNoDateConversion;
+	}
 }

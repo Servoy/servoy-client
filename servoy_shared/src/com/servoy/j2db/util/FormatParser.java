@@ -71,9 +71,10 @@ public class FormatParser
 				String displayFormat = (String)props.get("displayFormat");
 				Integer maxLength = (Integer)props.get("maxLength");
 				String allowedCharacters = (String)props.get("allowedCharacters");
+				boolean useLocalDateTime = Boolean.TRUE.equals(props.get("useLocalDateTime"));
 
 				return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
-					uiConverterProperties, allowedCharacters);
+					uiConverterProperties, allowedCharacters, useLocalDateTime);
 			}
 			catch (JSONException e)
 			{
@@ -118,8 +119,8 @@ public class FormatParser
 			{
 				displayFormat = formatString.substring(0, index);
 				editOrPlaceholder = formatString.substring(index + 1);
-				if (displayFormat.length() == 0 &&
-					(editOrPlaceholder.length() == 1 || editOrPlaceholder.startsWith("U[") || editOrPlaceholder.startsWith("L[") || editOrPlaceholder.startsWith("#[")))
+				if (displayFormat.length() == 0 && (editOrPlaceholder.length() == 1 || editOrPlaceholder.startsWith("U[") ||
+					editOrPlaceholder.startsWith("L[") || editOrPlaceholder.startsWith("#[")))
 				{
 					if (editOrPlaceholder.charAt(0) == 'U')
 					{
@@ -186,7 +187,7 @@ public class FormatParser
 		}
 
 		return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
-			uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties), null);
+			uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties), null, false);
 	}
 
 	/**
@@ -223,8 +224,11 @@ public class FormatParser
 		private final Map<String, String> uiConverterProperties;
 		private final String allowedCharacters;
 
+		private final boolean useLocalDateTime;
+
 		public ParsedFormat(boolean allUpperCase, boolean allLowerCase, boolean numberValidator, boolean raw, boolean mask, String editOrPlaceholder,
-			String displayFormat, Integer maxLength, String uiConverterName, Map<String, String> uiConverterProperties, String allowedCharacters)
+			String displayFormat, Integer maxLength, String uiConverterName, Map<String, String> uiConverterProperties, String allowedCharacters,
+			boolean useLocalDateTime)
 		{
 			this.allUpperCase = allUpperCase;
 			this.allLowerCase = allLowerCase;
@@ -239,11 +243,13 @@ public class FormatParser
 			this.uiConverterName = uiConverterName;
 			this.uiConverterProperties = uiConverterProperties; // constructor is private, all callers should wrap with unmodifiable map
 			this.allowedCharacters = allowedCharacters == null || allowedCharacters.length() == 0 ? null : allowedCharacters;
+
+			this.useLocalDateTime = useLocalDateTime;
 		}
 
 		public String toFormatProperty()
 		{
-			if (uiConverterName == null && allowedCharacters == null)
+			if (uiConverterName == null && allowedCharacters == null && !useLocalDateTime)
 			{
 				// old style
 				return toSimpleFormatProperty();
@@ -279,6 +285,9 @@ public class FormatParser
 						conv.put("properties", props);
 					}
 				}
+
+				if (useLocalDateTime) json.put("useLocalDateTime", Boolean.TRUE);
+
 				return json.toString(false);
 			}
 			catch (JSONException e)
@@ -462,9 +471,9 @@ public class FormatParser
 
 		public ParsedFormat getCopy(String newUIConverterName, Map<String, String> newUIConverterProperties)
 		{
-			return new ParsedFormat(this.allUpperCase, this.allLowerCase, this.numberValidator, this.raw, this.mask, this.editOrPlaceholder,
-				this.displayFormat, this.maxLength, newUIConverterName, newUIConverterProperties == null ? null
-					: Collections.unmodifiableMap(newUIConverterProperties), allowedCharacters);
+			return new ParsedFormat(this.allUpperCase, this.allLowerCase, this.numberValidator, this.raw, this.mask, this.editOrPlaceholder, this.displayFormat,
+				this.maxLength, newUIConverterName, newUIConverterProperties == null ? null : Collections.unmodifiableMap(newUIConverterProperties),
+				allowedCharacters, useLocalDateTime);
 		}
 
 		/**
@@ -473,6 +482,11 @@ public class FormatParser
 		public String getAllowedCharacters()
 		{
 			return allowedCharacters;
+		}
+
+		public boolean useLocalDateTime()
+		{
+			return useLocalDateTime;
 		}
 	}
 }
