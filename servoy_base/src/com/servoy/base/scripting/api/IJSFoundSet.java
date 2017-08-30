@@ -19,11 +19,11 @@ package com.servoy.base.scripting.api;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
- * 
+ *
  * @author jcompagner
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public interface IJSFoundSet
 {
 	/**
@@ -42,19 +42,19 @@ public interface IJSFoundSet
 	 * //gets the current record index in the current foundset
 	 * var current = %%prefix%%foundset.getSelectedIndex();
 	 * //sets the next record in the foundset
-	 * %%prefix%%foundset.setSelectedIndex(current+1);	
+	 * %%prefix%%foundset.setSelectedIndex(current+1);
 	 * @return int current index (1-based)
 	 */
 	public int jsFunction_getSelectedIndex();
 
 	/**
-	 * Get the record object at the index. 
+	 * Get the record object at the index.
 	 *
 	 * @sample var record = %%prefix%%foundset.getRecord(index);
 	 *
 	 * @param index int record index
-	 * 
-	 * @return Record record. 
+	 *
+	 * @return Record record.
 	 */
 	public IJSRecord js_getRecord(int index);
 
@@ -62,16 +62,16 @@ public interface IJSFoundSet
 	 * Get the number of records in this foundset.
 	 * This is the number of records loaded, note that when looping over a foundset, size() may
 	 * increase as more records are loaded.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var nrRecords = %%prefix%%foundset.getSize()
-	 * 
+	 *
 	 * // to loop over foundset, recalculate size for each record
 	 * for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
 	 * {
 	 * 	var rec = %%prefix%%foundset.getRecord(i);
 	 * }
-	 * 
+	 *
 	 * @return int current size.
 	 */
 	public int getSize();
@@ -81,7 +81,7 @@ public interface IJSFoundSet
 	 * Get the selected record.
 	 *
 	 * @sample var selectedRecord = %%prefix%%foundset.getSelectedRecord();
-	 * @return Record record. 
+	 * @return Record record.
 	 */
 	public IJSRecord getSelectedRecord();
 
@@ -89,11 +89,11 @@ public interface IJSFoundSet
 	 * Create a new record on top of the foundset and change selection to it. Returns -1 if the record can't be made.
 	 *
 	 * @sample
-	 * // foreign key data is only filled in for equals (=) relation items 
+	 * // foreign key data is only filled in for equals (=) relation items
 	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
 	 * // %%prefix%%foundset.newRecord(); // adds as first record
 	 * // %%prefix%%foundset.newRecord(2); //adds as second record
-	 * if (idx >= 0) // returned index is -1 in case of failure 
+	 * if (idx >= 0) // returned index is -1 in case of failure
 	 * {
 	 * 	%%prefix%%foundset.some_column = "some text";
 	 * 	application.output("added on position " + idx);
@@ -109,18 +109,18 @@ public interface IJSFoundSet
 	 * Create a new record on top of the foundset and change selection to it. Returns -1 if the record can't be made.
 	 *
 	 * @sample
-	 * // foreign key data is only filled in for equals (=) relation items 
+	 * // foreign key data is only filled in for equals (=) relation items
 	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
 	 * // %%prefix%%foundset.newRecord(); // adds as first record
 	 * // %%prefix%%foundset.newRecord(2); //adds as second record
-	 * if (idx >= 0) // returned index is -1 in case of failure 
+	 * if (idx >= 0) // returned index is -1 in case of failure
 	 * {
 	 * 	%%prefix%%foundset.some_column = "some text";
 	 * 	application.output("added on position " + idx);
 	 * 	// when adding at the end of the foundset, the returned index
 	 * 	// corresponds with the size of the foundset
 	 * }
-	 * 
+	 *
 	 * @param index the index on which place the record should go
 	 * @param changeSelection wheter or not the selection should change.
 	 *
@@ -135,13 +135,13 @@ public interface IJSFoundSet
 	 * two records, that are passed as arguments, and
 	 * it will return -1/0/1 if the first record is less/equal/greater
 	 * then the second record.
-	 * 
+	 *
 	 * The function based sorting does not work with printing.
 	 * It is just a temporary in-memory sort.
-	 * 
+	 *
 	 * @sample
 	 * %%prefix%%foundset.sort(mySortFunction);
-	 * 
+	 *
 	 * function mySortFunction(r1, r2)
 	 * {
 	 *	var o = 0;
@@ -168,7 +168,7 @@ public interface IJSFoundSet
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
 	 * @param index The index of the record to delete.
-	 * 
+	 *
 	 * @return boolean true if record could be deleted.
 	 */
 	public boolean js_deleteRecord(Number index) throws Exception;
@@ -181,7 +181,7 @@ public interface IJSFoundSet
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
 	 * @param record The record to delete from the foundset.
-	 * 
+	 *
 	 * @return boolean true if record could be deleted.
 	 */
 	public boolean js_deleteRecord(IJSRecord record) throws Exception;
@@ -209,12 +209,12 @@ public interface IJSFoundSet
 
 	/**
 	 * Set the foundset in find mode. (Start a find request), use the "search" function to perform/exit the find.
-	 * 
+	 *
 	 * Before going into find mode, all unsaved records will be saved in the database.
 	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), the foundset will not go into find mode.
 	 * Make sure the operator and the data (value) are part of the string passed to dataprovider (included inside a pair of quotation marks).
 	 * Note: always make sure to check the result of the find() method.
-	 * 
+	 *
 	 * When in find mode, columns can be assigned string expressions (including operators) that are evaluated as:
 	 * General:
 	 *       c1||c2    (condition1 or condition2)
@@ -251,14 +251,14 @@ public interface IJSFoundSet
 	 *
 	 * Related columns can be assigned, they will result in related searches.
 	 * For example, "employees_to_department.location_id = headoffice" finds all employees in the specified location).
-	 * 
+	 *
 	 * Searching on related aggregates is supported.
 	 * For example, "orders_to_details.total_amount = '&gt;1000'" finds all orders with total order details amount more than 1000.
-	 * 
+	 *
 	 * Arrays can be used for searching a number of values, this will result in an 'IN' condition that will be used in the search.
 	 * The values are not restricted to strings but can be any type that matches the column type.
 	 * For example, "record.department_id = [1, 33, 99]"
-	 * 
+	 *
 	 * @sample
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
 	 * {
@@ -268,9 +268,9 @@ public interface IJSFoundSet
 	 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 	 * 	%%prefix%%foundset.search()
 	 * }
-	 * 
+	 *
 	 * @return true if the foundset is now in find mode, false otherwise.
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean, Boolean)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
 	 * @see com.servoy.j2db.BasicFormController$JSForm#js_find()
@@ -284,7 +284,7 @@ public interface IJSFoundSet
 	 * @sample
 	 * //Returns true when find was called on this foundset and search has not been called yet
 	 * %%prefix%%foundset.isInFind();
-	 * 
+	 *
 	 * @return boolean is in find mode.
 	 */
 	public boolean isInFind();
@@ -294,9 +294,9 @@ public interface IJSFoundSet
 	 * Clear results from previous searches.
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
-	 * 
+	 *
 	 * @return the recordCount
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	public int search() throws Exception;
@@ -304,11 +304,11 @@ public interface IJSFoundSet
 	/**
 	 * Loads all accessible records from the datasource into the foundset.
 	 * Filters on the foundset are applied.
-	 * 
+	 *
 	 * Before loading the records, all unsaved records will be saved in the database.
-	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), 
+	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off),
 	 * records will not be loaded,
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_addFoundSetFilterParam(String, String, Object, String)
 	 *
 	 * @return true if records are loaded, false otherwise.
@@ -321,20 +321,20 @@ public interface IJSFoundSet
 	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
 	 *
 	 * @param record Record
-	 * 
-	 * @return int index. 
+	 *
+	 * @return int index.
 	 */
 	int js_getRecordIndex(IJSRecord record);
 
 	/**
 	 * Get all dataproviders of the foundset.
-	 * 
+	 *
 	 * @sample
 	 * var dataprovidersNames = %%prefix%%alldataproviders;
 	 * application.output("This foundset has " + dataprovidersNames.length + " data providers.")
 	 * for (var i=0; i<dataprovidersNames.length; i++)
 	 * 	application.output(dataprovidersNames[i]);
-	 * 
+	 *
 	 * @special
 	 */
 	String[] alldataproviders();
