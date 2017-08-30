@@ -674,22 +674,22 @@ public class PersistHelper
 	private static boolean isStyle(String value)
 	{
 		String[] styles = { "bold", //$NON-NLS-1$
-		"italic", //$NON-NLS-1$
-		"regular", //$NON-NLS-1$
-		"medium", //$NON-NLS-1$
-		"oblique", //$NON-NLS-1$
-		"semi", //$NON-NLS-1$
-		"narrow", //$NON-NLS-1$
-		"black", //$NON-NLS-1$
-		"light", //$NON-NLS-1$
-		"extra", //$NON-NLS-1$
-		"condensed", //$NON-NLS-1$
-		"cond", //$NON-NLS-1$
-		"ultra", //$NON-NLS-1$
-		"demi", //$NON-NLS-1$
-		"thin", //$NON-NLS-1$
-		"wide", //$NON-NLS-1$
-		"rounded" }; //$NON-NLS-1$
+			"italic", //$NON-NLS-1$
+			"regular", //$NON-NLS-1$
+			"medium", //$NON-NLS-1$
+			"oblique", //$NON-NLS-1$
+			"semi", //$NON-NLS-1$
+			"narrow", //$NON-NLS-1$
+			"black", //$NON-NLS-1$
+			"light", //$NON-NLS-1$
+			"extra", //$NON-NLS-1$
+			"condensed", //$NON-NLS-1$
+			"cond", //$NON-NLS-1$
+			"ultra", //$NON-NLS-1$
+			"demi", //$NON-NLS-1$
+			"thin", //$NON-NLS-1$
+			"wide", //$NON-NLS-1$
+			"rounded" }; //$NON-NLS-1$
 		for (String element : styles)
 		{
 			if (element.equalsIgnoreCase(value)) return true;
@@ -1117,11 +1117,14 @@ public class PersistHelper
 
 	public static ScriptMethod getOverridenMethod(ScriptMethod element)
 	{
-		Form parent = (Form)getSuperPersist((Form)element.getParent());
-		while (parent != null)
+		if (element.getParent() instanceof Form)
 		{
-			if (parent.getScriptMethod(element.getName()) != null) return parent.getScriptMethod(element.getName());
-			parent = (Form)getSuperPersist(parent);
+			Form parent = (Form)getSuperPersist((Form)element.getParent());
+			while (parent != null)
+			{
+				if (parent.getScriptMethod(element.getName()) != null) return parent.getScriptMethod(element.getName());
+				parent = (Form)getSuperPersist(parent);
+			}
 		}
 		return null;
 
