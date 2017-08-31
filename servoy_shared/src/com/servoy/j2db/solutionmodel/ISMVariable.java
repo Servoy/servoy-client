@@ -18,17 +18,18 @@
 package com.servoy.j2db.solutionmodel;
 
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
 
 
 /**
  * Solution model scriptig variable.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
  */
-
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public interface ISMVariable extends IBaseSMVariable, ISMHasUUID
 {
 

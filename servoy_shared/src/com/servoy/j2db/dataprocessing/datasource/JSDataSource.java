@@ -114,6 +114,8 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	 * record.emp_name = 'John'
 	 * databaseManager.saveData()
 	 *
+	 *  @param name The named foundset to get  for this datasource.
+	 *
 	 * @return An existing named foundset for the datasource.
 	 */
 	@JSFunction

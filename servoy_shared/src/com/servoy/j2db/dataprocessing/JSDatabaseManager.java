@@ -2217,7 +2217,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *    // does not exist
 	 * }
 	 *
-	 * @param datasource
+	 * @param dataSource the datasource string to check.
 	 *
 	 * @return boolean exists
 	 */
