@@ -142,6 +142,33 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 */
 	IQueryBuilderParameter getParameter(String name) throws RepositoryException;
 
+	/** Create an inlined value. An inlined value is a value that will appear literally in the resulting sql.
+	 *  For example
+	 *  <pre>
+	 *  	query.where().add(query.getColumn("custid").eq(query.inline(200)))
+	 *  </pre>
+	 *  results in sql
+	 *  <pre>
+	 *  	where custid = 200
+	 *  </pre>
+	 *  And
+	 *  <pre>
+	 *  	query.where().add(query.getColumn("custid").eq(200))
+	 *  </pre>
+	 *  results in sql
+	 *  <pre>
+	 *  	where custid = ?
+	 *  </pre> with prepared statement value 200.
+	 *  <p>
+	 *
+	 *  Inlined values can be used in situations where prepared statement expressions give sql problems, for example in some group-by clauses.
+	 *
+	 *  Note that using the same query with different inlined values effectively disables prepared statement caching for the query and may have a negative performance impact.
+	 */
+	Object inline(Number number);
+
+	Object inline(Number number, IQueryBuilderColumn columnForType);
+
 	/**
 	 * Create an OR-condition to add conditions to.
 	 * <pre>

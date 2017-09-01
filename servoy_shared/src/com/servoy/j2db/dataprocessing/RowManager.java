@@ -50,6 +50,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
@@ -134,6 +135,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						val = identValue;
 					}
+				}
+				else if (val instanceof QueryColumnValue)
+				{
+					val = ((QueryColumnValue)val).getValue();
 				}
 				String str;
 				if (val instanceof byte[])
