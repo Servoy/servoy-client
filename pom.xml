@@ -5,7 +5,7 @@
 		<maven>3.3.3</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>8.2.0.3103</version>
+	<version>8.3.0.3200_b1</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
@@ -15,8 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<servoy-repo.url>http://developer.servoy.com/p2_repository/compile_target/install/</servoy-repo.url>
-		<servoy-deltapack.url>http://developer.servoy.com/p2_repository/compile_target/install/deltapack/</servoy-deltapack.url>
+		<servoy-repo.url>http://download.eclipse.org/eclipse/updates/4.7-M-builds/M-4.7.1RC3-201709011220/</servoy-repo.url>
 		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
@@ -29,11 +28,6 @@
 		<repository>
 			<id>servoy_shiblibs</id>
 			<url>${servoy-shiplibs.url}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>servoy_deltapack</id>
-			<url>${servoy-deltapack.url}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
@@ -197,21 +191,5 @@
 		</plugins>
 	</build>
 
-	<dependencies>
-		<dependency>
-			<groupId>javax.websocket</groupId>
-			<artifactId>javax.websocket-api</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sablo</groupId>
-			<artifactId>sablo</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
+
 </project>

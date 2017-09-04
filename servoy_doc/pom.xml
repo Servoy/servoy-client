@@ -4,12 +4,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>8.2.0.3103</version>
+		<version>8.3.0.3200_b1</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>8.2.0.3103</version>
+	<version>8.3.0.3200_b1</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -125,11 +125,6 @@
 								<repository>
 									<id>servoy_shiblibs</id>
 									<url>${servoy-shiplibs.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
-									<id>servoy_deltapack</id>
-									<url>${servoy-deltapack.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
@@ -266,11 +261,6 @@
 								<repository>
 									<id>servoy_shiblibs</id>
 									<url>${servoy-shiplibs.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
-									<id>servoy_deltapack</id>
-									<url>${servoy-deltapack.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
