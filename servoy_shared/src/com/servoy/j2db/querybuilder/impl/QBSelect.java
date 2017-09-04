@@ -48,6 +48,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -306,6 +307,60 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return params().getParameter(name);
 	}
 
+	/** Create an inlined value. An inlined value is a value that will appear literally in the resulting sql.
+	 *  For example
+	 *  <pre>
+	 *  	query.where.add(query.columns.custid.eq(query.inline(200)))
+	 *  </pre>
+	 *  results in sql
+	 *  <pre>
+	 *  	where custid = 200
+	 *  </pre>
+	 *  And
+	 *  <pre>
+	 *  	query.where.add(query.columns.custid.eq(200))
+	 *  </pre>
+	 *  results in sql
+	 *  <pre>
+	 *  	where custid = ?
+	 *  </pre> with prepared statement value 200.
+	 *  <p>
+	 *  Inlined values can be used in situations where prepared statement expressions give sql problems, for example in some group-by clauses.
+	 *
+	 *  Note that using the same query with different inlined values effectively disables prepared statement caching for the query and may have a negative performance impact.
+	 *
+	 * @sample
+	 * 	var query = datasources.db.example_data.order_details.createSelect();
+	 *
+	 * 	var query = datasources.db.example_data.order_details.createSelect();
+	 * 	var mult = query.columns.unitprice.multiply(query.inline(100, query.columns.unitprice));
+	 * 	query.result.add(mult);
+	 * 	query.result.add(query.columns.discount.max);
+	 * 	query.groupBy.add(mult);
+	 *
+	 * @param number value to inline
+	 */
+	@JSFunction
+	public Object inline(Number number)
+	{
+		return inline(number, null);
+	}
+
+	/**
+	 * Create an inlined value converted to the type of the column.
+	 *
+	 * @sampleas inline(Number)
+	 *
+	 * @param number value to inline
+	 * @param columnForType convert value to type of the column
+	 */
+	@JSFunction
+	public Object inline(Number number, IQueryBuilderColumn columnForType)
+	{
+		return number == null ? null : new QueryColumnValue(
+			columnForType == null ? number : getAsRightType(number, columnForType.getColumnType(), columnForType.getFlags()), null, true);
+	}
+
 	/**
 	 * Create an OR-condition to add conditions to.
 	 * @sampleas and()
@@ -456,7 +511,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			return ((QBColumn)value).getQuerySelectValue();
 		}
 
-		Object val;
+		Object val = value;
 		if (value instanceof QBParameter)
 		{
 			TablePlaceholderKey key = ((QBParameter)value).getPlaceholderKey();
@@ -474,23 +529,30 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 				// make sure a date is a timestamp
 				val = new Timestamp(((Date)value).getTime());
 			}
-			else
-			{
-				val = value;
-			}
 		}
-		else
+		else if (!(value instanceof IQuerySelectValue))
 		{
 			// convert the value (especially UUID) to the type of the column
-			val = Column.getAsRightType(columnType.getSqlType(), flags, value, columnType.getLength(), !getRoot().isConversionLenient(), false);
-			if (val == null && value != null)
-			{
-				// safety-fallback, could not convert, let JDBC driver do the conversion, only when servoy.client.query.convert.lenient=true
-				val = value;
-			}
+			val = getAsRightType(value, columnType, flags);
+		}
+
+		if (val instanceof IQuerySelectValue)
+		{
+			return (IQuerySelectValue)val;
 		}
 
 		return new QueryColumnValue(val, null);
+	}
+
+	private Object getAsRightType(Object value, BaseColumnType columnType, int flags)
+	{
+		Object val = Column.getAsRightType(columnType.getSqlType(), flags, value, columnType.getLength(), !isConversionLenient(), false);
+		if (val == null && value != null)
+		{
+			// safety-fallback, could not convert, let JDBC driver do the conversion, only when servoy.client.query.convert.lenient=true
+			return value;
+		}
+		return val;
 	}
 
 	@Override

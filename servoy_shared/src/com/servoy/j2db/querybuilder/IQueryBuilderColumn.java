@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.RepositoryException;
 
 
@@ -337,4 +338,8 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * Extract year from date
 	 */
 	IQueryBuilderFunction year();
+
+	BaseColumnType getColumnType();
+
+	int getFlags();
 }
