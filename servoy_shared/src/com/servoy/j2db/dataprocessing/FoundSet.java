@@ -1926,11 +1926,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}
@@ -6451,6 +6451,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fs.pksAndRecords.setPksAndQuery(new BufferedDataSet(pksAndRecords.getPks()), pksAndRecords.getDbIndexLastPk(), fs_sqlSelect);
 		}
 		fs.initialized = initialized;
+		if (omittedPKs != null) fs.omittedPKs = new BufferedDataSet(omittedPKs.getColumnNames(), omittedPKs.getColumnTypes(), omittedPKs.getRows());
 
 		SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
 		SafeArrayList<IRecordInternal> fsCachedRecords = fs.pksAndRecords.getCachedRecords();
