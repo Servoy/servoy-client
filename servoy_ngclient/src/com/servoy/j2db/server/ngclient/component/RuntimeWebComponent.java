@@ -71,6 +71,14 @@ import com.servoy.j2db.util.Utils;
  */
 public class RuntimeWebComponent implements Scriptable, IInstanceOf
 {
+	/**
+	 *  a constanst set on the current context that a server side script is executing
+	 *  this way when a property is asked for we know that we can allow it.
+	 *
+	 */
+	public static final String SERVER_SIDE_SCRIPT_EXECUTE = "ServerSideScriptExecute";
+
+
 	private final WebFormComponent component;
 	private Scriptable prototypeScope;
 	private final Set<String> specProperties;
@@ -287,7 +295,16 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 				@Override
 				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 				{
-					Object retValue = func.call(cx, scope, thisObj, args);
+					Object retValue;
+					cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
+					try
+					{
+						retValue = func.call(cx, scope, thisObj, args);
+					}
+					finally
+					{
+						cx.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+					}
 					if (!(func instanceof WebComponentFunction))
 					{
 						WebObjectFunctionDefinition def = webComponentSpec.getApiFunctions().get(name);
