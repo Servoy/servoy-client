@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,13 +50,16 @@ import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
+import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -69,6 +73,7 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
@@ -76,6 +81,7 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime value stored in WebFormComponents for properties of type {@link DataproviderPropertyType}.
@@ -542,7 +548,55 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	protected Object getValueForToJSON(Object dpValue, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		Object jsonValueRepresentation;
-		if (findMode)
+		boolean valuelistDisplayValue = false;
+		if (webObjectContext != null && getDataProviderConfig() != null && getDataProviderConfig().shouldResolveValuelist())
+		{
+			Collection<PropertyDescription> properties = webObjectContext.getProperties(ValueListPropertyType.INSTANCE);
+			for (PropertyDescription valuelistPD : properties)
+			{
+				if (valuelistPD.getConfig() instanceof ValueListConfig &&
+					Utils.equalObjects(((ValueListConfig)valuelistPD.getConfig()).getFor(), dpPD.getName()))
+				{
+					valuelistDisplayValue = true;
+					ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(valuelistPD.getName());
+					if (valuelistSabloValue != null && valuelistSabloValue.getValueList() != null)
+					{
+						if (valuelistSabloValue.getValueList().realValueIndexOf(dpValue) != -1)
+						{
+							try
+							{
+								dpValue = valuelistSabloValue.getValueList().getElementAt(valuelistSabloValue.getValueList().realValueIndexOf(dpValue));
+							}
+							catch (Exception ex)
+							{
+								Debug.error(ex);
+							}
+						}
+						else if (valuelistSabloValue.getValueList() instanceof DBValueList)
+						{
+							try
+							{
+								LookupValueList lookup = new LookupValueList(valuelistSabloValue.getValueList().getValueList(),
+									dataAdapterList.getApplication(), ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), null, Types.OTHER,
+										null, valuelistSabloValue.getValueList().getValueList()),
+									null);
+								if (lookup.realValueIndexOf(dpValue) != -1)
+								{
+									dpValue = lookup.getElementAt(lookup.realValueIndexOf(dpValue));
+								}
+								lookup.deregister();
+							}
+							catch (Exception ex)
+							{
+								Debug.error(ex);
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+		if (findMode || valuelistDisplayValue)
 		{
 			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
 			// from scripting, then show string representation

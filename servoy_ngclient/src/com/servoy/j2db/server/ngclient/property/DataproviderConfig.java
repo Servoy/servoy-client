@@ -21,20 +21,24 @@ public class DataproviderConfig
 {
 	public static final String DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT = "displayTagsPropertyName"; //$NON-NLS-1$
 	public static final String DISPLAY_TAGS_CONFIG_OPT = "displayTags"; //$NON-NLS-1$
+	public static final String RESOLVE_VALUELIST_CONFIG_OPT = "resolveValuelist"; //$NON-NLS-1$
 
 	private final String onDataChange;
 	private final String onDataChangeCallback;
 	private final boolean parseHtml;
 	private final String displayTagsPropertyName;
 	private final boolean displayTags;
+	private final boolean resolveValuelist;
 
-	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml, String displayTagsPropertyName, boolean displayTags)
+	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml, String displayTagsPropertyName, boolean displayTags,
+		boolean resolveValuelist)
 	{
 		this.onDataChange = onDataChange;
 		this.onDataChangeCallback = onDataChangeCallback;
 		this.parseHtml = parseHtml;
 		this.displayTagsPropertyName = displayTagsPropertyName;
 		this.displayTags = displayTags;
+		this.resolveValuelist = resolveValuelist;
 	}
 
 	public String getOnDataChange()
@@ -60,5 +64,10 @@ public class DataproviderConfig
 	public boolean shouldDisplayTags()
 	{
 		return displayTags;
+	}
+
+	public boolean shouldResolveValuelist()
+	{
+		return resolveValuelist;
 	}
 }
