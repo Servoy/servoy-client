@@ -28,10 +28,6 @@ public class BasicI18NTagStringTypeSabloValue extends BasicTagStringTypeSabloVal
 
 	private final String i18nKey;
 
-	/**
-	 * @param designValue
-	 * @param dataAdapterList
-	 */
 	public BasicI18NTagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, String i18nKey)
 	{
 		super(designValue, dataAdapterList);

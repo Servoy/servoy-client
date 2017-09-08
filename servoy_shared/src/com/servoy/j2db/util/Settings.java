@@ -76,6 +76,8 @@ public final class Settings extends SortedProperties
 	public static final String TRUST_DATA_AS_HTML_SETTING = "servoy.clientTrustDataAsHtml"; //$NON-NLS-1$
 	public static final String USER_HOME = "servoy.user.home";
 
+	public static final String DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE = "servoy.developer.disableServerLogForwardingToDebugClientConsole"; //$NON-NLS-1$
+
 	private boolean loadedFromServer = false;
 	private File file;
 
@@ -306,6 +308,30 @@ public final class Settings extends SortedProperties
 
 	}
 
+	public static void removeServerLogForwardingToDeveloperAppenderFromRootCategory(Properties settings)
+	{
+		String rootCategory = settings.getProperty("log4j.rootCategory", "");
+		String[] catElements = rootCategory.split(" *, *");
+
+		// just remove the "debugconsole" appender from rootCategory if needed
+		StringBuilder sb = new StringBuilder(rootCategory.length() + 20);
+		boolean hasToBeRemoved = false;
+		for (String s : catElements)
+		{
+			if ("debugconsole".equals(s)) hasToBeRemoved = true; // don't add it to the appender; and mark that we need to write back change to "log4j.rootCategory"
+			else
+			{
+				sb.append(s);
+				sb.append(", ");
+			}
+		}
+		if (hasToBeRemoved)
+		{
+			if (sb.length() > 0) sb.setLength(sb.length() - 2); // remove last ", " if present
+			settings.setProperty("log4j.rootCategory", sb.toString());
+		}
+	}
+
 	/**
 	 * Remove old or moved settings.
 	 */
@@ -488,6 +514,7 @@ public final class Settings extends SortedProperties
 
 		//no need to store those
 		Object appServerDir = remove(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
+		removeServerLogForwardingToDeveloperAppenderFromRootCategory(this);
 
 		removeObsoleteSettings();
 

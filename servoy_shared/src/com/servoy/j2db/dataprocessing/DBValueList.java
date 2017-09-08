@@ -29,7 +29,6 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -57,7 +56,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	public static final String NAME_COLUMN = "valuelist_name"; //$NON-NLS-1$
 
 	protected List<SortColumn> defaultSort = null;
-	private Table table;
+	private ITable table;
 	protected boolean containsCalculation = false;
 	protected boolean registered = false;
 
@@ -80,10 +79,9 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			try
 			{
-				IServer s = application.getSolution().getServer(vl.getServerName());
-				if (s != null)
+				table = application.getFoundSetManager().getTable(vl.getDataSource());
+				if (table != null)
 				{
-					table = (Table)s.getTable(vl.getTableName());
 					setContainsCalculationFlag(table);
 
 					//if changes are performed on the data refresh this list.
@@ -408,7 +406,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		return table;
 	}
 
-	public static QuerySelect createValuelistQuery(IServiceProvider application, ValueList valueList, Table table)
+	public static QuerySelect createValuelistQuery(IServiceProvider application, ValueList valueList, ITable table)
 	{
 		if (table == null) return null;
 

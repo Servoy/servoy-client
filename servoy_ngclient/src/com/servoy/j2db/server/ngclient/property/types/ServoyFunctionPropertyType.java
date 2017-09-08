@@ -159,7 +159,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				{
 					String formName = ((FormScope)parentScope).getFormController().getName();
 					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + formName + "." + functionName + "()"));
-					map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+					map.put("formname", formName);
 				}
 				else if (parentScope instanceof GlobalScope)
 				{
@@ -192,14 +192,14 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			String formName = script.substring(7, script.indexOf('.', 7));
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
-			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+			map.put("formname", formName);
 		}
 		else if (script.contains("."))
 		{
 			// form method: formname.formmethod
 			String formName = script.substring(0, script.indexOf('.'));
 			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + script + "()"));
-			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+			map.put("formname", formName);
 		}
 		else
 		{
@@ -211,6 +211,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers,
 			formElementContext != null ? formElementContext.getFlattenedSolution() : null,
 			formElementContext != null ? formElementContext.getFormElement() : null);

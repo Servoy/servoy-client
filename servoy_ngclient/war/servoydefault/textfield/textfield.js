@@ -14,7 +14,6 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 					$scope.handlers.onActionMethodID(event);
 				}	
 			}
-			var tooltipState = null;
 			var formatState = null;
 			var className = null;
 			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
@@ -63,13 +62,10 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 						className = value;
 						if(className) $element.addClass(className);
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else tooltipState = $svyProperties.createTooltipState($element,value);
-					    break;
 				}
 			}});
+			$svyProperties.createTooltipState($element, function() { return $scope.model.toolTipText });
+
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

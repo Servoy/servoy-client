@@ -25,7 +25,7 @@
 	        "tabs" : {"type":"tab[]", "pushToServer": "shallow", "droppable":true}, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible",
-			"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "runtime" }, "pushToServer": "shallow" }
+			"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "private" }, "pushToServer": "shallow" }
 	},
 	"handlers":
 	{
@@ -308,7 +308,8 @@
   		"foreground": "color",
   		"disabled": "boolean",
   		"imageMediaID": "media",
-  		"mnemonic": "string"
+  		"mnemonic": "string",
+		"isActive": { "type": "boolean", "default": false, "tags": { "scope": "private" }, "pushToServer": "shallow" }
   	}
 }
 	 

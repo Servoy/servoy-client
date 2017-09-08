@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -701,6 +702,18 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public QBFunction year()
 	{
 		return getRoot().functions().year(this);
+	}
+
+	@Override
+	public BaseColumnType getColumnType()
+	{
+		return getQuerySelectValue().getColumn().getColumnType();
+	}
+
+	@Override
+	public int getFlags()
+	{
+		return getQuerySelectValue().getColumn().getFlags();
 	}
 
 	/*

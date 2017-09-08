@@ -34,7 +34,6 @@ angular.module('servoydefaultPassword', [ 'servoy' ]).directive('servoydefaultPa
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
 
-			var tooltipState = null;
 			var formatState = null;
 			var className = null;
 			var element = $element.children().first();
@@ -79,12 +78,6 @@ angular.module('servoydefaultPassword', [ 'servoy' ]).directive('servoydefaultPa
 						else
 							element.attr("readonly", "readonly");
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
-						break;
 					case "horizontalAlignment":
 						$svyProperties.setHorizontalAlignment(element, value);
 						break;
@@ -97,6 +90,7 @@ angular.module('servoydefaultPassword', [ 'servoy' ]).directive('servoydefaultPa
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

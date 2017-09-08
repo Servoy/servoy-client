@@ -13,7 +13,6 @@ angular.module('servoydefaultLabel',['servoy'])
 		$http.get(templateUrl, {cache: $templateCache}).then(function(result) {
     	  	$element.html(result.data);
           	$compile($element.contents())($scope);
-    	  	var tooltipState = null;
 			var className = null;
 			var element = $element.children().first();
 			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
@@ -68,16 +67,12 @@ angular.module('servoydefaultLabel',['servoy'])
 					case "textRotation":
 						$svyProperties.setRotation(element,$scope,value);
 						break
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else tooltipState = $svyProperties.createTooltipState(element,value);
-					    break;
 					case "verticalAlignment":
 						$svyProperties.setVerticalAlignment(element.children().first(),value);
 						break;
 				}
 			}});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

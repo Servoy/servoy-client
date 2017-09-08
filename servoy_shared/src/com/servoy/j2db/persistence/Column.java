@@ -189,12 +189,12 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 	}
 
-	public static Object getAsRightType(int type, int flags, Object obj, String format, int l, TimeZone timeZone, boolean throwOnFail)
+	public static Object getAsRightType(int type, int flags, Object obj, String format, int l, TimeZone timeZone, boolean throwOnFail, boolean truncate)
 	{
 		if (obj == null) return null;
 		if (obj instanceof DbIdentValue || obj instanceof NullValue) return obj;
 
-		if (format == null) return getAsRightType(type, flags, obj, l, throwOnFail);//can't do anything else
+		if (format == null) return getAsRightType(type, flags, obj, l, throwOnFail, truncate);//can't do anything else
 
 		try
 		{
@@ -212,7 +212,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							dformatter.setTimeZone(timeZone);
 						}
 						Date date = dformatter.parse(str, pos);
-						return getAsRightType(type, flags, date, l, throwOnFail);
+						return getAsRightType(type, flags, date, l, throwOnFail, false);
 
 					case NUMBER :
 						DecimalFormat nformatter = new DecimalFormat(format);
@@ -238,7 +238,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							nformatter.setNegativeSuffix(""); //$NON-NLS-1$
 						}
 					}
-						return getAsRightType(type, flags, nformatter.parse(str, pos), l, throwOnFail);
+						return getAsRightType(type, flags, nformatter.parse(str, pos), l, throwOnFail, false);
 
 					case INTEGER :
 						DecimalFormat iformatter = new DecimalFormat(format);
@@ -264,7 +264,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							iformatter.setNegativeSuffix(""); //$NON-NLS-1$
 						}
 					}
-						return getAsRightType(type, flags, iformatter.parse(str, pos), l, throwOnFail);
+						return getAsRightType(type, flags, iformatter.parse(str, pos), l, throwOnFail, false);
 
 					case TEXT :
 						if (l > 0 && str.length() >= l)
@@ -295,20 +295,20 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					case DATETIME :
 						if (obj instanceof Date)
 						{
-							return getAsRightType(type, flags, obj, l, throwOnFail);
+							return getAsRightType(type, flags, obj, l, throwOnFail, false);
 						}
 						if (obj instanceof Number)
 						{
-							return getAsRightType(type, flags, new Date(((Number)obj).longValue()), l, throwOnFail);
+							return getAsRightType(type, flags, new Date(((Number)obj).longValue()), l, throwOnFail, false);
 						}
-						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
+						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail, false);
 
 					case NUMBER :
 						if (obj instanceof Number)
 						{
 							return obj;
 						}
-						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
+						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail, false);
 
 					case INTEGER :
 						if (obj instanceof Number)
@@ -319,11 +319,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							}
 							return new Long(((Number)obj).longValue());
 						}
-						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
+						return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail, false);
 
 					case TEXT :
 						String str = obj.toString();
-						if (l > 0 && str.length() >= l)
+						if (truncate && l > 0 && str.length() >= l)
 						{
 							str = str.substring(0, l);
 						}
@@ -353,7 +353,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return null;
 	}
 
-	public static Object getAsRightType(int type, int flags, Object obj, int l, boolean throwOnFail)
+	public static Object getAsRightType(int type, int flags, Object obj, int l, boolean throwOnFail, boolean truncate)
 	{
 		if (obj == null) return null;
 		if (obj instanceof DbIdentValue || obj instanceof NullValue) return obj;
@@ -452,7 +452,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 				case TEXT :
 					String str = obj.toString();
-					if (l > 0 && str.length() > l)
+					if (truncate && l > 0 && str.length() > l)
 					{
 						if (Debug.tracing())
 						{
@@ -487,22 +487,17 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public Object getAsRightType(Object obj, String format)
 	{
-		return getAsRightType(getType(), getFlags(), obj, format, columnType.getLength(), null, false);
-	}
-
-	public Object getAsRightType(Object obj, String format, TimeZone timeZone)
-	{
-		return getAsRightType(getType(), getFlags(), obj, format, columnType.getLength(), timeZone, false);
+		return getAsRightType(getType(), getFlags(), obj, format, columnType.getLength(), null, false, true);
 	}
 
 	public Object getAsRightType(Object obj)
 	{
-		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), false);
+		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), false, true);
 	}
 
-	public Object getAsRightType(Object obj, boolean throwOnFail)
+	public Object getAsRightType(Object obj, boolean throwOnFail, boolean truncate)
 	{
-		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), throwOnFail);
+		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), throwOnFail, truncate);
 	}
 
 	public boolean isAggregate()

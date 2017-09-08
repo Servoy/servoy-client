@@ -30,7 +30,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		BSWindowManager: WM,
 		instances: {},
 		open: function (windowOptions) {
-			var dialogOpenedDeferred = $q.defer();
+			var dialogOpenedDeferred:ng.IDeferred<boolean> = $q.defer();
 
 			//prepare an instance of a window to be injected into controllers and returned to a caller
 			var windowInstance =windowOptions.windowInstance;
@@ -372,6 +372,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					instance.bsWindowInstance.$el.on("bswin.active", function(ev, active) {
 						$(ev.currentTarget).trigger(active ? "enableTabseq" : "disableTabseq");
 					});
+					instance.bsWindowInstance.$el.find(".window-header").focus();
 					instance.bsWindowInstance.setActive(true);
 				},function(reason){
 					throw reason;

@@ -36,6 +36,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
 	formState.resolving = true;
+	formState.absoluteLayout = formProperties.absoluteLayout[''];
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving = true for form = ${name}");
 	if (${hasRuntimeData()}) {
 		formState.model[''] =  ${runtimePropertiesString}
@@ -48,6 +49,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	$scope.layout = formState.layout;
 	$scope.formStyle = formState.style;
 	$scope.formProperties = formState.properties;
+	$scope.absoluteLayout = formProperties.absoluteLayout[''];
 	$scope.formname = "${name}";
 
 	<#list parts as part>
@@ -121,7 +123,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			callServerSideApi: function(methodName,args) {
 				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
 			},
-			getFormComponentElements: function(propertyName, templateUUID) {
+			getFormComponentElements: function(propertyName, formComponentValue) {
 				var newScope = $scope.$new(false,$scope);
 				newScope.model = {}
 				newScope.api = {};
@@ -148,7 +150,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 						newScope.handlers[key.substr(prefix.length)] = $scope.handlers[key];
 					}
 				}
-				return $compile($templateCache.get(templateUUID))(newScope);
+				return $compile($templateCache.get(formComponentValue.uuid))(newScope);
 			},
 			isInDesigner: function() {
 				return false;

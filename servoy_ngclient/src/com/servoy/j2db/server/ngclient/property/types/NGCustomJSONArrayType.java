@@ -19,13 +19,10 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
@@ -39,7 +36,6 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
@@ -117,43 +113,6 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
 		FormElementContext formElementContext) throws JSONException
 	{
-		JSONUtils.addKeyIfPresent(writer, key);
-		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
-		if (formElementValue != null)
-		{
-			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).array();
-			DataConversion arrayConversionMarkers = new DataConversion();
-			for (int i = 0; i < formElementValue.length; i++)
-			{
-				arrayConversionMarkers.pushNode(String.valueOf(i));
-				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(),
-					arrayConversionMarkers, formElementContext);
-				arrayConversionMarkers.popNode();
-			}
-			writer.endArray();
-			if (arrayConversionMarkers.getConversions().size() > 0)
-			{
-				// elements from the array may have been skipped when writing to template,
-				// so make sure the conversions keys are correct
-				Map<String, Object> conversions = arrayConversionMarkers.getConversions();
-				Map<String, Object> rebasedConversions = new HashMap<String, Object>();
-				int index = 0;
-				for (Map.Entry<String, Object> entry : conversions.entrySet())
-				{
-					rebasedConversions.put(String.valueOf(index++), entry.getValue());
-				}
-
-				writer.key(JSONUtils.TYPES_KEY).object();
-				JSONUtils.writeConversions(writer, rebasedConversions);
-				writer.endObject();
-			}
-			writer.endObject();
-		}
-		else
-		{
-			writer.value(JSONObject.NULL);
-		}
 		return writer;
 	}
 
@@ -238,24 +197,25 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public boolean valueInTemplate(Object[] values, PropertyDescription pd, FormElementContext formElementContext)
 	{
-		if (values != null && values.length > 0)
-		{
-			PropertyDescription desc = getCustomJSONTypeDefinition();
-
-			if (desc.getType() instanceof ISupportTemplateValue)
-			{
-				ISupportTemplateValue<Object> type = (ISupportTemplateValue<Object>)desc.getType();
-				for (Object object : values)
-				{
-					object = (object == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : object;
-					if (!type.valueInTemplate(object, desc, formElementContext))
-					{
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+//		if (values != null && values.length > 0)
+//		{
+//			PropertyDescription desc = getCustomJSONTypeDefinition();
+//
+//			if (desc.getType() instanceof ISupportTemplateValue)
+//			{
+//				ISupportTemplateValue<Object> type = (ISupportTemplateValue<Object>)desc.getType();
+//				for (Object object : values)
+//				{
+//					object = (object == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : object;
+//					if (!type.valueInTemplate(object, desc, formElementContext))
+//					{
+//						return false;
+//					}
+//				}
+//			}
+//		}
+		// always call tojson to send pushtoserver
+		return false;
 	}
 
 	@Override

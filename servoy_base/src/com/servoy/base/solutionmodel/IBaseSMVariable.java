@@ -24,18 +24,18 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Solution model scriptig variable for mobile & other clients.
- * 
+ *
  * @author rgansevles
  * @author acostescu
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true) 
 public interface IBaseSMVariable
 {
 
 	/**
 	 * Constant to be used when the type of a variable needs to be specified.
-	 * 
+	 *
 	 * @sample
 	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
 	 * dateVar.defaultValue = 'now';
@@ -45,7 +45,7 @@ public interface IBaseSMVariable
 	/**
 	 * @clonedesc DATETIME
 	 * @see #DATETIME
-	 * 
+	 *
 	 * @sample
 	 * var txtVar = solutionModel.newGlobalVariable('globals', 'gText', JSVariable.TEXT);
 	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assign a String as default value.
@@ -55,7 +55,7 @@ public interface IBaseSMVariable
 	/**
 	 * @clonedesc DATETIME
 	 * @see #DATETIME
-	 * 
+	 *
 	 * @sample
 	 * var numberVar = solutionModel.newGlobalVariable('globals', 'gNumber', JSVariable.NUMBER);
 	 * numberVar.defaultValue = 192.334;
@@ -65,7 +65,7 @@ public interface IBaseSMVariable
 	/**
 	 * @clonedesc DATETIME
 	 * @see #DATETIME
-	 * 
+	 *
 	 * @sample
 	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
 	 * intVar.defaultValue = 997;
@@ -75,7 +75,7 @@ public interface IBaseSMVariable
 	/**
 	 * @clonedesc DATETIME
 	 * @see #DATETIME
-	 * 
+	 *
 	 * @sample
 	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
@@ -84,19 +84,19 @@ public interface IBaseSMVariable
 	public static final int MEDIA = IColumnTypeConstants.MEDIA;
 
 	/**
-	 * The default value of the variable. 
-	 * 
+	 * The default value of the variable.
+	 *
 	 * It is interpreted as a JS expression.
-	 * 
-	 * For form variables ,setting this property requires the form instances to be destroyed (history.remove("formName")). 
+	 *
+	 * For form variables ,setting this property requires the form instances to be destroyed (history.remove("formName")).
 	 * If you want to use a default value for a newly created variable  create the variable using the 3 parameter version newVariable(name,type,defaultValue).
-	 * 
+	 *
 	 * For INTEGER variables it can be an integer constant, like 10 for example.
 	 * For NUMBER variables it can be a real constant, like 22.41. For DATETIME
-	 * variables it can be "now", or a JS expression like "new Date()". For TEXT 
+	 * variables it can be "now", or a JS expression like "new Date()". For TEXT
 	 * variables it can be any string surrounded with quotes, like "'some text'".
 	 *
-	 * @sample 
+	 * @sample
 	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
 	 * intVar.defaultValue = 997;
 	 * application.output(scopes.globals.gInt); // Prints 997
@@ -119,7 +119,7 @@ public interface IBaseSMVariable
 	 * @clonedesc getDefaultValue()
 	 * @see #getDefaultValue()
 	 *
-	 * @sample 
+	 * @sample
 	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
 	 * intVar.defaultValue = 997;
 	 * application.output(scopes.globals.gInt); // Prints 997
@@ -141,7 +141,7 @@ public interface IBaseSMVariable
 	/**
 	 * The name of the variable.
 	 *
-	 * @sample 
+	 * @sample
 	 * var gVar = solutionModel.newGlobalVariable('globals', 'gtext', JSVariable.TEXT);
 	 * gVar.name = 'anotherName';
 	 * gVar.defaultValue = '"default text"';
@@ -154,8 +154,8 @@ public interface IBaseSMVariable
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMMethod#getScopeName()
 	 * @see com.servoy.base.solutionmodel.IBaseSMMethod#getScopeName()
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var globalVariables = solutionModel.getGlobalVariables();
 	 * for (var i in globalVariables)
 	 * 	application.output(globalVariables[i].name + ' is defined in scope ' + globalVariables[i].getScopeName());
@@ -165,7 +165,7 @@ public interface IBaseSMVariable
 	/**
 	 * The type of the variable. Can be one of: TEXT, INTEGER, NUMBER, DATETIME or MEDIA.
 	 *
-	 * @sample 
+	 * @sample
 	 * var g = solutionModel.newGlobalVariable('globals', 'gtext',JSVariable.TEXT);
 	 * scopes.globals.gtext = 'some text';
 	 * g.variableType = JSVariable.DATETIME;

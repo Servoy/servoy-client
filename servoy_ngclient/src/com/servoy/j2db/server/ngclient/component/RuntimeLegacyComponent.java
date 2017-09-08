@@ -253,11 +253,22 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			// cannot get design only or private properties; make an exception for dp properties, should be able to get the dpid
 			if (!(component.getSpecification().getProperty(name).getType() instanceof DataproviderPropertyType))
 			{
+				component.getDataAdapterList().getApplication().reportJSWarning(
+					"Warn: Trying to get a property: " + name + "  that is a design or private spec, " + component.getSpecification().getName() +
+						"  property property on component " + component.getName());
 				return Scriptable.NOT_FOUND;
 			}
 		}
 
-		Object value = convertValue(name, component.getProperty(convertName(name)), webComponentSpec.getProperties().get(convertName(name)), start);
+		String convertName = convertName(name);
+		Object value = convertValue(name, component.getProperty(convertName), webComponentSpec.getProperties().get(convertName), start);
+
+		if (component.getSpecification().getProperty(convertName) == null && value == null &&
+			(Context.getCurrentContext() == null || Context.getCurrentContext().getThreadLocal(RuntimeWebComponent.SERVER_SIDE_SCRIPT_EXECUTE) == null))
+		{
+			component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to get a property: " + convertName + "  that is a not in the spec " +
+				component.getSpecification().getName() + " property on component " + component.getName());
+		}
 
 		if (isReadonly && value instanceof Boolean)
 		{
@@ -336,11 +347,20 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		if (component.isDesignOnlyProperty(name) && !StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
 		{
 			// cannot set design only or private properties
+			component.getDataAdapterList().getApplication().reportJSWarning(
+				"Warn: Trying to set a property: " + name + " with a value: " + Utils.getScriptableString(value) +
+					"  that is a design time/private property on component " + component.getName() + " with spec " + component.getSpecification().getName());
 			return;
 		}
-
 		Object previousVal = component.getProperty(name);
 		Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, webComponentSpec.getProperties().get(name), component);
+
+		if (!"clientProperty".equals(name) && component.getSpecification().getProperty(name) == null && previousVal == null)
+		{
+			component.getDataAdapterList().getApplication().reportJSWarning(
+				"Warn: Trying to set a property: " + name + " with a value: " + Utils.getScriptableString(value) + "  that is not a declared spec, " +
+					component.getSpecification().getName() + ", property  on component " + component.getName());
+		}
 
 		if (val != previousVal) component.setProperty(name, val);
 		// always force size & location push as that maybe different on the client (if form anchored or table columns were changed as width or location)
@@ -649,6 +669,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				if (persist instanceof RectShape)
 				{
 					return IRuntimeComponent.RECTANGLE;
+				}
+				if (persist instanceof com.servoy.j2db.persistence.WebComponent)
+				{
+					return ((com.servoy.j2db.persistence.WebComponent)persist).getTypeName();
 				}
 			}
 

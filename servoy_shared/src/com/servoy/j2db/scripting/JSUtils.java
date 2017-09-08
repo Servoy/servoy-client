@@ -234,6 +234,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Parse a string to a date object.
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
 	 *
 	 * @sample
 	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss');
@@ -280,6 +281,27 @@ public class JSUtils implements IJSUtils
 	 * This will format with the system timezone, so for web and ng clients it will use the server timezone to format
 	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.
+	 * Symbols meaning is:
+	 *  G        era designator
+	 *  y        year
+	 *  M        month in year
+	 *  d        day in month
+	 *  h        hour in am/pm (1~12)
+	 *  H        hour in day (0~23)
+	 *  m        minute in hour
+	 *  s        second in minute
+	 *  S        millisecond
+	 *  E        day in week
+	 *  D        day in year
+	 *  F        day of week in month
+	 *  w        week in year
+	 *  W        week in month
+	 *  a        am/pm marker
+	 *  z        time zone
+	 *  k        hour in day (1~24)
+	 *  K        hour in am/pm (0~11)
+	 *
 	 * @sample
 	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss');
 	 *
@@ -298,6 +320,27 @@ public class JSUtils implements IJSUtils
 	 * Format a date object to a text representation using the format and timezone given.
 	 * If the timezone is not given the timezone of the client itself will be used.
 	 * see i18n.getAvailableTimeZoneIDs() to get a timezone string that can be used.
+	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
+	 * Symbols meaning is:
+	 *  G        era designator
+	 *  y        year
+	 *  M        month in year
+	 *  d        day in month
+	 *  h        hour in am/pm (1~12)
+	 *  H        hour in day (0~23)
+	 *  m        minute in hour
+	 *  s        second in minute
+	 *  S        millisecond
+	 *  E        day in week
+	 *  D        day in year
+	 *  F        day of week in month
+	 *  w        week in year
+	 *  W        week in month
+	 *  a        am/pm marker
+	 *  z        time zone
+	 *  k        hour in day (1~24)
+	 *  K        hour in am/pm (0~11)
 	 *
 	 * @sample
 	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss', "UTC");

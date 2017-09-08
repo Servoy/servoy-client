@@ -70,6 +70,13 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 		return super.hasProperty("innerHTML".equals(propertyName) ? StaticContentSpecLoader.PROPERTY_BEANXML.getPropertyName() : propertyName); //$NON-NLS-1$
 	}
 
+	@Override
+	public Object getPropertyDefaultValueClone(String propertyName)
+	{
+		// this is only meant to work with web components/web custom types
+		return null;
+	}
+
 	/**
 	 * Set the actionMethodID
 	 *

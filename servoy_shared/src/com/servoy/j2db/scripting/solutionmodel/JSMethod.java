@@ -146,7 +146,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 			// foundset method
 			application.getFoundSetManager().reloadFoundsetMethod(((JSDataSourceNode)parent).getSupportChild().getDataSource(), sm);
 		}
-		else if (parent == null)
+		else if (parent == null && application.getScriptEngine().getScopesScope().has(sm.getScopeName(), null))
 		{
 			// global method
 			application.getScriptEngine().getScopesScope().getGlobalScope(sm.getScopeName()).put(sm, sm);
@@ -302,7 +302,6 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 			return new EvaluatorException(message);
 		}
 	}
-
 
 	/*
 	 * (non-Javadoc)

@@ -24,8 +24,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.WrappedException;
 
 import com.servoy.j2db.Messages;
@@ -331,6 +335,41 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 		}
 
 		return found != null ? found.intValue() : -1;
+	}
+
+	/**
+	 * Create a new JavaScript object.
+	 *
+	 * Equivalent to evaluating "new Object()".
+	 *
+	 * @param scope
+	 *            the scope to search for the constructor and to evaluate
+	 *            against
+	 * @return the new object
+	 */
+	public static Scriptable newObject(Scriptable scope)
+	{
+		NativeObject result = new NativeObject();
+		ScriptRuntime.setBuiltinProtoAndParent(result, scope, TopLevel.Builtins.Object);
+		return result;
+	}
+
+	/**
+	 * Create an array with a specified initial length.
+	 * <p>
+	 *
+	 * @param scope
+	 *            the scope to create the object in
+	 * @param length
+	 *            the initial length (JavaScript arrays may have additional
+	 *            properties added dynamically).
+	 * @return the new array object
+	 */
+	public static Scriptable newArray(Scriptable scope, int length)
+	{
+		NativeArray result = new NativeArray(length);
+		ScriptRuntime.setBuiltinProtoAndParent(result, scope, TopLevel.Builtins.Array);
+		return result;
 	}
 
 }

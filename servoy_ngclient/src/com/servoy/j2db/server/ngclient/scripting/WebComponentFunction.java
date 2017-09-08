@@ -55,6 +55,7 @@ public class WebComponentFunction extends WebBaseFunction
 			}
 		}
 		return cx.getWrapFactory().wrap(cx, scope,
-			NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.invokeApi(definition, args), definition.getReturnType(), component, null), null);
+			NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.invokeApi(definition, args), definition.getReturnType(), component, thisObj),
+			null);
 	}
 }

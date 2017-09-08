@@ -27,6 +27,7 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AggregateVariable;
@@ -171,7 +172,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		if (_fp == null) return NOT_FOUND;
+		if (_fp == null)
+		{
+			Debug.warn("Error accessing a form that is already destroyed for getting: " + name);
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
 
 		_fp.touch();
 		if ("alldataproviders".equals(name)) //$NON-NLS-1$
@@ -212,8 +217,9 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		Object object = super.get(name, start);
 		if ((object == null || object == Scriptable.NOT_FOUND) && ("foundset".equals(name) || "elements".equals(name)))
 		{
-			Debug.error(Thread.currentThread().getName() + ": For form " + _fp +
-				" the foundset/elements were asked for but that was not (or was no longer) set. " + (this == _fp.getFormScope()), new RuntimeException());
+			Debug.error(
+				Thread.currentThread().getName() + ": For form " + _fp + " the foundset/elements were asked for but that was not (or was no longer) set. ",
+				new RuntimeException());
 			if (name.equals("foundset")) return _fp.getFormModel();
 		}
 		return object;
@@ -329,6 +335,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
+		if (_fp == null)
+		{
+			Debug.warn("Error accessing a form that is already destroyed for getting: " + name);
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
 		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 			"allvariables".equals(name)) return true; //$NON-NLS-1$
 

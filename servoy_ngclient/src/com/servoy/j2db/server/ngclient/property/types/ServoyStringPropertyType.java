@@ -55,6 +55,8 @@ public class ServoyStringPropertyType extends StringPropertyType
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (formElementContext != null && formElementContext.getContext() != null && formElementContext.getContext().getApplication() != null)
 		{
@@ -70,7 +72,7 @@ public class ServoyStringPropertyType extends StringPropertyType
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		String value = sabloValue;
-		if (dataConverterContext.getWebObject() instanceof IContextProvider)
+		if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 		{
 			value = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getI18NMessageIfPrefixed(value);
 		}

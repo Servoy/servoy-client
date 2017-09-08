@@ -80,6 +80,9 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 	private ComponentFormat componentFormat;
 
+	private IChangeListener valuelistContentChangeListener;
+	private boolean isValuelistFormatSet;
+
 	/**
 	 * Creates a new FormatTypeSabloValue that is aware of any changes to it's "for" properties (if it is for a dataprovider or valuelist property type in .spec).<br/>
 	 * It will be initialized (compute it's ComponentFormat) once it has everything it needs.
@@ -166,7 +169,27 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 		if (propertyDependencies.valueListPropertyName != null)
 		{
 			ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
-			if (valuelistSabloValue != null) newValuelistID = valuelistSabloValue.getValuelistIdentifier();
+			if (valuelistSabloValue != null)
+			{
+				if (valuelistContentChangeListener == null)
+				{
+					valuelistContentChangeListener = new IChangeListener()
+					{
+						@Override
+						public void valueChanged()
+						{
+							if (!isValuelistFormatSet)
+							{
+								componentFormat = null;
+								initializeIfPossibleAndNeeded();
+							}
+						}
+					};
+				}
+
+				valuelistSabloValue.addStateChangeListener(valuelistContentChangeListener);
+				newValuelistID = valuelistSabloValue.getValuelistIdentifier();
+			}
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
@@ -228,7 +251,18 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 			Object dataproviderValue = webObjectContext.getProperty(propertyDependencies.dataproviderPropertyName);
 			if (dataproviderValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)dataproviderValue).removeStateChangeListener(this);
 		}
-		if (propertyDependencies.valueListPropertyName != null) webObjectContext.removePropertyChangeListener(propertyDependencies.valueListPropertyName, this);
+		if (propertyDependencies.valueListPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.valueListPropertyName, this);
+			if (valuelistContentChangeListener != null)
+			{
+				ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
+				if (valuelistSabloValue != null)
+				{
+					valuelistSabloValue.removeStateChangeListener(valuelistContentChangeListener);
+				}
+			}
+		}
 
 		this.changeMonitor = null;
 		webObjectContext = null;
@@ -241,7 +275,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 		INGApplication application = ((WebFormComponent)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getApplication();
 		IDataProviderLookup dataProviderLookup = null;
 
-		// IMPORTANT: here we iterate over the for: configs
+		// IMPORTANT: here we use the for: configs in .spec file
 		//
 		// if you have for: [valuelist, dataprovider] then 2 things can happen:
 		// - valuelist if it has both real and display values - forces the type; it is either TEXT (custom vl., global method vl.) or the 'display' column type in case it's a DB valuelist
@@ -251,6 +285,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 		// if you have just for: dataprovider the the dataprovider property determines the type
 		// if you have just for: valuelist (TODO) - this is currently not properly supported - as here we should get the type always from the VL (for both display and real values) - as we don't have a dataprovider to fall back on
 
+		isValuelistFormatSet = false;
 		if (valuelistId != null)
 		{
 			// if we have a "for" valuelist, see if this valuelist forces the format type due to display values (when they are separate from real values)
@@ -300,6 +335,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 						{
 							dataProvider = application.getFlattenedSolution().getDataProviderForTable(table, dp);
 						}
+						isValuelistFormatSet = true;
 						return ComponentFormat.getComponentFormat(formatValue, dataProvider, application, true);
 					}
 					else if (valuelistPersist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
@@ -309,6 +345,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 						if (realValuelist.hasRealValues())
 						{
 							// if custom vl has both real and display values, the display values are TEXT (format is for those)
+							isValuelistFormatSet = true;
 							return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
 						}
 					}
@@ -324,9 +361,10 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 							if (realValuelist instanceof GlobalMethodValueList)
 							{
 								((GlobalMethodValueList)realValuelist).fill(null, "", null);
-								if (realValuelist.hasRealValues())
+								if (realValuelist.hasRealValues() || realValuelist.getSize() == 0)
 								{
 									// if global method vl has both real and display values, it seems that the display values are always TEXT (format is for those)
+									isValuelistFormatSet = true;
 									return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
 								}
 							}

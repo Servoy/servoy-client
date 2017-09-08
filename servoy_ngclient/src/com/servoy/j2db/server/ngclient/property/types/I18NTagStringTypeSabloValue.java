@@ -31,13 +31,6 @@ public class I18NTagStringTypeSabloValue extends TagStringTypeSabloValue impleme
 {
 	private final String i18nKey;
 
-	/**
-	 * @param designValue
-	 * @param dataAdapterList
-	 * @param dataConverterContext
-	 * @param pd
-	 * @param formElement
-	 */
 	public I18NTagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
 		PropertyDescription pd, FormElement formElement, String i18nKey)
 	{

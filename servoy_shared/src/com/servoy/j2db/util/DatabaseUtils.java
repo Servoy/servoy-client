@@ -18,6 +18,8 @@
 package com.servoy.j2db.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.DummyValidator;
@@ -106,6 +109,15 @@ public class DatabaseUtils
 					tableInfo.columnInfoDefSet.add(cid);
 				}
 			}
+			// sort it based on creation index, so it is created the same as displayedin the table editor
+			Collections.sort(tableInfo.columnInfoDefSet, new Comparator<ColumnInfoDef>()
+			{
+				@Override
+				public int compare(ColumnInfoDef o1, ColumnInfoDef o2)
+				{
+					return o1.creationOrderIndex - o2.creationOrderIndex;
+				}
+			});
 		}
 		return tableInfo;
 	}
@@ -170,7 +182,7 @@ public class DatabaseUtils
 	{
 		int element_id = persistFactory.getNewElementID(null);
 		ColumnInfo ci = new ColumnInfo(element_id, false);
-		if (createMissingServoySequence && c.getRowIdentType() != Column.NORMAL_COLUMN && c.getSequenceType() == ColumnInfo.NO_SEQUENCE_SELECTED &&
+		if (createMissingServoySequence && c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && c.getSequenceType() == ColumnInfo.NO_SEQUENCE_SELECTED &&
 			(Column.mapToDefaultType(c.getConfiguredColumnType().getSqlType()) == IColumnTypes.INTEGER ||
 				Column.mapToDefaultType(c.getConfiguredColumnType().getSqlType()) == IColumnTypes.NUMBER))
 		{
@@ -208,7 +220,7 @@ public class DatabaseUtils
 		ci.setConfiguredColumnType(cid.columnType);
 		ci.setCompatibleColumnTypes(cid.compatibleColumnTypes);
 		ci.setFlags(cid.flags);
-		c.setDatabasePK((cid.flags & Column.PK_COLUMN) != 0);
+		c.setDatabasePK((cid.flags & IBaseColumn.PK_COLUMN) != 0);
 		c.setColumnInfo(ci);
 	}
 

@@ -116,7 +116,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 	  		  });
 			 
 			$scope.getTemplateUrl = function() {
-				if ($scope.model.tabOrientation == -1 || ($scope.model.tabOrientation == 0 && $scope.model.tabs.length == 1)) return "servoydefault/tabpanel/tablesspanel.html";
+				if ($scope.model.tabOrientation == -1 || ($scope.model.tabOrientation == 0 && $scope.model.tabs && $scope.model.tabs.length == 1)) return "servoydefault/tabpanel/tablesspanel.html";
 				else if($scope.model.tabOrientation == -4) return "servoydefault/tabpanel/accordionpanel.html"
 				else return "servoydefault/tabpanel/tabpanel.html";
 			}
@@ -132,6 +132,11 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						break;
 					}
 				}
+
+				if(!$scope.model.selectedTab && $scope.model.tabs.length) {
+					$scope.select($scope.model.tabs[0]);
+				}
+
 				if ($scope.model.selectedTab && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
 					return $scope.svyServoyapi.getFormUrl($scope.model.selectedTab.containsFormId);
 				else
@@ -149,6 +154,18 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.getForm = function(tab) {
+				if(!$scope.model.selectedTab) {
+					for(var i=0;i<$scope.model.tabs.length;i++) {
+						if ($scope.model.tabs[i].active) {
+								$scope.select($scope.model.tabs[i]);
+							break;
+						}
+					}
+	
+					if(!$scope.model.selectedTab && $scope.model.tabs.length) {
+						$scope.select($scope.model.tabs[0]);
+					}
+				}
 				if ($scope.model.selectedTab && (tab.containsFormId == $scope.model.selectedTab.containsFormId) && (tab.relationName == $scope.model.selectedTab.relationName)) {
 					return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
 				}
@@ -180,11 +197,13 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				if($scope.model.tabs) {
 					$scope.model.activeTabIndex = 0;
 
+					var activeSet = false;
 					for(var i=0;i<$scope.model.tabs.length;i++) {
-						if ($scope.model.tabs[i].active)
+						$scope.model.tabs[i].isActive = activeSet ? false : $scope.model.tabs[i].active; 
+						if (!activeSet && $scope.model.tabs[i].active)
 						{
 							$scope.model.activeTabIndex = i;
-							break;
+							activeSet = true;
 						}
 					}
 				}
@@ -217,6 +236,9 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				if (!$scope.model.visible) return ;
 				if(isValidTab(tab)) {
 					if (!tab.active) {
+						if($scope.model.selectedTab) {
+							$scope.model.selectedTab.active = false;
+						}
 						tab.active = true;
 						updateActiveTabIndex();
 					}
@@ -249,7 +271,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 								else {
 									tab.active = false;
 									$scope.model.selectedTab.active = true;
-									updateActiveTabIndex(false);
+									updateActiveTabIndex();
 								}
 							})
 						}

@@ -186,10 +186,24 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		String relName = "-1";
 		if (relationName != null)
 		{
-			Relation relation = getSession().getClient().getFlattenedSolution().getRelation(relationName);
-			if (relation != null)
+			Relation[] relations = getSession().getClient().getFlattenedSolution().getRelationSequence(relationName);
+			if (relations != null)
 			{
-				relName = Integer.toHexString(relation.getID());
+				for (Relation relation : relations)
+				{
+					if (relation != null)
+					{
+						if ("-1".equals(relName))
+						{
+							relName = Integer.toHexString(relation.getID());
+						}
+						else
+						{
+							relName += Integer.toHexString(relation.getID());
+						}
+					}
+				}
+
 			}
 		}
 
@@ -405,7 +419,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 	protected String getDefaultFormURLStart(Form form, String name)
 	{
-		return "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
+		return NGClientEntryFilter.SOLUTIONS_PATH.substring(1) + form.getSolution().getName() + NGClientEntryFilter.FORMS_PATH + name + ".html";
 	}
 
 	public void destroyForm(String name)

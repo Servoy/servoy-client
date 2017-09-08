@@ -81,6 +81,7 @@ var Window = null;
     };
 
     Window.prototype.undock = function () {
+    	var _this = this;
         this.$el.css('visibility', 'hidden');
         this.$el.appendTo('body');
         if(!this.options.location){

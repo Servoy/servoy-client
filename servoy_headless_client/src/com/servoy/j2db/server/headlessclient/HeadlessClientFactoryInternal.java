@@ -81,7 +81,7 @@ public class HeadlessClientFactoryInternal
 					}
 					else
 					{
-						sc[0] = new SessionClient(req, username, password, null, openArgs, solutionname);
+						sc[0] = new HeadlessClient(req, username, password, null, openArgs, solutionname);
 					}
 					sc[0].setUseLoginSolution(false);
 					sc[0].loadSolution(solutionname);
@@ -152,8 +152,8 @@ public class HeadlessClientFactoryInternal
 				return new ScriptEngine(this)
 				{
 					@Override
-					public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
-							throws Exception
+					public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent,
+						boolean throwException) throws Exception
 					{
 						// always throw exception
 						return super.executeFunction(f, scope, thisObject, args, focusEvent, true);

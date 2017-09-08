@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.persistence.ScriptVariable;
 
 /**
@@ -27,6 +28,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 public class SolutionScope extends DefaultScope
 {
 	private ScopesScope ss;
+	private boolean destroyed = false;
 
 	public SolutionScope(Scriptable parent)
 	{
@@ -41,6 +43,10 @@ public class SolutionScope extends DefaultScope
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		if (destroyed)
+		{
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
 		// legacy globals.x -> scopes.globals.x
 		if (ScriptVariable.GLOBAL_SCOPE.equals(name))
 		{
@@ -49,10 +55,27 @@ public class SolutionScope extends DefaultScope
 		return super.get(name, start);
 	}
 
+	@Override
+	public boolean has(String name, Scriptable start)
+	{
+		if (destroyed)
+		{
+			throw new ExitScriptException("killing current script, client/solution already terminated");
+		}
+		return super.has(name, start);
+	}
+
 	public void setScopesScope(ScopesScope ss)
 	{
 		this.ss = ss;
 		put(ScriptVariable.SCOPES, this, ss);
 		ss.setParentScope(this);
+	}
+
+	@Override
+	public void destroy()
+	{
+		this.destroyed = true;
+		super.destroy();
 	}
 }

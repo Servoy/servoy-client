@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar', [ 'servoy', 'servoydate' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService,$animate, $svyDateUtils) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService,$animate) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -45,9 +45,8 @@ angular.module('servoydefaultCalendar', [ 'servoy', 'servoydate' ]).directive('s
 				if ($scope.model.findmode) {
 					ngModel.$setViewValue(child.children("input").val());
 				} else {
-					if (e.date) {
-						ngModel.$setViewValue($svyDateUtils.getSameAsOnClient(e.date.toDate(), $scope.model));
-					}
+					if (e.date)
+						ngModel.$setViewValue(e.date.toDate());
 					else
 						ngModel.$setViewValue(null);
 				}
@@ -59,7 +58,7 @@ angular.module('servoydefaultCalendar', [ 'servoy', 'servoydate' ]).directive('s
 				// .date() throws exception if (newDate !== null && typeof newDate !== 'string' && !moment.isMoment(newDate) && !(newDate instanceof Date))
 				// because we do call this method quite fast using ngModel$viewValue that value might be NaN (used by angular JS) because ngModel code only
 				// initializes it to the actual value in a watch so later; we also want to be able to call .date() for undefined values
-				return (angular.isDefined(newValue) && !isNaN(newValue)) ? $svyDateUtils.getSameAsOnServer(newValue, $scope.model) : null;
+				return (angular.isDefined(newValue) && !isNaN(newValue)) ? newValue : null;
 			}
 
 			// when model change, update our view, set the date in the
@@ -272,7 +271,6 @@ angular.module('servoydefaultCalendar', [ 'servoy', 'servoydate' ]).directive('s
 
 			var element = $element.children().first();
 			var inputElement = element.children().first();
-			var tooltipState = null;
 			var className = null;
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -284,12 +282,6 @@ angular.module('servoydefaultCalendar', [ 'servoy', 'servoydate' ]).directive('s
 					case "margin":
 						if (value)
 							element.css(value);
-						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
 						break;
 					case "background":
 					case "transparent":
@@ -345,6 +337,7 @@ angular.module('servoydefaultCalendar', [ 'servoy', 'servoydate' ]).directive('s
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				if (angular.isDefined(theDateTimePicker)) { // can be undefined in find mode
 					theDateTimePicker.destroy();

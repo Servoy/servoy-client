@@ -44,6 +44,8 @@ public interface IBasicWebObject extends ISupportChilds
 
 	Object getProperty(String propertyName);
 
+	Object getPropertyDefaultValueClone(String propertyName);
+
 	IBasicWebComponent getParentComponent();
 
 	void updateJSON();
@@ -53,4 +55,7 @@ public interface IBasicWebObject extends ISupportChilds
 	void clearChanged();
 
 	Object getOwnProperty(String propertyName);
+
+	boolean hasProperty(String propertyName);
+
 }

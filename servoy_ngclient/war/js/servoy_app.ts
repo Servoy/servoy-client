@@ -22,7 +22,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     // added for "Possibly unhandled rejection with Angular 1.5.9" - https://github.com/angular-ui/ui-router/issues/2889
     $qProvider.errorOnUnhandledRejections(false);
 	
-}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $q:angular.IQService, $solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters, $sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
+}]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $webSocket: sablo.IWebSocket, $q:angular.IQService,
+		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters,
+		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
 
 	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
 
@@ -186,8 +188,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var findModeShortCutAdded = false;
 	function connect() {
 		// maybe do this with defer ($q)
-		var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($window.location.pathname)[1];
+		var solName = $webSocket.getURLParameter('s');
+		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($webSocket.getPathname())[1];
 		else $solutionSettings.solutionName  = solName;
 		$solutionSettings.windowName = $sabloApplication.getWindowId();
 		var recordingPrefix;
@@ -378,8 +380,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 					for (var beanName in beanDatas) {
 						// initialize with design data
-						//the '$' is used for formcomponent parent lookup
-						if (formProperties.absoluteLayout || beanName.indexOf("$") !== -1 && beanDatas[beanName.slice(0,beanName.indexOf("$"))].absoluteLayout) layout[beanName] = { position: 'absolute' }
+						if (formProperties.absoluteLayout[''] || formProperties.absoluteLayout[beanName]) layout[beanName] = { position: 'absolute' }
 
 						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
@@ -1180,6 +1181,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return $svyUIProperties.getUIProperty("trustDataAsHtml");
 	}
 	
+	function getServerURL() {
+		// current remote address including the context (includes leading /)
+		var context = $window.document.getElementsByTagName ("base")[0].getAttribute("href");
+		return $window.location.protocol + '//'+ $window.location.host + context;
+	}
+	
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
@@ -1242,23 +1249,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			return null;
 		},
-		getLocation:function() {
-			return $window.location.href;
-		},
 		getUserAgentAndPlatform:function() {
 			return {userAgent:$window.navigator.userAgent,platform:$window.navigator.platform};
 		},
-		getUtcOffsetsAndLocale:function() {
+		getClientBrowserInformation:function() {
 			var locale = $sabloApplication.getLocale();
 			this.setAngularLocale(locale.language);
 			var userAgent = this.getUserAgentAndPlatform();
 			return {
+				serverURL: getServerURL(),
 				userAgent : userAgent.userAgent,
 				platform : userAgent.platform,
 				locale : locale.full,
 				remote_ipaddress : window.servoy_remoteaddr,
 				remote_host : window.servoy_remotehost,
-				remote_utcOffset : window.servoy_remoteUTCOffset,
 				utcOffset : (new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)
 			};
 		},

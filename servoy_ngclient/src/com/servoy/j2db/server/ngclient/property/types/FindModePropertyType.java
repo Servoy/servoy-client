@@ -141,6 +141,8 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.value(Boolean.FALSE);
 		return writer;

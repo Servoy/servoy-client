@@ -177,7 +177,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
 					var beanData = serverJSONValue[MODEL_KEY];
-					var beanModel = {};
+					var beanModel = new sablo_app.Model();
 					serverJSONValue[MODEL_KEY] = beanModel;
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...

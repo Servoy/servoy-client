@@ -106,11 +106,12 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
-
 	{
-		JSONUtils.addKeyIfPresent(writer, key);
+		// TODO this only works properly if opposite of prop. is inside the same nesting level (so if OppositeOf for example is a root property of the component and this property is nested in a custom object); this is unlikely but in order to fix that we'd need to receive as param a INGFormElement instead
 		Boolean propertyValue = (Boolean)formElementContext.getFormElement().getPropertyValue(((ReadonlyConfig)pd.getConfig()).getOppositeOf());
-		writer.value(!propertyValue);
+
+		JSONUtils.addKeyIfPresent(writer, key);
+		writer.value(!(propertyValue != null ? propertyValue.booleanValue() : false));
 		return writer;
 	}
 

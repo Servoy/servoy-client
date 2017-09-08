@@ -138,6 +138,8 @@ public class Date
 	 * var str = Date.parse("Wed, 09 Aug 1995 00:00:00 GMT");
 	 * application.output(str);
 	 *
+	 * @param s The date string to parse
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse
 	 */
 	@JSFunction

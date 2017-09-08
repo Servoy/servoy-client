@@ -204,7 +204,7 @@ div.svy-label-with-focus:focus{
 	border-color: #d6e9c6;
 }
 
-.dropdown-menu[typeahead-popup] {
+.dropdown-menu[uib-typeahead-popup] {
 	max-height:200px;
 	overflow:auto;
 }

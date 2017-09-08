@@ -33,6 +33,7 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.dataprocessing.BaseSQLGenerator;
 import com.servoy.base.dataprocessing.ITypeConverter;
 import com.servoy.base.dataprocessing.IValueConverter;
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
@@ -315,7 +316,8 @@ public class SQLGenerator
 		{
 			SortColumn sc = orderByFields.get(i);
 			IColumn column = sc.getColumn(); // can be column or aggregate
-			if (column.getDataProviderType() == IColumnTypes.MEDIA && (column.getFlags() & (Column.IDENT_COLUMNS | Column.UUID_COLUMN)) == 0) continue;//skip cannot sort blob columns
+			if (column.getDataProviderType() == IColumnTypes.MEDIA && (column.getFlags() & (IBaseColumn.IDENT_COLUMNS | IBaseColumn.UUID_COLUMN)) == 0)
+				continue;//skip cannot sort blob columns
 
 			Relation[] relations = sc.getRelations();
 			// compare on server objects, relation.foreignServerName may be different in case of duplicates
@@ -457,7 +459,7 @@ public class SQLGenerator
 							{
 								return ValueFactory.createNullValue(dataProviderType);
 							}
-							return Column.getAsRightType(dataProviderType, flags, value, Integer.MAX_VALUE, false);
+							return Column.getAsRightType(dataProviderType, flags, value, Integer.MAX_VALUE, false, false);
 						}
 						return o;
 					}
@@ -516,7 +518,7 @@ public class SQLGenerator
 					}
 					else
 					{
-						value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
+						value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false, false);
 					}
 				}
 			}
@@ -787,8 +789,8 @@ public class SQLGenerator
 						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString))
 						// and once to convert for query (getAsType(c.getDataProviderType(), null))
 						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
-							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false), false);
-						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false);
+							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false, false), false);
+						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false, false);
 					}
 					// where qCol in (e1, e2, ..., en)
 					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
@@ -813,13 +815,13 @@ public class SQLGenerator
 							@Override
 							public Object getAsRightType(int type, int flags, Object obj, int l, boolean throwOnFail)
 							{
-								return Column.getAsRightType(type, flags, obj, l, throwOnFail);
+								return Column.getAsRightType(type, flags, obj, l, throwOnFail, false);
 							}
 
 							@Override
 							public Object getAsRightType(int type, int flags, Object obj, String format, int l, boolean throwOnFail)
 							{
-								return Column.getAsRightType(type, flags, obj, format, l, null, throwOnFail);
+								return Column.getAsRightType(type, flags, obj, format, l, null, throwOnFail, false);
 							}
 						}, table.getRowIdentColumns().get(0), Debug.LOGGER);
 				}
@@ -1460,7 +1462,7 @@ public class SQLGenerator
 	 */
 	static boolean isBlobColumn(Column column)
 	{
-		return Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(Column.UUID_COLUMN | Column.IDENT_COLUMNS);
+		return Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(IBaseColumn.UUID_COLUMN | IBaseColumn.IDENT_COLUMNS);
 	}
 
 	/**

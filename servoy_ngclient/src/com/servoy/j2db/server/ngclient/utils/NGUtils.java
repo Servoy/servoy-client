@@ -55,6 +55,7 @@ import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -64,6 +65,10 @@ import com.servoy.j2db.util.Debug;
  */
 public abstract class NGUtils
 {
+	static
+	{
+		Types.getTypesInstance().registerTypes();
+	}
 
 	public static final PropertyDescription DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
 		TypesRegistry.getType(DatePropertyType.TYPE_NAME));

@@ -387,6 +387,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			listenerAdded = true;
 			debugger.addTerminationListener(RemoteDebugScriptEngine.this);
 		}
+		IServiceProvider prev = J2DBGlobals.setSingletonServiceProvider(application);
 		try
 		{
 			executingFunction.incrementAndGet();
@@ -394,6 +395,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		}
 		finally
 		{
+			J2DBGlobals.setSingletonServiceProvider(prev);
 			executingFunction.decrementAndGet();
 		}
 	}

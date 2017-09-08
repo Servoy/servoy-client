@@ -61,6 +61,7 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Dimension formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 

@@ -30,9 +30,9 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
@@ -66,7 +66,7 @@ public class LookupListModel extends AbstractListModel
 	private boolean concatShowValues;
 	private boolean concatReturnValues;
 
-	private Table table;
+	private ITable table;
 	private QuerySelect creationSQLParts;
 
 	private final IApplication application;
@@ -104,14 +104,12 @@ public class LookupListModel extends AbstractListModel
 			concatReturnValues = true;
 		}
 
-		String serverName = null;
-		String tableName = null;
+		String datasource = null;
 		try
 		{
 			if (vl.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 			{
-				serverName = vl.getServerName();
-				tableName = vl.getTableName();
+				datasource = vl.getDataSource();
 			}
 			else
 			{
@@ -119,22 +117,14 @@ public class LookupListModel extends AbstractListModel
 				if (relations != null)
 				{
 					Relation r = relations[relations.length - 1];
-					serverName = r.getForeignServerName();
-					tableName = r.getForeignTableName();
+					datasource = r.getForeignDataSource();
 				}
 			}
 
-			IServer s = application.getSolution().getServer(serverName);
-			if (s == null)
-			{
-				Debug.error("Could not find server " + serverName + " for lookup list " + lookup.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-				return;
-			}
-
-			table = (Table)s.getTable(tableName);
+			table = application.getFoundSetManager().getTable(datasource);
 			if (table == null)
 			{
-				Debug.error("Could not find table " + tableName + " in server " + serverName + " for lookup list " + lookup.getName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Debug.error("Could not find table of datasource " + datasource + " for lookup list " + lookup.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
 
@@ -233,7 +223,7 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			table = (Table)s.getTable(tableName);
+			table = s.getTable(tableName);
 			if (table == null)
 			{
 				Debug.error("Could not find table " + tableName + " in server " + serverName + " for lookup list"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -332,13 +322,18 @@ public class LookupListModel extends AbstractListModel
 		fireChanges(prevSize);
 	}
 
+	public void fill(IRecordInternal parentState, String dataProviderID, String filter, boolean firstTime) throws ServoyException
+	{
+		fill(parentState, dataProviderID, filter, null, firstTime);
+	}
+
 	/**
 	 * @param firstTime
 	 * @param lookup
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public void fill(IRecordInternal parentState, String dataProviderID, String filter, boolean firstTime) throws ServoyException
+	public void fill(IRecordInternal parentState, String dataProviderID, String filter, Object realValue, boolean firstTime) throws ServoyException
 	{
 		int prevSize = alReal.size();
 
@@ -364,7 +359,12 @@ public class LookupListModel extends AbstractListModel
 		if (lookup instanceof GlobalMethodValueList)
 		{
 			GlobalMethodValueList clist = (GlobalMethodValueList)lookup;
-			clist.fill(realState, filter == null ? "" : filter, null);
+			String fixedFilter = filter == null ? "" : filter;
+			clist.fill(realState, fixedFilter, null);
+			if ("".equals(fixedFilter) && clist.isEmpty())
+			{
+				clist.fill(realState, fixedFilter, realValue);
+			}
 			for (int i = 0; i < clist.getSize(); i++)
 			{
 				Object display = clist.getElementAt(i);

@@ -293,7 +293,14 @@ public class RepositoryHelper
 					{
 						referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
 						Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
-						loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
+						if (sol != null)
+						{
+							loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
+						}
+						else
+						{
+							throw new RepositoryException("Solution with uuid " + uuid + " and name " + name + " was not found.");
+						}
 					}
 				}
 				catch (RemoteException e)

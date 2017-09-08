@@ -28,3 +28,6 @@ Web-Service: True
 
 Name: foundset_manager/foundsetManager.spec
 Web-Service: True
+
+Name: date_custom_property/date.spec
+Web-Service: True

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -289,8 +290,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 								try
 								{
-									realValue = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, realValue,
-										format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true);
+									realValue = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, realValue,
+										format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true, false);
 								}
 								catch (RuntimeException ex)
 								{
@@ -328,8 +329,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 									}
 									try
 									{
-										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, value, format == null ? null : format.getDisplayFormat(),
-											Integer.MAX_VALUE, null, true);
+										value = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, value,
+											format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true, false);
 									}
 									catch (Exception e)
 									{
@@ -395,8 +396,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					}
 					if (realValues == null)
 					{
-						o = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, o, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
-							null, true);
+						o = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, o, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
+							null, true, false);
 					}
 					else
 					{
@@ -431,8 +432,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 			{
 				if (valueType != Types.OTHER && Column.mapToDefaultType(valueType) != IColumnTypes.MEDIA)
 				{
-					obj = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
-						null, false);
+					obj = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
+						null, false, false);
 				}
 				newRrealValues.add(obj);
 			}

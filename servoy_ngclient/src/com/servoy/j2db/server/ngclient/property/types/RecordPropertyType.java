@@ -113,6 +113,7 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Record formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		if (formElementValue == null) return writer;
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 }

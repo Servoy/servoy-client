@@ -2263,7 +2263,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Object[] pkrow = new Object[pkColumns.size()];
 				for (int j = 0; j < pkColumns.size(); j++)
 				{
-					pkrow[j] = pkColumns.get(j).getAsRightType(row[j], true);
+					pkrow[j] = pkColumns.get(j).getAsRightType(row[j], true, false);
 				}
 				if (pkhashes.add(RowManager.createPKHashKey(pkrow))) // check for duplicate pks
 				{
@@ -2688,7 +2688,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public Object js_forEach(Function callback)
 	{
-		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine()));
+		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine(), null));
+	}
+
+	/**
+	 * @clonedesc js_forEach(Function)
+	 *
+	 * @sampleas js_forEach(Function)
+	 *
+	 * @param callback The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
+	 * @param thisObject What the this object should be in the callback function (default it is the foundset)
+	 *
+	 * @return Object the return value of the callback
+	 *
+	 */
+	public Object js_forEach(Function callback, Scriptable thisObject)
+	{
+		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine(), thisObject));
 	}
 
 	/**
@@ -5600,7 +5616,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 								}
 							}
 						}
-						else if (row == null && getSize() > 0)
+						else if (row == null && getSize() > 0 && (!e.isAggregateChange() || aggregateCache.size() > 0))
 						{
 							clearAggregates();
 							fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
@@ -6437,6 +6453,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fs.pksAndRecords.setPksAndQuery(new BufferedDataSet(pksAndRecords.getPks()), pksAndRecords.getDbIndexLastPk(), fs_sqlSelect);
 		}
 		fs.initialized = initialized;
+		if (omittedPKs != null) fs.omittedPKs = new BufferedDataSet(omittedPKs.getColumnNames(), omittedPKs.getColumnTypes(), omittedPKs.getRows());
 
 		SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
 		SafeArrayList<IRecordInternal> fsCachedRecords = fs.pksAndRecords.getCachedRecords();
@@ -6980,11 +6997,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		private final Function callback;
 		private final IExecutingEnviroment scriptEngine;
+		private final Scriptable thisObject;
 
-		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine)
+		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine, Scriptable thisObject)
 		{
 			this.callback = callback;
 			this.scriptEngine = scriptEngine;
+			this.thisObject = thisObject;
 		}
 
 		@Override
@@ -6993,8 +7012,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Scriptable callbackScope = callback.getParentScope();
 			try
 			{
-				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record, Integer.valueOf(recordIndex + 1), foundset },
-					false, true);
+				return scriptEngine.executeFunction(callback, callbackScope, (Scriptable)(thisObject == null ? foundset : thisObject),
+					new Object[] { record, Integer.valueOf(recordIndex + 1), foundset }, false, true);
 			}
 			catch (Exception ex)
 			{

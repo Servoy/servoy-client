@@ -432,7 +432,16 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 				// Method execution has to be done in a separate thread to prevent mixing thread locals from client a and b.
 				// This happens when the webclient uses the headless client plugin to call a method in the HC in the server-side of the plugin,
 				// since this is all server-side code the HC call is executed in the same thread.
-				if (application.isEventDispatchThread() && !async && application == J2DBGlobals.getServiceProvider())
+				boolean eventThread = false;
+				try
+				{
+					eventThread = application.isEventDispatchThread();
+				}
+				catch (Exception ex)
+				{
+					//ignore
+				}
+				if (eventThread && !async && application == J2DBGlobals.getServiceProvider())
 				{
 					application.invokeAndWait(method);
 					Object retval = method.getRetval();
@@ -557,9 +566,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 							catch (Exception e)
 							{
 								retval = e;
-								if (async) application.handleException(
-									"Exception calling global method '" + methodname + "' with arguments " + Arrays.toString(arguments) +
-										" in async mode on solution " + getSolutionName(), e);
+								if (async) application.handleException("Exception calling global method '" + methodname + "' with arguments " +
+									Arrays.toString(arguments) + " in async mode on solution " + getSolutionName(), e);
 
 							}
 						}
@@ -599,9 +607,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						catch (Exception e)
 						{
 							retval = e;
-							if (async) application.handleException(
-								"Exception calling form method '" + methodname + "' with arguments " + Arrays.toString(arguments) + " on form '" + context +
-									"' in async mode on solution " + getSolutionName(), e);
+							if (async) application.handleException("Exception calling form method '" + methodname + "' with arguments " +
+								Arrays.toString(arguments) + " on form '" + context + "' in async mode on solution " + getSolutionName(), e);
 
 						}
 					}

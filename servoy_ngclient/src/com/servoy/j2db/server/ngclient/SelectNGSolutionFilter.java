@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.sablo.util.HTTPUtils;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -44,7 +46,6 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -54,7 +55,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-@WebFilter(urlPatterns = { "/servoy-ngclient/solutions.js", "/servoy-ngclient" })
+@WebFilter(urlPatterns = { "/servoy-ngclient/solutions.js", "/servoy-ngclient" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 @SuppressWarnings("nls")
 public class SelectNGSolutionFilter implements Filter
 {

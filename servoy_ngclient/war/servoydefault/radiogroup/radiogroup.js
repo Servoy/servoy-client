@@ -120,7 +120,6 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
 
 			var element = $element.children().first();
-			var tooltipState = null;
 			var className = null;
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -163,15 +162,10 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 						if (className)
 							element.addClass(className);
 						break;
-					case "toolTipText":
-						if (tooltipState)
-							tooltipState(value);
-						else
-							tooltipState = $svyProperties.createTooltipState(element, value);
-						break;
 					}
 				}
 			});
+			$svyProperties.createTooltipState(element, function() { return $scope.model.toolTipText });
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];

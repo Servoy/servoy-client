@@ -122,7 +122,7 @@ declare namespace servoy {
 		addSelectOnEnter(element:JQuery):void,
 		getScrollbarsStyleObj(scrollbars:number):{overflowX?:string,overflowY?:string},
 		setScrollbars(element:JQuery, value:number):void,
-		createTooltipState(element:JQuery,value:string):void,
+		createTooltipState(element:JQuery,value:any):void,
 	}
 	
 	interface IUtils {

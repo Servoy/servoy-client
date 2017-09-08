@@ -267,7 +267,8 @@ public class NGConversions
 			{
 				try
 				{
-					return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
+					return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.jsonNullToNull(designValue), pd, flattenedSolution, formElement,
+						propertyPath);
 				}
 				catch (Exception e)
 				{
@@ -335,11 +336,14 @@ public class NGConversions
 				{
 					return writer;
 				}
-				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, browserConversionMarkers, formElementContext))
+				else if (value != null)
 				{
-					JSONUtils.addKeyIfPresent(writer, key);
-					writer.value(value);
-				}
+					if (!JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, browserConversionMarkers, formElementContext))
+					{
+						JSONUtils.addKeyIfPresent(writer, key);
+						writer.value(value);
+					}
+				} // else we don't write null values by default in the template; they will remain undefined on the client which is ok...
 			}
 			else if (type != null)
 			{

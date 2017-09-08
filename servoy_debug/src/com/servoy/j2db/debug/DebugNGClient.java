@@ -65,6 +65,7 @@ import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -188,7 +189,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		super.output(msg, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			DebugUtils.errorToDebugger(getScriptEngine(), msg.toString(), null);
+			errorToDebugger(msg.toString(), null);
 		}
 		else
 		{
@@ -199,35 +200,39 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail);
 		super.reportJSError(message, detail);
 	}
 
 	@Override
 	public void reportError(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		errorToDebugger(message, detail);
 		super.reportError(message, detail);
 	}
 
 	@Override
 	public void reportJSWarning(String s)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), s, null);
-		super.reportJSWarning(s);
+		errorToDebugger(s, null);
+		Debug.warn(s);
 	}
 
 	@Override
 	public void reportJSWarning(String s, Throwable t)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), s, t);
-		super.reportJSWarning(s, t);
+		errorToDebugger(s, t);
+		if (t == null) Debug.warn(s);
+		else super.reportJSWarning(s, t);
 	}
 
 	@Override
 	public void reportJSInfo(String s)
 	{
-		DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
+		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
+		}
 		super.reportJSInfo(s);
 	}
 
@@ -449,6 +454,22 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void errorToDebugger(String message, Object detail)
 	{
-		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
+		{
+			DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		}
+	}
+
+	@Override
+	public void reportToDebugger(String messsage, boolean errorLevel)
+	{
+		if (!errorLevel)
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+		}
+		else
+		{
+			DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
+		}
 	}
 }

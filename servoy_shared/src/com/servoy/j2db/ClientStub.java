@@ -188,7 +188,7 @@ public class ClientStub implements IUserClient
 							{
 								public void run()
 								{
-									if (client.isShutDown()) return;
+									if (client.isShutDown() || !client.isSolutionLoaded()) return;
 									String sname = (String)array[0];
 									String tname = (String)array[1];
 									IDataSet pksDataSet = (IDataSet)array[2];

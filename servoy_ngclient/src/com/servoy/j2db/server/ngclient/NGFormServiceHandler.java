@@ -53,8 +53,6 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.SecuritySupport;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 
@@ -150,10 +148,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 					if (formName == null)
 					{
 						formName = getApplication().getFormManager().getCurrentForm().getName();
-					}
-					else
-					{
-						formName = SecuritySupport.decrypt(Settings.getInstance(), formName);
 					}
 					IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
 					getApplication().updateLastAccessed();
@@ -475,7 +469,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 	@Override
 	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
 	{
-		if ("formLoaded".equals(methodName) || ("formvisibility".equals(methodName) && arguments.optBoolean("visible")))
+		if ("formLoaded".equals(methodName) || "formUnloaded".equals(methodName) || ("formvisibility".equals(methodName) && arguments.optBoolean("visible")))
 			return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
 		return super.getMethodEventThreadLevel(methodName, arguments, dontCareLevel);
 	}

@@ -17,8 +17,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -27,11 +28,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
+import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -44,13 +47,13 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.property.types.Types;
+import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -58,7 +61,7 @@ import com.servoy.j2db.util.Utils;
  * Filter and entrypoint for webapp
  * @author jcompagner
  */
-@WebFilter(filterName = "ngclientfilter", urlPatterns = { "/solutions/*", "/spec/*" })
+@WebFilter(urlPatterns = { "/solutions/*", "/spec/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
@@ -69,8 +72,8 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SERVOY_THIRDPARTY_SVYGRP = "servoy_thirdparty_svygrp";
 	public static final String SERVOY_CSS_CONTRIBUTIONS_SVYGRP = "servoy_css_contributions_svygrp";
 	public static final String SERVOY_CSS_THIRDPARTY_SVYGRP = "servoy_css_thirdparty_svygrp";
-	public static final String SOLUTIONS_PATH = "solutions/";
-	public static final String FORMS_PATH = "forms/";
+	public static final String SOLUTIONS_PATH = "/solutions/";
+	public static final String FORMS_PATH = "/forms/";
 
 	public static final String ANGULAR_JS = "js/angular_1.6.3.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
@@ -109,7 +112,6 @@ public class NGClientEntryFilter extends WebEntry
 		"js/servoyWindowManager.js", //
 		"js/servoyformat.js", //
 		"js/servoytooltip.js", //
-		"js/servoydate.js", //
 		"js/fileupload.js", //
 		"js/servoy-components.js", //
 		"js/servoy_alltemplates.js", //
@@ -231,6 +233,7 @@ public class NGClientEntryFilter extends WebEntry
 		try
 		{
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
+			HttpServletResponse response = (HttpServletResponse)servletResponse;
 			String uri = request.getRequestURI();
 			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
@@ -291,28 +294,36 @@ public class NGClientEntryFilter extends WebEntry
 								Form form = (f != null ? fs.getFlattenedForm(f) : null);
 								if (form != null)
 								{
-									if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
-										fs.getLastModifiedTime())) return;
-
-									HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
-
 									boolean html = uri.endsWith(".html");
-									PrintWriter w = servletResponse.getWriter();
+									PrintWriter w = response.getWriter();
+									if (request.getParameter("svy_designvalue") != null)
+									{
+										response.setContentType("text/html");
+										DesignFormLayoutStructureGenerator.generateLayout(form, fs, w);
+										w.flush();
+										return;
+
+									}
+
+									if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return;
+
+									HTTPUtils.setNoCacheHeaders(response);
+
 									if (html && form.isResponsiveLayout())
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/html");
+										response.setContentType("text/html");
 										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".html"))
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/html");
+										response.setContentType("text/html");
 										FormLayoutGenerator.generateRecordViewForm(w, form, formName,
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
 											Utils.getAsBoolean(request.getParameter("design")));
 									}
 									else if (uri.endsWith(".js"))
 									{
-										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+										response.setContentType("text/" + (html ? "html" : "javascript"));
 										new FormTemplateGenerator(
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
 											false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl", w);
@@ -323,20 +334,50 @@ public class NGClientEntryFilter extends WebEntry
 							}
 							else
 							{
-								//prepare for possible index.html lookup
-								Map<String, String> variableSubstitution = new HashMap<String, String>();
-								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
+								if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
+								{
+									boolean maintenanceMode = wsSession == null &&
+										(ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() ||
+											ApplicationServerRegistry.get().getDataServer().isInGlobalMaintenanceMode());
+									if (maintenanceMode)
+									{
+										HttpSession session = request.getSession(false);
+										if (session != null)
+										{
+											AtomicInteger sessionCounter = (AtomicInteger)session.getAttribute(NGClient.HTTP_SESSION_COUNTER);
+											if (sessionCounter != null && sessionCounter.get() > 0)
+											{
+												// if there is a session and that session has one or more clients, then also allow this client. (or this can be even the same client doing a refresh)
+												maintenanceMode = false;
+											}
+										}
+									}
+									if (maintenanceMode)
+									{
+										response.getWriter().write("Server in maintenance mode");
+										response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+										return;
+									}
+									// make sure a session is created. when a ngclient is created, that one should set the timeout to 0
+									request.getSession(true);
+								}
 
-								String ipaddr = ((HttpServletRequest)servletRequest).getHeader("X-Forwarded-For");//incase there is a forwarding proxy //$NON-NLS-1$
+								// prepare for possible index.html lookup
+								Map<String, Object> variableSubstitution = new HashMap<>();
+
+								variableSubstitution.put("contextPath", request.getContextPath() + '/');
+								variableSubstitution.put("pathname", uri);
+								variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap()));
+
+								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
+
+								String ipaddr = request.getHeader("X-Forwarded-For");// in case there is a forwarding proxy
 								if (ipaddr == null)
 								{
-									ipaddr = servletRequest.getRemoteAddr();
+									ipaddr = request.getRemoteAddr();
 								}
 								variableSubstitution.put("ipaddr", ipaddr);
 								variableSubstitution.put("hostaddr", servletRequest.getRemoteHost());
-								variableSubstitution.put("utcoffset",
-									String.valueOf(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (1000 * 60 * 60)));
-
 
 								// push some translations to the client, in case the client cannot connect back
 								JSONObject defaultTranslations = new JSONObject();
@@ -356,10 +397,9 @@ public class NGClientEntryFilter extends WebEntry
 								Media headExtension = fs.getMedia("head-index-contributions.html");
 								if (headExtension != null)
 								{
-									BufferedReader reader = null;
-									try
+									try (BufferedReader reader = new BufferedReader(
+										new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8")))
 									{
-										reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8"));
 										String line;
 										for (int count = 0; count < 1000 && (line = reader.readLine()) != null; count++)
 										{
@@ -372,19 +412,6 @@ public class NGClientEntryFilter extends WebEntry
 									catch (Exception e)
 									{
 										Debug.error(e);
-									}
-									finally
-									{
-										if (reader != null)
-										{
-											try
-											{
-												reader.close();
-											}
-											catch (IOException e)
-											{
-											}
-										}
 									}
 								}
 								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, extraMeta, variableSubstitution);
@@ -405,9 +432,9 @@ public class NGClientEntryFilter extends WebEntry
 				CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
 				if (message != null)
 				{
-					HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
-					((HttpServletResponse)servletResponse).setContentType("text/plain");
-					servletResponse.getWriter().write(message.toString());
+					HTTPUtils.setNoCacheHeaders(response);
+					response.setContentType("text/plain");
+					response.getWriter().write(message.toString());
 					return;
 				}
 
@@ -461,7 +488,7 @@ public class NGClientEntryFilter extends WebEntry
 	private String getSolutionNameFromURI(String uri)
 	{
 		int solutionIndex = uri.indexOf(SOLUTIONS_PATH);
-		if (solutionIndex > 0)
+		if (solutionIndex >= 0)
 		{
 			return uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
 		}

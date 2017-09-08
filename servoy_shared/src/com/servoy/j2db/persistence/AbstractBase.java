@@ -292,21 +292,21 @@ public abstract class AbstractBase implements IPersist
 		while (valueKeysIte.hasNext())
 		{
 			String valueKey = valueKeysIte.next();
-			mergedObj.put(valueKey, obj1.get(valueKey));
+			mergedObj.put(valueKey, obj1.opt(valueKey));
 		}
 		valueKeysIte = obj2.keys();
 		while (valueKeysIte.hasNext())
 		{
 			String valueKey = valueKeysIte.next();
 			Object v1 = mergedObj.opt(valueKey);
-			Object v2 = obj2.get(valueKey);
+			Object v2 = obj2.opt(valueKey);
 			if (v1 instanceof JSONArray && v2 instanceof JSONArray)
 			{
 				JSONArray mergedValue = new JSONArray();
 				for (int i = 0; i < ((JSONArray)v2).length(); i++)
 				{
-					Object vv1 = i < ((JSONArray)v1).length() ? ((JSONArray)v1).get(i) : null;
-					Object vv2 = ((JSONArray)v2).get(i);
+					Object vv1 = i < ((JSONArray)v1).length() ? ((JSONArray)v1).opt(i) : null;
+					Object vv2 = ((JSONArray)v2).opt(i);
 					if (vv1 instanceof JSONObject && vv2 instanceof JSONObject)
 					{
 						mergedValue.put(i, mergeJSONObjects((JSONObject)vv1, (JSONObject)vv2));

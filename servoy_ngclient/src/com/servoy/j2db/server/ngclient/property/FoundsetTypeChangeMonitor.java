@@ -132,6 +132,7 @@ public class FoundsetTypeChangeMonitor
 		{
 			changeFlags = changeFlags | SEND_FOUNDSET_SIZE;
 		}
+		checkHadMoreRows(false);
 	}
 
 	protected void foundsetSortChanged()
@@ -613,6 +614,11 @@ public class FoundsetTypeChangeMonitor
 
 	public void checkHadMoreRows()
 	{
+		checkHadMoreRows(true);
+	}
+
+	private void checkHadMoreRows(boolean doNotifyChange)
+	{
 		if (propertyValue.getFoundset() != null)
 		{
 			boolean newHadMoreRows = propertyValue.getFoundset().hadMoreRows();
@@ -623,7 +629,7 @@ public class FoundsetTypeChangeMonitor
 			{
 				int oldChangeFlags = changeFlags;
 				changeFlags = changeFlags | SEND_HAD_MORE_ROWS;
-				if (oldChangeFlags != changeFlags) notifyChange();
+				if (doNotifyChange && (oldChangeFlags != changeFlags)) notifyChange();
 			}
 		}
 	}

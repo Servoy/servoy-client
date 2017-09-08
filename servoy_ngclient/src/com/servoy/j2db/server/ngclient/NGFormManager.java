@@ -302,6 +302,10 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				Context.exit();
 			}
 		}
+		else
+		{
+			Debug.warn("A null current controller is tried to be set in the solution, very likely this is a problem with visibility of a form in a window");
+		}
 	}
 
 	@Override

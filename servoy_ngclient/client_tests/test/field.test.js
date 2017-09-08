@@ -28,21 +28,23 @@ describe('servoydefaultTextfield component', function() {
 				}
 			}
 	}
+    var myTextfieldModel = new sablo_app.Model();
+    myTextfieldModel.enabled = true;
+    myTextfieldModel.dataProviderID = "some data";
+    myTextfieldModel.visible = true;
+    myTextfieldModel.location = {
+    		"x":89,
+    		"y":43
+    };
+    myTextfieldModel.size = {
+    		"width":114,
+    		"height":40
+	};
+	myTextfieldModelname:"myTextfield";
+    
 	var modelMock = {
-			myTextfield: {
-				   enabled:true,
-				   dataProviderID:"some data",
-				   visible:true,
-				   location:{
-				      "x":89,
-				      "y":43
-				   },
-				   size:{
-				      "width":114,
-				      "height":40
-				   },
-				   name:"myTextfield"
-				}	}
+			myTextfield: myTextfieldModel
+	}
     var apiMock ={
     		myTextfield:{
     		

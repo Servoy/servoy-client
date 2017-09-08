@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -32,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author emera
  */
-@WebFilter(urlPatterns = { "/wro/*" })
+@WebFilter(urlPatterns = { "/wro/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 public class NGCachingFilter implements Filter
 {
 	private String group_id;

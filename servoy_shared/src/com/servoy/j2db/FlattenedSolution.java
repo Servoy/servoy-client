@@ -695,11 +695,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				combineServerProxies(mainSolution.getServerProxies(), module.getServerProxies());
 			}
-
-			getAllStyles();
 		}
 
 		modules = getDependencyGraphOrderedModules(modulesMap.values(), mainSolution);
+
+		flushAllCachedData();
+
+		getAllStyles();
 
 		for (Solution s : modules)
 		{
@@ -730,7 +732,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
 			}
 		}
-		;
 	}
 
 	/**
@@ -738,7 +739,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 */
 	private Map<String, Style> getAllStyles()
 	{
-		if (all_styles == null)
+		if (all_styles == null & mainSolution != null)
 		{
 			all_styles = mainSolution.getSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES);
 			if (all_styles == null)
@@ -958,7 +959,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				throw new RuntimeException("Cannot find form '" + form + "' in solution '" + getSolution() + "'");
 			}
 		}
-		return new FlattenedForm(this, myForm);
+		try
+		{
+			return new FlattenedForm(this, myForm);
+		}
+		catch (RuntimeException ex)
+		{
+			Debug.error("Error while creating full hierarchy form (flattened form) for: " + (myForm != null ? myForm.getName() : "<form not found>"), ex);
+			throw ex;
+		}
 	}
 
 	public void flushFlattenedFormCache()
