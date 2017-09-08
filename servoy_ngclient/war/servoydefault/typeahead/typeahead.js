@@ -104,11 +104,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				editing = true;
 			}
 
-			$scope.doSvyApply = function(doNotStopEditing) {
+			$scope.doSvyApply = function(isSelectFromPopup) {
 				if (!editing) 
 					return;
-				if ($('[uib-typeahead-popup]').attr('aria-hidden') == "true") {
-					if(!doNotStopEditing) {
+				if (isSelectFromPopup || ($('[uib-typeahead-popup]').attr('aria-hidden') == "true")) {
+					if(!isSelectFromPopup) {
 						editing = false;
 					}
 					if ($scope.model.valuelistID) {
@@ -145,9 +145,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				} 
 				else if (!hasRealValues && ($scope.model.dataProviderID != $scope.value))
 				{
-					if(!doNotStopEditing) {
-						editing = false;
-					}
+					editing = false;
 					$scope.model.dataProviderID = $scope.value;
 					$scope.svyServoyapi.apply('dataProviderID');
 				}

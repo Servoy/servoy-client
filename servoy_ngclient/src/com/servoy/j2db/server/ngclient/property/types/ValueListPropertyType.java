@@ -47,6 +47,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
@@ -170,12 +171,23 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		String foundsetPropertyName = null;
 		String formatPropertyName = null; // this is really only used I think when you have a custom valuelist with date values (without separate display values) - to convert the String defined dates in the custom valuelist into actual Date values
+		boolean dataproviderResolveValuelist = false;
 		if (dataproviderPropertyName != null)
 		{
 			PropertyDescription dpPropertyDef = formElement.getPropertyDescription(dataproviderPropertyName);
+			Object dpConfig = null;
+			if (dpPropertyDef != null)
+			{
+				dpConfig = dpPropertyDef.getConfig();
+			}
 			if (dpPropertyDef != null && (dpPropertyDef.getType() instanceof FoundsetLinkedPropertyType))
 			{
 				foundsetPropertyName = ((FoundsetLinkedConfig)dpPropertyDef.getConfig()).getForFoundsetName();
+				dpConfig = ((FoundsetLinkedConfig)dpPropertyDef.getConfig()).getWrappedPropertyDescription().getConfig();
+			}
+			if (dpConfig instanceof DataproviderConfig && ((DataproviderConfig)dpConfig).shouldResolveValuelist())
+			{
+				dataproviderResolveValuelist = true;
 			}
 		}
 
@@ -197,7 +209,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 
-		return new ValuelistPropertyDependencies(dataproviderPropertyName, foundsetPropertyName, formatPropertyName);
+		return new ValuelistPropertyDependencies(dataproviderPropertyName, foundsetPropertyName, formatPropertyName, dataproviderResolveValuelist);
 	}
 
 	@Override
@@ -400,12 +412,15 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		public final String dataproviderPropertyName;
 		public final String foundsetPropertyName;
 		public final String formatPropertyName;
+		public final boolean dataproviderResolveValuelist;
 
-		public ValuelistPropertyDependencies(String dataproviderPropertyName, String foundsetPropertyName, String formatPropertyName)
+		public ValuelistPropertyDependencies(String dataproviderPropertyName, String foundsetPropertyName, String formatPropertyName,
+			boolean dataproviderResolveValuelist)
 		{
 			this.dataproviderPropertyName = dataproviderPropertyName;
 			this.foundsetPropertyName = foundsetPropertyName;
 			this.formatPropertyName = formatPropertyName;
+			this.dataproviderResolveValuelist = dataproviderResolveValuelist;
 		}
 	}
 

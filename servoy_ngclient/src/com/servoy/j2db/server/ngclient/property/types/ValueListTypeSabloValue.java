@@ -96,7 +96,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private final ValuelistPropertyDependencies propertyDependencies;
 	private boolean waitForDataproviderIfNull;
 	private boolean waitForFormatIfNull;
-
 	private IChangeListener changeMonitor;
 
 	// values available after the ValueListTypeSabloValue initialization was completed
@@ -139,7 +138,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		this.waitForDataproviderIfNull = waitForDataproviderIfNull;
 		this.waitForFormatIfNull = waitForFormatIfNull;
 		this.dataAdapterListToUse = dataAdapterListToUse;
-
 		this.initialized = false;
 	}
 
@@ -322,6 +320,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
+		// dataprovider will resolve this, do not send anything client side
+		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
+
 		List<Map<String, Object>> jsonValue = null;
 
 		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
