@@ -557,10 +557,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				if (valuelistPD.getConfig() instanceof ValueListConfig &&
 					Utils.equalObjects(((ValueListConfig)valuelistPD.getConfig()).getFor(), dpPD.getName()))
 				{
-					valuelistDisplayValue = true;
 					ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(valuelistPD.getName());
 					if (valuelistSabloValue != null && valuelistSabloValue.getValueList() != null)
 					{
+						valuelistDisplayValue = true;
 						if (valuelistSabloValue.getValueList().realValueIndexOf(dpValue) != -1)
 						{
 							try
@@ -596,13 +596,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				}
 			}
 		}
-		if (findMode || valuelistDisplayValue)
+		if (findMode)
 		{
 			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
 			// from scripting, then show string representation
 			jsonValueRepresentation = dpValue instanceof String ? dpValue : (dpValue != null ? String.valueOf(dpValue) : "");
 		}
-		else if (typeOfDP != null)
+		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 			DataConversion jsonDataConversion = new DataConversion();
@@ -618,6 +618,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else
 		{
+			// if valuelistDisplayValue just use the value from valuelist with no conversion ?
 			jsonValueRepresentation = dpValue;
 		}
 		return jsonValueRepresentation;
