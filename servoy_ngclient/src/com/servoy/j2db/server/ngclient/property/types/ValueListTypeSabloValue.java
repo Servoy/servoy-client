@@ -463,7 +463,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (!initialized)
 		{
 			// this is not expected; we should already have all that is needed to initialize the value before the first toJSON executes
-			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext + ". Will send null for now.");
+			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext +
+				". Will send null for now. This could be a result of using the valuelist as a api parameter, convert this valuelist to dataset and use the dataset type as the param type.");
 
 			// we are still waiting for some dependency before we can initialize the valuelist? when that will be ready we will send the appropriate value to client
 			if (key != null) writer.key(key);

@@ -175,6 +175,8 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				//useless 'getContent' call, do not remove though, setContent will not work if removed
 				selection.getContent();
 				selection.setContent(s);
+				$scope.model.dataProviderID = '<html><body>'+$scope.editor.getContent()+'</body></html>'
+				$scope.svyServoyapi.apply('dataProviderID');
 			}
 			/**
 			 * Selects all the contents of the Html Area.

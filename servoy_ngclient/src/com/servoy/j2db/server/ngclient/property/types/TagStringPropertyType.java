@@ -140,7 +140,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	{
 		BasicTagStringTypeSabloValue sabloValue;
 		TagStringConfig config = (TagStringConfig)propertyDescription.getConfig();
-		boolean wouldLikeToParseTags = wouldLikeToParseTags(config, component.getFormElement()); // this setting is decided at design/form-element time and won't change even if the value gets changed from rhino
+		boolean wouldLikeToParseTags = component == null ? false : wouldLikeToParseTags(config, component.getFormElement()); // this setting is decided at design/form-element time and won't change even if the value gets changed from rhino
 
 		// if "wouldLikeToParseTags && !config.useParsedValueInRhino()" is true, we will never have a null previous value so we can still reach DAL
 		// the "&& !config.useParsedValueInRhino()" is an optimization; because if config.useParsedValueInRhino() is true, then no new value set from Rhino or scripting will be able to handle tags any more - so there's no need to hang on to DAL (if this changes, you can remove this check)
@@ -284,8 +284,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 			// this code can interpret the new value as a static one or a a tag-aware one depending on the property's config: USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT
 			String newDesignValue = rhinoValue instanceof String ? (String)rhinoValue : rhinoValue.toString();
 			return createNewTagStringTypeSabloValue(newDesignValue, (previousComponentValue != null ? previousComponentValue.getDataAdapterList() : null),
-				!((TagStringConfig)pd.getConfig()).useParsedValueInRhino(),
-				true, pd, componentOrService.getUnderlyingWebObject() instanceof WebFormComponent
+				!((TagStringConfig)pd.getConfig()).useParsedValueInRhino(), true, pd, componentOrService.getUnderlyingWebObject() instanceof WebFormComponent
 					? ((WebFormComponent)componentOrService.getUnderlyingWebObject()) : null,
 				((IContextProvider)componentOrService.getUnderlyingWebObject()).getDataConverterContext().getApplication(), false);
 		}
