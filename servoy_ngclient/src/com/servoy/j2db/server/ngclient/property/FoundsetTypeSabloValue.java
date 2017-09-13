@@ -447,7 +447,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
 		updateFoundset(record);
-//		dataAdapterList.setRecordQuietly(record);
 	}
 
 	@Override

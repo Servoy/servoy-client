@@ -60,13 +60,6 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	}
 
 	@Override
-	public void setRecord(IRecord record, boolean fireChangeEvent)
-	{
-		super.setRecord(record, fireChangeEvent);
-	}
-
-
-	@Override
 	protected boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
 	{
 		return false;
