@@ -102,6 +102,12 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 
 			$scope.startEdit = function() {
 				editing = true;
+				if ($scope.setCaret)
+				{
+					$scope.setCaret = false;
+					var len = $element[0].value.length;
+					$element[0].setSelectionRange(len,len);
+				}
 			}
 
 			$scope.doSvyApply = function(isSelectFromPopup) {
@@ -151,9 +157,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				}
 			}
 
+			$scope.setCaret = false;
 			$scope.doSelect = function($item, $model, $label, $event) {
 				$scope.startEdit();
 				$scope.doSvyApply(true);
+				$scope.setCaret = true;//when the focus is back to the field, set the cursor on the last position
 			}
 
 			/**
