@@ -164,7 +164,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		return null;
 	}
 
-	protected ValuelistPropertyDependencies getDependenciesToOtherProperties(PropertyDescription pd, IPropertyDescriptionProvider formElement)
+	protected ValuelistPropertyDependencies getDependenciesToOtherProperties(PropertyDescription pd, IPropertyDescriptionProvider propertyDescriptionProvider)
 	{
 		ValueListConfig config = (ValueListConfig)pd.getConfig();
 		String dataproviderPropertyName = config.getFor();
@@ -174,7 +174,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		boolean dataproviderResolveValuelist = false;
 		if (dataproviderPropertyName != null)
 		{
-			PropertyDescription dpPropertyDef = formElement.getPropertyDescription(dataproviderPropertyName);
+			PropertyDescription dpPropertyDef = propertyDescriptionProvider.getPropertyDescription(dataproviderPropertyName);
 			Object dpConfig = null;
 			if (dpPropertyDef != null)
 			{
@@ -191,7 +191,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 
-		Collection<PropertyDescription> properties = formElement.getProperties(FormatPropertyType.INSTANCE);
+		Collection<PropertyDescription> properties = propertyDescriptionProvider.getProperties(FormatPropertyType.INSTANCE);
 		for (PropertyDescription formatPd : properties)
 		{
 			// compare whether format and valueList property are for same property (dataprovider) or if format is used for valuelist property itself
