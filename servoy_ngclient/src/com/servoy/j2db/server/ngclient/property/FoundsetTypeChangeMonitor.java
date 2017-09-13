@@ -109,6 +109,7 @@ public class FoundsetTypeChangeMonitor
 			changeFlags = changeFlags | SEND_SELECTED_INDEXES;
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
+		propertyValue.setDataAdapterListToSelectedRecord();
 	}
 
 	public void multiSelectChanged()

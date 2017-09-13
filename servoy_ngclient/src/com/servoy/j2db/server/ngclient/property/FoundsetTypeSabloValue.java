@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
+import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
@@ -408,6 +409,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
+	public void setDataAdapterListToSelectedRecord()
+	{
+		if (dataAdapterList != null && foundset != null)
+		{
+			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
+			dataAdapterList.setRecordQuietly(selectedRecord);
+		}
+	}
+
 	protected boolean updateColumnFormatsIfNeeded()
 	{
 		if (specConfig.sendDefaultFormats && columnFormats == null && getFoundset() != null && webObjectContext != null)
@@ -437,6 +447,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
 		updateFoundset(record);
+//		dataAdapterList.setRecordQuietly(record);
 	}
 
 	@Override
