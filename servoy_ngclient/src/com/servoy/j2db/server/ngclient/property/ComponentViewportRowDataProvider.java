@@ -138,4 +138,9 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		return true;
 	}
 
+	@Override
+	protected FoundsetDataAdapterList getDataAdapterList()
+	{
+		return dal;
+	}
 }

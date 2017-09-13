@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
+import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
@@ -405,6 +406,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 
 			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the underlying foundset itself
+		}
+	}
+
+	public void setDataAdapterListToSelectedRecord()
+	{
+		if (dataAdapterList != null && foundset != null)
+		{
+			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
+			dataAdapterList.setRecordQuietly(selectedRecord);
 		}
 	}
 
