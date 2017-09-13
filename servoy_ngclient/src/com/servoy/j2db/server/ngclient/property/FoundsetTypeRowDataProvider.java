@@ -82,4 +82,9 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 		return browserConverterContext != null;
 	}
 
+	@Override
+	protected FoundsetDataAdapterList getDataAdapterList()
+	{
+		return null;
+	}
 }

@@ -24,7 +24,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 
 /**
@@ -52,10 +51,8 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 		String generatedRowId) throws JSONException
 	{
 		// TODO we should change the order in which rows are populated for a foundset; the foundset itself should do dal.setRecordQuietly(record) then call all ViewportRowDataProvider to populate their data somehow
-		IRecord currentRecord = dal.getRecord();
 		dal.setRecordQuietly(record);
 		FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, sabloValue.getWrappedValue(), pd, clientConversionInfo, browserConverterContext);
-		dal.setRecordQuietly(currentRecord);
 	}
 
 	@Override
@@ -85,4 +82,9 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 		return browserConverterContext != null;
 	}
 
+	@Override
+	protected FoundsetDataAdapterList getDataAdapterList()
+	{
+		return dal;
+	}
 }

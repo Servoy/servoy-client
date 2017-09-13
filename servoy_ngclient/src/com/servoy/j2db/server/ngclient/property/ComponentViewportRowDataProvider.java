@@ -26,7 +26,6 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -60,8 +59,6 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
 		throws JSONException
 	{
-		IRecord currentRecord = dal.getRecord();
-
 		w.object();
 		dal.setRecordQuietly(record);
 
@@ -81,8 +78,6 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 			}
 		}
 		w.endObject();
-
-		dal.setRecordQuietly(currentRecord);
 	}
 
 	@Override
@@ -143,4 +138,9 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		return true;
 	}
 
+	@Override
+	protected FoundsetDataAdapterList getDataAdapterList()
+	{
+		return dal;
+	}
 }

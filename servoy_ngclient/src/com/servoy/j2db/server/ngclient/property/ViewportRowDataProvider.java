@@ -22,6 +22,7 @@ import org.json.JSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.util.Debug;
 
@@ -82,15 +83,19 @@ public abstract class ViewportRowDataProvider
 				{
 					Debug.error("Illegal state: view ports end index " + endIndex + " is bigger then the size " + size, new RuntimeException());
 				}
+				FoundsetDataAdapterList dal = getDataAdapterList();
+				IRecord currentRecord = dal != null ? dal.getRecord() : null;
 				for (int i = startIndex; i <= endIndex; i++)
 				{
 					clientConversionInfo.pushNode(String.valueOf(i - startIndex));
 					writeRowData(i, columnName, foundset, w, clientConversionInfo);
 					clientConversionInfo.popNode();
 				}
+				if (dal != null) dal.setRecordQuietly(currentRecord);
 			}
 		}
 		w.endArray();
 	}
 
+	protected abstract FoundsetDataAdapterList getDataAdapterList();
 }
