@@ -409,7 +409,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 									IDataProvider[] dps = relation.getPrimaryDataProviders(getApplication().getFlattenedSolution());
 									for (IDataProvider idp : dps)
 									{
-										returnDP.add(idp.getDataProviderID());
+										if (!returnDP.contains(idp.getDataProviderID())) returnDP.add(idp.getDataProviderID());
 									}
 								}
 								catch (RepositoryException ex)
