@@ -91,7 +91,7 @@ public abstract class ViewportRowDataProvider
 					writeRowData(i, columnName, foundset, w, clientConversionInfo);
 					clientConversionInfo.popNode();
 				}
-				if (dal != null) dal.setRecordQuietly(currentRecord);
+				if (dal != null) dal.setRecordQuietly(currentRecord, true);
 			}
 		}
 		w.endArray();

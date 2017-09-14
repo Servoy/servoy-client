@@ -632,7 +632,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				finally
 				{
 					viewPortChangeMonitor.resumeRowUpdateListener();
-					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(currentRecord);
+					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(currentRecord, true);
 				}
 			}
 			else
