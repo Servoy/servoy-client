@@ -451,7 +451,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			if (allLinksOfDP.remove(propertyValue))
 			{
-				Debug.error("DAL.addDataLinkedProperty - trying to register the same (equal) property value twice (" + propertyValue +
+				Debug.warn("DAL.addDataLinkedProperty - trying to register the same (equal) property value twice (" + propertyValue +
 					"); this means that some code that uses DAL is not working properly (maybe cleanup/detach malfunction); will use latest value... Links: " +
 					targetDataLinks);
 			}
