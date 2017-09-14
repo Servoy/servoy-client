@@ -131,11 +131,24 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						{
 							if (hasRealValues) 
 							{
-								// if we still have old value do not set it to null
-								if ($scope.model.dataProviderID !== $scope.value)
+								// if we still have old value do not set it to null or try to  get it from the list.
+								if ($scope.model.dataProviderID != null && $scope.model.dataProviderID !== $scope.value)
 								{
-									$scope.model.dataProviderID = null;
+									// so invalid thing is typed in the list and we are in real/display values, try to search the real value again to set the display value back.
+									var reset = false;
+									for (var i = 0; i < $scope.model.valuelistID.length; i++) {
+										if ($scope.model.dataProviderID === $scope.model.valuelistID[i].realValue) {
+											$scope.value = $scope.model.valuelistID[i].displayValue;
+											reset = true;
+											break;
+										}
+									}
+									if (!reset) $scope.model.dataProviderID = null;
 								}	
+								// if the dataproviderid was null and we are in real|display then reset the value to ""
+								else if($scope.model.dataProviderID == null) {
+									$scope.value = "";
+								}
 							}
 							else
 							{
