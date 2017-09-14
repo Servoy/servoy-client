@@ -584,6 +584,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 				somethingChanged = true;
 			}
+			if (changeMonitor.shouldSendPushToServer())
+			{
+				PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
+				if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
+				{
+					if (!somethingChanged) destinationJSON.object();
+					destinationJSON.key(UPDATE_PREFIX + PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
+					somethingChanged = true;
+				}
+			}
 			if (changeMonitor.shouldSendFoundsetSort())
 			{
 				if (!somethingChanged) destinationJSON.object();

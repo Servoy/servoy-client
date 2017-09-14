@@ -65,11 +65,13 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_HAD_MORE_ROWS = 0b100000000;
 
+	protected static final int SEND_PUSH_TO_SERVER = 0b100000000;
+
 	protected boolean lastHadMoreRecords = false;
 
 	protected IChangeListener changeNotifier;
 
-	protected int changeFlags = 0;
+	protected int changeFlags = 0 | SEND_PUSH_TO_SERVER; // we want to automatically send push-to-server value as well the first time we are aware of a foundset (which will call changeNotifier.valueChanged() at that time), because the toTemplate... does not send that to client and is only followed by changesToJSON, not fullToJSON
 	protected List<Pair<Integer, Boolean>> handledRequestIds = new ArrayList<>();
 	protected final ViewportDataChangeMonitor<FoundsetTypeRowDataProvider> viewPortDataChangeMonitor;
 	protected final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
@@ -435,6 +437,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendAll()
 	{
 		return (changeFlags & SEND_ALL) != 0;
+	}
+
+	public boolean shouldSendPushToServer()
+	{
+		return (changeFlags & SEND_PUSH_TO_SERVER) != 0;
 	}
 
 	public boolean shouldSendSelectedIndexes()
