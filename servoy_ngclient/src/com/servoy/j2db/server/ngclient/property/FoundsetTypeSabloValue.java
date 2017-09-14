@@ -414,7 +414,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		if (dataAdapterList != null && foundset != null)
 		{
 			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-			dataAdapterList.setRecordQuietly(selectedRecord);
+			dataAdapterList.setRecordQuietly(selectedRecord, true);
 		}
 	}
 

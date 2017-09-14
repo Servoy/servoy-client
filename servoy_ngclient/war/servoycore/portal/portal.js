@@ -1385,6 +1385,13 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}
 					});
 				},0)
+				
+				$scope.$watch("model.enabled", function(newVal,oldVal){
+					if (newVal !=  $scope.gridOptions.enableRowSelection) {
+					    $scope.gridOptions.enableRowSelection = newVal;
+					    $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.OPTIONS);
+					}
+				});
 			};
 			$scope.styleClass = 'svyPortalGridStyle';
 

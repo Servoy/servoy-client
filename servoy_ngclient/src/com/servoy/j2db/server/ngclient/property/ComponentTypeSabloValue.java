@@ -1008,7 +1008,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				finally
 				{
 					viewPortChangeMonitor.resumeRowUpdateListener();
-					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(currentRecord);
+					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(currentRecord, true);
 				}
 			}
 			else

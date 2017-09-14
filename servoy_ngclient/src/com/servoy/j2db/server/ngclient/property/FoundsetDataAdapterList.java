@@ -48,6 +48,13 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 	public void setRecordQuietly(IRecord record)
 	{
+		setRecordQuietly(record, false);
+	}
+
+	public void setRecordQuietly(IRecord record, boolean skipIfAlreadySet)
+	{
+		if (skipIfAlreadySet && record == getRecord()) return;
+
 		keepQuiet = true;
 		try
 		{
