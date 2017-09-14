@@ -102,9 +102,9 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 
 			$scope.startEdit = function() {
 				editing = true;
-				if ($scope.setCaret)
+				if (setCaret)
 				{
-					$scope.setCaret = false;
+					setCaret = false;
 					var len = $element[0].value.length;
 					$element[0].setSelectionRange(len,len);
 				}
@@ -170,11 +170,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				}
 			}
 
-			$scope.setCaret = false;
+			var setCaret = false;
 			$scope.doSelect = function($item, $model, $label, $event) {
 				$scope.startEdit();
 				$scope.doSvyApply(true);
-				$scope.setCaret = true;//when the focus is back to the field, set the cursor on the last position
+				setCaret = true;//when the focus is back to the field, set the cursor on the last position
 			}
 
 			/**
