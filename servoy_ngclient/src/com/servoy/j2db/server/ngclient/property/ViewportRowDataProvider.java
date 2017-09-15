@@ -83,15 +83,18 @@ public abstract class ViewportRowDataProvider
 				{
 					Debug.error("Illegal state: view ports end index " + endIndex + " is bigger then the size " + size, new RuntimeException());
 				}
-				FoundsetDataAdapterList dal = getDataAdapterList();
-				IRecord currentRecord = dal != null ? dal.getRecord() : null;
 				for (int i = startIndex; i <= endIndex; i++)
 				{
 					clientConversionInfo.pushNode(String.valueOf(i - startIndex));
 					writeRowData(i, columnName, foundset, w, clientConversionInfo);
 					clientConversionInfo.popNode();
 				}
-				if (dal != null) dal.setRecordQuietly(currentRecord, true);
+				FoundsetDataAdapterList dal = getDataAdapterList();
+				if (dal != null && foundset.getSize() > 0)
+				{
+					IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
+					dal.setRecordQuietly(selectedRecord, true);
+				}
 			}
 		}
 		w.endArray();
