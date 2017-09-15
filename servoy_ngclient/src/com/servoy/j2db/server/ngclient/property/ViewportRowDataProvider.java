@@ -90,7 +90,7 @@ public abstract class ViewportRowDataProvider
 					clientConversionInfo.popNode();
 				}
 				FoundsetDataAdapterList dal = getDataAdapterList();
-				if (dal != null)
+				if (dal != null && size > 0)
 				{
 					IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
 					dal.setRecordQuietly(selectedRecord, true);
