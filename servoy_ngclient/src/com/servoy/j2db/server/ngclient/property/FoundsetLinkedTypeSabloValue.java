@@ -39,7 +39,6 @@ import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -588,7 +587,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (recordIndex != -1)
 			{
-				IRecord currentRecord = foundsetPropertyValue.getDataAdapterList().getRecord();
 				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
 				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
@@ -632,7 +630,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				finally
 				{
 					viewPortChangeMonitor.resumeRowUpdateListener();
-					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(currentRecord, true);
+					foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 				}
 			}
 			else

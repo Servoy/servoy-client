@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.ComponentContext;
@@ -992,7 +991,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 			if (recordIndex != -1)
 			{
-				IRecord currentRecord = foundsetPropertyValue.getDataAdapterList().getRecord();
 				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
 				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
@@ -1008,7 +1006,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				finally
 				{
 					viewPortChangeMonitor.resumeRowUpdateListener();
-					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(currentRecord, true);
+					foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 				}
 			}
 			else
