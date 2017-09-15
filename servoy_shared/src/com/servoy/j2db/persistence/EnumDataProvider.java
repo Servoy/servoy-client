@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -36,7 +37,7 @@ public class EnumDataProvider implements IDataProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDataProvider#getDataProviderID()
 	 */
 	public String getDataProviderID()
@@ -46,7 +47,7 @@ public class EnumDataProvider implements IDataProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDataProvider#getColumnWrapper()
 	 */
 	public ColumnWrapper getColumnWrapper()
@@ -56,7 +57,7 @@ public class EnumDataProvider implements IDataProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDataProvider#getLength()
 	 */
 	public int getLength()
@@ -66,7 +67,7 @@ public class EnumDataProvider implements IDataProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDataProvider#isEditable()
 	 */
 	public boolean isEditable()
@@ -76,7 +77,7 @@ public class EnumDataProvider implements IDataProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDataProvider#getFlags()
 	 */
 	public int getFlags()
@@ -86,7 +87,7 @@ public class EnumDataProvider implements IDataProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDataProvider#getDataProviderType()
 	 */
 	public int getDataProviderType()
@@ -98,5 +99,20 @@ public class EnumDataProvider implements IDataProvider
 	public String toString()
 	{
 		return "EnumDataprovider:" + getDataProviderID();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof EnumDataProvider))
+		{
+			return false;
+		}
+		if (obj == this)
+		{
+			return true;
+		}
+		//in FS we create this untyped, i think name is enough to identify dp ?
+		return Utils.equalObjects(name, ((EnumDataProvider)obj).name);
 	}
 }
