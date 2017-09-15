@@ -189,7 +189,7 @@ public class ComponentFormat
 
 		String defaultFormat = parsedFormat.isEmpty() ? TagResolver.getDefaultFormatForType(application, uiType) : null;
 		String formatString;
-		if (parsedFormat.isEmpty() && !hasUIConverter)
+		if (parsedFormat.isEmpty() && !hasUIConverter && !parsedFormat.useLocalDateTime())
 		{
 			formatString = defaultFormat;
 		}

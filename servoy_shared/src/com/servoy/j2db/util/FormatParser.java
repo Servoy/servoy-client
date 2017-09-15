@@ -54,11 +54,13 @@ public class FormatParser
 					uiConverterProperties = (Map<String, String>)converterInfo.get("properties");
 				}
 
+				boolean useLocalDateTime = Boolean.TRUE.equals(props.get("useLocalDateTime"));
+
 				String formatString = (String)props.get("format");
 				if (formatString == null) formatString = defaultFormat;
 				if (formatString != null)
 				{
-					return parseFormatString(formatString, uiConverterName, uiConverterProperties);
+					return parseFormatString(formatString, uiConverterName, uiConverterProperties, useLocalDateTime);
 				}
 
 				// all in json
@@ -71,7 +73,6 @@ public class FormatParser
 				String displayFormat = (String)props.get("displayFormat");
 				Integer maxLength = (Integer)props.get("maxLength");
 				String allowedCharacters = (String)props.get("allowedCharacters");
-				boolean useLocalDateTime = Boolean.TRUE.equals(props.get("useLocalDateTime"));
 
 				return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
 					uiConverterProperties, allowedCharacters, useLocalDateTime);
@@ -83,7 +84,7 @@ public class FormatParser
 		}
 
 		// plain format string
-		return parseFormatString(formatProperty, null, null);
+		return parseFormatString(formatProperty, null, null, false);
 	}
 
 	/**
@@ -95,7 +96,7 @@ public class FormatParser
 	 *
 	 * @param format
 	 */
-	private static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties)
+	private static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties, boolean useLocalDateTime)
 	{
 		String formatString = fmtString == null || fmtString.length() == 0 ? null : fmtString;
 		boolean allLowerCase = false;
@@ -187,7 +188,7 @@ public class FormatParser
 		}
 
 		return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
-			uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties), null, false);
+			uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties), null, useLocalDateTime);
 	}
 
 	/**
