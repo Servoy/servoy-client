@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead', ['servoy'])
-.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants','$applicationService', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$applicationService) {
+.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants','$applicationService','$timeout', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$applicationService, $timeout) {
 	return {
 		restrict: 'E',
 		require: 'ngModel',
@@ -161,6 +161,13 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					editing = false;
 					$scope.model.dataProviderID = $scope.value;
 					$scope.svyServoyapi.apply('dataProviderID');
+				}
+				else if (hasRealValues) {
+					$timeout(function(triggerValue){
+						if (triggerValue == $scope.value) {
+							$scope.doSvyApply(true);
+						}
+					},100,true,$scope.value)
 				}
 			}
 
