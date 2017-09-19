@@ -865,6 +865,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
 
 						updatePropertyValueForRecord(foundsetPropertyValue, rowIDValue, propertyName, value);
+						foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 					}
 					else
 					{
@@ -884,7 +885,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					String propertyName = changeAndApply.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
 
-					IDataAdapterList dal;
 					try
 					{
 						if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
@@ -895,14 +895,21 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							// this can happen for example with integer DPs that get a double value from the browser and they round/trunc thus need to resend the value to client
 							// we will execute the propertyFlaggedAsDirty code later, after DP value was applied
 							// TODO shouldn't we apply in one go? so apply directly the value to record instead of setting it first in the component DP property?
-							updatePropertyValueForRecord(getFoundsetValue(), rowIDValue, propertyName, value);
-							dal = getFoundsetValue().getDataAdapterList();
+							FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
+							updatePropertyValueForRecord(foundsetValue, rowIDValue, propertyName, value);
+
+							// apply change to record/dp
+							foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName);
+
+							foundsetValue.setDataAdapterListToSelectedRecord();
 						}
 						else
 						{
 							childComponent.putBrowserProperty(propertyName, value);
 							IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
-							dal = formUI.getDataAdapterList();
+
+							// apply change to record/dp
+							formUI.getDataAdapterList().pushChanges(childComponent, propertyName);
 						}
 
 
@@ -912,9 +919,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							// the child component will not notify it as a changed value; we need that though as we need to resend that value for all rows back to client, not just currently selected one
 							childComponent.markPropertyAsChangedByRef(propertyName);
 						}
-
-						// apply change to record/dp
-						dal.pushChanges(childComponent, propertyName);
 					}
 					finally
 					{
@@ -1006,7 +1010,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				finally
 				{
 					viewPortChangeMonitor.resumeRowUpdateListener();
-					foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 				}
 			}
 			else

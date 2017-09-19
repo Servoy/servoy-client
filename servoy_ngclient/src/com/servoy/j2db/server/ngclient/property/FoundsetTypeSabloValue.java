@@ -411,6 +411,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	public void setDataAdapterListToSelectedRecord()
 	{
+		// we want to keep the foundset DAL always on the selected record - that way updates to related dataproviders in foundset linked components or foundset linked properties
+		// that use this DAL are seen in the UI
+		// TODO make related DP updates also work with non-selected records in those cases...
+
 		if (dataAdapterList != null && foundset != null && foundset.getSize() > 0)
 		{
 			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
