@@ -10,5 +10,9 @@ public interface ISupportAttributes
 {
 	public Map<String, String> getAttributes();
 
+	public Map<String, String> getMergedAttributes();
+
 	public void putAttributes(Map<String, String> value);
+
+	public void putUnmergedAttributes(Map<String, String> value);
 }

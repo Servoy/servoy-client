@@ -215,6 +215,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_NG_READONLY_MODE = "ngReadOnlyMode";
 	public static final String PROPERTY_ONELEMENTDATACHANGEMETHODID = "onElementDataChangeMethodID";
 	public static final String PROPERTY_FORM_COMPONENT = "formComponent";
+	public static final String PROPERTY_DESIGNTIME = "design";
 	public static final String PROPERTY_ATTRIBUTES = "attributes";
 	public static final String PROPERTY_LAZY_LOADING = "lazyLoading";
 }

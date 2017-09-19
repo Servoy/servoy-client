@@ -534,7 +534,7 @@ public class FormLayoutGenerator
 
 		if (fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
-			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getAttributes());
+			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
 			for (Entry<String, String> entry : attributes.entrySet())
 			{
 				writer.print(" ");

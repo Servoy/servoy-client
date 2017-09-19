@@ -145,7 +145,7 @@ public class FormLayoutStructureGenerator
 			writer.print("' ");
 		}
 		writer.print(" svy-autosave ");
-		Map<String, String> attributes = new HashMap<String, String>(container.getAttributes());
+		Map<String, String> attributes = new HashMap<String, String>(container.getMergedAttributes());
 		if (spec != null)
 		{
 			for (String propertyName : spec.getAllPropertiesNames())

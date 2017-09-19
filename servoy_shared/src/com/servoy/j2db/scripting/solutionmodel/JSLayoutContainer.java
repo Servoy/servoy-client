@@ -357,6 +357,6 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	@Override
 	public String toString()
 	{
-		return "JSLayoutContainer[" + getTagType() + ", attributes: " + getLayoutContainer().getAttributes() + "]";
+		return "JSLayoutContainer[" + getTagType() + ", attributes: " + getLayoutContainer().getMergedAttributes() + "]";
 	}
 }

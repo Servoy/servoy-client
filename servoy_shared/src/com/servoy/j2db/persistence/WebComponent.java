@@ -338,7 +338,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	 */
 	public String getAttribute(String name)
 	{
-		Object value = getCustomProperty(new String[] { "attributes", name });
+		Object value = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name });
 		if (value instanceof String) return (String)value;
 		return null;
 	}
