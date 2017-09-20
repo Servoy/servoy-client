@@ -73,7 +73,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected int changeFlags = 0 | SEND_PUSH_TO_SERVER; // we want to automatically send push-to-server value as well the first time we are aware of a foundset (which will call changeNotifier.valueChanged() at that time), because the toTemplate... does not send that to client and is only followed by changesToJSON, not fullToJSON
 	protected List<Pair<Integer, Boolean>> handledRequestIds = new ArrayList<>();
-	protected final ViewportDataChangeMonitor<FoundsetTypeRowDataProvider> viewPortDataChangeMonitor;
+	protected final FoundsetTypeViewportDataChangeMonitor viewPortDataChangeMonitor;
 	protected final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
 
 	protected final FoundsetTypeSabloValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
@@ -81,7 +81,7 @@ public class FoundsetTypeChangeMonitor
 	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue, FoundsetTypeRowDataProvider rowDataProvider)
 	{
 		this.propertyValue = propertyValue;
-		viewPortDataChangeMonitor = new ViewportDataChangeMonitor<>(null, rowDataProvider);
+		viewPortDataChangeMonitor = new FoundsetTypeViewportDataChangeMonitor(rowDataProvider);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 
@@ -230,11 +230,13 @@ public class FoundsetTypeChangeMonitor
 	{
 		if (!shouldSendAll() && !shouldSendWholeViewPort() && relativeFirstRowToOldViewport <= relativeLastRowToOldViewport)
 		{
+			boolean queued = false;
 			for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 			{
-				vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(), RowData.DELETE);
+				queued = vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(),
+					RowData.DELETE) || queued;
 			}
-			notifyChange();
+			if (queued) notifyChange();
 		}
 	}
 
@@ -320,10 +322,10 @@ public class FoundsetTypeChangeMonitor
 				// we need to replace same amount of records in current viewPort; append rows if available
 				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 				{
-					vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx,
-						propertyValue.getFoundset(), RowData.DELETE);
+					viewPortRecordChangesUpdated = vpdcm.queueOperation(relativeFirstRow, relativeLastRow,
+						viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx, propertyValue.getFoundset(), RowData.DELETE) ||
+						viewPortRecordChangesUpdated;
 				}
-				viewPortRecordChangesUpdated = true;
 			}
 			else if (slideBy != 0)
 			{
@@ -344,13 +346,15 @@ public class FoundsetTypeChangeMonitor
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
 			int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
+
+			boolean queued = false;
 			// add records that were inserted in viewPort
 			for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 			{
-				vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
-					RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+				queued = vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert,
+					propertyValue.getFoundset(), RowData.INSERT) || queued; // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 			}
-			notifyChange();
+			if (queued) notifyChange();
 		}
 	}
 
@@ -374,10 +378,9 @@ public class FoundsetTypeChangeMonitor
 				// add records that were inserted in viewPort
 				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 				{
-					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
-						RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+					viewPortRecordChangesUpdated = vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert,
+						propertyValue.getFoundset(), RowData.INSERT) || viewPortRecordChangesUpdated; // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 				}
-				viewPortRecordChangesUpdated = true;
 			}
 			else if (viewPort.getStartIndex() > firstRow)
 			{
@@ -406,23 +409,36 @@ public class FoundsetTypeChangeMonitor
 				int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, lastRow);
 				if (firstViewPortIndex <= lastViewPortIndex)
 				{
+					boolean foundsetPropertySentUpdate = false;
 					for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 					{
+						boolean thisVpdcmSentChanges = false;
 						if (firstViewPortIndex == lastViewPortIndex && dataproviders != null && dataproviders.size() > 0)
 						{
 							for (String dataprovider : dataproviders)
 							{
-								vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex, dataprovider,
-									propertyValue.getFoundset());
+								thisVpdcmSentChanges = vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex, dataprovider,
+									propertyValue.getFoundset()) || thisVpdcmSentChanges;
 							}
 						}
 						else
 						{
-							vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-								firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(), RowData.CHANGE);
+							thisVpdcmSentChanges = vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(),
+								lastViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(),
+								RowData.CHANGE);
 						}
+						viewPortRecordChangesUpdated = thisVpdcmSentChanges || viewPortRecordChangesUpdated;
+						if (vpdcm == viewPortDataChangeMonitor) foundsetPropertySentUpdate = thisVpdcmSentChanges;
 					}
-					viewPortRecordChangesUpdated = true;
+
+					if (!foundsetPropertySentUpdate && viewPortRecordChangesUpdated)
+					{
+						// this means that at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
+						// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property
+						// notify that an update occurred in this case, even though it didn't actually affect the foundset property itself... but the other foundset linked properties
+						viewPortDataChangeMonitor.queueLinkedPropertyUpdate(firstViewPortIndex - viewPort.getStartIndex(),
+							lastViewPortIndex - viewPort.getStartIndex());
+					}
 				}
 			}
 			if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
@@ -528,6 +544,7 @@ public class FoundsetTypeChangeMonitor
 		public static final int CHANGE = 0;
 		public static final int INSERT = 1;
 		public static final int DELETE = 2;
+		public static final int CHANGE_IN_LINKED_PROPERTY = 9;
 
 		public final int startIndex;
 		public final int endIndex;
@@ -560,8 +577,12 @@ public class FoundsetTypeChangeMonitor
 		{
 			JSONUtils.addKeyIfPresent(w, keyInParent);
 
-			w.object().key("rows").value(rowData);
-			clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
+			w.object();
+			if (rowData != null)
+			{
+				w.key("rows").value(rowData);
+				clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
+			}
 
 			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(
 				Integer.valueOf(type)).endObject();
@@ -575,10 +596,14 @@ public class FoundsetTypeChangeMonitor
 		 */
 		public boolean isMadeIrrelevantBySubsequentRowData(RowData newOperation)
 		{
-			// so a change can be made obsolet by a subsequent (imediately after) change or delete of the same row;
+			// so a change can be made obsolete by a subsequent change or delete of the same row;
 			// it we're talking about two change operations, it matters as well if one of them is only for a specific column of the row or for the whole row
-			return (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) && startIndex >= newOperation.startIndex &&
-				endIndex <= newOperation.endIndex && (newOperation.columnName == null || newOperation.columnName.equals(columnName)));
+			boolean canNewTypeOverrideOldType = (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) &&
+				(newOperation.columnName == null || newOperation.columnName.equals(columnName))) ||
+				(type == CHANGE_IN_LINKED_PROPERTY &&
+					(newOperation.type == CHANGE_IN_LINKED_PROPERTY || newOperation.type == CHANGE || newOperation.type == DELETE));
+
+			return canNewTypeOverrideOldType && startIndex >= newOperation.startIndex && endIndex <= newOperation.endIndex;
 		}
 
 	}

@@ -19,7 +19,10 @@ package com.servoy.j2db.server.ngclient.property;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,6 +88,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected IDataLinkedPropertyRegistrationListener dataLinkedPropertyRegistrationListener;
 	protected IChangeListener changeMonitor;
 	protected String idForFoundset;
+
+	protected Set<String> foundsetLinkedDPs = new HashSet<>();
+
 	protected boolean idForFoundsetChanged = false;
 
 	protected ViewportDataChangeMonitor<FoundsetLinkedViewportRowDataProvider<YF, YT>> viewPortChangeMonitor;
@@ -192,6 +198,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (dal == null) return; // foundset property val. is not yet attached to component it seems
 
 		idForFoundset = null;
+		foundsetLinkedDPs.clear();
 		dal.addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener(changeMonitor, foundsetPropValue));
 
 		if (!wrappedValueInitialized)
@@ -270,13 +277,16 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (old != null) viewPortChangeMonitor.viewPortCompletelyChanged = old.viewPortCompletelyChanged;
 
-					// register the first dataprovider used by the wrapped property to the foundset for sorting
-					if (idForFoundset == null /* the rest of the condition should always be true */ && targetDataLinks.dataProviderIDs != null &&
-						targetDataLinks.dataProviderIDs.length > 0)
+					if (targetDataLinks.dataProviderIDs != null && targetDataLinks.dataProviderIDs.length > 0) /* this condition should always be true */
 					{
-						idForFoundset = UUID.randomUUID().toString();
-						idForFoundsetChanged = true;
-						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, targetDataLinks.dataProviderIDs[0]);
+						if (idForFoundset == null)
+						{
+							// register the first dataprovider used by the wrapped property to the foundset for sorting
+							idForFoundset = UUID.randomUUID().toString();
+							idForFoundsetChanged = true;
+							foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, targetDataLinks.dataProviderIDs[0]);
+						}
+						foundsetLinkedDPs.addAll(Arrays.asList(targetDataLinks.dataProviderIDs));
 					}
 
 					if (changed)
@@ -300,6 +310,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, null);
 						idForFoundset = null;
 						idForFoundsetChanged = true;
+						foundsetLinkedDPs.clear();
 					}
 					viewPortChangeMonitor = null;
 					chMonitor.valueChanged();
@@ -365,6 +376,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
 		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+		idForFoundsetChanged = false;
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
@@ -390,6 +402,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			viewPortChangeMonitor.clearChanges();
 		}
 		writer.endObject();
+
 		return writer;
 	}
 
@@ -426,6 +439,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (idForFoundsetChanged)
 		{
 			writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+			idForFoundsetChanged = false;
 		}
 
 		if (viewPortChangeMonitor == null)
@@ -680,6 +694,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected IWebObjectContext getDALWebObjectContext()
 	{
 		return webObjectContext;
+	}
+
+	protected boolean usesFoundsetLinkedDataprovider(String dataProviderID)
+	{
+		return foundsetLinkedDPs.contains(dataProviderID);
 	}
 
 }
