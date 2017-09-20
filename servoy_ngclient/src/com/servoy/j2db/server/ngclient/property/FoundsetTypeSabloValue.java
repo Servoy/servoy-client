@@ -221,19 +221,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundsetSelector;
 	}
 
-	protected boolean isPk(String columnName)
-	{
-		if (columnName == null) return false;
-
-		if (foundset != null && foundset.getSQLSheet() != null)
-		{
-			String[] pkIDs = foundset.getSQLSheet().getPKColumnDataProvidersAsArray();
-			for (String pkID : pkIDs)
-				if (columnName.equals(pkID)) return true;
-		}
-		return false;
-	}
-
 	@Override
 	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
 	{
@@ -720,24 +707,14 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return somethingChanged;
 	}
 
-	protected String getClientIDForColumnName(String columnName, boolean searchInRecordDataLinkedPropertyIDsAsWell)
+	protected String getComponentName(String columnName)
 	{
-		String clientID = getKeyForValue(dataproviders, columnName);
-		if (clientID == null && searchInRecordDataLinkedPropertyIDsAsWell)
-		{
-			clientID = getKeyForValue(recordDataLinkedPropertyIDToColumnDP, columnName);
-		}
-		return clientID;
-	}
-
-	private <KT, VT> KT getKeyForValue(Map<KT, VT> map, VT value)
-	{
-		// TODO should we keep the maps that use this method hashed both ways? would that improve performance a lot by avoiding this reverse lookup?
-		Iterator<Entry<KT, VT>> it = map.entrySet().iterator();
+		Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
+		Iterator<Entry<String, String>> it = dp.entrySet().iterator();
 		while (it.hasNext())
 		{
-			Entry<KT, VT> entry = it.next();
-			if (Utils.equalObjects(value, entry.getValue()))
+			Entry<String, String> entry = it.next();
+			if (Utils.equalObjects(columnName, entry.getValue()))
 			{
 				return entry.getKey();
 			}
@@ -1140,10 +1117,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			{
 				for (int j = 0; j < sortColumns.size(); j++)
 				{
-					String clientIDForColumnName = getClientIDForColumnName(sortColumns.get(j).getDataProviderID(), true);
-					if (clientIDForColumnName != null)
+					String elementName = getComponentName(sortColumns.get(j).getDataProviderID());
+					if (elementName != null)
 					{
-						sortString += clientIDForColumnName + " " + ((sortColumns.get(j).getSortOrder() == SortColumn.DESCENDING) ? "desc" : "asc");
+						sortString += elementName + " " + ((sortColumns.get(j).getSortOrder() == SortColumn.DESCENDING) ? "desc" : "asc");
 						if (j < sortColumns.size() - 1)
 						{
 							sortString += ",";

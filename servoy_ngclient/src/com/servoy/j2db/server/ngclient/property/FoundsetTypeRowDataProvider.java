@@ -43,9 +43,9 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 		throws JSONException
 	{
 		w.object();
-		if (columnName == null || foundsetPropertyValue.isPk(columnName))
+		if (columnName == null)
 		{
-			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
+			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex is just a hint for where to start searching for the pk when needed
 		}
 
 		foundsetPropertyValue.populateRowData(record, columnName, w, clientConversionInfo, browserConverterContext);
@@ -58,9 +58,7 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 	{
 		if (columnName == null) return true;
 
-		// if the col is a PK then yes, we do sent it to client as part of the ROW_ID_COL_KEY (see above)
-		// else see if this column is used  directly by the foundset property on client
-		return foundsetPropertyValue.isPk(columnName) || foundsetPropertyValue.getClientIDForColumnName(columnName, false) != null;
+		return foundsetPropertyValue.getComponentName(columnName) != null;
 	}
 
 	@Override
