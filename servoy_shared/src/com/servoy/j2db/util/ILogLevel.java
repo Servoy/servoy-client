@@ -18,7 +18,7 @@ package com.servoy.j2db.util;
 
 /***
  * Logging levels that can be passed as parameter to application.output javascript function
- * 
+ *
  *  @author lvostinar
  */
 public interface ILogLevel
@@ -54,7 +54,7 @@ public interface ILogLevel
 	public static final int ERROR = 3;
 
 	/**
-	 * Logging level.
+	 * Logging level. This level will for the most part be mapped on ERROR, because of java loggign api's
 	 *
 	 * @sample application.output('my message',APP_LOG_LEVEL.FATAL)
 	 */
