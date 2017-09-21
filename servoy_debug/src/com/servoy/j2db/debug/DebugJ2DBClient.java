@@ -1020,7 +1020,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void output(Object message, int level)
 	{
 		super.output(message, level);
-		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
+		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR || level == ILogLevel.FATAL)
 		{
 			DebugUtils.stderrToDebugger(getScriptEngine(), message);
 		}
