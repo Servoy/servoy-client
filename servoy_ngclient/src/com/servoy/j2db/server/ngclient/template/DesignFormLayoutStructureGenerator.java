@@ -99,7 +99,7 @@ public class DesignFormLayoutStructureGenerator
 			writer.print("' ");
 		}
 
-		Map<String, String> attributes = new HashMap<String, String>(container.getAttributes());
+		Map<String, String> attributes = new HashMap<String, String>(container.getMergedAttributes());
 		if (spec != null)
 		{
 			for (String propertyName : spec.getAllPropertiesNames())

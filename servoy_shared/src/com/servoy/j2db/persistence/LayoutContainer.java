@@ -180,7 +180,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	 */
 	public String getAttribute(String name)
 	{
-		Object value = getCustomProperty(new String[] { "attributes", name });
+		Object value = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name });
 		if (value instanceof String) return (String)value;
 		return null;
 	}
@@ -193,13 +193,13 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	 */
 	public void putAttribute(String name, String value)
 	{
-		putCustomProperty(new String[] { "attributes", name }, value);
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name }, value);
 	}
 
 	@Override
 	public Map<String, String> getAttributes()
 	{
-		Object customProperty = getCustomProperty(new String[] { "attributes" });
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES });
 		if (customProperty instanceof Map)
 		{
 			return Collections.unmodifiableMap((Map<String, String>)customProperty);
@@ -211,7 +211,21 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	@Override
 	public void putAttributes(Map<String, String> value)
 	{
-		putCustomProperty(new String[] { "attributes" }, value);
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES }, value);
+	}
+
+
+	@Override
+	public Map<String, String> getMergedAttributes()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void putUnmergedAttributes(Map<String, String> value)
+	{
+		// TODO Auto-generated method stub
 	}
 
 	@Override

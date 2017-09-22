@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.servoy.base.persistence.IBaseComponent;
@@ -426,17 +427,30 @@ public class BaseComponent extends AbstractBase
 	@Override
 	public void putAttributes(Map<String, String> value)
 	{
-		putCustomProperty(new String[] { "attributes" }, value);
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES }, value);
 	}
 
 	@Override
 	public Map<String, String> getAttributes()
 	{
-		Object customProperty = getCustomProperty(new String[] { "attributes" });
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES });
 		if (customProperty instanceof Map)
 		{
 			return Collections.unmodifiableMap((Map<String, String>)customProperty);
 		}
 		return Collections.emptyMap();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, String> getMergedAttributes()
+	{
+		return (Map<String, String>)getMergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_ATTRIBUTES, new HashMap<String, String>());
+	}
+
+	@Override
+	public void putUnmergedAttributes(Map<String, String> value)
+	{
+		setUnmergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_ATTRIBUTES, value);
 	}
 }

@@ -1003,7 +1003,7 @@ public abstract class AbstractBase implements IPersist
 	 * It will return null both if the value is null or if the value is not present.
 	 */
 	@SuppressWarnings("unchecked")
-	protected Object getCustomPropertyNonFlattened(String[] path)
+	public Object getCustomPropertyNonFlattened(String[] path)
 	{
 		Object val = getCustomPropertyNonFlattenedInternal(path);
 		return val == UNDEFINED ? null : val;
@@ -1138,13 +1138,14 @@ public abstract class AbstractBase implements IPersist
 			// remove empty map
 			clearCustomProperty(Utils.arraySub(path, 0, path.length - 1));
 		}
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+		if (jsonCustomProperties.isEmpty()) clearProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
+		else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
 		return old;
 	}
 
 	public Map<String, Object> getCustomDesignTimeProperties()
 	{
-		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { "design" });
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_DESIGNTIME });
 		if (map == null || map.size() == 0)
 		{
 			return null;
@@ -1156,26 +1157,30 @@ public abstract class AbstractBase implements IPersist
 	 * Merge properties from this, super, ...
 	 * This will always return a non-null map of properties which is a map that can be written to.
 	 */
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> getMergedCustomDesignTimeProperties()
 	{
-		return getMergedCustomDesignTimePropertiesInternal(new HashMap<String, Object>());
+		return (Map<String, Object>)getMergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_DESIGNTIME, new HashMap<String, Object>());
 	}
 
-	private Map<String, Object> getMergedCustomDesignTimePropertiesInternal(Map<String, Object> mergedProperties)
+	@SuppressWarnings("unchecked")
+	protected Map<String, ? > getMergedCustomPropertiesInternal(String customPropertyName, Map<String, ? > mergedProperties)
 	{
 		if (this instanceof ISupportExtendsID)
 		{
 			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)this);
 			if (superPersist instanceof AbstractBase)
 			{
-				((AbstractBase)superPersist).getMergedCustomDesignTimePropertiesInternal(mergedProperties);
+				((AbstractBase)superPersist).getMergedCustomPropertiesInternal(customPropertyName, mergedProperties);
 			}
 		}
-		Map<String, Object> map = getCustomDesignTimeProperties();
-		if (map != null)
+
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { customPropertyName });
+		if (map != null && map.size() > 0)
 		{
-			mergedProperties.putAll(map);
+			((Map<String, Object>)mergedProperties).putAll(map);
 		}
+
 		return mergedProperties;
 	}
 
@@ -1184,13 +1189,20 @@ public abstract class AbstractBase implements IPersist
 	 */
 	public void setUnmergedCustomDesignTimeProperties(Map<String, Object> mergedProperties)
 	{
-		Map<String, Object> map = mergedProperties;
+		setUnmergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_DESIGNTIME, mergedProperties);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void setUnmergedCustomPropertiesInternal(String customPropertyName, Map<String, ? > mergedProperties)
+	{
+		Map<String, ? > map = mergedProperties;
 		if (map != null)
 		{
 			IPersist superPersist = this instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)this) : null;
 			if (superPersist instanceof AbstractBase)
 			{
-				Map<String, Object> superMergedProperties = ((AbstractBase)superPersist).getMergedCustomDesignTimeProperties();
+				Map<String, Object> superMergedProperties = (Map<String, Object>)getMergedCustomPropertiesInternal(customPropertyName,
+					new HashMap<String, Object>());
 				if (superMergedProperties != null)
 				{
 					for (Entry<String, Object> superEntry : superMergedProperties.entrySet())
@@ -1211,19 +1223,19 @@ public abstract class AbstractBase implements IPersist
 			}
 		}
 
-		setCustomDesignTimeProperties(map);
+		putCustomProperty(new String[] { customPropertyName }, map);
 	}
 
 	public Map<String, Object> setCustomDesignTimeProperties(Map<String, Object> map)
 	{
-		return (Map<String, Object>)putCustomProperty(new String[] { "design" }, map);
+		return (Map<String, Object>)putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_DESIGNTIME }, map);
 	}
 
 	public Object getCustomDesignTimeProperty(String key)
 	{
 		if (key != null)
 		{
-			return getCustomProperty(new String[] { "design", key }); //$NON-NLS-1$
+			return getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_DESIGNTIME, key });
 		}
 		return null;
 	}
@@ -1232,7 +1244,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return putCustomProperty(new String[] { "design", key }, value); //$NON-NLS-1$
+			return putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_DESIGNTIME, key }, value);
 		}
 		return null;
 	}
@@ -1241,7 +1253,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return clearCustomProperty(new String[] { "design", key }); //$NON-NLS-1$
+			return clearCustomProperty(new String[] { IContentSpecConstants.PROPERTY_DESIGNTIME, key });
 		}
 		return null;
 	}

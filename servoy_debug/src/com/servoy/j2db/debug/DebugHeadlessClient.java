@@ -297,7 +297,7 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 	public void output(Object msg, int level)
 	{
 		super.output(msg, level);
-		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
+		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR || level == ILogLevel.FATAL)
 		{
 			errorToDebugger(msg.toString(), null);
 		}

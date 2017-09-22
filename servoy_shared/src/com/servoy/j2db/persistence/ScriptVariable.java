@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
@@ -213,9 +214,10 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 				}
 				if (defaultValue != null)
 				{
-					return parseDate(defaultValue);
+					Date pd = parseDate(defaultValue);
+					if (pd != null) return pd;
 				}
-				return null;
+				return defaultValue;
 
 			case IColumnTypes.TEXT :
 			{
@@ -320,7 +322,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public int getFlags()
 	{
-		return Column.NORMAL_COLUMN;
+		return IBaseColumn.NORMAL_COLUMN;
 	}
 
 	//the repository element id can differ!

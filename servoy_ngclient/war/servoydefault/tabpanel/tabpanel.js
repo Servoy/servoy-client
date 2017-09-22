@@ -121,7 +121,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				else return "servoydefault/tabpanel/tabpanel.html";
 			}
 			$scope.getActiveTabUrl = function() {
-				if (!$scope.model.visible) return "";
+				if (!$scope.model.visible || !$scope.model.tabs) return "";
 				
 				for(var i=0;i<$scope.model.tabs.length;i++) {
 					if ($scope.model.tabs[i].active) {

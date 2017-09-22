@@ -82,4 +82,9 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 		return browserConverterContext != null;
 	}
 
+	@Override
+	protected FoundsetDataAdapterList getDataAdapterList()
+	{
+		return dal;
+	}
 }

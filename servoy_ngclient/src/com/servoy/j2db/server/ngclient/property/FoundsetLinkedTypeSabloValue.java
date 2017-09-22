@@ -630,6 +630,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				finally
 				{
 					viewPortChangeMonitor.resumeRowUpdateListener();
+					foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 				}
 			}
 			else
@@ -646,7 +647,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	}
 
 	@Override
-	public String toString() 
+	public String toString()
 	{
 		return "foundsetLinked(" + wrappedSabloValue + ")";
 	}

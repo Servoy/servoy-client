@@ -102,6 +102,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
 					updates = true;
 				}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER])) {
+					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					internalState[PUSH_TO_SERVER] = serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER];
+					updates = true;
+				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_HAS_MORE_ROWS_CHANGED] = { oldValue : currentClientValue[HAS_MORE_ROWS], newValue : serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS] };
 					currentClientValue[HAS_MORE_ROWS] = serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS];
@@ -134,7 +139,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					var handledRequests = serverJSONValue[HANDLED_CLIENT_REQUESTS]; // array of { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
-					handledRequests.forEach( function(handledReq) { 
+					handledRequests.forEach(function(handledReq) { 
 					     var defer = internalState.deferred[handledReq[ID_KEY]];
 					     if (defer) {
 					    	 if (defer === internalState.selectionUpdateDefer) {

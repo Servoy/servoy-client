@@ -96,7 +96,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private final ValuelistPropertyDependencies propertyDependencies;
 	private boolean waitForDataproviderIfNull;
 	private boolean waitForFormatIfNull;
-
 	private IChangeListener changeMonitor;
 
 	// values available after the ValueListTypeSabloValue initialization was completed
@@ -139,7 +138,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		this.waitForDataproviderIfNull = waitForDataproviderIfNull;
 		this.waitForFormatIfNull = waitForFormatIfNull;
 		this.dataAdapterListToUse = dataAdapterListToUse;
-
 		this.initialized = false;
 	}
 
@@ -322,6 +320,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
+		// dataprovider will resolve this, do not send anything client side
+		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
+
 		List<Map<String, Object>> jsonValue = null;
 
 		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
@@ -462,7 +463,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (!initialized)
 		{
 			// this is not expected; we should already have all that is needed to initialize the value before the first toJSON executes
-			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext + ". Will send null for now.");
+			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext +
+				". Will send null for now. This could be a result of using the valuelist as a api parameter, convert this valuelist to dataset and use the dataset type as the param type.");
 
 			// we are still waiting for some dependency before we can initialize the valuelist? when that will be ready we will send the appropriate value to client
 			if (key != null) writer.key(key);

@@ -560,7 +560,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	@JSFunction
 	public String[] getAttributes()
 	{
-		Set<String> keySet = getBaseComponent(false).getAttributes().keySet();
+		Set<String> keySet = getBaseComponent(false).getMergedAttributes().keySet();
 		return keySet.toArray(new String[keySet.size()]);
 	}
 
@@ -572,7 +572,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	@JSFunction
 	public Object getAttribute(String name)
 	{
-		return getBaseComponent(false).getAttributes().get(name);
+		return getBaseComponent(false).getMergedAttributes().get(name);
 	}
 
 	/** Set the attribute value of an element.

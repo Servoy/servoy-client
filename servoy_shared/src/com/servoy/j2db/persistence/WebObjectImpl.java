@@ -37,7 +37,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
@@ -45,6 +44,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 
 /**
@@ -168,7 +168,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					PropertyDescription childPd = getChildPropertyDescription(wo.getKey());
 					// if we are about to store a default value, don't (so if all the persists turned into a JSON equal to
 					// the one defined in .spec file as default value, don't write it...)
-					if (childPd.hasDefault() && JSONUtils.areEqual(childPd.getDefaultValue(), entireModel.opt(wo.getKey()), IChildWebObject.UUID_KEY))
+					if (childPd.hasDefault() && Utils.areJSONEqual(childPd.getDefaultValue(), entireModel.opt(wo.getKey()), IChildWebObject.UUID_KEY))
 					{
 						entireModel.remove(wo.getKey());
 					}

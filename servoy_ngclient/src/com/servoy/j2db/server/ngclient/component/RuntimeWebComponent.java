@@ -155,10 +155,18 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 						array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
 							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, component, this);
 					}
-					Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+					context.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
+					try
+					{
+						Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
 
-					PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
-					return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, component);
+						PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
+						return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, component);
+					}
+					finally
+					{
+						context.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+					}
 				}
 				catch (JSONException e)
 				{

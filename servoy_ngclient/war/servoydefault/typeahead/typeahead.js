@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead', ['servoy'])
-.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants','$applicationService', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$applicationService) {
+.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants','$applicationService','$timeout', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$applicationService, $timeout) {
 	return {
 		restrict: 'E',
 		require: 'ngModel',
@@ -102,13 +102,19 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 
 			$scope.startEdit = function() {
 				editing = true;
+				if (setCaret)
+				{
+					setCaret = false;
+					var len = $element[0].value.length;
+					$element[0].setSelectionRange(len,len);
+				}
 			}
 
-			$scope.doSvyApply = function(doNotStopEditing) {
+			$scope.doSvyApply = function(isSelectFromPopup) {
 				if (!editing) 
 					return;
-				if ($('[uib-typeahead-popup]').attr('aria-hidden') == "true") {
-					if(!doNotStopEditing) {
+				if (isSelectFromPopup || ($('[uib-typeahead-popup]').attr('aria-hidden') == "true")) {
+					if(!isSelectFromPopup) {
 						editing = false;
 					}
 					if ($scope.model.valuelistID) {
@@ -125,11 +131,18 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						{
 							if (hasRealValues) 
 							{
-								// if we still have old value do not set it to null
-								if ($scope.model.dataProviderID !== $scope.value)
+								// if we still have old value do not set it to null or try to  get it from the list.
+								if ($scope.model.dataProviderID != null && $scope.model.dataProviderID !== $scope.value)
 								{
-									$scope.model.dataProviderID = null;
+									// so invalid thing is typed in the list and we are in real/display values, try to search the real value again to set the display value back.
+									$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(function(displayValue) {
+										$scope.value = displayValue;
+									});
 								}	
+								// if the dataproviderid was null and we are in real|display then reset the value to ""
+								else if($scope.model.dataProviderID == null) {
+									$scope.value = "";
+								}
 							}
 							else
 							{
@@ -145,17 +158,24 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				} 
 				else if (!hasRealValues && ($scope.model.dataProviderID != $scope.value))
 				{
-					if(!doNotStopEditing) {
-						editing = false;
-					}
+					editing = false;
 					$scope.model.dataProviderID = $scope.value;
 					$scope.svyServoyapi.apply('dataProviderID');
 				}
+				else if (hasRealValues) {
+					$timeout(function(triggerValue){
+						if (triggerValue == $scope.value) {
+							$scope.doSvyApply(true);
+						}
+					},100,true,$scope.value)
+				}
 			}
 
+			var setCaret = false;
 			$scope.doSelect = function($item, $model, $label, $event) {
 				$scope.startEdit();
 				$scope.doSvyApply(true);
+				setCaret = true;//when the focus is back to the field, set the cursor on the last position
 			}
 
 			/**

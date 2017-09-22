@@ -248,7 +248,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();
 		}
 
-		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name))
+		if (!inServerSideScript() && (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name)))
 		{
 			// cannot get design only or private properties; make an exception for dp properties, should be able to get the dpid
 			if (!(component.getSpecification().getProperty(name).getType() instanceof DataproviderPropertyType))
@@ -263,8 +263,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		String convertName = convertName(name);
 		Object value = convertValue(name, component.getProperty(convertName), webComponentSpec.getProperties().get(convertName), start);
 
-		if (component.getSpecification().getProperty(convertName) == null && value == null &&
-			(Context.getCurrentContext() == null || Context.getCurrentContext().getThreadLocal(RuntimeWebComponent.SERVER_SIDE_SCRIPT_EXECUTE) == null))
+		if (component.getSpecification().getProperty(convertName) == null && value == null && !inServerSideScript())
 		{
 			component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to get a property: " + convertName + "  that is a not in the spec " +
 				component.getSpecification().getName() + " property on component " + component.getName());
@@ -276,6 +275,14 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		}
 
 		return value;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean inServerSideScript()
+	{
+		return Context.getCurrentContext() != null && Context.getCurrentContext().getThreadLocal(RuntimeWebComponent.SERVER_SIDE_SCRIPT_EXECUTE) != null;
 	}
 
 	protected String generatePropertyName(String name)
@@ -310,7 +317,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name)) return false;
+		if (!inServerSideScript() && (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name))) return false;
 		if (name.equals("readOnly") || LegacyApiNames.contains(name) || ScriptNameToSpecName.containsKey(name)) return true;
 		if (webComponentSpec.getApiFunction(name) != null) return true;
 		if (webComponentSpec.getProperty(name) != null) return true;
@@ -344,7 +351,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			}
 		}
 		name = convertName(name);
-		if (component.isDesignOnlyProperty(name) && !StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
+		if (!inServerSideScript() && component.isDesignOnlyProperty(name) && !StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
 		{
 			// cannot set design only or private properties
 			component.getDataAdapterList().getApplication().reportJSWarning(
