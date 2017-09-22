@@ -43,4 +43,6 @@ public interface IDebugJ2DBClient extends ISmartClientApplication, IDebugClient
 	 */
 	public void onSolutionOpen();
 
+	public void setDebugMode(boolean debugMode);
+
 }
