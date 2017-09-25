@@ -5,7 +5,7 @@ Bundle-SymbolicName: servoy_headless_client
 Bundle-Version: 8.2.1.3105
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
-Require-Bundle: org.eclipse.dltk.javascript.rhino,
+Require-Bundle: org.eclipse.dltk.javascript.rhino;bundle-version="[8.2.1,8.3.0)",
  servoy_shared,
  servoy_smart_client,
  org.slf4j.api,

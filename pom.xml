@@ -67,6 +67,53 @@
 				<module>servoy_debug</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>version_push</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>replace_version_in_property_files</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<macrodef name="stripVersion">
+											<attribute name="src" />
+											<attribute name="result" />
+											<sequential>
+												<script language="javascript">
+													var index =
+													"@{src}".lastIndexOf(".")
+													project.setProperty(
+													"@{result}",
+													"@{src}".substring(0,index)
+													);
+												</script>
+											</sequential>
+										</macrodef>
+										<stripVersion src="${project.version}" result="stripProject" />
+										<stripVersion src="${newVersion}" result="stripNewVersion" />
+										<echo>${stripProject}  ${stripNewVersion}</echo>
+										<replaceregexp match="\[${stripProject}"
+											replace="\[${stripNewVersion}" byline="true">
+											<fileset dir="${basedir}">
+												<include name="**/*MANIFEST.MF" />
+											</fileset>
+										</replaceregexp>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 
@@ -196,22 +243,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>javax.websocket</groupId>
-			<artifactId>javax.websocket-api</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sablo</groupId>
-			<artifactId>sablo</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
 </project>
