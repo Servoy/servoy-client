@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
-Bundle-Version: 8.2.1.3104_rc
+Bundle-Version: 8.2.1.3105
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.endpoint,
