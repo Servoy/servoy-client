@@ -31,8 +31,10 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
+import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -87,7 +89,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	private Scriptable parentScope;
 	private Scriptable scopeObject;
 
-	public RuntimeWebComponent(WebFormComponent component, WebObjectSpecification webComponentSpec)
+	public RuntimeWebComponent(final WebFormComponent component, WebObjectSpecification webComponentSpec)
 	{
 		this.component = component;
 		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
@@ -119,9 +121,61 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (serverScript != null)
 		{
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
-			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
+			apiObject = (Scriptable)scopeObject.get("api", scopeObject); //$NON-NLS-1$
+
+			NativeObject object = new NativeObject()
+			{
+				@Override
+				public Object get(final String name, Scriptable start)
+				{
+					if (!component.hasEvent(name))
+					{
+						return Scriptable.NOT_FOUND;
+					}
+
+					return new Callable()
+					{
+						@Override
+						public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+						{
+							try
+							{
+								IEventHandler handler = component.getEventHandler(name);
+
+								if (handler == null)
+								{
+									return null;
+								}
+
+								return handler.executeEvent(args);
+							}
+							catch (Exception e)
+							{
+								e.printStackTrace();
+							}
+							return null;
+						}
+					};
+				}
+
+				@Override
+				public boolean has(String name, Scriptable start)
+				{
+					return component.hasEvent(name);
+				}
+
+				@Override
+				public Object[] getIds()
+				{
+					return component.getAllEventHandlerNames().toArray();
+				}
+			};
+
+			object.preventExtensions();
+
+			scopeObject.put("handlers", scopeObject, object); //$NON-NLS-1$
 		}
-		
+
 		if (webComponentSpec != null)
 		{
 			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
