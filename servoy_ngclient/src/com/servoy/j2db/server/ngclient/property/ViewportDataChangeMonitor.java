@@ -100,11 +100,13 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param operationType can be one of {@link RowData#DELETE}, {@link RowData#INSERT} or {@link RowData#CHANGE}.
+	 *
+	 * @return true if the operation was queued, false otherwise.
 	 */
-	public void queueOperation(int relativeFirstRow, int relativeLastRow, final int newDataStartIndex, final int newDataEndIndex,
+	public boolean queueOperation(int relativeFirstRow, int relativeLastRow, final int newDataStartIndex, final int newDataEndIndex,
 		final IFoundSetInternal foundset, int operationType)
 	{
-		if (!rowDataProvider.isReady()) return;
+		if (!rowDataProvider.isReady()) return false;
 
 		if (!shouldSendWholeViewport())
 		{
@@ -129,18 +131,10 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				RowData newOperation = new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType);
-				if (operationType == RowData.CHANGE)
-				{
-					// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
-					while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
-					{
-						viewPortChanges.remove(viewPortChanges.size() - 1);
-					}
-				}
-				viewPortChanges.add(newOperation);
+				removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType));
 
 				if (changed && monitor != null) monitor.valueChanged();
+				return true;
 			}
 			catch (JSONException e)
 			{
@@ -148,6 +142,17 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 			}
 //			}
 		}
+		return false;
+	}
+
+	protected void removeIrrelevantOperationsAndAdd(RowData newOperation)
+	{
+		// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
+		while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
+		{
+			viewPortChanges.remove(viewPortChanges.size() - 1);
+		}
+		viewPortChanges.add(newOperation);
 	}
 
 	/**
@@ -156,10 +161,12 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
+	 *
+	 * @return true if the operation was queued, false otherwise.
 	 */
-	public void queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
+	public boolean queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
 	{
-		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return;
+		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return false;
 
 		if (!shouldSendWholeViewport())
 		{
@@ -178,14 +185,17 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				viewPortChanges.add(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+				removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+
 				if (changed && monitor != null) monitor.valueChanged();
+				return true;
 			}
 			catch (JSONException e)
 			{
 				Debug.error(e);
 			}
 		}
+		return false;
 	}
 
 	/**

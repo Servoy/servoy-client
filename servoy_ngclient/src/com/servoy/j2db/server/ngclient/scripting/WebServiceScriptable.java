@@ -145,16 +145,19 @@ public class WebServiceScriptable implements Scriptable
 			Scriptable apiObject = null;
 			Scriptable execScope = context.newObject(topLevel);
 			execScope.setParentScope(topLevel);
+
 			scopeObject = context.newObject(execScope);
 			apiObject = context.newObject(execScope);
+
 			scopeObject.put("api", scopeObject, apiObject);
 			scopeObject.put("model", scopeObject, model);
 			execScope.put("$scope", execScope, scopeObject);
-			getScript(context, serverScript).exec(context, execScope);
-			apiObject.setPrototype(model);
 
 			execScope.put("console", execScope,
 				new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope, ConsoleObject.class)));
+
+			getScript(context, serverScript).exec(context, execScope);
+			apiObject.setPrototype(model);
 		}
 		catch (Exception ex)
 		{
