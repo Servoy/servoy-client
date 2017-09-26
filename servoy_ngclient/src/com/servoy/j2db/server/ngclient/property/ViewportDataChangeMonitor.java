@@ -41,6 +41,7 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 {
 	public static final String VIEWPORT_CHANGED = "viewportDataChanged";
@@ -56,12 +57,21 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 
 	protected final IChangeListener monitor;
 
+	private FoundsetTypeViewportDataChangeMonitor foundsetTypeViewportDataChangeMonitor;
+
 //	protected String ignoreUpdateOnPkHash;
 
 	public ViewportDataChangeMonitor(IChangeListener monitor, DPT rowDataProvider)
 	{
 		this.rowDataProvider = rowDataProvider;
 		this.monitor = monitor;
+	}
+
+	protected void setFoundsetTypeViewportDataChangeMonitor(FoundsetTypeViewportDataChangeMonitor foundsetTypeViewportDataChangeMonitor)
+	{
+		// ViewportDataChangeMonitor that are used for foundset linked properties are aware of the change monitor of the actual foundset property so that they can
+		// trigger sending special updates to client - meant to trigger the client-side foundset listener even if changes happened only in the linked properties, not just on actual foundset property contents
+		this.foundsetTypeViewportDataChangeMonitor = foundsetTypeViewportDataChangeMonitor;
 	}
 
 	public DPT getRowDataProvider()
@@ -145,18 +155,28 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 		return false;
 	}
 
-	protected void removeIrrelevantOperationsAndAdd(RowData newOperation)
+	protected boolean removeIrrelevantOperationsAndAdd(RowData newOperation)
 	{
+		boolean changed = false;
 		// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
 		while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
 		{
 			viewPortChanges.remove(viewPortChanges.size() - 1);
+			changed = true;
 		}
-		viewPortChanges.add(newOperation);
+
+		if (viewPortChanges.size() == 0 || !newOperation.isMadeIrrelevantByPreviousRowData(viewPortChanges.get(viewPortChanges.size() - 1)))
+		{
+			viewPortChanges.add(newOperation);
+			changed = true;
+		}
+
+		return changed;
 	}
 
 	/**
 	 * This gets called when the value of a cell in the viewport was changed.
+	 *
 	 * @param relativeFirstRow viewPort relative start index for given operation.
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
@@ -185,7 +205,15 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+				boolean added = removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+
+				// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
+				// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property
+				// notify that an update occurred in this case, even though it didn't actually affect the foundset property itself... but the other foundset linked properties.
+				if (added && foundsetTypeViewportDataChangeMonitor != null)
+				{
+					foundsetTypeViewportDataChangeMonitor.queueLinkedPropertyUpdate(relativeRowIndex, relativeRowIndex, columnName);
+				}
 
 				if (changed && monitor != null) monitor.valueChanged();
 				return true;
@@ -221,5 +249,12 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	{
 //		this.ignoreUpdateOnPkHash = null;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ViewportDataChangeMonitor [viewPortCompletelyChanged=" + viewPortCompletelyChanged + ", viewPortChanges=" + viewPortChanges + "]";
+	}
+
 
 }

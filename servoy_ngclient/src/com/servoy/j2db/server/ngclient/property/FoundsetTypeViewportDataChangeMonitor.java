@@ -17,19 +17,21 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import org.sablo.IChangeListener;
+
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 
 /**
  * A ViewportDataChangeMonitor that is for the foundset property type itself.
- * 
+ *
  * @author acostescu
  */
 public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMonitor<FoundsetTypeRowDataProvider>
 {
 
-	public FoundsetTypeViewportDataChangeMonitor(FoundsetTypeRowDataProvider rowDataProvider)
+	public FoundsetTypeViewportDataChangeMonitor(IChangeListener monitor, FoundsetTypeRowDataProvider rowDataProvider)
 	{
-		super(null, rowDataProvider);
+		super(monitor, rowDataProvider);
 	}
 
 	/**
@@ -40,12 +42,15 @@ public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMon
 	 * @param relativeFirstRow viewPort relative start index for given operation.
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 */
-	public boolean queueLinkedPropertyUpdate(int firstRelativeRowIndex, int lastRelativeRowIndex)
+	public boolean queueLinkedPropertyUpdate(int firstRelativeRowIndex, int lastRelativeRowIndex, String columnName)
 	{
 		if (!rowDataProvider.isReady()) return false;
 
-		removeIrrelevantOperationsAndAdd(new RowData(null, firstRelativeRowIndex, lastRelativeRowIndex, RowData.CHANGE_IN_LINKED_PROPERTY, null));
-		return true;
+		boolean changed = removeIrrelevantOperationsAndAdd(
+			new RowData(null, firstRelativeRowIndex, lastRelativeRowIndex, RowData.CHANGE_IN_LINKED_PROPERTY, columnName));
+
+		if (changed && monitor != null) monitor.valueChanged();
+		return changed;
 	}
 
 }
