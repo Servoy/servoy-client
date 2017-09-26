@@ -39,6 +39,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
@@ -143,6 +144,30 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		// only send template in designer
+		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
+			!formElementContext.getFormElement().isInDesigner()) return writer;
+
+		JSONUtils.addKeyIfPresent(writer, key);
+		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
+
+		writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
+		DataConversion arrayConversionMarkers = new DataConversion();
+		for (Entry<String, FormElementT> e : formElementValue.entrySet())
+		{
+			arrayConversionMarkers.pushNode(e.getKey());
+			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
+				getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
+			arrayConversionMarkers.popNode();
+		}
+		writer.endObject();
+		if (arrayConversionMarkers.getConversions().size() > 0)
+		{
+			writer.key(JSONUtils.TYPES_KEY).object();
+			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
+			writer.endObject();
+		}
+		writer.endObject();
 		return writer;
 	}
 
@@ -272,23 +297,24 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	@Override
 	public boolean valueInTemplate(Map<String, FormElementT> object, PropertyDescription pd, FormElementContext formElementContext)
 	{
-//		if (object != null)
-//		{
-//			PropertyDescription desc = getCustomJSONTypeDefinition();
-//			for (Entry<String, PropertyDescription> entry : desc.getProperties().entrySet())
-//			{
-//				FormElementT value = object.get(entry.getKey());
-//				value = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
-//				if (value != null && entry.getValue().getType() instanceof ISupportTemplateValue< ? >)
-//				{
-//					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value, entry.getValue(), formElementContext))
-//					{
-//						return false;
-//					}
-//				}
-//			}
-//		}
-		// always call tojson to send pushtoserver
+		if (object != null && formElementContext != null && formElementContext.getFormElement() != null && formElementContext.getFormElement().isInDesigner())
+		{
+			PropertyDescription desc = getCustomJSONTypeDefinition();
+			for (Entry<String, PropertyDescription> entry : desc.getProperties().entrySet())
+			{
+				FormElementT value = object.get(entry.getKey());
+				value = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
+				if (value != null && entry.getValue().getType() instanceof ISupportTemplateValue< ? >)
+				{
+					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value, entry.getValue(), formElementContext))
+					{
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		// always call tojson to send pushtoserver in real client
 		return false;
 	}
 
