@@ -116,7 +116,9 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
 		FormElementContext formElementContext) throws JSONException
 	{
-		if (formElementValue == null) return writer;
+		// only send template in designer
+		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
+			!formElementContext.getFormElement().isInDesigner()) return writer;
 
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -233,7 +235,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public boolean valueInTemplate(Object[] values, PropertyDescription pd, FormElementContext formElementContext)
 	{
-		if (values != null && values.length > 0)
+		if (values != null && values.length > 0 && formElementContext != null && formElementContext.getFormElement() != null &&
+			formElementContext.getFormElement().isInDesigner())
 		{
 			PropertyDescription desc = getCustomJSONTypeDefinition();
 
@@ -249,8 +252,10 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 					}
 				}
 			}
+			return true;
 		}
-		return true;
+		// always call tojson to send pushtoserver for real client
+		return false;
 	}
 
 	@Override

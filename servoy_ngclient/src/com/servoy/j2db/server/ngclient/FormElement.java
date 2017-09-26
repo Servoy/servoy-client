@@ -810,6 +810,14 @@ public final class FormElement implements INGFormElement
 	}
 
 	/**
+	 * @return the inDesigner
+	 */
+	public boolean isInDesigner()
+	{
+		return inDesigner;
+	}
+
+	/**
 	 * Returns true if the give property description makes use of types that are turned into persists when used in persist properties.
 	 * For example component property types, component array, custom object and custom object arrays return Persist instances when accessed through WebComponent.getProperty(...)
 	 *

@@ -144,7 +144,9 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		if (formElementValue == null) return writer;
+		//only send template in designer
+		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
+			!formElementContext.getFormElement().isInDesigner()) return writer;
 
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -296,7 +298,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	@Override
 	public boolean valueInTemplate(Map<String, FormElementT> object, PropertyDescription pd, FormElementContext formElementContext)
 	{
-		if (object != null)
+		if (object != null && formElementContext != null && formElementContext.getFormElement() != null && formElementContext.getFormElement().isInDesigner())
 		{
 			PropertyDescription desc = getCustomJSONTypeDefinition();
 			for (Entry<String, PropertyDescription> entry : desc.getProperties().entrySet())
@@ -311,8 +313,10 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 					}
 				}
 			}
+			return true;
 		}
-		return true;
+		// always call tojson to send pushtoserver in real client
+		return false;
 	}
 
 	@Override
