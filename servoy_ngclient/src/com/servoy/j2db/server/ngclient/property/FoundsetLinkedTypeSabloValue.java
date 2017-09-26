@@ -89,6 +89,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected IChangeListener changeMonitor;
 	protected String idForFoundset;
 
+	private FoundsetLinkedValueChangeHandler actualWrappedValueChangeHandlerForFoundsetLinked;
+
 	protected Set<String> foundsetLinkedDPs = new HashSet<>();
 
 	protected boolean idForFoundsetChanged = false;
@@ -108,7 +110,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			this.formElementValue = formElementValue;
 			this.formElement = formElement;
 		}
-
 	}
 
 	/**
@@ -217,7 +218,37 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		wrappedComponentContext = new NGComponentDALContext(foundsetPropValue.getDataAdapterList(), webObjectContext);
 		if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
-			((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, wrappedComponentContext);
+			((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(getWrappedPropChangeMonitor(monitor), wrappedComponentContext);
+	}
+
+	private IChangeListener getWrappedPropChangeMonitor(final IChangeListener monitor)
+	{
+		// if the wrapped property is really linked to foundset data, the change monitor given to the wrapped property needs to mark a certain row in the viewportChangeMonitor as dirty
+		// if it is called - as that means that the wrapped prop.'s value has changed for the current record
+		// for example if a foundset linked DP value which is set to a related dataprovider changes value on the current FoundsetDataAdapterList record we want to send that change for that record to client
+		return new IChangeListener()
+		{
+
+			@Override
+			public void valueChanged()
+			{
+				if (actualWrappedValueChangeHandlerForFoundsetLinked != null)
+				{
+					FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
+					if (foundsetValue != null && !foundsetValue.getDataAdapterList().isQuietRecordChangeInProgress())
+					{
+						// here for column name we give the name of the first foundset linked DP that the wrapped sablo val. attached to the dal, or if not the actual prop. name
+						// the idea is that when this will call a queueCellChange on the viewPortChangeMonitor, it should pass the columnName check in there...
+						actualWrappedValueChangeHandlerForFoundsetLinked.valueChangedInFSLinkedUnderlyingValue(
+							foundsetLinkedDPs.size() > 0 ? foundsetLinkedDPs.iterator().next() : wrappedPropertyDescription.getName(), viewPortChangeMonitor);
+					}
+				}
+				else
+				{
+					monitor.valueChanged();
+				}
+			}
+		};
 	}
 
 	@Override
@@ -271,7 +302,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					boolean changed = (viewPortChangeMonitor == null);
 
 					if (viewPortChangeMonitor != null) foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+
 					ViewportDataChangeMonitor< ? > old = viewPortChangeMonitor;
+					actualWrappedValueChangeHandlerForFoundsetLinked = new FoundsetLinkedValueChangeHandler(foundsetPropValue);
 					viewPortChangeMonitor = new ViewportDataChangeMonitor<>(chMonitor, new FoundsetLinkedViewportRowDataProvider<YF, YT>(
 						foundsetPropValue.getDataAdapterList(), wrappedPropertyDescription, FoundsetLinkedTypeSabloValue.this));
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
@@ -313,6 +346,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						foundsetLinkedDPs.clear();
 					}
 					viewPortChangeMonitor = null;
+					actualWrappedValueChangeHandlerForFoundsetLinked = null;
 					chMonitor.valueChanged();
 				}
 			}
@@ -572,6 +606,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 								update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED));
 						}
 					}
+					// as svyApply/data push for DPs does not go through here but through NGFormServiceHandler.executeMethod(String, JSONObject), the
+					// "setApplyingDPValueFromClient" will be called from there not here...
 				}
 			}
 			catch (Exception ex)
@@ -700,5 +736,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		return foundsetLinkedDPs.contains(dataProviderID);
 	}
+
+	public void setApplyingDPValueFromClient(boolean applyInProgress)
+	{
+		if (actualWrappedValueChangeHandlerForFoundsetLinked != null)
+			actualWrappedValueChangeHandlerForFoundsetLinked.setApplyingDPValueFromClient(applyInProgress);
+	}
+
 
 }
