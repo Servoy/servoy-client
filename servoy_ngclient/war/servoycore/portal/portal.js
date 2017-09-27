@@ -735,12 +735,31 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							}
 
 							if (isInViewPort(apiCallTargetRowIndex)) {
-								retVal = $scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(apiCallTargetRowIndex)]), null /* must be null here, can't be undefined */).then(function () {
+								var targetRow = $scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(apiCallTargetRowIndex)]);
+								
+								function afterScrollToTargetRow() {
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
 									if ((apiCallTargetRowIndex !== newFirstSelected) && !(event && (event.selectedIndex || event.selectedIndex === 0)))
-										return $q.reject("First selected index changed for some reason (" + apiCallTargetRowIndex + " -> " + newFirstSelected + ") while scrolling for loader row API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+										return $q.reject("First selected index changed for some reason (" + apiCallTargetRowIndex + " -> " + newFirstSelected + ") while scrolling to target row for API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									return callAPIAfterScroll(absoluteRowIndexToRowId(apiCallTargetRowIndex));
-								});
+								}
+								
+								if (targetRow) {
+									retVal = $scope.gridApi.grid.scrollToIfNecessary(targetRow, null /* must be null here, can't be undefined */).then(afterScrollToTargetRow);
+								} else {
+									// so we know for sure that the target row is in the viewport, yet ui-grid seems to not be aware of it; it might be that the pk of that row has just changed
+									// and UI grid didn't have a chance to update it's model yet; so give ui-grid a change to do that and try again
+									var deferred = $q.defer();
+									retVal = deferred.promise;
+									$timeout(function() {
+										targetRow = $scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(apiCallTargetRowIndex)]);
+										if (targetRow) {
+											deferred.resolve($scope.gridApi.grid.scrollToIfNecessary(targetRow, null /* must be null here, can't be undefined */).then(afterScrollToTargetRow));
+										} else {
+											deferred.reject("Cannot find the row that the API call needs to be called on. Rejecting API call.");
+										}
+									}, 0);
+								}
 							} else {
 								// updateGridSelectionFromFoundset will scroll to it anyway, so wait for that to happen
 								// and then call API
@@ -749,7 +768,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 									// success
 									deferredAPICallExecution = undefined;
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
-									if ((apiCallTargetRowIndex !== newFirstSelected)&& !(event && (event.selectedIndex || event.selectedIndex === 0)))
+									if ((apiCallTargetRowIndex !== newFirstSelected) && !(event && (event.selectedIndex || event.selectedIndex === 0)))
 										return $q.reject("First selected index changed for some reason (" + apiCallTargetRowIndex + " -> " + newFirstSelected + ") while scrolling for non-loaded API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									return callAPIAfterScroll(absoluteRowIndexToRowId(apiCallTargetRowIndex));
 								}, function(reason) {
