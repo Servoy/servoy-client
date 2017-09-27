@@ -1201,8 +1201,8 @@ public abstract class AbstractBase implements IPersist
 			IPersist superPersist = this instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)this) : null;
 			if (superPersist instanceof AbstractBase)
 			{
-				Map<String, Object> superMergedProperties = (Map<String, Object>)getMergedCustomPropertiesInternal(customPropertyName,
-					new HashMap<String, Object>());
+				Map<String, Object> superMergedProperties = (Map<String, Object>)((AbstractBase)superPersist).getMergedCustomPropertiesInternal(
+					customPropertyName, new HashMap<String, Object>());
 				if (superMergedProperties != null)
 				{
 					for (Entry<String, Object> superEntry : superMergedProperties.entrySet())
