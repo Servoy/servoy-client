@@ -84,7 +84,7 @@ declare namespace sablo {
 			fromServerToClient(serverJSONValue, currentClientValue, componentScope:angular.IScope, componentModelGetter:()=>any):void,
 			fromClientToServer(newClientData, oldClientData):void,
 			updateAngularScope(clientValue, componentScope:angular.IScope):void
-		}): void 
+		},overwrite:boolean): void 
 	}
 	
 	interface ISabloUtils {
