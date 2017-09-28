@@ -1138,9 +1138,16 @@ public abstract class AbstractBase implements IPersist
 			// remove empty map
 			clearCustomProperty(Utils.arraySub(path, 0, path.length - 1));
 		}
-		if (jsonCustomProperties.isEmpty()) clearProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
-		else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+
+		// the recursive clearCustomProperty call above might set jsonCustomProperties to null if there were no more custom properties...
+		if (jsonCustomProperties != null)
+		{
+			if (jsonCustomProperties.isEmpty()) clearProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
+			else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+		}
+
 		return old;
+
 	}
 
 	public Map<String, Object> getCustomDesignTimeProperties()
