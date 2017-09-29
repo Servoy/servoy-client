@@ -40,6 +40,11 @@ public class J2DBGlobals
 		J2DBGlobals.singletonServiceProvider = serviceprovider;
 		return old;
 	}
+	
+	public static IServiceProvider getThreadServiceProvider()
+	{
+		return serviceprovider.get();
+	}
 
 	public static IServiceProvider getSingletonServiceProvider()
 	{
