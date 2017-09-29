@@ -709,6 +709,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					unregister();
 				}
 				svyFormat = newValue;
+				if (svyFormat && svyFormat.maxLength) {
+					element.attr('maxlength', svyFormat.maxLength);
+				}
 				applyValue();
 
 			}
