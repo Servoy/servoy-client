@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Point;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -215,17 +216,17 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, String> getMergedAttributes()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return (Map<String, String>)getMergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_ATTRIBUTES, new HashMap<String, String>());
 	}
 
 	@Override
 	public void putUnmergedAttributes(Map<String, String> value)
 	{
-		// TODO Auto-generated method stub
+		setUnmergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_ATTRIBUTES, value);
 	}
 
 	@Override
