@@ -20,7 +20,7 @@ angular.module('servoydefaultImagemedia', [ 'servoy' ]).directive(
 						} else {
 							$scope.imageURL = ($scope.model.dataProviderID && $scope.model.dataProviderID.url) ? ($scope.model.dataProviderID.contentType
 									&& ($scope.model.dataProviderID.contentType.indexOf("image") == 0) ? $scope.model.dataProviderID.url : "servoydefault/imagemedia/res/images/notemptymedia.gif")
-									: ($scope.svyServoyapi.isInDesigner() ? "servoydefault/imagemedia/IMG16.png" : "servoydefault/imagemedia/res/images/empty.gif");
+									: ($scope.svyServoyapi.isInDesigner() ? "servoydefault/imagemedia/media.png" : "servoydefault/imagemedia/res/images/empty.gif");
 						}
 
 					})

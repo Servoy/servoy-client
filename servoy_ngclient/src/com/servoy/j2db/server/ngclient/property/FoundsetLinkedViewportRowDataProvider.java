@@ -64,7 +64,7 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	@Override
 	protected boolean containsColumn(String columnName)
 	{
-		return true;
+		return sabloValue.usesFoundsetLinkedDataprovider(columnName);
 	}
 
 	/**

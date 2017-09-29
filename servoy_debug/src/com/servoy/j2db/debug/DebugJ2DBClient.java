@@ -1503,5 +1503,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 	}
 
+	@Override
+	public void setDebugMode(boolean debugMode)
+	{
+		//nop
 
+	}
 }

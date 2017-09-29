@@ -41,6 +41,7 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 {
 	public static final String VIEWPORT_CHANGED = "viewportDataChanged";
@@ -56,12 +57,21 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 
 	protected final IChangeListener monitor;
 
+	private FoundsetTypeViewportDataChangeMonitor foundsetTypeViewportDataChangeMonitor;
+
 //	protected String ignoreUpdateOnPkHash;
 
 	public ViewportDataChangeMonitor(IChangeListener monitor, DPT rowDataProvider)
 	{
 		this.rowDataProvider = rowDataProvider;
 		this.monitor = monitor;
+	}
+
+	protected void setFoundsetTypeViewportDataChangeMonitor(FoundsetTypeViewportDataChangeMonitor foundsetTypeViewportDataChangeMonitor)
+	{
+		// ViewportDataChangeMonitor that are used for foundset linked properties are aware of the change monitor of the actual foundset property so that they can
+		// trigger sending special updates to client - meant to trigger the client-side foundset listener even if changes happened only in the linked properties, not just on actual foundset property contents
+		this.foundsetTypeViewportDataChangeMonitor = foundsetTypeViewportDataChangeMonitor;
 	}
 
 	public DPT getRowDataProvider()
@@ -100,11 +110,13 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param operationType can be one of {@link RowData#DELETE}, {@link RowData#INSERT} or {@link RowData#CHANGE}.
+	 *
+	 * @return true if the operation was queued, false otherwise.
 	 */
-	public void queueOperation(int relativeFirstRow, int relativeLastRow, final int newDataStartIndex, final int newDataEndIndex,
+	public boolean queueOperation(int relativeFirstRow, int relativeLastRow, final int newDataStartIndex, final int newDataEndIndex,
 		final IFoundSetInternal foundset, int operationType)
 	{
-		if (!rowDataProvider.isReady()) return;
+		if (!rowDataProvider.isReady()) return false;
 
 		if (!shouldSendWholeViewport())
 		{
@@ -129,18 +141,10 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				RowData newOperation = new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType);
-				if (operationType == RowData.CHANGE)
-				{
-					// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
-					while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
-					{
-						viewPortChanges.remove(viewPortChanges.size() - 1);
-					}
-				}
-				viewPortChanges.add(newOperation);
+				removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType));
 
 				if (changed && monitor != null) monitor.valueChanged();
+				return true;
 			}
 			catch (JSONException e)
 			{
@@ -148,18 +152,41 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 			}
 //			}
 		}
+		return false;
+	}
+
+	protected boolean removeIrrelevantOperationsAndAdd(RowData newOperation)
+	{
+		boolean changed = false;
+		// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
+		while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
+		{
+			viewPortChanges.remove(viewPortChanges.size() - 1);
+			changed = true;
+		}
+
+		if (viewPortChanges.size() == 0 || !newOperation.isMadeIrrelevantByPreviousRowData(viewPortChanges.get(viewPortChanges.size() - 1)))
+		{
+			viewPortChanges.add(newOperation);
+			changed = true;
+		}
+
+		return changed;
 	}
 
 	/**
 	 * This gets called when the value of a cell in the viewport was changed.
+	 *
 	 * @param relativeFirstRow viewPort relative start index for given operation.
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
+	 *
+	 * @return true if the operation was queued, false otherwise.
 	 */
-	public void queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
+	public boolean queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
 	{
-		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return;
+		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return false;
 
 		if (!shouldSendWholeViewport())
 		{
@@ -178,14 +205,25 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				viewPortChanges.add(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+				boolean added = removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+
+				// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
+				// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property
+				// notify that an update occurred in this case, even though it didn't actually affect the foundset property itself... but the other foundset linked properties.
+				if (added && foundsetTypeViewportDataChangeMonitor != null)
+				{
+					foundsetTypeViewportDataChangeMonitor.queueLinkedPropertyUpdate(relativeRowIndex, relativeRowIndex, columnName);
+				}
+
 				if (changed && monitor != null) monitor.valueChanged();
+				return true;
 			}
 			catch (JSONException e)
 			{
 				Debug.error(e);
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -211,5 +249,12 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	{
 //		this.ignoreUpdateOnPkHash = null;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ViewportDataChangeMonitor [viewPortCompletelyChanged=" + viewPortCompletelyChanged + ", viewPortChanges=" + viewPortChanges + "]";
+	}
+
 
 }

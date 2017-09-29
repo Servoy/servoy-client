@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -263,6 +264,13 @@ public class NGClientEntryFilter extends WebEntry
 							if (solutionMetaData == null)
 							{
 								Debug.error("Solution '" + solutionName + "' was not found.");
+								response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+								Writer w = response.getWriter();
+								w.write(
+									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Solution '" +
+										solutionName + "' was not found.</p></div></div></body></html>");
+								w.close();
+								return;
 							}
 							else
 							{

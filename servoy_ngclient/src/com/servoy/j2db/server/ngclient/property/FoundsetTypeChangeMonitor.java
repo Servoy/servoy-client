@@ -37,6 +37,7 @@ import com.servoy.j2db.util.Pair;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class FoundsetTypeChangeMonitor
 {
 
@@ -73,7 +74,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected int changeFlags = 0 | SEND_PUSH_TO_SERVER; // we want to automatically send push-to-server value as well the first time we are aware of a foundset (which will call changeNotifier.valueChanged() at that time), because the toTemplate... does not send that to client and is only followed by changesToJSON, not fullToJSON
 	protected List<Pair<Integer, Boolean>> handledRequestIds = new ArrayList<>();
-	protected final ViewportDataChangeMonitor<FoundsetTypeRowDataProvider> viewPortDataChangeMonitor;
+	protected final FoundsetTypeViewportDataChangeMonitor viewPortDataChangeMonitor;
 	protected final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
 
 	protected final FoundsetTypeSabloValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
@@ -81,7 +82,14 @@ public class FoundsetTypeChangeMonitor
 	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue, FoundsetTypeRowDataProvider rowDataProvider)
 	{
 		this.propertyValue = propertyValue;
-		viewPortDataChangeMonitor = new ViewportDataChangeMonitor<>(null, rowDataProvider);
+		viewPortDataChangeMonitor = new FoundsetTypeViewportDataChangeMonitor(new IChangeListener()
+		{
+			@Override
+			public void valueChanged()
+			{
+				notifyChange();
+			}
+		}, rowDataProvider);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 
@@ -230,18 +238,16 @@ public class FoundsetTypeChangeMonitor
 	{
 		if (!shouldSendAll() && !shouldSendWholeViewPort() && relativeFirstRowToOldViewport <= relativeLastRowToOldViewport)
 		{
-			for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+			for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
 			{
 				vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(), RowData.DELETE);
 			}
-			notifyChange();
 		}
 	}
 
 	public void recordsDeleted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
 	{
 		int oldChangeFlags = changeFlags;
-		boolean viewPortRecordChangesUpdated = false;
 
 		if (lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
@@ -318,12 +324,11 @@ public class FoundsetTypeChangeMonitor
 
 				// add new records if available
 				// we need to replace same amount of records in current viewPort; append rows if available
-				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+				for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
 				{
 					vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx,
 						propertyValue.getFoundset(), RowData.DELETE);
 				}
-				viewPortRecordChangesUpdated = true;
 			}
 			else if (slideBy != 0)
 			{
@@ -335,7 +340,7 @@ public class FoundsetTypeChangeMonitor
 			// if it will already send the whole viewport then the size needs to be in sync with the foundset.
 			viewPort.correctAndSetViewportBoundsInternal(viewPort.getStartIndex(), viewPort.getSize());
 		}
-		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
+		if (oldChangeFlags != changeFlags) notifyChange();
 	}
 
 	public void extendClientViewport(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
@@ -344,13 +349,13 @@ public class FoundsetTypeChangeMonitor
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
 			int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
+
 			// add records that were inserted in viewPort
-			for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+			for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
 			{
 				vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
 					RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 			}
-			notifyChange();
 		}
 	}
 
@@ -363,7 +368,6 @@ public class FoundsetTypeChangeMonitor
 	public void recordsInserted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
 	{
 		int oldChangeFlags = changeFlags;
-		boolean viewPortRecordChangesUpdated = false;
 		if (lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
@@ -372,12 +376,11 @@ public class FoundsetTypeChangeMonitor
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 				// add records that were inserted in viewPort
-				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+				for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
 				{
 					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
 						RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 				}
-				viewPortRecordChangesUpdated = true;
 			}
 			else if (viewPort.getStartIndex() > firstRow)
 			{
@@ -385,7 +388,7 @@ public class FoundsetTypeChangeMonitor
 			}
 		}
 
-		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
+		if (oldChangeFlags != changeFlags) notifyChange();
 	}
 
 	public void recordsUpdated(int firstRow, int lastRow, int foundSetSize, FoundsetTypeViewport viewPort, List<String> dataproviders)
@@ -397,7 +400,6 @@ public class FoundsetTypeChangeMonitor
 		else
 		{
 			int oldChangeFlags = changeFlags;
-			boolean viewPortRecordChangesUpdated = false;
 			if ((propertyValue.getDataAdapterList() == null || !propertyValue.getDataAdapterList().isQuietRecordChangeInProgress()) && !shouldSendAll() &&
 				!shouldSendWholeViewPort())
 			{
@@ -406,7 +408,7 @@ public class FoundsetTypeChangeMonitor
 				int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, lastRow);
 				if (firstViewPortIndex <= lastViewPortIndex)
 				{
-					for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+					for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
 					{
 						if (firstViewPortIndex == lastViewPortIndex && dataproviders != null && dataproviders.size() > 0)
 						{
@@ -422,10 +424,9 @@ public class FoundsetTypeChangeMonitor
 								firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(), RowData.CHANGE);
 						}
 					}
-					viewPortRecordChangesUpdated = true;
 				}
 			}
-			if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
+			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
 
@@ -528,6 +529,7 @@ public class FoundsetTypeChangeMonitor
 		public static final int CHANGE = 0;
 		public static final int INSERT = 1;
 		public static final int DELETE = 2;
+		public static final int CHANGE_IN_LINKED_PROPERTY = 9;
 
 		public final int startIndex;
 		public final int endIndex;
@@ -560,8 +562,12 @@ public class FoundsetTypeChangeMonitor
 		{
 			JSONUtils.addKeyIfPresent(w, keyInParent);
 
-			w.object().key("rows").value(rowData);
-			clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
+			w.object();
+			if (rowData != null)
+			{
+				w.key("rows").value(rowData);
+				clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
+			}
 
 			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(
 				Integer.valueOf(type)).endObject();
@@ -571,21 +577,50 @@ public class FoundsetTypeChangeMonitor
 
 		/**
 		 * True if the data of this RowData would be completely replaced by another immediately following RowData.
-		 * @param newOperation the following update operation.
+		 * @param newOperation the following change/update operation.
 		 */
 		public boolean isMadeIrrelevantBySubsequentRowData(RowData newOperation)
 		{
-			// so a change can be made obsolet by a subsequent (imediately after) change or delete of the same row;
+			// so a change can be made obsolete by a subsequent change or delete of the same row;
 			// it we're talking about two change operations, it matters as well if one of them is only for a specific column of the row or for the whole row
-			return (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) && startIndex >= newOperation.startIndex &&
-				endIndex <= newOperation.endIndex && (newOperation.columnName == null || newOperation.columnName.equals(columnName)));
+			boolean canNewTypeOverrideOldType = (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) &&
+				(newOperation.columnName == null || newOperation.columnName.equals(columnName))) ||
+				(type == CHANGE_IN_LINKED_PROPERTY &&
+					(newOperation.type == CHANGE_IN_LINKED_PROPERTY || newOperation.type == CHANGE || newOperation.type == DELETE));
+
+			return canNewTypeOverrideOldType && startIndex >= newOperation.startIndex && endIndex <= newOperation.endIndex;
+		}
+
+		/**
+		 * True if the data of this RowData would be completely redundant taking into consideration the previous RowData that was scheduled - so it should not be added.<br/><br/>
+		 * This only needs to check situations where the previousOperation was not already removed due to {@link #isMadeIrrelevantBySubsequentRowData(RowData)} returning true on the previous RowData for current RowData as newOperation.
+		 *
+		 * @param previousOperation the previous change/update operation.
+		 */
+		public boolean isMadeIrrelevantByPreviousRowData(RowData previousOperation)
+		{
+			// so a change can be redundant if it is an CHANGE_IN_LINKED_PROPERTY that happens right after a real CHANGE on the same rows/column
+			boolean canOldTypeOverrideNewType = (type == CHANGE_IN_LINKED_PROPERTY && previousOperation.type == CHANGE);
+
+			return canOldTypeOverrideNewType && startIndex >= previousOperation.startIndex && endIndex <= previousOperation.endIndex;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "RowData [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", rowData=" + rowData + ", columnName=" + columnName +
+				"]";
 		}
 
 	}
 
 	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
 	{
-		if (!viewPortDataChangeMonitors.contains(viewPortChangeMonitor)) viewPortDataChangeMonitors.add(viewPortChangeMonitor);
+		if (!viewPortDataChangeMonitors.contains(viewPortChangeMonitor))
+		{
+			viewPortDataChangeMonitors.add(viewPortChangeMonitor);
+			if (viewPortChangeMonitor != viewPortDataChangeMonitor) viewPortChangeMonitor.setFoundsetTypeViewportDataChangeMonitor(viewPortDataChangeMonitor);
+		}
 	}
 
 	public void removeViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)

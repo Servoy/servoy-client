@@ -1138,9 +1138,16 @@ public abstract class AbstractBase implements IPersist
 			// remove empty map
 			clearCustomProperty(Utils.arraySub(path, 0, path.length - 1));
 		}
-		if (jsonCustomProperties.isEmpty()) clearProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
-		else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+
+		// the recursive clearCustomProperty call above might set jsonCustomProperties to null if there were no more custom properties...
+		if (jsonCustomProperties != null)
+		{
+			if (jsonCustomProperties.isEmpty()) clearProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
+			else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+		}
+
 		return old;
+
 	}
 
 	public Map<String, Object> getCustomDesignTimeProperties()
@@ -1201,8 +1208,8 @@ public abstract class AbstractBase implements IPersist
 			IPersist superPersist = this instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)this) : null;
 			if (superPersist instanceof AbstractBase)
 			{
-				Map<String, Object> superMergedProperties = (Map<String, Object>)getMergedCustomPropertiesInternal(customPropertyName,
-					new HashMap<String, Object>());
+				Map<String, Object> superMergedProperties = (Map<String, Object>)((AbstractBase)superPersist).getMergedCustomPropertiesInternal(
+					customPropertyName, new HashMap<String, Object>());
 				if (superMergedProperties != null)
 				{
 					for (Entry<String, Object> superEntry : superMergedProperties.entrySet())

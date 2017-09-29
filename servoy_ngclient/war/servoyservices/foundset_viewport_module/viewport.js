@@ -8,6 +8,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	var INSERT = $foundsetTypeConstants.ROWS_INSERTED;
 	var DELETE = $foundsetTypeConstants.ROWS_DELETED;
 	
+	var CHANGED_IN_LINKED_PROPERTY = 9;
+	
 	var DATAPROVIDER_KEY = "dp";
 	var VALUE_KEY = "value";
 
@@ -244,6 +246,9 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				}
 				
 				rowUpdate.appendedToVPEnd = rowUpdate.rows.length;
+			} else if (rowUpdate.type == CHANGED_IN_LINKED_PROPERTY) {
+				// just prepare it for the foundset change listener; components will want to handle this type of change as well so we should notify them when it happens
+				rowUpdate.type = CHANGE;
 			}
 			delete rowUpdate.rows; // prepare rowUpdate for listener notifications
 		}

@@ -50,6 +50,7 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
@@ -99,6 +100,9 @@ public class NGFormServiceHandler extends FormServiceHandler
 				{
 					JSONObject changes = args.getJSONObject("changes");
 					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
+					String propertyName = args.getString("property"); // this can contain dots or square brackets in case of nested DPs
+
+					// now... I think... the following code avoids setting "" from client into a DP that is already null
 					if (changes.length() > 0)
 					{
 						Iterator<String> keys = changes.keys();
@@ -107,7 +111,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 							String key = keys.next();
 							Object value = changes.get(key);
 							if ("".equals(value) && form.getDataAdapterList().getValueObject(form.getDataAdapterList().getRecord(),
-								form.getDataAdapterList().getDataProviderID(webComponent, args.getString("property"))) == null)
+								form.getDataAdapterList().getDataProviderID(webComponent, propertyName)) == null)
 							{
 								keys.remove();
 							}
@@ -115,10 +119,22 @@ public class NGFormServiceHandler extends FormServiceHandler
 						args.put("changes", changes);
 					}
 
+					// now change the value of the DP prop. and then push the changed DP value to Record
 					if (changes.length() > 0)
 					{
-						dataPush(args);
-						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"), args.optString("fslRowID", null));
+						Object propValue = webComponent.getProperty(propertyName);
+						if (propValue instanceof FoundsetLinkedTypeSabloValue< ? , ? >)
+							((FoundsetLinkedTypeSabloValue)propValue).setApplyingDPValueFromClient(true);
+						try
+						{
+							dataPush(args);
+							form.getDataAdapterList().pushChanges(webComponent, propertyName, args.optString("fslRowID", null));
+						}
+						finally
+						{
+							if (propValue instanceof FoundsetLinkedTypeSabloValue< ? , ? >)
+								((FoundsetLinkedTypeSabloValue)propValue).setApplyingDPValueFromClient(false);
+						}
 					}
 				}
 				break;

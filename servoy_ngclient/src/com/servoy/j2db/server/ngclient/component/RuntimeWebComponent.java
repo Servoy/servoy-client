@@ -97,11 +97,31 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 		URL serverScript = webComponentSpec.getServerScript();
 		Scriptable apiObject = null;
+
+		if (webComponentSpec != null)
+		{
+			for (WebObjectFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
+			{
+				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
+			}
+			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
+			for (String propName : specs.keySet())
+			{
+				if (!component.isDesignOnlyProperty(propName))
+				{
+					// design properties and private properties cannot be accessed at runtime
+					// all handlers are design properties, all api is runtime
+					specProperties.add(propName);
+				}
+			}
+		}
+
 		if (serverScript != null)
 		{
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
 		}
+		
 		if (webComponentSpec != null)
 		{
 			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
@@ -117,20 +137,6 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 				}
 				if (func != null) apiFunctions.put(def.getName(), func);
 				else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
-			}
-			for (WebObjectFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
-			{
-				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
-			}
-			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
-			for (String propName : specs.keySet())
-			{
-				if (!component.isDesignOnlyProperty(propName))
-				{
-					// design properties and private properties cannot be accessed at runtime
-					// all handlers are design properties, all api is runtime
-					specProperties.add(propName);
-				}
 			}
 		}
 	}
@@ -558,8 +564,12 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 	private void updateVisibleContainers(List<Pair<String, String>> oldForms)
 	{
-		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedVisibleForms(oldForms,
-			getVisibleForms());
+		IWebFormUI formUI = component.getDataConverterContext().getForm().getFormUI();
+
+		if (formUI != null)
+		{
+			((DataAdapterList)formUI.getDataAdapterList()).updateRelatedVisibleForms(oldForms, getVisibleForms());
+		}
 	}
 
 	@Override
