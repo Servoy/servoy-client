@@ -144,7 +144,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (sabloValue != null)
 		{
-			sabloValue.toJSON(writer, key, clientConversion);
+			sabloValue.toJSON(writer, key, clientConversion, dataConverterContext);
 		}
 		return writer;
 	}
