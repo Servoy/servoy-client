@@ -631,10 +631,18 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
-			if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getDisplayFormat() != null && oldValue instanceof Date &&
-				newJSONValue instanceof Number)
+			if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				value = new Date(((Number)newJSONValue).longValue());
+				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
+					serverSideValueIsNotTheSameAsClient);
+			}
+			else
+			{
+				value = newJSONValue;
+			}
+			if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getDisplayFormat() != null && oldValue instanceof Date &&
+				value instanceof Date)
+			{
 				try
 				{
 					StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
@@ -647,15 +655,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				{
 					Debug.error(ex);
 				}
-
-
 			}
-			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
-			{
-				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
-					serverSideValueIsNotTheSameAsClient);
-			}
-			else value = newJSONValue;
 		}
 		else value = newJSONValue;
 

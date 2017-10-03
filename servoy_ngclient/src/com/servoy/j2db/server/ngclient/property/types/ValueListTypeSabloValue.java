@@ -34,6 +34,7 @@ import org.sablo.IChangeListener;
 import org.sablo.IPropertyDescriptionProvider;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -458,7 +459,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		previousRecord = record;
 	}
 
-	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion) throws IllegalArgumentException, JSONException
+	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext)
+		throws IllegalArgumentException, JSONException
 	{
 		if (!initialized)
 		{
@@ -488,7 +490,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.value(valueList.getValueList().getID());
 		}
 		writer.key("values");
-		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
+		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, dataConverterContext);
 		writer.endObject();
 	}
 
