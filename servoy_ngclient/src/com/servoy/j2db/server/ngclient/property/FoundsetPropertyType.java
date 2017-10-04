@@ -226,6 +226,12 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						{
 							return webComponentValue.dataproviders.keySet().toArray();
 						}
+
+						@Override
+						public String toString()
+						{
+							return Utils.getScriptableString(this);
+						}
 					};
 					return dataproviders;
 				}
@@ -278,6 +284,12 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		public Object[] getIds()
 		{
 			return new Object[] { FOUNDSET_KEY_FOR_RHINO, DATAPROVIDERS_KEY_FOR_RHINO };
+		}
+
+		@Override
+		public String toString()
+		{
+			return Utils.getScriptableString(this);
 		}
 	}
 
