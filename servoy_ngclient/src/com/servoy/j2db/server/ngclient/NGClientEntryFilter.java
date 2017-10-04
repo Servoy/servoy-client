@@ -236,7 +236,14 @@ public class NGClientEntryFilter extends WebEntry
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
 			String uri = request.getRequestURI();
-			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
+			if (isShortSolutionURI(uri))
+			{
+				StringBuffer url = request.getRequestURL();
+				if (!url.toString().endsWith("/")) url.append("/");
+				((HttpServletResponse)servletResponse).sendRedirect(url + "index.html");
+				return;
+			}
+			else if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
 				String solutionName = getSolutionNameFromURI(uri);
 				if (solutionName != null)
@@ -455,6 +462,24 @@ public class NGClientEntryFilter extends WebEntry
 			Debug.error(e);
 			throw e;
 		}
+	}
+
+	// checks for short solution uri, like "/solutions/solution_name" or "/solutions/solution_name/"
+	private boolean isShortSolutionURI(String uri)
+	{
+		if (uri != null && uri.startsWith(SOLUTIONS_PATH))
+		{
+			String solutionName = uri.substring(SOLUTIONS_PATH.length());
+			if (solutionName.length() > 0)
+			{
+				int firstSlashIdx = solutionName.indexOf('/');
+				if (firstSlashIdx == -1 || (solutionName.length() > 1 && (firstSlashIdx == solutionName.length() - 1)))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
