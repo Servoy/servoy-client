@@ -240,7 +240,10 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				StringBuffer url = request.getRequestURL();
 				if (!url.toString().endsWith("/")) url.append("/");
-				((HttpServletResponse)servletResponse).sendRedirect(url + "index.html");
+				url.append("index.html");
+				String queryString = request.getQueryString();
+				if (queryString != null) url.append("?").append(queryString);
+				response.sendRedirect(url.toString());
 				return;
 			}
 			else if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
