@@ -277,8 +277,7 @@ public class NGClientEntryFilter extends WebEntry
 								response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 								Writer w = response.getWriter();
 								w.write(
-									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Solution '" +
-										solutionName + "' was not found.</p></div></div></body></html>");
+									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Requested solution was not found.</p></div></div></body></html>");
 								w.close();
 								return;
 							}
