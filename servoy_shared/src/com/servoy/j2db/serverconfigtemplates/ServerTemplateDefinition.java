@@ -56,7 +56,7 @@ public class ServerTemplateDefinition
 		return new String[] { url };
 	}
 
-	public String getUrlForValues(String[] values)
+	public String getUrlForValues(String[] values, String oldUrl)
 	{
 		return values != null && values.length == 1 ? values[0] : null;
 	}
