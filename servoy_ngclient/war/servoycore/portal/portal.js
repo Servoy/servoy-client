@@ -328,8 +328,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								resizeWidth += $scope.model.childElements[i].model.size.width;
 							}
 						}
-						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;							
-					    totalWidth = totalWidth - 17; //make sure possible vertical scroll does now overlap last column
+						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;
+						if(($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) != $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) {
+							totalWidth = totalWidth - 17; //make sure possible vertical scroll does now overlap last column
+						}
 					    
 						if (resizeWidth > 0 && totalWidth !== 0)
 						{
@@ -355,7 +357,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}	
 					}
 					else {
-						$scope.columnDefinitions[0].width = $scope.gridApi.grid.gridWidth - 17;
+						if(($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) != $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) {
+							$scope.columnDefinitions[0].width = $scope.gridApi.grid.gridWidth - 17;
+						}
 						if($scope.gridApi.grid.columns[0]) $scope.gridApi.grid.columns[0].width = $scope.columnDefinitions[0].width; //make sure possible vertical scroll does now overlap last column
 					}
 				}
