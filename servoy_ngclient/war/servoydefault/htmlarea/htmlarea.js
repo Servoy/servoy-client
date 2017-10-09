@@ -85,7 +85,12 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				{
 					if (defaultConfiguration.hasOwnProperty(key))
 					{
-						$scope.tinyConfig[key] = defaultConfiguration[key];
+						var value = defaultConfiguration[key]
+						if (key === "plugins")
+						{
+							value += " tabindex resizetocontainer";
+						}
+						$scope.tinyConfig[key] = value;
 					}
 				}
 			}
@@ -106,7 +111,12 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				{
 					if (configuration.hasOwnProperty(key))
 					{
-						$scope.tinyConfig[key] = configuration[key];
+						var value = configuration[key];
+						if (key === "plugins")
+						{
+							value += " tabindex resizetocontainer";
+						}
+						$scope.tinyConfig[key] = value;
 					}
 				}
 			}
