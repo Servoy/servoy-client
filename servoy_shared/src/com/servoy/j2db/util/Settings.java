@@ -295,6 +295,7 @@ public final class Settings extends SortedProperties
 		remove("SocketFactory.rmiClientFactory"); //$NON-NLS-1$
 		remove("SocketFactory.http.tunnel.encryption"); //$NON-NLS-1$
 		remove("SocketFactory.tunnelConnectionMode"); //$NON-NLS-1$
+		remove("SocketFactory.tcpNoDelay"); //$NON-NLS-1$
 
 		remove("servoy.branding"); //$NON-NLS-1$
 		remove("servoy.branding.windowtitle"); //$NON-NLS-1$
