@@ -236,7 +236,7 @@ public class NGClientEntryFilter extends WebEntry
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
 			String uri = request.getRequestURI();
-			if (isShortSolutionURI(uri))
+			if (isShortSolutionRequest(request))
 			{
 				StringBuffer url = request.getRequestURL();
 				if (!url.toString().endsWith("/")) url.append("/");
@@ -466,12 +466,14 @@ public class NGClientEntryFilter extends WebEntry
 		}
 	}
 
-	// checks for short solution uri, like "/solutions/solution_name" or "/solutions/solution_name/"
-	private boolean isShortSolutionURI(String uri)
+	// checks for short solution request, like "<context>/solutions/solution_name" or "<context>/solutions/solution_name/"
+	private boolean isShortSolutionRequest(HttpServletRequest request)
 	{
-		if (uri != null && uri.startsWith(SOLUTIONS_PATH))
+		String uri = request.getRequestURI();
+		String contextPathWithSolutionPath = request.getContextPath() + SOLUTIONS_PATH;
+		if (uri != null && uri.startsWith(contextPathWithSolutionPath))
 		{
-			String solutionName = uri.substring(SOLUTIONS_PATH.length());
+			String solutionName = uri.substring(contextPathWithSolutionPath.length());
 			if (solutionName.length() > 0)
 			{
 				int firstSlashIdx = solutionName.indexOf('/');
