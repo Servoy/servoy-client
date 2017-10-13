@@ -113,16 +113,18 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	{
 		boolean hasNoDateConversion = false;
 
-		BaseWebObject wo = dataConverterContext.getWebObject();
-		if (wo != null)
+		if (dataConverterContext != null)
 		{
-			Object formatSabloValue = wo.getProperty(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName());
-			if (formatSabloValue instanceof FormatTypeSabloValue)
+			BaseWebObject wo = dataConverterContext.getWebObject();
+			if (wo != null)
 			{
-				hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
+				Object formatSabloValue = wo.getProperty(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName());
+				if (formatSabloValue instanceof FormatTypeSabloValue)
+				{
+					hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
+				}
 			}
 		}
-
 		return hasNoDateConversion;
 	}
 }

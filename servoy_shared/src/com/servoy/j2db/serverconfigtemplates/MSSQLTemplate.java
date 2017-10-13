@@ -18,6 +18,7 @@
 package com.servoy.j2db.serverconfigtemplates;
 
 import com.servoy.j2db.persistence.ServerConfig;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author gboros
@@ -80,7 +81,7 @@ public class MSSQLTemplate extends ServerTemplateDefinition
 	}
 
 	@Override
-	public String getUrlForValues(String[] values)
+	public String getUrlForValues(String[] values, String oldUrl)
 	{
 		String server = "";
 		String db = "";
@@ -90,7 +91,21 @@ public class MSSQLTemplate extends ServerTemplateDefinition
 			if (values[1] != null) db = values[1];
 		}
 
-		return urlPattern.replace("<host_name>", server).replace("<database_name>", db);
+		String url = urlPattern.replace("<host_name>", server).replace("<database_name>", db);
+		if (oldUrl != null && !oldUrl.contains(":1433;"))
+		{
+			int startIndex = oldUrl.indexOf(":", "jdbc:sqlserver://".length());
+			int endIndex = oldUrl.indexOf(";");
+			if (startIndex > 0 && endIndex > 0 && endIndex < url.length() - 1)
+			{
+				int port = Utils.getAsInteger(oldUrl.substring(startIndex + 1, endIndex));
+				if (port > 0)
+				{
+					url = url.replace("1433", String.valueOf(port));
+				}
+			}
+		}
+		return url;
 	}
 
 	@Override

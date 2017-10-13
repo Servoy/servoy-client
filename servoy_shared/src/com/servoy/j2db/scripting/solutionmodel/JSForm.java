@@ -1412,8 +1412,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 			{
 				if (getForm().isResponsiveLayout())
 				{
-					throw new RuntimeException("Form '" + getForm().getName() + "' is a responsive layout form, it cannot extend form '" + f.getName() +
-						"' which is an absolute layout form.");
+					if (f.getParts().hasNext()) // only if it is not an abstract form
+					{
+						throw new RuntimeException("Form '" + getForm().getName() + "' is a responsive layout form, it cannot extend form '" + f.getName() +
+							"' which is an absolute layout form.");
+					}
 				}
 				else
 				{

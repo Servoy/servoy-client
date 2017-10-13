@@ -195,7 +195,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 	function unformatNumbers(data, format) { // todo throw error when not coresponding to format (reimplement with state machine)
 		if (data === "") return data;
 		//treat scientiffic numbers
-		if (data.toString().toLowerCase().indexOf('e') > -1) {
+		if (data.toString().toLowerCase().indexOf('e') > -1 && !isNaN(data)) {
 			return new Number(data).valueOf()
 		}
 
@@ -709,6 +709,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					unregister();
 				}
 				svyFormat = newValue;
+				if (svyFormat && svyFormat.maxLength) {
+					element.attr('maxlength', svyFormat.maxLength);
+				}
 				applyValue();
 
 			}

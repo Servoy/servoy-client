@@ -35,6 +35,9 @@ public class Template extends StringResource implements Serializable
 	public static final String PROP_GROUPING = "grouping"; //$NON-NLS-1$
 	public static final String PROP_LAYOUT = "layout"; //$NON-NLS-1$
 
+	public static final String LAYOUT_TYPE_ABSOLUTE = "Absolute-Layout"; //$NON-NLS-1$
+	public static final String LAYOUT_TYPE_RESPONSIVE = "Responsive-Layout"; //$NON-NLS-1$
+
 	Template(IRepository repository, RootObjectMetaData metaData)
 	{
 		super(repository, metaData);

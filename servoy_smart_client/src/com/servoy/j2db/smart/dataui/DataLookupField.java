@@ -496,7 +496,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			if (txt.length() > 0 || Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)))
 			{
 				dlm.fill(parentState, dataProviderID, txt, firstTime);
-				if (dlm.getSize() == 0 && firstTime && dlm.getValueList().hasRealValues())
+				if (dlm.getSize() == 0 && firstTime && dlm.getValueList() != null && dlm.getValueList().hasRealValues())
 				{
 					dlm.fill(parentState, dataProviderID, null, firstTime);
 				}
@@ -576,7 +576,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 					if (windowParent instanceof IWindowVisibleChangeNotifier)
 					{
 						if (b) ((IWindowVisibleChangeNotifier)windowParent).addWindowVisibleChangeListener(popupParentVisibleChangeListener);
-						else ((IWindowVisibleChangeNotifier)windowParent).removeWindowVisibleChangeListener(popupParentVisibleChangeListener);
+						else((IWindowVisibleChangeNotifier)windowParent).removeWindowVisibleChangeListener(popupParentVisibleChangeListener);
 					}
 				}
 			};

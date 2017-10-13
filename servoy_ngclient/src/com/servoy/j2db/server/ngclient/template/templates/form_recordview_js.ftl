@@ -157,6 +157,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			},
 			trustAsHtml: function() {
 				return $applicationService.trustAsHtml($scope.model ? $scope.model[beanname] : undefined);
+			},
+			isInAbsoluteLayout: function(){
+				return $scope.absoluteLayout;
 			}
 		}
 	}

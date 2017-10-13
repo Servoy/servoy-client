@@ -18,10 +18,12 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author gganea@servoy.com
@@ -41,11 +43,11 @@ public class ConsoleObject
 	{
 		if (app instanceof IDebugClient)
 		{
-			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", false);
+			((IDebugClient)app).reportToDebugger(getValueAsString(value), false);
 		}
 		else
 		{
-			app.reportJSInfo(value != null ? value.toString() : "null");
+			app.reportJSInfo(getValueAsString(value));
 		}
 	}
 
@@ -54,11 +56,11 @@ public class ConsoleObject
 	{
 		if (app instanceof IDebugClient)
 		{
-			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", true);
+			((IDebugClient)app).reportToDebugger(getValueAsString(value), true);
 		}
 		else
 		{
-			app.reportJSWarning(value != null ? value.toString() : "null");
+			app.reportJSWarning(getValueAsString(value));
 		}
 	}
 
@@ -67,14 +69,18 @@ public class ConsoleObject
 	{
 		if (app instanceof IDebugClient)
 		{
-			((IDebugClient)app).reportToDebugger(value != null ? value.toString() : "null", true);
+			((IDebugClient)app).reportToDebugger(getValueAsString(value), true);
 		}
 		else
 		{
-			EvaluatorException e = new EvaluatorException(value != null ? value.toString() : "null");
+			EvaluatorException e = new EvaluatorException(getValueAsString(value));
 			app.reportJSWarning(e.getMessage());
 			app.reportJSWarning(e.getScriptStackTrace());
 		}
 	}
 
+	private String getValueAsString(Object value)
+	{
+		return value != null ? (value instanceof Scriptable ? Utils.getScriptableString((Scriptable)value) : value.toString()) : "null";
+	}
 }

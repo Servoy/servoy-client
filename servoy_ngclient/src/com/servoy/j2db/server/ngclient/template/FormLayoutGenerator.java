@@ -304,7 +304,15 @@ public class FormLayoutGenerator
 				ngClass.put("formComponentChild", true);
 			}
 			writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
-			writer.print(" class=\"svy-wrapper\" ");
+			String cls = "svy-wrapper";
+			Form currentForm = form;
+			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
+
+			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
+			{
+				cls += " inherited_element";
+			}
+			writer.print(" class=\"" + cls + "\" ");
 		}
 		else
 		{
@@ -332,7 +340,6 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 		}
-		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (designId != null)
 		{
 			writer.print(" svy-id='");
@@ -367,13 +374,6 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
-			Form currentForm = form;
-			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
-
-			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
-			{
-				writer.print(" class='inherited_element'");
-			}
 		}
 		writer.print(">");
 	}

@@ -220,14 +220,20 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
 		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return sabloValue.fullToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
+		if (sabloValue != null) sabloValue.fullToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
+		else
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			writer.value(null);
+		}
+		return writer;
 	}
 
 	@Override
 	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
 		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return sabloValue.changesToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
+		return sabloValue != null ? sabloValue.changesToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext) : writer;
 	}
 
 	@Override
@@ -245,7 +251,8 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public Object toRhinoValue(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
-		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(webComponentValue.getWrappedValue(), getConfig(pd).wrappedPropertyDescription,
+		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(webComponentValue != null ? webComponentValue.getWrappedValue() : null,
+			getConfig(pd).wrappedPropertyDescription,
 			webComponentValue != null ? webComponentValue.getDALWebObjectContext() : getNewDALWebObjectContext(webObjectContext, pd), startScriptable);
 	}
 

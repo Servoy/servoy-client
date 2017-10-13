@@ -236,7 +236,17 @@ public class NGClientEntryFilter extends WebEntry
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
 			String uri = request.getRequestURI();
-			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
+			if (isShortSolutionRequest(request))
+			{
+				StringBuffer url = request.getRequestURL();
+				if (!url.toString().endsWith("/")) url.append("/");
+				url.append("index.html");
+				String queryString = request.getQueryString();
+				if (queryString != null) url.append("?").append(queryString);
+				response.sendRedirect(url.toString());
+				return;
+			}
+			else if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
 				String solutionName = getSolutionNameFromURI(uri);
 				if (solutionName != null)
@@ -267,8 +277,7 @@ public class NGClientEntryFilter extends WebEntry
 								response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 								Writer w = response.getWriter();
 								w.write(
-									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Solution '" +
-										solutionName + "' was not found.</p></div></div></body></html>");
+									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Requested solution was not found.</p></div></div></body></html>");
 								w.close();
 								return;
 							}
@@ -455,6 +464,26 @@ public class NGClientEntryFilter extends WebEntry
 			Debug.error(e);
 			throw e;
 		}
+	}
+
+	// checks for short solution request, like "<context>/solutions/solution_name" or "<context>/solutions/solution_name/"
+	private boolean isShortSolutionRequest(HttpServletRequest request)
+	{
+		String uri = request.getRequestURI();
+		String contextPathWithSolutionPath = request.getContextPath() + SOLUTIONS_PATH;
+		if (uri != null && uri.startsWith(contextPathWithSolutionPath))
+		{
+			String solutionName = uri.substring(contextPathWithSolutionPath.length());
+			if (solutionName.length() > 0)
+			{
+				int firstSlashIdx = solutionName.indexOf('/');
+				if (firstSlashIdx == -1 || (solutionName.length() > 1 && (firstSlashIdx == solutionName.length() - 1)))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)

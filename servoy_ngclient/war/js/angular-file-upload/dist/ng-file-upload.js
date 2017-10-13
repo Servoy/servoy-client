@@ -46,7 +46,7 @@ ngFileUpload.service('UploadBase', ['$http', '$q', '$timeout', function ($http, 
       if (deferred.notify) {
         deferred.notify(e);
       }
-      else if (promise.progressFunc) {
+      if (promise.progressFunc) {
         $timeout(function () {
           promise.progressFunc(e);
         });

@@ -279,6 +279,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		{
 			return new Object[] { FOUNDSET_KEY_FOR_RHINO, DATAPROVIDERS_KEY_FOR_RHINO };
 		}
+
 	}
 
 

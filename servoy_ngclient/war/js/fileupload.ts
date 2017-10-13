@@ -78,20 +78,22 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     		$scope.upload = Upload.upload({
     			url: $svyFileuploadUtils.getUploadUrl(),
     			file: $scope.getUploadFiles()
-    		}).progress(function(evt) {
+    		}).then(function(resp) {
+    			// file is uploaded successfully
+    			$scope.dismiss();
+    		},
+    		function(resp){
+    			if (resp.data) $scope.errorText = resp.data;
+    			else $scope.errorText = genericError;
+			},
+			function(evt) {
     			var current = 100.0 * evt.loaded / evt.total;
     			if (current < progress) {
     				$scope.upload.abort();
     			}
     			else progress  = current;
-    		}).success(function(data, status, headers, config) {
-    			// file is uploaded successfully
-    			$scope.dismiss();
-    		}).error(function(status,status2){
-    			if (status) $scope.errorText = status;
-    			else $scope.errorText = genericError;
     		});
-    	} 	        	
+    	}      	
     };
     
     $scope.dismiss = function() {
