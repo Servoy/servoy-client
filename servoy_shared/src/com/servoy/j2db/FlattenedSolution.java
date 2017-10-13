@@ -1690,6 +1690,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public synchronized Relation getRelation(String name)
 	{
+		if (name == null)
+		{
+			// should not happen
+			Debug.log("Unexpected relation name lookup NULL", new NullPointerException("name"));
+			return null;
+		}
 		if (name.indexOf('.') >= 0)
 		{
 			// if we get here the relation name should be analyzed using getRelationSequence(name).

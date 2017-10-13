@@ -111,6 +111,10 @@ public class ClientStub implements IUserClient
 	public void flushCachedDatabaseData(final String dataSource)
 	{
 		if (client.isShutDown()) return;
+		if (Debug.tracing())
+		{
+			Debug.trace("Flush Cached Data received for datasource: " + dataSource);
+		}
 
 		client.getScheduledExecutor().execute(new Runnable()
 		{
@@ -160,7 +164,8 @@ public class ClientStub implements IUserClient
 		if (client.isShutDown()) return;
 		if (Debug.tracing())
 		{
-			Debug.trace("Notify Data Change get from the server for dataserver: " + server_name + " table: " + table_name); //$NON-NLS-1$ //$NON-NLS-2$
+			Debug.trace("Notify Data Change get from the server for dataserver: " + server_name + " table: " + table_name + ". Pks: " + //$NON-NLS-1$//$NON-NLS-2$
+				(pks != null ? "not null" : "null") + ". Action type: " + sql_action);
 		}
 		synchronized (datachanges)
 		{
