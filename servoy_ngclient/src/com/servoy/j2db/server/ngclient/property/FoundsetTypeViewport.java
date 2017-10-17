@@ -304,7 +304,10 @@ public class FoundsetTypeViewport
 								// adds the extra wanted records at the end
 								if (size < preferredViewPortSize && (foundset.getSize() - startIndex) > size)
 								{
-									setBounds(startIndex, Math.min(preferredViewPortSize, (foundset.getSize() - startIndex)));
+									int oldStartIndex = startIndex;
+									int oldSize = size;
+									correctAndSetViewportBoundsInternal(startIndex, Math.min(preferredViewPortSize, (foundset.getSize() - startIndex)));
+									if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
 								}
 
 								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
