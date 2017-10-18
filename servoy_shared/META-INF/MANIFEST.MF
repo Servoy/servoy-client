@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino;bundle-version="[8.2.1,8.3.0)"
  log4j,
  org.apache.commons.codec,
  jabsorb;visibility:=reexport,
- org.slf4j.api
+ org.slf4j.api,
+ org.apache.commons.collections
 Export-Package: com.servoy.extension,
  com.servoy.extension.dependency,
  com.servoy.extension.hook,

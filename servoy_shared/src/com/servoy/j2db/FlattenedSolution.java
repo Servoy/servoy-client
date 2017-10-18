@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -121,6 +122,8 @@ import com.servoy.j2db.util.keyword.Ident;
  */
 public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataProviderHandler, IRelationProvider, ISupportScriptProviders, IMediaProvider
 {
+	private static final String DATASOURCE_NULL = "";
+
 	private static RuntimeProperty<AbstractBase> CLONE_PROPERTY = new RuntimeProperty<AbstractBase>()
 	{
 	};
@@ -143,6 +146,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private volatile Map<String, Map<String, ISupportScope>> scopeCacheByName = null;
 	private volatile Map<String, Form> formCacheByName = null;
 	private volatile IntHashMap<Form> formCacheById;
+	private volatile Map<String, List<Form>> formCacheByDataSource = new HashMap<String, List<Form>>();
+	private volatile Map<Form, String> formToDataSource = new HashMap<>();
 
 	private volatile Map<String, ValueList> valuelistCacheByName = null;
 
@@ -1565,6 +1570,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		dataProviderLookups = null;
 		all_styles = null;
 		beanDesignInstances = null;
+		formCacheByDataSource.put(DATASOURCE_NULL, null);
 
 		allObjectscache = null;
 		flushFlattenedFormCache();
@@ -1879,6 +1885,28 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				form.setExtendsForm(null);
 			}
+			updateDataSourceCache((Form)persist);
+		}
+	}
+
+	private void updateDataSourceCache(Form form)
+	{
+		String oldDataSource = formToDataSource.get(form);
+		String newDataSource = form.getDataSource();
+		if (oldDataSource != null && !oldDataSource.equals(newDataSource) || oldDataSource == null && newDataSource != null)
+		{
+			List<Form> oldCache = getForms(oldDataSource);
+			oldCache.remove(form);
+			List<Form> newCache = getForms(newDataSource);
+			if (!newCache.contains(form))
+			{
+				newCache.add(form);
+			}
+			formToDataSource.put(form, newDataSource);
+		}
+		if (!getForms(null).contains(form))
+		{
+			getForms(null).add(form);
 		}
 	}
 
@@ -2407,6 +2435,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return Solution.getForms(getAllObjectsAsList(), null, sort);
 	}
 
+	public List<Form> getForms(String datasource)
+	{
+		String ds = datasource == null ? DATASOURCE_NULL : datasource;
+		if (formCacheByDataSource.get(ds) == null)
+		{
+			formCacheByDataSource.put(ds, IteratorUtils.toList(Solution.getForms(getAllObjectsAsList(), datasource, true)));
+		}
+		return formCacheByDataSource.get(ds);
+	}
+
 	public Form getForm(int id)
 	{
 		if (id <= 0) return null;
@@ -2454,6 +2492,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		formCacheByName = tmpByName;
 		formCacheById = tmpById;
+		if (formCacheByDataSource.get(DATASOURCE_NULL) == null) //cache all forms
+		{
+			List<Form> allforms = new ArrayList<Form>();
+			Iterator<Form> it = Solution.getForms(getAllObjectsAsList(), null, true);
+			while (it.hasNext())
+			{
+				Form f = it.next();
+				allforms.add(f);
+				formToDataSource.put(f, f.getDataSource());
+			}
+			formCacheByDataSource.put(DATASOURCE_NULL, allforms);
+		}
 	}
 
 	/**
