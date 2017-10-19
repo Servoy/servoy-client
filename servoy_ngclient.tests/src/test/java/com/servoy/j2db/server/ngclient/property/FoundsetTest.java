@@ -732,10 +732,20 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter2 = new JSONWriter(stringWriter2);
 		rawPropertyValue.changesToJSON(jsonWriter2, new DataConversion(), allowBrowserConverterContext);
 
+		// bounds is 0,1 we should only get size update, but no rows
+		Assert.assertEquals(new JSONObject("{\"upd_serverSize\":799}").toString(), new JSONObject(stringWriter2.toString()).toString());
 
-		Assert.assertEquals(new JSONObject("{\"upd_serverSize\":799,\"upd_viewPort\":{\"startIndex\":0,\"size\":15}}").toString(),
-			new JSONObject(stringWriter2.toString()).toString());
+		viewPort.setBounds(0, 15);
+		rawPropertyValue.getFoundset().getRecord(200);
 
+		StringWriter stringWriter2_1 = new StringWriter();
+		JSONWriter jsonWriter2_1 = new JSONWriter(stringWriter2_1);
+		rawPropertyValue.changesToJSON(jsonWriter2_1, new DataConversion(), allowBrowserConverterContext);
+
+		// bounds is 0,15 we should get the rows now
+		Assert.assertEquals(new JSONObject(
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":15,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"firstname\":\"value00\",\"lastname\":\"value01\"},{\"_svyRowId\":\"1.1;_1\",\"firstname\":\"value10\",\"lastname\":\"value11\"},{\"_svyRowId\":\"1.2;_2\",\"firstname\":\"value20\",\"lastname\":\"value21\"},{\"_svyRowId\":\"1.3;_3\",\"firstname\":\"value30\",\"lastname\":\"value31\"},{\"_svyRowId\":\"1.4;_4\",\"firstname\":\"value40\",\"lastname\":\"value41\"},{\"_svyRowId\":\"1.5;_5\",\"firstname\":\"value50\",\"lastname\":\"value51\"},{\"_svyRowId\":\"1.6;_6\",\"firstname\":\"value60\",\"lastname\":\"value61\"},{\"_svyRowId\":\"1.7;_7\",\"firstname\":\"value70\",\"lastname\":\"value71\"},{\"_svyRowId\":\"1.8;_8\",\"firstname\":\"value80\",\"lastname\":\"value81\"},{\"_svyRowId\":\"1.9;_9\",\"firstname\":\"value90\",\"lastname\":\"value91\"},{\"_svyRowId\":\"2.10;_10\",\"firstname\":\"value100\",\"lastname\":\"value101\"},{\"_svyRowId\":\"2.11;_11\",\"firstname\":\"value110\",\"lastname\":\"value111\"},{\"_svyRowId\":\"2.12;_12\",\"firstname\":\"value120\",\"lastname\":\"value121\"},{\"_svyRowId\":\"2.13;_13\",\"firstname\":\"value130\",\"lastname\":\"value131\"},{\"_svyRowId\":\"2.14;_14\",\"firstname\":\"value140\",\"lastname\":\"value141\"}]}}").toString(),
+			new JSONObject(stringWriter2_1.toString()).toString());
 
 		// foundset loads more records due to client side wanting more records
 		viewPort.setBounds(800, 1);
