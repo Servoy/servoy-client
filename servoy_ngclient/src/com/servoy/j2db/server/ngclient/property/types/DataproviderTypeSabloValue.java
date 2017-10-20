@@ -91,7 +91,11 @@ import com.servoy.j2db.util.Utils;
  */
 public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue
 {
+
+	private static final String TAG_TYPE_NAME = "typeName";
+
 	protected final String dataProviderID;
+
 	protected final IDataAdapterList dataAdapterList;
 	protected final IServoyDataConverterContext servoyDataConverterContext;
 
@@ -278,9 +282,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
 				getDataProviderConfig().hasParseHtml());
 		}
-		if (dpPD.hasTag("typeName"))
+		if (dpPD.hasTag(TAG_TYPE_NAME))
 		{
-			IPropertyType< ? > specType = TypesRegistry.getType((String)dpPD.getTag("typeName"));
+			IPropertyType< ? > specType = TypesRegistry.getType((String)dpPD.getTag(TAG_TYPE_NAME));
 			if (specType != null && (typeOfDP == null || !specType.getClass().isAssignableFrom(typeOfDP.getClass())))
 			{
 				typeOfDP = new PropertyDescription("Spec type hint", specType);

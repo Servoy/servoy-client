@@ -226,10 +226,10 @@ public class FoundsetTypeViewport
 	}
 
 	/**
-	 * Corrects bounds given new bounds to be valid and then applies the to current viewport.
+	 * Corrects bounds given new bounds to be valid and then applies them to current viewport.
 	 *
 	 * This method can also load more records into the foundset (thus firing foundset events) in case of large foundsets with 'hadMoreRecords' true,
-	 * in case the give new bounds require new records.
+	 * in case the given new bounds require new records.
 	 */
 	protected void correctAndSetViewportBoundsInternal(int newStartIndex, int newSize)
 	{

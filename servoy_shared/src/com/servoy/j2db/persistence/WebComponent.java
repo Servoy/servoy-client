@@ -184,10 +184,15 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	/**
 	 * Returns all direct child typed properties or array of such typed properties.
 	 */
-	public List<IChildWebObject> getAllPersistMappedProperties()
+	protected List<IChildWebObject> getAllPersistMappedProperties()
 	{
 		return webObjectImpl.getAllPersistMappedProperties();
 	}
+
+//	public Map<String, Object> getPersistMappedPropertiesReadOnly()
+//	{
+//		return webObjectImpl.getPersistMappedPropertiesReadOnly();
+//	}
 
 	public void setTypeName(String arg)
 	{
