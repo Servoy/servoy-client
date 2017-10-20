@@ -23,7 +23,6 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -75,7 +74,8 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 			}
 			else if (sabloValue instanceof Date)
 			{
-				DatePropertyType.INSTANCE.toJSON(writer, null, (Date)sabloValue, NGUtils.DATE_DATAPROVIDER_CACHED_PD, clientConversion, dataConverterContext);
+				NGDatePropertyType.NG_INSTANCE.toJSON(writer, null, (Date)sabloValue, NGUtils.DATE_DATAPROVIDER_CACHED_PD, clientConversion,
+					dataConverterContext);
 			}
 			else if (sabloValue instanceof String)
 			{
@@ -92,8 +92,8 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 				}
 				else
 				{
-					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, NGUtils.TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD,
-						clientConversion, dataConverterContext);
+					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, NGUtils.TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD, clientConversion,
+						dataConverterContext);
 				}
 			}
 			else
