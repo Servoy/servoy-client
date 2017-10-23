@@ -25,7 +25,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
     ROWS_INSERTED: 1,
     ROWS_DELETED: 2
 })
-.run(function ($sabloConverters, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $viewportModule, $sabloUtils, $q, $log) {
+.run(function ($sabloConverters, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $viewportModule, $sabloUtils, $q, $log, $webSocket) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
 	var SERVER_SIZE = "serverSize";
@@ -311,9 +311,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 					}
 					internalState.fireChanges = function(foundsetChanges) {
-						for(var i = 0; i < internalState.changeListeners.length; i++) {
-							internalState.changeListeners[i](foundsetChanges);
-						}
+						$webSocket.addIncomingMessageHandlingDoneTask(function() {
+							for(var i = 0; i < internalState.changeListeners.length; i++) {
+								internalState.changeListeners[i](foundsetChanges);
+							}
+						});
 					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup
