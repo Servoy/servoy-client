@@ -84,6 +84,17 @@
 		            				"type":"int",
 		            				"optional":"true"
 		            				
+	            				},
+	            				{
+		            				"name":"x",
+		            				"type":"int",
+		            				"optional":"true"
+	            				},
+	            				{
+		            				"name":"y",
+		            				"type":"int",
+		            				"optional":"true"
+		            				
 	            				}
 	            			 ]
 	        },
@@ -117,7 +128,9 @@
 	  		"component": "runtimecomponent",
 	  		"form": "form",
 	  		"width": "int",
-	  		"height": "int"
+	  		"height": "int",
+	  		"x": "int",
+	  		"y": "int"
 	  	}
 	  },
 	  "popupMenuShowCommand":{

@@ -114,9 +114,11 @@ angular.module('window',['servoy'])
 		 * @param form the form to show
 		 * @param width the popup width
 		 * @param height the popup height
-		 * 
+		 * @param x the popup x location
+		 * @param y the popup y location
+		 *
 		 */
-		showFormPopup : function(component,form,width,height)
+		showFormPopup : function(component,form,width,height,x,y)
 		{
 			$formService.formWillShow(form, true);
 			scope.getFormUrl = function(){
@@ -144,9 +146,10 @@ angular.module('window',['servoy'])
 				//if necessary right align popup on related component
 				if (position.left + popupwidth > $( window ).width())
 				{
-					if ((position.left - popupwidth + $('#'+component).outerWidth())>0)
+					var compWidth = component ? $('#'+component).outerWidth() : 0;
+					if (position.left - popupwidth + compWidth > 0)
 					{
-						return position.left - popupwidth + $('#'+component).outerWidth();
+						return position.left - popupwidth + compWidth;
 					}
 					else
 					{
@@ -159,7 +162,8 @@ angular.module('window',['servoy'])
 			function getTopPosition(position,popupheight,component,oldtop)
 			{
 				//if necessary popup on the top of the related component
-				if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
+				var compHeight = component ? $('#'+component).outerHeight() : 0;
+				if (position.top + compHeight + popupheight > $( window ).height())
 				{
 					if ((position.top - popupheight) > 0)
 					{
@@ -189,9 +193,9 @@ angular.module('window',['servoy'])
 					var css = {};
 					css["width"] = popupwidth+"px";
 					css["height"] = popupheight+"px";
-					if (component)
+					if (component || (x && y))
 					{
-						var position = $('#'+component).offset();
+						var position = component ? $('#'+component).offset() : {'left':x,'top':y};
 						var left = getLeftPosition(position,popupwidth,component,null);
 						if (left)
 						{
@@ -220,6 +224,12 @@ angular.module('window',['servoy'])
 					left = position.left;
 					top = position.top + relatedElement.outerHeight();
 					position = relatedElement.offset();
+				}
+				else if (x && y)
+				{
+					left = x;
+					top = y;
+					position = {'left':x,'top':y}
 				}
 				// set correct position right away, do not wait for loadSize as showing it in wrong position may interfere with calculations
 				// we should remove loadSize, but how to get the form size then ?
@@ -370,7 +380,7 @@ angular.module('window',['servoy'])
 		}
 		if (newvalue && newvalue.popupform && !oldvalue.popupform)
 		{
-			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height);
+			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y);
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
