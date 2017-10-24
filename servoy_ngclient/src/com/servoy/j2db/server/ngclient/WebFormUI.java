@@ -19,7 +19,9 @@ import java.util.Set;
 
 import javax.swing.border.Border;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.WebComponent;
