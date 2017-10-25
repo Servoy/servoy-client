@@ -1927,6 +1927,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			if (form.getExtendsID() > 0)
 			{
 				form.setExtendsForm(getForm(form.getExtendsID()));
+				getForms(null).add(form);
+				getForms(form.getDataSource()).add(form);
 			}
 		}
 	}
@@ -1934,6 +1936,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public void itemRemoved(IPersist persist)
 	{
 		flush(persist);
+		if (persist instanceof Form)
+		{
+			getForms(null).remove(persist);
+			getForms(((Form)persist).getDataSource()).remove(persist);
+		}
 	}
 
 	/**

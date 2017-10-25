@@ -387,7 +387,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	private String[] getAllDependantDataProviders(String[] dataproviders)
+	private String[] getAllDependentDataProviders(String[] dataproviders)
 	{
 		ArrayList<String> returnDP = new ArrayList<>();
 		for (String dp : dataproviders)
@@ -423,7 +423,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					}
 				}
 			}
-			returnDP.add(dp);
+			if (!returnDP.contains(dp)) returnDP.add(dp);
 		}
 
 		return returnDP.toArray(new String[returnDP.size()]);
@@ -440,7 +440,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		else
 		{
-			dataproviders = getAllDependantDataProviders(dataproviders);
+			dataproviders = getAllDependentDataProviders(dataproviders);
 		}
 		for (String dpID : dataproviders)
 		{

@@ -317,7 +317,7 @@ $scope.api.closeFormPopup = function(retval)
 	}
 }
 
-$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height)
+$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y)
 {
 	$scope.model.popupform = {};
 	$scope.model.popupform.component = component;
@@ -326,6 +326,8 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 	$scope.dataProviderID = dataproviderID;
 	$scope.model.popupform.width = width;
 	$scope.model.popupform.height = height;
+	$scope.model.popupform.x = x;
+	$scope.model.popupform.y = y;
 }
 
 $scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments,consumeEvent)

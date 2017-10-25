@@ -19,7 +19,9 @@ import java.util.Set;
 
 import javax.swing.border.Border;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.WebComponent;
@@ -96,7 +98,10 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		private FormSpecification()
 		{
 			super("form_spec", "", IPackageReader.WEB_COMPONENT, "", null, null, null, "", null);
-			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
+			JSONObject tags = new JSONObject();
+			tags.put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" }));
+			putProperty("size",
+				new PropertyDescription("size", DimensionPropertyType.INSTANCE, null, null, null, false, null, PushToServerEnum.allow, tags, false));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
 			putProperty("findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow));
