@@ -311,6 +311,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 					}
 					internalState.fireChanges = function(foundsetChanges) {
+						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties linked to that foundset.
+						// In order to make sure that foundset notification update code executes after all property changes have been applied (so the dataprovider properties are also up-to-date)
+						// delay change listener calls until all incoming messages are handled
 						$webSocket.addIncomingMessageHandlingDoneTask(function() {
 							for(var i = 0; i < internalState.changeListeners.length; i++) {
 								internalState.changeListeners[i](foundsetChanges);
