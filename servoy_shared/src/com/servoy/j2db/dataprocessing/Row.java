@@ -25,6 +25,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -262,6 +263,20 @@ public class Row
 				((DbIdentValue)o).setPkValue(value);
 			}
 			columndata[identindex] = value;
+			FireCollector collector = FireCollector.getFireCollector();
+			try
+			{
+				String dataProviderID = parent.getSQLSheet().getColumnNames()[identindex];
+				fireNotifyChange(dataProviderID, value, collector);
+			}
+			catch (Exception e)
+			{
+				Debug.error("error notifying the system of a db Ident value change of " + value + " of row: " + this, e);
+			}
+			finally
+			{
+				collector.done();
+			}
 		}
 	}
 
@@ -421,7 +436,7 @@ public class Row
 
 	protected void handleCalculationDependencies(Column column, String dataProviderID)
 	{
-		if (column != null && (column.getFlags() & Column.IDENT_COLUMNS) != 0)
+		if (column != null && (column.getFlags() & IBaseColumn.IDENT_COLUMNS) != 0)
 		{
 			// PK update, recalc hash, update calculation dependencies and fire depending calcs
 			getRowManager().fireDependingCalcsForPKUpdate(this, getPKHashKey());
