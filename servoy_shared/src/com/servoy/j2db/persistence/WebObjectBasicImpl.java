@@ -18,6 +18,7 @@
 package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -89,7 +90,7 @@ public class WebObjectBasicImpl
 
 	public List<IChildWebObject> getAllPersistMappedProperties()
 	{
-		return new ArrayList<IChildWebObject>(0);
+		return Collections.emptyList();
 	}
 
 	public Iterator<IPersist> getAllObjects()

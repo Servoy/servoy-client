@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeDate;
@@ -69,7 +68,7 @@ public final class ServoyWrapFactory extends WrapFactory
 		{
 			throw new ExitScriptException("killing current script, client/solution already terminated");
 		}
-		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable || obj instanceof String || obj instanceof CharSequenceBuffer ||
+		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable || obj instanceof String || obj instanceof CharSequence ||
 			obj instanceof Number || obj instanceof Boolean)
 		{
 			return obj;

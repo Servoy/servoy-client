@@ -322,9 +322,9 @@
 	},
 "types": {
   "tab": {
-  		"name": "string",
+  		"name": { "type": "string", "tags": { "useAsCaptionInDeveloper" : true, "captionPriority" : 1 } },
   		"containsFormId": "form",
-  		"text": "tagstring",
+  		"text": { "type": "tagstring", "tags": { "useAsCaptionInDeveloper" : true, "captionPriority" : 2 } },
   		"relationName": "relation",
   		"active": "boolean",
   		"foreground": "color",

@@ -191,7 +191,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	/**
 	 * Returns all direct child typed properties or array of such typed properties.
 	 */
-	public List<IChildWebObject> getAllPersistMappedProperties()
+	protected List<IChildWebObject> getAllPersistMappedProperties()
 	{
 		return webObjectImpl.getAllPersistMappedProperties();
 	}

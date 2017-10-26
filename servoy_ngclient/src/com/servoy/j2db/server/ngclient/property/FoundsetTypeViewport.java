@@ -226,10 +226,10 @@ public class FoundsetTypeViewport
 	}
 
 	/**
-	 * Corrects bounds given new bounds to be valid and then applies the to current viewport.
+	 * Corrects bounds given new bounds to be valid and then applies them to current viewport.
 	 *
 	 * This method can also load more records into the foundset (thus firing foundset events) in case of large foundsets with 'hadMoreRecords' true,
-	 * in case the give new bounds require new records.
+	 * in case the given new bounds require new records.
 	 */
 	protected void correctAndSetViewportBoundsInternal(int newStartIndex, int newSize)
 	{
@@ -299,12 +299,25 @@ public class FoundsetTypeViewport
 							}
 							else
 							{
+								int nrNewRecords = event.getLastRow() - event.getFirstRow() + 1;
+								int foundsetSize = foundset.getSize();
 								// if the size of the viewport is still smaller then the preferredViewPortSize
 								// and the foundset size allows for bigger viewport then size then update the bounds so that it is
 								// adds the extra wanted records at the end
-								if (size < preferredViewPortSize && (foundset.getSize() - startIndex) > size)
+								if (size < preferredViewPortSize && (foundsetSize - startIndex) > size && (foundsetSize - nrNewRecords) == (startIndex + size))
 								{
-									setBounds(startIndex, Math.min(preferredViewPortSize, (foundset.getSize() - startIndex)));
+									int oldStartIndex = startIndex;
+									int oldSize = size;
+									int newSize = Math.min(preferredViewPortSize, (foundset.getSize() - startIndex));
+
+									int insertStart = Math.max(startIndex, event.getFirstRow());
+									int insertEnd = Math.min(startIndex + newSize - 1, event.getLastRow());
+
+									if (insertEnd >= insertStart && ((insertEnd - insertStart + 1) == (newSize - oldSize)))
+									{
+										correctAndSetViewportBoundsInternal(startIndex, newSize);
+										if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
+									}
 								}
 
 								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record

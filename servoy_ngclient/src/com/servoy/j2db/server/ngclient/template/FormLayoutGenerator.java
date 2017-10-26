@@ -71,6 +71,8 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
+	private static final String TAG_DIRECT_EDIT = "directEdit";
+
 	public static String generateFormComponent(Form form, FlattenedSolution fs, IFormElementCache cache)
 	{
 		StringWriter out = new StringWriter();
@@ -570,7 +572,7 @@ public class FormLayoutGenerator
 		Map<String, PropertyDescription> properties = fe.getWebComponentSpec(false).getProperties();
 		for (PropertyDescription pd : properties.values())
 		{
-			if (Utils.getAsBoolean(pd.getTag("directEdit")))
+			if (Utils.getAsBoolean(pd.getTag(TAG_DIRECT_EDIT)))
 			{
 				return pd.getName();
 			}

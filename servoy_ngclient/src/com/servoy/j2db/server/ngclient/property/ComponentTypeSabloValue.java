@@ -87,7 +87,10 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class ComponentTypeSabloValue implements ISmartPropertyValue
 {
+
 	public static final Logger log = LoggerFactory.getLogger(ComponentTypeSabloValue.class.getCanonicalName());
+
+	private static final String TAG_ADD_TO_ELEMENTS_SCOPE = "addToElementsScope";
 
 	public static final String NO_OP = "n";
 
@@ -211,7 +214,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		// unregister this component from formcontroller "elements" scope if needed
 		WebFormComponent parentComponent = getParentComponent();
 		IWebFormUI formUI = parentComponent != null ? parentComponent.findParent(IWebFormUI.class) : null;
-		if (formUI != null && componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag("addToElementsScope")))
+		if (formUI != null && componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag(TAG_ADD_TO_ELEMENTS_SCOPE)))
 		{
 			formUI.removeComponentFromElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
 		}
@@ -327,7 +330,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		childComponent.setComponentContext(new ComponentContext(formElementValue.propertyPath));
-		if (componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag("addToElementsScope")))
+		if (componentPropertyDescription != null && Utils.getAsBoolean(componentPropertyDescription.getTag(TAG_ADD_TO_ELEMENTS_SCOPE)))
 		{
 			formUI.contributeComponentToElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
 		}
@@ -887,7 +890,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					}
 					finally
 					{
-						if (foundsetLinkedPropOfComponentValueChangeHandler != null) foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(true);
+						if (foundsetLinkedPropOfComponentValueChangeHandler != null)
+							foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(true);
 					}
 				}
 				else if (update.has("svyStartEdit"))

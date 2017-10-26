@@ -86,7 +86,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	private IRecordInternal record;
-	private String recordPKHash;
 	private boolean findMode = false;
 	private boolean settingRecord;
 
@@ -387,7 +386,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	private String[] getAllDependantDataProviders(String[] dataproviders)
+	private String[] getAllDependentDataProviders(String[] dataproviders)
 	{
 		ArrayList<String> returnDP = new ArrayList<>();
 		for (String dp : dataproviders)
@@ -423,7 +422,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					}
 				}
 			}
-			returnDP.add(dp);
+			if (!returnDP.contains(dp)) returnDP.add(dp);
 		}
 
 		return returnDP.toArray(new String[returnDP.size()]);
@@ -440,7 +439,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		else
 		{
-			dataproviders = getAllDependantDataProviders(dataproviders);
+			dataproviders = getAllDependentDataProviders(dataproviders);
 		}
 		for (String dpID : dataproviders)
 		{
@@ -494,7 +493,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		// if this is not a change in the record that it should not be needed that it should be pushed again.
 		// because all types should just listen to the right stuff.
-		if (shouldIgnoreRecordChange(this.record, record, recordPKHash)) return;
+		if (shouldIgnoreRecordChange(this.record, record)) return;
 		if (settingRecord)
 		{
 			if (record != this.record)
@@ -511,14 +510,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				this.record.removeModificationListener(this);
 			}
 			this.record = (IRecordInternal)record;
-			if (this.record != null)
-			{
-				this.recordPKHash = ((IRecordInternal)record).getPKHashKey();
-			}
-			else
-			{
-				this.recordPKHash = null;
-			}
+
 			if (this.record != null)
 			{
 				pushChangedValues(null, fireChangeEvent);
@@ -542,17 +534,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	}
 
-	protected boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord, String recordPKHash)
+	protected boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
 	{
-		if (oldRecord == newRecord)
-		{
-			if (oldRecord instanceof IRecordInternal)
-			{
-				// maybe a dbidentity pk was set
-				return Utils.equalObjects(recordPKHash, ((IRecordInternal)newRecord).getPKHashKey());
-			}
-			return true;
-		}
+		if (oldRecord == newRecord) return true;
 		return false;
 	}
 

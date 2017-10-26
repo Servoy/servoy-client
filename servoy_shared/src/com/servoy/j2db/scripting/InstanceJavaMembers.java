@@ -51,7 +51,7 @@ public class InstanceJavaMembers extends JavaMembers
 
 	/**
 	 * Constructor for InstanceJavaMembers.
-	 * 
+	 *
 	 * @param scope
 	 * @param cl
 	 */
@@ -75,7 +75,7 @@ public class InstanceJavaMembers extends JavaMembers
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.mozilla.javascript.JavaMembers#discoverAccessibleMethods(java.lang.Class, boolean, boolean)
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class InstanceJavaMembers extends JavaMembers
 	 */
 	@SuppressWarnings("nls")
 	@Override
-	protected void makeBeanProperties(boolean isStatic)
+	protected void makeBeanProperties(boolean isStatic, boolean includePrivate)
 	{
 		Map<String, Object> ht = isStatic ? staticMembers : members;
 		Map<String, Object> copy = new HashMap<String, Object>(ht);
@@ -195,7 +195,7 @@ public class InstanceJavaMembers extends JavaMembers
 		{
 			members = ht;
 		}
-		super.makeBeanProperties(isStatic);
+		super.makeBeanProperties(isStatic, includePrivate);
 
 		copy = new HashMap<String, Object>(ht);
 		for (Entry<String, Object> entry : ht.entrySet())

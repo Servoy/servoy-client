@@ -78,6 +78,7 @@ import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -672,25 +673,40 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
 					if (apiFunction != null && getScriptEngine() != null)
 					{
-						PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
+						final PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
 						if (scope != null)
 						{
-							Scriptable service = (Scriptable)scope.get(serviceSpecification.getScriptingName(), null);
-							Object api = service.get(apiFunction.getName(), null);
+							final Scriptable service = (Scriptable)scope.get(serviceSpecification.getScriptingName(), null);
+							final Object api = service.get(apiFunction.getName(), null);
 							if (api instanceof Function)
 							{
-								Context context = Context.enter();
-								try
+								Runnable r = new Runnable()
 								{
-									((Function)api).call(context, scope, service, null);
+									@Override
+									public void run()
+									{
+										Context context = Context.enter();
+										try
+										{
+											((Function)api).call(context, scope, service, null);
+										}
+										catch (Exception ex)
+										{
+											Debug.error(ex);
+										}
+										finally
+										{
+											Context.exit();
+										}
+									}
+								};
+								if (api instanceof WebServiceFunction)
+								{
+									invokeAndWait(r);
 								}
-								catch (Exception ex)
+								else
 								{
-									Debug.error(ex);
-								}
-								finally
-								{
-									Context.exit();
+									r.run();
 								}
 							}
 						}
