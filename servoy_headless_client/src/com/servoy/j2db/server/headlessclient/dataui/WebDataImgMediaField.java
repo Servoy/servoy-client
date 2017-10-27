@@ -193,19 +193,19 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		if (!useAJAX)
 		{
 			upload.add(new AttributeModifier("onclick", true, new Model<String>() //$NON-NLS-1$
-				{
-					private static final long serialVersionUID = 1L;
+			{
+				private static final long serialVersionUID = 1L;
 
-					@Override
-					public String getObject()
+				@Override
+				public String getObject()
+				{
+					if (editable)
 					{
-						if (editable)
-						{
-							return "javascript:showMediaUploadPopup('" + urlFor(ILinkListener.INTERFACE) + "', '" + id + "_1')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						}
-						return null;
+						return "javascript:showMediaUploadPopup('" + urlFor(ILinkListener.INTERFACE) + "', '" + id + "_1')"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
-				}));
+					return null;
+				}
+			}));
 		}
 		else
 		{
@@ -241,7 +241,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 						{
 							// submit without uploaded files
 						}
-					}, false, "");
+					}, false, "", "");
 					WebEventExecutor.generateResponse(target, page);
 				}
 			});
@@ -264,16 +264,16 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 		add(download);
 		download.add(new AttributeModifier("onclick", true, new Model<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+		{
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public String getObject()
-				{
-					return "javascript:showMediaDownloadPopup('" + imgd.urlFor(IResourceListener.INTERFACE) + "&download=true&t=" + System.currentTimeMillis() +
-						"')";
-				}
-			})
+			@Override
+			public String getObject()
+			{
+				return "javascript:showMediaDownloadPopup('" + imgd.urlFor(IResourceListener.INTERFACE) + "&download=true&t=" + System.currentTimeMillis() +
+					"')";
+			}
+		})
 		{
 			@Override
 			public boolean isEnabled(Component component)
@@ -667,15 +667,15 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 
 			add(new AttributeModifier("onload", true, new AbstractReadOnlyModel<String>() //$NON-NLS-1$
-				{
-					private static final long serialVersionUID = 1L;
+			{
+				private static final long serialVersionUID = 1L;
 
-					@Override
-					public String getObject()
-					{
-						return "Servoy.Utils.fixMediaLocation('" + getMarkupId() + "'," + horizontalAlignment + ");";
-					}
-				}));
+				@Override
+				public String getObject()
+				{
+					return "Servoy.Utils.fixMediaLocation('" + getMarkupId() + "'," + horizontalAlignment + ");";
+				}
+			}));
 		}
 
 		/**

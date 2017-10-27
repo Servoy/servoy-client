@@ -19,8 +19,10 @@ package com.servoy.j2db.server.headlessclient;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
@@ -45,10 +47,18 @@ public class MultiFileUpload extends MultiFileUploadField
 	private static final ResourceReference JS = new JavascriptResourceReference(MultiFileUpload.class, "MultiFileUpload.js");
 	private final IApplication application;
 
-	public MultiFileUpload(String id, IModel<Collection<FileUpload>> model, IApplication application)
+	public MultiFileUpload(String id, IModel<Collection<FileUpload>> model, IApplication application, String acceptFilter)
 	{
 		super(id, model);
 		this.application = application;
+		if (acceptFilter.length() > 0)
+		{
+			Component uploadInput = get("upload");
+			if (uploadInput != null)
+			{
+				uploadInput.add(new SimpleAttributeModifier("accept", acceptFilter));
+			}
+		}
 		Button fileButton = new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload")));
 		fileButton.setOutputMarkupId(false);
 		add(fileButton);

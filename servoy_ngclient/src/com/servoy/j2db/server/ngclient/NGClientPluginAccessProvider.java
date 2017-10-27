@@ -62,6 +62,15 @@ public class NGClientPluginAccessProvider extends ClientPluginAccessProvider imp
 	@Override
 	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle)
 	{
-		ngClient.showFileOpenDialog(callback, multiSelect, dialogTitle);
+		StringBuilder acceptFilter = new StringBuilder();
+		if (filter != null && filter.length > 1)
+		{
+			for (int i = 1; i < filter.length; i++)
+			{
+				if (i > 1) acceptFilter.append(',');
+				acceptFilter.append('.').append(filter[i]);
+			}
+		}
+		ngClient.showFileOpenDialog(callback, multiSelect, acceptFilter.toString(), dialogTitle);
 	}
 }

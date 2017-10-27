@@ -18,6 +18,7 @@ package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.Request;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -47,7 +48,7 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 	/**
 	 * @param id
 	 */
-	public SingleFileUpload(String id, IApplication application)
+	public SingleFileUpload(String id, IApplication application, String acceptFilter)
 	{
 		super(id);
 		this.application = application;
@@ -66,7 +67,7 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 			}
 
 			/**
-			 * this method is identical to it's super except it uses overridenFileUpload fild 
+			 * this method is identical to it's super except it uses overridenFileUpload fild
 			 * This field is of type ServoyFileUpload which is again identical to FileUpload except it has access to the FileItem object
 			 */
 			@Override
@@ -115,9 +116,15 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 				super.onDetach();
 			}
 		};
+
+		if (acceptFilter.length() > 0)
+		{
+			fuf.add(new SimpleAttributeModifier("accept", acceptFilter));
+		}
 		add(fuf);
 		add(new Label("filelabel", application.getI18NMessage("servoy.menuitem.file")));
 		Button fileButton = new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload")));
+
 		fileButton.setOutputMarkupId(false);
 		add(fileButton);
 	}
@@ -134,7 +141,7 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 	public void renderHead(IHeaderResponse response)
 	{
 		response.renderJavascriptReference(JS);
-		String translatedMessage = "'" + application.getI18NMessage("servoy.filechooser.upload.fileUploading") + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		String translatedMessage = "'" + application.getI18NMessage("servoy.filechooser.upload.fileUploading") + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		response.renderOnLoadJavascript("addSFUInputChangeListener(" + translatedMessage + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

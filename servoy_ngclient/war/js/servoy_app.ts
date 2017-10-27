@@ -1365,8 +1365,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				showDefaultLoginWindow();
 			}		
 		},
-		showFileOpenDialog: function(title, multiselect) {
-			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect);
+		showFileOpenDialog: function(title, multiselect, acceptFilter) {
+			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect, acceptFilter);
 		},
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;

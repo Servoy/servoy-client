@@ -8,7 +8,11 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     $scope.isMultiSelect = function() {
     	return $svyFileuploadUtils.isMultiSelect();
     }
-    
+	
+	$scope.getAcceptFilter = function() {
+		return $svyFileuploadUtils.getAcceptFilter();
+	}
+
     $scope.isFileSelected = function() {
     	return $scope.uploadFiles != null; 
     }    
@@ -27,7 +31,7 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     
     $scope.getUploadFiles = function() {
     	if($scope.uploadFiles) {
-    		if($scope.uploadFiles.length) {
+    		if($scope.uploadFiles instanceof Array) {
     			return $scope.uploadFiles;
     		}
     		else {
@@ -101,12 +105,13 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     };
 })
 .factory("$svyFileuploadUtils", function($uibModal,$svyI18NService){
-	var uploadUrl, titleText, isMultiSelect;
+	var uploadUrl, titleText, isMultiSelect, acceptFilter;
 	return {
-		open : function (url, title, multiselect) {
+		open : function (url, title, multiselect, filter) {
 			uploadUrl = url;
 			titleText = title;
 			isMultiSelect = multiselect;
+			acceptFilter = filter;
 			var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addFile","servoy.filechooser.upload.addFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel", "servoy.filechooser.error")
 		    x.then(function(result) {
 				$uibModal.open({
@@ -123,6 +128,9 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 		},
 		isMultiSelect: function() {
 			return isMultiSelect;
+		},
+		getAcceptFilter: function() {
+			return acceptFilter;
 		}
 	}
 })

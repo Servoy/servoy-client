@@ -27,7 +27,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 
 /**
  * A special {@link IClientPluginAccess} that also implements {@link IWebClientPluginAccess} to override behavior that is specific for the webclient.
- * 
+ *
  * @author jcompagner
  */
 public class WebClientPluginAccessProvider extends ClientPluginAccessProvider implements IWebClientPluginAccess
@@ -91,7 +91,16 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle)
 	{
 		MainPage mp = getApplication().getMainPage();
-		mp.showOpenFileDialog(callback, multiSelect, dialogTitle);
+		StringBuilder acceptFilter = new StringBuilder();
+		if (filter != null && filter.length > 1)
+		{
+			for (int i = 1; i < filter.length; i++)
+			{
+				if (i > 1) acceptFilter.append(',');
+				acceptFilter.append('.').append(filter[i]);
+			}
+		}
+		mp.showOpenFileDialog(callback, multiSelect, acceptFilter.toString(), dialogTitle);
 	}
 
 	@Override

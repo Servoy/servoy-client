@@ -79,7 +79,7 @@ public class MediaUploadPage extends WebPage
 		super(pageMap);
 		add(new PageContributor(application, "contribution"));
 		mfuf = null;
-		fuf = new SingleFileUpload("panel", application);
+		fuf = new SingleFileUpload("panel", application, "");
 		Form form = new Form("form")
 		{
 			private static final long serialVersionUID = 1L;
@@ -128,7 +128,7 @@ public class MediaUploadPage extends WebPage
 	}
 
 	@SuppressWarnings({ "nls", "unchecked" })
-	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect, final IApplication application)
+	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect, String acceptFilter, final IApplication application)
 	{
 		super(pageMap);
 
@@ -224,38 +224,38 @@ public class MediaUploadPage extends WebPage
 
 						multipart = new MultipartServletWebRequest(req.getHttpServletRequest(), getMaxSize(),
 							new DiskFileItemFactory(tempFileThreshold, fileUploadDir)
-						{
-							private final HashSet<String> fieldNames = new HashSet<String>();
-
-							@Override
-							public FileItem createItem(String fieldName, String contentType, boolean isFormField, String fileName)
 							{
-								String adjustedFieldName = fieldName;
-								int i = 1;
-								while (fieldNames.contains(adjustedFieldName))
+								private final HashSet<String> fieldNames = new HashSet<String>();
+
+								@Override
+								public FileItem createItem(String fieldName, String contentType, boolean isFormField, String fileName)
 								{
-									adjustedFieldName = fieldName + "_additionalFile_" + (i++);
-								}
-								String timestampStr = req.getParameter("last_modified_" + fieldName + "_" + fileName);
-								long timestamp = System.currentTimeMillis();
-								if (timestampStr != null)
-								{
-									try
+									String adjustedFieldName = fieldName;
+									int i = 1;
+									while (fieldNames.contains(adjustedFieldName))
 									{
-										timestamp = Long.parseLong(timestampStr);
+										adjustedFieldName = fieldName + "_additionalFile_" + (i++);
 									}
-									catch (NumberFormatException ex)
+									String timestampStr = req.getParameter("last_modified_" + fieldName + "_" + fileName);
+									long timestamp = System.currentTimeMillis();
+									if (timestampStr != null)
 									{
-										timestamp = System.currentTimeMillis();
+										try
+										{
+											timestamp = Long.parseLong(timestampStr);
+										}
+										catch (NumberFormatException ex)
+										{
+											timestamp = System.currentTimeMillis();
+										}
 									}
+
+									fieldNames.add(adjustedFieldName);
+									return new ServoyDiskFileItem(adjustedFieldName, contentType, isFormField, fileName, getSizeThreshold(), getRepository(),
+										timestamp);
 								}
 
-								fieldNames.add(adjustedFieldName);
-								return new ServoyDiskFileItem(adjustedFieldName, contentType, isFormField, fileName, getSizeThreshold(), getRepository(),
-									timestamp);
-							}
-
-						});
+							});
 					}
 					catch (FileUploadException e)
 					{
@@ -292,13 +292,13 @@ public class MediaUploadPage extends WebPage
 		{
 			fuf = null;
 			IModel<Collection<FileUpload>> model = new Model(new ArrayList());
-			mfuf = new MultiFileUpload("panel", model, application);
+			mfuf = new MultiFileUpload("panel", model, application, acceptFilter);
 			form.add(mfuf);
 		}
 		else
 		{
 			mfuf = null;
-			fuf = new SingleFileUpload("panel", application);
+			fuf = new SingleFileUpload("panel", application, acceptFilter);
 			form.add(fuf);
 		}
 		form.add(new Label("uploadtitle", new Model<String>(application.getI18NMessage("servoy.filechooser.upload.title"))));
