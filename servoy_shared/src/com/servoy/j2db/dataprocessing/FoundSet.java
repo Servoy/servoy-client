@@ -1843,8 +1843,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
-			Debug.log("couldn't load dataset because foundset had edited records but couldn't save it"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it " + this, null); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it: " + this + //$NON-NLS-1$
+				", edited record(s): " + Utils.stringJoin(getFoundSetManager().getEditRecordList().getEditedRecords(this), '.') + ", failed record(s): " +
+				Utils.stringJoin(getFoundSetManager().getEditRecordList().getFailedRecords(this), '.'), null);
 			return false;
 		}
 
@@ -1937,8 +1938,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
-			Debug.log("couldn't load dataset because foundset had edited records but couldn't save it"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it " + this, null); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it: " + this + //$NON-NLS-1$
+				", edited record(s): " + Utils.stringJoin(getFoundSetManager().getEditRecordList().getEditedRecords(this), '.') + ", failed record(s): " +
+				Utils.stringJoin(getFoundSetManager().getEditRecordList().getFailedRecords(this), '.'), null);
 			return false;
 		}
 
@@ -2222,15 +2224,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (sheet.getTable() == null)
 		{
-			Debug.log("couldn't load dataset on a foundset that has no table"); //$NON-NLS-1$
 			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that has no table", null); //$NON-NLS-1$
 			return false;
 		}
 
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
-			Debug.log("couldn't load dataset because foundset had edited records but couldn't save it"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it " + this, null); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it: " + this + //$NON-NLS-1$
+				", edited record(s): " + Utils.stringJoin(getFoundSetManager().getEditRecordList().getEditedRecords(this), '.') + ", failed record(s): " +
+				Utils.stringJoin(getFoundSetManager().getEditRecordList().getFailedRecords(this), '.'), null);
 			return false;
 		}
 
