@@ -349,7 +349,7 @@ public class FormLayoutGenerator
 			writer.print("'");
 			if (selectable)
 			{
-				writer.print(" svy-non-selectable");
+				writer.print(" svy-non-selectable='noname'");
 			}
 			writer.print(" name='");
 			writer.print(name);
@@ -449,7 +449,7 @@ public class FormLayoutGenerator
 				}
 				if (selectable)
 				{
-					writer.print(" svy-non-selectable");
+					writer.print(" svy-non-selectable='noname'");
 				}
 				writer.print(" svy-formelement-type='");
 				writer.print(fe.getTypeName());
