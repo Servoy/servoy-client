@@ -2617,6 +2617,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record.
 	 * Optionally, by specifying a record or foundset, can save a single record or all records from foundset instead of all the data.
+	 * Since Servoy 8.3 saveData with null parameter does not call saveData() as fallback, it just returns false.
 	 *
 	 * NOTE: The fields focus may be lost in user interface in order to determine the edits.
 	 * 		 SaveData called from table events (like afterRecordInsert) is only partially supported depeding on how first saveData (that triggers the event) is called.
@@ -2677,7 +2678,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)foundset);
 			return editRecordList.stopEditing(true, Arrays.asList(editedRecords)) == ISaveConstants.STOPPED;
 		}
-		return saveData();
+		return false;
 	}
 
 	/**
@@ -2703,7 +2704,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			return editRecordList.stopEditing(true, (IRecord)record) == ISaveConstants.STOPPED;
 		}
-		return saveData();
+		return false;
 	}
 
 	/**
