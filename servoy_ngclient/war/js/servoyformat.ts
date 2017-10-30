@@ -154,7 +154,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 		// set min digits
 		if (minLen > 0) {
-			var retSplit = ret.split(numeral.languageData().delimiters.decimal);
+			var retSplit = ret.split(numeral.localeData().delimiters.decimal);
 			for (i = 0; i < retSplit[0].length; i++) {
 				if (retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
 				for (j = i; j < retSplit[0].length; j++) {
@@ -166,7 +166,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					ret = retSplit[0].substring(0, i);
 					for (j = 0; j < nrMissing0; j++) ret += '0';
 					ret += retSplit[0].substring(i);
-					if (retSplit.length > 1) ret += (numeral.languageData().delimiters.decimal + retSplit[1]);
+					if (retSplit.length > 1) ret += (numeral.localeData().delimiters.decimal + retSplit[1]);
 				}
 				break;
 			}
@@ -545,7 +545,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
 						$(e.target).blur()
 					} else if (svyFormat.type == "INTEGER") {
-						var currentLanguageNumeralSymbols = numeral.languageData();
+						var currentLanguageNumeralSymbols = numeral.localeData();
 						
 						if(keyChar == undefined) {
 							return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
@@ -558,7 +558,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 									svyFormat.percent, element, svyFormat.maxLength);
 						}
 					} else if (svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)) {
-						var currentLanguageNumeralSymbols = numeral.languageData();
+						var currentLanguageNumeralSymbols = numeral.localeData();
 						
 						if(keyChar == undefined) {
 							return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,

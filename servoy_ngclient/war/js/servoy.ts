@@ -975,7 +975,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					        var caretPos = element[0]['selectionStart'];
 					        var startString = element.val().slice(0, caretPos);
 					        var endString = element.val().slice(element[0]['selectionEnd'], element.val().length);
-					        element.val(startString + numeral.languageData().delimiters.decimal + endString);
+					        element.val(startString + numeral.localeData().delimiters.decimal + endString);
 					        setCaretPosition(element[0], caretPos+1); // '+1' puts the caret after the input
 					        event.preventDefault ? event.preventDefault() : event.returnValue = false; //for IE8
 						}
