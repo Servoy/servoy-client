@@ -256,6 +256,10 @@ public class FormLayoutGenerator
 			writer.print(" svy-scrollbars='formProperties.scrollbars'");
 		}
 		String formClass = "svy-form";
+		if (form.isResponsiveLayout())
+		{
+			formClass += " svy-respform";
+		}
 		if (form.getStyleClass() != null)
 		{
 			formClass += " " + form.getStyleClass();
