@@ -638,6 +638,14 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					// attach the model change notifier from the parent column model so that all calls are relayed to the cell.
 					if (!element.model[$sabloConstants.modelChangeNotifier]) {
 						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {configurable : true,value:function(property,value) {
+							// make sure model change notifier is also called on cell elements initialized with already deleted rows
+							if(cellChangeNotifierCaches) {
+								for(var rowIndex in cellChangeNotifierCaches) {
+									if(cellChangeNotifierCaches[rowIndex][elementIndex]) {
+										cellChangeNotifierCaches[rowIndex][elementIndex](property, value);
+									}
+								}
+							}
 							for(var key in rowProxyObjects) {
 								// test if there is a column at this point for that index, it could be hidden and not created yet.
 								if (rowProxyObjects[key][elementIndex]) {
