@@ -218,7 +218,17 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
 	{
 		// sync api calls to client might need to touch forms... allow that even if event thread is currently blocked on that API call
-		return "touchForm".equals(methodName) ? IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL : dontCareLevel;
+		// but only if that form is not yet loaded yet or it is not in a changing state (DAL.setRecord())
+		if ("touchForm".equals(methodName))
+		{
+			String formName = arguments.optString("name");
+			IWebFormController cachedFormController = ((INGApplication)application).getFormManager().getCachedFormController(formName);
+			if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+			{
+				return IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL;
+			}
+		}
+		return dontCareLevel;
 	}
 
 }
