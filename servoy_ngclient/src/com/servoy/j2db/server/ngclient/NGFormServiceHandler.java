@@ -485,8 +485,22 @@ public class NGFormServiceHandler extends FormServiceHandler
 	@Override
 	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
 	{
-		if ("formLoaded".equals(methodName) || "formUnloaded".equals(methodName) || ("formvisibility".equals(methodName) && arguments.optBoolean("visible")))
+		if ("formLoaded".equals(methodName) || "formUnloaded".equals(methodName))
+		{
 			return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
+		}
+		else if ("formvisibility".equals(methodName) && arguments.optBoolean("visible"))
+		{
+			// only allow formvisibilty (to true) when the form is not loaded yet, or it is not in a changing state (DAL.setRecord)
+			// if DAL.setRecord is happening then we need to postpone it.
+			String formName = arguments.optString("formname");
+
+			IWebFormController cachedFormController = getApplication().getFormManager().getCachedFormController(formName);
+			if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+			{
+				return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+			}
+		}
 		return super.getMethodEventThreadLevel(methodName, arguments, dontCareLevel);
 	}
 
@@ -511,5 +525,4 @@ public class NGFormServiceHandler extends FormServiceHandler
 			}
 		}
 	}
-
 }
