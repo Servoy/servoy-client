@@ -853,9 +853,16 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0,
-				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
-			currentContainer = currentForm.getParentContainer();
+			if (currentForm != null)
+			{
+				set.addRow(0,
+					new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
+				currentContainer = currentForm.getParentContainer();
+			}
+			else
+			{
+				currentContainer = null;
+			}
 		}
 		if (currentContainer instanceof String)
 		{
