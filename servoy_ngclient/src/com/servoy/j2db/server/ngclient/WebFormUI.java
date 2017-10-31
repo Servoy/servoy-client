@@ -121,6 +121,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
 	private final Map<String, RuntimeWebGroup> groups = new HashMap<String, RuntimeWebGroup>();
+	private int changing = 0;
 
 	public WebFormUI(IWebFormController formController)
 	{
@@ -852,9 +853,16 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0,
-				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
-			currentContainer = currentForm.getParentContainer();
+			if (currentForm != null)
+			{
+				set.addRow(0,
+					new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
+				currentContainer = currentForm.getParentContainer();
+			}
+			else
+			{
+				currentContainer = null;
+			}
 		}
 		if (currentContainer instanceof String)
 		{
@@ -1010,6 +1018,31 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
 	{
 		return FORM_SPEC.getProperties(type);
+	}
+
+	@Override
+	public void setChanging(boolean isChanging)
+	{
+		if (isChanging)
+		{
+			this.changing++;
+		}
+		else
+		{
+			this.changing--;
+		}
+	}
+
+	/**
+	 * @return the isChanging
+	 */
+	public boolean isChanging()
+	{
+		if (changing > 0)
+		{
+			System.err.println("form " + formController.getName() + " is changing");
+		}
+		return changing > 0;
 	}
 
 }

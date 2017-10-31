@@ -130,6 +130,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			sendChanges = isFormResolved(fc) && hasPendingDelayedCalls(fc);
 		}
 
+		if (sendChanges && fc instanceof WebFormUI)
+		{
+			sendChanges = !((WebFormUI)fc).isChanging();
+		}
+
 		return sendChanges;
 	}
 
