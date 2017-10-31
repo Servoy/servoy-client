@@ -123,7 +123,10 @@ public class ComponentResourcesExporter
 				{
 					URL entry = Activator.getContext().getBundle().getEntry(path);
 					File newFile = new File(destDir, FilenameUtils.getName(path));
-					FileUtils.copyInputStreamToFile(entry.openStream(), newFile);
+					if (!path.startsWith("war/templates") || !newFile.exists())
+					{
+						FileUtils.copyInputStreamToFile(entry.openStream(), newFile);
+					}
 					if (newFile.getName().endsWith(".html"))
 					{
 						allTemplates.put(path.substring("war/".length()), newFile);
