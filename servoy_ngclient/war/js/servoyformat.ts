@@ -208,7 +208,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			multFactor = 100
 		}
 
-		var ret = numeral().unformat(data)
+		var ret = numeral(data).value();
 		ret *= multFactor;
 		return ret
 	}
