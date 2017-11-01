@@ -90,7 +90,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			}	
 			centIndex = partchedFrmt.indexOf("%")
 			lastChar = (centIndex === partchedFrmt.length-1);
-			partchedFrmt = partchedFrmt.replaceAll("%", "p"); // p doesn't mean anything in numeraljs
+			partchedFrmt = partchedFrmt.replaceAll("%", ""); // p doesn't mean anything in numeraljs
 
 		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
 			if (servoyFormat.indexOf("'"+MILLSIGN+"'") == -1)
@@ -99,7 +99,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			}	
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
 			lastChar = (milIndex === partchedFrmt.length-1);
-			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "p");
+			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
 		}
 
 		var minIndex = -1;

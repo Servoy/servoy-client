@@ -26,7 +26,7 @@ describe('servoy $formatUtils', function() {
         expect(formatFun(-12, '##-', 'NUMBER')).toEqual("-12");
         expect(formatFun(10.49, '+0', 'NUMBER')).toEqual("+10");
         expect(formatFun(10.49, '+%00.00', 'NUMBER')).toEqual("+%1049.00");
-//        expect(formatFun(10.49, MILLSIGN + '+00.00', 'NUMBER')).toEqual(MILLSIGN + "+10490.00");
+        expect(formatFun(10.49, MILLSIGN + '+00.00', 'NUMBER')).toEqual(MILLSIGN + "+10490.00");
         expect(formatFun(10.49, '+' + MILLSIGN + '00.00', 'NUMBER')).toEqual('+' + MILLSIGN + "10490.00");
         expect(formatFun(10.49, '00.00E00', 'NUMBER')).toEqual('1.0490e+1');
 
@@ -65,7 +65,7 @@ describe('servoy $formatUtils', function() {
         expect(formatFun(1000, '#,###.##', 'NUMBER')).toEqual("1.000");
         expect(formatFun(10.49, '+0', 'NUMBER')).toEqual("+10");
         expect(formatFun(10.49, '+%00.00', 'NUMBER')).toEqual("+%1049,00");
-//        expect(formatFun(10.49, MILLSIGN + '+00.00', 'NUMBER')).toEqual(MILLSIGN + "+10490,00");
+        expect(formatFun(10.49, MILLSIGN + '+00.00', 'NUMBER')).toEqual(MILLSIGN + "+10490,00");
         expect(formatFun(10.49, '+' + MILLSIGN + '00.00', 'NUMBER')).toEqual('+' + MILLSIGN + "10490,00");
         expect(formatFun(10.49, '00.00E00', 'NUMBER')).toEqual('1.0490e+1'); // TODO shouldn't this also be in dutch notation??
 
