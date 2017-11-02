@@ -256,6 +256,10 @@ public class FormLayoutGenerator
 			writer.print(" svy-scrollbars='formProperties.scrollbars'");
 		}
 		String formClass = "svy-form";
+		if (form.isResponsiveLayout())
+		{
+			formClass += " svy-respform";
+		}
 		if (form.getStyleClass() != null)
 		{
 			formClass += " " + form.getStyleClass();
@@ -349,7 +353,7 @@ public class FormLayoutGenerator
 			writer.print("'");
 			if (selectable)
 			{
-				writer.print(" svy-non-selectable");
+				writer.print(" svy-non-selectable='noname'");
 			}
 			writer.print(" name='");
 			writer.print(name);
@@ -449,7 +453,7 @@ public class FormLayoutGenerator
 				}
 				if (selectable)
 				{
-					writer.print(" svy-non-selectable");
+					writer.print(" svy-non-selectable='noname'");
 				}
 				writer.print(" svy-formelement-type='");
 				writer.print(fe.getTypeName());

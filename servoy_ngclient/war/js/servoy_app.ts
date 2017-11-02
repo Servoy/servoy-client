@@ -1284,40 +1284,45 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
                 $translate.refresh();
 				$svyI18NService.flush();
 				this.setAngularLocale(language);
-				numeral.language((language + '-' + country).toLowerCase());
+				numeral.localeData((language + '-' + country).toLowerCase());
+				numeral.locale((language + '-' + country).toLowerCase());
 				if (!initializing) webStorage.session.add("locale", (language + '-' + country).toLowerCase());
 			} catch(e) {
 				try {
-					numeral.language(language + '-' + country);
+					numeral.localeData(language + '-' + country);
+					numeral.locale(language + '-' + country);
 					if (!initializing) webStorage.session.add("locale", language + '-' + country);
 				} catch(e2) {
 					try {
 						//try it with just the language part
-						numeral.language(language);
+						numeral.localeData(language);
+						numeral.locale(language);
 						if (!initializing) webStorage.session.add("locale", language);
 					} catch(e3) {
 						try {
 							//try it with just the language part but lowercase
-							numeral.language(language.toLowerCase());
+							numeral.localeData(language.toLowerCase());
+							numeral.locale(language.toLowerCase());
 							if (!initializing) webStorage.session.add("locale", language);
 						} catch(e4) {
 							try {
 								//try to duplicate the language in case it's only defined like that
-								numeral.language(language.toLowerCase() + "-" + language.toLowerCase()); // nl-nl for example is defined but browser only says 'nl' (this won't work for all languages for example "en-en" I don't think even exists)
+								numeral.localeData(language.toLowerCase() + "-" + language.toLowerCase()); // nl-nl for example is defined but browser only says 'nl' (this won't work for all languages for example "en-en" I don't think even exists)
+								numeral.locale(language.toLowerCase() + "-" + language.toLowerCase()); 
 								if (!initializing) webStorage.session.add("locale", language);
 							} catch(e5) {
-								// we can't find a suitable locale defined in languages.js; get the needed things from server (Java knows more locales)
+								// we can't find a suitable locale defined in locales.js; get the needed things from server (Java knows more locales)
 								// and create the locate info from that
-								var promise = $sabloApplication.callService<NumeralJSLanguage>("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
-								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and languages.js provided langs?
+								var promise = $sabloApplication.callService<NumeralJSLocale>("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
+								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and locales.js provided langs?
 								var numeralLanguage = language + (country ? '-' + country : "");
 								promise.then(function(numeralLocaleInfo) {
 									if ($log.debugEnabled) $log.debug("Locale '" + numeralLanguage + "' not found in client js lib, but it was constructed based on server Java locale-specific information: " + JSON.stringify(numeralLocaleInfo));
 									numeralLocaleInfo.ordinal = function (number) {
 										return ".";
 									};
-									numeral.language(numeralLanguage, numeralLocaleInfo);
-									numeral.language(numeralLanguage);
+									//numeral.language(numeralLanguage, numeralLocaleInfo);
+									numeral.locale(numeralLanguage);
 									if (!initializing) {
 										webStorage.session.add("locale", numeralLanguage);
 										$sabloApplication.setLocale({ language : language, country : country , full: language + "-" + country});
@@ -1365,8 +1370,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				showDefaultLoginWindow();
 			}		
 		},
-		showFileOpenDialog: function(title, multiselect) {
-			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect);
+		showFileOpenDialog: function(title, multiselect, acceptFilter) {
+			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect, acceptFilter);
 		},
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;

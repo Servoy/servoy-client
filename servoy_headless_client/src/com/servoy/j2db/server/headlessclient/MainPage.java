@@ -199,6 +199,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	private boolean useAJAX;
 
 	private boolean mediaUploadMultiSelect;
+	private String mediaUploadFilter;
 
 	private Dimension size = null; // keeps the size in case of browser windows (non-modal windows); not used for dialogs;
 
@@ -578,7 +579,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 				public Page createPage()
 				{
-					return new MediaUploadPage(PageMap.forName(FILE_UPLOAD_PAGEMAP), mediaUploadCallback, mediaUploadMultiSelect,
+					return new MediaUploadPage(PageMap.forName(FILE_UPLOAD_PAGEMAP), mediaUploadCallback, mediaUploadMultiSelect, mediaUploadFilter,
 						getController().getApplication());
 				}
 			});
@@ -1501,16 +1502,17 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	}
 
 	@SuppressWarnings("nls")
-	public void showOpenFileDialog(final IMediaUploadCallback callback, boolean multiSelect, String title)
+	public void showOpenFileDialog(final IMediaUploadCallback callback, boolean multiSelect, String acceptFilter, String title)
 	{
 		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null)
 		{
-			callingContainer.showOpenFileDialog(callback, multiSelect, title);
+			callingContainer.showOpenFileDialog(callback, multiSelect, acceptFilter, title);
 		}
 		else
 		{
 			touch();
 			this.mediaUploadMultiSelect = multiSelect;
+			this.mediaUploadFilter = acceptFilter;
 			this.mediaUploadCallback = new IMediaUploadCallback()
 			{
 				boolean uploaded = false;

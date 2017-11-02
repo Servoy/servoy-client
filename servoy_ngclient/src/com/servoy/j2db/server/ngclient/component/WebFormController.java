@@ -279,7 +279,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			try
 			{
-				if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
 				unload();
 				if (formUI != null)
 				{
@@ -293,6 +292,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 					((NGClientWindow)window).destroyForm(getName());
 				}
+				if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
 			}
 			finally
 			{

@@ -196,7 +196,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 			}
 			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(clientLocale);
 
-			// the commented out values are already available client-side in numeral.languageData(); they are taken from there now
+			// the commented out values are already available client-side in numeral.localeData(); they are taken from there now
 //			map.put("decimalSeparator", String.valueOf(dfs.getDecimalSeparator()));
 //			map.put("groupingSeparator", String.valueOf(dfs.getGroupingSeparator()));
 //			map.put("currencySymbol", dfs.getCurrencySymbol());

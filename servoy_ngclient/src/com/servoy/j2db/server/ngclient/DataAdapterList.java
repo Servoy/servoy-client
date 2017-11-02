@@ -505,6 +505,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		try
 		{
 			settingRecord = true;
+			formController.getFormUI().setChanging(true);
 			if (this.record != null)
 			{
 				this.record.removeModificationListener(this);
@@ -519,6 +520,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		finally
 		{
+			formController.getFormUI().setChanging(false);
 			settingRecord = false;
 		}
 		if (record != null)

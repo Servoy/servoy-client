@@ -33,9 +33,13 @@ import javax.servlet.http.HttpSession;
 
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.specification.property.types.StringPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
@@ -70,11 +74,27 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
+	private static final class WindowServiceSpecification extends WebObjectSpecification
+	{
+		private WindowServiceSpecification()
+		{
+			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null);
+			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
+			destroy.addParameter(new PropertyDescription("name", TypesRegistry.getType(StringPropertyType.TYPE_NAME)));
+			destroy.setAsync(true);
+			destroy.setPreDataServiceCall(true);
+			addApiFunction(destroy);
+		}
+	}
+
+	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
+
 	private NGClient client;
 
 	public NGClientWebsocketSession(String uuid)
 	{
 		super(uuid);
+		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this));
 	}
 
 	@Override

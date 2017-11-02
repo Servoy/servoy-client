@@ -867,4 +867,26 @@ public class TestWebFormUI implements IWebFormUI
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#isChanging()
+	 */
+	@Override
+	public boolean isChanging()
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#setIsChanging(boolean)
+	 */
+	@Override
+	public void setChanging(boolean b)
+	{
+		// TODO Auto-generated method stub
+
+	}
 }
