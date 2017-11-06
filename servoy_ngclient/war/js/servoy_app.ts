@@ -1337,8 +1337,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			var lang = webStorage.session.get("locale");
 			if (lang) {
-				var array = language.split('-');
-				$sabloApplication.setLocale({ language : array[0], country : array[1] , full: language});
+				var array = lang.split('-');
+				$sabloApplication.setLocale({ language : array[0], country : (array[1] ?  array[1] : country), full: (array[1] ?  lang :  (array[0] +"-"+country))});
 			}
 		},
 		showInfoPanel: function(url,w,h,t,closeText)
