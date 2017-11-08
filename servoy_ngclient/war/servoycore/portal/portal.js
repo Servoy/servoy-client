@@ -74,9 +74,26 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				}
 			})
 
-			function disposeOfRowProxies(rowProxy,renderedRowIndex) {
+			function disposeOfRowProxies(rowProxy,renderedRowIdx) {
+				var renderedRowIndex = renderedRowIdx;
 				if (renderedRowIndex !== undefined)
 				{
+					var newCellChangeNotifierCaches = {};
+					for(var sRowIdx in cellChangeNotifierCaches)
+					{
+						var rowIdx = parseInt(sRowIdx);
+						if(rowIdx <= renderedRowIndex) {
+							newCellChangeNotifierCaches[rowIdx] = cellChangeNotifierCaches[rowIdx];
+						}
+						else {
+							newCellChangeNotifierCaches[rowIdx + 1] = cellChangeNotifierCaches[rowIdx];
+						}
+					}
+					if(newCellChangeNotifierCaches[renderedRowIndex]) {
+						renderedRowIndex++;
+					}
+					cellChangeNotifierCaches = newCellChangeNotifierCaches;
+
 					cellChangeNotifierCaches[renderedRowIndex] = []
 				}
 				for (var elIdx in rowProxy) {
