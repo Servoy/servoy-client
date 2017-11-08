@@ -22,8 +22,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -111,9 +113,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private String globalRelationName;
 
 	private ListSelectionListener relatedFoundsetSelectionListener;
-	private ArrayList<IFoundSetInternal> relatedFoundsets = new ArrayList<IFoundSetInternal>();
+	private List<IFoundSetInternal> relatedFoundsets = new ArrayList<IFoundSetInternal>();
 	private IModificationListener relatedRecordModificationListener;
-	private ArrayList<IRecordInternal> relatedRecords = new ArrayList<IRecordInternal>();
+	private List<IRecordInternal> relatedRecords = new ArrayList<IRecordInternal>();
 	private String relationName;
 	private IWebObjectContext webObjectContext;
 
@@ -226,7 +228,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
 		}
-		relatedFoundsetSelectionListener = null;
+		relatedFoundsets = Collections.emptyList();
+
+		if (relatedRecordModificationListener != null)
+		{
+			for (IRecordInternal relatedRecord : relatedRecords)
+			{
+				relatedRecord.removeModificationListener(relatedRecordModificationListener);
+			}
+		}
+		relatedRecords = Collections.emptyList();
 
 		webObjectContext = null;
 		changeMonitor = null;

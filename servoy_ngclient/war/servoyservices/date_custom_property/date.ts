@@ -12,7 +12,7 @@ angular.module('date_custom_property', ['webSocketModule'])
 
 				var r = newClientData;
 				if (typeof newClientData === 'string' || typeof newClientData === 'number') r = new Date(newClientData);
-				if (isNaN(r.getTime())) throw new Error("Invalid date/time value: " + newClientData);
+				if (isNaN(r.getTime())) return null;//throw new Error("Invalid date/time value: " + newClientData);
 				return moment(r).format();
 			},
 			
