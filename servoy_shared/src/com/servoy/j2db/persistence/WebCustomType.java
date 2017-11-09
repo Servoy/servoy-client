@@ -76,7 +76,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	}
 
 
-	private WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
+	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
 	{
 		super(IRepository.WEBCUSTOMTYPES, parentWebObject, id, uuid);
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
