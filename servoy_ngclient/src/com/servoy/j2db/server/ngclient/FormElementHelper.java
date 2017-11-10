@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IBasicWebObject;
+import com.servoy.j2db.persistence.IChildWebObject;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -314,6 +315,17 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							JSONObject original = new ServoyJSONObject(((AbstractBase)element).getCustomProperties(), true);
 							ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, true), original);
 							((AbstractBase)element).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
+						}
+						else if (val instanceof JSONArray && ((AbstractBase)element).getProperty(key) instanceof IChildWebObject[])
+						{
+							IChildWebObject[] webObjectChildren = (IChildWebObject[])((AbstractBase)element).getProperty(key);
+							JSONArray original = new JSONArray();
+							for (IChildWebObject element2 : webObjectChildren)
+							{
+								original.put(element2.getJson());
+							}
+							ServoyJSONObject.mergeAndDeepCloneJSON((JSONArray)val, original);
+							((AbstractBase)element).setProperty(key, original);
 						}
 						else((AbstractBase)element).setProperty(key, val);
 					}

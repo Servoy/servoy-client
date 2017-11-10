@@ -198,7 +198,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return isCustomJSONObjectOrArrayOfCustomJSONObject(childPd) || isComponentOrArrayOfComponent(childPd);
 	}
 
-	protected static boolean isArrayOfCustomJSONObject(IPropertyType< ? > propertyType)
+	public static boolean isArrayOfCustomJSONObject(IPropertyType< ? > propertyType)
 	{
 		boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
 		if (arrayReturnType)
