@@ -1324,8 +1324,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					for (int i = 0; i < methodArguments.length(); i++)
 					{
 						arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, new BrowserConverterContext(serviceWebObject,
+								PushToServerEnum.allow, (argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null),
+							new ValueReference<Boolean>(false));
 					}
 
 					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);

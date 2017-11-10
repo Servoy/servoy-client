@@ -15,7 +15,9 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -27,12 +29,12 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -118,10 +120,38 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 			BaseWebObject wo = dataConverterContext.getWebObject();
 			if (wo != null)
 			{
-				Object formatSabloValue = wo.getProperty(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName());
-				if (formatSabloValue instanceof FormatTypeSabloValue)
+				PropertyDescription pd = dataConverterContext.getPropertyDescription();
+				String convertingPropertyName = pd != null ? pd.getName() : null;
+
+				Collection<PropertyDescription> formatProperties = wo.getProperties(TypesRegistry.getType(FormatPropertyType.TYPE_NAME));
+				Iterator<PropertyDescription> formatPropertyDescriptionIte = formatProperties.iterator();
+				while (formatPropertyDescriptionIte.hasNext())
 				{
-					hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
+					PropertyDescription formatProperty = formatPropertyDescriptionIte.next();
+					boolean formatPropertyFound = true;
+					Object formatConfig = formatProperty.getConfig();
+					if (formatConfig instanceof String[])
+					{
+						// format is targeted
+						formatPropertyFound = false;
+						for (String forFormat : (String[])formatConfig)
+						{
+							if (forFormat.equals(convertingPropertyName))
+							{
+								formatPropertyFound = true;
+								break;
+							}
+						}
+					}
+
+					if (formatPropertyFound)
+					{
+						Object formatSabloValue = wo.getProperty(formatProperty.getName());
+						if (formatSabloValue instanceof FormatTypeSabloValue)
+						{
+							hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
+						}
+					}
 				}
 			}
 		}

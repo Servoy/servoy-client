@@ -121,7 +121,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		{
 			clientConversionInfo.pushNode(propertyName);
 			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo,
-				new BrowserConverterContext(component, t.getPushToServer()));
+				new BrowserConverterContext(component, t.getPushToServer(), t));
 			clientConversionInfo.popNode();
 		}
 	}
