@@ -123,7 +123,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			ArrayList<Object> javaArguments = new ArrayList<Object>();
 			Object argObj = null;
-			BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow);
+			BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow, null);
 			for (int i = 0; i < appendingArgs.length(); i++)
 			{
 				try
