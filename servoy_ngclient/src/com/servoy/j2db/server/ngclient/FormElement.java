@@ -398,7 +398,8 @@ public final class FormElement implements INGFormElement
 				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
 			if (spec.getProperty("anchors") == null)
 				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
-
+			if (spec.getProperty("formIndex") == null)
+				spec.putProperty("formIndex", new PropertyDescription("formIndex", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 			// TODO the following is a workaround that allows not clearing the form element cache when reloading any ng package (so only when reloaded spec was actually altered here before and it might need to be re-altered again)
 			WebComponentSpecProvider.getSpecReloadSubject().addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
 		}

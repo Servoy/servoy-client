@@ -454,7 +454,7 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass) && persist.getParent() instanceof LayoutContainer) //$NON-NLS-1$
 		{
 			return true;
 		}
