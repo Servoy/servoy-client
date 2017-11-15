@@ -121,7 +121,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
 		}
-		
+
 		if (webComponentSpec != null)
 		{
 			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
@@ -349,6 +349,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
 		}
 
+		// is this really needed? will not prototype be looked at automatically by Rhino code?
 		if (prototypeScope != null)
 		{
 			return prototypeScope.get(name, start);
