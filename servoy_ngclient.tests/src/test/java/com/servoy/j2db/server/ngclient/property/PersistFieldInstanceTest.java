@@ -205,7 +205,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
-		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow, null);
+		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
 		Assert.assertEquals("name", type.get("name"));

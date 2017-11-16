@@ -94,7 +94,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 		try
 		{
 			WebComponent component = new WebComponent("mycomponent", "testComponentName");
-			BrowserConverterContext allowingBrowserConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow, null);
+			BrowserConverterContext allowingBrowserConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
 			PropertyDescription objectTPD = component.getSpecification().getProperty("objectT");
 			PropertyDescription arrayTPD = component.getSpecification().getProperty("arrayT");
 			PropertyDescription activePD = objectTPD.getProperty("active");

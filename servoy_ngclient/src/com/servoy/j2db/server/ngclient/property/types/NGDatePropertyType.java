@@ -15,21 +15,18 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -73,7 +70,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		{
 			String sDate = (String)newValue;
 			// if no date conversion replace client time zone with server time zone
-			if (hasNoDateConversion(dataConverterContext))
+			if (hasNoDateConversion(pd))
 			{
 				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(sDate);
 				LocalDateTime clientLocalDateTime = clientDateTime.toLocalDateTime();
@@ -99,7 +96,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 
 		DateTime dt = new DateTime(value);
 		// remove time zone info from sDate if no date conversion
-		if (hasNoDateConversion(dataConverterContext))
+		if (hasNoDateConversion(pd))
 		{
 			sDate = dt.toLocalDateTime().toString();
 		}
@@ -111,49 +108,14 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		return writer.value(sDate);
 	}
 
-	private static boolean hasNoDateConversion(IBrowserConverterContext dataConverterContext)
+	private static boolean hasNoDateConversion(PropertyDescription pd)
 	{
 		boolean hasNoDateConversion = false;
+		Object pdConfig = pd.getConfig();
 
-		if (dataConverterContext != null)
+		if (pdConfig instanceof JSONObject)
 		{
-			BaseWebObject wo = dataConverterContext.getWebObject();
-			if (wo != null)
-			{
-				PropertyDescription pd = dataConverterContext.getPropertyDescription();
-				String convertingPropertyName = pd != null ? pd.getName() : null;
-
-				Collection<PropertyDescription> formatProperties = wo.getProperties(TypesRegistry.getType(FormatPropertyType.TYPE_NAME));
-				Iterator<PropertyDescription> formatPropertyDescriptionIte = formatProperties.iterator();
-				while (formatPropertyDescriptionIte.hasNext())
-				{
-					PropertyDescription formatProperty = formatPropertyDescriptionIte.next();
-					boolean formatPropertyFound = true;
-					Object formatConfig = formatProperty.getConfig();
-					if (formatConfig instanceof String[])
-					{
-						// format is targeted
-						formatPropertyFound = false;
-						for (String forFormat : (String[])formatConfig)
-						{
-							if (forFormat.equals(convertingPropertyName))
-							{
-								formatPropertyFound = true;
-								break;
-							}
-						}
-					}
-
-					if (formatPropertyFound)
-					{
-						Object formatSabloValue = wo.getProperty(formatProperty.getName());
-						if (formatSabloValue instanceof FormatTypeSabloValue)
-						{
-							hasNoDateConversion = ((FormatTypeSabloValue)formatSabloValue).getComponentFormat().parsedFormat.useLocalDateTime();
-						}
-					}
-				}
-			}
+			hasNoDateConversion = ((JSONObject)pdConfig).optBoolean("useLocalDateTime");
 		}
 		return hasNoDateConversion;
 	}
