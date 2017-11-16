@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
@@ -41,6 +42,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -64,6 +66,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
@@ -284,7 +287,21 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		if (fieldFormat != null)
 		{
-			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml());
+			if (fieldFormat.uiType == IColumnTypes.DATETIME)
+			{
+				if (typeOfDP == null || typeOfDP.getType() != TypesRegistry.getType(DatePropertyType.TYPE_NAME) ||
+					!(typeOfDP.getConfig() instanceof JSONObject) || !((JSONObject)typeOfDP.getConfig()).has("useLocalDateTime") ||
+					fieldFormat.parsedFormat.useLocalDateTime() != ((JSONObject)typeOfDP.getConfig()).optBoolean("useLocalDateTime"))
+				{
+					JSONObject config = new JSONObject();
+					config.put("useLocalDateTime", fieldFormat.parsedFormat.useLocalDateTime());
+					typeOfDP = new PropertyDescription("Dataprovider (date)", TypesRegistry.getType(DatePropertyType.TYPE_NAME), config);
+				}
+			}
+			else
+			{
+				typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml());
+			}
 		}
 		else
 		{

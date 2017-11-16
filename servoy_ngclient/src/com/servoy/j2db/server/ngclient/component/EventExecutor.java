@@ -187,8 +187,8 @@ public class EventExecutor
 
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
 						newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
-							new BrowserConverterContext(component, PushToServerEnum.allow, parameterPropertyDescription),
-							returnValueAdjustedIncommingValueForIndex), parameterPropertyDescription, component, scope);
+							new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
+							parameterPropertyDescription, component, scope);
 					}
 					//TODO? if in propertyDesc.getAsPropertyDescription().getConfig() we have  "type":"${dataproviderType}" and parameterPropertyDescription.getType() is Object
 					//then get the type from the dataprovider and try to convert the json to that type instead of simply object
