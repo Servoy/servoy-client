@@ -355,11 +355,11 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		}
 		else
 		{
-			ArrayList<String> al = new ArrayList<String>();
+			ArrayList<Number> al = new ArrayList<Number>();
 			StringTokenizer st = new StringTokenizer(value, ",");
 			while (st.hasMoreTokens())
 			{
-				al.add(st.nextToken());
+				al.add(Long.valueOf(st.nextToken()));
 			}
 			args = al.toArray();
 		}
