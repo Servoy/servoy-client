@@ -5,7 +5,7 @@
 	"icon": "servoydefault/tabpanel/tab.png",
 	"definition": "servoydefault/tabpanel/tabpanel.js",
 	"serverscript": "servoydefault/tabpanel/tabpanel_server.js",
-	"libraries": [{"name":"accordionpanel", "version":"1", "url":"servoydefault/tabpanel/accordionpanel.css", "mimetype":"text/css"}],
+	"libraries": [{"name":"tabpanelcustom", "version":"1.0.1", "url":"servoydefault/tabpanel/tabpanelcustom.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 
