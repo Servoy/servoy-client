@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
@@ -72,6 +73,8 @@ public abstract class NGUtils
 
 	public static final PropertyDescription DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
 		TypesRegistry.getType(DatePropertyType.TYPE_NAME));
+	public static final PropertyDescription LOCAL_DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
+		TypesRegistry.getType(DatePropertyType.TYPE_NAME), new JSONObject("{useLocalDateTime:true}"));
 	public static final PropertyDescription MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD = new PropertyDescription("Dataprovider (media)",
 		TypesRegistry.getType(ByteArrayResourcePropertyType.TYPE_NAME));
 	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_PARSE_HTML_CACHED_PD = new PropertyDescription("Dataprovider (media PP)",
@@ -89,7 +92,7 @@ public abstract class NGUtils
 	public static final PropertyDescription UUID_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (uuid)",
 		TypesRegistry.getType(NGUUIDPropertyType.TYPE_NAME));
 
-	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, boolean parseHTML)
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, boolean parseHTML, boolean useLocalDateTime)
 	{
 		if (table == null || dataProviderName == null) return null;
 		if (table instanceof Table)
@@ -104,11 +107,11 @@ public abstract class NGUtils
 				}
 			}
 		}
-		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName), parseHTML);
+		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName), parseHTML, useLocalDateTime);
 	}
 
 	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, FlattenedSolution flattenedSolution, Form form, ITable table,
-		boolean parseHTMLIfString)
+		boolean parseHTMLIfString, boolean useLocalDateTime)
 	{
 		FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(flattenedSolution, form, table);
 		IDataProvider dp = null;
@@ -120,17 +123,17 @@ public abstract class NGUtils
 		{
 			Debug.error(e);
 		}
-		if (dp != null) return getDataProviderPropertyDescription(dp.getDataProviderType(), parseHTMLIfString);
+		if (dp != null) return getDataProviderPropertyDescription(dp.getDataProviderType(), parseHTMLIfString, useLocalDateTime);
 		return null;
 	}
 
-	public static PropertyDescription getDataProviderPropertyDescription(int type, boolean parseHTMLIfString)
+	public static PropertyDescription getDataProviderPropertyDescription(int type, boolean parseHTMLIfString, boolean useLocalDateTime)
 	{
 		PropertyDescription typePD = null;
 		switch (type)
 		{
 			case IColumnTypes.DATETIME :
-				typePD = DATE_DATAPROVIDER_CACHED_PD;
+				typePD = useLocalDateTime ? LOCAL_DATE_DATAPROVIDER_CACHED_PD : DATE_DATAPROVIDER_CACHED_PD;
 				break;
 			case IColumnTypes.MEDIA :
 				// TODO should we detect and return MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD directly for real DB table columns?
