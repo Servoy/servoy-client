@@ -39,6 +39,7 @@ import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -155,6 +156,11 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (formElementValue != null)
 		{
+			if (formElement != null && formElement.getPersistIfAvailable() instanceof Field && "0".equals(formElementValue.toString()))
+			{
+				// legacy behavior, we cannot set null in repository, we set 0 for no value (if different than default)
+				return null;
+			}
 			ValuelistPropertyDependencies propertyDependencies = getDependenciesToOtherProperties(pd, formElement);
 			return new ValueListTypeSabloValue(formElementValue, pd, propertyDependencies,
 				propertyDependencies.dataproviderPropertyName != null && formElement.getPropertyValue(propertyDependencies.dataproviderPropertyName) != null,

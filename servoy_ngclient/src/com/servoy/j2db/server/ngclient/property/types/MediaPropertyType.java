@@ -141,6 +141,11 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		}
 		if (value instanceof Integer)
 		{
+			if (((Integer)value).intValue() == 0)
+			{
+				// 0 means no media
+				return null;
+			}
 			media = flattenedSolution.getMedia(((Integer)value).intValue());
 		}
 		else if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
