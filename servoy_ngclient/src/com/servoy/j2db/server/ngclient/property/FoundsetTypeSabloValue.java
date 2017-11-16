@@ -783,15 +783,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		if (parentDAL != null)
 		{
 			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication().getFlattenedSolution(), parentDAL.getForm().getForm(),
-				foundset.getTable(), false);
+				foundset.getTable(), false, false);
 		}
 		else
 		{
 			IDataAdapterList dl = NGComponentDALContext.getDataAdapterList(webObjectContext);
 			if (dl != null) return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication().getFlattenedSolution(), dl.getForm().getForm(),
-				foundset.getTable(), false);
+				foundset.getTable(), false, false);
 		}
-		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
+		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false, false);
 	}
 
 	public void browserUpdatesReceived(Object jsonValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
