@@ -44,7 +44,6 @@ import org.apache.wicket.util.upload.FileUploadBase.FileSizeLimitExceededExcepti
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
 import org.sablo.util.HTTPUtils;
-import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -58,7 +57,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
-import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.IMediaFieldConstants;
@@ -428,13 +426,12 @@ public class MediaResourcesServlet extends HttpServlet
 
 								final IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
 								final WebFormComponent webComponent = form.getWebComponent(elementName);
-								CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(wsSession), new Runnable()
+								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
 								{
 									@Override
 									public void run()
 									{
 										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
-										wsSession.valueChanged();
 									}
 								});
 							}
