@@ -390,8 +390,8 @@ public class MediaResourcesServlet extends HttpServlet
 					WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 				try
 				{
-					String formName = paths.length == 5 ? paths[2] : null;
-					String elementName = paths.length == 5 ? paths[3] : null;
+					final String formName = paths.length == 5 ? paths[2] : null;
+					final String elementName = paths.length == 5 ? paths[3] : null;
 					final String propertyName = paths.length == 5 ? paths[4] : null;
 					if (wsSession != null)
 					{
@@ -424,13 +424,25 @@ public class MediaResourcesServlet extends HttpServlet
 								fileData.put(IMediaFieldConstants.FILENAME, item.getName());
 								fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
 
-								final IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
-								final WebFormComponent webComponent = form.getWebComponent(elementName);
 								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
 								{
 									@Override
 									public void run()
 									{
+										IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
+										if (form == null)
+										{
+											Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
+												" but form is not found, data: " + fileData);
+											return;
+										}
+										WebFormComponent webComponent = form.getWebComponent(elementName);
+										if (webComponent == null)
+										{
+											Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
+												" but component  is not found, data: " + fileData);
+											return;
+										}
 										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
 									}
 								});
