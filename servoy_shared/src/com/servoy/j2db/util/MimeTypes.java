@@ -25,12 +25,14 @@ import java.util.StringTokenizer;
 
 /**
  * Helper class to get mimetype
- * 
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
 public class MimeTypes
 {
+	public static String CSS = "text/css";
+
 	public static String getContentType(byte[] data)
 	{
 		return getContentType(data, null);
@@ -105,8 +107,10 @@ public class MimeTypes
 		if (c1 == '<')
 		{
 			if (c2 == '!' ||
-				((c2 == 'h' && (c3 == 't' && c4 == 'm' && c5 == 'l' || c3 == 'e' && c4 == 'a' && c5 == 'd') || (c2 == 'b' && c3 == 'o' && c4 == 'd' && c5 == 'y'))) ||
-				((c2 == 'H' && (c3 == 'T' && c4 == 'M' && c5 == 'L' || c3 == 'E' && c4 == 'A' && c5 == 'D') || (c2 == 'B' && c3 == 'O' && c4 == 'D' && c5 == 'Y'))))
+				((c2 == 'h' && (c3 == 't' && c4 == 'm' && c5 == 'l' || c3 == 'e' && c4 == 'a' && c5 == 'd') ||
+					(c2 == 'b' && c3 == 'o' && c4 == 'd' && c5 == 'y'))) ||
+				((c2 == 'H' && (c3 == 'T' && c4 == 'M' && c5 == 'L' || c3 == 'E' && c4 == 'A' && c5 == 'D') ||
+					(c2 == 'B' && c3 == 'O' && c4 == 'D' && c5 == 'Y'))))
 			{
 				return "text/html";
 			}
