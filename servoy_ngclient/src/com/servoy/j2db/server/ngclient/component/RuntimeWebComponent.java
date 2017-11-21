@@ -346,7 +346,17 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 		if ("svyMarkupId".equals(name))
 		{
-			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
+			String formName = null;
+			IWebFormUI parent = component.findParent(IWebFormUI.class);
+			if (parent != null)
+			{
+				formName = parent.getController().getName();
+			}
+			else
+			{
+				formName = component.getFormElement().getForm().getName();
+			}
+			return ComponentFactory.getMarkupId(formName, component.getName());
 		}
 
 		// is this really needed? will not prototype be looked at automatically by Rhino code?
