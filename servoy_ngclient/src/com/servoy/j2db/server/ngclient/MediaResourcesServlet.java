@@ -21,7 +21,6 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -304,18 +303,7 @@ public class MediaResourcesServlet extends HttpServlet
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-
-		byte[] mediaData = media.getMediaData();
-		String mimeType = media.getMimeType();
-		if (MimeTypes.CSS.equals(mimeType))
-		{
-			String cssAsString = new String(mediaData, Charset.forName("UTF8"));
-			cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
-				Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()));
-			mediaData = cssAsString.getBytes();
-		}
-
-		return sendData(response, mediaData, mimeType, media.getName(), null);
+		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
 	}
 
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
