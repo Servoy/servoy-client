@@ -96,7 +96,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 
 		DateTime dt = new DateTime(value);
 		// remove time zone info from sDate if no date conversion
-		if (hasNoDateConversion(pd))
+		if (pd != null && hasNoDateConversion(pd))
 		{
 			sDate = dt.toLocalDateTime().toString();
 		}
