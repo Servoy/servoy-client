@@ -155,7 +155,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	protected final FoundsetPropertyTypeConfig specConfig;
 	private String lastSortString;
 
-
 	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL, FoundsetPropertyTypeConfig specConfig)
 	{
 		this.designJSONValue = designJSONValue;
