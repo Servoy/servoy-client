@@ -69,6 +69,7 @@ import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.property.ChainedRelatedFoundsetSelectionMonitor.IRelatedFoundsetChainSelectionChangeListener;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -138,6 +139,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected FoundsetPropertySelectionListener listSelectionListener;
+	protected ChainedRelatedFoundsetSelectionMonitor chainedRelatedFoundsetSelectionMonitor;
 
 	protected FoundsetTypeRowDataProvider rowDataProvider;
 
@@ -293,16 +295,30 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 		else if (!DataSourceUtils.isDatasourceUri(foundsetSelector))
 		{
-			// it is a relation then
+			// it is a relation then or a shared named foundset (set somewhere on a form in designer)
 			if (record != null)
 			{
 				Object o = record.getValue(foundsetSelector);
 				if (o instanceof IFoundSetInternal)
 				{
+					// it is a related foundset then if we were able to get it from current record
 					newFoundset = (IFoundSetInternal)o;
+					if (chainedRelatedFoundsetSelectionMonitor == null)
+					{
+						chainedRelatedFoundsetSelectionMonitor = new ChainedRelatedFoundsetSelectionMonitor(new IRelatedFoundsetChainSelectionChangeListener()
+						{
+							@Override
+							public void selectionChanged(IRecordInternal rootRecord, String nestedRelationNames)
+							{
+								updateFoundset(rootRecord);
+							}
+						});
+					}
+					chainedRelatedFoundsetSelectionMonitor.update(newFoundset, record, foundsetSelector);
 				}
 				else
 				{
+					// if it is not a related foundset it must be a shared/named foundset
 					try
 					{
 						newFoundset = (IFoundSetInternal)getFoundSetManager().getNamedFoundSet(foundsetSelector);
@@ -416,6 +432,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
 				((ISwingFoundSet)foundset).addTableModelListener(this);
 			}
+			if (chainedRelatedFoundsetSelectionMonitor != null && chainedRelatedFoundsetSelectionMonitor.getRelatedFoundset() != foundset)
+			{
+				// maybe a set of the foundset came from Rhino - in which case we no longer need to monitor selection changes in the chain of related foundsets
+				chainedRelatedFoundsetSelectionMonitor.unregisterListeners();
+				chainedRelatedFoundsetSelectionMonitor = null;
+			}
 			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 
 			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the underlying foundset itself
@@ -474,6 +496,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		{
 			((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 			((ISwingFoundSet)foundset).removeTableModelListener(this);
+		}
+		if (chainedRelatedFoundsetSelectionMonitor != null)
+		{
+			chainedRelatedFoundsetSelectionMonitor.unregisterListeners();
+			chainedRelatedFoundsetSelectionMonitor = null;
 		}
 	}
 
