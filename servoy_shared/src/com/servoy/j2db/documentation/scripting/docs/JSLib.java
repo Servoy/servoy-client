@@ -239,7 +239,7 @@ public class JSLib
 	 * application.output(isXMLName("good_name")); // prints: true
 	 * application.output(isXMLName("bad name")); // because of the space, prints: false
 	 *
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 * 
 	 * @param name
 	 * 

@@ -35,7 +35,7 @@ public class QName
 	 * application.output(Qnamevar.localName);
 	 * application.output(Qnamevar.uri);
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_getLocalName()
 	{
@@ -51,7 +51,7 @@ public class QName
 	 * 
 	 * @sampleas js_getLocalName()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_getUri()
 	{
