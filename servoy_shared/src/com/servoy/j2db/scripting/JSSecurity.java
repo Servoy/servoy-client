@@ -17,8 +17,10 @@
 package com.servoy.j2db.scripting;
 
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.scripting.api.IJSSecurity;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
@@ -34,6 +37,7 @@ import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -149,6 +153,75 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	public String js_getUserUID() throws ServoyException
 	{
 		return js_getUserUID(null);
+	}
+
+	/**
+	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
+	 * This results in adding a table filter for that table based on that column and the this value.
+	 *
+	 * This value will be auto filled in for all the columns that are marked as a tenant column.
+	 *
+	 *  When this is set to a value then all databroadcast from other clients will only be recieved by this client when other clients also have
+	 *  this tenant value set or from clients with no tenant value set. So be sure that you don't access or depend on data from tenant based tables which are outside of this tenant value.
+	 *
+	 * @param value the tenant value used for all tenant columns.
+	 */
+	@JSFunction
+	public void setTentantValue(Object value)
+	{
+		Map<String, IServer> serverProxies = application.getFlattenedSolution().getSolution().getServerProxies();
+		ClientInfo clientInfo = application.getClientInfo();
+		if (clientInfo.getTenantValue() != null)
+		{
+			// switch to a different tenant, remove all table filters for this tenant and flush all foundset
+			for (String serverName : serverProxies.keySet())
+			{
+				application.getFoundSetManager().removeTableFilterParam(serverName, "_svy_tenant_id_table_filter");
+			}
+		}
+		clientInfo.setTenantValue(value);
+		try
+		{
+			application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		if (value != null)
+		{
+			for (IServer server : serverProxies.values())
+			{
+				try
+				{
+					List<String> tableNames = server.getTableNames(true);
+					for (String tableName : tableNames)
+					{
+						ITable table = server.getTable(tableName);
+						Collection<Column> columns = table.getColumns();
+						for (Column column : columns)
+						{
+							if (column.hasFlag(IBaseColumn.TENANT_COLUMN))
+							{
+								try
+								{
+									application.getFoundSetManager().addTableFilterParam("_svy_tenant_id_table_filter", server.getName(), table,
+										column.getDataProviderID(), "=", value);
+								}
+								catch (ServoyException e)
+								{
+									Debug.error("error setting the tenant table filter on " + column.getDataProviderID() + " of table" + tableName, e);
+								}
+							}
+						}
+					}
+				}
+				catch (RepositoryException | RemoteException e)
+				{
+					Debug.error(e);
+				}
+			}
+		}
 	}
 
 	/**
@@ -956,7 +1029,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		}
 		catch (Exception e)
 		{
-			application.reportJSError("Can't remove user  " + a_userUID + " from group " + groupName + ", only admin users can create/change security stuff", e);
+			application.reportJSError("Can't remove user  " + a_userUID + " from group " + groupName + ", only admin users can create/change security stuff",
+				e);
 		}
 		return false;
 	}

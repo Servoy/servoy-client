@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -97,6 +98,14 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * @sampleas js_hasFlag(int)
 	 */
 	public static final int EXCLUDED_COLUMN = Column.EXCLUDED_COLUMN;
+
+	/**
+	 * Constant used when setting or getting the flags of columns.
+	 * This flag identifies columns that are marked as a tenant column.
+	 *
+	 * @sampleas js_hasFlag(int)
+	 */
+	public static final int TENANT_COLUMN = Column.TENANT_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the sequence type of columns.
@@ -305,6 +314,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * The flags are a bit pattern consisting of 1 or more of the following bits:
 	 *  - JSColumn.UUID_COLUMN
 	 *  - JSColumn.EXCLUDED_COLUMN
+	 *  - JSColumn.TENANT_COLUMN
 	 *
 	 * @sample
 	 * var table = databaseManager.getTable('db:/example_data/orders')
@@ -457,8 +467,8 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 */
 	public int js_getRowIdentifierType()
 	{
-		return column.hasFlag(Column.PK_COLUMN) ? PK_COLUMN //
-			: column.hasFlag(Column.USER_ROWID_COLUMN) ? ROWID_COLUMN //
+		return column.hasFlag(IBaseColumn.PK_COLUMN) ? PK_COLUMN //
+			: column.hasFlag(IBaseColumn.USER_ROWID_COLUMN) ? ROWID_COLUMN //
 				: NONE;
 	}
 
@@ -471,7 +481,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	@Deprecated
 	public boolean js_isUUID()
 	{
-		return column.hasFlag(Column.UUID_COLUMN);
+		return column.hasFlag(IBaseColumn.UUID_COLUMN);
 	}
 
 	/**

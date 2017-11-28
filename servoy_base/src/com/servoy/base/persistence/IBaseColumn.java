@@ -31,12 +31,13 @@ public interface IBaseColumn
 	static final int USER_ROWID_COLUMN = 2;
 	static final int UUID_COLUMN = 4;
 	static final int EXCLUDED_COLUMN = 8;
+	static final int TENANT_COLUMN = 16;
 
 	static final int IDENT_COLUMNS = PK_COLUMN + USER_ROWID_COLUMN;
 	static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;
 
 	static final int[] allDefinedRowIdents = new int[] { NORMAL_COLUMN, PK_COLUMN, USER_ROWID_COLUMN };
-	static final int[] allDefinedOtherFlags = new int[] { UUID_COLUMN, EXCLUDED_COLUMN };
+	static final int[] allDefinedOtherFlags = new int[] { UUID_COLUMN, EXCLUDED_COLUMN, TENANT_COLUMN };
 
 	int getDataProviderType();
 

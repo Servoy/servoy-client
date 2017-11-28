@@ -72,6 +72,7 @@ public final class ClientInfo implements Serializable
 	private int solutionReleaseNumber = -1;
 	private int openSolutionId = -1;
 	private List<String> infos = new ArrayList<String>();//to make it possible for developer to give a client a meaning full name/description in the admin page
+	private Object tenantValue;
 
 	private String solutionIntendedToBeLoaded;
 
@@ -79,10 +80,11 @@ public final class ClientInfo implements Serializable
 	 * A private lock to synchronize read/write to the long valued properties. Since this lock is PRIVATE, all deadlock related issues are local to this class.
 	 * Since the methods consist of 1 statement, the lock is always given up immediately and no deadlock on this lock can occur. The lock must be a serializable
 	 * object because ClientInfo must be serializable, and the lock must always exist (and cannot be transient).
-	 * 
+	 *
 	 * The lock is also used for Terracotta (you need to lock on stuff that changes if you want changes to be broadcasted in the cluster).
 	 */
 	private final SerializableObject lock = new SerializableObject();
+
 
 	public ClientInfo()
 	{
@@ -219,7 +221,7 @@ public final class ClientInfo implements Serializable
 
 	/**
 	 * Returns the hostName.
-	 * 
+	 *
 	 * @return String
 	 */
 	@TerracottaAutolockRead
@@ -233,7 +235,7 @@ public final class ClientInfo implements Serializable
 
 	/**
 	 * Returns the hostAddress.
-	 * 
+	 *
 	 * @return String
 	 */
 	@TerracottaAutolockRead
@@ -247,7 +249,7 @@ public final class ClientInfo implements Serializable
 
 	/**
 	 * Sets the hostName.
-	 * 
+	 *
 	 * @param hostName The hostName to set
 	 */
 	@TerracottaAutolockWrite
@@ -261,7 +263,7 @@ public final class ClientInfo implements Serializable
 
 	/**
 	 * Sets the hostAddress.
-	 * 
+	 *
 	 * @param hostAddress The hostAddress to set
 	 */
 	@TerracottaAutolockWrite
@@ -291,7 +293,7 @@ public final class ClientInfo implements Serializable
 
 	/**
 	 * Returns the userName.
-	 * 
+	 *
 	 * @return String
 	 */
 	@TerracottaAutolockRead
@@ -305,7 +307,7 @@ public final class ClientInfo implements Serializable
 
 	/**
 	 * Sets the userName.
-	 * 
+	 *
 	 * @param userName The userName to set
 	 */
 	@TerracottaAutolockWrite
@@ -331,9 +333,9 @@ public final class ClientInfo implements Serializable
 	 * hooks are being executed during solution import. In a common scenario by the time the
 	 * post-import hook is executed the server will be in maintenance mode, so normally no
 	 * client could connect. By setting this property, the server can check if the solution
-	 * that is intended to be loaded is a pre/post-import hook and still let the client 
+	 * that is intended to be loaded is a pre/post-import hook and still let the client
 	 * connect.
-	 * 
+	 *
 	 * @param solutionIntendedToBeLoaded The name of the solution to be loaded.
 	 */
 	@TerracottaAutolockWrite
@@ -533,7 +535,7 @@ public final class ClientInfo implements Serializable
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@TerracottaAutolockWrite
 	public void clearUserInfo()
@@ -546,6 +548,7 @@ public final class ClientInfo implements Serializable
 			authenticatorType = null;
 			authenticatorMethod = null;
 			jsCredentials = null;
+			tenantValue = null;
 		}
 	}
 
@@ -638,6 +641,28 @@ public final class ClientInfo implements Serializable
 		synchronized (lock)
 		{
 			return jsCredentials;
+		}
+	}
+
+	/**
+	 * @param value
+	 */
+	public void setTenantValue(Object value)
+	{
+		synchronized (lock)
+		{
+			this.tenantValue = value;
+		}
+	}
+
+	/**
+	 * @param value
+	 */
+	public Object getTenantValue()
+	{
+		synchronized (lock)
+		{
+			return this.tenantValue;
 		}
 	}
 

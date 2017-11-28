@@ -642,6 +642,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 //					}
 //					}
 				default :
+					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
+					{
+						return application.getTenantValue();
+					}
 					return null;
 			}
 		}
@@ -1195,6 +1199,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		if ((flags & PK_COLUMN) != 0) sb.append(" pk"); //$NON-NLS-1$
 		if ((flags & UUID_COLUMN) != 0) sb.append(" uuid"); //$NON-NLS-1$
 		if ((flags & EXCLUDED_COLUMN) != 0) sb.append(" excluded"); //$NON-NLS-1$
+		if ((flags & TENANT_COLUMN) != 0) sb.append(" tenant"); //$NON-NLS-1$
 		return sb.toString().trim();
 	}
 

@@ -540,6 +540,12 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		}
 	}
 
+	@Override
+	public Object getTenantValue()
+	{
+		return getClientInfo().getTenantValue();
+	}
+
 	public ILAFManager getLAFManager()
 	{
 		return null;
