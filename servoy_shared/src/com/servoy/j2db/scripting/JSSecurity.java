@@ -158,12 +158,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
 	 * This results in adding a table filter for that table based on that column and the this value.
-	 *
+	 *<p>
 	 * This value will be auto filled in for all the columns that are marked as a tenant column.
-	 *
+	 *</p>
+	 *<p>
 	 *  When this is set to a value then all databroadcast from other clients will only be recieved by this client when other clients also have
 	 *  this tenant value set or from clients with no tenant value set. So be sure that you don't access or depend on data from tenant based tables which are outside of this tenant value.
-	 *
+	 *</p>
 	 * @param value the tenant value used for all tenant columns.
 	 */
 	@JSFunction
