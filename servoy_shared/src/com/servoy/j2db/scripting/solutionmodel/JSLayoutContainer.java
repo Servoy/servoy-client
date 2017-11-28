@@ -327,9 +327,11 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	/**
 	 * Get/set container width. This is only used for Absolute Layout Container.
 	 *
+	 * @deprecated
 	 * @sample
 	 * layoutContainer.width = 300;
 	 */
+	@Deprecated
 	@JSGetter
 	public int getWidth()
 	{

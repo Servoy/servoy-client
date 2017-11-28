@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -89,6 +90,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
+		boolean isAbsoluteLayoutDiv = NGUtils.isAbsoluteLayoutDiv(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -145,6 +147,13 @@ public class FormLayoutStructureGenerator
 			writer.print("' ");
 		}
 		writer.print(" svy-autosave ");
+		if (isAbsoluteLayoutDiv)
+		{
+			// we need to specify the height
+			writer.print(" style='height:");
+			writer.print(container.getSize().height);
+			writer.print("px' ");
+		}
 		Map<String, String> attributes = new HashMap<String, String>(container.getMergedAttributes());
 		if (spec != null)
 		{
@@ -188,7 +197,15 @@ public class FormLayoutStructureGenerator
 			else if (component instanceof IFormElement)
 			{
 				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design);
+				if (isAbsoluteLayoutDiv)
+				{
+					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, false);
+				}
 				FormLayoutGenerator.generateFormElement(writer, fe, form);
+				if (isAbsoluteLayoutDiv)
+				{
+					FormLayoutGenerator.generateEndDiv(writer);
+				}
 			}
 		}
 		writer.print("</");

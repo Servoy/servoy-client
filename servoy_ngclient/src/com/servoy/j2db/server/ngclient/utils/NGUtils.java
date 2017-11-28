@@ -28,6 +28,7 @@ import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
+import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -58,6 +59,7 @@ import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyT
 import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Utility methods for NGClient.
@@ -219,5 +221,10 @@ public abstract class NGUtils
 				component.setProperty(pd.getName(), ((II18NPropertyType)pd.getType()).resetI18nValue(component.getProperty(pd.getName()), pd, component));
 			}
 		}
+	}
+
+	public static boolean isAbsoluteLayoutDiv(WebLayoutSpecification spec)
+	{
+		return spec != null && Utils.equalObjects(spec.getPackageName(), "12grid") && Utils.equalObjects(spec.getName(), "absolutelayoutdiv");
 	}
 }

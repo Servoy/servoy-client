@@ -31,7 +31,10 @@ import javax.swing.border.Border;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -44,6 +47,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -55,6 +59,7 @@ import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -270,6 +275,10 @@ public class FormWrapper
 			FormElementHelper.INSTANCE.hasExtraParts(form));
 		HashMap<String, Boolean> absolute = new HashMap<>(formComponentsLayout);
 		absolute.put("", !form.isResponsiveLayout());
+		for (FormElement fe : getAbsoluteLayoutElements())
+		{
+			absolute.put(fe.getName(), Boolean.TRUE);
+		}
 		properties.put("absoluteLayout", absolute);
 		if (design && !form.isResponsiveLayout())
 		{
@@ -335,7 +344,43 @@ public class FormWrapper
 
 	public String getContainerSizesString() throws JSONException, IllegalArgumentException
 	{
-		getBaseComponents();
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), formComponentParentSizes, null, null).endObject().toString();
+		Map<String, Dimension> sizes = new HashMap<String, Dimension>();
+		sizes.putAll(formComponentParentSizes);
+		for (FormElement fe : getAbsoluteLayoutElements())
+		{
+			sizes.put(fe.getName(), ((LayoutContainer)fe.getPersistIfAvailable().getParent()).getSize());
+
+		}
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), sizes, null, null).endObject().toString();
+
+	}
+
+	public List<FormElement> getAbsoluteLayoutElements()
+	{
+		List<FormElement> elements = new ArrayList<FormElement>();
+		Collection<IFormElement> components = getBaseComponents();
+		if (components != null)
+		{
+			for (IFormElement component : components)
+			{
+				if (component.getParent() instanceof LayoutContainer)
+				{
+					LayoutContainer container = (LayoutContainer)component.getParent();
+					WebComponentSpecProvider.getInstance();
+					PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+						container.getPackageName());
+					if (pkg != null)
+					{
+						WebLayoutSpecification spec = pkg.getSpecification(container.getSpecName());
+						if (NGUtils.isAbsoluteLayoutDiv(spec))
+						{
+							elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
+						}
+					}
+
+				}
+			}
+		}
+		return elements;
 	}
 }
