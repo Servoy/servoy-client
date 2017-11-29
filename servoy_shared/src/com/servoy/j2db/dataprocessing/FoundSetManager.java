@@ -88,6 +88,7 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -1439,6 +1440,38 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
+	}
+
+	@Override
+	public IFoundSetInternal findFoundset(UUID uuid)
+	{
+		if (uuid == null) return null;
+		for (FoundSet foundset : sharedDataSourceFoundSet.values())
+		{
+			if (Utils.equalObjects(uuid, foundset.getUUID())) return foundset;
+		}
+		for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
+		{
+			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
+			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
+			{
+				SoftReference<RelatedFoundSet> sr = entry.getValue();
+				RelatedFoundSet element = sr.get();
+				if (element != null && Utils.equalObjects(uuid, element.getUUID()))
+				{
+					return element;
+				}
+			}
+		}
+		for (FoundSet foundset : separateFoundSets.values())
+		{
+			if (Utils.equalObjects(uuid, foundset.getUUID())) return foundset;
+		}
+		for (FoundSet foundset : foundSets)
+		{
+			if (Utils.equalObjects(uuid, foundset.getUUID())) return foundset;
+		}
+		return null;
 	}
 
 	@Override

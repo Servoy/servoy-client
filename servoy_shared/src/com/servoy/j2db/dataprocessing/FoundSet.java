@@ -225,6 +225,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private int multiSelectPinnedTo = -1;
 	private int multiSelectPinLevel;
 
+	private final UUID foundsetUUID;
+
 	public PrototypeState getPrototypeState()
 	{
 		if (proto == null)
@@ -270,6 +272,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
+		foundsetUUID = UUID.randomUUID();
 	}
 
 	public String getRelationName()
@@ -280,6 +283,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public SQLSheet getSQLSheet()
 	{
 		return sheet;
+	}
+
+	@Override
+	public UUID getUUID()
+	{
+		return foundsetUUID;
 	}
 
 	/**
@@ -1927,11 +1936,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// if the query cannot be parsed according to the old methods, we just use the entire sql as
 			// subquery. NOTE: this means that the ordering defined in the order-by part is lost.
 			if (((from_index = sql_lowercase.indexOf("from")) == -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
-			|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(Utils.toEnglishLocaleLowerCase(sheet.getTable().getSQLName())) == -1) || (sql_lowercase.indexOf("group by") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("having") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("union") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf("join") != -1) //$NON-NLS-1$
+				|| (sql_lowercase.indexOf(".") == -1)) //$NON-NLS-1$
 			{
 				analyse_query_parts = false;
 			}

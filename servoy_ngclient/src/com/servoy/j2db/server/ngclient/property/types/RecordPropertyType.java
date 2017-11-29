@@ -30,12 +30,16 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -73,6 +77,23 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 			{
 				String rowIDValue = jsonRecord.optString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
+				if (jsonRecord.has(FoundsetTypeSabloValue.FOUNDSET_ID))
+				{
+					UUID foundsetUUID = Utils.getAsUUID(jsonRecord.get(FoundsetTypeSabloValue.FOUNDSET_ID), false);
+					if (webObject instanceof IContextProvider)
+					{
+						IFoundSetInternal foundset = ((IContextProvider)webObject).getDataConverterContext().getApplication().getFoundSetManager().findFoundset(
+							foundsetUUID);
+						if (foundset != null)
+						{
+							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+							if (recordIndex != -1)
+							{
+								return (Record)foundset.getRecord(recordIndex);
+							}
+						}
+					}
+				}
 				Collection<PropertyDescription> properties = webObject.getSpecification().getProperties(FoundsetPropertyType.INSTANCE);
 				for (PropertyDescription foundsetPd : properties)
 				{

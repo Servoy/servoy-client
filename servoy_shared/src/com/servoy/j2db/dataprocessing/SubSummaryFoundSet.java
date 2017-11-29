@@ -33,6 +33,7 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 
 /**
  * This class is used by printing to handle subsum results and convert those to states, which can be rendered to the screen or paper
@@ -625,5 +626,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	public int[] getSelectedIndexes()
 	{
 		return new int[0];
+	}
+
+	@Override
+	public UUID getUUID()
+	{
+		return null;
 	}
 }
