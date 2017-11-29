@@ -30,7 +30,6 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Internal interface to extend the foundset manager
@@ -162,6 +161,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public IFoundSet getNamedFoundSet(String name) throws ServoyException;
 
-	public IFoundSetInternal findFoundset(UUID uuid);
+	public IFoundSetInternal findFoundset(int id);
+
+	public int getNextFoundSetID();
 
 }

@@ -521,7 +521,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 
 		destinationJSON.key(SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
-		if (getFoundset() != null) destinationJSON.key(FOUNDSET_ID).value(getFoundset().getUUID());
+		if (getFoundset() != null) destinationJSON.key(FOUNDSET_ID).value(getFoundset().getID());
 		destinationJSON.key(SORT).value(getSortStringAsNames());
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);

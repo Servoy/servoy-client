@@ -23,7 +23,6 @@ import java.util.List;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 
 /**
  * The foundset interface
@@ -85,6 +84,6 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public int getRecordIndex(String pkHash, int hintStart);
 
-	public UUID getUUID();
+	public int getID();
 
 }

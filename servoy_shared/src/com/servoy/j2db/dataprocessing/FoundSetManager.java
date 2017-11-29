@@ -88,7 +88,6 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -135,6 +134,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	// tracking info used for logging
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
+	private int foundsetCounter = 1;
 
 	public FoundSetManager(IApplication app, IFoundSetFactory factory)
 	{
@@ -1443,12 +1443,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
-	public IFoundSetInternal findFoundset(UUID uuid)
+	public IFoundSetInternal findFoundset(int id)
 	{
-		if (uuid == null) return null;
 		for (FoundSet foundset : sharedDataSourceFoundSet.values())
 		{
-			if (Utils.equalObjects(uuid, foundset.getUUID())) return foundset;
+			if (id == foundset.getID()) return foundset;
 		}
 		for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
 		{
@@ -1457,7 +1456,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				SoftReference<RelatedFoundSet> sr = entry.getValue();
 				RelatedFoundSet element = sr.get();
-				if (element != null && Utils.equalObjects(uuid, element.getUUID()))
+				if (element != null && id == element.getID())
 				{
 					return element;
 				}
@@ -1465,13 +1464,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		for (FoundSet foundset : separateFoundSets.values())
 		{
-			if (Utils.equalObjects(uuid, foundset.getUUID())) return foundset;
+			if (id == foundset.getID()) return foundset;
 		}
 		for (FoundSet foundset : foundSets)
 		{
-			if (Utils.equalObjects(uuid, foundset.getUUID())) return foundset;
+			if (id == foundset.getID()) return foundset;
 		}
 		return null;
+	}
+
+	@Override
+	public int getNextFoundSetID()
+	{
+		return foundsetCounter++;
 	}
 
 	@Override

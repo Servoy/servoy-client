@@ -38,7 +38,6 @@ import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -79,11 +78,11 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
 				if (jsonRecord.has(FoundsetTypeSabloValue.FOUNDSET_ID))
 				{
-					UUID foundsetUUID = Utils.getAsUUID(jsonRecord.get(FoundsetTypeSabloValue.FOUNDSET_ID), false);
-					if (webObject instanceof IContextProvider)
+					int foundsetID = Utils.getAsInteger(jsonRecord.get(FoundsetTypeSabloValue.FOUNDSET_ID));
+					if (foundsetID >= 0 && webObject instanceof IContextProvider)
 					{
 						IFoundSetInternal foundset = ((IContextProvider)webObject).getDataConverterContext().getApplication().getFoundSetManager().findFoundset(
-							foundsetUUID);
+							foundsetID);
 						if (foundset != null)
 						{
 							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
