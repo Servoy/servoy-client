@@ -145,6 +145,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 
+	public boolean hasTableFiltersWithJoins(String serverName, IQueryElement sql);
+
 	public Object[][] getTableFilterParams(String serverName, String filterName);
 
 	public boolean removeTableFilterParam(String serverName, String filterName);

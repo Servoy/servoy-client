@@ -42,7 +42,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FlattenedSolution;
@@ -61,7 +60,6 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -71,6 +69,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
+import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
@@ -350,23 +349,26 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return affectedTables;
 	}
 
-	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, String columnName)
+	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, TableFilterCondition tableFilterCondition
+//	RAGTEST	, String columnName
+	)
 	{
-		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, columnName, false);
-
-		// also add tables that have listeners but no foundsets
-		Iterator<ITable> tableListeneresIte = tableListeners.keySet().iterator();
-		ITable tableKey;
-		while (tableListeneresIte.hasNext())
-		{
-			tableKey = tableListeneresIte.next();
-			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, columnName))
-			{
-				affectedtableList.add(tableKey);
-			}
-		}
-
-		return affectedtableList;
+		return new ArrayList<>();
+//		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, columnName, false);
+//
+//		// also add tables that have listeners but no foundsets
+//		Iterator<ITable> tableListeneresIte = tableListeners.keySet().iterator();
+//		ITable tableKey;
+//		while (tableListeneresIte.hasNext())
+//		{
+//			tableKey = tableListeneresIte.next();
+//			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, columnName))
+//			{
+//				affectedtableList.add(tableKey);
+//			}
+//		}
+//
+//		return affectedtableList;
 	}
 
 	/*
@@ -1127,18 +1129,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		giveMeFoundSet(l);
 	}
 
-	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, String operator, Object value)
-		throws ServoyException
+	public TableFilter createTableFilter(String name, String serverName, ITable table, TableFilterCondition tableFilterCondition) throws ServoyException
 	{
-		if (dataprovider == null || operator == null) return null;
+//	RAGTEST	if (dataprovider == null || operator == null) return null;
+//
+//		int op = RelationItem.getValidOperator(operator.trim(), IBaseSQLCondition.ALL_DEFINED_OPERATORS, IBaseSQLCondition.ALL_MODIFIERS);
+//		if (op == -1)
+//		{
+//			return null;
+//		}
 
-		int op = RelationItem.getValidOperator(operator.trim(), IBaseSQLCondition.ALL_DEFINED_OPERATORS, IBaseSQLCondition.ALL_MODIFIERS);
-		if (op == -1)
-		{
-			return null;
-		}
-
-		return createTableFilter(name, serverName, table, dataprovider.trim(), op, value);
+		return new TableFilter(serverName, serverName, table.getName(), table.getSQLName(), tableFilterCondition);
 	}
 
 	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object val) throws ServoyException
@@ -1206,14 +1207,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return value;
 	}
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, String dataprovider, String operator, Object value)
-		throws ServoyException
+	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterCondition tableFilterCondition) throws ServoyException
 	{
-		TableFilter filter = createTableFilter(filterName, serverName, table, dataprovider, operator, value);
+		TableFilter filter = createTableFilter(filterName, serverName, table, tableFilterCondition);
 		if (filter == null)
 		{
 			application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
-				"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'", null);
+				"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '"
+//		RAGTEST 	+	dataprovider + "', operator = '" + operator + "'"
+				, null);
 			return false;
 		}
 
@@ -1227,7 +1229,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			params.add(filter);
 
-			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), filter.getDataprovider()))
+			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), filter.getTableFilterCondition()))
 			{
 				fireTableEvent(affectedtable);
 			}
@@ -1271,13 +1273,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					dataSource = DataSourceUtils.createDBTableDataSource(filter.getServerName(), filter.getTableName());
 				}
 
-				for (ITable affectedtable : getFilterUpdateAffectedTables(dataSource, filter.getDataprovider()))
-				{
-					if (firedTables.add(affectedtable))
-					{
-						fireTableEvent(affectedtable);
-					}
-				}
+//		RAGTEST		for (ITable affectedtable : getFilterUpdateAffectedTables(dataSource, filter.getDataprovider()))
+//				{
+//					if (firedTables.add(affectedtable))
+//					{
+//						fireTableEvent(affectedtable);
+//					}
+//				}
 			}
 		}
 
@@ -1296,8 +1298,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				TableFilter f = iterator.next();
 				if (filterName == null || filterName.equals(f.getName()))
 				{
-					result.add(
-						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
+//	RAGTEST				result.add(
+//						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
 				}
 			}
 		}
@@ -1335,8 +1337,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					for (TableFilter filter : serverFilters)
 					{
 						TableFilter useFilter = null;
-						if (filter.getTableName() == null)
+						TableFilterCondition tableFilterCondition = filter.getTableFilterCondition();
+						if (filter.getTableName() == null && tableFilterCondition instanceof DataproviderTableFilterCondition)
 						{
+							DataproviderTableFilterCondition dataproviderTableFilterCondition = (DataproviderTableFilterCondition)tableFilterCondition;
 							// filter is on all tables with specified dataProvider as column
 							try
 							{
@@ -1348,14 +1352,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 										// should never happen
 										throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
 									}
-									Column column = table.getColumn(filter.getDataprovider());
+									Column column = table.getColumn(dataproviderTableFilterCondition.getDataprovider());
 									if (column != null)
 									{
 										// Use filter with table name filled in.
 										// When table was null value was not yet converted, convert now.
-										Object value = convertFilterValue(table, column, filter.getValue());
+										Object value = convertFilterValue(table, column, dataproviderTableFilterCondition.getValue());
 										useFilter = new TableFilter(filter.getName(), filter.getServerName(), table.getName(), table.getSQLName(),
-											filter.getDataprovider(), filter.getOperator(), value);
+											dataproviderTableFilterCondition.getDataprovider(), dataproviderTableFilterCondition.getOperator(), value);
 									}
 								}
 							}
@@ -1385,6 +1389,56 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		});
 
 		return filters[0];
+	}
+
+	/**
+	 * RAGTEST doc
+	 *
+	 * @param serverName
+	 * @param sql
+	 * @return
+	 */
+	public boolean hasTableFiltersWithJoins(String serverName, IQueryElement sql)
+	{
+		final List<TableFilter> serverFilters = tableFilterParams.get(serverName);
+		if (serverFilters == null)
+		{
+			return false;
+		}
+
+		// get the sql table names in the query
+		// find the filters for the tables found in the query
+		final AtomicBoolean hasTableFiltersWithJoins = new AtomicBoolean(false);
+		sql.acceptVisitor(new IVisitor()
+		{
+			private final Set<String> tableSqlNames = new HashSet<String>();
+
+			public Object visit(Object o)
+			{
+				if (o instanceof QueryTable && tableSqlNames.add(((QueryTable)o).getName()))
+				{
+					QueryTable qTable = (QueryTable)o;
+					for (TableFilter filter : serverFilters)
+					{
+						if (filter.getTableSQLName().equals(qTable.getName()))
+						{
+							if (filter.getTableFilterCondition() instanceof QueryTableFilterCondition)
+							{
+								ArrayList<ISQLJoin> joins = ((QueryTableFilterCondition)filter.getTableFilterCondition()).getQuerySelect().getJoins();
+								if (joins != null && !joins.isEmpty())
+								{
+									hasTableFiltersWithJoins.set(true);
+									return new VistorResult(o, false);
+								}
+							}
+						}
+					}
+				}
+				return o;
+			}
+		});
+
+		return hasTableFiltersWithJoins.get();
 	}
 
 	/**

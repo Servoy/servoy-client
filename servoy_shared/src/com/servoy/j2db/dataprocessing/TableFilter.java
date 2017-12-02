@@ -18,7 +18,6 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -26,21 +25,18 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 
 /**
  * Container class for table filters.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class TableFilter implements Serializable, IWriteReplace
 {
 
 	private final String name;
-	private final String serverName;
+	private final String serverName; // RAGTEST datasource
 	private final String tableName;
 	private final String tableSQLName;
-	private final String dataprovider;
-	private final int operator;
-	private final Object value;
-
+	private final TableFilterCondition tableFilterCondition;
 
 	/**
 	 * @param serverName
@@ -53,14 +49,17 @@ public class TableFilter implements Serializable, IWriteReplace
 	 */
 	public TableFilter(String name, String serverName, String tableName, String tableSQLName, String dataprovider, int operator, Object value)
 	{
-		super();
+		// RAGTEST nog aangeroepen?
+		this(name, serverName, tableName, tableSQLName, new DataproviderTableFilterCondition(dataprovider, operator, value));
+	}
+
+	public TableFilter(String name, String serverName, String tableName, String tableSQLName, TableFilterCondition tableFilterCondition)
+	{
+		this.name = name;
 		this.serverName = serverName;
 		this.tableName = tableName;
 		this.tableSQLName = tableSQLName;
-		this.dataprovider = dataprovider;
-		this.operator = operator;
-		this.value = value;
-		this.name = name;
+		this.tableFilterCondition = tableFilterCondition;
 	}
 
 	public String getServerName()
@@ -78,24 +77,17 @@ public class TableFilter implements Serializable, IWriteReplace
 		return this.tableSQLName;
 	}
 
-	public String getDataprovider()
-	{
-		return this.dataprovider;
-	}
-
-	public int getOperator()
-	{
-		return this.operator;
-	}
-
-	public Object getValue()
-	{
-		return this.value;
-	}
-
 	public String getName()
 	{
 		return this.name;
+	}
+
+	/**
+	 * @return the tableFilterCondition
+	 */
+	public TableFilterCondition getTableFilterCondition()
+	{
+		return tableFilterCondition;
 	}
 
 	public boolean isContainedIn(Iterable<TableFilter> filters)
@@ -105,14 +97,14 @@ public class TableFilter implements Serializable, IWriteReplace
 			for (TableFilter tf : filters)
 			{
 				// do not use filters.contains(this) here, equality on the value (possible an array) would be incorrect
-				if (tf != null &&
-				/**/Utils.stringSafeEquals(tf.getName(), getName()) && //
+				if (tf != null && /**/Utils.stringSafeEquals(tf.getName(), getName()) && //
 					Utils.stringSafeEquals(tf.getServerName(), getServerName()) && //
 					Utils.stringSafeEquals(tf.getTableName(), getTableName()) && //
-					Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName()) && //
-					Utils.stringSafeEquals(tf.getDataprovider(), getDataprovider()) && //
-					tf.getOperator() == getOperator() && //
-					Utils.equalObjects(tf.getValue(), getValue()) //
+					Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName())
+//&& //
+//			RAGTEST		Utils.stringSafeEquals(tf.getDataprovider(), getDataprovider()) && //
+//					tf.getOperator() == getOperator() && //
+//					Utils.equalObjects(tf.getValue(), getValue()) //
 				)
 				{
 					return true;
@@ -129,13 +121,11 @@ public class TableFilter implements Serializable, IWriteReplace
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dataprovider == null) ? 0 : dataprovider.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + operator;
 		result = prime * result + ((serverName == null) ? 0 : serverName.hashCode());
+		result = prime * result + ((tableFilterCondition == null) ? 0 : tableFilterCondition.hashCode());
 		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
 		result = prime * result + ((tableSQLName == null) ? 0 : tableSQLName.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -145,23 +135,22 @@ public class TableFilter implements Serializable, IWriteReplace
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final TableFilter other = (TableFilter)obj;
-		if (dataprovider == null)
-		{
-			if (other.dataprovider != null) return false;
-		}
-		else if (!dataprovider.equals(other.dataprovider)) return false;
+		TableFilter other = (TableFilter)obj;
 		if (name == null)
 		{
 			if (other.name != null) return false;
 		}
 		else if (!name.equals(other.name)) return false;
-		if (operator != other.operator) return false;
 		if (serverName == null)
 		{
 			if (other.serverName != null) return false;
 		}
 		else if (!serverName.equals(other.serverName)) return false;
+		if (tableFilterCondition == null)
+		{
+			if (other.tableFilterCondition != null) return false;
+		}
+		else if (!tableFilterCondition.equals(other.tableFilterCondition)) return false;
 		if (tableName == null)
 		{
 			if (other.tableName != null) return false;
@@ -172,24 +161,20 @@ public class TableFilter implements Serializable, IWriteReplace
 			if (other.tableSQLName != null) return false;
 		}
 		else if (!tableSQLName.equals(other.tableSQLName)) return false;
-		if (value == null)
-		{
-			if (other.value != null) return false;
-		}
-		else if (!value.equals(other.value)) return false;
 		return true;
 	}
+
 
 	@Override
 	public String toString()
 	{
 		return new StringBuilder("TableFilter{" + (name == null ? "<anonymous>" : name) + "}(")//
-		.append(serverName).append(',')//
-		.append(tableName == null ? "<ALL>" : tableName).append(") [")//
-		.append(dataprovider)//
-		.append(RelationItem.getOperatorAsString(operator).toUpperCase())//
-		.append(value).append(']')//
-		.toString();
+			.append(serverName).append(',')//
+			.append(tableName == null ? "<ALL>" : tableName).append(") [")//
+			//	RAGTEST		.append(dataprovider)//
+			//			.append(RelationItem.getOperatorAsString(operator).toUpperCase())//
+			//			.append(value).append(']')//
+			.toString();
 	}
 
 	///////// serialization ////////////////
@@ -198,7 +183,7 @@ public class TableFilter implements Serializable, IWriteReplace
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, serverName, tableName, tableSQLName, dataprovider, Integer.valueOf(operator), value });
+			new Object[] { name, serverName, tableName, tableSQLName, tableFilterCondition });
 	}
 
 	public TableFilter(ReplacedObject s)
@@ -209,9 +194,7 @@ public class TableFilter implements Serializable, IWriteReplace
 		serverName = (String)members[i++];
 		tableName = (String)members[i++];
 		tableSQLName = (String)members[i++];
-		dataprovider = (String)members[i++];
-		operator = ((Integer)members[i++]).intValue();
-		value = members[i++];
+		tableFilterCondition = (TableFilterCondition)members[i++];
 	}
 
 }

@@ -68,7 +68,6 @@ import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -591,7 +590,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					setSelectedIndex(0);
 				}
 			}
-			else setSelectedIndex(selectedIndex);
+			else
+			{
+				setSelectedIndex(selectedIndex);
+			}
 		}
 	}
 
@@ -762,8 +764,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				TableFilter f = iterator.next();
 				if (filterName == null || filterName.equals(f.getName()))
 				{
-					result.add(
-						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
+//		RAGTEST			result.add(
+//						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
 				}
 			}
 		}
@@ -6569,7 +6571,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		TableFilter filter = fsm.createTableFilter(filterName, sheet.getServerName(), sheet.getTable(), dataprovider, operator, value);
+		TableFilter filter = null;//RAGTEST fsm.createTableFilter(filterName, sheet.getServerName(), sheet.getTable(), dataprovider, operator, value);
 		if (filter == null)
 		{
 			return false;
@@ -6582,7 +6584,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		// create condition to check filter
-		ISQLCondition cond = SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), filter);
+		ISQLCondition cond = null;//RAGTESTSQLGenerator.createTableFilterRagtest(creationSqlSelect.getTable(), sheet.getTable(), filter);
 		if (cond == null)
 		{
 			return false;
@@ -6646,7 +6648,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			for (TableFilter tf : filters)
 			{
-				select.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterCondition(select.getTable(), sheet.getTable(), tf));
+				//RAGTEST	select.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterRagtest(select.getTable(), sheet.getTable(), tf));
 			}
 		}
 		return select;

@@ -243,6 +243,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return addTableFilterParam5args(serverName, tableName, dataprovider, operator, value);
 	}
 
+	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
+	{
+		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+		ITable table = foundSetManager.getTable(query.getDataSource());
+
+		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table, new QueryTableFilterCondition(query.build()));
+	}
+
 
 	/**
 	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
@@ -359,7 +367,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 			// else table remains null: apply to all tables with that column
-			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataprovider, operator, value));
+			// RAGTEST validatie op oude parameters
+			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table,
+				new DataproviderTableFilterCondition(dataprovider, 0/* RAGTEST operator */, value)));
 		}
 		catch (Exception ex)
 		{

@@ -1252,14 +1252,43 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static ISQLCondition createTableFilterCondition(BaseQueryTable qTable, Table table, TableFilter filter)
+	public static FilterRagtest createTableFilterRagtest(BaseQueryTable qTable, Table table, TableFilter filter)
 	{
+		if (filter.getTableFilterCondition() == null)
+		{
+			return null;
+		}
+
 		if (!table.getSQLName().equals(qTable.getName()))
 		{
 			// not for this table
 			return null;
 		}
 
+		if (filter.getTableFilterCondition() instanceof QueryTableFilterCondition)
+		{
+			return createTableFilterRagtest(qTable, ((QueryTableFilterCondition)filter.getTableFilterCondition()).getQuerySelect());
+		}
+
+		if (filter.getTableFilterCondition() instanceof DataproviderTableFilterCondition)
+		{
+			return createTableFilterCondition(qTable, table, (DataproviderTableFilterCondition)filter.getTableFilterCondition());
+		}
+
+		throw new IllegalStateException("Unknown table filter condition type: " + filter.getTableFilterCondition().getClass().getName());
+
+	}
+
+	private static FilterRagtest createTableFilterRagtest(BaseQueryTable qTable, QuerySelect filterQuery)
+	{
+		QuerySelect filterQueryClone = AbstractBaseQuery.deepClone(filterQuery);
+		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
+
+		return new FilterRagtest(filterQueryClone.getJoins(), filterQueryClone.getWhere());
+	}
+
+	private static FilterRagtest createTableFilterCondition(BaseQueryTable qTable, Table table, DataproviderTableFilterCondition filter)
+	{
 		Column c = table.getColumn(filter.getDataprovider());
 		if (c == null)
 		{
@@ -1352,7 +1381,7 @@ public class SQLGenerator
 			filterWhere = new CompareCondition(op, qColumn, operand);
 		}
 
-		return filterWhere;
+		return new FilterRagtest(null, filterWhere);
 	}
 
 	public static boolean isSelectQuery(String value)
