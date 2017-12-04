@@ -1379,6 +1379,422 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		trustAsHtml: trustAsHtml
 	}
 
+}]).factory("clientdesign",['$window','$sabloApplication','$utils',function($window,$sabloApplication,$utils) 
+{
+	if (typeof addEvent != 'function')
+	{
+	 var addEvent = function(o, t, f, l)
+	 {
+	  var d = 'addEventListener', n = 'on' + t, rO = o, rT = t, rF = f, rL = l;
+	  if (o[d] && !l) return o[d](t, f, false);
+	  if (!o._evts) o._evts = {};
+	  if (!o._evts[t])
+	  {
+	   o._evts[t] = o[n] ? { b: o[n] } : {};
+	   o[n] = new Function('e',
+	    'var r = true, o = this, a = o._evts["' + t + '"], i; for (i in a) {' +
+	     'o._f = a[i]; r = o._f(e||window.event) != false && r; o._f = null;' +
+	     '} return r');
+	   if (t != 'unload') addEvent(window, 'unload', function() {
+	    removeEvent(rO, rT, rF, rL);
+	   },null);
+	  }
+	  if (!f._i) f._i = addEvent['_i']++;
+	  o._evts[t][f._i] = f;
+	 };
+	 addEvent['_i'] = 1;
+	 var removeEvent = function(o, t, f, l)
+	 {
+	  var d = 'removeEventListener';
+	  if (o[d] && !l) return o[d](t, f, false);
+	  if (o._evts && o._evts[t] && f._i) delete o._evts[t][f._i];
+	 };
+	}
+
+
+	function cancelEvent(e, c)
+	{
+	 e.returnValue = false;
+	 if (e.preventDefault) e.preventDefault();
+	 if (c)
+	 {
+	  e.cancelBubble = true;
+	  if (e.stopPropagation) e.stopPropagation();
+	 }
+	};
+
+	// *** DRAG/RESIZE CODE ***
+	function DragResize(myName, config)
+	{
+	 var props = {
+	  myName: myName,                  // Name of the object.
+	  enabled: true,                   // Global toggle of drag/resize.
+	  handles: ['tl', 'tm', 'tr',
+	   'ml', 'mr', 'bl', 'bm', 'br'], // Array of drag handles: top/mid/bot/right.
+	  isElement: null,                 // Function ref to test for an element.
+	  isHandle: null,                  // Function ref to test for move handle.
+	  element: null,                   // The currently selected element.
+	  handle: null,                  // Active handle reference of the element.
+	  minWidth: 10, minHeight: 10,     // Minimum pixel size of elements.
+	  minLeft: 0, maxLeft: 9999,       // Bounding box area, in pixels.
+	  minTop: 0, maxTop: 9999,
+	  zIndex: 1,                       // The highest Z-Index yet allocated.
+	  mouseX: 0, mouseY: 0,            // Current mouse position, recorded live.
+	  lastMouseX: 0, lastMouseY: 0,    // Last processed mouse positions.
+	  mOffX: 0, mOffY: 0,              // A known offset between position & mouse.
+	  elmX: 0, elmY: 0,                // Element position.
+	  elmW: 0, elmH: 0,                // Element size.
+	  allowBlur: true,                 // Whether to allow automatic blur onclick.
+	  ondragfocus: null,               // Event handler functions.
+	  ondragstart: null,
+	  ondragmove: null,
+	  ondragend: null,
+	  ondragblur: null,
+	  ondoubleclick: null,
+	  onrightclick: null
+	 };
+
+	 for (var p in props)
+	  this[p] = (typeof config[p] == 'undefined') ? props[p] : config[p];
+	};
+
+
+	DragResize.prototype.apply = function(node)
+	{
+	 // Adds object event handlers to the specified DOM node.
+
+	 var obj = this;
+	 this.node = node;
+     this.mouseDownHandler =  function(e) { obj.mouseDown(e) };
+     this.mouseMoveHandler = function(e) { obj.mouseMove(e) };
+     this.mouseUpHandler = function(e) { obj.mouseUp(e) };
+     this.doubleClickHandler = function(e) { obj.doubleClick(e) };
+     this.rightClickHandler = function(e) { obj.rightClick(e) };
+     addEvent(this.node, 'mousedown',this.mouseDownHandler,null );
+     addEvent(this.node, 'mousemove', this.mouseMoveHandler,null );
+     addEvent(this.node, 'mouseup',this.mouseUpHandler ,null );
+     addEvent(this.node, 'dblclick',this.doubleClickHandler ,null );
+     addEvent(this.node, 'contextmenu',this.rightClickHandler ,null );
+	};
+	
+	DragResize.prototype.destroy = function()
+    {
+     removeEvent(this.node, 'mousedown',this.mouseDownHandler,null );
+     removeEvent(this.node, 'mousemove', this.mouseMoveHandler,null );
+     removeEvent(this.node, 'mouseup',this.mouseUpHandler ,null );
+     removeEvent(this.node, 'dblclick',this.doubleClickHandler ,null );
+     removeEvent(this.node, 'contextmenu',this.rightClickHandler ,null );
+     this.deselect(true);
+     this.enabled = false;
+    };
+
+
+	DragResize.prototype.select = function(newElement, newHandle,e) { 
+	 // Selects an element for dragging.
+
+	 if (!document.getElementById || !this.enabled) return;
+
+	 // Activate and record our new dragging element.
+	 if (newElement && (newElement != this.element) && this.enabled)
+	 {
+		 this. element = newElement;
+	  // Elevate it and give it resize handles.
+		 this.element.style.zIndex = ++this.zIndex;
+	  // Record element attributes for mouseMove().
+	  this.elmX = parseInt(this.element.style.left);
+	  this.elmY = parseInt(this.element.style.top);
+	  this.elmW = this.element.offsetWidth;
+	  this.elmH = this.element.offsetHeight;
+	  if (this.ondragfocus) this.ondragfocus(e);
+	 }
+	};
+
+
+	DragResize.prototype.deselect = function(delHandles) { 
+	 // Immediately stops dragging an element. If 'delHandles' is true, this
+	 // remove the handles from the element and clears the element flag,
+	 // completely resetting the .
+
+	 if (!document.getElementById || !this.enabled) return;
+
+	 if (delHandles && this.element)
+	 {
+	  if (this.ondragblur) this.ondragblur();
+	  if (this.resizeHandleSet) this.resizeHandleSet(this.element, false);
+	  this.element = null;
+	 }
+
+	this. handle = null;
+	this. mOffX = 0;
+	this. mOffY = 0;
+	this.startDragging = false;
+	};
+
+
+	DragResize.prototype.mouseDown = function(e) { 
+	 // Suitable elements are selected for drag/resize on mousedown.
+	 // We also initialise the resize boxes, and drag parameters like mouse position etc.
+	 if (!document.getElementById || !this.enabled) return true;
+
+	 var elm = e.target || e.srcElement,
+	  newElement = null,
+	  newHandle = null,
+	  hRE = new RegExp(this.myName + '-([trmbl]{2})', '');
+
+	 while (elm)
+	 {
+	  // Loop up the DOM looking for matching elements. Remember one if found.
+	  if (!newHandle && (hRE.test(elm.className) || this.isHandle(elm))) newHandle = elm;
+	  if (this.isElement(elm)) { newElement = elm; break }
+	  elm = elm.parentNode;
+	  if (elm == this.node) break;
+	 }
+
+	 // If this isn't on the last dragged element, call deselect(),
+	 // which will hide its handles and clear element.
+	 if (this.element && (this.element != newElement) && this.allowBlur) this.deselect(true);
+
+	 // If we have a new matching element, call select().
+	 if (newElement && (!this.element || (newElement == this.element)))
+	 {
+	  // Stop mouse selections if we're dragging a handle.
+	  if (newHandle) cancelEvent(e,null);
+	  this.select(newElement, newHandle,e);
+	  this.handle = newHandle;
+	 }
+	};
+
+
+	DragResize.prototype.mouseMove = function(e) {
+	 // This continually offsets the dragged element by the difference between the
+	 // last recorded mouse position (mouseX/Y) and the current mouse position.
+	 if (!document.getElementById || !this.enabled) return true;
+
+	 // We always record the current mouse position.
+	 this.mouseX = e.pageX || e.clientX + document.documentElement.scrollLeft;
+	 this.mouseY = e.pageY || e.clientY + document.documentElement.scrollTop;
+	 // Record the relative mouse movement, in case we're dragging.
+	 // Add any previously stored & ignored offset to the calculations.
+	 var diffX = this.mouseX - this.lastMouseX + this.mOffX;
+	 var diffY = this.mouseY - this.lastMouseY + this.mOffY;
+	 this.mOffX = this.mOffY = 0;
+	 // Update last processed mouse positions.
+	 this.lastMouseX = this.mouseX;
+	 this.lastMouseY = this.mouseY;
+
+	 // That's all we do if we're not dragging anything.
+	 if (!this.handle) return true;
+
+	 // If included in the script, run the resize handle drag routine.
+	 // Let it create an object representing the drag offsets.
+	 var isResize = false;
+	 if (this.resizeHandleDrag && this.resizeHandleDrag(diffX, diffY))
+	 {
+	  isResize = true;
+	  this.startDragging = true;
+	 }
+	 else
+	 {
+		  if (!this.startDragging && this.handle && this.ondragstart && (diffX != 0 || diffY != 0)) {
+			  this.ondragstart(e);
+			  this.startDragging = true;
+		  }
+
+	  // If the resize drag handler isn't set or returns fase (to indicate the drag was
+	  // not on a resize handle), we must be dragging the whole element, so move that.
+	  // Bounds check left-right...
+	  var dX = diffX, dY = diffY;
+	  if (this.elmX + dX < this.minLeft) this.mOffX = (dX - (diffX = this.minLeft - this.elmX));
+	  else if (this.elmX + this.elmW + dX > this.maxLeft) this.mOffX = (dX - (diffX = this.maxLeft - this.elmX - this.elmW));
+	  // ...and up-down.
+	  if (this.elmY + dY < this.minTop) this.mOffY = (dY - (diffY = this.minTop - this.elmY));
+	  else if (this.elmY + this.elmH + dY > this.maxTop) this.mOffY = (dY - (diffY = this.maxTop - this.elmY - this.elmH));
+	  this.elmX += diffX;
+	  this.elmY += diffY;
+	 }
+
+	 // Assign new info back to the element, with minimum dimensions.
+	this.element.style.left =   this.elmX + 'px';
+	this.element.style.width =  this.elmW + 'px';
+	this.element.style.top =    this.elmY + 'px';
+	this.element.style.height = this.elmH + 'px';
+
+	 // Evil, dirty, hackish Opera select-as-you-drag fix.
+	 if (window['opera'] && document.documentElement)
+	 {
+	  var oDF = document.getElementById('op-drag-fix');
+	  if (!oDF)
+	  {
+	   oDF = document.createElement('input');
+	   oDF.id = 'op-drag-fix';
+	   oDF.style.display = 'none';
+	   document.body.appendChild(oDF);
+	  }
+	  oDF.focus();
+	 }
+
+	 if (this.ondragmove) this.ondragmove(isResize);
+
+	 // Stop a normal drag event.
+	 cancelEvent(e,null);
+	};
+
+
+	DragResize.prototype.mouseUp = function(e) { 
+	 // On mouseup, stop dragging, but don't reset handler visibility.
+	 if (!document.getElementById || !this.enabled) return;
+
+	 var hRE = new RegExp(this.myName + '-([trmbl]{2})', '');
+	 if (this.startDragging && this.handle && this.ondragend) this.ondragend(hRE.test(this.handle.className),e);
+	 this.deselect(false);
+	 
+	};
+	
+	DragResize.prototype.rightClick = function(e) {
+		if (this.onrightclick) this.onrightclick(e); 
+	}
+	
+	DragResize.prototype.doubleClick = function(e) {
+		if (this.ondoubleclick) this.ondoubleclick(e);
+	}
+
+
+
+	/* Resize Code -- can be deleted if you're not using it. */
+
+	DragResize.prototype.resizeHandleSet = function(elm, show) { 
+	 // Either creates, shows or hides the resize handles within an element.
+
+	 // If we're showing them, and no handles have been created, create 4 new ones.
+	 if (!elm._handle_tr)
+	 {
+	  for (var h = 0; h < this.handles.length; h++)
+	  {
+	   // Create 4 news divs, assign each a generic + specific class.
+	   var hDiv = document.createElement('div');
+	   hDiv.className = this.myName + ' ' +  this.myName + '-' + this.handles[h];
+	   elm['_handle_' + this.handles[h]] = elm.appendChild(hDiv);
+	  }
+	 }
+
+	 // We now have handles. Find them all and show/hide.
+	 for (var h = 0; h < this.handles.length; h++)
+	 {
+	  elm['_handle_' + this.handles[h]].style.visibility = show ? 'inherit' : 'hidden';
+	 }
+	};
+
+
+	DragResize.prototype.resizeHandleDrag = function(diffX, diffY) { 
+	 // Passed the mouse movement amounts. This function checks to see whether the
+	 // drag is from a resize handle created above; if so, it changes the stored
+	 // elm* dimensions and mOffX/Y.
+
+	 var hClass = this.handle && this.handle.className &&
+	 this.handle.className.match(new RegExp(this.myName + '-([tmblr]{2})')) ? RegExp.$1 : '';
+
+	 // If the hClass is one of the resize handles, resize one or two dimensions.
+	 // Bounds checking is the hard bit -- basically for each edge, check that the
+	 // element doesn't go under minimum size, and doesn't go beyond its boundary.
+	 var dY = diffY, dX = diffX, processed = false;
+	 if (hClass.indexOf('t') >= 0)
+	 {
+		 this.rs = 1;
+	  if (this.elmH - dY < this.minHeight) this.mOffY = (dY - (diffY = this.elmH - this.minHeight));
+	  else if (this.elmY + dY < this.minTop) this.mOffY = (dY - (diffY = this.minTop - this.elmY));
+	  this.elmY += diffY;
+	  this.elmH -= diffY;
+	  processed = true;
+	 }
+	 if (hClass.indexOf('b') >= 0)
+	 {
+		 this.rs = 1;
+	  if (this.elmH + dY < this.minHeight) this.mOffY = (dY - (diffY = this.minHeight - this.elmH));
+	  else if (this.elmY + this.elmH + dY > this.maxTop) this.mOffY = (dY - (diffY = this.maxTop - this.elmY - this.elmH));
+	  this.elmH += diffY;
+	  processed = true;
+	 }
+	 if (hClass.indexOf('l') >= 0)
+	 {
+		 this.rs = 1;
+	  if (this.elmW - dX < this.minWidth) this.mOffX = (dX - (diffX = this.elmW - this.minWidth));
+	  else if (this.elmX + dX < this.minLeft) this.mOffX = (dX - (diffX = this.minLeft - this.elmX));
+	  this.elmX += diffX;
+	  this.elmW -= diffX;
+	  processed = true;
+	 }
+	 if (hClass.indexOf('r') >= 0)
+	 {
+		 this.rs = 1;
+	  if (this.elmW + dX < this.minWidth) this.mOffX = (dX - (diffX = this.minWidth - this.elmW));
+	  else if (this.elmX + this.elmW + dX > this.maxLeft) this.mOffX = (dX - (diffX = this.maxLeft - this.elmX - this.elmW));
+	  this.elmW += diffX;
+	  processed = true;
+	 }
+
+	 return processed;
+	};
+	var currentForms = {};
+	return {
+		setFormInDesign: function(formname,names) {
+		    var dragresize = currentForms[formname];
+		    if (dragresize) return true;
+		    
+			var x = $("div[ng-controller='" + formname+ "']");
+			
+			if (!x[0]) return false;
+			
+			dragresize = new DragResize('dragresize',{});
+			currentForms[formname] = dragresize;
+			var selectElement = function(elm)
+			{
+			 var x = $(elm).attr("ng-style");
+			 if (x && x.substring(0,7) == "layout.") {
+				 var name = x.substr(7);
+				 return names.indexOf(name) != -1;
+			 }
+			 return false;
+			};
+			dragresize.isElement = selectElement;
+			dragresize.isHandle = selectElement;
+			dragresize.ondragfocus = function(e) {
+				var jsevent = $utils.createJSEvent(e,"ondrag");
+				$sabloApplication.callService("clientdesign", "onselect",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} ).then(function(result) {
+					if (!result) dragresize.deselect(true);
+					else if (dragresize.resizeHandleSet) dragresize.resizeHandleSet(dragresize.element, true);
+				});
+			};
+			dragresize.ondragend = function(isResize,e) {
+				var jsevent = $utils.createJSEvent(e,"ondrop");
+				if (isResize) $sabloApplication.callService("clientdesign", "onresize",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
+				else $sabloApplication.callService("clientdesign", "ondrop",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
+			};
+			dragresize.ondragstart = function(e) {
+				var jsevent = $utils.createJSEvent(e,"ondrag");
+				$sabloApplication.callService("clientdesign", "ondrag",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
+			};
+			dragresize.ondoubleclick = function(e) {
+				var jsevent = $utils.createJSEvent(e,"ondoubleclick");
+				$sabloApplication.callService("clientdesign", "ondoubleclick",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
+			};
+			dragresize.onrightclick = function(e) {
+				var jsevent = $utils.createJSEvent(e,"onrightclick");
+				$sabloApplication.callService("clientdesign", "onrightclick",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
+			};
+
+			dragresize.apply(x[0]);
+			return true; 
+		},
+		removeFormDesign: function(formname) {
+		    var dragresize = currentForms[formname];
+		    if (dragresize) {
+		        currentForms[formname].destroy();
+		        delete  currentForms[formname];
+		        return true;
+		    }
+		    return false;
+		}
+	}
 }])
 .run(function($window, $sabloApplication:sablo.ISabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {

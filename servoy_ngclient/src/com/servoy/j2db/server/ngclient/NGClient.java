@@ -138,6 +138,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		this.wsSession = wsSession;
 		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		getWebsocketSession().registerServerService(I18NService.NAME, new I18NService(this));
+		getWebsocketSession().registerServerService(ClientDesignService.NAME, new ClientDesignService(this));
 		getClientInfo().setApplicationType(getApplicationType());
 		applicationSetup();
 		applicationInit();
