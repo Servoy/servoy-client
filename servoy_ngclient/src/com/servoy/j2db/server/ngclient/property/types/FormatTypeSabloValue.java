@@ -340,8 +340,19 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 					}
 					else if (valuelistPersist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 					{
-						IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true, Types.OTHER,
-							null, null, true);
+						IValueList realValuelist = null;
+						ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(
+							propertyDependencies.valueListPropertyName);
+						if (valuelistSabloValue != null)
+						{
+							// take it from property, may not be the shared instance in case setvaluelistitems on component was used
+							realValuelist = valuelistSabloValue.getValueList();
+						}
+						else
+						{
+							realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true, Types.OTHER, null,
+								null, true);
+						}
 						if (realValuelist.hasRealValues())
 						{
 							// if custom vl has both real and display values, the display values are TEXT (format is for those)

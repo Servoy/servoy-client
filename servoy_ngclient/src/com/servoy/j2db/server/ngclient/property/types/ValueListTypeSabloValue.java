@@ -317,6 +317,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
+		fireUnderlyingPropertyChangeListeners();
 	}
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
