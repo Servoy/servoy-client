@@ -224,6 +224,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					{
 						return false;
 					}
+					// if this form is in designer mode then it has to go to the client to get the current size/location
+					if (((WebFormUI)parent).getController().getDesignModeCallbacks() != null) return true;
 					break;
 				}
 				parent = parent.getParent();
