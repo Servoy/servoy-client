@@ -453,18 +453,46 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 	}
 
+	private DesignModeCallbacks designMode;
+
+
 	@Override
 	public boolean getDesignMode()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return designMode != null;
+	}
+
+	@Override
+	public DesignModeCallbacks getDesignModeCallbacks()
+	{
+		return designMode;
 	}
 
 	@Override
 	public void setDesignMode(DesignModeCallbacks callback)
 	{
-		// TODO Auto-generated method stub
+		this.designMode = callback;
+		if (callback != null)
+		{
+			application.getFlattenedSolution().setInDesign(form);
+			// todo do we have to swich list/tableviews? (see SmartClient/WebClient form controller)
+			RuntimeWebComponent[] components = getWebComponentElements();
+			String[] names = new String[components.length];
+			for (int i = 0; i < names.length; i++)
+			{
+				names[i] = components[i].getComponent().getName();
+			}
 
+			getApplication().getWebsocketSession().getClientService("clientdesign").executeAsyncServiceCall("setFormInDesign",
+				new Object[] { getName(), names });
+		}
+		else
+		{
+			application.getFlattenedSolution().setInDesign(null);
+			getApplication().getWebsocketSession().getClientService("clientdesign").executeAsyncServiceCall("removeFormDesign", new Object[] { getName() });
+			recreateUI();
+
+		}
 	}
 
 	@Override

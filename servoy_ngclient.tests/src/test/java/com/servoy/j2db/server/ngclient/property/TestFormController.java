@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.BasicFormController.JSForm;
+import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSet;
@@ -560,6 +561,18 @@ public class TestFormController implements IWebFormController
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormController#getDesignModeCallbacks()
+	 */
+	@Override
+	public DesignModeCallbacks getDesignModeCallbacks()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/*
