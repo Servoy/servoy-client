@@ -348,7 +348,8 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 							// take it from property, may not be the shared instance in case setvaluelistitems on component was used
 							realValuelist = valuelistSabloValue.getValueList();
 						}
-						else
+
+						if (realValuelist == null)
 						{
 							realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true, Types.OTHER, null,
 								null, true);
