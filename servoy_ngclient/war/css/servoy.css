@@ -77,11 +77,6 @@ div.svy-label-with-focus:focus{
 	z-index: 0;
 }
 
-.svy-absolutelayoutdiv
- {
- 	position: relative;
- }
- 
 .svy-main-window-navigator-container {
 	z-index: 0;
 }
