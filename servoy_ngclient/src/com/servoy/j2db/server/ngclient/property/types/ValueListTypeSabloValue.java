@@ -579,9 +579,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			try
 			{
+				valueList.removeListDataListener(this);
 				Object realValue = dataAdapterListToUse.getValueObject(dataAdapterListToUse.getRecord(), dataproviderID);
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
 				if (changeMonitor != null) changeMonitor.valueChanged();
+				valueList.addListDataListener(this);
 			}
 			catch (ServoyException e)
 			{
