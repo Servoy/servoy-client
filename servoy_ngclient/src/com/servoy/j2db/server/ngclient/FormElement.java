@@ -471,7 +471,7 @@ public final class FormElement implements INGFormElement
 		{
 			name = "_" + name;
 		}
-		return name.replace('-', '_');
+		return name.replace('-', '_').replace('.', '_');
 	}
 
 	public String getDesignId()
