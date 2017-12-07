@@ -324,6 +324,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		// dataprovider will resolve this, do not send anything client side
 		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
 
+		valueList.removeListDataListener(this);
+
 		List<Map<String, Object>> jsonValue = null;
 
 		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
@@ -376,7 +378,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		logMaxSizeExceptionIfNecessary(valueList.getName(), vlSize);
 		jsonValue = array;
-
+		valueList.addListDataListener(this);
 		return jsonValue;
 	}
 
