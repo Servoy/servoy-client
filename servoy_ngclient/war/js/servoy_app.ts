@@ -1379,7 +1379,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		trustAsHtml: trustAsHtml
 	}
 
-}]).factory("clientdesign",['$window','$sabloApplication','$utils',function($window,$sabloApplication,$utils) 
+}]).factory("clientdesign",['$window','$sabloApplication','$utils','$timeout',function($window,$sabloApplication,$utils,$timeout) 
 {
 	if (typeof addEvent != 'function')
 	{
@@ -1793,6 +1793,18 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		        return true;
 		    }
 		    return false;
+		},
+		recreateUI: function(formname,names) {
+		    var dragresize = currentForms[formname];
+		    if (dragresize) {
+		        currentForms[formname].destroy();
+		        delete  currentForms[formname];
+		        var self = this;
+		        // recreate ui of the actual form must be waited on.
+		        $timeout(function(){
+		        	self.setFormInDesign(formname,names);
+		        });
+		    }
 		}
 	}
 }])
