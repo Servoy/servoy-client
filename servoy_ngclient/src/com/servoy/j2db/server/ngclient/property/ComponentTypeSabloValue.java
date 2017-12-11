@@ -891,7 +891,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					finally
 					{
 						if (foundsetLinkedPropOfComponentValueChangeHandler != null)
-							foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(true);
+							foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(false);
 					}
 				}
 				else if (update.has("svyStartEdit"))
