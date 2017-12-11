@@ -35,7 +35,7 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
-import org.sablo.IllegalComponentAccessException;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
@@ -773,7 +773,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							{
 								log.warn("Warning: " + pe.getMessage(), pe);
 							}
-							catch (IllegalComponentAccessException ilcae)
+							catch (IllegalChangeFromClientException ilcae)
 							{
 								log.warn("Warning: " + ilcae.getMessage());
 							}
