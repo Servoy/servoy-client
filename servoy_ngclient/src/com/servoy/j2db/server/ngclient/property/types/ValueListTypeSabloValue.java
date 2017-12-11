@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -324,6 +325,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		// dataprovider will resolve this, do not send anything client side
 		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
 
+		int initialSize = 0;
+		if (valueList instanceof AbstractListModel) initialSize = ((AbstractListModel)valueList).getListDataListeners().length;
 		valueList.removeListDataListener(this);
 
 		List<Map<String, Object>> jsonValue = null;
@@ -378,7 +381,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		logMaxSizeExceptionIfNecessary(valueList.getName(), vlSize);
 		jsonValue = array;
-		valueList.addListDataListener(this);
+		int newSize = -1;
+		if (valueList instanceof AbstractListModel) newSize = ((AbstractListModel)valueList).getListDataListeners().length;
+		if (newSize != initialSize)
+		{
+			// only add it if it was removed
+			valueList.addListDataListener(this);
+		}
 		return jsonValue;
 	}
 
@@ -449,14 +458,28 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			revertFilter();
 		}
 
-		if (!fireChangeEvent) valueList.removeListDataListener(this);
+		int initialSize = 0;
+		if (!fireChangeEvent)
+		{
+			if (valueList instanceof AbstractListModel) initialSize = ((AbstractListModel)valueList).getListDataListeners().length;
+			valueList.removeListDataListener(this);
+		}
 		try
 		{
 			valueList.fill(record);
 		}
 		finally
 		{
-			if (!fireChangeEvent) valueList.addListDataListener(this);
+			if (!fireChangeEvent)
+			{
+				int newSize = -1;
+				if (valueList instanceof AbstractListModel) newSize = ((AbstractListModel)valueList).getListDataListeners().length;
+				if (newSize != initialSize)
+				{
+					// only add it if it was removed
+					valueList.addListDataListener(this);
+				}
+			}
 		}
 		previousRecord = record;
 	}
