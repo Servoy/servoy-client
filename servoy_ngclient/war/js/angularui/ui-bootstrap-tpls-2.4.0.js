@@ -7078,12 +7078,14 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
           scope.$digest();
           target = popUpEl[0].querySelectorAll('.uib-typeahead-match')[scope.activeIdx];
           target.parentNode.scrollTop = target.offsetTop;
+          evt.stopPropagation();
           break;
         case 40: // down arrow
           scope.activeIdx = (scope.activeIdx + 1) % scope.matches.length;
           scope.$digest();
           target = popUpEl[0].querySelectorAll('.uib-typeahead-match')[scope.activeIdx];
           target.parentNode.scrollTop = target.offsetTop;
+          evt.stopPropagation();
           break;
         default:
           if (shouldSelect) {
