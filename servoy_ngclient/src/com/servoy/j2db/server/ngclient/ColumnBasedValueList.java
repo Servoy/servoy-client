@@ -252,4 +252,9 @@ public class ColumnBasedValueList implements IValueList
 	{
 		return null;
 	}
+
+	public boolean removeListDataListenerIfNeeded(ListDataListener l)
+	{
+		return dlm.removeListDataListenerIfNeeded(l);
+	}
 }
