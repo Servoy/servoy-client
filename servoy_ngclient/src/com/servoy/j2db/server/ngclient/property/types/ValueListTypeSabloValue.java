@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -326,9 +325,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		// dataprovider will resolve this, do not send anything client side
 		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
 
-		int initialSize = 0;
-		if (valueList instanceof AbstractListModel) initialSize = ((AbstractListModel)valueList).getListDataListeners().length;
-		valueList.removeListDataListener(this);
+		boolean removed = valueList.removeListDataListenerIfNeeded(this);
 
 		List<Map<String, Object>> jsonValue = null;
 
@@ -382,9 +379,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		logMaxSizeExceptionIfNecessary(valueList.getName(), vlSize);
 		jsonValue = array;
-		int newSize = -1;
-		if (valueList instanceof AbstractListModel) newSize = ((AbstractListModel)valueList).getListDataListeners().length;
-		if (newSize != initialSize)
+		if (removed)
 		{
 			// only add it if it was removed
 			valueList.addListDataListener(this);
@@ -459,11 +454,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			revertFilter();
 		}
 
-		int initialSize = 0;
+		boolean removed = false;
 		if (!fireChangeEvent)
 		{
-			if (valueList instanceof AbstractListModel) initialSize = ((AbstractListModel)valueList).getListDataListeners().length;
-			valueList.removeListDataListener(this);
+			removed = valueList.removeListDataListenerIfNeeded(this);
 		}
 		try
 		{
@@ -473,9 +467,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			if (!fireChangeEvent)
 			{
-				int newSize = -1;
-				if (valueList instanceof AbstractListModel) newSize = ((AbstractListModel)valueList).getListDataListeners().length;
-				if (newSize != initialSize)
+				if (removed)
 				{
 					// only add it if it was removed
 					valueList.addListDataListener(this);
