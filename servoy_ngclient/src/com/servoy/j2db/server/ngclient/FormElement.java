@@ -643,13 +643,25 @@ public final class FormElement implements INGFormElement
 		return label;
 	}
 
+	/**
+	 * returns the handler names that are not private and have a value attached to them.
+	 *
+	 * @return
+	 */
 	public Collection<String> getHandlers()
+	{
+		return getHandlers(true);
+	}
+
+	public Collection<String> getHandlers(boolean skipPrivate)
 	{
 		List<String> handlers = new ArrayList<>();
 		WebObjectSpecification componentSpec = getWebComponentSpec();
-		Set<String> events = componentSpec.getHandlers().keySet();
-		for (String eventName : events)
+		Set<Entry<String, WebObjectFunctionDefinition>> entries = componentSpec.getHandlers().entrySet();
+		for (Entry<String, WebObjectFunctionDefinition> entry : entries)
 		{
+			if (skipPrivate && entry.getValue().isPrivate()) continue;
+			String eventName = entry.getKey();
 			Object eventValue = getPropertyValue(eventName);
 			if (eventValue != null && !(eventValue instanceof Integer && (((Integer)eventValue).intValue() == -1 || ((Integer)eventValue).intValue() == 0)))
 			{
