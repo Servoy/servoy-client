@@ -166,6 +166,16 @@ public class NGFormServiceHandler extends FormServiceHandler
 						formName = getApplication().getFormManager().getCurrentForm().getName();
 					}
 					IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
+					if (!form.getController().isFormVisible())
+					{
+						Debug.warn("execute inline script called on a none visible form: " + formName + " call stopped, returning null");
+						return null;
+					}
+					if (form.getController().getDesignModeCallbacks() != null)
+					{
+						// ignoring all calls from the client
+						return null;
+					}
 					getApplication().updateLastAccessed();
 					Object retVal = form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"),
 						args.optJSONArray("params"));
@@ -377,6 +387,16 @@ public class NGFormServiceHandler extends FormServiceHandler
 				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
 				if (form != null)
 				{
+					if (!form.getController().isFormVisible())
+					{
+						Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
+						return null;
+					}
+					if (form.getController().getDesignModeCallbacks() != null)
+					{
+						// ignoring all calls from the client
+						return null;
+					}
 					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
 					if (webComponent != null)
 					{
@@ -470,7 +490,16 @@ public class NGFormServiceHandler extends FormServiceHandler
 	protected Object executeEvent(JSONObject obj) throws Exception
 	{
 		String formName = obj.optString("formname");
-		if (formName != null) getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
+		if (formName != null)
+		{
+			getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
+			IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
+			if (form.getController().getDesignModeCallbacks() != null)
+			{
+				// ignoring all calls from the client
+				return null;
+			}
+		}
 		return super.executeEvent(obj);
 	}
 

@@ -592,6 +592,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 
 					if (!anchoredLeft || !anchoredRight) elLayout.width = elModel.size.width + 'px';
+					if (anchoredLeft && anchoredRight) elLayout.minWidth = elModel.size.width + 'px';
 				}
 				else {
 					if($solutionSettings.ltrOrientation)

@@ -762,6 +762,12 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			wrapped.removeListDataListener(l);
 		}
 
+		@Override
+		public boolean removeListDataListenerIfNeeded(ListDataListener l)
+		{
+			return wrapped.removeListDataListenerIfNeeded(l);
+		}
+
 		public void deregister()
 		{
 			wrapped.deregister();

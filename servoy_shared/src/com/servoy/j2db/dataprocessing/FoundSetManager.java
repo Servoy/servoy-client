@@ -1528,7 +1528,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
-	public int getNextFoundSetID()
+	public synchronized int getNextFoundSetID()
 	{
 		return foundsetCounter++;
 	}

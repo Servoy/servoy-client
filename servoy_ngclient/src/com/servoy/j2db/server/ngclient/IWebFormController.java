@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.Map;
 
+import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
@@ -59,4 +60,6 @@ public interface IWebFormController extends IFormController
 	Map<String, Object> getNavigatorProperties();
 
 	public RuntimeWebComponent[] getWebComponentElements();
+
+	public DesignModeCallbacks getDesignModeCallbacks();
 }
