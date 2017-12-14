@@ -325,7 +325,7 @@ public class FormLayoutGenerator
 		{
 			writer.print("<div ng-style=\"layout.");
 			writer.print(name);
-			writer.print("\"");
+			writer.print("\" class=\"svy-wrapper\" ");
 		}
 		if (!isResponsive && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
