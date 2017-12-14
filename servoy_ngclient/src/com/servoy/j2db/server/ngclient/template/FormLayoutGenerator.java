@@ -39,6 +39,7 @@ import org.sablo.specification.WebLayoutSpecification;
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -248,8 +249,8 @@ public class FormLayoutGenerator
 			writer.print(" style=\"height:100%\"");
 		}
 		writer.print("svy-layout-update svy-form-class-update svy-autosave ");
-		// skip the scrollbars for forms in table or list view then the portal component does this.
-		if (design || !isTableOrListView(form))
+		// skip the scrollbars for forms in tableview then the portal component does this
+		if (design || (form.getView() != IFormConstants.VIEW_TYPE_TABLE && form.getView() != IFormConstants.VIEW_TYPE_TABLE_LOCKED))
 		{
 			writer.print(" svy-scrollbars='formProperties.scrollbars'");
 		}
@@ -335,6 +336,13 @@ public class FormLayoutGenerator
 				writer.print(style);
 				writer.print("'");
 			}
+		}
+		else if (fe.getPersistIfAvailable() == null && "servoycore-portal".equals(fe.getTypeName()) &&
+			(form.getView() == IForm.LIST_VIEW || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED))
+		{
+			writer.print(" style='min-width:");
+			writer.print(form.getMinWidth());
+			writer.print("px'");
 		}
 		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (designId != null)

@@ -276,6 +276,21 @@ public class FormWrapper
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
 				Integer.valueOf(ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER + ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER));
 		}
+		if (form.getView() == IForm.LIST_VIEW || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED)
+		{
+			// handle horizontal scrollbar on form level for listview
+			int horizontalScrollBars = ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+			if ((form.getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) != 0)
+			{
+				horizontalScrollBars = ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS;
+			}
+			else if ((form.getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) != 0)
+			{
+				horizontalScrollBars = ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER;
+			}
+			int scrollbars = ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER + horizontalScrollBars;
+			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), Integer.valueOf(scrollbars));
+		}
 		removeUnneededFormProperties(properties);
 		if (properties.containsKey(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName()))
 		{

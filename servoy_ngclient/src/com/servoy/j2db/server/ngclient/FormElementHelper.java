@@ -418,7 +418,22 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				portal.put("name", name);
 				portal.put("multiLine", !listViewPortal.isTableview());
 				portal.put("rowHeight", !listViewPortal.isTableview() ? bodyheight : getRowHeight(form));
-				portal.put("scrollbars", form.getScrollbars());
+				int scrollbars = form.getScrollbars();
+				if (!listViewPortal.isTableview())
+				{
+					// handle horizontal scrollbar on form level for listview
+					int verticalScrollBars = ISupportScrollbars.VERTICAL_SCROLLBAR_AS_NEEDED;
+					if ((form.getScrollbars() & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) != 0)
+					{
+						verticalScrollBars = ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS;
+					}
+					else if ((form.getScrollbars() & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) != 0)
+					{
+						verticalScrollBars = ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER;
+					}
+					scrollbars = ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER + verticalScrollBars;
+				}
+				portal.put("scrollbars", scrollbars);
 				if (listViewPortal.isTableview())
 				{
 					int headerHeight = 30;
