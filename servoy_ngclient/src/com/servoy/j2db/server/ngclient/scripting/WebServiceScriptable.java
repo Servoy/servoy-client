@@ -47,6 +47,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
@@ -66,7 +67,7 @@ public class WebServiceScriptable implements Scriptable
 {
 	private static final ConcurrentMap<URI, Pair<Script, Long>> scripts = new ConcurrentHashMap<>();
 
-	private static Script getScript(Context context, URL serverScript) throws URISyntaxException, IOException
+	private static Script getScript(Context context, URL serverScript, IApplication app) throws URISyntaxException, IOException
 	{
 		Pair<Script, Long> pair = scripts.get(serverScript.toURI());
 		long lastModified = -1;
@@ -97,16 +98,34 @@ public class WebServiceScriptable implements Scriptable
 			Script script;
 			try
 			{
-				if ("".endsWith(name))
+				if (app instanceof IDebugClient)
 				{
-					context.setGeneratingDebug(false);
-					debugger = context.getDebugger();
-					if (debugger != null)
+					if ("".endsWith(name))
 					{
+						context.setGeneratingDebug(false);
+						debugger = context.getDebugger();
+						if (debugger != null)
+						{
 
-						context.setOptimizationLevel(9);
-						context.setDebugger(null, null);
+							context.setOptimizationLevel(9);
+							context.setDebugger(null, null);
+						}
 					}
+					else if (context.getDebugger() == null)
+					{
+						// this is a refresh/recreate forms, could be because of a server side script edit/change
+						// then the debugger is not attached because it is not the event thread. make sure that
+						// code optimization level is disabled.
+						context.setGeneratingDebug(true);
+						context.setOptimizationLevel(-1);
+					}
+				}
+				else
+				{
+					// in none debug client, don't compile to a java file (classloading problems)
+					// but also don't generate debug info
+					context.setGeneratingDebug(false);
+					context.setOptimizationLevel(-1);
 				}
 				context.setGeneratingSource(false);
 				script = context.compileString(Utils.getURLContent(serverScript), name, 1, null);
@@ -156,7 +175,7 @@ public class WebServiceScriptable implements Scriptable
 			execScope.put("console", execScope,
 				new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope, ConsoleObject.class)));
 
-			getScript(context, serverScript).exec(context, execScope);
+			getScript(context, serverScript, app).exec(context, execScope);
 			apiObject.setPrototype(model);
 		}
 		catch (Exception ex)
