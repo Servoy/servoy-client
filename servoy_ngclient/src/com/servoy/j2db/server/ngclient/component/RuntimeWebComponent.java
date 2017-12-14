@@ -33,6 +33,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
+import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -120,6 +121,37 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
+			// add also the handlers object
+			try
+			{
+				Context context = Context.enter();
+				Scriptable handlerObject = context.newObject(scopeObject);
+				scopeObject.put("handlers", scopeObject, handlerObject);
+				Set<String> handlers = component.getSpecification().getHandlers().keySet();
+				for (final String name : handlers)
+				{
+					handlerObject.put(name, handlerObject, new Callable()
+					{
+						@Override
+						public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+						{
+							IEventHandler eventHandler = RuntimeWebComponent.this.component.getEventHandler(name);
+							try
+							{
+								return eventHandler.executeEvent(args);
+							}
+							catch (Exception e)
+							{
+								throw new RuntimeException(e);
+							}
+						}
+					});
+				}
+			}
+			finally
+			{
+				Context.exit();
+			}
 		}
 
 		if (webComponentSpec != null)
