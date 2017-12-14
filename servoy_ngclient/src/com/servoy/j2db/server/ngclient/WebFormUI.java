@@ -1038,10 +1038,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	public boolean isChanging()
 	{
-		if (changing > 0)
-		{
-			System.err.println("form " + formController.getName() + " is changing");
-		}
 		return changing > 0;
 	}
 

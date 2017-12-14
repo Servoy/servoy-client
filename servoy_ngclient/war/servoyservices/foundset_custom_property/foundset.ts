@@ -29,6 +29,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
 	var SERVER_SIZE = "serverSize";
+	var FOUNDSET_ID = "foundset_id";
 	var SORT_COLUMNS = "sortColumns";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	var MULTI_SELECT = "multiSelect";
@@ -298,7 +299,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 						return internalState.selectionUpdateDefer.promise;
 					}
-					
+					newValue.getRecordRef = function(row) {
+						if (row)
+						{
+							var recordRef = {};
+							recordRef[$foundsetTypeConstants.ROW_ID_COL_KEY] = row[$foundsetTypeConstants.ROW_ID_COL_KEY];
+							recordRef[FOUNDSET_ID] = newValue[FOUNDSET_ID];
+							return recordRef
+						}
+						return null
+					};
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
 					newValue.addChangeListener = function(listener) {

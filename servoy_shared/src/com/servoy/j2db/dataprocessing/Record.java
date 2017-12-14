@@ -150,7 +150,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	Record(IFoundSetInternal parent)
 	{
 		this.parent = parent;
-		initJSFunctions(parent.getFoundSetManager().getApplication());
+		initJSFunctions(parent != null ? parent.getFoundSetManager().getApplication() : null);
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
 	}

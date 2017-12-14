@@ -172,6 +172,20 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		setSize(new Dimension(width, getSize().height));
 	}
 
+	public int getMinWidth()
+	{
+		int minWidth = 0;
+		for (IPersist persist : getAllObjectsAsList())
+		{
+			if (persist instanceof IFormElement)
+			{
+				int persistWidth = ((IFormElement)persist).getLocation().x + ((IFormElement)persist).getSize().width;
+				if (persistWidth > minWidth) minWidth = persistWidth;
+			}
+		}
+		return minWidth;
+	}
+
 	@Override
 	public void clearProperty(String propertyName)
 	{

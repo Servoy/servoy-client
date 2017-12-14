@@ -225,6 +225,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private int multiSelectPinnedTo = -1;
 	private int multiSelectPinLevel;
 
+	private final int foundsetID;
+
 	public PrototypeState getPrototypeState()
 	{
 		if (proto == null)
@@ -270,6 +272,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
+		foundsetID = app.getNextFoundSetID();
 	}
 
 	public String getRelationName()
@@ -280,6 +283,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public SQLSheet getSQLSheet()
 	{
 		return sheet;
+	}
+
+	@Override
+	public int getID()
+	{
+		return foundsetID;
 	}
 
 	/**

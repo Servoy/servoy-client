@@ -1,0 +1,12 @@
+/*
+	responsive forms inside absolute form container should have height 100%
+*/
+.svy-wrapper > * > .svy-splitpane > .split-panes > .split-pane1 > div > svy-formload > .svy-respform
+{
+	height: 100%;
+}
+
+.svy-wrapper > * > .svy-splitpane > .split-panes > .split-pane2 > div > svy-formload > .svy-respform
+{
+	height: 100%;
+}

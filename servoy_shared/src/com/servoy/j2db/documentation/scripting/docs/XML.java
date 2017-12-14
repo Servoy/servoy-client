@@ -41,7 +41,7 @@ public class XML
 	 * application.output(element.comments().length());
 	 * application.output(element.toXMLString()); 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_getIgnoreComments()
 	{
@@ -60,7 +60,7 @@ public class XML
 	 * var xmlElement = <publishing><?process author="yes"?><author type="leadership">John C. Maxwell</author></publishing>;
 	 * application.output(" Element = "+ xmlElement.toXMLString());
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_getIgnoreProcessingInstructions()
 	{
@@ -82,7 +82,7 @@ public class XML
 	 *  </publishing>;
 	 *  application.output(xmlElement.toString());
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_getIgnoreWhitespace()
 	{
@@ -99,7 +99,7 @@ public class XML
 	 * 
 	 * @sampleas js_getPrettyIndent()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_getPrettyPrinting()
 	{
@@ -122,7 +122,7 @@ public class XML
 	 * xmlElement = <publishing><author>Tom DeMarco</author><author>Roger S. Pressman</author></publishing>;
 	 * application.output(xmlElement.toXMLString());
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_getPrettyIndent()
 	{
@@ -141,7 +141,7 @@ public class XML
 	 * 
 	 * @param namespaceToAdd 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_addNamespace(String namespaceToAdd)
 	{
@@ -155,7 +155,7 @@ public class XML
 	 * 
 	 * @param childToAppend 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_appendChild(XML childToAppend)
 	{
@@ -170,7 +170,7 @@ public class XML
 	 * 
 	 * @param attributeName 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_attribute(String attributeName)
 	{
@@ -182,7 +182,7 @@ public class XML
 	 *
 	 * @sample xml.attributes()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_attributes()
 	{
@@ -196,7 +196,7 @@ public class XML
 	 * 
 	 * @param propertyName 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_child(String propertyName)
 	{
@@ -209,7 +209,7 @@ public class XML
 	 *
 	 * @sample xml.childIndex()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Number js_childIndex()
 	{
@@ -221,7 +221,7 @@ public class XML
 	 *
 	 * @sample xml.children()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_children()
 	{
@@ -233,7 +233,7 @@ public class XML
 	 *
 	 * @sample xml.comments()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_comments()
 	{
@@ -247,7 +247,7 @@ public class XML
 	 * 
 	 * @param value
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_contains(Object value)
 	{
@@ -259,7 +259,7 @@ public class XML
 	 *
 	 * @sample xml.copy()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_copy()
 	{
@@ -271,7 +271,7 @@ public class XML
 	 * 
 	 * @sample xml.defaultSettings()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Object js_defaultSettings()
 	{
@@ -285,7 +285,7 @@ public class XML
 	 * @sample xml.descendants([name])
 	 *  
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_descendants()
 	{
@@ -311,7 +311,7 @@ public class XML
 	 * @sample xml.elements([name])
 	 *  
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_elements()
 	{
@@ -336,7 +336,7 @@ public class XML
 	 *
 	 * @sample xml.hasComplexContent()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_hasComplexContent()
 	{
@@ -350,7 +350,7 @@ public class XML
 	 * 
 	 * @param propertyName 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_hasOwnProperty(String propertyName)
 	{
@@ -364,7 +364,7 @@ public class XML
 	 *
 	 * @sample xml.hasSimpleContent()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_hasSimpleContent()
 	{
@@ -376,7 +376,7 @@ public class XML
 	 *
 	 * @sample xml.inScopeNamespaces()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Array js_inScopeNamespaces()
 	{
@@ -392,7 +392,7 @@ public class XML
 	 * @param childToInserAfter 
 	 * @param childToInsert 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_insertChildAfter(XML childToInserAfter, XML childToInsert)
 	{
@@ -408,7 +408,7 @@ public class XML
 	 * @param childToInsertBefore 
 	 * @param childToInsert 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_insertChildBefore(XML childToInsertBefore, XML childToInsert)
 	{
@@ -421,7 +421,7 @@ public class XML
 	 *
 	 * @sample xml.length()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Number js_length()
 	{
@@ -433,7 +433,7 @@ public class XML
 	 *
 	 * @sample xml.localName()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_localName()
 	{
@@ -445,7 +445,7 @@ public class XML
 	 *
 	 * @sample xml.name()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public QName js_name()
 	{
@@ -460,7 +460,7 @@ public class XML
 	 * @sample xml.namespace([prefix])
 	 * 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Namespace js_namespace()
 	{
@@ -484,7 +484,7 @@ public class XML
 	 *
 	 * @sample xml.namespaceDeclarations()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Array js_namespaceDeclarations()
 	{
@@ -497,7 +497,7 @@ public class XML
 	 *
 	 * @sample xml.nodeKind()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_nodeKind()
 	{
@@ -509,7 +509,7 @@ public class XML
 	 *
 	 * @sample xml.normalize()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_normalize()
 	{
@@ -521,7 +521,7 @@ public class XML
 	 *
 	 * @sample xml.parent()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_parent()
 	{
@@ -535,7 +535,7 @@ public class XML
 	 * 
 	 * @param childToPrepend 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_prependChild(XML childToPrepend)
 	{
@@ -551,7 +551,7 @@ public class XML
 	 * @sample xml.processingInstructions([name])
 	 * 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_processingInstructions()
 	{
@@ -577,7 +577,7 @@ public class XML
 	 * 
 	 * @param propertyName 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Boolean js_propertyIsEnumerable(String propertyName)
 	{
@@ -592,7 +592,7 @@ public class XML
 	 * 
 	 * @param namespace 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_removeNamespace(Namespace namespace)
 	{
@@ -608,7 +608,7 @@ public class XML
 	 * @param propertyName 
 	 * @param replacementValue 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_replace(String propertyName, XML replacementValue)
 	{
@@ -623,7 +623,7 @@ public class XML
 	 * 
 	 * @param value 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_setChildren(Object value)
 	{
@@ -637,7 +637,7 @@ public class XML
 	 * 
 	 * @param name 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public void js_setLocalName(String name)
 	{
@@ -650,7 +650,7 @@ public class XML
 	 * 
 	 * @param name 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public void js_setName(String name)
 	{
@@ -663,7 +663,7 @@ public class XML
 	 * 
 	 * @param namespace 
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public void js_setNamespace(Namespace namespace)
 	{
@@ -674,7 +674,7 @@ public class XML
 	 * 
 	 * @sample xml.settings()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public Object js_settings()
 	{
@@ -686,7 +686,7 @@ public class XML
 	 * 
 	 * @sample xml.setSettings(settings)
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public void js_setSettings()
 	{
@@ -708,7 +708,7 @@ public class XML
 	 *
 	 * @sample xml.text()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XMLList js_text()
 	{
@@ -720,7 +720,7 @@ public class XML
 	 *
 	 * @sample xml.toString()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public java.lang.String js_toString()
 	{
@@ -733,7 +733,7 @@ public class XML
 	 *
 	 * @sample xml.toXMLString()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_toXMLString()
 	{
@@ -745,7 +745,7 @@ public class XML
 	 *
 	 * @sample xml.valueOf()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public XML js_valueOf()
 	{

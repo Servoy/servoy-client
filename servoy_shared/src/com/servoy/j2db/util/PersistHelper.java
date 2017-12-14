@@ -68,6 +68,9 @@ public class PersistHelper
 	public static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
 	public static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
 
+	private static final Object NULL = new Object();
+	private static final IntHashMap<Object> superPersistCache = new IntHashMap<Object>();
+	private static boolean useCache = false;
 
 	private PersistHelper()
 	{
@@ -868,6 +871,15 @@ public class PersistHelper
 		final int extendsID = persist.getExtendsID();
 		if (extendsID > 0)
 		{
+			if (useCache)
+			{
+				synchronized (superPersistCache)
+				{
+					Object cache = superPersistCache.get(((IPersist)persist).getID());
+					if (cache instanceof IPersist) return (IPersist)cache;
+					else if (cache == NULL) return null;
+				}
+			}
 			Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
 			if (form != null)
 			{
@@ -887,9 +899,23 @@ public class PersistHelper
 					});
 					if (superPersist != null)
 					{
+						if (useCache)
+						{
+							synchronized (superPersistCache)
+							{
+								superPersistCache.put(((IPersist)persist).getID(), superPersist);
+							}
+						}
 						return superPersist;
 					}
 					form = form.getExtendsForm();
+				}
+			}
+			if (useCache)
+			{
+				synchronized (superPersistCache)
+				{
+					superPersistCache.put(((IPersist)persist).getID(), NULL);
 				}
 			}
 		}
@@ -1128,5 +1154,20 @@ public class PersistHelper
 		}
 		return null;
 
+	}
+
+	public static void enableSuperPersistCaching(boolean enable)
+	{
+		if (useCache != enable)
+		{
+			useCache = enable;
+			if (!enable)
+			{
+				synchronized (superPersistCache)
+				{
+					superPersistCache.clear();
+				}
+			}
+		}
 	}
 }

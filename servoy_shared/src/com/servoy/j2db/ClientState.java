@@ -955,6 +955,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return clientInfo.getUserName();
 	}
 
+	@Override
+	public Object getTenantValue()
+	{
+		return getClientInfo().getTenantValue();
+	}
+
 	public void reportError(String msg, Object detail)
 	{
 		logError(msg, detail);

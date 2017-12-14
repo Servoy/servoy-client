@@ -217,9 +217,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
-		Assert.assertEquals(
-			new JSONObject(
-				"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}").toString(),
+		Assert.assertEquals(new JSONObject(
+			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}").toString(),
 			new JSONObject(json).toString());
 	}
 

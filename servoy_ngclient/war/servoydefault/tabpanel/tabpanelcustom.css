@@ -1,0 +1,16 @@
+.panel-body {
+	padding: 0px;
+}
+
+/*
+	responsive forms inside absolute form container should have height 100%
+*/
+.svy-wrapper > * > div > div > .svy-tabpanel > .tab-content > .tab-pane  > div > svy-formload > .svy-respform
+{
+	height: 100%;
+}
+
+.svy-wrapper > * > div > div > .svy-tablesspanel > svy-formload > .svy-respform
+{
+	height: 100%;
+}

@@ -36,7 +36,7 @@ public class Namespace
 	 * application.output("Prefix: " + namespace.prefix); //will output: 'xhtml'
 	 * application.output("URI: " + namespace.uri); //will output: 'http://www.w3.org/1999/xhtml'
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_getPrefix()
 	{
@@ -52,7 +52,7 @@ public class Namespace
 	 * 
 	 * @sampleas js_getPrefix()
 	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
 	 */
 	public String js_getUri()
 	{

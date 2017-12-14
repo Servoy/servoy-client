@@ -143,7 +143,7 @@ public abstract class BasicFormController
 		this.form = form;
 		this.namedInstance = namedInstance;
 		this.pageFormat = PersistHelper.createPageFormat(form.getDefaultPageFormat());
-		if (!application.getFlattenedSolution().formCanBeInstantiated(getForm()))
+		if (application.getApplicationType() != IApplication.HEADLESS_CLIENT && !application.getFlattenedSolution().formCanBeInstantiated(getForm()))
 		{
 			// abstract form
 			application.reportJSWarning(
@@ -960,7 +960,7 @@ public abstract class BasicFormController
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-			throws Exception
+		throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{

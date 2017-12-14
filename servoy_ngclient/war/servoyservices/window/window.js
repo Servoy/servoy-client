@@ -207,6 +207,12 @@ angular.module('window',['servoy'])
 							css["top"] = top+"px";
 						}
 					}
+					else if (!component)
+					{
+						// calculate the real center
+						css["left"] = ($( window ).width() /2 - popupwidth /2 )+"px";
+						css["top"] = ($( window ).height() /2 - popupheight /2 )+"px";
+					}
 					$('#formpopup').css(css);
 		    	})
 			};

@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import javax.swing.ListModel;
+import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ValueList;
@@ -84,5 +85,7 @@ public interface IValueList extends ListModel
 	 * @return
 	 */
 	public IDataProvider[] getDependedDataProviders();
+
+	boolean removeListDataListenerIfNeeded(ListDataListener l);
 
 }

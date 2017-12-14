@@ -44,7 +44,6 @@ import org.apache.wicket.util.upload.FileUploadBase.FileSizeLimitExceededExcepti
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
 import org.sablo.util.HTTPUtils;
-import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -58,7 +57,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
-import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.IMediaFieldConstants;
@@ -392,8 +390,8 @@ public class MediaResourcesServlet extends HttpServlet
 					WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 				try
 				{
-					String formName = paths.length == 5 ? paths[2] : null;
-					String elementName = paths.length == 5 ? paths[3] : null;
+					final String formName = paths.length == 5 ? paths[2] : null;
+					final String elementName = paths.length == 5 ? paths[3] : null;
 					final String propertyName = paths.length == 5 ? paths[4] : null;
 					if (wsSession != null)
 					{
@@ -426,15 +424,26 @@ public class MediaResourcesServlet extends HttpServlet
 								fileData.put(IMediaFieldConstants.FILENAME, item.getName());
 								fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
 
-								final IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
-								final WebFormComponent webComponent = form.getWebComponent(elementName);
-								CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(wsSession), new Runnable()
+								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
 								{
 									@Override
 									public void run()
 									{
+										IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
+										if (form == null)
+										{
+											Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
+												" but form is not found, data: " + fileData);
+											return;
+										}
+										WebFormComponent webComponent = form.getWebComponent(elementName);
+										if (webComponent == null)
+										{
+											Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
+												" but component  is not found, data: " + fileData);
+											return;
+										}
 										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
-										wsSession.valueChanged();
 									}
 								});
 							}

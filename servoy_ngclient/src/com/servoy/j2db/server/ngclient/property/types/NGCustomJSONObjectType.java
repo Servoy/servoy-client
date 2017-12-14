@@ -44,6 +44,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -78,7 +79,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
 	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
 	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>, IFindModeAwareType<Map<String, FormElementT>, Map<String, SabloT>>,
-	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter, II18NPropertyType<Map<String, SabloT>>
+	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter, IDesignValueConverter<Object>,
+	II18NPropertyType<Map<String, SabloT>>
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -424,6 +426,28 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			}
 		}
 		return property;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	{
+		return designValue;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Object toDesignValue(Object javaValue, PropertyDescription pd)
+	{
+		return javaValue;
 	}
 
 }

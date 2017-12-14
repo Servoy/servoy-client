@@ -134,6 +134,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	// tracking info used for logging
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
+	private int foundsetCounter = 1;
 
 	public FoundSetManager(IApplication app, IFoundSetFactory factory)
 	{
@@ -1439,6 +1440,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
+	}
+
+	@Override
+	public IFoundSetInternal findFoundset(int id)
+	{
+		for (FoundSet foundset : sharedDataSourceFoundSet.values())
+		{
+			if (id == foundset.getID()) return foundset;
+		}
+		for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
+		{
+			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
+			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
+			{
+				SoftReference<RelatedFoundSet> sr = entry.getValue();
+				RelatedFoundSet element = sr.get();
+				if (element != null && id == element.getID())
+				{
+					return element;
+				}
+			}
+		}
+		for (FoundSet foundset : separateFoundSets.values())
+		{
+			if (id == foundset.getID()) return foundset;
+		}
+		for (FoundSet foundset : foundSets)
+		{
+			if (id == foundset.getID()) return foundset;
+		}
+		return null;
+	}
+
+	@Override
+	public synchronized int getNextFoundSetID()
+	{
+		return foundsetCounter++;
 	}
 
 	@Override

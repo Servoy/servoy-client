@@ -284,14 +284,15 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		if (fieldFormat != null)
 		{
-			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml());
+			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml(),
+				fieldFormat.parsedFormat.useLocalDateTime());
 		}
 		else
 		{
 			// see type of dataprovider; this is done only once - first time we get a new record
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
-				getDataProviderConfig().hasParseHtml());
+				getDataProviderConfig().hasParseHtml(), false);
 		}
 		if (dpPD.hasTag(TAG_TYPE_NAME))
 		{

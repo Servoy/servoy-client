@@ -33,6 +33,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
+import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -120,8 +121,39 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
+			// add also the handlers object
+			try
+			{
+				Context context = Context.enter();
+				Scriptable handlerObject = context.newObject(scopeObject);
+				scopeObject.put("handlers", scopeObject, handlerObject);
+				Set<String> handlers = component.getSpecification().getHandlers().keySet();
+				for (final String name : handlers)
+				{
+					handlerObject.put(name, handlerObject, new Callable()
+					{
+						@Override
+						public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+						{
+							IEventHandler eventHandler = RuntimeWebComponent.this.component.getEventHandler(name);
+							try
+							{
+								return eventHandler.executeEvent(args);
+							}
+							catch (Exception e)
+							{
+								throw new RuntimeException(e);
+							}
+						}
+					});
+				}
+			}
+			finally
+			{
+				Context.exit();
+			}
 		}
-		
+
 		if (webComponentSpec != null)
 		{
 			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
@@ -224,6 +256,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					{
 						return false;
 					}
+					// if this form is in designer mode then it has to go to the client to get the current size/location
+					if (((WebFormUI)parent).getController().getDesignModeCallbacks() != null) return true;
 					break;
 				}
 				parent = parent.getParent();
@@ -346,9 +380,20 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 		if ("svyMarkupId".equals(name))
 		{
-			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
+			String formName = null;
+			IWebFormUI parent = component.findParent(IWebFormUI.class);
+			if (parent != null)
+			{
+				formName = parent.getController().getName();
+			}
+			else
+			{
+				formName = component.getFormElement().getForm().getName();
+			}
+			return ComponentFactory.getMarkupId(formName, component.getName());
 		}
 
+		// is this really needed? will not prototype be looked at automatically by Rhino code?
 		if (prototypeScope != null)
 		{
 			return prototypeScope.get(name, start);

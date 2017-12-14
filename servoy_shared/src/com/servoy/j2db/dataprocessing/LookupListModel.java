@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
+import javax.swing.event.ListDataListener;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
@@ -821,4 +822,11 @@ public class LookupListModel extends AbstractListModel
 		return hadMoreRows;
 	}
 
+	public boolean removeListDataListenerIfNeeded(ListDataListener l)
+	{
+		int oldSize = getListDataListeners().length;
+		removeListDataListener(l);
+		int newSize = getListDataListeners().length;
+		return oldSize != newSize;
+	}
 }

@@ -18,6 +18,7 @@ package com.servoy.j2db.util.model;
 
 
 import javax.swing.DefaultListModel;
+import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.util.Debug;
 
@@ -31,7 +32,7 @@ import com.servoy.j2db.util.Debug;
  * <br>
  * This could be implemented to generate cached events instead of throwing IllegalStateException for these cases above, but then operations need to be
  * intercepted before the underlying vector is changed.
- * 
+ *
  * @author acostescu
  */
 public class OptimizedDefaultListModel extends DefaultListModel
@@ -85,7 +86,7 @@ public class OptimizedDefaultListModel extends DefaultListModel
 		bundledEventType = NONE;
 	}
 
-	// intercept all 
+	// intercept all
 
 	@Override
 	protected void fireContentsChanged(Object source, int index1, int index2)
@@ -212,4 +213,11 @@ public class OptimizedDefaultListModel extends DefaultListModel
 		}
 	}
 
+	public boolean removeListDataListenerIfNeeded(ListDataListener l)
+	{
+		int oldSize = getListDataListeners().length;
+		removeListDataListener(l);
+		int newSize = getListDataListeners().length;
+		return oldSize != newSize;
+	}
 }

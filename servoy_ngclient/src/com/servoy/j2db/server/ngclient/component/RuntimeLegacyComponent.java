@@ -31,6 +31,7 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
@@ -75,6 +76,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	private Map<Object, Object> clientProperties;
 	private final WebObjectSpecification webComponentSpec;
 	private Scriptable parentScope;
+	private Scriptable objectPrototype;
 
 	static
 	{
@@ -114,13 +116,18 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
 		putCallable = new PutPropertyCallable(this);
 		getCallable = new GetPropertyCallable(this);
-		this.webComponentSpec = component.getFormElement().getWebComponentSpec();
+		this.webComponentSpec = component.getSpecification();
 	}
 
 	@Override
 	public boolean isInstance(String name)
 	{
-		return name.equals(getRuntimeName());
+		if (name.equals(getRuntimeName())) return true;
+		if (getPrototype() instanceof IInstanceOf)
+		{
+			return ((IInstanceOf)getPrototype()).isInstance(name);
+		}
+		return false;
 	}
 
 	private String getRuntimeName()
@@ -251,11 +258,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		if (!inServerSideScript() && (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name)))
 		{
 			// cannot get design only or private properties; make an exception for dp properties, should be able to get the dpid
-			if (!(component.getSpecification().getProperty(name).getType() instanceof DataproviderPropertyType))
+			if (!(webComponentSpec.getProperty(name).getType() instanceof DataproviderPropertyType))
 			{
-				component.getDataAdapterList().getApplication().reportJSWarning(
-					"Warn: Trying to get a property: " + name + "  that is a design or private spec, " + component.getSpecification().getName() +
-						"  property property on component " + component.getName());
+				component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to get a property: " + name +
+					"  that is a design or private spec, " + webComponentSpec.getName() + "  property property on component " + component.getName());
 				return Scriptable.NOT_FOUND;
 			}
 		}
@@ -263,23 +269,25 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		String convertName = convertName(name);
 		Object value = convertValue(name, component.getProperty(convertName), webComponentSpec.getProperties().get(convertName), start);
 
-		if (component.getSpecification().getProperty(convertName) == null && value == null && !inServerSideScript())
-		{
-			component.getDataAdapterList().getApplication().reportJSWarning("Warn: Trying to get a property: " + convertName + "  that is a not in the spec " +
-				component.getSpecification().getName() + " property on component " + component.getName());
-		}
-
 		if (isReadonly && value instanceof Boolean)
 		{
 			return !((Boolean)value).booleanValue();
 		}
 
+		if (webComponentSpec.getProperty(convertName) == null && (value == null || value == Scriptable.NOT_FOUND))
+		{
+			value = Scriptable.NOT_FOUND; // allow it to search in Object.prototype for common members like hasOwnProperty; it we return null it is interpreted that it actually has a value here and it is null
+			if (!inServerSideScript() && !getPrototype().has(name, start))
+			{
+				component.getDataAdapterList().getApplication().reportJSWarning(
+					"Warn: Trying to get a property: " + convertName + (Utils.stringSafeEquals(convertName, name) ? "" : "(" + name + ")") +
+						"  that is a not in the spec " + webComponentSpec.getName() + " property on component " + component.getName());
+			}
+		}
+
 		return value;
 	}
 
-	/**
-	 * @return
-	 */
 	private boolean inServerSideScript()
 	{
 		return Context.getCurrentContext() != null && Context.getCurrentContext().getThreadLocal(RuntimeWebComponent.SERVER_SIDE_SCRIPT_EXECUTE) != null;
@@ -356,17 +364,17 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			// cannot set design only or private properties
 			component.getDataAdapterList().getApplication().reportJSWarning(
 				"Warn: Trying to set a property: " + name + " with a value: " + Utils.getScriptableString(value) +
-					"  that is a design time/private property on component " + component.getName() + " with spec " + component.getSpecification().getName());
+					"  that is a design time/private property on component " + component.getName() + " with spec " + webComponentSpec.getName());
 			return;
 		}
 		Object previousVal = component.getProperty(name);
 		Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, webComponentSpec.getProperties().get(name), component);
 
-		if (!"clientProperty".equals(name) && component.getSpecification().getProperty(name) == null && previousVal == null)
+		if (!"clientProperty".equals(name) && webComponentSpec.getProperty(name) == null && previousVal == null)
 		{
 			component.getDataAdapterList().getApplication().reportJSWarning(
 				"Warn: Trying to set a property: " + name + " with a value: " + Utils.getScriptableString(value) + "  that is not a declared spec, " +
-					component.getSpecification().getName() + ", property  on component " + component.getName());
+					webComponentSpec.getName() + ", property  on component " + component.getName());
 		}
 
 		if (val != previousVal) component.setProperty(name, val);
@@ -399,7 +407,11 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	@Override
 	public Scriptable getPrototype()
 	{
-		return null;
+		if (objectPrototype == null)
+		{
+			objectPrototype = ScriptableObject.getObjectPrototype(this);
+		}
+		return objectPrototype;
 	}
 
 	@Override
@@ -418,6 +430,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	public void setParentScope(Scriptable parent)
 	{
 		parentScope = parent;
+		objectPrototype = ScriptableObject.getObjectPrototype(this);
 	}
 
 	@Override

@@ -626,4 +626,10 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return new int[0];
 	}
+
+	@Override
+	public int getID()
+	{
+		return 0;
+	}
 }

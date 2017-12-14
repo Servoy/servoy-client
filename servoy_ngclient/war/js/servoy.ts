@@ -893,12 +893,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
 		getX: function (elem){
 			return function(){
-				return $(elem.parentNode).offset().left;
+				return $(elem.parentNode).position().left;
 			}
 		},
 		getY: function (elem){
 			return function(){
-				return $(elem.parentNode).offset().top;
+				return $(elem.parentNode).position().top;
 			}
 		}		
 	}

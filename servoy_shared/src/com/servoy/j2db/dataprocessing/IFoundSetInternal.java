@@ -84,4 +84,6 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public int getRecordIndex(String pkHash, int hintStart);
 
+	public int getID();
+
 }

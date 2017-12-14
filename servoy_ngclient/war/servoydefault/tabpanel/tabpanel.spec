@@ -6,27 +6,27 @@
 	"icon": "servoydefault/tabpanel/tab.png",
 	"definition": "servoydefault/tabpanel/tabpanel.js",
 	"serverscript": "servoydefault/tabpanel/tabpanel_server.js",
-	"libraries": [{ "name": "accordionpanel", "version": "1", "url": "servoydefault/tabpanel/accordionpanel.css", "mimetype": "text/css" }],
-
-	"model": {
-		"background": "color",
-		"borderType": { "type": "border", "stringformat": true },
-		"enabled": { "type": "enabled", "blockingOn": false, "default": true, "for": ["onChangeMethodID", "onTabChangeMethodID"] },
-		"fontType": { "type": "font", "stringformat": true },
-		"foreground": "color",
-		"horizontalAlignment": { "type": "int", "tags": { "scope": "design" }, "values": [{ "LEFT": 2 }, { "CENTER": 0 }, { "RIGHT": 4 }], "default": -1 },
-		"location": "point",
-		"readOnly": { "type": "protected", "for": ["onChangeMethodID", "onTabChangeMethodID"] },
-		"selectedTabColor": "color",
-		"size": { "type": "dimension", "default": { "width": 300, "height": 300 } },
-		"styleClass": { "type": "styleclass", "tags": { "scope": "design" }, "values": [] },
-		"tabIndex": { "type": "object", "pushToServer": "shallow" },
-		"tabOrientation": { "type": "int", "tags": { "scope": "design" }, "values": [{ "default": 0 }, { "TOP": 1 }, { "HIDE": -1 }] },
-		"tabSeq": { "type": "tabseq", "tags": { "scope": "design" } },
-		"tabs": { "type": "tab[]", "pushToServer": "shallow", "droppable": true },
-		"transparent": "boolean",
-		"visible": "visible",
-		"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "private" }, "pushToServer": "shallow" }
+	"libraries": [{"name":"tabpanelcustom", "version":"1.0.1", "url":"servoydefault/tabpanel/tabpanelcustom.css", "mimetype":"text/css"}],
+	"model":
+	{
+	        "background" : "color", 
+	        "borderType" : {"type":"border","stringformat":true}, 
+	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["onChangeMethodID","onTabChangeMethodID"] }, 
+	        "fontType" : {"type":"font","stringformat":true}, 
+	        "foreground" : "color", 
+	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
+	        "location" : "point", 
+	        "readOnly" : { "type": "protected", "for": ["onChangeMethodID","onTabChangeMethodID"] }, 
+	        "selectedTabColor" : "color", 
+	        "size" : {"type" :"dimension",  "default" : {"width":300, "height":300}}, 
+	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
+	        "tabIndex" : { "type": "object", "pushToServer": "shallow" }, 
+	        "tabOrientation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
+	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
+	        "tabs" : {"type":"tab[]", "pushToServer": "shallow", "droppable":true}, 
+	        "transparent" : "boolean", 
+	        "visible" : "visible",
+			"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "private" }, "pushToServer": "shallow" }
 	},
 
 	"handlers": {

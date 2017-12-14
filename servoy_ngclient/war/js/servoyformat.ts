@@ -320,7 +320,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			ret = ret.replaceAll('K+', hours)
 		}
 		ret = $filter('date')(data, ret);
-		if (ret.indexOf('E') != -1) {
+		if (ret.indexOf && ret.indexOf('E') != -1) {
 			var last = ret.lastIndexOf('E');
 			var first = ret.indexOf('E');
 			var nrChars = last - first + 1;
@@ -328,7 +328,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			if (nrChars >= 4 && nrChars <= 6) ret = ret.substring(0, first - 1) + ' ' + ($locale.DATETIME_FORMATS.DAY[data.getDay()]) + ret.substring(last + 1, ret.length);
 		}
 
-		return ret.trim()
+		return ret.trim? ret.trim() : ret
 	}
 
 	function getCurrency(servoyFormat) {
@@ -379,11 +379,12 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			} else if (type == "TEXT") {
 				return data;
 			} else if (type == "DATETIME") {
+				if ("" === data ) return null;
 				// some compatibility issues, see http://momentjs.com/docs/ and http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
 				servoyFormat = servoyFormat.replaceAll('d', 'D');
 				servoyFormat = servoyFormat.replaceAll('y', 'Y');
 				// use moment.js from calendar component
-				return moment(data, servoyFormat).toDate();
+				return moment(data, servoyFormat,true).toDate();
 			}
 			return data;
 		},

@@ -317,12 +317,15 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		filteredValuelist = null;
 		if (changeMonitor != null) changeMonitor.valueChanged();
+		fireUnderlyingPropertyChangeListeners();
 	}
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		// dataprovider will resolve this, do not send anything client side
 		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
+
+		boolean removed = valueList.removeListDataListenerIfNeeded(this);
 
 		List<Map<String, Object>> jsonValue = null;
 
@@ -376,7 +379,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		logMaxSizeExceptionIfNecessary(valueList.getName(), vlSize);
 		jsonValue = array;
-
+		if (removed)
+		{
+			// only add it if it was removed
+			valueList.addListDataListener(this);
+		}
 		return jsonValue;
 	}
 
@@ -447,14 +454,25 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			revertFilter();
 		}
 
-		if (!fireChangeEvent) valueList.removeListDataListener(this);
+		boolean removed = false;
+		if (!fireChangeEvent)
+		{
+			removed = valueList.removeListDataListenerIfNeeded(this);
+		}
 		try
 		{
 			valueList.fill(record);
 		}
 		finally
 		{
-			if (!fireChangeEvent) valueList.addListDataListener(this);
+			if (!fireChangeEvent)
+			{
+				if (removed)
+				{
+					// only add it if it was removed
+					valueList.addListDataListener(this);
+				}
+			}
 		}
 		previousRecord = record;
 	}
@@ -579,9 +597,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			try
 			{
+				valueList.removeListDataListener(this);
 				Object realValue = dataAdapterListToUse.getValueObject(dataAdapterListToUse.getRecord(), dataproviderID);
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
 				if (changeMonitor != null) changeMonitor.valueChanged();
+				valueList.addListDataListener(this);
 			}
 			catch (ServoyException e)
 			{
