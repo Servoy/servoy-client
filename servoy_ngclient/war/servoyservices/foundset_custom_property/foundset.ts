@@ -15,6 +15,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	NOTIFY_COLUMN_FORMATS_CHANGED: "columnFormatsChanged",
 	NOTIFY_SORT_COLUMNS_CHANGED: "sortColumnsChanged",
 	NOTIFY_SELECTED_ROW_INDEXES_CHANGED: "selectedRowIndexesChanged",
+	NOTIFY_SCROLL_TO_SELECTION: "scrollToSelection",
 	NOTIFY_VIEW_PORT_START_INDEX_CHANGED: "viewPortStartIndexChanged",
 	NOTIFY_VIEW_PORT_SIZE_CHANGED: "viewPortSizeChanged",
 	NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED: "viewportRowsCompletelyChanged",
@@ -31,6 +32,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SERVER_SIZE = "serverSize";
 	var SORT_COLUMNS = "sortColumns";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
+	var SCROLL_TO_SELECTION = "scrollToSelection";
 	var MULTI_SELECT = "multiSelect";
 	var HAS_MORE_ROWS = "hasMoreRows";
 	var VIEW_PORT = "viewPort";
@@ -130,7 +132,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
-					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SELECTED_ROW_INDEXES_CHANGED] = { oldValue : currentClientValue[SELECTED_ROW_INDEXES], newValue : serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES] };
+					if (hasListeners) {
+						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SELECTED_ROW_INDEXES_CHANGED] = { oldValue : currentClientValue[SELECTED_ROW_INDEXES], newValue : serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES] };
+						if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SCROLL_TO_SELECTION])) {
+							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SCROLL_TO_SELECTION] = true;
+						}
+					}
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
 					updates = true;
 				}

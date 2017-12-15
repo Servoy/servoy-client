@@ -66,7 +66,9 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_HAD_MORE_ROWS = 0b100000000;
 
-	protected static final int SEND_PUSH_TO_SERVER = 0b100000000;
+	protected static final int SEND_PUSH_TO_SERVER = 0b1000000000;
+
+	protected static final int SEND_SCROLL_TO_SELECTION = 0b10000000000;
 
 	protected boolean lastHadMoreRecords = false;
 
@@ -111,12 +113,16 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * Called when the foundSet selection needs to be re-sent to client.
 	 */
-	public void selectionChanged()
+	public void selectionChanged(boolean scrollToSelection)
 	{
 		if (!shouldSendAll())
 		{
 			int oldChangeFlags = changeFlags;
 			changeFlags = changeFlags | SEND_SELECTED_INDEXES;
+			if (scrollToSelection)
+			{
+				changeFlags = changeFlags | SEND_SCROLL_TO_SELECTION;
+			}
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 		propertyValue.setDataAdapterListToSelectedRecord();
@@ -448,6 +454,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendSelectedIndexes()
 	{
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
+	}
+
+	public boolean shouldSendScrollToSelection()
+	{
+		return (changeFlags & SEND_SCROLL_TO_SELECTION) != 0;
 	}
 
 	public List<Pair<Integer, Boolean>> getHandledRequestIds()
