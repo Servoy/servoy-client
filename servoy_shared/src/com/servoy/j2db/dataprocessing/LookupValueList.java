@@ -40,7 +40,6 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.OrCondition;
@@ -569,6 +568,12 @@ public class LookupValueList implements IValueList
 	public void removeListDataListener(ListDataListener l)
 	{
 		listeners.remove(l);
+	}
+
+	public boolean removeListDataListenerIfNeeded(ListDataListener l)
+	{
+		Object removed = listeners.remove(l);
+		return removed != null;
 	}
 
 	public String[] getDisplayFormat()

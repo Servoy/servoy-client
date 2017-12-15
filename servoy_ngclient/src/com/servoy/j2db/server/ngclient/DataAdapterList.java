@@ -19,7 +19,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.IWebObjectContext;
-import org.sablo.IllegalComponentAccessException;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -848,7 +848,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			webComponent.checkPropertyProtection(property);
 		}
-		catch (IllegalComponentAccessException ex)
+		catch (IllegalChangeFromClientException ex)
 		{
 			//ignore, this is just to check if we can edit it, if not, do not enter edit mode
 			return;
