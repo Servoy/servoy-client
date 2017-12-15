@@ -140,8 +140,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object value) throws ServoyException;
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, String dataprovider, String operator, Object value)
-		throws ServoyException;
+	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterCondition tableFilterCondition) throws ServoyException;
 
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 
