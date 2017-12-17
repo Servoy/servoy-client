@@ -18,7 +18,6 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
@@ -94,22 +93,22 @@ public class TableFilter implements Serializable, IWriteReplace
 	{
 		if (filters != null)
 		{
-			for (TableFilter tf : filters)
-			{
-				// do not use filters.contains(this) here, equality on the value (possible an array) would be incorrect
-				if (tf != null && /**/Utils.stringSafeEquals(tf.getName(), getName()) && //
-					Utils.stringSafeEquals(tf.getServerName(), getServerName()) && //
-					Utils.stringSafeEquals(tf.getTableName(), getTableName()) && //
-					Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName())
+//			for (TableFilter tf : filters)
+//			{
+//				// do not use filters.contains(this) here, equality on the value (possible an array) would be incorrect
+//				if (tf != null && /**/Utils.stringSafeEquals(tf.getName(), getName()) && //
+//					Utils.stringSafeEquals(tf.getServerName(), getServerName()) && //
+//					Utils.stringSafeEquals(tf.getTableName(), getTableName()) && //
+//					Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName())
 //&& //
 //			RAGTEST		Utils.stringSafeEquals(tf.getDataprovider(), getDataprovider()) && //
 //					tf.getOperator() == getOperator() && //
 //					Utils.equalObjects(tf.getValue(), getValue()) //
-				)
-				{
-					return true;
-				}
-			}
+//				)
+//				{
+//					return true;
+//				}
+//			}
 		}
 
 		return false;

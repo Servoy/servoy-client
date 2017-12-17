@@ -243,12 +243,20 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return addTableFilterParam5args(serverName, tableName, dataprovider, operator, value);
 	}
 
+	/* RAGTEST doc */
+	public boolean js_addTableFilterParam(QBSelect query) throws ServoyException
+	{
+		return js_addTableFilterParam(query, null);
+	}
+
+	/* RAGTEST doc */
 	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
 	{
 		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 		ITable table = foundSetManager.getTable(query.getDataSource());
 
-		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table, new QueryTableFilterCondition(query.build()));
+		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table,
+			new QueryTableFilterCondition(AbstractBaseQuery.deepClone(query.build())));
 	}
 
 
@@ -788,7 +796,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -877,7 +885,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2670,7 +2678,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2697,7 +2705,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3889,7 +3897,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException
