@@ -110,6 +110,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String SORT = "sortColumns";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	public static final String FOUNDSET_ID = "foundset_id";
+	public static final String SCROLL_TO_SELECTION = "scrollToSelection";
 
 	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	public static final String ID_KEY = "id";
@@ -422,7 +423,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			foundset = newFoundset;
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
-			changeMonitor.selectionChanged();
+			changeMonitor.selectionChanged(false);
 			changeMonitor.checkHadMoreRows();
 			if (foundset != null && foundset.isMultiSelect()) changeMonitor.multiSelectChanged();
 
@@ -663,6 +664,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SELECTED_ROW_INDEXES);
 				addSelectedIndexes(destinationJSON);
+				if (changeMonitor.shouldSendScrollToSelection())
+				{
+					destinationJSON.key(UPDATE_PREFIX + SCROLL_TO_SELECTION).value(true);
+				}
 				somethingChanged = true;
 			}
 			somethingChanged = addHandledClientRequestIdsIfNeeded(destinationJSON, somethingChanged);
@@ -956,7 +961,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 							// if server denies the new selection as invalid and doesn't change selection, send it to the client so that it doesn't keep invalid selection
 							if (!Arrays.equals(foundset.getSelectedIndexes(), newSelectedIndexes))
 							{
-								changeMonitor.selectionChanged();
+								changeMonitor.selectionChanged(false);
 							}
 						}
 					}
@@ -993,7 +998,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 							if (!Arrays.equals(oldSelection, foundset.getSelectedIndexes()))
 							{// if the selection is changed, send it back to the client so that its model is also updated
-								changeMonitor.selectionChanged();
+								changeMonitor.selectionChanged(false);
 								changeMonitor.requestIdHandled(requestID, true);
 							}
 							else
