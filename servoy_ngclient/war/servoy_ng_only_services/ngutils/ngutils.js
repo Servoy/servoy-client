@@ -120,6 +120,46 @@ angular.module('ngclientutils', [ 'servoy' ])
 		replaceHeaderTag: function(tagName, attrNameToFind, attrValueToFind, newTag)
 		{
 			// implemented in ngclientutils_server.js
+		},
+		
+		/**
+		 * Utility method for manipulating form style classes. 
+		 * It will add a style class to a certain form, similar as a design style class would work.
+		 * 
+		 * @param {string} formname the form name to add to.
+		 * @param {string} styleclass the styleclass to be added to form tag.
+		 */
+		addFormStyleClass: function(formname,styleclass)
+		{
+			// implemented in ngutils_server.js
+		},
+		
+		/**
+		 * Utility method for manipulating form style classes. 
+		 * It will get styleclasses assigned to a certain form, multiple styleclasses are separated by space.
+		 * 
+		 * NOTE: this call will only get style classes that were added via this plugin/service, not others that were previously set at design time or via solution model.
+		 * 
+		 * @param {string} formname the form name to get style classes.
+		 * @return {string} the styleclass of that form.
+		 */
+		getFormStyleClass: function(formname)
+		{
+			// implemented in ngutils_server.js
+		},
+		
+		/**
+		 * Utility method for manipulating form style classes. 
+		 * It will remove a styleclasse assigned to a certain form.
+		 * 
+		 * NOTE: this call will only remove style classes that were added via this plugin/service, not others that were previously set at design time or via solution model.
+		 * 
+		 * @param {string} formname the form name to remove from.
+		 * @param {string} styleclass the styleclass to be removed from form tag.
+		 */
+		removeFormStyleClass: function(formname,styleclass)
+		{
+			// implemented in ngutils_server.js
 		}
 	}
 }])
