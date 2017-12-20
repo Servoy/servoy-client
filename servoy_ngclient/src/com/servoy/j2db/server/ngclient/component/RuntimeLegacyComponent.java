@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.types.StyleClassPropertyType;
 
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -209,9 +211,18 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				@Override
 				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 				{
-					if (webComponentSpec.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) != null)
+					String propertyName = StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName();
+					Collection<PropertyDescription> mainStyleClassProperty = webComponentSpec.getTaggedProperties("mainStyleClass",
+						StyleClassPropertyType.INSTANCE);
+					if (mainStyleClassProperty.size() > 0)
 					{
-						String styleClass = (String)component.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName());
+						// should be only 1, we just take the first one.
+						propertyName = mainStyleClassProperty.iterator().next().getName();
+					}
+
+					if (webComponentSpec.getProperty(propertyName) != null)
+					{
+						String styleClass = (String)component.getProperty(propertyName);
 						if (args != null && args.length > 0 && args[0] != null)
 						{
 							if (styleClass == null) styleClass = "";
@@ -226,7 +237,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 							{
 								styleClass = styleClass.replaceAll("(?<!\\S)\\b" + Pattern.quote(args[0].toString()) + "\\b(?!\\S)", "");
 							}
-							component.setProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), styleClass);
+							component.setProperty(propertyName, styleClass);
 						}
 					}
 					return null;
