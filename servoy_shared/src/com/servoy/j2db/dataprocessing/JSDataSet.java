@@ -1944,6 +1944,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				{
 					record.setValue(columnNames[i + offset], array[i]);
 				}
+				record.stopEditing();
 			}
 		}
 
