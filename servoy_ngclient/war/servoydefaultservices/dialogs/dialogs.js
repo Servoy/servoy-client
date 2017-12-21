@@ -11,6 +11,8 @@ angular.module('dialogs',['servoy'])
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
 		 * @param buttonsText Array of button texts.
+		 * 
+		 * @return {string} pressed button or null if closed by escape key
 		 */
 		showErrorDialog: function(dialogTitle,dialogMessage,buttonsText) {
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-error');
@@ -123,7 +125,8 @@ angular.module('dialogs',['servoy'])
 			var dialogOptions = {
 					  buttons: {
 					  },
-					  closeButton: false
+					  closeButton: false,
+					  onEscape: function(){  dialogOpenedDeferred.resolve(null) }
 					};
 			if (dialogTitle) dialogOptions.title = dialogTitle;
 			dialogOptions.message = dialogMessage ? dialogMessage : " ";
