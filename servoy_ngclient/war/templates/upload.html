@@ -7,7 +7,7 @@
 	</table>
 	<div ng-if="!isFileSelected()"><span>{{::i18n_nothingSelected}}</span></div>
 	<br>
-	<div class="svy-btn svy-btn-primary" ngf-select ng-model="uploadFiles" ngf-multiple="isMultiSelect()">{{::i18n_chooseFiles}}</div>
+	<div class="svy-btn svy-btn-primary" ngf-select ng-model="uploadFiles" ngf-multiple="isMultiSelect()" ngf-keep="isMultiSelect() ? 'distinct' : false">{{::i18n_chooseFiles}}</div>
    	<div class="svy-btn svy-btn-success" ng-click="doUpload()">{{::i18n_upload}}</div>
    	<div class="svy-btn svy-btn-info" ng-click="dismiss()">{{::i18n_cancel}}</div>
    	<br><br>

@@ -27,7 +27,7 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     
     $scope.getUploadFiles = function() {
     	if($scope.uploadFiles) {
-    		if($scope.uploadFiles.length) {
+    		if($scope.uploadFiles instanceof Array) {
     			return $scope.uploadFiles;
     		}
     		else {
