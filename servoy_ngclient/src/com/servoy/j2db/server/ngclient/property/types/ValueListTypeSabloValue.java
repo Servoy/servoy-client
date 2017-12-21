@@ -334,11 +334,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		Object dpRealValue = null;
 		Object dpDisplayValue = null;
 		boolean containsDpValue = false;
-		if (vlSize > getConfig().getMaxCount() && dataproviderID != null && previousRecord != null)
+		if (dataproviderID != null && previousRecord != null)
 		{
 			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
-			if (dpindex != -1)
+			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount()))
 			{
 				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
 				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
