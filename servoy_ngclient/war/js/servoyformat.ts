@@ -593,8 +593,14 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 						element.mask(svyFormat.edit, settings);
 					} else if (svyFormat.edit) {
 						$scope.$evalAsync(function() {
+							var caret = element[0].selectionEnd;	
 							ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 							ngModelController.$render();
+							// if we had a selectionEnd, try to set it back
+							if(caret) {
+								element[0].selectionStart = caret;
+								element[0].selectionEnd = caret;
+							}
 						})
 					}
 				}
