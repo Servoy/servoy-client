@@ -225,7 +225,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private int multiSelectPinnedTo = -1;
 	private int multiSelectPinLevel;
 
-	private final int foundsetID;
+	private int foundsetID = 0;
 
 	public PrototypeState getPrototypeState()
 	{
@@ -272,7 +272,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
-		foundsetID = app.getNextFoundSetID();
 	}
 
 	public String getRelationName()
@@ -285,8 +284,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return sheet;
 	}
 
+	/**
+	 * Gets the unique id of the foundset. The foundset does not have an id until this method is called the first time on it.
+	 */
 	@Override
 	public int getID()
+	{
+		// we do not automatically assign an id to each foundset so that ng client client side code cannot send in random ints to target any foundset;
+		// in this way, only foundsets that were sent to client already (getID() was called on them in various property types to send it to client) can be targeted
+		if (foundsetID == 0) foundsetID = fsm.getNextFoundSetID();
+		return foundsetID;
+	}
+
+
+	/**
+	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before.
+	 */
+	int getIDInternal()
 	{
 		return foundsetID;
 	}

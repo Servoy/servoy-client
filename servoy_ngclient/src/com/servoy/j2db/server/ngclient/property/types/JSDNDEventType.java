@@ -51,7 +51,7 @@ import com.servoy.j2db.util.Debug;
  * @author jcompagner
  *
  */
-public class JSDNDEventType extends ReferencePropertyType<JSDNDEvent> implements IPropertyConverterForBrowser<JSDNDEvent>, IClassPropertyType<JSDNDEvent>
+public class JSDNDEventType extends UUIDReferencePropertyType<JSDNDEvent> implements IPropertyConverterForBrowser<JSDNDEvent>, IClassPropertyType<JSDNDEvent>
 {
 	public static final JSDNDEventType INSTANCE = new JSDNDEventType();
 	public static final String TYPE_NAME = "JSDNDEvent"; //$NON-NLS-1$

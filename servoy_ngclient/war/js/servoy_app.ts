@@ -411,6 +411,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		sendChanges: sendChanges,
 		
 		callServerSideApi: function(formname, beanname, methodName, args) {
+			// it would be nice to know here the argument and return types; for now just do default conversion (so that dates & types that use $sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC work correctly)
+			if (args && args.length) for (var i = 0; i < args.length; i++) {
+				args[i] = $sabloUtils.convertClientObject(args[i]); // TODO should be $sabloConverters.convertFromClientToServer(now, beanConversionInfo[property] ?, undefined);
+			}
+
 			return $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args})
 		},
 		

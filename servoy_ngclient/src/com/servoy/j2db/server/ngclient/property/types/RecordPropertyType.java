@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class RecordPropertyType extends ReferencePropertyType<Record> implements IClassPropertyType<Record>, IFormElementToTemplateJSON<Record, Record>
+public class RecordPropertyType extends UUIDReferencePropertyType<Record> implements IClassPropertyType<Record>, IFormElementToTemplateJSON<Record, Record>
 {
 	public static final RecordPropertyType INSTANCE = new RecordPropertyType();
 	public static final String TYPE_NAME = "record"; //$NON-NLS-1$

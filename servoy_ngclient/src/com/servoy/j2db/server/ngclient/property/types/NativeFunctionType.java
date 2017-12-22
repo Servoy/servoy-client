@@ -33,7 +33,7 @@ import org.sablo.websocket.utils.JSONUtils;
  * @author gboros
  *
  */
-public class NativeFunctionType extends ReferencePropertyType<NativeFunction>
+public class NativeFunctionType extends UUIDReferencePropertyType<NativeFunction>
 	implements IPropertyConverterForBrowser<NativeFunction>, IClassPropertyType<NativeFunction>
 {
 	public static final NativeFunctionType INSTANCE = new NativeFunctionType();

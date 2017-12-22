@@ -1447,7 +1447,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		for (FoundSet foundset : sharedDataSourceFoundSet.values())
 		{
-			if (id == foundset.getID()) return foundset;
+			if (id == foundset.getIDInternal()) return foundset;
 		}
 		for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
 		{
@@ -1456,7 +1456,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				SoftReference<RelatedFoundSet> sr = entry.getValue();
 				RelatedFoundSet element = sr.get();
-				if (element != null && id == element.getID())
+				if (element != null && id == element.getIDInternal())
 				{
 					return element;
 				}
@@ -1464,11 +1464,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		for (FoundSet foundset : separateFoundSets.values())
 		{
-			if (id == foundset.getID()) return foundset;
+			if (id == foundset.getIDInternal()) return foundset;
 		}
 		for (FoundSet foundset : foundSets)
 		{
-			if (id == foundset.getID()) return foundset;
+			if (id == foundset.getIDInternal()) return foundset;
 		}
 		return null;
 	}
@@ -1476,6 +1476,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public synchronized int getNextFoundSetID()
 	{
+		if (foundsetCounter == 0) foundsetCounter = 1; // MAX_INT ++ => negative and then gradually goes back to 0 (0 means id not initialized in Foundset class; so we skip it)
 		return foundsetCounter++;
 	}
 

@@ -51,7 +51,7 @@ import com.servoy.j2db.util.Debug;
  * @author gboros
  *
  */
-public class JSEventType extends ReferencePropertyType<JSEvent> implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
+public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
 {
 	public static final JSEventType INSTANCE = new JSEventType();
 	public static final String TYPE_NAME = "JSEvent"; //$NON-NLS-1$

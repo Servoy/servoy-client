@@ -148,7 +148,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	};
 
 	function updateViewportGranularly(viewPort, internalState, rowUpdates, rowUpdateConversions, componentScope,
-			componentModelGetter, simpleRowValue/*not key/value pairs in each row*/) {
+			componentModelGetter, simpleRowValue/*not key/value pairs in each row*/, rowPrototype) {
 		// partial row updates (remove/insert/update)
 
 		// {
@@ -179,6 +179,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					// if the rowUpdate contains '_svyRowId' then we know it's the entire/complete row object
 					if (simpleRowValue || rowUpdate.rows[relIdx][$foundsetTypeConstants.ROW_ID_COL_KEY]) {
 						viewPort[j] = rowUpdate.rows[relIdx];
+						if (rowPrototype) viewPort[j] = $sabloUtils.cloneWithDifferentPrototype(viewPort[j], rowPrototype);
 
 						if (rowConversionUpdate) {
 							// update conversion info
@@ -215,6 +216,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 				for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) {
 					viewPort.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
+					if (rowPrototype) rowUpdate.rows[j] = $sabloUtils.cloneWithDifferentPrototype(rowUpdate.rows[j], rowPrototype);
+
 					updateRowConversionInfo(rowUpdate.startIndex, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
 				// insert might have made obsolete some records in cache; remove those; for inserts
@@ -242,6 +245,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				viewPort.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
 				for (j = 0; j < rowUpdate.rows.length; j++) {
 					viewPort.push(rowUpdate.rows[j]);
+					if (rowPrototype) rowUpdate.rows[j] = $sabloUtils.cloneWithDifferentPrototype(rowUpdate.rows[j], rowPrototype);
+
 					updateRowConversionInfo(viewPort.length - 1, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
 				

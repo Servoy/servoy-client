@@ -18,6 +18,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -28,8 +29,10 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
 
 /**
  * This is meant to replace FoundsetReferencePropertyTypeOld as that sends too much server side information to the client - and it's not always needed. (not sure it is ever really needed)
@@ -39,7 +42,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  *
  * @author acostescu
  */
-public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal> implements IPropertyConverterForBrowser<IFoundSetInternal>,
+@SuppressWarnings("nls")
+public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal, Integer> implements IPropertyConverterForBrowser<IFoundSetInternal>,
 	IClassPropertyType<IFoundSetInternal>, IRhinoToSabloComponent<IFoundSetInternal>, ISabloComponentToRhino<IFoundSetInternal>
 {
 
@@ -60,11 +64,34 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	public IFoundSetInternal fromJSON(Object newValue, IFoundSetInternal previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newValue instanceof String)
+		IFoundSetInternal ref = null;
+		if (newValue instanceof Number)
 		{
-			return getReference((String)newValue);
+			Integer refID = Integer.valueOf(((Number)newValue).intValue());
+			if (newValue.equals(refID))
+			{
+				ref = getReference(refID); // this will find it if it was previously sent to client via this property type and was not garbage collected meanwhile
+				if (ref == null)
+				{
+					// otherwise see if the foundset manager knows of a foundset that uses this ID
+					BaseWebObject webObject = dataConverterContext.getWebObject();
+					if (webObject instanceof IContextProvider)
+					{
+						ref = ((IContextProvider)webObject).getDataConverterContext().getApplication().getFoundSetManager().findFoundset(refID.intValue());
+					}
+				}
+			}
+			else
+			{
+				Debug.error(new RuntimeException(
+					"Cannot get int ID from client side ref value (it is supposed to be an integer value but it is probably a real no.): " + newValue));
+			}
 		}
-		return null;
+		else if (newValue != null)
+		{
+			Debug.error(new RuntimeException("Cannot get int ID from client side ref value (it is supposed to be an integer but is not): " + newValue));
+		}
+		return ref;
 	}
 
 	@Override
@@ -74,6 +101,12 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.value(addReference(value));
 		return writer;
+	}
+
+	@Override
+	protected Integer createUniqueIdentifier(IFoundSetInternal ref)
+	{
+		return Integer.valueOf(ref.getID());
 	}
 
 	@Override
