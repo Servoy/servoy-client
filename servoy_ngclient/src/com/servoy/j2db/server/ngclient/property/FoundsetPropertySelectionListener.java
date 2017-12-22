@@ -20,6 +20,8 @@ package com.servoy.j2db.server.ngclient.property;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
+
 /**
  * This class monitors selection changes in the foundset in order for them to be sent to client/browser.
  * @author acostescu
@@ -42,7 +44,14 @@ final class FoundsetPropertySelectionListener implements ListSelectionListener
 	{
 		if (!e.getValueIsAdjusting() && !ignoreSelectionChanges)
 		{
-			changeMonitor.selectionChanged();
+			boolean scrollToSelection = false;
+			Object eventSource = e.getSource();
+			if (eventSource instanceof AlwaysRowSelectedSelectionModel)
+			{
+				AlwaysRowSelectedSelectionModel alwaysRowSelectedSelectionModel = (AlwaysRowSelectedSelectionModel)eventSource;
+				scrollToSelection = !alwaysRowSelectedSelectionModel.isFoundsetIsFiringSizeChange();
+			}
+			changeMonitor.selectionChanged(scrollToSelection);
 			viewPort.selectionChanged();
 		}
 	}

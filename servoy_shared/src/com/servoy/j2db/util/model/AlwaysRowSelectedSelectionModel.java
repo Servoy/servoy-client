@@ -350,4 +350,9 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		if (foundset.getSize() <= index) return false;
 		return true;
 	}
+
+	public boolean isFoundsetIsFiringSizeChange()
+	{
+		return foundsetIsFiringSizeChange;
+	}
 }
