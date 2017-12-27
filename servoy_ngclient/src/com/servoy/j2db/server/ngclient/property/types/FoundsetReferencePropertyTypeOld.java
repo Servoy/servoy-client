@@ -32,7 +32,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
  *
  * @author gboros
  */
-public class FoundsetReferencePropertyTypeOld extends ReferencePropertyType<IFoundSetInternal>
+public class FoundsetReferencePropertyTypeOld extends UUIDReferencePropertyType<IFoundSetInternal>
 	implements IPropertyConverterForBrowser<IFoundSetInternal>, IClassPropertyType<IFoundSetInternal>
 {
 

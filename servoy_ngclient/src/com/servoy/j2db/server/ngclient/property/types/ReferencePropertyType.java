@@ -26,41 +26,42 @@ import java.util.WeakHashMap;
 
 import org.sablo.specification.property.types.DefaultPropertyType;
 
-import com.servoy.j2db.util.UUID;
-
 /**
  * @author gboros
  *
  */
-public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
+public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T>
 {
 	private final ReferenceQueue<T> garbageCollectedRefQueue = new ReferenceQueue<>();
-	private final Map<String, WeakReference<T>> allWeakRefsByUUID = new HashMap<String, WeakReference<T>>();
-	private final WeakHashMap<T, String> refsToUUIDs = new WeakHashMap<>();
-	private final Map<WeakReference<T>, String> allUUIDsByWeakRef = new HashMap<WeakReference<T>, String>();
+	private final WeakHashMap<T, RT> refsToIDs = new WeakHashMap<>();
 
-	protected String addReference(T ref)
+	private final Map<RT, WeakReference<T>> allWeakRefsByID = new HashMap<RT, WeakReference<T>>();
+	private final Map<WeakReference<T>, RT> allIDsByWeakRef = new HashMap<WeakReference<T>, RT>();
+
+	protected RT addReference(T ref)
 	{
 		cleanGarbageCollectedReferences();
 		if (ref == null) return null;
-		String refID = refsToUUIDs.get(ref);
+		RT refID = refsToIDs.get(ref);
 		if (refID == null)
 		{
-			refID = UUID.randomUUID().toString();
+			refID = createUniqueIdentifier(ref);
 			WeakReference<T> weakRef = new WeakReference<T>(ref, garbageCollectedRefQueue);
-			allWeakRefsByUUID.put(refID, weakRef);
-			refsToUUIDs.put(ref, refID);
-			allUUIDsByWeakRef.put(weakRef, refID);
+			allWeakRefsByID.put(refID, weakRef);
+			refsToIDs.put(ref, refID);
+			allIDsByWeakRef.put(weakRef, refID);
 		}
 		return refID;
 	}
 
-	protected T getReference(String refID)
+	protected abstract RT createUniqueIdentifier(T ref);
+
+	protected T getReference(RT refID)
 	{
 		cleanGarbageCollectedReferences();
 		if (refID != null)
 		{
-			WeakReference<T> ref = allWeakRefsByUUID.get(refID);
+			WeakReference<T> ref = allWeakRefsByID.get(refID);
 			return ref != null ? ref.get() : null;
 		}
 		return null;
@@ -71,9 +72,10 @@ public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
 		Reference< ? extends T> ref;
 		while ((ref = garbageCollectedRefQueue.poll()) != null)
 		{
-			String refId = allUUIDsByWeakRef.remove(ref);
-			allWeakRefsByUUID.remove(refId);
+			RT refId = allIDsByWeakRef.remove(ref);
+			allWeakRefsByID.remove(refId);
 			// no need to clear here refsToUUIDs, as it is a weak hash-map and when T key is garbage collected it clears itself anyway
 		}
 	}
+
 }

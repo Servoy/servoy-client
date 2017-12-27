@@ -30,7 +30,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
 	var SERVER_SIZE = "serverSize";
-	var FOUNDSET_ID = "foundset_id";
+	var FOUNDSET_ID = "foundsetId";
 	var SORT_COLUMNS = "sortColumns";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	var SCROLL_TO_SELECTION = "scrollToSelection";
@@ -120,6 +120,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[MULTI_SELECT] = serverJSONValue[UPDATE_PREFIX + MULTI_SELECT];
 					updates = true;
 				}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + FOUNDSET_ID])) {
+					currentClientValue[FOUNDSET_ID] = serverJSONValue[UPDATE_PREFIX + FOUNDSET_ID] ? serverJSONValue[UPDATE_PREFIX + FOUNDSET_ID] : undefined;
+					updates = true;
+				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_COLUMN_FORMATS_CHANGED] = { oldValue : currentClientValue[COLUMN_FORMATS], newValue : serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS] };
 					currentClientValue[COLUMN_FORMATS] = serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS];
@@ -185,13 +189,18 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					if (angular.isDefined(viewPortUpdate[ROWS])) {
 						var oldRows = currentClientValue[VIEW_PORT][ROWS];
-						
 						$viewportModule.updateWholeViewport(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[ROWS],
 								viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] : undefined, componentScope, componentModelGetter);
 						
+						// new rows; set prototype for each row
+						var rows = currentClientValue[VIEW_PORT][ROWS];
+						for (var i = rows.length - 1; i >= 0; i--) {
+							rows[i] = $sabloUtils.cloneWithDifferentPrototype(rows[i], internalState.rowPrototype);
+						}
+						
 						if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue : oldRows, newValue : currentClientValue[VIEW_PORT][ROWS] };
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
-						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
+						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false, internalState.rowPrototype);
 
 						if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewPortUpdate[UPDATE_PREFIX + ROWS] }; // viewPortUpdate[UPDATE_PREFIX + ROWS] was already prepared for listeners by $viewportModule.updateViewportGranularly
 					}
@@ -201,10 +210,30 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				if (!updates && !serverJSONValue[NO_OP]) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : serverJSONValue };
 					
-					newValue = serverJSONValue; // not updates - so whole thing received
+					// not updates - so whole thing received
+					var proto = { };
+					// conversion to server in case it is sent to handler or server side internalAPI calls as argument of type "foundsetRef"
+					proto[$sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC] = function() {
+						return this[FOUNDSET_ID];
+					};
+					newValue = $sabloUtils.cloneWithDifferentPrototype(serverJSONValue, proto);
+						
 					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 					
+					// conversion of rows to server in case it is sent to handler or server side internalAPI calls as argument of type "foundsetRef"
+					internalState.rowPrototype = {};
+					internalState.rowPrototype[$sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC] = function() {
+						if (this[$foundsetTypeConstants.ROW_ID_COL_KEY])
+						{
+							var recordRef = {};
+							recordRef[$foundsetTypeConstants.ROW_ID_COL_KEY] = this[$foundsetTypeConstants.ROW_ID_COL_KEY];
+							recordRef[FOUNDSET_ID] = newValue[FOUNDSET_ID];
+							return recordRef;
+						}
+						return null
+					};
+					var rows = newValue[VIEW_PORT][ROWS];
 					if (typeof newValue[PUSH_TO_SERVER] !== 'undefined') {
 						internalState[PUSH_TO_SERVER] = newValue[PUSH_TO_SERVER];
 						delete newValue[PUSH_TO_SERVER];
@@ -223,11 +252,15 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
-					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
+					$viewportModule.updateAllConversionInfo(rows, internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
 					if (newValue[VIEW_PORT][$sabloConverters.TYPES_KEY]) {
 						// relocate conversion info in internal state and convert
-						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS], componentScope, componentModelGetter);
+						$sabloConverters.convertFromServerToClient(rows, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS], componentScope, componentModelGetter);
 						delete newValue[VIEW_PORT][$sabloConverters.TYPES_KEY];
+					}
+					// do set prototype after rows are converted
+					for (var i = rows.length - 1; i >= 0; i--) {
+						rows[i] = $sabloUtils.cloneWithDifferentPrototype(rows[i], internalState.rowPrototype);
 					}
 
 					// PUBLIC API to components; initialize the property value; make it 'smart'
@@ -306,13 +339,13 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 						return internalState.selectionUpdateDefer.promise;
 					}
-					newValue.getRecordRef = function(row) {
-						if (row)
+					newValue.getRecordRefByRowID = function(rowID) {
+						if (rowID)
 						{
 							var recordRef = {};
-							recordRef[$foundsetTypeConstants.ROW_ID_COL_KEY] = row[$foundsetTypeConstants.ROW_ID_COL_KEY];
+							recordRef[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowID;
 							recordRef[FOUNDSET_ID] = newValue[FOUNDSET_ID];
-							return recordRef
+							return recordRef;
 						}
 						return null
 					};

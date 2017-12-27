@@ -10,7 +10,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	var decorator = function($delegate, $injector) {
 		// this call can modify "args" (it converts them to be sent to server)
 		$delegate.callServerSideApi = function(serviceName, methodName, args) {
-			// it would be nice to know here the argument and return types; for now just do default conversion (so that dates work correctly)
+			// it would be nice to know here the argument and return types; for now just do default conversion (so that dates & types that use $sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC work correctly)
 			if (args && args.length) for (var i = 0; i < args.length; i++) {
 				args[i] = $injector.get("$sabloUtils").convertClientObject(args[i]); // TODO should be $sabloConverters.convertFromClientToServer(now, beanConversionInfo[property] ?, undefined);
 			}

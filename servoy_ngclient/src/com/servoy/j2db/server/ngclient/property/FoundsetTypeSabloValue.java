@@ -109,7 +109,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String SERVER_SIZE = "serverSize";
 	public static final String SORT = "sortColumns";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
-	public static final String FOUNDSET_ID = "foundset_id";
+	public static final String FOUNDSET_ID = "foundsetId";
 	public static final String SCROLL_TO_SELECTION = "scrollToSelection";
 
 	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
@@ -415,6 +415,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		{
 			int oldServerSize = (foundset != null ? foundset.getSize() : 0);
 			int newServerSize = (newFoundset != null ? newFoundset.getSize() : 0);
+			boolean oldMultiselect = (foundset != null ? foundset.isMultiSelect() : false);
+			boolean newMultiselect = (newFoundset != null ? newFoundset.isMultiSelect() : false);
+
 			if (foundset instanceof ISwingFoundSet)
 			{
 				((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
@@ -425,9 +428,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged(false);
 			changeMonitor.checkHadMoreRows();
-			if (foundset != null && foundset.isMultiSelect()) changeMonitor.multiSelectChanged();
-
+			if (oldMultiselect != newMultiselect) changeMonitor.multiSelectChanged();
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
+			changeMonitor.foundsetIDChanged();
 
 			if (foundset instanceof ISwingFoundSet)
 			{
@@ -629,6 +632,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			{
 				destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendFoundsetID())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_ID).value(getFoundset() != null ? getFoundset().getID() : 0);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendPushToServer())

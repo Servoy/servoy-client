@@ -70,6 +70,8 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_SCROLL_TO_SELECTION = 0b10000000000;
 
+	protected static final int SEND_FOUNDSET_ID = 0b100000000000;
+
 	protected boolean lastHadMoreRecords = false;
 
 	protected IChangeListener changeNotifier;
@@ -137,7 +139,6 @@ public class FoundsetTypeChangeMonitor
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
-
 
 	/**
 	 * The foundset's size changed.
@@ -486,6 +487,11 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_MULTISELECT) != 0;
 	}
 
+	public boolean shouldSendFoundsetID()
+	{
+		return (changeFlags & SEND_FOUNDSET_ID) != 0;
+	}
+
 	public boolean shouldSendColumnFormats()
 	{
 		return (changeFlags & SEND_COLUMN_FORMATS) != 0;
@@ -685,6 +691,16 @@ public class FoundsetTypeChangeMonitor
 				changeFlags = changeFlags | SEND_HAD_MORE_ROWS;
 				if (doNotifyChange && (oldChangeFlags != changeFlags)) notifyChange();
 			}
+		}
+	}
+
+	public void foundsetIDChanged()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_FOUNDSET_ID;
+			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
 
