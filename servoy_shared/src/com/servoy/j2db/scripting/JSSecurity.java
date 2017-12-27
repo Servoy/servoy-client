@@ -35,7 +35,7 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.DataproviderTableFilterCondition;
+import com.servoy.j2db.dataprocessing.DataproviderTableFilterdefinition;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -209,7 +209,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 								try
 								{
 									application.getFoundSetManager().addTableFilterParam("_svy_tenant_id_table_filter", server.getName(), table,
-										new DataproviderTableFilterCondition(column.getDataProviderID(), IBaseSQLCondition.EQUALS_OPERATOR, value));
+										new DataproviderTableFilterdefinition(column.getDataProviderID(), IBaseSQLCondition.EQUALS_OPERATOR, value));
 								}
 								catch (ServoyException e)
 								{

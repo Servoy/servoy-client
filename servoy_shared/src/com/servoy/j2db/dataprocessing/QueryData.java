@@ -50,8 +50,8 @@ public class QueryData implements Serializable, IVisitable, IWriteReplace
 
 		classMapping.put(QueryData.class, Short.valueOf((short)1));
 		classMapping.put(TableFilter.class, Short.valueOf((short)2));
-		classMapping.put(DataproviderTableFilterCondition.class, Short.valueOf((short)3));
-		classMapping.put(QueryTableFilterCondition.class, Short.valueOf((short)4));
+		classMapping.put(DataproviderTableFilterdefinition.class, Short.valueOf((short)3));
+		classMapping.put(QueryTableFilterdefinition.class, Short.valueOf((short)4));
 
 		ReplacedObject.installClassMapping(DATAPROCESSING_SERIALIZE_DOMAIN, classMapping);
 	}

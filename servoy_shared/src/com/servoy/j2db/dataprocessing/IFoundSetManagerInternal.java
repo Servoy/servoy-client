@@ -138,10 +138,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public List<SortColumn> getDefaultPKSortColumns(String dataSource) throws ServoyException;
 
-	public DataproviderTableFilterCondition createDataproviderTableFilterCondition(ITable table, String dataprovider, String operator, Object val)
+	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException;
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterCondition tableFilterCondition) throws ServoyException;
+	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException;
 
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 

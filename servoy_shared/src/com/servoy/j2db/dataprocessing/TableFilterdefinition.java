@@ -17,52 +17,15 @@
 
 package com.servoy.j2db.dataprocessing;
 
-import java.util.ArrayList;
-
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.persistence.ITable;
 
 /**
- * RAGTEST doc  FilterCondiition
- * @author rgansevles
+ *
+ * RAGTEST doc
+ * @author rob
  *
  */
-public class FilterRagtest
+public interface TableFilterdefinition
 {
-
-	private final ArrayList<ISQLJoin> joins;
-	private final ISQLCondition condition;
-
-	/**
-	 * @param joins
-	 * @param condition
-	 */
-	public FilterRagtest(ArrayList<ISQLJoin> joins, ISQLCondition condition)
-	{
-		this.joins = joins;
-		this.condition = condition;
-	}
-
-	/**
-	 * @return the joins
-	 */
-	public ArrayList<ISQLJoin> getJoins()
-	{
-		return joins;
-	}
-
-	/**
-	 * @return the condition
-	 */
-	public ISQLCondition getCondition()
-	{
-		return condition;
-	}
-
-	@Override
-	public String toString()
-	{
-		return "FilterRagtest [joins=" + joins + ", condition=" + condition + "]";
-	}
-
+	boolean affects(ITable table);
 }

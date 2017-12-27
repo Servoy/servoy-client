@@ -17,16 +17,51 @@
 
 package com.servoy.j2db.dataprocessing;
 
-import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.util.visitor.IVisitable;
+import java.util.List;
+
+import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLJoin;
 
 /**
- *
- * RAGTEST doc
- * @author rob
+ * RAGTEST doc  FilterCondiition
+ * @author rgansevles
  *
  */
-public interface TableFilterCondition extends IVisitable
+public class Filtercondition
 {
-	boolean affects(ITable table);
+	private final List<ISQLJoin> joins;
+	private final ISQLCondition condition;
+
+	/**
+	 * @param joins
+	 * @param condition
+	 */
+	public Filtercondition(List<ISQLJoin> joins, ISQLCondition condition)
+	{
+		this.joins = joins;
+		this.condition = condition;
+	}
+
+	/**
+	 * @return the joins
+	 */
+	public List<ISQLJoin> getJoins()
+	{
+		return joins;
+	}
+
+	/**
+	 * @return the condition
+	 */
+	public ISQLCondition getCondition()
+	{
+		return condition;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Filtercondition [joins=" + joins + ", condition=" + condition + "]";
+	}
+
 }

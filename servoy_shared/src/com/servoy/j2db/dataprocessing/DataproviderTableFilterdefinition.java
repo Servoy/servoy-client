@@ -20,9 +20,9 @@ package com.servoy.j2db.dataprocessing;
 import java.io.Serializable;
 
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
-import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  *
@@ -30,13 +30,13 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rob
  *
  */
-public class DataproviderTableFilterCondition implements Serializable, TableFilterCondition, IWriteReplace
+public class DataproviderTableFilterdefinition implements Serializable, TableFilterdefinition, IWriteReplace
 {
 	private final String dataprovider;
 	private final int operator;
 	private final Object value;
 
-	public DataproviderTableFilterCondition(String dataprovider, int operator, Object value)
+	public DataproviderTableFilterdefinition(String dataprovider, int operator, Object value)
 	{
 		this.dataprovider = dataprovider;
 		this.operator = operator;
@@ -68,14 +68,51 @@ public class DataproviderTableFilterCondition implements Serializable, TableFilt
 	}
 
 	@Override
-	public void acceptVisitor(IVisitor visitor)
-	{
-	}
-
-	@Override
 	public boolean affects(ITable table)
 	{
 		return table.getColumn(dataprovider) != null;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dataprovider == null) ? 0 : dataprovider.hashCode());
+		result = prime * result + operator;
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		DataproviderTableFilterdefinition other = (DataproviderTableFilterdefinition)obj;
+		if (dataprovider == null)
+		{
+			if (other.dataprovider != null) return false;
+		}
+		else if (!dataprovider.equals(other.dataprovider)) return false;
+		if (operator != other.operator) return false;
+		if (value == null)
+		{
+			if (other.value != null) return false;
+		}
+		else if (!value.equals(other.value)) return false;
+		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return new StringBuilder("DataproviderTableFilterdefinition[") //
+			.append(dataprovider) //
+			.append(RelationItem.getOperatorAsString(operator).toUpperCase()) //
+			.append(value).append(']') //
+			.toString();
 	}
 
 	///////// serialization ////////////////
@@ -86,7 +123,7 @@ public class DataproviderTableFilterCondition implements Serializable, TableFilt
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(), new Object[] { dataprovider, Integer.valueOf(operator), value });
 	}
 
-	public DataproviderTableFilterCondition(ReplacedObject s)
+	public DataproviderTableFilterdefinition(ReplacedObject s)
 	{
 		Object[] members = (Object[])s.getObject();
 		int i = 0;

@@ -24,6 +24,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -32,11 +33,11 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rob
  *
  */
-public class QueryTableFilterCondition implements Serializable, TableFilterCondition, IWriteReplace
+public class QueryTableFilterdefinition implements Serializable, TableFilterdefinition, IVisitable, IWriteReplace
 {
 	private QuerySelect querySelect;
 
-	public QueryTableFilterCondition(QuerySelect querySelect)
+	public QueryTableFilterdefinition(QuerySelect querySelect)
 	{
 		this.querySelect = querySelect;
 	}
@@ -61,6 +62,38 @@ public class QueryTableFilterCondition implements Serializable, TableFilterCondi
 		return querySelect.getTable().getDataSource().equals(table.getDataSource());
 	}
 
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((querySelect == null) ? 0 : querySelect.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		QueryTableFilterdefinition other = (QueryTableFilterdefinition)obj;
+		if (querySelect == null)
+		{
+			if (other.querySelect != null) return false;
+		}
+		else if (!querySelect.equals(other.querySelect)) return false;
+		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return new StringBuilder("QueryTableFilterdefinition[") //
+			.append(querySelect).append(']') //
+			.toString();
+	}
+
 	///////// serialization ////////////////
 
 	public Object writeReplace()
@@ -69,7 +102,7 @@ public class QueryTableFilterCondition implements Serializable, TableFilterCondi
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(), querySelect);
 	}
 
-	public QueryTableFilterCondition(ReplacedObject s)
+	public QueryTableFilterdefinition(ReplacedObject s)
 	{
 		querySelect = (QuerySelect)s.getObject();
 	}

@@ -1252,9 +1252,9 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static FilterRagtest createTableFilterRagtest(BaseQueryTable qTable, Table table, TableFilter filter)
+	public static Filtercondition createTableFiltercondition(BaseQueryTable qTable, Table table, TableFilter filter)
 	{
-		if (filter.getTableFilterCondition() == null)
+		if (filter.getTableFilterdefinition() == null)
 		{
 			return null;
 		}
@@ -1265,39 +1265,39 @@ public class SQLGenerator
 			return null;
 		}
 
-		if (filter.getTableFilterCondition() instanceof QueryTableFilterCondition)
+		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 		{
-			return createTableFilterRagtest(qTable, ((QueryTableFilterCondition)filter.getTableFilterCondition()).getQuerySelect());
+			return createTableFiltercondition(qTable, ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
 		}
 
-		if (filter.getTableFilterCondition() instanceof DataproviderTableFilterCondition)
+		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
 		{
-			return createTableFilterCondition(qTable, table, (DataproviderTableFilterCondition)filter.getTableFilterCondition());
+			return createTableFiltercondition(qTable, table, (DataproviderTableFilterdefinition)filter.getTableFilterdefinition());
 		}
 
-		throw new IllegalStateException("Unknown table filter condition type: " + filter.getTableFilterCondition().getClass().getName());
+		throw new IllegalStateException("Unknown table filter definition type: " + filter.getTableFilterdefinition().getClass().getName());
 
 	}
 
-	private static FilterRagtest createTableFilterRagtest(BaseQueryTable qTable, QuerySelect filterQuery)
+	private static Filtercondition createTableFiltercondition(BaseQueryTable qTable, QuerySelect filterQuery)
 	{
 		QuerySelect filterQueryClone = AbstractBaseQuery.deepClone(filterQuery);
 		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
 
-		return new FilterRagtest(filterQueryClone.getJoins(), filterQueryClone.getWhere());
+		return new Filtercondition(filterQueryClone.getJoins(), filterQueryClone.getWhere());
 	}
 
-	public static FilterRagtest createTableFilterCondition(BaseQueryTable qTable, Table table, DataproviderTableFilterCondition filter)
+	public static Filtercondition createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
 	{
-		Column c = table.getColumn(filter.getDataprovider());
+		Column c = table.getColumn(filterdefinition.getDataprovider());
 		if (c == null)
 		{
-			Debug.error("Could not apply filter " + filter + " on table " + table + " : column not found:" + filter.getDataprovider()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Debug.error("Could not apply filter " + filterdefinition + " on table " + table + " : column not found:" + filterdefinition.getDataprovider()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return null;
 		}
-		int op = filter.getOperator();
+		int op = filterdefinition.getOperator();
 		int maskedOp = op & IBaseSQLCondition.OPERATOR_MASK;
-		Object value = filter.getValue();
+		Object value = filterdefinition.getValue();
 
 		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
 		ISQLCondition filterWhere;
@@ -1381,7 +1381,7 @@ public class SQLGenerator
 			filterWhere = new CompareCondition(op, qColumn, operand);
 		}
 
-		return new FilterRagtest(null, filterWhere);
+		return new Filtercondition(null, filterWhere);
 	}
 
 	public static boolean isSelectQuery(String value)

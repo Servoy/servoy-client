@@ -249,9 +249,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param dataSource
 	 * @param columnName when not null, only return true if the table has the column
 	 */
-	private boolean mustRefresh(ITable table, String dataSource, TableFilterCondition tableFilterCondition)
+	private boolean mustRefresh(ITable table, String dataSource, TableFilterdefinition tableFilterdefinition)
 	{
-		if (!tableFilterCondition.affects(table))
+		if (!tableFilterdefinition.affects(table))
 		{
 			// table not affected
 			return false;
@@ -281,7 +281,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param skipStopEdit If true then stop edit will not be called
 	 * @return affected tables
 	 */
-	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, TableFilterCondition tableFilterCondition, boolean skipStopEdit)
+	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, TableFilterdefinition tableFilterdefinition, boolean skipStopEdit)
 	{
 		Set<ITable> affectedTables = new HashSet<ITable>();
 
@@ -294,7 +294,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			try
 			{
-				if (mustRefresh(fs.getTable(), dataSource, tableFilterCondition))
+				if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinition))
 				{
 					if (fs.isInitialized())
 					{
@@ -325,7 +325,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					try
 					{
-						if (mustRefresh(element.getTable(), dataSource, tableFilterCondition))
+						if (mustRefresh(element.getTable(), dataSource, tableFilterdefinition))
 						{
 							//element.refreshFromDB(false);
 							// this call is somewhat different then a complete refresh from db.
@@ -351,14 +351,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return affectedTables;
 	}
 
-	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, TableFilterCondition tableFilterCondition)
+	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, TableFilterdefinition tableFilterdefinition)
 	{
-		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, tableFilterCondition, false);
+		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, tableFilterdefinition, false);
 
 		// also add tables that have listeners but no foundsets
 		for (ITable tableKey : tableListeners.keySet())
 		{
-			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, tableFilterCondition))
+			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, tableFilterdefinition))
 			{
 				affectedtableList.add(tableKey);
 			}
@@ -1125,7 +1125,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		giveMeFoundSet(l);
 	}
 
-	public DataproviderTableFilterCondition createDataproviderTableFilterCondition(ITable table, String dataprovider, String operator, Object val)
+	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException
 	{
 		if (dataprovider == null || operator == null)
@@ -1154,7 +1154,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			value = convertFilterValue(table, column, value);
 		}
-		return new DataproviderTableFilterCondition(dataprovider, op, value);
+		return new DataproviderTableFilterdefinition(dataprovider, op, value);
 	}
 
 	public Object convertFilterValue(ITable table, Column column, Object value) throws ServoyException
@@ -1196,10 +1196,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return value;
 	}
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterCondition tableFilterCondition) throws ServoyException
+	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException
 	{
 		TableFilter filter = new TableFilter(filterName, serverName, table == null ? null : table.getName(), table == null ? null : table.getSQLName(),
-			tableFilterCondition);
+			tableFilterdefinition);
 
 		List<TableFilter> params = tableFilterParams.get(serverName);
 		if (params == null)
@@ -1211,7 +1211,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			params.add(filter);
 
-			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), tableFilterCondition))
+			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), tableFilterdefinition))
 			{
 				fireTableEvent(affectedtable);
 			}
@@ -1255,7 +1255,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					dataSource = DataSourceUtils.createDBTableDataSource(filter.getServerName(), filter.getTableName());
 				}
 
-				for (ITable affectedtable : getFilterUpdateAffectedTables(dataSource, filter.getTableFilterCondition()))
+				for (ITable affectedtable : getFilterUpdateAffectedTables(dataSource, filter.getTableFilterdefinition()))
 				{
 					if (firedTables.add(affectedtable))
 					{
@@ -1319,10 +1319,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					for (TableFilter filter : serverFilters)
 					{
 						TableFilter useFilter = null;
-						TableFilterCondition tableFilterCondition = filter.getTableFilterCondition();
-						if (filter.getTableName() == null && tableFilterCondition instanceof DataproviderTableFilterCondition)
+						TableFilterdefinition tableFilterdefinition = filter.getTableFilterdefinition();
+						if (filter.getTableName() == null && tableFilterdefinition instanceof DataproviderTableFilterdefinition)
 						{
-							DataproviderTableFilterCondition dataproviderTableFilterCondition = (DataproviderTableFilterCondition)tableFilterCondition;
+							DataproviderTableFilterdefinition dataproviderTableFilterdefinition = (DataproviderTableFilterdefinition)tableFilterdefinition;
 							// filter is on all tables with specified dataProvider as column
 							try
 							{
@@ -1334,14 +1334,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 										// should never happen
 										throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
 									}
-									Column column = table.getColumn(dataproviderTableFilterCondition.getDataprovider());
+									Column column = table.getColumn(dataproviderTableFilterdefinition.getDataprovider());
 									if (column != null)
 									{
 										// Use filter with table name filled in.
 										// When table was null value was not yet converted, convert now.
-										Object value = convertFilterValue(table, column, dataproviderTableFilterCondition.getValue());
+										Object value = convertFilterValue(table, column, dataproviderTableFilterdefinition.getValue());
 										useFilter = new TableFilter(filter.getName(), filter.getServerName(), table.getName(), table.getSQLName(),
-											dataproviderTableFilterCondition.getDataprovider(), dataproviderTableFilterCondition.getOperator(), value);
+											dataproviderTableFilterdefinition.getDataprovider(), dataproviderTableFilterdefinition.getOperator(), value);
 									}
 								}
 							}
@@ -1404,10 +1404,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					{
 						if (filter.getTableSQLName().equals(qTable.getName()))
 						{
-							if (filter.getTableFilterCondition() instanceof QueryTableFilterCondition)
+							if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 							{
-								// RAGTEST test tf zonder joins
-								ArrayList<ISQLJoin> joins = ((QueryTableFilterCondition)filter.getTableFilterCondition()).getQuerySelect().getJoins();
+								List<ISQLJoin> joins = ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect().getJoins();
 								if (joins != null && !joins.isEmpty())
 								{
 									hasTableFiltersWithJoins.set(true);

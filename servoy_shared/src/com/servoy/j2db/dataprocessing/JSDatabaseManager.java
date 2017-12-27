@@ -255,8 +255,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 		ITable table = foundSetManager.getTable(query.getDataSource());
 
-		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table,
-			new QueryTableFilterCondition(AbstractBaseQuery.deepClone(query.build())));
+		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table, new QueryTableFilterdefinition(query.build() /* makes a clone */));
 	}
 
 
@@ -376,9 +375,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			// else table remains null: apply to all tables with that column
 
-			DataproviderTableFilterCondition dataproviderTableFilterCondition = application.getFoundSetManager().createDataproviderTableFilterCondition(table,
-				dataprovider, operator, value);
-			if (dataproviderTableFilterCondition == null)
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager().createDataproviderTableFilterdefinition(
+				table, dataprovider, operator, value);
+			if (dataproviderTableFilterdefinition == null)
 			{
 				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
 					"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
@@ -386,7 +385,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				return false;
 			}
 
-			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataproviderTableFilterCondition));
+			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataproviderTableFilterdefinition));
 		}
 		catch (Exception ex)
 		{
