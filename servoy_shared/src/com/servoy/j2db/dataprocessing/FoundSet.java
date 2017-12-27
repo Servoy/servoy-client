@@ -710,6 +710,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return addFilterParam(name, dataprovider, operator, value);
 	}
 
+	// RAGTEST doc
+	public boolean js_addFoundSetFilterParam(QBSelect query)
+	{
+		return js_addFoundSetFilterParam(query, null);
+	}
+
+	// RAGTEST doc
+	public boolean js_addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		if (query == null || sheet.getTable() == null || !sheet.getTable().getDataSource().equals(query.getDataSource()))
+		{
+			return false;
+		}
+
+		QuerySelect queryClone = query.build(); // makes a clone
+		// the make sure the main table of the query is linked to the table of the foundset
+		queryClone.relinkTable(queryClone.getTable(), creationSqlSelect.getTable());
+		return addFilterParam(filterName, new QueryTableFilterCondition(queryClone));
+	}
+
 	/**
 	 * Remove a named foundset filter.
 	 * Use clear() or loadAllRecords() to make the filter effective.
@@ -6574,6 +6594,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
 	{
+		DataproviderTableFilterCondition dataproviderTableFilterCondition = fsm.createDataproviderTableFilterCondition(sheet.getTable(), dataprovider, operator,
+			value);
+
+		// create condition to check filter
+		FilterRagtest filterRagtest = SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), dataproviderTableFilterCondition);
+		if (filterRagtest == null)
+		{
+			return false;
+		}
+
+		return addFilterParam(filterName, dataproviderTableFilterCondition);
+	}
+
+	private boolean addFilterParam(String filterName, TableFilterCondition tableFilterCondition)
+	{
 		if (sheet.getTable() == null)
 		{
 			return false;
@@ -6585,11 +6620,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		TableFilter filter = null;//RAGTEST fsm.createTableFilter(filterName, sheet.getServerName(), sheet.getTable(), dataprovider, operator, value);
-		if (filter == null)
+
+		if (tableFilterCondition == null)
 		{
+//		RAGTEST	fsm.getApplication().reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+//				"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+//				null);
 			return false;
 		}
+
+		TableFilter filter = new TableFilter(filterName, sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
+			tableFilterCondition);
 
 		if (filter.isContainedIn(foundSetFilters))
 		{
@@ -6597,16 +6638,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return true;
 		}
 
-		// create condition to check filter
-		ISQLCondition cond = null;//RAGTESTSQLGenerator.createTableFilterRagtest(creationSqlSelect.getTable(), sheet.getTable(), filter);
-		if (cond == null)
-		{
-			return false;
-		}
-
 		if (foundSetFilters == null)
 		{
-			foundSetFilters = new ArrayList<TableFilter>();
+			foundSetFilters = new ArrayList<>();
 		}
 		foundSetFilters.add(filter);
 
@@ -6652,17 +6686,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		synchronized (pksAndRecords)
 		{
 			creationSqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
+			// remove joins made for filter conditions
+			creationSqlSelect.removeUnusedJoins(false);
 			addFilterConditions(creationSqlSelect, foundSetFilters);
 		}
 	}
 
 	private QuerySelect addFilterConditions(QuerySelect select, List<TableFilter> filters)
 	{
-		if (filters != null)
+		for (TableFilter tf : Utils.iterate(filters))
 		{
-			for (TableFilter tf : filters)
+			FilterRagtest filterRagtest = SQLGenerator.createTableFilterRagtest(select.getTable(), sheet.getTable(), tf);
+			select.addCondition(SQLGenerator.CONDITION_FILTER, filterRagtest.getCondition());
+			for (ISQLJoin join : Utils.iterate(filterRagtest.getJoins()))
 			{
-				//RAGTEST	select.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterRagtest(select.getTable(), sheet.getTable(), tf));
+				select.addJoin(join);
 			}
 		}
 		return select;

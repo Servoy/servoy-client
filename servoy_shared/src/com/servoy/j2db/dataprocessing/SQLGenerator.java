@@ -1287,7 +1287,7 @@ public class SQLGenerator
 		return new FilterRagtest(filterQueryClone.getJoins(), filterQueryClone.getWhere());
 	}
 
-	private static FilterRagtest createTableFilterCondition(BaseQueryTable qTable, Table table, DataproviderTableFilterCondition filter)
+	public static FilterRagtest createTableFilterCondition(BaseQueryTable qTable, Table table, DataproviderTableFilterCondition filter)
 	{
 		Column c = table.getColumn(filter.getDataprovider());
 		if (c == null)

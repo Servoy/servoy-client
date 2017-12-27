@@ -19,7 +19,12 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.util.serialize.IWriteReplace;
+import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  *
@@ -27,10 +32,9 @@ import com.servoy.j2db.query.QuerySelect;
  * @author rob
  *
  */
-public class QueryTableFilterCondition implements Serializable, TableFilterCondition
+public class QueryTableFilterCondition implements Serializable, TableFilterCondition, IWriteReplace
 {
-	// RAGTEST writereplace
-	private final QuerySelect querySelect;
+	private QuerySelect querySelect;
 
 	public QueryTableFilterCondition(QuerySelect querySelect)
 	{
@@ -43,5 +47,30 @@ public class QueryTableFilterCondition implements Serializable, TableFilterCondi
 	public QuerySelect getQuerySelect()
 	{
 		return querySelect;
+	}
+
+	@Override
+	public void acceptVisitor(IVisitor visitor)
+	{
+		querySelect = AbstractBaseQuery.acceptVisitor(querySelect, visitor);
+	}
+
+	@Override
+	public boolean affects(ITable table)
+	{
+		return querySelect.getTable().getDataSource().equals(table.getDataSource());
+	}
+
+	///////// serialization ////////////////
+
+	public Object writeReplace()
+	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
+		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(), querySelect);
+	}
+
+	public QueryTableFilterCondition(ReplacedObject s)
+	{
+		querySelect = (QuerySelect)s.getObject();
 	}
 }

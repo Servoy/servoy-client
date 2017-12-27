@@ -937,7 +937,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			{
 				// (de)serialize arguments and result of 'remote' services in developer to mimic rmi in smart client
 				Remote remoteService = super.getRemoteService(name);
-				if (false && /* RAGTEST */useSerializingDataserverProxy)
+				if (useSerializingDataserverProxy)
 				{
 					return SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(DebugJ2DBClient.this, remoteService);
 				}
@@ -952,7 +952,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		IDataServer dataServer = super.createDataServer();
 		if (dataServer != null)
 		{
-			if (false && /* RAGTEST */new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy())
+			if (new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy())
 			{
 				dataServer = SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(this,
 					ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(dataServer, new Class< ? >[] { IDataServer.class }),

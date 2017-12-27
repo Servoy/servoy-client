@@ -375,9 +375,18 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 			// else table remains null: apply to all tables with that column
-			// RAGTEST validatie op oude parameters
-			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table,
-				new DataproviderTableFilterCondition(dataprovider, 0/* RAGTEST operator */, value)));
+
+			DataproviderTableFilterCondition dataproviderTableFilterCondition = application.getFoundSetManager().createDataproviderTableFilterCondition(table,
+				dataprovider, operator, value);
+			if (dataproviderTableFilterCondition == null)
+			{
+				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+					"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+					null);
+				return false;
+			}
+
+			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataproviderTableFilterCondition));
 		}
 		catch (Exception ex)
 		{
@@ -1984,6 +1993,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			// get the sql without any filters
 			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
+			sqlSelect.removeUnusedJoins(false);
 			tableFilterParams = null;
 		}
 		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true);

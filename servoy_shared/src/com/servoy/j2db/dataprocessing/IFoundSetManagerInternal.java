@@ -138,7 +138,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public List<SortColumn> getDefaultPKSortColumns(String dataSource) throws ServoyException;
 
-	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object value) throws ServoyException;
+	public DataproviderTableFilterCondition createDataproviderTableFilterCondition(ITable table, String dataprovider, String operator, Object val)
+		throws ServoyException;
 
 	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterCondition tableFilterCondition) throws ServoyException;
 
@@ -165,5 +166,4 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public IFoundSetInternal findFoundset(int id);
 
 	public int getNextFoundSetID();
-
 }

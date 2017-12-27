@@ -17,13 +17,20 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import java.io.Serializable;
+
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.util.serialize.IWriteReplace;
+import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.IVisitor;
+
 /**
  *
  * RAGTEST doc
  * @author rob
  *
  */
-public class DataproviderTableFilterCondition implements TableFilterCondition
+public class DataproviderTableFilterCondition implements Serializable, TableFilterCondition, IWriteReplace
 {
 	private final String dataprovider;
 	private final int operator;
@@ -58,5 +65,33 @@ public class DataproviderTableFilterCondition implements TableFilterCondition
 	public Object getValue()
 	{
 		return value;
+	}
+
+	@Override
+	public void acceptVisitor(IVisitor visitor)
+	{
+	}
+
+	@Override
+	public boolean affects(ITable table)
+	{
+		return table.getColumn(dataprovider) != null;
+	}
+
+	///////// serialization ////////////////
+
+	public Object writeReplace()
+	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
+		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(), new Object[] { dataprovider, Integer.valueOf(operator), value });
+	}
+
+	public DataproviderTableFilterCondition(ReplacedObject s)
+	{
+		Object[] members = (Object[])s.getObject();
+		int i = 0;
+		dataprovider = (String)members[i++];
+		operator = ((Integer)members[i++]).intValue();
+		value = members[i++];
 	}
 }

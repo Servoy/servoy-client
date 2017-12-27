@@ -17,12 +17,16 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.util.visitor.IVisitable;
+
 /**
  *
  * RAGTEST doc
  * @author rob
  *
  */
-public interface TableFilterCondition
+public interface TableFilterCondition extends IVisitable
 {
+	boolean affects(ITable table);
 }
