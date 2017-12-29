@@ -29,8 +29,9 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
-import com.servoy.j2db.util.visitor.IVisitor.VistorResult;
+import com.servoy.j2db.util.visitor.IVisitor.VisitorResult;
 import com.servoy.j2db.util.visitor.ReplaceVisitor;
+import com.servoy.j2db.util.visitor.VisitOnceDelegateVisitor;
 
 /**
  * Base class for all DML classes.
@@ -77,6 +78,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		classMapping.put(ExistsCondition.class, Short.valueOf((short)26));
 		classMapping.put(ObjectPlaceholderKey.class, Short.valueOf((short)27));
 		classMapping.put(QueryCompositeJoin.class, Short.valueOf((short)28));
+		classMapping.put(QueryFilter.class, Short.valueOf((short)29));
 
 		ReplacedObject.installClassMapping(QUERY_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -102,10 +104,10 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 		Object v = visitor.visit(o);
 		T o2;
-		if (v instanceof VistorResult)
+		if (v instanceof VisitorResult)
 		{
-			o2 = (T)((VistorResult)v).object;
-			if (!((VistorResult)v).continueTraversal)
+			o2 = (T)((VisitorResult)v).object;
+			if (!((VisitorResult)v).continueTraversal)
 			{
 				return o2;
 			}
@@ -178,19 +180,6 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	}
 
 	/**
-	 * Find all occurrences of tables with the given name, regardless of the alias.
-	 *
-	 * @param name
-	 * @return set of QueryTable
-	 */
-	public List<QueryTable> findTable(String name)
-	{
-		TableFinder visitor = new TableFinder(name);
-		acceptVisitor(visitor);
-		return visitor.getTables();
-	}
-
-	/**
 	 * Replace references to orgTable with newTable.
 	 *
 	 * @param orgTable
@@ -212,13 +201,13 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	public static Placeholder getPlaceholder(IVisitable visitable, TablePlaceholderKey key)
 	{
 		PlaceHolderFinder phf = new PlaceHolderFinder(key);
-		visitable.acceptVisitor(phf);
-		List<Object> placeHolders = phf.getPlaceHolders();
+		visitable.acceptVisitor(new VisitOnceDelegateVisitor(phf));
+		List<Placeholder> placeHolders = phf.getPlaceHolders();
 		if (placeHolders.size() == 0)
 		{
 			return null;
 		}
-		return (Placeholder)placeHolders.get(0);
+		return placeHolders.get(0);
 	}
 
 	public boolean setPlaceholderValue(TablePlaceholderKey key, Object value)
@@ -234,44 +223,6 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	}
 
 	/**
-	 * Visitor class for finding tables by name regardless of alias.
-	 *
-	 * @author rgansevles
-	 *
-	 */
-	public static class TableFinder implements IVisitor
-	{
-		private final String name;
-		private final List<QueryTable> tables = new ArrayList<QueryTable>();
-
-		/**
-		 * @param name
-		 */
-		public TableFinder(String name)
-		{
-			this.name = name;
-		}
-
-		public List<QueryTable> getTables()
-		{
-			return tables;
-		}
-
-		public Object visit(Object o)
-		{
-			if (o instanceof QueryTable)
-			{
-				QueryTable t = (QueryTable)o;
-				if (t.getName().equals(name))
-				{
-					tables.add(t);
-				}
-			}
-			return o;
-		}
-	}
-
-	/**
 	 * Visitor class for finding place holders by key.
 	 *
 	 * @author rgansevles
@@ -280,32 +231,31 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	public static class PlaceHolderFinder implements IVisitor
 	{
 		private final TablePlaceholderKey key;
-		private final List<Object> placeHolders = new ArrayList<Object>();
+		private final List<Placeholder> placeHolders = new ArrayList<>();
 
 		PlaceHolderFinder(TablePlaceholderKey key)
 		{
 			this.key = key;
 		}
 
-		List<Object> getPlaceHolders()
+		List<Placeholder> getPlaceHolders()
 		{
 			return placeHolders;
 		}
 
 		public Object visit(Object o)
 		{
-			if (o instanceof Placeholder && (key.equals(((Placeholder)o).getKey())))
+			if (o instanceof Placeholder && key.equals(((Placeholder)o).getKey()))
 			{
-				placeHolders.add(o);
+				placeHolders.add((Placeholder)o);
 			}
 			return o;
 		}
 	}
 
-
 	public static List<String> getInvalidRangeConditions(ISQLCondition condition)
 	{
-		List<String> invalidRangeConditions = new ArrayList<String>();
+		List<String> invalidRangeConditions = new ArrayList<>();
 
 		if (condition != null)
 		{
@@ -385,8 +335,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		}
 	}
 
-
-///////// serialization ////////////////
+	///////// serialization ////////////////
 
 	/**
 	 * Return serialized replacement for this query.
@@ -399,7 +348,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	static class CompareConditionVisitor implements IVisitor
 	{
 		private final int compareCondition;
-		private final List<CompareCondition> returnCompareConditions = new ArrayList<CompareCondition>();
+		private final List<CompareCondition> returnCompareConditions = new ArrayList<>();
 
 		CompareConditionVisitor(int compareCondition)
 		{

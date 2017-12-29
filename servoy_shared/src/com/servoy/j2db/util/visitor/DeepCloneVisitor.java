@@ -47,7 +47,7 @@ public class DeepCloneVisitor implements IVisitor
 		if (o == null || (!cloneImmutables && o instanceof Immutable))
 		{
 			// do not need to make a copy
-			return new IVisitor.VistorResult(o, false);
+			return new IVisitor.VisitorResult(o, false);
 		}
 
 		try

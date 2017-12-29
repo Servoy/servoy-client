@@ -79,6 +79,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryFactory;
+import com.servoy.j2db.query.QueryFilter;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QueryInsert;
@@ -247,7 +248,7 @@ public class SQLGenerator
 							if (o instanceof OrCondition && ((OrCondition)o).getConditions().size() > 1)
 							{
 								hasOr[0] = true;
-								return new VistorResult(o, false);
+								return new VisitorResult(o, false);
 							}
 							return o;
 						}
@@ -1252,7 +1253,7 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static Filtercondition createTableFiltercondition(BaseQueryTable qTable, Table table, TableFilter filter)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, TableFilter filter)
 	{
 		if (filter.getTableFilterdefinition() == null)
 		{
@@ -1279,15 +1280,15 @@ public class SQLGenerator
 
 	}
 
-	private static Filtercondition createTableFiltercondition(BaseQueryTable qTable, QuerySelect filterQuery)
+	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, QuerySelect filterQuery)
 	{
 		QuerySelect filterQueryClone = AbstractBaseQuery.deepClone(filterQuery);
 		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
 
-		return new Filtercondition(filterQueryClone.getJoins(), filterQueryClone.getWhere());
+		return new QueryFilter(filterQueryClone.getJoins(), filterQueryClone.getWhere());
 	}
 
-	public static Filtercondition createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
 	{
 		Column c = table.getColumn(filterdefinition.getDataprovider());
 		if (c == null)
@@ -1381,7 +1382,7 @@ public class SQLGenerator
 			filterWhere = new CompareCondition(op, qColumn, operand);
 		}
 
-		return new Filtercondition(null, filterWhere);
+		return new QueryFilter(null, filterWhere);
 	}
 
 	public static boolean isSelectQuery(String value)

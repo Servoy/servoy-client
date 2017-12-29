@@ -1418,7 +1418,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 								if (joins != null && !joins.isEmpty())
 								{
 									hasTableFiltersWithJoins.set(true);
-									return new VistorResult(o, false);
+									return new VisitorResult(o, false);
 								}
 							}
 						}

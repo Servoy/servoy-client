@@ -26,19 +26,19 @@ package com.servoy.j2db.util.visitor;
 public interface IVisitor
 {
 	/**
-	 * visit method, return o or a replacement of o (will stop traversal). Traversal can be controlled also by returning VistorResult.
+	 * visit method, return o or a replacement of o (will stop traversal). Traversal can be controlled also by returning VisitorResult.
 	 * 
 	 * @param o
 	 * @return
 	 */
 	Object visit(Object o);
 
-	public static class VistorResult
+	public static class VisitorResult
 	{
 		public final boolean continueTraversal;
 		public final Object object;
 
-		public VistorResult(Object object, boolean continueTraversal)
+		public VisitorResult(Object object, boolean continueTraversal)
 		{
 			this.object = object;
 			this.continueTraversal = continueTraversal;

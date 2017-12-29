@@ -45,19 +45,19 @@ public class VisitOnceDelegateVisitor implements IVisitor, IDelegate<IVisitor>
 		if (visited != null || map.containsKey(wrapper))
 		{
 			// already visited before, return previous result
-			return new IVisitor.VistorResult(visited, false);
+			return new IVisitor.VisitorResult(visited, false);
 		}
 
 		Object visitedResult = visitor.visit(o);
-		if (visitedResult instanceof VistorResult)
+		if (visitedResult instanceof VisitorResult)
 		{
 			// delete returned whether or not to continue
-			visited = ((VistorResult)visitedResult).object;
+			visited = ((VisitorResult)visitedResult).object;
 		}
 		else
 		{
 			visited = visitedResult;
-			visitedResult = new IVisitor.VistorResult(visited, true);
+			visitedResult = new IVisitor.VisitorResult(visited, true);
 		}
 		map.put(wrapper, visited);
 		return visitedResult;

@@ -94,6 +94,7 @@ import com.servoy.j2db.query.QueryCustomJoin;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryCustomSort;
 import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.query.QueryFilter;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
@@ -6616,7 +6617,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			operator, value);
 
 		// create condition to check filter
-		Filtercondition filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
+		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);
 		if (filtercondition == null)
 		{
@@ -6715,7 +6716,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		for (TableFilter tf : iterate(filters))
 		{
-			Filtercondition filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
+			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
