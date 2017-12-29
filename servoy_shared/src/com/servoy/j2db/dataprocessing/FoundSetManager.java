@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.util.Utils.iterate;
+
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
@@ -1271,29 +1273,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public Object[][] getTableFilterParams(String serverName, String filterName)
 	{
-		List<TableFilter> params = tableFilterParams.get(serverName);
 		List<Object[]> result = new ArrayList<Object[]>();
-		if (params != null)
+		for (TableFilter f : iterate(tableFilterParams.get(serverName)))
 		{
-			Iterator<TableFilter> iterator = params.iterator();
-			while (iterator.hasNext())
+			if (filterName == null || filterName.equals(f.getName()))
 			{
-				TableFilter f = iterator.next();
-				if (filterName == null || filterName.equals(f.getName()))
+				if (f.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
 				{
-					if (f.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
-					{
-						DataproviderTableFilterdefinition tableFilterdefinition = (DataproviderTableFilterdefinition)f.getTableFilterdefinition();
-						result.add(new Object[] { f.getTableName(), tableFilterdefinition.getDataprovider(), RelationItem.getOperatorAsString(
-							tableFilterdefinition.getOperator()), tableFilterdefinition.getValue(), f.getName() });
-					}
-					if (f.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
-					{
-						QuerySelect querySelect = ((QueryTableFilterdefinition)f.getTableFilterdefinition()).getQuerySelect();
-						result.add(new Object[] { new QBSelect(this, getScopesScopeProvider(), getApplication().getFlattenedSolution(),
-							getApplication().getScriptEngine().getSolutionScope(), querySelect.getTable().getDataSource(), null,
-							AbstractBaseQuery.deepClone(querySelect)), f.getName() });
-					}
+					DataproviderTableFilterdefinition tableFilterdefinition = (DataproviderTableFilterdefinition)f.getTableFilterdefinition();
+					result.add(new Object[] { f.getTableName(), tableFilterdefinition.getDataprovider(), RelationItem.getOperatorAsString(
+						tableFilterdefinition.getOperator()), tableFilterdefinition.getValue(), f.getName() });
+				}
+				if (f.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+				{
+					QuerySelect querySelect = ((QueryTableFilterdefinition)f.getTableFilterdefinition()).getQuerySelect();
+					result.add(new Object[] { new QBSelect(this, getScopesScopeProvider(), getApplication().getFlattenedSolution(),
+						getApplication().getScriptEngine().getSolutionScope(), querySelect.getTable().getDataSource(), null,
+						AbstractBaseQuery.deepClone(querySelect, true)), f.getName() });
 				}
 			}
 		}

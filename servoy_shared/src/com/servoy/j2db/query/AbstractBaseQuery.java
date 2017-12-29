@@ -34,9 +34,9 @@ import com.servoy.j2db.util.visitor.ReplaceVisitor;
 
 /**
  * Base class for all DML classes.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public abstract class AbstractBaseQuery implements ISQLQuery
 {
@@ -156,12 +156,17 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	public static <T> T deepClone(T o)
 	{
-		return acceptVisitor(o, DeepCloneVisitor.createDeepCloneVisitor());
+		return deepClone(o, false);
+	}
+
+	public static <T> T deepClone(T o, boolean cloneImmutables)
+	{
+		return acceptVisitor(o, DeepCloneVisitor.createDeepCloneVisitor(cloneImmutables));
 	}
 
 	/**
 	 * Relink from orgTable to newTable. Correct references to table aliases.
-	 * 
+	 *
 	 * @param orgTable
 	 * @param newTable
 	 * @param o
@@ -174,7 +179,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	/**
 	 * Find all occurrences of tables with the given name, regardless of the alias.
-	 * 
+	 *
 	 * @param name
 	 * @return set of QueryTable
 	 */
@@ -187,7 +192,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	/**
 	 * Replace references to orgTable with newTable.
-	 * 
+	 *
 	 * @param orgTable
 	 * @param newTable
 	 */
@@ -230,9 +235,9 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	/**
 	 * Visitor class for finding tables by name regardless of alias.
-	 * 
+	 *
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	public static class TableFinder implements IVisitor
 	{
@@ -268,9 +273,9 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	/**
 	 * Visitor class for finding place holders by key.
-	 * 
+	 *
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	public static class PlaceHolderFinder implements IVisitor
 	{
@@ -334,9 +339,9 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	/**
 	 * Visitor class for setting place holder value.
-	 * 
+	 *
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	public static class PlaceHolderSetter implements IVisitor
 	{
@@ -385,7 +390,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	/**
 	 * Return serialized replacement for this query.
-	 * 
+	 *
 	 * @return
 	 */
 	public abstract Object writeReplace();

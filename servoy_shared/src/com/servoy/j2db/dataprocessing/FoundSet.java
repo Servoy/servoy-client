@@ -5038,7 +5038,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), currentQuery, pksAndRecords.getCachedRecords(), reduceSearch, omittedPKs,
 				lastSortColumns, true);
 		}
-		return clone ? AbstractBaseQuery.deepClone(currentQuery) : currentQuery;
+		return clone ? AbstractBaseQuery.deepClone(currentQuery, true) : currentQuery;
 	}
 
 	/**
@@ -6594,11 +6594,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
 	{
-		DataproviderTableFilterdefinition dataproviderTableFilterdefinition = fsm.createDataproviderTableFilterdefinition(sheet.getTable(), dataprovider, operator,
-			value);
+		DataproviderTableFilterdefinition dataproviderTableFilterdefinition = fsm.createDataproviderTableFilterdefinition(sheet.getTable(), dataprovider,
+			operator, value);
 
 		// create condition to check filter
-		Filtercondition filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(), dataproviderTableFilterdefinition);
+		Filtercondition filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
+			dataproviderTableFilterdefinition);
 		if (filtercondition == null)
 		{
 			return false;
