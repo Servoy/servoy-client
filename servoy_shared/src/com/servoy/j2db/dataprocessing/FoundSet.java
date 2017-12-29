@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.util.Utils.iterate;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
@@ -68,6 +70,7 @@ import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -613,7 +616,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private void flushRelatedFoundsets() throws RepositoryException
 	{
-		for (Relation r : Utils.iterate(fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false)))
+		for (Relation r : iterate(fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false)))
 		{
 			fsm.flushRelatedFoundSet(FoundSet.this, r.getName());
 		}
@@ -770,14 +773,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the list of previously defined foundset filters.
-	 * The result is an array of:
-	 *  [ tableName, dataprovider, operator, value, name ]
+	 *
+	 * For column-based table filters, a row of 5 fields per filter are returned.
+	 * The "columns" of a row from this array are: tablename, dataprovider, operator, value, filtername
+	 *
+	 * For query-based filters, a row of 2 fields per filter are returned.
+	 * The "columns" of a row from this array are: query, filtername
 	 *
 	 * @sample
 	 * var params = foundset.getFoundSetFilterParams()
 	 * for (var i = 0; params != null && i < params.length; i++)
 	 * {
-	 * 	application.output('FoundSet filter on table ' + params[i][0]+ ': '+ params[i][1]+ ' '+params[i][2]+ ' '+params[i][3] +(params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 *  if (params[i].length() == 5) {
+	 * 		application.output('FoundSet filter on table ' + params[i][0] + ': '+ params[i][1] + ' '+params[i][2] + ' '+params[i][3] + (params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 * 	}
+	 *  if (params[i].length() == 2) {
+	 * 		application.output('FoundSet filter with query ' + params[i][0]+ ': ' + (params[i][1] == null ? ' [no name]' : ' ['+params[i][1]+']'))
+	 * 	}
 	 * }
 	 *
 	 * @return Array of filter definitions.
@@ -790,16 +802,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public Object[][] getFoundSetFilterParams(String filterName)
 	{
 		List<Object[]> result = new ArrayList<Object[]>();
-		if (foundSetFilters != null)
+		for (TableFilter f : iterate(foundSetFilters))
 		{
-			Iterator<TableFilter> iterator = foundSetFilters.iterator();
-			while (iterator.hasNext())
+			if (filterName == null || filterName.equals(f.getName()))
 			{
-				TableFilter f = iterator.next();
-				if (filterName == null || filterName.equals(f.getName()))
+				if (f.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
 				{
-//		RAGTEST			result.add(
-//						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
+					DataproviderTableFilterdefinition tableFilterdefinition = (DataproviderTableFilterdefinition)f.getTableFilterdefinition();
+					result.add(new Object[] { f.getTableName(), tableFilterdefinition.getDataprovider(), RelationItem.getOperatorAsString(
+						tableFilterdefinition.getOperator()), tableFilterdefinition.getValue(), f.getName() });
+				}
+				if (f.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+				{
+					QuerySelect querySelect = ((QueryTableFilterdefinition)f.getTableFilterdefinition()).getQuerySelect();
+					result.add(new Object[] { new QBSelect(fsm, fsm.getScopesScopeProvider(), fsm.getApplication().getFlattenedSolution(),
+						fsm.getApplication().getScriptEngine().getSolutionScope(), querySelect.getTable().getDataSource(), null,
+						AbstractBaseQuery.deepClone(querySelect, true)), f.getName() });
 				}
 			}
 		}
@@ -1773,7 +1791,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private List<SortColumn> determineSortColumns(QuerySelect sqlSelect) throws RepositoryException
 	{
 		List<SortColumn> sortColumns = null;
-		for (IQuerySort qsort : Utils.iterate(sqlSelect.getSorts()))
+		for (IQuerySort qsort : iterate(sqlSelect.getSorts()))
 		{
 			if (qsort instanceof QuerySort)
 			{
@@ -1831,7 +1849,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		// find the join to this table
-		for (ISQLJoin join : Utils.iterate(sqlSelect.getJoins()))
+		for (ISQLJoin join : iterate(sqlSelect.getJoins()))
 		{
 			if (join.getName() != null && join instanceof QueryJoin && ((QueryJoin)join).getForeignTable() == qTable)
 			{
@@ -6695,11 +6713,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private QuerySelect addFilterconditions(QuerySelect select, List<TableFilter> filters)
 	{
-		for (TableFilter tf : Utils.iterate(filters))
+		for (TableFilter tf : iterate(filters))
 		{
 			Filtercondition filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
-			for (ISQLJoin join : Utils.iterate(filtercondition.getJoins()))
+			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
 				select.addJoin(join);
 			}
