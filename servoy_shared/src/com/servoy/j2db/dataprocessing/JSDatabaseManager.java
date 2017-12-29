@@ -252,12 +252,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/* RAGTEST doc */
 	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
 	{
+		checkAuthorized();
+
 		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 		ITable table = foundSetManager.getTable(query.getDataSource());
 
 		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table, new QueryTableFilterdefinition(query.build() /* makes a clone */));
 	}
-
 
 	/**
 	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
@@ -421,13 +422,22 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Returns a two dimensional array object containing the table filter information currently applied to the servers tables.
-	 * The "columns" of a row from this array are: tablename,dataprovider,operator,value,tablefilername
+	 * For column-based table filters, a row of 5 fields per filter are returned.
+	 * The "columns" of a row from this array are: tablename, dataprovider, operator, value, filtername
+	 *
+	 * For query-based filters, a row of 2 fields per filter are returned.
+	 * The "columns" of a row from this array are: query, filtername
 	 *
 	 * @sample
 	 * var params = databaseManager.getTableFilterParams(databaseManager.getDataSourceServerName(controller.getDataSource()))
 	 * for (var i = 0; params != null && i < params.length; i++)
 	 * {
-	 * 	application.output('Table filter on table ' + params[i][0]+ ': '+ params[i][1]+ ' '+params[i][2]+ ' '+params[i][3] +(params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 *  if (params[i].length() == 5) {
+	 * 		application.output('Table filter on table ' + params[i][0] + ': '+ params[i][1] + ' '+params[i][2] + ' '+params[i][3] + (params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 * 	}
+	 *  if (params[i].length() == 2) {
+	 * 		application.output('Table filter with query ' + params[i][0]+ ': ' + (params[i][1] == null ? ' [no name]' : ' ['+params[i][1]+']'))
+	 * 	}
 	 * }
 	 *
 	 * @param serverName The name of the database server connection.
@@ -804,7 +814,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-	
+
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -893,7 +903,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-	
+
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2687,7 +2697,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-	
+
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2714,7 +2724,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-	
+
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3906,7 +3916,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-	
+
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException

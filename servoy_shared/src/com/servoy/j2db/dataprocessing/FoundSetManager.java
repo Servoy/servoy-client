@@ -69,6 +69,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.ISQLJoin;
@@ -1280,8 +1281,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				TableFilter f = iterator.next();
 				if (filterName == null || filterName.equals(f.getName()))
 				{
-//	RAGTEST				result.add(
-//						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
+					if (f.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
+					{
+						DataproviderTableFilterdefinition tableFilterdefinition = (DataproviderTableFilterdefinition)f.getTableFilterdefinition();
+						result.add(new Object[] { f.getTableName(), tableFilterdefinition.getDataprovider(), RelationItem.getOperatorAsString(
+							tableFilterdefinition.getOperator()), tableFilterdefinition.getValue(), f.getName() });
+					}
+					if (f.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+					{
+						QuerySelect querySelect = ((QueryTableFilterdefinition)f.getTableFilterdefinition()).getQuerySelect();
+						result.add(new Object[] { new QBSelect(this, getScopesScopeProvider(), getApplication().getFlattenedSolution(),
+							getApplication().getScriptEngine().getSolutionScope(), querySelect.getTable().getDataSource(), null,
+							AbstractBaseQuery.deepClone(querySelect)), f.getName() });
+					}
 				}
 			}
 		}
