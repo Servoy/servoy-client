@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<servoy-repo.url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.1a-201710090410/</servoy-repo.url>
+		<servoy-repo.url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.2-201711300510/</servoy-repo.url>
 		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
