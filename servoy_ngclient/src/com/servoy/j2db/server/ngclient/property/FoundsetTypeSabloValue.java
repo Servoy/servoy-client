@@ -109,7 +109,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String SERVER_SIZE = "serverSize";
 	public static final String SORT = "sortColumns";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
-	public static final String FOUNDSET_ID = "foundset_id";
+	public static final String FOUNDSET_ID = "foundsetId";
+	public static final String SCROLL_TO_SELECTION = "scrollToSelection";
 
 	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	public static final String ID_KEY = "id";
@@ -400,7 +401,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected IFoundSetManagerInternal getFoundSetManager()
 	{
-		return getFormUI().getDataConverterContext().getApplication().getFoundSetManager();
+		return getApplication().getFoundSetManager();
 	}
 
 	protected INGApplication getApplication()
@@ -414,6 +415,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		{
 			int oldServerSize = (foundset != null ? foundset.getSize() : 0);
 			int newServerSize = (newFoundset != null ? newFoundset.getSize() : 0);
+			boolean oldMultiselect = (foundset != null ? foundset.isMultiSelect() : false);
+			boolean newMultiselect = (newFoundset != null ? newFoundset.isMultiSelect() : false);
+
 			if (foundset instanceof ISwingFoundSet)
 			{
 				((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
@@ -422,11 +426,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			foundset = newFoundset;
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
-			changeMonitor.selectionChanged();
+			changeMonitor.selectionChanged(false);
 			changeMonitor.checkHadMoreRows();
-			if (foundset != null && foundset.isMultiSelect()) changeMonitor.multiSelectChanged();
-
+			if (oldMultiselect != newMultiselect) changeMonitor.multiSelectChanged();
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
+			changeMonitor.foundsetIDChanged();
 
 			if (foundset instanceof ISwingFoundSet)
 			{
@@ -630,6 +634,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 				somethingChanged = true;
 			}
+			if (changeMonitor.shouldSendFoundsetID())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_ID).value(getFoundset() != null ? getFoundset().getID() : 0);
+				somethingChanged = true;
+			}
 			if (changeMonitor.shouldSendPushToServer())
 			{
 				PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
@@ -663,6 +673,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SELECTED_ROW_INDEXES);
 				addSelectedIndexes(destinationJSON);
+				if (changeMonitor.shouldSendScrollToSelection())
+				{
+					destinationJSON.key(UPDATE_PREFIX + SCROLL_TO_SELECTION).value(true);
+				}
 				somethingChanged = true;
 			}
 			somethingChanged = addHandledClientRequestIdsIfNeeded(destinationJSON, somethingChanged);
@@ -811,16 +825,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		if (parentDAL != null)
 		{
-			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication().getFlattenedSolution(), parentDAL.getForm().getForm(),
-				foundset.getTable(), false, false);
+			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication(), parentDAL.getForm().getForm(), foundset.getTable(),
+				false, false);
 		}
 		else
 		{
 			IDataAdapterList dl = NGComponentDALContext.getDataAdapterList(webObjectContext);
-			if (dl != null) return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication().getFlattenedSolution(), dl.getForm().getForm(),
-				foundset.getTable(), false, false);
+			if (dl != null)
+				return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication(), dl.getForm().getForm(), foundset.getTable(), false, false);
 		}
-		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false, false);
+		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), webObjectContext != null ? getApplication() : null, false, false);
 	}
 
 	public void browserUpdatesReceived(Object jsonValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
@@ -956,7 +970,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 							// if server denies the new selection as invalid and doesn't change selection, send it to the client so that it doesn't keep invalid selection
 							if (!Arrays.equals(foundset.getSelectedIndexes(), newSelectedIndexes))
 							{
-								changeMonitor.selectionChanged();
+								changeMonitor.selectionChanged(false);
 							}
 						}
 					}
@@ -993,7 +1007,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 							if (!Arrays.equals(oldSelection, foundset.getSelectedIndexes()))
 							{// if the selection is changed, send it back to the client so that its model is also updated
-								changeMonitor.selectionChanged();
+								changeMonitor.selectionChanged(false);
 								changeMonitor.requestIdHandled(requestID, true);
 							}
 							else

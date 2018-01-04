@@ -17,14 +17,10 @@
 
 package com.servoy.j2db.component;
 
-import java.io.IOException;
-
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
-import com.servoy.j2db.dataprocessing.IColumnConverter;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
-import com.servoy.j2db.dataprocessing.ITypedColumnConverter;
 import com.servoy.j2db.dataprocessing.IUIConverter;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Column;
@@ -123,29 +119,8 @@ public class ComponentFormat
 							formatProperty = ci.getDefaultFormat();
 						}
 					}
-					if (ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
-					{
-						IColumnConverter columnConverter = ((FoundSetManager)application.getFoundSetManager()).getColumnConverterManager().getConverter(
-							ci.getConverterName());
-						if (columnConverter instanceof ITypedColumnConverter)
-						{
-							try
-							{
-								int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(
-									ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
-								if (convType != Integer.MAX_VALUE)
-								{
-									dpType = Column.mapToDefaultType(convType);
-								}
-							}
-							catch (IOException e)
-							{
-								Debug.error(
-									"Exception loading properties for converter " + columnConverter.getName() + ", properties: " + ci.getConverterProperties(),
-									e);
-							}
-						}
-					}
+
+					dpType = application.getFoundSetManager().getConvertedTypeForColumn(column, true);
 				}
 
 			}

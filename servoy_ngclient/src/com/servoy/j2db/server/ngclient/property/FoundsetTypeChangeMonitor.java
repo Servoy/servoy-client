@@ -66,7 +66,11 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_HAD_MORE_ROWS = 0b100000000;
 
-	protected static final int SEND_PUSH_TO_SERVER = 0b100000000;
+	protected static final int SEND_PUSH_TO_SERVER = 0b1000000000;
+
+	protected static final int SEND_SCROLL_TO_SELECTION = 0b10000000000;
+
+	protected static final int SEND_FOUNDSET_ID = 0b100000000000;
 
 	protected boolean lastHadMoreRecords = false;
 
@@ -111,12 +115,16 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * Called when the foundSet selection needs to be re-sent to client.
 	 */
-	public void selectionChanged()
+	public void selectionChanged(boolean scrollToSelection)
 	{
 		if (!shouldSendAll())
 		{
 			int oldChangeFlags = changeFlags;
 			changeFlags = changeFlags | SEND_SELECTED_INDEXES;
+			if (scrollToSelection)
+			{
+				changeFlags = changeFlags | SEND_SCROLL_TO_SELECTION;
+			}
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 		propertyValue.setDataAdapterListToSelectedRecord();
@@ -131,7 +139,6 @@ public class FoundsetTypeChangeMonitor
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
-
 
 	/**
 	 * The foundset's size changed.
@@ -450,6 +457,11 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
 	}
 
+	public boolean shouldSendScrollToSelection()
+	{
+		return (changeFlags & SEND_SCROLL_TO_SELECTION) != 0;
+	}
+
 	public List<Pair<Integer, Boolean>> getHandledRequestIds()
 	{
 		return handledRequestIds;
@@ -473,6 +485,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendMultiSelect()
 	{
 		return (changeFlags & SEND_MULTISELECT) != 0;
+	}
+
+	public boolean shouldSendFoundsetID()
+	{
+		return (changeFlags & SEND_FOUNDSET_ID) != 0;
 	}
 
 	public boolean shouldSendColumnFormats()
@@ -674,6 +691,16 @@ public class FoundsetTypeChangeMonitor
 				changeFlags = changeFlags | SEND_HAD_MORE_ROWS;
 				if (doNotifyChange && (oldChangeFlags != changeFlags)) notifyChange();
 			}
+		}
+	}
+
+	public void foundsetIDChanged()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_FOUNDSET_ID;
+			if (oldChangeFlags != changeFlags) notifyChange();
 		}
 	}
 

@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
@@ -48,9 +49,11 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
@@ -1447,7 +1450,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		for (FoundSet foundset : sharedDataSourceFoundSet.values())
 		{
-			if (id == foundset.getID()) return foundset;
+			if (id == foundset.getIDInternal()) return foundset;
 		}
 		for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
 		{
@@ -1456,7 +1459,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				SoftReference<RelatedFoundSet> sr = entry.getValue();
 				RelatedFoundSet element = sr.get();
-				if (element != null && id == element.getID())
+				if (element != null && id == element.getIDInternal())
 				{
 					return element;
 				}
@@ -1464,11 +1467,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		for (FoundSet foundset : separateFoundSets.values())
 		{
-			if (id == foundset.getID()) return foundset;
+			if (id == foundset.getIDInternal()) return foundset;
 		}
 		for (FoundSet foundset : foundSets)
 		{
-			if (id == foundset.getID()) return foundset;
+			if (id == foundset.getIDInternal()) return foundset;
 		}
 		return null;
 	}
@@ -1476,6 +1479,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public synchronized int getNextFoundSetID()
 	{
+		if (foundsetCounter == 0) foundsetCounter = 1; // MAX_INT ++ => negative and then gradually goes back to 0 (0 means id not initialized in Foundset class; so we skip it)
 		return foundsetCounter++;
 	}
 
@@ -2878,4 +2882,34 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		return true;
 	}
+
+	@Override
+	public int getConvertedTypeForColumn(IColumn column, boolean mapToDefaultType)
+	{
+		int type = mapToDefaultType ? column.getDataProviderType() : (column instanceof Column ? ((Column)column).getType() : column.getDataProviderType());
+		ColumnInfo ci = column.getColumnInfo();
+		if (ci != null && ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
+		{
+			IColumnConverter columnConverter = ((FoundSetManager)application.getFoundSetManager()).getColumnConverterManager().getConverter(
+				ci.getConverterName());
+			if (columnConverter instanceof ITypedColumnConverter)
+			{
+				try
+				{
+					int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(
+						ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
+					if (convType != Integer.MAX_VALUE)
+					{
+						type = Column.mapToDefaultType(convType);
+					}
+				}
+				catch (IOException e)
+				{
+					Debug.error("Exception loading properties for converter " + columnConverter.getName() + ", properties: " + ci.getConverterProperties(), e);
+				}
+			}
+		}
+		return type;
+	}
+
 }

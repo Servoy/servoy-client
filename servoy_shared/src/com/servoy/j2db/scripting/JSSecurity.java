@@ -168,7 +168,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param value the tenant value used for all tenant columns.
 	 */
 	@JSFunction
-	public void setTentantValue(Object value)
+	public void setTenantValue(Object value)
 	{
 		Map<String, IServer> serverProxies = application.getFlattenedSolution().getSolution().getServerProxies();
 		ClientInfo clientInfo = application.getClientInfo();

@@ -126,7 +126,9 @@ describe("Test foundset_custom_property suite", function() {
 			realClientValue = sabloConverters.convertFromServerToClient(updateValue,'foundset', realClientValue, $scope, componentModelGetter);
 			$scope.$digest();
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
-			expect(realClientValue).toEqual(angular.copy(updateValue));
+			var copy = angular.copy(updateValue);
+			delete copy["w"]; // this one goes to internal state
+			expect(realClientValue).toEqual(copy);
 
 			// *** request and receive new viewport (all records in this case)
 			realClientValue.loadRecordsAsync(0,6);
