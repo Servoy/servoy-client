@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -131,6 +133,15 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public IConverterManager<IUIConverter> getUIConverterManager();
 
 	public IConverterManager<IColumnConverter> getColumnConverterManager();
+
+	/**
+	 * Gets the type of the column as it is used inside Servoy.<br/><br/>
+	 * If the column has a DB column converter defined (in table editor - column settings) it will give the type returned by that converter.<br/><br/>
+	 * If the column does not have a column converter it will return either {@link Column#getType()} or {@link IColumn#getDataProviderType()} depending on the value of 'mapToDefaultType' parameter.<br/>
+	 *
+	 * @param mapToDefaultType if this is false then it returns {@link Column#getType()} and not {@link IColumn#getDataProviderType()} if the column does not have a converter. If this is false then the given {@link IColumn} MUST BE a {@link Column} instance.
+	 */
+	public int getConvertedTypeForColumn(IColumn column, boolean mapToDefaultType);
 
 	/**
 	 * Get the default pk sort columns for the data source.

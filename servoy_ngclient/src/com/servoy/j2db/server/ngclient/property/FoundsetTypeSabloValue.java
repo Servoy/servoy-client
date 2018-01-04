@@ -401,7 +401,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected IFoundSetManagerInternal getFoundSetManager()
 	{
-		return getFormUI().getDataConverterContext().getApplication().getFoundSetManager();
+		return getApplication().getFoundSetManager();
 	}
 
 	protected INGApplication getApplication()
@@ -825,16 +825,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		if (parentDAL != null)
 		{
-			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication().getFlattenedSolution(), parentDAL.getForm().getForm(),
-				foundset.getTable(), false, false);
+			return NGUtils.getDataProviderPropertyDescription(dataProvider, parentDAL.getApplication(), parentDAL.getForm().getForm(), foundset.getTable(),
+				false, false);
 		}
 		else
 		{
 			IDataAdapterList dl = NGComponentDALContext.getDataAdapterList(webObjectContext);
-			if (dl != null) return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication().getFlattenedSolution(), dl.getForm().getForm(),
-				foundset.getTable(), false, false);
+			if (dl != null)
+				return NGUtils.getDataProviderPropertyDescription(dataProvider, dl.getApplication(), dl.getForm().getForm(), foundset.getTable(), false, false);
 		}
-		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false, false);
+		return NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), webObjectContext != null ? getApplication() : null, false, false);
 	}
 
 	public void browserUpdatesReceived(Object jsonValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
