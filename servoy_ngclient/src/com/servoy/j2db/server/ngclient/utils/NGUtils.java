@@ -39,16 +39,15 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
-import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
@@ -92,28 +91,29 @@ public abstract class NGUtils
 	public static final PropertyDescription UUID_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (uuid)",
 		TypesRegistry.getType(NGUUIDPropertyType.TYPE_NAME));
 
-	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, boolean parseHTML, boolean useLocalDateTime)
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, IApplication app, boolean parseHTML,
+		boolean useLocalDateTime)
 	{
 		if (table == null || dataProviderName == null) return null;
-		if (table instanceof Table)
+		IColumn column = table.getColumn(dataProviderName);
+		int dpType = 0;
+		if (column != null)
 		{
-			Column column = ((Table)table).getColumn(dataProviderName);
-			if (column != null)
+			ColumnInfo ci = column.getColumnInfo();
+			if (ci != null && ci.hasFlag(IBaseColumn.UUID_COLUMN))
 			{
-				ColumnInfo ci = column.getColumnInfo();
-				if (ci != null && ci.hasFlag(IBaseColumn.UUID_COLUMN))
-				{
-					return UUID_DATAPROVIDER_CACHED_PD;
-				}
+				return UUID_DATAPROVIDER_CACHED_PD;
 			}
+			if (app != null) dpType = app.getFoundSetManager().getConvertedTypeForColumn(column, true);
+			else dpType = table.getColumnType(dataProviderName);
 		}
-		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName), parseHTML, useLocalDateTime);
+		return getDataProviderPropertyDescription(dpType, parseHTML, useLocalDateTime);
 	}
 
-	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, FlattenedSolution flattenedSolution, Form form, ITable table,
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, IApplication app, Form form, ITable table,
 		boolean parseHTMLIfString, boolean useLocalDateTime)
 	{
-		FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(flattenedSolution, form, table);
+		FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(app.getFlattenedSolution(), form, table);
 		IDataProvider dp = null;
 		try
 		{
@@ -123,7 +123,13 @@ public abstract class NGUtils
 		{
 			Debug.error(e);
 		}
-		if (dp != null) return getDataProviderPropertyDescription(dp.getDataProviderType(), parseHTMLIfString, useLocalDateTime);
+		if (dp != null)
+		{
+			int dpType;
+			if (dp instanceof IColumn) dpType = app.getFoundSetManager().getConvertedTypeForColumn((IColumn)dp, true);
+			else dpType = dp.getDataProviderType();
+			return getDataProviderPropertyDescription(dpType, parseHTMLIfString, useLocalDateTime);
+		}
 		return null;
 	}
 
