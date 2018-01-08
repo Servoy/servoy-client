@@ -281,15 +281,29 @@ public final class FormElement implements INGFormElement
 				if (hierarchy.size() > 1)
 				{
 					// there is a super element (or more) so make a copy and copy everything in that.
-					value = new JSONObject();
+					JSONObject mergedValue = null;
 					for (int i = hierarchy.size(); --i >= 0;)
 					{
 						Object property = hierarchy.get(i).getProperty(key);
 						if (property instanceof JSONObject)
 						{
-							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)property, (JSONObject)value);
+							if (mergedValue == null)
+							{
+								mergedValue = new JSONObject();
+							}
+							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)property, mergedValue);
+						}
+						else if (property != null)
+						{
+							mergedValue = null;
+							break;
 						}
 					}
+					if (mergedValue != null)
+					{
+						value = mergedValue;
+					}
+
 				}
 			}
 			Object convertedValue = NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath);
