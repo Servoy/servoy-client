@@ -106,4 +106,10 @@ public class FlattenedPortal extends Portal implements IFlattenedPersistWrapper<
 	{
 		portal.setTypedProperty(property, value);
 	}
+
+	@Override
+	public boolean hasProperty(String propertyName)
+	{
+		return portal.hasProperty(propertyName);
+	}
 }
