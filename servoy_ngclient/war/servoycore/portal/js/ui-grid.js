@@ -24149,7 +24149,7 @@ module.filter('px', function() {
             }
           }
 
-          if (selected && noUnselect){
+          if (selected && noUnselect && service.getSelectedRows(grid).length == 1){
             // don't deselect the row
           } else {
             row.setSelected(!selected);
