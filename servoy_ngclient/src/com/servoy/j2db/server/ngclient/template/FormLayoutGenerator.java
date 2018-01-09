@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.LayoutContainer;
@@ -317,7 +318,7 @@ public class FormLayoutGenerator
 
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
-				cls += " inherited_element";
+				cls += !currentForm.equals(fe.getPersistIfAvailable().getAncestor(IRepository.FORMS)) ? " inherited_element" : " override_element";
 			}
 			writer.print(" class=\"" + cls + "\" ");
 		}

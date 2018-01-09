@@ -114,7 +114,7 @@ div.svy-label-with-focus:focus{
 	width: 300px;
 }
 
-.inherited_element {
+.inherited_element, .override_element {
 	outline:1px dotted red;
 }
 
