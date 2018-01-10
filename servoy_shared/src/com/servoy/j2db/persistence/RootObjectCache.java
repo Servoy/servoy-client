@@ -70,8 +70,8 @@ public class RootObjectCache
 		@Override
 		public String toString()
 		{
-			return RepositoryHelper.getObjectTypeName(rootObjectMetaData.getObjectTypeId()) +
-				": " + rootObjectMetaData.toString() + " count: " + rootObjects.size(); //$NON-NLS-1$
+			return RepositoryHelper.getObjectTypeName(rootObjectMetaData.getObjectTypeId()) + ": " + rootObjectMetaData.toString() + " count: " + //$NON-NLS-1$
+				rootObjects.size();
 		}
 	}
 
@@ -89,55 +89,79 @@ public class RootObjectCache
 		}
 	}
 
-	synchronized void add(RootObjectMetaData metaData, boolean allowUpdate)
+	void add(RootObjectMetaData metaData, boolean allowUpdate)
 	{
-		Integer intId = new Integer(metaData.getRootObjectId());
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			Integer intId = new Integer(metaData.getRootObjectId());
 
-		CacheRecord cacheRecord = allowUpdate ? rootObjectsById.get(intId) : null;
-		if (cacheRecord == null)
-		{
-			cacheRecord = new CacheRecord();
-			cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
-			rootObjectsById.put(intId, cacheRecord);
-			rootObjectsByName.put(new RootObjectKey(metaData.getName(), metaData.getObjectTypeId()), cacheRecord);
-		}
-		else
-		{
-			for (IRootObject ro : cacheRecord.rootObjects.values())
+			CacheRecord cacheRecord = allowUpdate ? rootObjectsById.get(intId) : null;
+			if (cacheRecord == null)
 			{
-				((AbstractRootObject)ro).setMetaData(metaData);
+				cacheRecord = new CacheRecord();
+				cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
+				rootObjectsById.put(intId, cacheRecord);
+				rootObjectsByName.put(new RootObjectKey(metaData.getName(), metaData.getObjectTypeId()), cacheRecord);
 			}
-		}
+			else
+			{
+				for (IRootObject ro : cacheRecord.rootObjects.values())
+				{
+					((AbstractRootObject)ro).setMetaData(metaData);
+				}
+			}
 
-		cacheRecord.rootObjectMetaData = metaData;
+			cacheRecord.rootObjectMetaData = metaData;
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
 	}
 
 
-	public synchronized void cacheRootObject(IRootObject rootObject) throws RepositoryException
+	public void cacheRootObject(IRootObject rootObject) throws RepositoryException
 	{
-		CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getID());
-		Integer release = new Integer(rootObject.getReleaseNumber());
-		if (cacheRecord.rootObjects.get(release) != null)
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
 		{
-			// Root object is already cached, this is a bug.
-			throw new RepositoryException(
-				"duplicate cache of " + RepositoryHelper.getObjectTypeName(rootObject.getTypeID()) + " with name '" + rootObject.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+			CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getID());
+			Integer release = new Integer(rootObject.getReleaseNumber());
+			if (cacheRecord.rootObjects.get(release) != null)
+			{
+				// Root object is already cached, this is a bug.
+				throw new RepositoryException(
+					"duplicate cache of " + RepositoryHelper.getObjectTypeName(rootObject.getTypeID()) + " with name '" + rootObject.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			cacheRecord.rootObjects.put(release, rootObject);
 		}
-		cacheRecord.rootObjects.put(release, rootObject);
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
 	}
 
-	public synchronized void renameRootObject(int rootObjectId, String name) throws RepositoryException
+	public void renameRootObject(int rootObjectId, String name) throws RepositoryException
 	{
-		RootObjectMetaData metaData = getRootObjectMetaData(rootObjectId);
-		RootObjectKey newKey = new RootObjectKey(name, metaData.getObjectTypeId());
-		if (rootObjectsByName.containsKey(newKey))
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
 		{
-			throw new RepositoryException("root object with name='" + name + "' and type=" + metaData.getObjectTypeId() + " already exists");
+			RootObjectMetaData metaData = getRootObjectMetaData(rootObjectId);
+			RootObjectKey newKey = new RootObjectKey(name, metaData.getObjectTypeId());
+			if (rootObjectsByName.containsKey(newKey))
+			{
+				throw new RepositoryException("root object with name='" + name + "' and type=" + metaData.getObjectTypeId() + " already exists");
+			}
+			RootObjectKey oldKey = new RootObjectKey(metaData.getName(), metaData.getObjectTypeId());
+			Object cacheRecord = rootObjectsByName.remove(oldKey);
+			metaData.setName(name);
+			rootObjectsByName.put(newKey, cacheRecord);
 		}
-		RootObjectKey oldKey = new RootObjectKey(metaData.getName(), metaData.getObjectTypeId());
-		Object cacheRecord = rootObjectsByName.remove(oldKey);
-		metaData.setName(name);
-		rootObjectsByName.put(newKey, cacheRecord);
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
 	}
 
 	public IRootObject getActiveRootObject(int rootObjectId) throws RepositoryException
@@ -165,12 +189,223 @@ public class RootObjectCache
 		return null;
 	}
 
-	public synchronized boolean isRootObjectCached(String name, int objectTypeId, int release) throws RepositoryException
+	public boolean isRootObjectCached(String name, int objectTypeId, int release) throws RepositoryException
 	{
-		RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
-		if (rod != null)
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
 		{
-			CacheRecord cacheRecord = getCacheRecord(rod.getRootObjectId());
+			RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
+			if (rod != null)
+			{
+				CacheRecord cacheRecord = getCacheRecord(rod.getRootObjectId());
+				if (cacheRecord != null)
+				{
+					if (release == 0)
+					{
+						release = cacheRecord.rootObjectMetaData.getActiveRelease();
+					}
+					else if (release == -1)
+					{
+						release = cacheRecord.rootObjectMetaData.getLatestRelease();
+					}
+					Integer key = new Integer(release);
+					IRootObject rootObject = cacheRecord.rootObjects.get(key);
+					return rootObject != null;
+				}
+			}
+			return false;
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	IRootObject getRootObject(int rootObjectId, int release) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			CacheRecord cacheRecord = getCacheRecord(rootObjectId);
+			if (cacheRecord == null)
+			{
+				return null;
+			}
+			if (release == 0)
+			{
+				release = cacheRecord.rootObjectMetaData.getActiveRelease();
+			}
+			else if (release == -1)
+			{
+				release = cacheRecord.rootObjectMetaData.getLatestRelease();
+			}
+			Integer key = new Integer(release);
+			IRootObject rootObject = cacheRecord.rootObjects.get(key);
+			if (rootObject == null)
+			{
+				rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, release);
+				cacheRecord.rootObjects.put(key, rootObject);
+			}
+			return rootObject;
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+//	synchronized void setActiveRelease(int rootObjectId, int activeRelease) throws RepositoryException
+//	{
+//		loadCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.setActiveRelease(activeRelease);
+//	}
+//
+//	synchronized void setLatestRelease(int rootObjectId, int latestRelease) throws RepositoryException
+//	{
+//		loadCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.setLatestRelease(latestRelease);
+//	}
+
+	public int getLatestRelease(int rootObjectId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getLatestRelease();
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	public int getActiveRelease(int rootObjectId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getActiveRelease();
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			CacheRecord cacheRecord = getCacheRecord(rootObjectId);
+			return cacheRecord != null ? cacheRecord.rootObjectMetaData : null;
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			CacheRecord cacheRecord = getCacheRecord(name, objectTypeId);
+			return cacheRecord != null ? cacheRecord.rootObjectMetaData : null;
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsById.size()];
+			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
+			int i = 0;
+			while (iterator.hasNext())
+			{
+				metaDatas[i++] = iterator.next().rootObjectMetaData;
+			}
+			return metaDatas;
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			List list = new SortedList(NameComparator.INSTANCE);
+			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
+			while (iterator.hasNext())
+			{
+				RootObjectMetaData metaData = iterator.next().rootObjectMetaData;
+				if (metaData.getObjectTypeId() == objectTypeId)
+				{
+					list.add(metaData);
+				}
+			}
+			RootObjectMetaData[] filtered = new RootObjectMetaData[list.size()];
+			return (RootObjectMetaData[])list.toArray(filtered);
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	void removeRootObject(int rootObjectId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			Integer key = new Integer(rootObjectId);
+			flushRootObject(rootObjectId);
+			CacheRecord cacheRecord = rootObjectsById.get(key);
+			if (cacheRecord != null)
+			{
+				rootObjectsById.remove(key);
+				rootObjectsByName.remove(new RootObjectKey(cacheRecord.rootObjectMetaData.getName(), cacheRecord.rootObjectMetaData.getObjectTypeId()));
+			}
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	void flushRootObject(int rootObjectId) throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			Integer key = new Integer(rootObjectId);
+			CacheRecord cacheRecord = rootObjectsById.get(key);
+			if (cacheRecord != null)
+			{
+				flushRootObjectMap(cacheRecord.rootObjects);
+			}
+		}
+		finally
+		{
+			AbstractRepository.REPOSITORY_LOCK.unlock();
+		}
+	}
+
+	void flushRootObjectRelease(int rootObjectId, int release)
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
+		{
+			CacheRecord cacheRecord = rootObjectsById.get(new Integer(rootObjectId));
 			if (cacheRecord != null)
 			{
 				if (release == 0)
@@ -183,149 +418,34 @@ public class RootObjectCache
 				}
 				Integer key = new Integer(release);
 				IRootObject rootObject = cacheRecord.rootObjects.get(key);
-				return rootObject != null;
+				if (rootObject != null)
+				{
+					rootObject.getChangeHandler().rootObjectIsFlushed();
+					cacheRecord.rootObjects.remove(key);
+				}
 			}
 		}
-		return false;
-	}
-
-	synchronized IRootObject getRootObject(int rootObjectId, int release) throws RepositoryException
-	{
-		CacheRecord cacheRecord = getCacheRecord(rootObjectId);
-		if (cacheRecord == null)
+		finally
 		{
-			return null;
+			AbstractRepository.REPOSITORY_LOCK.unlock();
 		}
-		if (release == 0)
+	}
+
+	void flush() throws RepositoryException
+	{
+		AbstractRepository.REPOSITORY_LOCK.lock();
+		try
 		{
-			release = cacheRecord.rootObjectMetaData.getActiveRelease();
-		}
-		else if (release == -1)
-		{
-			release = cacheRecord.rootObjectMetaData.getLatestRelease();
-		}
-		Integer key = new Integer(release);
-		IRootObject rootObject = cacheRecord.rootObjects.get(key);
-		if (rootObject == null)
-		{
-			rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, release);
-			cacheRecord.rootObjects.put(key, rootObject);
-		}
-		return rootObject;
-	}
-
-//	synchronized void setActiveRelease(int rootObjectId, int activeRelease) throws RepositoryException
-//	{
-//		loadCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.setActiveRelease(activeRelease);
-//	}
-//	
-//	synchronized void setLatestRelease(int rootObjectId, int latestRelease) throws RepositoryException
-//	{
-//		loadCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.setLatestRelease(latestRelease);
-//	}
-
-	public synchronized int getLatestRelease(int rootObjectId) throws RepositoryException
-	{
-		return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getLatestRelease();
-	}
-
-	public synchronized int getActiveRelease(int rootObjectId) throws RepositoryException
-	{
-		return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getActiveRelease();
-	}
-
-	public synchronized RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException
-	{
-		CacheRecord cacheRecord = getCacheRecord(rootObjectId);
-		return cacheRecord != null ? cacheRecord.rootObjectMetaData : null;
-	}
-
-	synchronized RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RepositoryException
-	{
-		CacheRecord cacheRecord = getCacheRecord(name, objectTypeId);
-		return cacheRecord != null ? cacheRecord.rootObjectMetaData : null;
-	}
-
-	synchronized RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException
-	{
-		RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsById.size()];
-		Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
-		int i = 0;
-		while (iterator.hasNext())
-		{
-			metaDatas[i++] = iterator.next().rootObjectMetaData;
-		}
-		return metaDatas;
-	}
-
-	synchronized RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RepositoryException
-	{
-		List list = new SortedList(NameComparator.INSTANCE);
-		Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
-		while (iterator.hasNext())
-		{
-			RootObjectMetaData metaData = iterator.next().rootObjectMetaData;
-			if (metaData.getObjectTypeId() == objectTypeId)
+			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
+			while (iterator.hasNext())
 			{
-				list.add(metaData);
+				CacheRecord cacheRecord = iterator.next();
+				flushRootObjectMap(cacheRecord.rootObjects);
 			}
 		}
-		RootObjectMetaData[] filtered = new RootObjectMetaData[list.size()];
-		return (RootObjectMetaData[])list.toArray(filtered);
-	}
-
-	synchronized void removeRootObject(int rootObjectId) throws RepositoryException
-	{
-		Integer key = new Integer(rootObjectId);
-		flushRootObject(rootObjectId);
-		CacheRecord cacheRecord = rootObjectsById.get(key);
-		if (cacheRecord != null)
+		finally
 		{
-			rootObjectsById.remove(key);
-			rootObjectsByName.remove(new RootObjectKey(cacheRecord.rootObjectMetaData.getName(), cacheRecord.rootObjectMetaData.getObjectTypeId()));
-		}
-	}
-
-	synchronized void flushRootObject(int rootObjectId) throws RepositoryException
-	{
-		Integer key = new Integer(rootObjectId);
-		CacheRecord cacheRecord = rootObjectsById.get(key);
-		if (cacheRecord != null)
-		{
-			flushRootObjectMap(cacheRecord.rootObjects);
-		}
-	}
-
-	synchronized void flushRootObjectRelease(int rootObjectId, int release) throws RepositoryException
-	{
-		CacheRecord cacheRecord = rootObjectsById.get(new Integer(rootObjectId));
-		if (cacheRecord != null)
-		{
-			if (release == 0)
-			{
-				release = cacheRecord.rootObjectMetaData.getActiveRelease();
-			}
-			else if (release == -1)
-			{
-				release = cacheRecord.rootObjectMetaData.getLatestRelease();
-			}
-			Integer key = new Integer(release);
-			IRootObject rootObject = cacheRecord.rootObjects.get(key);
-			if (rootObject != null)
-			{
-				rootObject.getChangeHandler().rootObjectIsFlushed();
-				cacheRecord.rootObjects.remove(key);
-			}
-		}
-	}
-
-	synchronized void flush() throws RepositoryException
-	{
-		Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
-		while (iterator.hasNext())
-		{
-			CacheRecord cacheRecord = iterator.next();
-			flushRootObjectMap(cacheRecord.rootObjects);
+			AbstractRepository.REPOSITORY_LOCK.unlock();
 		}
 	}
 

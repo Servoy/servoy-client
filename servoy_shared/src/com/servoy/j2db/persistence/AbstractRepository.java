@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -36,6 +37,9 @@ import com.servoy.j2db.util.UUID;
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository
 {
 	public static final int repository_version = 49;
+
+	public static final ReentrantLock REPOSITORY_LOCK = new ReentrantLock();
+
 
 	/**
 	 * This repository is used by client
