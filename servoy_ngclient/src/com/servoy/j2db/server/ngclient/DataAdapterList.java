@@ -296,14 +296,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				String relatedFormRelation = relatedFormEntry.getValue();
 				if (relatedFormRelation != null)
 				{
-					if (relatedFormRelation.startsWith(relation) && relatedFormRelation.length() > relation.length())
+					if (relatedFormRelation.startsWith(relation + ".") && relatedFormRelation.length() > relation.length())
 					{
 						if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
 						{
 							form.getFormUI().getDataAdapterList().addVisibleChildForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
 						}
 					}
-					else if (relation.startsWith(relatedFormRelation) && relation.length() > relatedFormRelation.length())
+					else if (relation.startsWith(relatedFormRelation + ".") && relation.length() > relatedFormRelation.length())
 					{
 						if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
 						{
