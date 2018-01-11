@@ -44,6 +44,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
@@ -1548,13 +1549,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			List elements = new ArrayList();
 			elements.add(new Object[] { null, f.getUUID() });
-			Iterator it = f.getAllObjects();
+			Iterator< ? extends IPersist> it = f.isResponsiveLayout() ? f.getFlattenedObjects(NameComparator.INSTANCE).iterator() : f.getAllObjects();
 			while (it.hasNext())
 			{
-				IPersist elem = (IPersist)it.next();
+				IPersist elem = it.next();
 				int type = elem.getTypeID();
 				if (type == IRepository.GRAPHICALCOMPONENTS || type == IRepository.FIELDS || type == IRepository.PORTALS || type == IRepository.RECTSHAPES ||
-					type == IRepository.SHAPES || type == IRepository.BEANS || type == IRepository.TABPANELS)
+					type == IRepository.SHAPES || type == IRepository.BEANS || type == IRepository.TABPANELS || type == IRepository.WEBCOMPONENTS)
 				{
 					if (elem instanceof ISupportName && ((ISupportName)elem).getName() != null)
 					{
