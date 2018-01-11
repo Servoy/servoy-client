@@ -71,6 +71,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.ValuelistPropertyDependencies;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -389,8 +390,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
 	{
-		if (getConfig().getMaxCount() < valuelistSize && getConfig().shouldLogWhenOverMax()) dataAdapterListToUse.getApplication().reportJSError(
-			"Valuelist " + valueListName + " fully loaded with " + getConfig().getMaxCount() + " rows, more rows are discarded!!", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (getConfig().getMaxCount() < valuelistSize && getConfig().shouldLogWhenOverMax() &&
+			Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
+			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + getConfig().getMaxCount() + //$NON-NLS-1$//$NON-NLS-2$
+				" rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", //$NON-NLS-1$
+				null);
 	}
 
 	protected FlattenedSolution getFlattenedSolution()
