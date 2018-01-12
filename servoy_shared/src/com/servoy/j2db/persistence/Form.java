@@ -2103,4 +2103,23 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		return getParent();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.AbstractContainer#getWebComponents()
+	 */
+	@Override
+	public Iterator<WebComponent> getWebComponents()
+	{
+		if (!isResponsiveLayout()) return super.getWebComponents();
+		List<WebComponent> result = new ArrayList<>();
+		List<IFormElement> elem = getFlattenedObjects(NameComparator.INSTANCE);
+		for (IFormElement fe : elem)
+		{
+			if (fe instanceof WebComponent) result.add((WebComponent)fe);
+		}
+		return result.iterator();
+	}
+
 }

@@ -1995,7 +1995,9 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	}
 
 	/**
-	 * Returns all JSWebComponents of this form.
+	 * Returns all JSWebComponents of this form/container.
+	 * If this method is called on a form, then it will return all web components on that form.
+	 * If the form is responsive, it will return the web components from all the containers.
 	 *
 	 * @sample
 	  * var webComponents = myForm.getWebComponents(false);
@@ -2024,7 +2026,9 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	}
 
 	/**
-	 * Returns all JSWebComponents of this form.
+	 * Returns all JSWebComponents of this form/container.
+	 * If this method is called on a form, then it will return all web components on that form.
+	 * If the form is responsive, it will return the web components from all the containers.
 	 *
 	 * @sample
 	 * var webComponents = myForm.getWebComponents();
