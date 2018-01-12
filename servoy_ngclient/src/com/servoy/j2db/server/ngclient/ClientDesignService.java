@@ -86,6 +86,7 @@ public class ClientDesignService implements IServerService
 				case "onselect" : //$NON-NLS-1$
 					event.setType(IJSEvent.ACTION);
 					retValue = form.getDesignModeCallbacks().executeOnSelect(event);
+					if (retValue == null || Undefined.isUndefined(retValue)) retValue = Boolean.TRUE; // selection is allowed, only disallow it when retValue is false directly
 					break;
 				case "ondrag" : //$NON-NLS-1$
 					event.setType(IJSEvent.EventType.onDrag);
