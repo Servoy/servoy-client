@@ -419,16 +419,12 @@ public final class Settings extends SortedProperties
 			while (it.hasNext())
 			{
 				Map.Entry entry = (Map.Entry)it.next();
-				String key = entry.getKey().toString().toLowerCase();
-				if (key.indexOf("password") != -1 || key.startsWith("license.")) //$NON-NLS-1$
+				String val = entry.getValue().toString();
+				if (val.startsWith(enc_prefix))
 				{
-					String val = entry.getValue().toString();
-					if (val.startsWith(enc_prefix))
-					{
-						String val_val = val.substring(enc_prefix.length());
-						byte[] array_val = Utils.decodeBASE64(val_val);
-						entry.setValue(new String(desCipher.doFinal(array_val)));
-					}
+					String val_val = val.substring(enc_prefix.length());
+					byte[] array_val = Utils.decodeBASE64(val_val);
+					entry.setValue(new String(desCipher.doFinal(array_val)));
 				}
 			}
 		}
@@ -439,46 +435,22 @@ public final class Settings extends SortedProperties
 		}
 	}
 
-	public Object put(Object key, Object value, boolean encrypt)
-	{
-		Object val;
-		if (encrypt && value != null && !value.toString().startsWith(enc_prefix))
-		{
-			try
-			{
-				val = enc_prefix + SecuritySupport.encrypt(this, value.toString());
-			}
-			catch (Exception e)
-			{
-				Debug.error("Error encryptng setting " + key, e);
-				val = value;
-			}
-		}
-		else
-		{
-			val = value;
-		}
-		return put(key, val);
-	}
-
 	@Override
 	public synchronized void store(OutputStream out, String header) throws IOException
 	{
 		//1 convert properties to encrypted form
-		Properties to_save = new SortedProperties(); //make background list, we want to keep this unencripted
+		Properties to_save = new SortedProperties(); //make background list, we want to keep this unencrypted
 		try
 		{
 			SecuritySupport.clearCryptKey();
 			Cipher desCipher = Cipher.getInstance("DESede"); //$NON-NLS-1$
 			desCipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(this));
 
-			Iterator it = entrySet().iterator();
-			while (it.hasNext())
+			for (Map.Entry<Object, Object> entry : entrySet())
 			{
-				Map.Entry entry = (Map.Entry)it.next();
 				String key = entry.getKey().toString();
 				String val = entry.getValue().toString();
-				if (!val.startsWith(enc_prefix) && key.toLowerCase().indexOf("password") != -1) //$NON-NLS-1$
+				if (!val.startsWith(enc_prefix) && shouldEncrypt(key))
 				{
 					byte[] array_val = entry.getValue().toString().getBytes();
 					String new_val = Utils.encodeBASE64(desCipher.doFinal(array_val));
@@ -494,6 +466,12 @@ public final class Settings extends SortedProperties
 
 		//2 store them
 		to_save.store(out, header);
+	}
+
+	private static boolean shouldEncrypt(String key)
+	{
+		String lcKey = key.toLowerCase();
+		return lcKey.indexOf("password") != -1 || lcKey.indexOf("passphrase") != -1;
 	}
 
 	/**
