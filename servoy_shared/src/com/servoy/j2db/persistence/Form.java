@@ -79,6 +79,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	public static final int NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH = NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX.length();
 
+	public static final String DATASOURCE_NONE = "-none-";
+
 	public static Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
 	{
 		public int compare(IFormElement element1, IFormElement element2)
