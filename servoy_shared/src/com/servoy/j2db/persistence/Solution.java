@@ -113,7 +113,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		{
 			public boolean match(Object f)
 			{
-				return datasource == null || (f instanceof Form && datasource.equals(((Form)f).getDataSource()));
+				return datasource == null || (f instanceof Form &&
+					(datasource.equals(Form.DATASOURCE_NONE) && ((Form)f).getDataSource() == null || datasource.equals(((Form)f).getDataSource())));
 			}
 		});
 		if (sort)
@@ -770,7 +771,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
