@@ -17,13 +17,14 @@
 
 package com.servoy.j2db.persistence;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author rob
  *
  */
-public class Procedure
+public class Procedure implements Serializable
 {
 
 	private final String name;

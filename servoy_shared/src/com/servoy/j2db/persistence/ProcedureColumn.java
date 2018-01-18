@@ -17,13 +17,15 @@
 
 package com.servoy.j2db.persistence;
 
+import java.io.Serializable;
+
 import com.servoy.j2db.query.ColumnType;
 
 /**
  * @author rob
  *
  */
-public class ProcedureColumn
+public class ProcedureColumn implements Serializable
 {
 
 	private final String name;

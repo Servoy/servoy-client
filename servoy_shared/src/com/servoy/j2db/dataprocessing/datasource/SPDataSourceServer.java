@@ -18,22 +18,27 @@
 package com.servoy.j2db.dataprocessing.datasource;
 
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.Procedure;
+import com.servoy.j2db.persistence.ProcedureColumn;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * Scope for datasources.db.myserver.
@@ -64,20 +69,28 @@ public class SPDataSourceServer extends DefaultJavaScope
 		// table and view names
 		try
 		{
-			IServer server = application.getRepository().getServer(serverName);
+			final IServer server = application.getRepository().getServer(serverName);
 			if (server != null)
 			{
 				// TODO change to getProcedures()
-				for (Procedure proc : server.getProcedures())
+				for (final Procedure proc : server.getProcedures())
 				{
 					put(proc.getName(), this, new Callable()
 					{
-
 						@Override
 						public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 						{
-							System.err.println("proc called");
-							return null;
+							try
+							{
+								return application.getDataServer().executeProcedure(application.getClientID(), server.getName(),
+									application.getFoundSetManager().getTransactionID(server.getName()), proc,
+									getAsRightType(proc.getParameters(), unwrap(args)));
+							}
+							catch (RemoteException | ServoyException e)
+							{
+								Debug.error(e);
+								throw new RuntimeException("error calling procedure '" + proc.getName() + "'", e);
+							}
 						}
 					});
 				}
@@ -93,6 +106,35 @@ public class SPDataSourceServer extends DefaultJavaScope
 		}
 
 		return true;
+	}
+
+	private static Object[] unwrap(Object[] args)
+	{
+		if (args == null)
+		{
+			return null;
+		}
+		Object[] unwrapped = new Object[args.length];
+		for (int i = 0; i < args.length; i++)
+		{
+			unwrapped[i] = (args[i] instanceof Wrapper) ? ((Wrapper)args[i]).unwrap() : args[i];
+		}
+		return unwrapped;
+	}
+
+	private static Object[] getAsRightType(List<ProcedureColumn> parameters, Object[] args)
+	{
+		if (args != null)
+		{
+			for (int i = 0; i < args.length; i++)
+			{
+				if (i <= parameters.size() - 1)
+				{
+					args[i] = Column.getAsRightType(parameters.get(i).getColumnType().getSqlType(), 0, args[i], 0, true, false);
+				}
+			}
+		}
+		return args;
 	}
 
 	/**

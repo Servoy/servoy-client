@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
@@ -309,4 +310,11 @@ public class DataServerProxy implements IDataServer
 		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
 	}
 
+
+	@Override
+	public IDataSet executeProcedure(String clientId, String serverName, String tid, Procedure procedure, Object[] arguments)
+		throws RepositoryException, RemoteException
+	{
+		return ds.executeProcedure(clientId, getMappedServerName(serverName), tid, procedure, arguments);
+	}
 }
