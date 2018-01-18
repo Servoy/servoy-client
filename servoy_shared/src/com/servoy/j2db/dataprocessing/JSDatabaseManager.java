@@ -24,6 +24,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.QueryString;
 import com.servoy.j2db.persistence.Relation;
@@ -737,6 +739,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return new JSDataSet(application, BufferedDataSetInternal.createBufferedDataSet(dpnames, dptypes, lst, false));
 	}
 
+	@JSFunction
+	public Collection<Procedure> js_getProcedures(String serverName) throws Exception
+	{
+		Collection<Procedure> procedures = application.getSolution().getServer(serverName).getProcedures();
+		return procedures;
+	}
+
 	/**
 	 * @clonedesc js_convertToDataSet(IFoundSetInternal)
 	 *
@@ -776,7 +785,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -865,7 +874,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2658,7 +2667,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2685,7 +2694,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3855,7 +3864,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException
