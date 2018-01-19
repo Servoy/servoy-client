@@ -448,8 +448,13 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					if (obj instanceof Integer) return obj;
 					if (obj instanceof Long) return obj;
 					if ("".equals(obj)) return null;
-					return new Integer(Utils.getAsInteger(obj, throwOnFail));
-//					return new Long(Utils.getAsLong(obj, throwOnFail));
+
+					long asLong = Utils.getAsLong(obj, throwOnFail);
+					if (asLong >= Integer.MIN_VALUE && asLong <= Integer.MAX_VALUE)
+					{
+						return new Integer((int)asLong);
+					}
+					return new Long(asLong);
 
 				case TEXT :
 					String str = obj.toString();
