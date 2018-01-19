@@ -90,6 +90,7 @@ public class JSDataSources implements IDestroyable
 
 	/**
 	 * Scope property for stored procedures.
+	 * This will list the stored procedures of server that have this property enabled (see server editor).
 	 *
 	 * @sample
 	 * datasources.sp.servername.mystoredproc();
