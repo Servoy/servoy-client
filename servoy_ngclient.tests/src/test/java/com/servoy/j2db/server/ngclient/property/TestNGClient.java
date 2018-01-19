@@ -486,7 +486,7 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
+			public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
 				throws RepositoryException, RemoteException
 			{
 				// TODO Auto-generated method stub

@@ -550,7 +550,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	}
 
 	@Override
-	public IDataSet executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
+	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
 		throws RepositoryException, RemoteException
 	{
 		return dataserver.executeProcedure(clientId, server_name, tid, procedure, arguments);

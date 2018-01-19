@@ -18,6 +18,7 @@
 package com.servoy.j2db.dataprocessing.datasource;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
@@ -82,9 +84,36 @@ public class SPDataSourceServer extends DefaultJavaScope
 						{
 							try
 							{
-								return application.getDataServer().executeProcedure(application.getClientID(), server.getName(),
+								IDataSet[] datasets = application.getDataServer().executeProcedure(application.getClientID(), server.getName(),
 									application.getFoundSetManager().getTransactionID(server.getName()), proc,
 									getAsRightType(proc.getParameters(), unwrap(args)));
+
+								if (datasets == null)
+								{
+									return null;
+								}
+
+								if (datasets.length == 1)
+								{
+									// single dataset
+									return cx.getWrapFactory().wrap(cx, scope, datasets[0], null);
+								}
+
+								// return an object with result keys and array-index
+								Scriptable obj = cx.newObject(scope);
+								// columns sets are sorted
+								List<String> keys = new ArrayList<>(proc.getColumns().keySet());
+								for (int i = 0; i < datasets.length; i++)
+								{
+									Object wrapped = cx.getWrapFactory().wrap(cx, scope, datasets[i], null);
+									obj.put(i, obj, wrapped);
+									if (i < keys.size())
+									{
+										obj.put(keys.get(i), obj, wrapped);
+									}
+								}
+
+								return obj;
 							}
 							catch (RemoteException | ServoyException e)
 							{

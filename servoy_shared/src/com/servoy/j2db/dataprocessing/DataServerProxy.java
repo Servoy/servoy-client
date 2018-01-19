@@ -312,7 +312,7 @@ public class DataServerProxy implements IDataServer
 
 
 	@Override
-	public IDataSet executeProcedure(String clientId, String serverName, String tid, Procedure procedure, Object[] arguments)
+	public IDataSet[] executeProcedure(String clientId, String serverName, String tid, Procedure procedure, Object[] arguments)
 		throws RepositoryException, RemoteException
 	{
 		return ds.executeProcedure(clientId, getMappedServerName(serverName), tid, procedure, arguments);

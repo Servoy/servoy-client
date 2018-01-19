@@ -232,7 +232,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
 
 
-	public IDataSet executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
+	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
 		throws RepositoryException, RemoteException;
 
 }
