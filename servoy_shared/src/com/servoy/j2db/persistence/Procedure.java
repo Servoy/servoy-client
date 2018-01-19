@@ -18,8 +18,8 @@
 package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author rob
@@ -31,12 +31,12 @@ public class Procedure implements Serializable
 	private final String name;
 
 	private final List<ProcedureColumn> parameters;
-	private final Map<String, List<ProcedureColumn>> columns;
+	private final LinkedHashMap<String, List<ProcedureColumn>> columns;
 
 	/**
 	 * @param procedureName
 	 */
-	public Procedure(String name, List<ProcedureColumn> parameters, Map<String, List<ProcedureColumn>> columns)
+	public Procedure(String name, List<ProcedureColumn> parameters, LinkedHashMap<String, List<ProcedureColumn>> columns)
 	{
 		this.name = name;
 		this.parameters = parameters;
@@ -60,9 +60,9 @@ public class Procedure implements Serializable
 	}
 
 	/**
-	 * @return the columns
-	 */
-	public Map<String, List<ProcedureColumn>> getColumns()
+	* @return the columns
+	*/
+	public LinkedHashMap<String, List<ProcedureColumn>> getColumns()
 	{
 		return columns;
 	}
