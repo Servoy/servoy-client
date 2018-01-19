@@ -34,6 +34,7 @@ import com.servoy.j2db.serverconfigtemplates.ODBCTemplate;
 import com.servoy.j2db.serverconfigtemplates.OpenbaseTemplate;
 import com.servoy.j2db.serverconfigtemplates.OracleTemplate;
 import com.servoy.j2db.serverconfigtemplates.PostgresTemplate;
+import com.servoy.j2db.serverconfigtemplates.ProgressABLTemplate;
 import com.servoy.j2db.serverconfigtemplates.ServerTemplateDefinition;
 import com.servoy.j2db.serverconfigtemplates.SybaseASATemplate;
 import com.servoy.j2db.util.Utils;
@@ -439,6 +440,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put("Openbase", new OpenbaseTemplate());
 		map.put("Oracle", new OracleTemplate());
 		map.put(POSTGRESQL_TEMPLATE_NAME, new PostgresTemplate());
+		map.put("Progress ABL", new ProgressABLTemplate());
 		map.put("Sybase ASA", new SybaseASATemplate());
 
 		return map;
@@ -454,7 +456,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
