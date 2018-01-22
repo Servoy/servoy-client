@@ -422,7 +422,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			jsonValue = null;
 		}
-		if (fireChangeEvent && changed) // TODO I don't get here why changeMonitor.valueChanged() shouldn't be done if fireChangeEvent is false; but kept it as it was before refactor...
+		if (fireChangeEvent)
 		{
 			changeMonitor.valueChanged();
 		}
