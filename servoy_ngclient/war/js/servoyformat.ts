@@ -220,6 +220,10 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		var ret = ''
 		var isEscaping = false;
 		var offset = 0;
+		if (data && typeof data == 'number')
+		{
+			data = data.toString();
+		}
 		for (var i = 0; i < servoyFormat.length; i++) {
 			var formatChar = servoyFormat[i];
 			var dataChar = data[i - offset];
