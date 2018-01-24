@@ -581,9 +581,9 @@ public class TemplateGenerator
 
 							if (l.y >= startY && l.y < endY)
 							{
-								if (!isYOffsetSet || yOffset > l.y)
+								if (!isYOffsetSet || yOffset > (l.y - startY))
 								{
-									yOffset = l.y;
+									yOffset = l.y - startY;
 									isYOffsetSet = true;
 								}
 							}
@@ -913,7 +913,7 @@ public class TemplateGenerator
 							if (obj instanceof Portal)
 							{
 								Dimension d = ((IFormElement)element).getSize();
-								if (l.y + d.height > firstComponentHeight) firstComponentHeight = l.y + d.height;
+								if (l.y + d.height - startY > firstComponentHeight) firstComponentHeight = l.y + d.height - startY;
 							}
 
 							createTableViewComponentHTMLAndStyles((IFormElement)element, form, sbElements, css, bgColor, startY, endY, enableAnchoring, sp);
