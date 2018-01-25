@@ -71,9 +71,13 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					if(pos <= 1) {
 						pos = $scope.model.size.height * pos;
 					}
+					jqueryDivEl.prop('style').removeProperty('left');
 					jqueryDivEl.css('top', pos + 'px');
+					splitPane1.prop('style').removeProperty('width');
 					splitPane1.css('height', pos + 'px');
+					splitPane2.prop('style').removeProperty('left');
 					splitPane2.css('top', (pos+divSize) + 'px');
+					splitPane2.prop('style').removeProperty('border-left-width');
 					if (divSize === 0)
 					{
 						splitPane2.css('border-top-width','0px');
@@ -87,9 +91,13 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					if(pos <= 1) {
 						pos = $scope.model.size.width * pos;
 					}
+					jqueryDivEl.prop('style').removeProperty('top');
 					jqueryDivEl.css('left', pos + 'px');
+					splitPane1.prop('style').removeProperty('height');
 					splitPane1.css('width', pos + 'px');
+					splitPane2.prop('style').removeProperty('top');
 					splitPane2.css('left', (pos+divSize) + 'px');
+					splitPane2.prop('style').removeProperty('border-top-width');
 					if (divSize === 0)
 					{
 						splitPane2.css('border-left-width','0px');
