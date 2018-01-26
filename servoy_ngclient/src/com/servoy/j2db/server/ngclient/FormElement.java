@@ -65,6 +65,7 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
@@ -274,7 +275,8 @@ public final class FormElement implements INGFormElement
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			if (value instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
+			// value has the 'merged' value in hierarchy, except for the 'formcomponent' property; do the merge here
+			if ((pd.getType() instanceof FormComponentPropertyType) && value instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
 			{
 				// this is a json object, look for super persist for this property to get those values.
 				List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)getPersistIfAvailable());
