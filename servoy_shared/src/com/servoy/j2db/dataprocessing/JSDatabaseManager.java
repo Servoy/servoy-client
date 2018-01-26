@@ -241,13 +241,56 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return addTableFilterParam5args(serverName, tableName, dataprovider, operator, value);
 	}
 
-	/* RAGTEST doc */
+	/**
+	 * Adds a filter based on a query to all the foundsets based on a table.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * returns true if the tablefilter could be applied.
+	 *
+	 *
+	 * @sampleas js_addTableFilterParam(QBSelect,String)
+	 *
+	 * @param query condition to filter on.
+	 *
+	 * @return true if the tablefilter could be applied.
+	 */
 	public boolean js_addTableFilterParam(QBSelect query) throws ServoyException
 	{
 		return js_addTableFilterParam(query, null);
 	}
 
-	/* RAGTEST doc */
+	/**
+	 * Adds a filter based on a query to all the foundsets based on a table.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * returns true if the tablefilter could be applied.
+	 *
+	 *
+	 * @sample
+	 * // Best way to call this in a global solution startup method, but filters may be added/removed at any time.
+	 * // Note that
+	 *
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(
+	 *    query.or.add(
+	 *             query.columns.shipcity.eq('Amersfoort'))
+	 *    .add(    query.columns.shipcity.eq('Amsterdam')));
+	 *
+	 * var success = databaseManager.addTableFilterParam(query, 'cityFilter')
+	 *
+	 * @param query condition to filter on.
+	 * @param filterName The specified name of the database table filter.
+	 *
+	 * @return true if the tablefilter could be applied.
+	 */
 	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
 	{
 		checkAuthorized();

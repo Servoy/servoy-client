@@ -183,7 +183,6 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
 
 			if (rowsToUpdate == -1 && !foundset.hasAccess(IRepository.TRACKING) && sqlParts.getJoins() == null &&
-				// RAGTEST ook bij deleteall
 				!fsm.hasTableFiltersWithJoins(foundset.getTable().getServerName(), sqlParts))//does not have join to other table
 			{
 				//all rows at once, via sql

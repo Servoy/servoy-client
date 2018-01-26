@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.dataprocessing.DataproviderTableFilterdefinition;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -39,6 +40,7 @@ import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.dataprocessing.TableFilter;
+import com.servoy.j2db.dataprocessing.TableFilterdefinition;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
@@ -402,18 +404,23 @@ public class Messages
 				{
 					for (TableFilter tableFilter : tableFilters)
 					{
-//		RAGTEST				Object value = tableFilter.getValue();
-//						if (value instanceof Object[])
-//						{
-//							filterColumn = table.getColumn(tableFilter.getDataprovider());
-//							iColumnValueFilter = new String[((Object[])value).length];
-//							for (int i = 0; i < ((Object[])value).length; i++)
-//							{
-//								iColumnValueFilter[i] = ((Object[])value)[i] != null ? ((Object[])value)[i].toString() : null;
-//							}
-//							isColumnValueFilterChanged = true;
-//							break;
-//						}
+						TableFilterdefinition tableFilterdefinition = tableFilter.getTableFilterdefinition();
+						if (tableFilterdefinition instanceof DataproviderTableFilterdefinition)
+						{
+							DataproviderTableFilterdefinition dpTtableFilterdefinition = (DataproviderTableFilterdefinition)tableFilterdefinition;
+							Object value = dpTtableFilterdefinition.getValue();
+							if (value instanceof Object[])
+							{
+								filterColumn = table.getColumn(dpTtableFilterdefinition.getDataprovider());
+								iColumnValueFilter = new String[((Object[])value).length];
+								for (int i = 0; i < ((Object[])value).length; i++)
+								{
+									iColumnValueFilter[i] = ((Object[])value)[i] != null ? ((Object[])value)[i].toString() : null;
+								}
+								isColumnValueFilterChanged = true;
+								break;
+							}
+						}
 					}
 				}
 			}

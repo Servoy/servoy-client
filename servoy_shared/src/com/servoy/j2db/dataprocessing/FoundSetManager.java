@@ -1385,7 +1385,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	/**
-	 * RAGTEST doc
+	 * Check if table filters for the query are defined that have joins.
 	 *
 	 * @param serverName
 	 * @param sql

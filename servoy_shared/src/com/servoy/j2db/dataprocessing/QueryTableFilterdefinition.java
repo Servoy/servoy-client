@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2017 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -28,9 +28,9 @@ import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
+ * Table filter definition for conditions using queries.
  *
- * RAGTEST doc
- * @author rob
+ * @author rgansevles
  *
  */
 public class QueryTableFilterdefinition implements Serializable, TableFilterdefinition, IVisitable, IWriteReplace

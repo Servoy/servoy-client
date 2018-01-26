@@ -714,13 +714,60 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return addFilterParam(name, dataprovider, operator, value);
 	}
 
-	// RAGTEST doc
+	/**
+	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to the foundset,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Multiple filters can be added to the same dataprovider, they will all be applied.
+	 *
+	 * @sampleas js_addFoundSetFilterParam(QBSelect, String)
+	 *
+	 * @param query condition to filter on.
+	 *
+	 * @return true if adding the filter succeeded, false otherwise.
+	 */
 	public boolean js_addFoundSetFilterParam(QBSelect query)
 	{
 		return js_addFoundSetFilterParam(query, null);
 	}
 
-	// RAGTEST doc
+	/**
+	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to the foundset,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * The filter is removed again using removeFoundSetFilterParam(name).
+	 *
+	 * The table of the query has to be the same as the foundset table.
+	 *
+	 * @sample
+	 *
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(
+	 *    query.or.add(
+	 *             query.columns.shipcity.eq('Amersfoort'))
+	 *    .add(    query.columns.shipcity.eq('Amsterdam')));
+	 *
+	 * var success = %%prefix%%foundset.addFoundSetFilterParam(query, 'cityFilter'); // possible to add multiple
+	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)
+	 *
+	 * %%prefix%%foundset.loadAllRecords(); // to make param(s) effective
+	 *
+	 * @param query condition to filter on.
+	 *
+	 * @param name String name, used to remove the filter again.
+	 *
+	 * @return true if adding the filter succeeded, false otherwise.
+	 */
 	public boolean js_addFoundSetFilterParam(QBSelect query, String filterName)
 	{
 		if (query == null || sheet.getTable() == null || !sheet.getTable().getDataSource().equals(query.getDataSource()))
@@ -6616,6 +6663,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		DataproviderTableFilterdefinition dataproviderTableFilterdefinition = fsm.createDataproviderTableFilterdefinition(sheet.getTable(), dataprovider,
 			operator, value);
 
+		if (dataproviderTableFilterdefinition == null)
+		{
+			fsm.getApplication().reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+				"', serverName = '" + sheet.getTable().getServerName() + "', table = '" + sheet.getTable().getName() + "', dataprovider = '" + dataprovider +
+				"', operator = '" + operator + "'", null);
+			return false;
+		}
+
 		// create condition to check filter
 		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);
@@ -6637,15 +6692,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (editRecordList.stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
 			Debug.log("Couldn't add foundset filter param because foundset had edited records"); //$NON-NLS-1$
-			return false;
-		}
-
-
-		if (tableFilterdefinition == null)
-		{
-//		RAGTEST	fsm.getApplication().reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
-//				"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
-//				null);
 			return false;
 		}
 
