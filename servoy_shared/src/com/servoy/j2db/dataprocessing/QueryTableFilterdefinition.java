@@ -59,7 +59,7 @@ public class QueryTableFilterdefinition implements Serializable, TableFilterdefi
 	@Override
 	public boolean affects(ITable table)
 	{
-		return querySelect.getTable().getDataSource().equals(table.getDataSource());
+		return querySelect.getTable().getDataSource() != null && querySelect.getTable().getDataSource().equals(table.getDataSource());
 	}
 
 	@Override
