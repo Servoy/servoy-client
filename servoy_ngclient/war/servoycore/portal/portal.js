@@ -1037,8 +1037,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				updateGridSelectionFromFoundset(true);
 			});
 			
+			$scope.data = [];
+
 			$scope.gridOptions = {
-					data: 'foundset.viewPort.rows',
+					data: 'data',
 					enableRowSelection: true,
 					enableRowHeaderSelection: false,
 					excludeProperties: [$foundsetTypeConstants.ROW_ID_COL_KEY],
@@ -1292,6 +1294,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						return;
 					}
 
+					$scope.gridApi.grid.preCompileCellTemplates();
 					layoutColumnsAndGrid();
 
 					// watch for resize and re-layout when needed - but at most once every 200 ms
@@ -1412,8 +1415,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
         						}
         					});
 					}
-					
+
 					$scope.$watchCollection('foundset.viewPort.rows', function(newVal, oldVal) {
+						$scope.data = newVal;
 						rowCache = {};
 						// check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding and any other watches
 						var newRowIDs = {};
