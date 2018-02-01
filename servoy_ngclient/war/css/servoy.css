@@ -208,9 +208,7 @@ div.svy-label-with-focus:focus{
 	max-height:200px;
 	overflow:auto;
 }
-.ui-select-bootstrap > .ui-select-choices {
-	width: auto;
-}
+
 .ui-select-bootstrap > .ui-select-match {
 	padding:0px;
 	overflow:hidden;
