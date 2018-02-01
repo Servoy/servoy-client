@@ -155,16 +155,17 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 	return {
 		restrict: 'A',
         link: function (scope, element, attrs) {
-        	var tooltip =  '';
-	        element.bind('mouseover', function(event) {
-	        	if(tooltip) $svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);
-	        });
-	        element.bind('mouseout', function(event) {
-	        	if(tooltip) $svyTooltipUtils.hideTooltip();
-	        })
-		    attrs.$observe('svyTooltip', function(newVal) {
-		    	tooltip = <string>newVal;
-		    });
+        	var tooltip =  ''
+		        element.bind('mouseover', function(event) {
+		        	if(tooltip) $svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);
+		        });
+		        element.bind('mouseout', function(event) {
+		        	if(tooltip) $svyTooltipUtils.hideTooltip();
+		        })
+        	scope.$watch(attrs['svyTooltip'],function(newVal){
+        		tooltip = <string>newVal;        		
+        	})
+        	
         }
 	};
 });
