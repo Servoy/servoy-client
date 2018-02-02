@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.util.serialize.IWriteReplace;
@@ -31,7 +30,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class QueryData implements Serializable, IVisitable, IWriteReplace
 {
@@ -51,6 +50,8 @@ public class QueryData implements Serializable, IVisitable, IWriteReplace
 
 		classMapping.put(QueryData.class, Short.valueOf((short)1));
 		classMapping.put(TableFilter.class, Short.valueOf((short)2));
+		classMapping.put(DataproviderTableFilterdefinition.class, Short.valueOf((short)3));
+		classMapping.put(QueryTableFilterdefinition.class, Short.valueOf((short)4));
 
 		ReplacedObject.installClassMapping(DATAPROCESSING_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -62,7 +63,7 @@ public class QueryData implements Serializable, IVisitable, IWriteReplace
 
 
 	/**
-	 * 
+	 *
 	 * @param sqlSelect
 	 * @param filters
 	 * @param distinctInMemory

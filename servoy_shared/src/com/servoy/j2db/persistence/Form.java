@@ -79,6 +79,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	public static final int NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH = NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX.length();
 
+	public static final String DATASOURCE_NONE = "-none-";
+
 	public static Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
 	{
 		public int compare(IFormElement element1, IFormElement element2)
@@ -2103,4 +2105,23 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		return getParent();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.AbstractContainer#getWebComponents()
+	 */
+	@Override
+	public Iterator<WebComponent> getWebComponents()
+	{
+		if (!isResponsiveLayout()) return super.getWebComponents();
+		List<WebComponent> result = new ArrayList<>();
+		List<IFormElement> elem = getFlattenedObjects(NameComparator.INSTANCE);
+		for (IFormElement fe : elem)
+		{
+			if (fe instanceof WebComponent) result.add((WebComponent)fe);
+		}
+		return result.iterator();
+	}
+
 }

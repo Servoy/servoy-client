@@ -65,6 +65,7 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
@@ -274,22 +275,37 @@ public final class FormElement implements INGFormElement
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			if (value instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
+			// value has the 'merged' value in hierarchy, except for the 'formcomponent' property; do the merge here
+			if ((pd.getType() instanceof FormComponentPropertyType) && value instanceof JSONObject && getPersistIfAvailable() instanceof ISupportExtendsID)
 			{
 				// this is a json object, look for super persist for this property to get those values.
 				List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)getPersistIfAvailable());
 				if (hierarchy.size() > 1)
 				{
 					// there is a super element (or more) so make a copy and copy everything in that.
-					value = new JSONObject();
+					JSONObject mergedValue = null;
 					for (int i = hierarchy.size(); --i >= 0;)
 					{
 						Object property = hierarchy.get(i).getProperty(key);
 						if (property instanceof JSONObject)
 						{
-							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)property, (JSONObject)value);
+							if (mergedValue == null)
+							{
+								mergedValue = new JSONObject();
+							}
+							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)property, mergedValue);
+						}
+						else if (property != null)
+						{
+							mergedValue = null;
+							break;
 						}
 					}
+					if (mergedValue != null)
+					{
+						value = mergedValue;
+					}
+
 				}
 			}
 			Object convertedValue = NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath);

@@ -58,7 +58,6 @@ import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyT
 import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Utility methods for NGClient.
@@ -231,6 +230,6 @@ public abstract class NGUtils
 
 	public static boolean isAbsoluteLayoutDiv(WebLayoutSpecification spec)
 	{
-		return spec != null && Utils.equalObjects(spec.getPackageName(), "12grid") && Utils.equalObjects(spec.getName(), "absolutelayoutdiv");
+		return spec != null && spec.isAbsoluteLayout();
 	}
 }

@@ -180,7 +180,10 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				sqlParts = foundset.getPksAndRecords().getQuerySelectForReading();
 				currentPKs = foundset.getPksAndRecords().getPks();
 			}
-			if (rowsToUpdate == -1 && !foundset.hasAccess(IRepository.TRACKING) && sqlParts.getJoins() == null)//does not have join to other table
+			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
+
+			if (rowsToUpdate == -1 && !foundset.hasAccess(IRepository.TRACKING) && sqlParts.getJoins() == null &&
+				!fsm.hasTableFiltersWithJoins(foundset.getTable().getServerName(), sqlParts))//does not have join to other table
 			{
 				//all rows at once, via sql
 				Table table = (Table)foundset.getTable();
@@ -210,7 +213,6 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				}
 				sqlUpdate.setCondition(sqlParts.getWhereClone());
 
-				FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
 				IDataSet pks;
 				boolean allFoundsetRecordsLoaded = currentPKs != null && currentPKs.getRowCount() <= fsm.pkChunkSize && !currentPKs.hadMoreRows();
 				if (allFoundsetRecordsLoaded)

@@ -3,7 +3,7 @@
      id="{{::model.svyMarkupId}}" 
      sablo-tabseq='model.tabSeq' 
      sablo-tabseq-config="{container: true, reservedGap: 50}" svy-dblclick='handlers.onDoubleClickMethodID($event)'>
-	<bg-splitter orientation="{{::model.tabOrientation == -3 ? 'vertical' : 'horizontal' }}" on-divider-change="onChange()">
+	<bg-splitter orientation="{{model.tabOrientation == -3 ? 'vertical' : 'horizontal' }}" on-divider-change="onChange()">
 		<bg-pane min-size="model.pane1MinSize" tabloadchecker="split1">
 			<div ng-include="getForm(model.tabs[0])" sablo-tabseq='1' sablo-tabseq-config="{container: true}" style="position:absolute;width:100%;height:100%;overflow:auto;"></div>
 		</bg-pane>

@@ -32,6 +32,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -40,12 +41,13 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.smart.dataui.StyledEnablePanel;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.model.IEditListModel;
 
 /**
  * The recordview controller from mvc architecture
- * 
+ *
  * @author jblok
  */
 public class RecordView extends EnablePanel implements ChangeListener, ListDataListener, IView, ListSelectionListener
@@ -53,12 +55,13 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	private Slider slider;
 	private ISwingFoundSet model;
 	private DataRenderer renderer;
-	private final IApplication application;
 	private boolean isAdjusting;
+	private boolean destroyed;
+	private final FormController controller;
 
-	public RecordView(IApplication app)
+	public RecordView(FormController controller)
 	{
-		application = app;
+		this.controller = controller;
 		isAdjusting = false;
 		setLayout(new BorderLayout());
 		setOpaque(false);
@@ -73,10 +76,16 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 			model.getSelectionModel().removeListSelectionListener(this);
 		}
 		removeAll();
+		destroyed = true;
 	}
 
 	private void setModelInternal(IEditListModel m)
 	{
+		if (destroyed)
+		{
+			Debug.error("setModel is called on a RecordView that is already destroyed of form: " + controller,
+				new RuntimeException("setModel is called on a RecordView that is already destroyed of form: " + controller));
+		}
 		if (m == model)
 		{
 			return;//no change
@@ -143,7 +152,7 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 	{
 		if (slider == null)
 		{
-			slider = new Slider(application);
+			slider = new Slider(controller.getApplication());
 			slider.addChangeListener(this);
 //			slider.setMax(model.getSize());
 		}
@@ -168,7 +177,8 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 					final int modelSelection = model.getSelectionModel().getSelectedRow();
 					if (modelSelection != row - 1)
 					{
-						if ((application.getFoundSetManager().getEditRecordList().stopIfEditing(model) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0)
+						if ((controller.getApplication().getFoundSetManager().getEditRecordList().stopIfEditing(model) &
+							(ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0)
 						{
 							model.getSelectionModel().setSelectedRow(row - 1);
 						}
@@ -208,7 +218,16 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 			if (index != -1)
 			{
 				Object value = model.getElementAt(index);//minus 1 for the slider
-				renderer.getListCellRendererComponent(this, value, index, false, true);
+				if (renderer.getDataAdapterList() != null)
+				{
+					renderer.getListCellRendererComponent(this, value, index, false, true);
+				}
+				else
+				{
+					Debug.error("Illegalstate calling getListCellRendererComponent on a Render Component that has no dataadapterlist for form: " + controller,
+						new RuntimeException(
+							"Illegalstate calling getListCellRendererComponent on a Render Component that has no dataadapterlist for form: " + controller));
+				}
 			}
 			else
 			{
@@ -221,8 +240,16 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 				{
 					state = new PrototypeState(null);
 				}
-
-				renderer.getListCellRendererComponent(this, state, -1, false, true);
+				if (renderer.getDataAdapterList() != null)
+				{
+					renderer.getListCellRendererComponent(this, state, -1, false, true);
+				}
+				else
+				{
+					Debug.error("Illegalstate calling getListCellRendererComponent on a Render Component that has no dataadapterlist for form: " + controller,
+						new RuntimeException(
+							"Illegalstate calling getListCellRendererComponent on a Render Component that has no dataadapterlist for form: " + controller));
+				}
 			}
 		}
 		isAdjusting = false;
@@ -325,7 +352,7 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 	 */
 	public void valueChanged(ListSelectionEvent e)
@@ -336,7 +363,7 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IController#isEditing()
 	 */
 	public boolean isEditing()

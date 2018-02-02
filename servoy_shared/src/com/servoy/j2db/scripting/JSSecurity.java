@@ -29,11 +29,13 @@ import java.util.Map;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSSecurity;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.DataproviderTableFilterdefinition;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -44,6 +46,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
@@ -207,7 +210,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 								try
 								{
 									application.getFoundSetManager().addTableFilterParam("_svy_tenant_id_table_filter", server.getName(), table,
-										column.getDataProviderID(), "=", value);
+										new DataproviderTableFilterdefinition(column.getDataProviderID(), IBaseSQLCondition.EQUALS_OPERATOR, value));
 								}
 								catch (ServoyException e)
 								{
@@ -1548,13 +1551,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			List elements = new ArrayList();
 			elements.add(new Object[] { null, f.getUUID() });
-			Iterator it = f.getAllObjects();
+			Iterator< ? extends IPersist> it = f.isResponsiveLayout() ? f.getFlattenedObjects(NameComparator.INSTANCE).iterator() : f.getAllObjects();
 			while (it.hasNext())
 			{
-				IPersist elem = (IPersist)it.next();
+				IPersist elem = it.next();
 				int type = elem.getTypeID();
 				if (type == IRepository.GRAPHICALCOMPONENTS || type == IRepository.FIELDS || type == IRepository.PORTALS || type == IRepository.RECTSHAPES ||
-					type == IRepository.SHAPES || type == IRepository.BEANS || type == IRepository.TABPANELS)
+					type == IRepository.SHAPES || type == IRepository.BEANS || type == IRepository.TABPANELS || type == IRepository.WEBCOMPONENTS)
 				{
 					if (elem instanceof ISupportName && ((ISupportName)elem).getName() != null)
 					{

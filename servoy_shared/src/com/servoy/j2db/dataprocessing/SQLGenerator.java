@@ -79,6 +79,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryFactory;
+import com.servoy.j2db.query.QueryFilter;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QueryInsert;
@@ -247,7 +248,7 @@ public class SQLGenerator
 							if (o instanceof OrCondition && ((OrCondition)o).getConditions().size() > 1)
 							{
 								hasOr[0] = true;
-								return new VistorResult(o, false);
+								return new VisitorResult(o, false);
 							}
 							return o;
 						}
@@ -1252,23 +1253,52 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static ISQLCondition createTableFilterCondition(BaseQueryTable qTable, Table table, TableFilter filter)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, TableFilter filter)
 	{
+		if (filter.getTableFilterdefinition() == null)
+		{
+			return null;
+		}
+
 		if (!table.getSQLName().equals(qTable.getName()))
 		{
 			// not for this table
 			return null;
 		}
 
-		Column c = table.getColumn(filter.getDataprovider());
+		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+		{
+			return createTableFiltercondition(qTable, ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+		}
+
+		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
+		{
+			return createTableFiltercondition(qTable, table, (DataproviderTableFilterdefinition)filter.getTableFilterdefinition());
+		}
+
+		throw new IllegalStateException("Unknown table filter definition type: " + filter.getTableFilterdefinition().getClass().getName());
+
+	}
+
+	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, QuerySelect filterQuery)
+	{
+		QuerySelect filterQueryClone = AbstractBaseQuery.deepClone(filterQuery);
+		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
+
+		return new QueryFilter(filterQueryClone.getJoins(), filterQueryClone.getWhere());
+	}
+
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
+	{
+		Column c = table.getColumn(filterdefinition.getDataprovider());
 		if (c == null)
 		{
-			Debug.error("Could not apply filter " + filter + " on table " + table + " : column not found:" + filter.getDataprovider()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Debug.error("Could not apply filter " + filterdefinition + " on table " + table + " : column not found:" + filterdefinition.getDataprovider()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return null;
 		}
-		int op = filter.getOperator();
+		int op = filterdefinition.getOperator();
 		int maskedOp = op & IBaseSQLCondition.OPERATOR_MASK;
-		Object value = filter.getValue();
+		Object value = filterdefinition.getValue();
 
 		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
 		ISQLCondition filterWhere;
@@ -1352,7 +1382,7 @@ public class SQLGenerator
 			filterWhere = new CompareCondition(op, qColumn, operand);
 		}
 
-		return filterWhere;
+		return new QueryFilter(null, filterWhere);
 	}
 
 	public static boolean isSelectQuery(String value)

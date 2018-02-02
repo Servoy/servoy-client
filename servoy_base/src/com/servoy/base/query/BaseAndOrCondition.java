@@ -21,9 +21,9 @@ import java.util.List;
 
 /**
  * Base condition class for AndCondition and OrCondition.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements IBaseSQLCondition
 {
@@ -37,7 +37,7 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 
 	public BaseAndOrCondition(List<C> conditions)
 	{
-		this.conditions = conditions;
+		this.conditions = new ArrayList<>(conditions);
 	}
 
 	public void addCondition(C condition)

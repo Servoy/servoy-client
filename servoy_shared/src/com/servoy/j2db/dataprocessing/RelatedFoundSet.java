@@ -45,6 +45,7 @@ import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
@@ -481,7 +482,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
-	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 	public void js_clear()
 	{
 		// don't do anything, can't clear related data
@@ -589,8 +590,8 @@ public abstract class RelatedFoundSet extends FoundSet
 				else
 				{
 					if ((e.getType() == RowEvent.UPDATE //
-					|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
-					&& getPksAndRecords().getPks() != null)
+						|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
+						&& getPksAndRecords().getPks() != null)
 					{
 						if (r == null || (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null))
 						{
@@ -1025,26 +1026,35 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
-	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value) throws ServoyException
 	{
 		return super.js_addFoundSetFilterParam(dataprovider, operator, value);
 	}
 
 	@Override
-	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value, String name) throws ServoyException
 	{
 		return super.js_addFoundSetFilterParam(dataprovider, operator, value, name);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_removeFoundSetFilterParam(java.lang.String)
-	 */
 	@Override
-	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
+	public boolean js_addFoundSetFilterParam(QBSelect query)
+	{
+		return super.js_addFoundSetFilterParam(query);
+	}
+
+	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
+	public boolean js_addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		return super.js_addFoundSetFilterParam(query, filterName);
+	}
+
+	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 	public boolean js_removeFoundSetFilterParam(String name)
 	{
 		return super.js_removeFoundSetFilterParam(name);

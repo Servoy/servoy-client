@@ -743,7 +743,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			case IForm.LOCKED_RECORD_VIEW :
 			case IForm.RECORD_VIEW :
 			default :
-				view = new RecordView(application);
+				view = new RecordView(formController);
 				if (dataRenderers[FormController.FORM_EDITOR] != null)
 				{
 					((DataRenderer)dataRenderers[FormController.FORM_EDITOR]).setShowSelection(false);

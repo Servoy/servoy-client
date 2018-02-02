@@ -23,28 +23,31 @@ import com.servoy.j2db.util.Immutable;
 
 /**
  * Visitor class to for performing a deep clone that maintains tree structure.
- * 
+ *
  * @see IVisitable
  * @author rgansevles
- * 
+ *
  */
 public class DeepCloneVisitor implements IVisitor
 {
-	public static IVisitor createDeepCloneVisitor()
+	private final boolean cloneImmutables;
+
+	public static IVisitor createDeepCloneVisitor(boolean cloneImmutables)
 	{
-		return new VisitOnceDelegateVisitor(new DeepCloneVisitor());
+		return new VisitOnceDelegateVisitor(new DeepCloneVisitor(cloneImmutables));
 	}
 
-	private DeepCloneVisitor()
+	private DeepCloneVisitor(boolean cloneImmutables)
 	{
+		this.cloneImmutables = cloneImmutables;
 	}
 
 	public Object visit(Object o)
 	{
-		if (o == null || o instanceof Immutable)
+		if (o == null || (!cloneImmutables && o instanceof Immutable))
 		{
 			// do not need to make a copy
-			return new IVisitor.VistorResult(o, false);
+			return new IVisitor.VisitorResult(o, false);
 		}
 
 		try
