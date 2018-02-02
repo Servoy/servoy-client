@@ -257,7 +257,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	private boolean mustRefresh(ITable table, String dataSource, TableFilterdefinition tableFilterdefinition)
 	{
-		if (!tableFilterdefinition.affects(table))
+		if (tableFilterdefinition != null && !tableFilterdefinition.affects(table))
 		{
 			// table not affected
 			return false;
