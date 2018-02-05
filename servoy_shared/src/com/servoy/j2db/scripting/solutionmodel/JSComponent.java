@@ -480,6 +480,29 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 
 	/**
+	 * CSS position is a replacement for anchoring system making it more intuitive to place a component.
+	 * CSS position should be set on form, an absolute position form can either work with anchoring or with css position.
+	 * This is only working in NGClient. String format: top,left,bottom,right,width,height
+	 *
+	 * @sample
+	 * var label = form.newLabel('Label', 10, 10, 150, 150);
+	 * label.cssPosition = '10,10,-1,0,100,20';
+	 */
+	@Override
+	@JSGetter
+	public String getCssPosition()
+	{
+		return PersistHelper.createCSSPositionString(getBaseComponent(false).getCssPosition());
+	}
+
+	@Override
+	@JSSetter
+	public void setCssPosition(String cssPosition)
+	{
+		getBaseComponent(true).setCssPosition(PersistHelper.createCSSPosition(cssPosition));
+	}
+
+	/**
 	 *
 	 * Get a design-time property of an element.
 	 *

@@ -46,6 +46,7 @@ public class Types
 	{
 		if (registered) return;
 		registered = true;
+		TypesRegistry.addType(CSSPositionPropertyType.INSTANCE);
 		TypesRegistry.addType(BorderPropertyType.INSTANCE);
 		TypesRegistry.addType(DatasetPropertyType.INSTANCE);
 		TypesRegistry.addType(RelationPropertyType.INSTANCE);

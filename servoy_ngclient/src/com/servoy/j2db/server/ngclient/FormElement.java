@@ -54,6 +54,7 @@ import org.sablo.websocket.utils.PropertyUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -770,7 +771,7 @@ public final class FormElement implements INGFormElement
 	{
 		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportSize)
 		{
-			return ((ISupportSize)persistImpl.getPersist()).getSize();
+			return CSSPosition.getSize((ISupportSize)persistImpl.getPersist());
 		}
 		return null;
 	}
@@ -779,7 +780,7 @@ public final class FormElement implements INGFormElement
 	{
 		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportBounds)
 		{
-			return ((ISupportBounds)persistImpl.getPersist()).getLocation();
+			return CSSPosition.getLocation((ISupportBounds)persistImpl.getPersist());
 		}
 		return null;
 	}

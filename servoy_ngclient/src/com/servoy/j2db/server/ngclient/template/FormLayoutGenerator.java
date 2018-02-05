@@ -43,6 +43,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -331,15 +332,60 @@ public class FormLayoutGenerator
 		if (!isResponsive && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
-			int anchors = bc.getAnchors();
 			String style = "";
-			if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
+			if (form.getUseCssPosition())
 			{
-				style += "min-width:" + bc.getSize().width + "px;";
+				CSSPosition position = bc.getCssPosition();
+				if (position.left >= 0)
+				{
+					style += "left:" + position.left + "px;";
+				}
+				if (position.top >= 0)
+				{
+					style += "top:" + position.top + "px;";
+				}
+				if (position.bottom >= 0)
+				{
+					style += "bottom:" + position.bottom + "px;";
+				}
+				if (position.right >= 0)
+				{
+					style += "right:" + position.right + "px;";
+				}
+				if (position.width >= 0)
+				{
+					if (position.left >= 0 && position.right >= 0)
+					{
+						style += "min-width:" + position.width + "px;";
+					}
+					else
+					{
+						style += "width:" + position.width + "px;";
+					}
+				}
+				if (position.height >= 0)
+				{
+					if (position.top >= 0 && position.bottom >= 0)
+					{
+						style += "min-height:" + position.height + "px;";
+					}
+					else
+					{
+						style += "height:" + position.height + "px;";
+					}
+				}
 			}
-			if (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0))
+			else
 			{
-				style += "min-height:" + bc.getSize().height + "px";
+				int anchors = bc.getAnchors();
+				if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
+				{
+					style += "min-width:" + bc.getSize().width + "px;";
+				}
+				if (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0))
+				{
+					style += "min-height:" + bc.getSize().height + "px";
+				}
 			}
 			if (!style.isEmpty())
 			{

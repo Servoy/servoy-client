@@ -133,6 +133,7 @@ public class BaseComponent extends AbstractBase
 	 *
 	 * @param arg the size
 	 */
+	// do not use these directly, use CSSPosition.setSize
 	public void setSize(java.awt.Dimension arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
@@ -154,6 +155,7 @@ public class BaseComponent extends AbstractBase
 	 *
 	 * @param arg the location
 	 */
+	// do not use these directly, use CSSPosition.setLocation
 	public void setLocation(java.awt.Point arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
@@ -167,43 +169,6 @@ public class BaseComponent extends AbstractBase
 			point = new Point(10, 10);
 		}
 		return point;
-	}
-
-	/**
-	 * Check if a component contains the x and y.
-	 *
-	 * @param x
-	 * @param y
-	 * @return true if so
-	 */
-	public boolean contains(int x, int y)
-	{
-		Dimension size = getSize();
-		return (size != null) && (x >= 0) && (x < size.width) && (y >= 0) && (y < size.height);
-	}
-
-	/**
-	 * Check if a component contains the abs x and y.
-	 *
-	 * @param x
-	 * @param y
-	 * @return true if so
-	 */
-	public boolean containsAbsolute(int x, int y)
-	{
-		Point location = getLocation();
-		Dimension size = getSize();
-		return location != null && size != null && x >= location.x && x < location.x + size.width && y >= location.y && y < location.y + size.height;
-	}
-
-	/**
-	 * Check if a component contains the rect.
-	 *
-	 * @return true if so
-	 */
-	public boolean contains(java.awt.Rectangle r)
-	{
-		return new java.awt.Rectangle(getLocation(), getSize()).contains(r);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -368,6 +333,19 @@ public class BaseComponent extends AbstractBase
 	public void setStyleClass(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
+	}
+
+	/**
+	 * Thecss position of the component.
+	 */
+	public CSSPosition getCssPosition()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION);
+	}
+
+	public void setCssPosition(CSSPosition arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION, arg);
 	}
 
 	@Override

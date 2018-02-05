@@ -43,6 +43,7 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
@@ -419,6 +420,51 @@ public class PersistHelper
 			}
 		}
 		return retval;
+	}
+
+	public static String createCSSPositionString(CSSPosition position)
+	{
+		if (position == null) return null;
+		StringBuilder retval = new StringBuilder();
+		retval.append(position.top);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.left);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.bottom);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.right);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.width);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.height);
+		return retval.toString();
+	}
+
+	public static CSSPosition createCSSPosition(String s)
+	{
+		if (s == null) return null;
+		int top = 0;
+		int left = 0;
+		int bottom = 0;
+		int right = 0;
+		int width = 0;
+		int height = 0;
+		try
+		{
+			StringTokenizer tk = new StringTokenizer(s, ","); //$NON-NLS-1$
+			if (tk.hasMoreTokens()) top = Utils.getAsInteger(tk.nextToken());
+			if (tk.hasMoreTokens()) left = Utils.getAsInteger(tk.nextToken());
+			if (tk.hasMoreTokens()) bottom = Utils.getAsInteger(tk.nextToken());
+			if (tk.hasMoreTokens()) right = Utils.getAsInteger(tk.nextToken());
+			if (tk.hasMoreTokens()) width = Utils.getAsInteger(tk.nextToken());
+			if (tk.hasMoreTokens()) height = Utils.getAsInteger(tk.nextToken());
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			return null;
+		}
+		return new CSSPosition(top, left, bottom, right, width, height);
 	}
 
 	private static Map<String, Font> allFonts = new HashMap<String, Font>();
