@@ -163,6 +163,7 @@
 	  "popup": {
 	  	"model": {
 	  		"name": "string",
+	  		"cssClass" : "string",
 	  		"items": "menuitem[]"
 	  	}
 	  }

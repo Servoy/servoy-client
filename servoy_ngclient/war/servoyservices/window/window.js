@@ -390,7 +390,20 @@ angular.module('window',['servoy'])
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
-			var oMenu = new YAHOO.widget.Menu('basicmenu',{zIndex : 1000});
+			var settings = {zIndex : 1000};
+			var classname;
+			if (newvalue.popupMenus && newvalue.popupMenuShowCommand.popupName)
+			{
+				for (var i=0;i<newvalue.popupMenus.length;i++)
+				{
+					if (newvalue.popupMenuShowCommand.popupName == newvalue.popupMenus[i].name)
+					{
+						classname = newvalue.popupMenus[i].cssClass;
+					}
+				}
+			}
+			if (classname) settings['classname'] = classname;
+			var oMenu = new YAHOO.widget.Menu('basicmenu',settings);
 			oMenu.clearContent();
 			oMenu.subscribe('hide', function (event) {
 				$timeout(function(){
