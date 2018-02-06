@@ -1365,6 +1365,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				showDefaultLoginWindow();
 			}		
 		},
+		clearDefaultLoginCredentials: function() {
+			webStorage.local.remove('servoy_username');
+			webStorage.local.remove('servoy_password');
+		},
 		showFileOpenDialog: function(title, multiselect) {
 			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect);
 		},

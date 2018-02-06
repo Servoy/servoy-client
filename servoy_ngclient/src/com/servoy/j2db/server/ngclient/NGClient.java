@@ -1387,6 +1387,15 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 				credentials.clear();
 				getClientInfo().clearUserInfo();
+
+				try
+				{
+					getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("clearDefaultLoginCredentials", null);
+				}
+				catch (Exception ex)
+				{
+					Debug.log("Error calling client side logout", ex);
+				}
 			}
 		}
 	}
