@@ -26,6 +26,7 @@ import java.sql.Connection;
 import javax.servlet.http.HttpServlet;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.server.shared.IClientInformation;
 import com.servoy.j2db.util.ServoyException;
@@ -372,4 +373,7 @@ public interface IServerAccess extends IPluginAccess
 	 */
 	public IDataSet[] executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] questiondata,
 		int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
+
+
+	public JSDataSet getLocks();
 }
