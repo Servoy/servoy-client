@@ -85,15 +85,22 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		writer.object();
 		writer.key("responsive");
 		writer.value(form.isResponsiveLayout());
-		if (form.getStyleClass() != null)
+		String styleClasses = form.getStyleClass();
+		if (styleClasses != null)
 		{
 			writer.key("styleclass");
-			writer.value(form.getStyleClass());
+			String[] classes = styleClasses.split(" ");
+			writer.array();
+			for (String cls : classes)
+			{
+				writer.value(cls);
+			}
+			writer.endArray();
 		}
 		writer.key("children");
 		writer.array();
 		form.acceptVisitor(new ChildrenJSONGenerator(writer,
-			cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client)));
+			cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form));
 		writer.endArray();
 		writer.endObject();
 		writer.endObject();
@@ -111,16 +118,18 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		private final JSONWriter writer;
 		private final ServoyDataConverterContext context;
 		private final WebFormUI formUI;
+		private final Object skip;
 
 		/**
 		 * @param writer
 		 * @param client
 		 * @param cachedFormController
 		 */
-		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context)
+		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip)
 		{
 			this.writer = writer;
 			this.context = context;
+			this.skip = skip;
 			formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI) ? (WebFormUI)context.getForm().getFormUI() : null;
 			if (formUI != null)
 			{
@@ -132,6 +141,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		@Override
 		public Object visit(IPersist o)
 		{
+			if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
 			if (o instanceof IFormElement)
 			{
 				FormElement fe = null;
@@ -154,7 +164,8 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				if (name == null) name = fe.getName();
 				writer.value(name);
 				writer.key("type");
-				writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
+				// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
+				writer.value(mapOnDefaultForDebug(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o))));
 				writer.key("position");
 				writer.object();
 				writer.key("left");
@@ -208,17 +219,47 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				writer.object();
 				writer.key("layout");
 				writer.value(true);
-				writer.key("styleclass");
-				writer.value(((LayoutContainer)o).getCssClasses());
-				writer.key("style");
-				writer.value(((LayoutContainer)o).getStyle());
+				String styleClasses = ((LayoutContainer)o).getCssClasses();
+				if (styleClasses != null)
+				{
+					writer.key("styleclass");
+					String[] classes = styleClasses.split(" ");
+					writer.array();
+					for (String cls : classes)
+					{
+						writer.value(cls);
+					}
+					writer.endArray();
+				}
+				if (((LayoutContainer)o).getStyle() != null)
+				{
+					writer.key("style");
+					writer.value(((LayoutContainer)o).getStyle());
+				}
+				writer.key("children");
 				writer.array();
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context));
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o));
 				writer.endArray();
 				writer.endObject();
 				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
+		}
+
+		/**
+		 * @param convertToJSName
+		 * @return
+		 */
+		private String mapOnDefaultForDebug(String typeName)
+		{
+			switch (typeName)
+			{
+				case "bootstrapcomponentsTextbox" :
+					return "servoydefaultTextfield";
+				case "bootstrapcomponentsButton" :
+					return "servoydefaultButton";
+			}
+			return typeName;
 		}
 	}
 
