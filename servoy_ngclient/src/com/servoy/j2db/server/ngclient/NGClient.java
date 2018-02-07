@@ -77,6 +77,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
+import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
@@ -1439,7 +1440,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getWebsocketSession());
 			for (Pair<Form, String> pair : toRecreate)
 			{
-				allWindowsProxy.updateForm(pair.getLeft(), pair.getRight(), new FormHTMLAndJSGenerator(this, pair.getLeft(), pair.getRight()));
+				IFormHTMLAndJSGenerator generator = getWebsocketSession().getFormHTMLAndJSGenerator(pair.getLeft(), pair.getRight());
+				allWindowsProxy.updateForm(pair.getLeft(), pair.getRight(), generator);
 			}
 			toRecreate.clear();
 		}
