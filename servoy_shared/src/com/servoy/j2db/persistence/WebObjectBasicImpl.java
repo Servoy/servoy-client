@@ -28,6 +28,8 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
+ * This class is NOT 'aware' of sablo, it DOES NOT import nor use sablo classes whereas it's children can (that means this class can be used also in smart client that does not ship sablo classes - and will not give class def not found give exceptions)
+ *
  * @author gboros
  */
 public class WebObjectBasicImpl

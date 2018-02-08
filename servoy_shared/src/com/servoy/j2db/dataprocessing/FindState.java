@@ -58,6 +58,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	private final IFoundSetInternal parent;
 	private final Map<String, IFoundSetInternal> relatedStates;
 
+	private List<String> relatedFoundsetErrorReported;
+
 	/**
 	 * Constructor
 	 */
@@ -507,17 +509,23 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 				{
 					if (!getValidSearchRelations().contains(r))
 					{
-						String reason = "";
-						if (r.isGlobal()) reason = "global relation";
-						else if (r.isMultiServer()) reason = "multi server";
-						else if (!Relation.isValid(r, fs)) reason = "server/table not valid/loaded";
-						else
+						if (relatedFoundsetErrorReported == null) relatedFoundsetErrorReported = new ArrayList<>();
+						if (!relatedFoundsetErrorReported.contains(partName))
 						{
-							reason = "relation primary datasource: " + r.getPrimaryDataSource() + " != findstate primary datasource: " + parent.getDataSource();
+							relatedFoundsetErrorReported.add(partName);
+							String reason = "";
+							if (r.isGlobal()) reason = "global relation";
+							else if (r.isMultiServer()) reason = "multi server";
+							else if (!Relation.isValid(r, fs)) reason = "server/table not valid/loaded";
+							else
+							{
+								reason = "relation primary datasource: " + r.getPrimaryDataSource() + " != findstate primary datasource: " +
+									parent.getDataSource();
+							}
+							Debug.warn("Find: skip related search for '" + partName + "', relation cannot be used in search, because: " + reason);
+							parent.getFoundSetManager().getApplication().reportJSWarning(
+								Messages.getString("servoy.relation.find.unusable", new Object[] { partName }) + " (" + reason + ')', null); //$NON-NLS-2$
 						}
-						Debug.warn("Find: skip related search for '" + partName + "', relation cannot be used in search, because: " + reason);
-						parent.getFoundSetManager().getApplication().reportJSError(
-							Messages.getString("servoy.relation.find.unusable", new Object[] { partName }) + " (" + reason + ')', null); //$NON-NLS-2$
 						return null;
 					}
 					SQLSheet sheet = parent.getSQLSheet().getRelatedSheet(

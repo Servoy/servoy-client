@@ -49,6 +49,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Common implementation for spec/property description based persists that helps working with JSON content and nested persists.
+ * This class is 'aware' of sablo, it imports and uses sablo classes whereas it's parent WebObjectBasicImpl is not aware of sablo (that one can be used also in smart client that does not ship sablo classes - to not give exceptions)
  *
  * @author acostescu
  */
@@ -654,6 +655,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public void reload()
 	{
 		arePersistMappedPropertiesLoaded = false;
+		persistMappedProperties.clear();
+		persistMappedPropetiesByUUID = null;
 		if (pdIsWebComponentSpecification) pdPleaseUseGetterToAccessThis = null; // if it's a web component, next time it's needed reload it's spec as well, don't use cached one
 	}
 

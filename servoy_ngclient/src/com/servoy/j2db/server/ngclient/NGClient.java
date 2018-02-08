@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
@@ -689,7 +690,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 										Context context = Context.enter();
 										try
 										{
-											((Function)api).call(context, scope, service, null);
+											((Function)api).call(context, scope, service, ScriptRuntime.emptyArgs);
 										}
 										catch (Exception ex)
 										{
@@ -1388,6 +1389,15 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 				credentials.clear();
 				getClientInfo().clearUserInfo();
+
+				try
+				{
+					getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("clearDefaultLoginCredentials", null);
+				}
+				catch (Exception ex)
+				{
+					Debug.log("Error calling client side logout", ex);
+				}
 			}
 		}
 	}

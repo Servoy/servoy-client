@@ -664,10 +664,26 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 									}
 								}
 							}
+							var isRecordBasedProperty = false;
+							if (element.foundsetConfig && element.foundsetConfig.recordBasedProperties)
+							{
+								for (var i in element.foundsetConfig.recordBasedProperties) {
+									if(property ==  element.foundsetConfig.recordBasedProperties[i])
+									{
+										isRecordBasedProperty = true;
+										break;
+									}	
+								}
+							}	
 							for(var key in rowProxyObjects) {
 								// test if there is a column at this point for that index, it could be hidden and not created yet.
 								if (rowProxyObjects[key][elementIndex]) {
 									var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
+									if (!isRecordBasedProperty && mergedCellModel.hasOwnProperty(property))
+									{
+										// if not record based, value should be taken from prototype, delete it from model itself, if present
+										delete mergedCellModel[property];
+									}
 									// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same)
 									if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
 										mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
@@ -1021,8 +1037,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				updateGridSelectionFromFoundset(true);
 			});
 			
+			$scope.data = [];
+
 			$scope.gridOptions = {
-					data: 'foundset.viewPort.rows',
+					data: 'data',
 					enableRowSelection: true,
 					enableRowHeaderSelection: false,
 					excludeProperties: [$foundsetTypeConstants.ROW_ID_COL_KEY],
@@ -1276,6 +1294,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						return;
 					}
 
+					$scope.gridApi.grid.preCompileCellTemplates();
 					layoutColumnsAndGrid();
 
 					// watch for resize and re-layout when needed - but at most once every 200 ms
@@ -1396,8 +1415,9 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
         						}
         					});
 					}
-					
+
 					$scope.$watchCollection('foundset.viewPort.rows', function(newVal, oldVal) {
+						$scope.data = newVal;
 						rowCache = {};
 						// check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding and any other watches
 						var newRowIDs = {};
