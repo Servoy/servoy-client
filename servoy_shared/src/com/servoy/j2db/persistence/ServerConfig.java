@@ -59,6 +59,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 
 	public static final boolean PREFIX_TABLES_DEFAULT = false;
 
+	public static final boolean QUERY_PROCEDURES_DEFAULT = false;
+
 	public static final Map<String, ServerTemplateDefinition> TEMPLATES = createTemplates();
 
 	// supported connection validation types
@@ -86,13 +88,14 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String dataModelCloneFrom;
 	private final boolean enabled;
 	private final boolean skipSysTables;
+	private final boolean queryProcedures;
 	private final boolean prefixTables;
 	private int idleTimeout;
 	private final String dialectClass;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
-		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, int idleTimeout, String dialectClass)
+		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout, String dialectClass)
 	{
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
@@ -108,6 +111,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.dataModelCloneFrom = Utils.toEnglishLocaleLowerCase(dataModelCloneFrom);
 		this.enabled = enabled;
 		this.skipSysTables = skipSysTables;
+		this.queryProcedures = queryProcedures;
 		this.prefixTables = prefixTables;
 		this.idleTimeout = idleTimeout;
 		this.dialectClass = dialectClass;
@@ -130,23 +134,24 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		String catalog, String schema, boolean enabled, boolean skipSysTables, String dialectClass)
 	{
 		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
-			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, PREFIX_TABLES_DEFAULT, -1, dialectClass);
+			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, PREFIX_TABLES_DEFAULT, QUERY_PROCEDURES_DEFAULT, -1,
+			dialectClass);
 	}
 
 	public ServerConfig getNamedCopy(String newServerName)
 	{
 		if (serverName.equals(newServerName)) return this;
 		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
-			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, prefixTables, idleTimeout,
-			dialectClass);
+			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, prefixTables, queryProcedures,
+			idleTimeout, dialectClass);
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
 	{
 		if (enabled == newEnabled) return this;
 		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
-			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, prefixTables, idleTimeout,
-			dialectClass);
+			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, prefixTables, queryProcedures,
+			idleTimeout, dialectClass);
 	}
 
 	public String getServerName()
@@ -229,9 +234,18 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return enabled;
 	}
 
+
 	public boolean getSkipSysTables()
 	{
 		return skipSysTables;
+	}
+
+	/**
+	 * @return the queryProcedures
+	 */
+	public boolean getQueryProcedures()
+	{
+		return queryProcedures;
 	}
 
 	public boolean getPrefixTables()
