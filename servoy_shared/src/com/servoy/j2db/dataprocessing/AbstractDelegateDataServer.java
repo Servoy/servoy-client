@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
@@ -548,5 +549,10 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 		return dataserver.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
 	}
 
-
+	@Override
+	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
+		throws RepositoryException, RemoteException
+	{
+		return dataserver.executeProcedure(clientId, server_name, tid, procedure, arguments);
+	}
 }

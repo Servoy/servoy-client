@@ -19,7 +19,9 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -40,13 +42,16 @@ import com.servoy.j2db.util.Utils;
  */
 public class HTMLTagsConverter
 {
-	private static final String[] scanTags = new String[] { "src", "href", "background", "onsubmit", "onreset", "onselect", "onclick", "ondblclick", "onfocus", "onblur", "onchange", "onkeydown", "onkeypress", "onkeyup", "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$ //$NON-NLS-15$ //$NON-NLS-16$ //$NON-NLS-17$ //$NON-NLS-18$ //$NON-NLS-19$
+	private static final Set<String> scanTags = new HashSet<>(Arrays.asList(
+		new String[] { "src", "href", "background", "onsubmit", "onreset", "onselect", "onclick", "ondblclick", "onfocus", "onblur", "onchange", "onkeydown", "onkeypress", "onkeyup", "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup" })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$ //$NON-NLS-15$ //$NON-NLS-16$ //$NON-NLS-17$ //$NON-NLS-18$ //$NON-NLS-19$
 	private static final String javascriptPrefix = "javascript:"; //$NON-NLS-1$
 	private static final String mediaPrefix = "media://"; //$NON-NLS-1$
 	private static final String BROWSER_PARAM = "browser:"; //$NON-NLS-1$
 
 	public static String convert(String htmlContent, IServoyDataConverterContext context, boolean convertInlineScript)
 	{
+		boolean changed = false;
+
 		Document doc = Jsoup.parse(htmlContent);
 		Elements bodyElements = doc.body().getAllElements();
 		Iterator<Element> bodyElementsIte = bodyElements.iterator();
@@ -62,7 +67,7 @@ public class HTMLTagsConverter
 			while (attrsIte.hasNext())
 			{
 				attr = attrsIte.next();
-				if (Arrays.asList(scanTags).indexOf(attr.getKey()) != -1)
+				if (scanTags.contains(attr.getKey()))
 				{
 					String replaceContent = attr.getValue();
 					if (convertInlineScript && replaceContent.startsWith(javascriptPrefix))
@@ -104,6 +109,7 @@ public class HTMLTagsConverter
 						{
 							attr.setValue("executeInlineScript('" + formName + "', '" + script + "', " + browserArgumentsMap.toString() + ");return false;");
 						}
+						changed = true;
 					}
 					else if (replaceContent.startsWith(mediaPrefix))
 					{
@@ -123,12 +129,14 @@ public class HTMLTagsConverter
 							}
 						}
 						else attr.setValue("resources/fs/" + context.getSolution().getName() + media);
+
+						changed = true;
 					}
 				}
 			}
 		}
 
-		return doc.html();
+		return changed ? doc.html() : htmlContent;
 	}
 
 	private static ArrayList<String> getBrowserArguments(String s)

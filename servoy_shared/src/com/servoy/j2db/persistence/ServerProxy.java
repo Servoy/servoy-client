@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -232,7 +233,7 @@ public class ServerProxy implements IServer, Serializable
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IServer#getSequenceProvider()
 	 */
 	@Override
@@ -240,5 +241,11 @@ public class ServerProxy implements IServer, Serializable
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
+	{
+		return server.getProcedures();
 	}
 }

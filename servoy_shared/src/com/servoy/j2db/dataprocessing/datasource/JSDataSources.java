@@ -53,6 +53,8 @@ public class JSDataSources implements IDestroyable
 	}
 
 	private DBDataSource db;
+	private MemDataSource mem;
+	private SPDataSource sp;
 
 	/**
 	 * Scope property for server/table based data sources.
@@ -70,8 +72,6 @@ public class JSDataSources implements IDestroyable
 		return db;
 	}
 
-	private MemDataSource mem;
-
 	/**
 	 * Scope property for in-memory data sources.
 	 *
@@ -86,6 +86,23 @@ public class JSDataSources implements IDestroyable
 			mem = new MemDataSource(application);
 		}
 		return mem;
+	}
+
+	/**
+	 * Scope property for stored procedures.
+	 * This will list the stored procedures of server that have this property enabled (see server editor).
+	 *
+	 * @sample
+	 * datasources.sp.servername.mystoredproc();
+	 */
+	@JSReadonlyProperty
+	public SPDataSource sp()
+	{
+		if (sp == null)
+		{
+			sp = new SPDataSource(application);
+		}
+		return sp;
 	}
 
 	public void destroy()

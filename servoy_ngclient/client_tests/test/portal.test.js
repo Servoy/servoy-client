@@ -136,6 +136,7 @@ describe("Test portal suite", function() {
 			};
 		
 		scope.$apply();
+		$timeout.flush();
 		// $httpBackend.flush();
 		portalScope = scope.$$childTail;
 

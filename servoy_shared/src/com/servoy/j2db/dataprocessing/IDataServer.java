@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
@@ -229,5 +230,9 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
 		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
+
+
+	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
+		throws RepositoryException, RemoteException;
 
 }

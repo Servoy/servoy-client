@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISequenceProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -233,6 +236,12 @@ public class FoundsetTest extends AbstractSolutionTest
 			{
 				// TODO Auto-generated method stub
 				return 0;
+			}
+
+			@Override
+			public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
+			{
+				return Collections.emptySet();
 			}
 
 			@Override
