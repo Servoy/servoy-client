@@ -24,6 +24,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.QueryString;
 import com.servoy.j2db.persistence.Relation;
@@ -241,6 +243,65 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return addTableFilterParam5args(serverName, tableName, dataprovider, operator, value);
 	}
 
+	/**
+	 * Adds a filter based on a query to all the foundsets based on a table.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * returns true if the tablefilter could be applied.
+	 *
+	 *
+	 * @sampleas js_addTableFilterParam(QBSelect,String)
+	 *
+	 * @param query condition to filter on.
+	 *
+	 * @return true if the tablefilter could be applied.
+	 */
+	public boolean js_addTableFilterParam(QBSelect query) throws ServoyException
+	{
+		return js_addTableFilterParam(query, null);
+	}
+
+	/**
+	 * Adds a filter based on a query to all the foundsets based on a table.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * returns true if the tablefilter could be applied.
+	 *
+	 *
+	 * @sample
+	 * // Best way to call this in a global solution startup method, but filters may be added/removed at any time.
+	 * // Note that
+	 *
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(
+	 *    query.or.add(
+	 *             query.columns.shipcity.eq('Amersfoort'))
+	 *    .add(    query.columns.shipcity.eq('Amsterdam')));
+	 *
+	 * var success = databaseManager.addTableFilterParam(query, 'cityFilter')
+	 *
+	 * @param query condition to filter on.
+	 * @param filterName The specified name of the database table filter.
+	 *
+	 * @return true if the tablefilter could be applied.
+	 */
+	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
+	{
+		checkAuthorized();
+
+		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+		ITable table = foundSetManager.getTable(query.getDataSource());
+
+		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table, new QueryTableFilterdefinition(query.build() /* makes a clone */));
+	}
 
 	/**
 	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
@@ -357,7 +418,18 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 			// else table remains null: apply to all tables with that column
-			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataprovider, operator, value));
+
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager().createDataproviderTableFilterdefinition(
+				table, dataprovider, operator, value);
+			if (dataproviderTableFilterdefinition == null)
+			{
+				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+					"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+					null);
+				return false;
+			}
+
+			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataproviderTableFilterdefinition));
 		}
 		catch (Exception ex)
 		{
@@ -393,13 +465,22 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Returns a two dimensional array object containing the table filter information currently applied to the servers tables.
-	 * The "columns" of a row from this array are: tablename,dataprovider,operator,value,tablefilername
+	 * For column-based table filters, a row of 5 fields per filter are returned.
+	 * The "columns" of a row from this array are: tablename, dataprovider, operator, value, filtername
+	 *
+	 * For query-based filters, a row of 2 fields per filter are returned.
+	 * The "columns" of a row from this array are: query, filtername
 	 *
 	 * @sample
 	 * var params = databaseManager.getTableFilterParams(databaseManager.getDataSourceServerName(controller.getDataSource()))
 	 * for (var i = 0; params != null && i < params.length; i++)
 	 * {
-	 * 	application.output('Table filter on table ' + params[i][0]+ ': '+ params[i][1]+ ' '+params[i][2]+ ' '+params[i][3] +(params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 *  if (params[i].length() == 5) {
+	 * 		application.output('Table filter on table ' + params[i][0] + ': '+ params[i][1] + ' '+params[i][2] + ' '+params[i][3] + (params[i][4] == null ? ' [no name]' : ' ['+params[i][4]+']'))
+	 * 	}
+	 *  if (params[i].length() == 2) {
+	 * 		application.output('Table filter with query ' + params[i][0]+ ': ' + (params[i][1] == null ? ' [no name]' : ' ['+params[i][1]+']'))
+	 * 	}
 	 * }
 	 *
 	 * @param serverName The name of the database server connection.
@@ -737,6 +818,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return new JSDataSet(application, BufferedDataSetInternal.createBufferedDataSet(dpnames, dptypes, lst, false));
 	}
 
+	@JSFunction
+	public Collection<Procedure> js_getProcedures(String serverName) throws Exception
+	{
+		Collection<Procedure> procedures = application.getSolution().getServer(serverName).getProcedures();
+		return procedures;
+	}
+
 	/**
 	 * @clonedesc js_convertToDataSet(IFoundSetInternal)
 	 *
@@ -776,7 +864,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -865,7 +953,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -1964,6 +2052,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			// get the sql without any filters
 			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
+			sqlSelect.removeUnusedJoins(false);
 			tableFilterParams = null;
 		}
 		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true);
@@ -2658,7 +2747,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2685,7 +2774,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -3855,7 +3944,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException

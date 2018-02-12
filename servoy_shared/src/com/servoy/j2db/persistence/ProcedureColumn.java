@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,34 +14,47 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util.visitor;
 
+package com.servoy.j2db.persistence;
+
+import java.io.Serializable;
+
+import com.servoy.j2db.query.ColumnType;
 
 /**
- * Interface for objects that can visit IVisitable structures.
- * 
- * @see IVisitable
- * @author rgansevles
+ * @author rob
+ *
  */
-public interface IVisitor
+public class ProcedureColumn implements Serializable
 {
+
+	private final String name;
+	private final ColumnType columnType;
+
 	/**
-	 * visit method, return o or a replacement of o (will stop traversal). Traversal can be controlled also by returning VisitorResult.
-	 * 
-	 * @param o
-	 * @return
+	 * @param colDatatype
+	 * @param columnType
 	 */
-	Object visit(Object o);
-
-	public static class VisitorResult
+	public ProcedureColumn(String name, ColumnType columnType)
 	{
-		public final boolean continueTraversal;
-		public final Object object;
-
-		public VisitorResult(Object object, boolean continueTraversal)
-		{
-			this.object = object;
-			this.continueTraversal = continueTraversal;
-		}
+		this.name = name;
+		this.columnType = columnType;
 	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * @return the columnType
+	 */
+	public ColumnType getColumnType()
+	{
+		return columnType;
+	}
+
 }

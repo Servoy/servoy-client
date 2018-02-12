@@ -23,9 +23,9 @@ import com.servoy.j2db.util.IDelegate;
 
 /**
  * Delegate vistor that calls the visit method from its delegate only once per element.
- * 
+ *
  * @see IVisitable
- * 
+ *
  * @author rgansevles
  */
 public class VisitOnceDelegateVisitor implements IVisitor, IDelegate<IVisitor>
@@ -45,19 +45,19 @@ public class VisitOnceDelegateVisitor implements IVisitor, IDelegate<IVisitor>
 		if (visited != null || map.containsKey(wrapper))
 		{
 			// already visited before, return previous result
-			return new IVisitor.VistorResult(visited, false);
+			return new IVisitor.VisitorResult(visited, false);
 		}
 
 		Object visitedResult = visitor.visit(o);
-		if (visitedResult instanceof VistorResult)
+		if (visitedResult instanceof VisitorResult)
 		{
-			// delete returned whether or not to contiue 
-			visited = ((VistorResult)visitedResult).object;
+			// delete returned whether or not to continue
+			visited = ((VisitorResult)visitedResult).object;
 		}
 		else
 		{
 			visited = visitedResult;
-			visitedResult = new IVisitor.VistorResult(visited, true);
+			visitedResult = new IVisitor.VisitorResult(visited, true);
 		}
 		map.put(wrapper, visited);
 		return visitedResult;
@@ -70,9 +70,9 @@ public class VisitOnceDelegateVisitor implements IVisitor, IDelegate<IVisitor>
 
 	/**
 	 * Wrapper around object that uses pointer equality on wrapped object for equals.
-	 * 
+	 *
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	static class EqualityWrapper
 	{

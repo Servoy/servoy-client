@@ -563,6 +563,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return Current Look And Feel
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public String js_getCurrentLookAndFeelName()
 	{
 		LookAndFeel landf = UIManager.getLookAndFeel();

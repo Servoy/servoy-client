@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,34 +14,21 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util.visitor;
 
+package com.servoy.j2db.serverconfigtemplates;
+
+import com.servoy.j2db.persistence.ServerConfig;
 
 /**
- * Interface for objects that can visit IVisitable structures.
- * 
- * @see IVisitable
  * @author rgansevles
+ *
  */
-public interface IVisitor
+public class ProgressABLTemplate extends ServerTemplateDefinition
 {
-	/**
-	 * visit method, return o or a replacement of o (will stop traversal). Traversal can be controlled also by returning VisitorResult.
-	 * 
-	 * @param o
-	 * @return
-	 */
-	Object visit(Object o);
-
-	public static class VisitorResult
+	public ProgressABLTemplate()
 	{
-		public final boolean continueTraversal;
-		public final Object object;
-
-		public VisitorResult(Object object, boolean continueTraversal)
-		{
-			this.object = object;
-			this.continueTraversal = continueTraversal;
-		}
+		super(new ServerConfig("new_progress_abl", "", "", "jdbc:abl:localhost:<port>", null, "ro.acorn.jdbc.ABLDriver", null, null,
+			ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, ServerConfig.MAX_PREPSTATEMENT_IDLE_DEFAULT, ServerConfig.VALIDATION_TYPE_DEFAULT,
+			null, null, true, false, false, true, ServerConfig.MAX_IDLE_DEFAULT, null));
 	}
 }

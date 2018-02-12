@@ -216,9 +216,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 				for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) {
 					viewPort.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
-					
 					if (rowPrototype) rowUpdate.rows[j] = $sabloUtils.cloneWithDifferentPrototype(rowUpdate.rows[j], rowPrototype);
-
 					updateRowConversionInfo(rowUpdate.startIndex+j, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
 				// insert might have made obsolete some records in cache; remove those; for inserts

@@ -50,6 +50,7 @@ import com.servoy.j2db.persistence.IRemoteRepository;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITeamRepository;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -482,6 +483,14 @@ public class TestNGClient extends NGClient
 			{
 				// TODO Auto-generated method stub
 
+			}
+
+			@Override
+			public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
+				throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 	}

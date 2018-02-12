@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,8 @@ public interface IServer extends Remote
 	public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException;
 
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;
+
+	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException;
 
 	public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException;
 

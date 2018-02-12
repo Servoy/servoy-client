@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
@@ -92,7 +93,7 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 
 		if (o == null && !has(name, start)) return Scriptable.NOT_FOUND;
 
-		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
+		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable || o instanceof Callable))
 		{
 			Context context = Context.getCurrentContext();
 			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
