@@ -284,7 +284,7 @@ var Window = null;
                 if (offX + windowOffsetX < 5) {
                     _this.$el.addClass('west');
                 }
-                if (offX + windowOffsetY > (_this.$el.width() - 5)) {
+                if (offX + windowOffsetX > (_this.$el.width() - 5)) {
                     _this.$el.addClass('east');
                 }
             }

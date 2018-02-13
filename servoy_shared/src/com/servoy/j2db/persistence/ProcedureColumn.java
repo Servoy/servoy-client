@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2016 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,20 +15,46 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.serverconfigtemplates;
+package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.persistence.ServerConfig;
+import java.io.Serializable;
+
+import com.servoy.j2db.query.ColumnType;
 
 /**
- * @author gboros
+ * @author rob
  *
  */
-public class FoxProTemplate extends ServerTemplateDefinition
+public class ProcedureColumn implements Serializable
 {
-	public FoxProTemplate()
+
+	private final String name;
+	private final ColumnType columnType;
+
+	/**
+	 * @param colDatatype
+	 * @param columnType
+	 */
+	public ProcedureColumn(String name, ColumnType columnType)
 	{
-		super(new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, "com.hxtt.sql.dbf.DBFDriver", null,
-			null, ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, 0 /* disable PS pool */, ServerConfig.VALIDATION_TYPE_DEFAULT, null, null,
-			true, false, false, false, -1, null));
+		this.name = name;
+		this.columnType = columnType;
 	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * @return the columnType
+	 */
+	public ColumnType getColumnType()
+	{
+		return columnType;
+	}
+
 }

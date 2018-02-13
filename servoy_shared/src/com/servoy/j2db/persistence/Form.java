@@ -203,6 +203,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the flag
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setShowInMenu(boolean arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU, arg);
@@ -214,6 +215,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * NOTE: This is only applicable for Servoy Client. Servoy Developer always shows all forms so that
 	 * developers have access to all forms within a solution during development.
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public boolean getShowInMenu()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SHOWINMENU).booleanValue();
@@ -224,6 +226,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the name
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setStyleName(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLENAME, arg);
@@ -259,6 +262,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The name of the Servoy style that is being used on the form.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getStyleName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLENAME);
@@ -1115,6 +1119,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.deleteRecord()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnDeleteRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID).intValue();
@@ -1131,6 +1136,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.duplicateRecord(true)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnDuplicateRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID).intValue();
@@ -1147,6 +1153,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.find()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnFindCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID).intValue();
@@ -1165,6 +1172,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.search(clear, reduce)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnSearchCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID).intValue();
@@ -1182,6 +1190,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.invertRecords()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnInvertRecordsCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID).intValue();
@@ -1198,6 +1207,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.newRecord(true)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnNewRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID).intValue();
@@ -1214,6 +1224,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.omitRecord()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnOmitRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID).intValue();
@@ -1230,6 +1241,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.loadAllRecords()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnShowAllRecordsCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID).intValue();
@@ -1246,6 +1258,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.loadOmittedRecords()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnShowOmittedRecordsCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID).intValue();
@@ -1256,6 +1269,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnDeleteRecordCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, i);
@@ -1266,6 +1280,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnDuplicateRecordCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, i);
@@ -1277,6 +1292,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnSearchCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, i);
@@ -1287,6 +1303,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnFindCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, i);
@@ -1297,6 +1314,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnInvertRecordsCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, i);
@@ -1307,6 +1325,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnNewRecordCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, i);
@@ -1317,6 +1336,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnOmitRecordCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, i);
@@ -1327,6 +1347,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnShowAllRecordsCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, i);
@@ -1337,6 +1358,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnShowOmittedRecordsCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, i);
@@ -1398,6 +1420,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.deleteAllRecords()
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnDeleteAllRecordsCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID).intValue();
@@ -1433,6 +1456,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.sort(dataProviderID+(asc?' asc':' desc'), false)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnSortCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID).intValue();
@@ -1499,6 +1523,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnDeleteAllRecordsCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, i);
@@ -1520,6 +1545,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnSortCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, i);
@@ -1599,6 +1625,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The Cascading Style Sheet (CSS) class name applied to the form.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
@@ -1609,6 +1636,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the syle
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setStyleClass(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
@@ -1625,6 +1653,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.setSelectedIndex(controller.getSelectedIndex()+1)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnNextRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID).intValue();
@@ -1636,6 +1665,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnNextRecordCmdMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, arg);
@@ -1652,6 +1682,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.setSelectedIndex(controller.getSelectedIndex()-1)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnPreviousRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID).intValue();
@@ -1663,6 +1694,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnPreviousRecordCmdMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, arg);

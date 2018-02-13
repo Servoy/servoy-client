@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2016 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -20,15 +20,15 @@ package com.servoy.j2db.serverconfigtemplates;
 import com.servoy.j2db.persistence.ServerConfig;
 
 /**
- * @author gboros
+ * @author rgansevles
  *
  */
-public class FoxProTemplate extends ServerTemplateDefinition
+public class ProgressABLTemplate extends ServerTemplateDefinition
 {
-	public FoxProTemplate()
+	public ProgressABLTemplate()
 	{
-		super(new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, "com.hxtt.sql.dbf.DBFDriver", null,
-			null, ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, 0 /* disable PS pool */, ServerConfig.VALIDATION_TYPE_DEFAULT, null, null,
-			true, false, false, false, -1, null));
+		super(new ServerConfig("new_progress_abl", "", "", "jdbc:abl:localhost:<port>", null, "ro.acorn.jdbc.ABLDriver", null, null,
+			ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, ServerConfig.MAX_PREPSTATEMENT_IDLE_DEFAULT, ServerConfig.VALIDATION_TYPE_DEFAULT,
+			null, null, true, false, false, true, ServerConfig.MAX_IDLE_DEFAULT, null));
 	}
 }
