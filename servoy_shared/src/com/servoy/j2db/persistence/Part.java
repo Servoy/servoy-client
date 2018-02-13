@@ -181,6 +181,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * NOTE: Make sure to set this option when you are printing more than one page per record.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getAllowBreakAcrossPageBounds()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS).booleanValue();
@@ -191,6 +192,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * @param b the allowBreakAcrossPageBounds
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setAllowBreakAcrossPageBounds(boolean b)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS, b);
@@ -200,6 +202,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 * When set, the remainder of a selected part that is broken due to the page
 	 * ending will not be printed on the next page - it will be discarded.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getDiscardRemainderAfterBreak()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISCARDREMAINDERAFTERBREAK).booleanValue();
@@ -210,6 +213,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * @param b the discardRemainderAfterBreak
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDiscardRemainderAfterBreak(boolean b)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DISCARDREMAINDERAFTERBREAK, b);
@@ -239,6 +243,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	/**
 	 * When set, a page break will be inserted before each occurrence of a selected part.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getPageBreakBefore()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKBEFORE).booleanValue();
@@ -249,6 +254,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * @param b the pageBreakBefore
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPageBreakBefore(boolean b)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKBEFORE, b);
@@ -257,6 +263,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	/**
 	 * A page break will be inserted after a specified number of occurences of a selected part.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPageBreakAfterOccurrence()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKAFTEROCCURRENCE).intValue();
@@ -267,6 +274,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * @param i the pageBreakAfterOccurrence
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPageBreakAfterOccurrence(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_PAGEBREAKAFTEROCCURRENCE, i);
@@ -275,6 +283,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	/**
 	 * When set, page numbering will be restarted after each occurrence of a selected part.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getRestartPageNumber()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RESTARTPAGENUMBER).booleanValue();
@@ -285,6 +294,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * @param b the restartPageNumber
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setRestartPageNumber(boolean b)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_RESTARTPAGENUMBER, b);
@@ -294,6 +304,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 * When set, the last part on a page (such as a Trailing Grand Summary part) will
 	 * "sink" to the lowest part of the page when there is free space.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getSinkWhenLast()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_SINKWHENLAST).booleanValue();
@@ -304,6 +315,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	 *
 	 * @param b the sinkWhenLast
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setSinkWhenLast(boolean b)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_SINKWHENLAST, b);
