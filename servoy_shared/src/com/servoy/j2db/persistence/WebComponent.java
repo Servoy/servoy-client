@@ -17,6 +17,8 @@
 package com.servoy.j2db.persistence;
 
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.beans.IntrospectionException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -341,6 +343,38 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		Object value = getCustomProperty(new String[] { "attributes", name });
 		if (value instanceof String) return (String)value;
 		return null;
+	}
+
+	@Override
+	public java.awt.Dimension getSize()
+	{
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
+		if (size == null)
+		{
+			Object defaultSize = getPropertyDefaultValueClone(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
+			if (defaultSize instanceof JSONObject)
+			{
+				return new java.awt.Dimension(((JSONObject)defaultSize).optInt("width"), ((JSONObject)defaultSize).optInt("height")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			return new java.awt.Dimension(140, 20);
+		}
+		return size;
+	}
+
+	@Override
+	public java.awt.Point getLocation()
+	{
+		java.awt.Point point = getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
+		if (point == null)
+		{
+			Object defaultLocation = getPropertyDefaultValueClone(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
+			if (defaultLocation instanceof JSONObject)
+			{
+				return new Point(((JSONObject)defaultLocation).optInt("x"), ((JSONObject)defaultLocation).optInt("y")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			point = new Point(10, 10);
+		}
+		return point;
 	}
 
 	@Override
