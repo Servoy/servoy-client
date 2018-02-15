@@ -24,6 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.impl.ClientService;
@@ -70,6 +75,52 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 	public String generateHTMLTemplate()
 	{
 		// no html template needed.
+		StringBuilder sb = new StringBuilder();
+		WebObjectSpecification[] specs = WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
+		for (WebObjectSpecification spec : specs)
+		{
+			sb.append("<ng-template #");
+			sb.append(ClientService.convertToJSName(spec.getName()));
+			sb.append(" let-state=\"state\">");
+			sb.append('<');
+			sb.append(spec.getName());
+			sb.append(' ');
+
+			for (PropertyDescription pd : spec.getProperties().values())
+			{
+				if (pd.getName().equals("anchors") || pd.getName().equals("formIndex")) continue;
+				sb.append(" [");
+				sb.append(pd.getName());
+				sb.append("]=\"state.model.");
+				sb.append(pd.getName());
+				sb.append('"');
+
+				if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject)
+				{
+					sb.append(" (");
+					sb.append(pd.getName());
+					sb.append("Change)=\"datachange(state.name,'");
+					sb.append(pd.getName());
+					sb.append("',$event)\"");
+				}
+			}
+
+			for (WebObjectFunctionDefinition handler : spec.getHandlers().values())
+			{
+				sb.append(" [");
+				sb.append(handler.getName());
+				sb.append("]=\"getHandler(state,'");
+				sb.append(handler.getName());
+				sb.append("')\"");
+			}
+			sb.append(" [servoyApi]=\"getServoyApi(state)\"");
+			sb.append(" [name]=\"state.name\" #cmp");
+			sb.append("></");
+			sb.append(spec.getName());
+			sb.append("></ng-template>\n");
+
+		}
+		System.err.println(sb.toString());
 		return "";
 	}
 
