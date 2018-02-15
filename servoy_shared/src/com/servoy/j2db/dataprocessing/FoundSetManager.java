@@ -111,9 +111,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private static final Entry<String, SoftReference<RelatedFoundSet>>[] EMPTY_ENTRY_ARRAY = new Map.Entry[0];
 
 	private final IApplication application;
-	private Map<Object, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
+	private Map<String, WeakReference<FoundSet>> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
 
 	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
@@ -298,20 +299,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		for (FoundSet fs : fslist)
 		{
-			try
+			refreshFoundSet(fs, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
+		}
+
+		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
+			FoundSet foundset = entry.getValue().get();
+			if (foundset == null)
 			{
-				if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinition))
-				{
-					if (fs.isInitialized())
-					{
-						fs.refreshFromDB(false, skipStopEdit);
-					}
-					affectedTables.add(fs.getTable());
-				}
+				it.remove();
 			}
-			catch (Exception e)
+			else
 			{
-				Debug.error(e);
+				refreshFoundSet(foundset, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
 			}
 		}
 		// Can't just clear substates!! if used in portal then everything is out of sync
@@ -355,6 +357,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		getEditRecordList().fireEvents();
 
 		return affectedTables;
+	}
+
+	private void refreshFoundSet(FoundSet fs, String dataSource, TableFilterdefinition tableFilterdefinition, boolean skipStopEdit, Set<ITable> affectedTables)
+	{
+		try
+		{
+			if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinition))
+			{
+				if (fs.isInitialized())
+				{
+					fs.refreshFromDB(false, skipStopEdit);
+				}
+				affectedTables.add(fs.getTable());
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
 	}
 
 	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, TableFilterdefinition tableFilterdefinition)
@@ -430,6 +451,31 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			catch (Exception e)
 			{
 				Debug.error(e);
+			}
+		}
+
+		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
+			FoundSet foundset = entry.getValue().get();
+			if (foundset == null)
+			{
+				it.remove();
+			}
+			else
+			{
+				try
+				{
+					if (dataSource.equals(foundset.getDataSource()))
+					{
+						foundset.reloadFoundsetMethod(scriptMethod);
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
 			}
 		}
 
@@ -849,8 +895,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private void initMembers()
 	{
 		sharedDataSourceFoundSet = new ConcurrentHashMap<String, FoundSet>(64);
-		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<Object, FoundSet>(32));
+		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<IFoundSetListener, FoundSet>(32));
 		foundSets = Collections.synchronizedSet(new WeakHashSet<FoundSet>(64));
+		namedFoundSets = Collections.synchronizedMap(new HashMap<String, WeakReference<FoundSet>>(32));
 		noTableFoundSet = null;
 
 		rowManagers = new ConcurrentHashMap<String, RowManager>(64);
@@ -1469,8 +1516,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			// make sure inmem table is created
 			getTable(l.getDataSource());
 		}
-
-		FoundSet foundset = l.getSharedFoundsetName() != null ? separateFoundSets.get(l.getSharedFoundsetName()) : separateFoundSets.get(l);
+		FoundSet foundset = null;
+		if (l.getSharedFoundsetName() != null)
+		{
+			WeakReference<FoundSet> foundsetRef = namedFoundSets.get(l.getSharedFoundsetName());
+			if (foundsetRef != null)
+			{
+				foundset = foundsetRef.get();
+			}
+		}
+		else
+		{
+			foundset = separateFoundSets.get(l);
+		}
 		if (foundset == null)
 		{
 			foundset = createSeparateFoundset(l.getDataSource(), l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, defaultSortColumns);
@@ -1483,7 +1541,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(datasource);
 		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
 		if (createEmptyFoundsets) foundset.clear();
-		separateFoundSets.put(key, foundset);
+		if (key instanceof IFoundSetListener)
+		{
+			separateFoundSets.put((IFoundSetListener)key, foundset);
+		}
+		else
+		{
+			namedFoundSets.put(key.toString(), new WeakReference<FoundSet>(foundset));
+		}
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
@@ -1531,7 +1596,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public IFoundSet getNamedFoundSet(String name) throws ServoyException
 	{
 		if (name == null) throw new RuntimeException("can't ask for a named foundset with a null name");
-		IFoundSet foundset = separateFoundSets.get(name);
+		WeakReference<FoundSet> foundsetReference = namedFoundSets.get(name);
+		FoundSet foundset = null;
+		if (foundsetReference != null)
+		{
+			if (foundsetReference.get() != null)
+			{
+				foundset = foundsetReference.get();
+			}
+			else
+			{
+				namedFoundSets.remove(name);
+			}
+		}
 		if (foundset == null)
 		{
 			Iterator<Form> forms = application.getFlattenedSolution().getForms(false);
