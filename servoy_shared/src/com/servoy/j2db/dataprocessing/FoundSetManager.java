@@ -1478,6 +1478,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (foundsetRef != null)
 			{
 				foundset = foundsetRef.get();
+				if (foundset == null) namedFoundSets.remove(l.getSharedFoundsetName());
 			}
 		}
 		else
