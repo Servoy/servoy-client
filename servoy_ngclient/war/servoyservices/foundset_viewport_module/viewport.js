@@ -236,8 +236,17 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				var oldLength = viewPort.length;
 				if (internalState[CONVERSIONS]) {
 					// delete conversion info for deleted rows
-					for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++)
-						removeRowConversionInfo(j, internalState);
+					for (j = rowUpdate.startIndex; j < oldLength; j++)
+					{
+						if (j+(rowUpdate.endIndex - rowUpdate.startIndex) <  oldLength)
+						{
+							internalState[CONVERSIONS][j] = internalState[CONVERSIONS][j+(rowUpdate.endIndex - rowUpdate.startIndex)]
+						}
+						else
+						{
+							delete internalState[CONVERSIONS][j];
+						}
+					}	
 				}
 				viewPort.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
 				for (j = 0; j < rowUpdate.rows.length; j++) {
