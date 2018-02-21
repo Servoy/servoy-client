@@ -69,6 +69,7 @@ import org.slf4j.LoggerFactory;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.startup.Activator;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
@@ -88,6 +89,8 @@ public class ResourceProvider implements Filter
 	private static final Map<String, List<IPackageReader>> componentReaders = new ConcurrentHashMap<>();
 	private static final Map<String, List<IPackageReader>> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
+
+	private final File templatesDir = new File(ApplicationServerRegistry.get().getServoyApplicationServerDirectory(), "server/webapps/ROOT/templates");
 
 	private static String getName(IPackageReader reader)
 	{
@@ -296,7 +299,17 @@ public class ResourceProvider implements Filter
 				chain.doFilter(request, response);
 				return;
 			}
-			URL url = computeURL(pathInfo, bundle);
+
+			URL url = null;
+			if (pathInfo.startsWith("/templates/"))
+			{
+				File templateFile = new File(templatesDir, pathInfo.substring("/templates/".length()));
+				if (templateFile.exists())
+				{
+					url = templateFile.toURI().toURL();
+				}
+			}
+			if (url == null) url = computeURL(pathInfo, bundle);
 
 			if (url != null)
 			{
