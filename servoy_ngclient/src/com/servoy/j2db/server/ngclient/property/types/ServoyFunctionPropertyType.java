@@ -237,7 +237,17 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			jsParent = jsParent.getJSParent();
 		}
-		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), jsParent, pd.getName());
+		int methodId = Utils.getAsInteger(value);
+		if (methodId > 0)
+		{
+			return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), methodId, jsParent, pd.getName());
+		}
+		else if (value instanceof String)
+		{
+			// it is a uuid string
+			return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), (String)value, jsParent, pd.getName());
+		}
+		return null;
 	}
 
 }
