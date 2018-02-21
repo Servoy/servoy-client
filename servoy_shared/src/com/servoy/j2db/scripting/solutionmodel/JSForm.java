@@ -2726,6 +2726,48 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		return null;
 	}
 
+	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String uuidOrName, IJSParent< ? > parent,
+		String propertyName)
+	{
+		if (uuidOrName != null)
+		{
+			IJSScriptParent< ? > scriptParent = null;
+			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuidOrName);
+			;
+			if (scriptMethod != null)
+			{
+				if (scriptMethod.getParent() instanceof TableNode && parent instanceof JSDataSourceNode)
+				{
+					scriptParent = (JSDataSourceNode)parent;
+				}
+				else if (scriptMethod.getParent() instanceof Solution)
+				{
+					// global
+					scriptParent = null;
+				}
+				else
+				{
+					// form method
+					scriptParent = getJSFormParent(parent);
+					if (scriptMethod.getParent() != scriptParent.getSupportChild() && scriptParent.getSupportChild() instanceof Form)
+					{
+						scriptParent = application.getScriptEngine().getSolutionModifier().instantiateForm((Form)scriptParent.getSupportChild(), false);
+					}
+				}
+				List<Object> arguments = persist.getFlattenedMethodArguments(propertyName);
+				if (arguments == null || arguments.size() == 0)
+				{
+					return new JSMethod(scriptParent, scriptMethod, application, false);
+				}
+				else
+				{
+					return new JSMethodWithArguments(application, scriptParent, scriptMethod, false, arguments.toArray());
+				}
+			}
+		}
+		return null;
+	}
+
 	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
