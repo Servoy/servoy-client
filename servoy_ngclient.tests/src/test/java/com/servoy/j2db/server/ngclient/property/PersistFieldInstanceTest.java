@@ -35,6 +35,7 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.dataprocessing.CustomValueList;
@@ -90,7 +91,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 	@Override
 	protected void fillTestSolution() throws RepositoryException
 	{
-		solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
+		Form form = solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
+		form.setNavigatorID(-1);
 		ValueList valuelist = solution.createNewValueList(validator, "test");
 		valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
 		valuelist = solution.createNewValueList(validator, "test_items");
@@ -98,11 +100,6 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		valuelist.setAddEmptyValue(IValueListConstants.EMPTY_VALUE_NEVER);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
-	 */
 	@Override
 	protected void setupData() throws ServoyException
 	{
@@ -142,6 +139,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertNotNull(form);
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
+		tabForm.setNavigatorID(-1);
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(tabForm, client));
 
 		TabPanel tabpanel = form.createNewTabPanel("tabpanel");
@@ -165,6 +163,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
+		tabForm.setNavigatorID(-1);
 
 		TabPanel tabpanel = form.createNewTabPanel("tabpanel");
 		tabpanel.createNewTab("tab1", null, tabForm);
@@ -265,9 +264,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
-		Assert.assertEquals(
+		JSONAssert.assertEquals(
 			"{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svy_types\":{\"atype\":\"JSON_obj\"}}",
-			json);
+			json, true);
 	}
 
 	@Test
