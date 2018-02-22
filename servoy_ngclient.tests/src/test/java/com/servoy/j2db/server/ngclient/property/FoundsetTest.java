@@ -102,6 +102,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		try
 		{
 			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
+			form.setNavigatorID(-1);
+
 			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
 			bean.setProperty("myfoundset", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 			bean.setProperty("myfoundsetWithAllow", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));

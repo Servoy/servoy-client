@@ -37,11 +37,6 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 {
 	private IFoundSet foundset;
 
-	/**
-	 * @param name
-	 * @param fe
-	 * @param dataAdapterList
-	 */
 	public DefaultNavigatorWebComponent(final IDataAdapterList dataAdapterList)
 	{
 		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, dataAdapterList.getApplication().getFlattenedSolution(),
