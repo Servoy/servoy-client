@@ -23,3 +23,8 @@ div.ui-grid-cell input.ng-valid {
 .ui-grid-viewport {
   overflow-anchor: none;
 }
+
+.ui-grid-invisible
+{
+	display: none;
+}
