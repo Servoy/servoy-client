@@ -1456,7 +1456,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.sort(dataProviderID+(asc?' asc':' desc'), false)
 	 */
-	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public int getOnSortCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID).intValue();
@@ -1545,7 +1544,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
-	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void setOnSortCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, i);
