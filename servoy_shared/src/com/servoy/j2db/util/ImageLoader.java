@@ -44,6 +44,8 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.text.html.CSS;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.xhtmlrenderer.css.constants.CSSName;
 import org.xhtmlrenderer.css.parser.PropertyValue;
@@ -61,6 +63,8 @@ import com.servoy.j2db.persistence.Media;
 @SuppressWarnings("nls")
 public class ImageLoader
 {
+	private static final Logger log = LoggerFactory.getLogger(ImageLoader.class.getCanonicalName());
+
 	public static ImageIcon getIcon(byte[] array, int width, int height, boolean keepAspect)
 	{
 		return getIcon(array, width, height, keepAspect, null);
@@ -207,7 +211,7 @@ public class ImageLoader
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			log.error("Error reading image", e);
 		}
 		finally
 		{
@@ -262,7 +266,7 @@ public class ImageLoader
 				// ignore
 			}
 
-			Debug.error(e);
+			log.error("Error getting image size", e);
 		}
 		finally
 		{
@@ -276,7 +280,7 @@ public class ImageLoader
 			}
 			catch (Exception e1)
 			{
-				Debug.error(e1);
+				log.error("Error getting image size", e1);
 			}
 		}
 		return new Dimension(0, 0);
@@ -318,7 +322,7 @@ public class ImageLoader
 				// ignore
 			}
 
-			Debug.error(e);
+			log.error("Error getting image size", e);
 		}
 		finally
 		{
@@ -333,7 +337,7 @@ public class ImageLoader
 			}
 			catch (Exception e1)
 			{
-				Debug.error(e1);
+				log.error("Error getting image size", e1);
 			}
 		}
 		return new Dimension(0, 0);
@@ -450,7 +454,7 @@ public class ImageLoader
 		}
 		catch (IOException e)
 		{
-			Debug.error("resizing images error", e);
+			log.error("resizing images error", e);
 		}
 		if (baos.size() > 0)
 		{
