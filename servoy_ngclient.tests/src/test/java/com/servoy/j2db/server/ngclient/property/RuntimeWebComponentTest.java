@@ -46,13 +46,13 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 	@Override
 	protected InMemPackageReader getTestComponents() throws IOException
 	{
-		InputStream is = getClass().getResourceAsStream("WebComponentTest.manifest");
+		InputStream is = getClass().getResourceAsStream("RuntimeWebComponentTest.manifest");
 		byte[] bytes = new byte[is.available()];
 		is.read(bytes);
 		String manifest = new String(bytes);
 		is.close();
 
-		is = getClass().getResourceAsStream("WebComponentTest-mycomponent.spec");
+		is = getClass().getResourceAsStream("RuntimeWebComponentTest-mycomponent.spec");
 		bytes = new byte[is.available()];
 		is.read(bytes);
 		String comp1 = new String(bytes);
