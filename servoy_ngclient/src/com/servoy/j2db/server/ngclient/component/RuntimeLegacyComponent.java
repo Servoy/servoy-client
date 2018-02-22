@@ -734,7 +734,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 					if (value.getValueList() != null) return value.getValueList().getName();
 				}
 			}
-			return scriptable.get(propertyName, null);
+			return scriptable.get(propertyName, scope);
 		}
 	}
 }
