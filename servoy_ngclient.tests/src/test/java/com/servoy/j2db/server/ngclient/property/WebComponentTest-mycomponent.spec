@@ -6,7 +6,8 @@
 	"model":
 	{
 	        "atype": "mytype",
-	        "types": "mytype[]"
+	        "types": "mytype[]",
+	        "stringArray": { type: "string[]", default: [ "a", "b", "c"] }
 	},
 	"types": {
 	  "mytype": {
