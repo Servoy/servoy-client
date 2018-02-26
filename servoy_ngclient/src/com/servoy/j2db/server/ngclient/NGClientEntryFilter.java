@@ -90,7 +90,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String[] INDEX_3TH_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
 	public static final String[] INDEX_3TH_PARTY_JS = { //
-		"js/jquery-3.2.0.js", //
+		"js/jquery-3.3.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize_1.6.3.js", //
