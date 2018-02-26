@@ -3850,7 +3850,7 @@ public abstract class BasicFormController
 		 *
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag)
 		{
 			jsFunction_setDesignMode(onDrag, null);
@@ -3864,7 +3864,7 @@ public abstract class BasicFormController
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, null);
@@ -3879,7 +3879,7 @@ public abstract class BasicFormController
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, null);
@@ -3895,7 +3895,7 @@ public abstract class BasicFormController
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, null);
@@ -3912,7 +3912,7 @@ public abstract class BasicFormController
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, onDblClick, null);
@@ -3930,7 +3930,7 @@ public abstract class BasicFormController
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
 		 * @param onrightclick org.mozilla.javascript.Function onRightClick method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick, Function onRightClick)
 		{
 			checkDestroyed();
@@ -3956,7 +3956,7 @@ public abstract class BasicFormController
 		 *
 		 * @param designMode boolean sets form in design mode if true, false ends design mode.
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(boolean designMode)
 		{
 			checkDestroyed();
