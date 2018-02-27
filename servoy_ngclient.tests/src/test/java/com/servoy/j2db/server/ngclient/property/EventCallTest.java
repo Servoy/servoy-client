@@ -61,7 +61,7 @@ public class EventCallTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws ServoyException
 	{
 		Form form = solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
-		form.setNavigatorID(-2);
+		form.setNavigatorID(-1);
 		form.createNewScriptVariable(DummyValidator.INSTANCE, "testVar", IColumnTypes.INTEGER);
 		GraphicalComponent button = form.createNewGraphicalComponent(new Point(10, 10));
 		button.setShowClick(true);
@@ -116,10 +116,8 @@ public class EventCallTest extends AbstractSolutionTest
 		}
 		Assert.assertNotNull(beanName);
 		// fake incoming request for button click
-		endpoint.incoming(
-			"{\"service\":\"formService\",\"methodname\":\"executeEvent\",\"args\":{\"formname\":\"test\",\"beanname\":\"" +
-				beanName +
-				"\",\"event\":\"onActionMethodID\",\"args\":[{\"type\":\"event\",\"eventName\":\"onActionMethodID\",\"modifiers\":0,\"timestamp\":1430912492641,\"x\":362,\"y\":207}],\"changes\":{}},\"cmsgid\":2}",
+		endpoint.incoming("{\"service\":\"formService\",\"methodname\":\"executeEvent\",\"args\":{\"formname\":\"test\",\"beanname\":\"" + beanName +
+			"\",\"event\":\"onActionMethodID\",\"args\":[{\"type\":\"event\",\"eventName\":\"onActionMethodID\",\"modifiers\":0,\"timestamp\":1430912492641,\"x\":362,\"y\":207}],\"changes\":{}},\"cmsgid\":2}",
 			true);
 
 		Object object = form.getFormScope().get("testVar2");

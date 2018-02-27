@@ -374,6 +374,14 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					});
 					instance.bsWindowInstance.$el.find(".window-header").focus();
 					instance.bsWindowInstance.setActive(true);
+					 // init the size of the dialog
+			        var width = instance.bsWindowInstance.$el.width();
+			        var height = instance.bsWindowInstance.$el.height();
+			        if (width > 0 && height > 0)
+			        {
+			        	var dialogSize = {width:width,height:height};            
+			        	$sabloApplication.callService("$windowService", "resize", {name:instance.name,size:dialogSize},true);
+			        }
 				},function(reason){
 					throw reason;
 				})

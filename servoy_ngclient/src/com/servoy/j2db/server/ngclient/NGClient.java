@@ -695,7 +695,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 										}
 										catch (Exception ex)
 										{
-											Debug.error(ex);
+											Debug.trace(ex);
 										}
 										finally
 										{
