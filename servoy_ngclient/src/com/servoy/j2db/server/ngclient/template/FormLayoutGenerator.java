@@ -316,6 +316,7 @@ public class FormLayoutGenerator
 			writer.print("<div ng-style=\"layout.");
 			writer.print(name);
 			writer.print("\"");
+			writer.print(" class=\"svy-wrapper\" ");
 		}
 		if (!isResponsive && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
@@ -344,7 +345,6 @@ public class FormLayoutGenerator
 			writer.print(form.getMinWidth());
 			writer.print("px'");
 		}
-		writer.print(" ng-class=\"'svy-wrapper'\" ");
 		if (designId != null)
 		{
 			writer.print(" svy-id='");
