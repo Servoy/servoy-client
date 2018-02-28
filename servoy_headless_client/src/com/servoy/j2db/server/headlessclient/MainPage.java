@@ -761,7 +761,17 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	private ServoyDivDialog createDivDialog(MainPage dialogContainer, String name)
 	{
-		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId());
+		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId())
+		{
+			@Override
+			public void show(AjaxRequestTarget target)
+			{
+				super.show(target);
+				Component toFocus = ((MainPage)page).getFocusedComponent();
+				if (toFocus == null) toFocus = page;
+				target.focusComponent(toFocus);
+			}
+		};
 		divDialog.setPageMapName(null);
 		divDialog.setCookieName(COOKIE_PREFIX + name);
 		divDialog.setModal(true);
@@ -773,7 +783,9 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 			public Page createPage()
 			{
-				return (MainPage)((FormManager)client.getFormManager()).getOrCreateMainContainer(divDialog.getPageMapName());
+				MainPage mp = (MainPage)((FormManager)client.getFormManager()).getOrCreateMainContainer(divDialog.getPageMapName());
+				divDialog.setPage(mp);
+				return mp;
 			}
 		});
 		divDialog.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
