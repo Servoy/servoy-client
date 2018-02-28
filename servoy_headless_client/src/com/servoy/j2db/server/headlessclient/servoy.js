@@ -541,7 +541,7 @@ function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 	{	
 		ignoreFocusGained = null;
 	}
-	if(strEvent != "focus" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+	if(strEvent != "focus" && strEvent != "blur" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 
 	var modifiers;
 	if(strEvent == "focus")
