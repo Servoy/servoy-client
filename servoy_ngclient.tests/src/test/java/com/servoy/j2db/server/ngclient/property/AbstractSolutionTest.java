@@ -279,7 +279,7 @@ public abstract class AbstractSolutionTest
 		else
 		{
 			// it is running from sources/projects
-			File ngClientProjDir = new File(f.getParentFile(), "servoy_ngclient");
+			File ngClientProjDir = f.getParentFile();
 			componentsReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile() + "/war/servoycore/"), new File(
 				ngClientProjDir.getAbsoluteFile() + "/war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, null);

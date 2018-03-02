@@ -3151,6 +3151,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		try
 		{
+			if (dataSource == null) return null;
 			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 			if (snt != null)
 			{
@@ -3158,7 +3159,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 
 			// not a server/table combi, ask the current clients foundset manager
-			if (J2DBGlobals.getServiceProvider() != null)
+			if (J2DBGlobals.getServiceProvider() != null && J2DBGlobals.getServiceProvider().getFoundSetManager() != null)
 			{
 				return J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
 			}

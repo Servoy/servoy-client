@@ -190,10 +190,20 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 	}
 
-	public void updateSize(int width, int height)
+	public boolean updateSize(int width, int height)
 	{
-		this.width = width;
-		this.height = height;
+		boolean changed = false;
+		if (this.width != width)
+		{
+			changed = true;
+			this.width = width;
+		}
+		if (this.height != height)
+		{
+			changed = true;
+			this.height = height;
+		}
+		return changed;
 	}
 
 	@Override

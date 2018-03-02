@@ -257,10 +257,18 @@ angular.module('window',['servoy'])
 				}
 				style+= 'left:'+left+'px;';
 				style+= 'top:'+top+'px;';
-				var popup = $compile('<div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
+				var popup = $compile('<div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()"></div>')(scope);
 				scope.popupElement = popup;
 				$timeout(function(){
-					body.on('click',cancelFormPopup);
+					body.on('click',function(event)
+					{
+						var mainform = angular.element(".svy-main-window-container");
+						if (mainform && mainform.find(event.target).length > 0 )
+						{
+							cancelFormPopup();
+							return;
+						}
+					});
 				},300);
 				body.append(popup);
 		 }, function()

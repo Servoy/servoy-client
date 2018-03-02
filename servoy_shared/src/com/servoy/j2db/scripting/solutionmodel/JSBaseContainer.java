@@ -193,7 +193,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position)
 	{
-		return createLayoutContainer(0, position);
+		return createLayoutContainer(position, position);
 	}
 
 	/**

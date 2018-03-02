@@ -297,7 +297,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 
-	private static final ContentSpec allCs = getContentSpecChanges(0);
+	private static final ContentSpec allCs = getContentSpecChanges(0).loadObjectTypes();
 
 	public static ContentSpec getContentSpec()
 	{

@@ -392,4 +392,10 @@ public class ContentSpec
 		if (objectTypes != null) objectTypes.clear();
 		contentSpecElements.clear();
 	}
+
+	ContentSpec loadObjectTypes()
+	{
+		fillObjectTypesMap();
+		return this;
+	}
 }

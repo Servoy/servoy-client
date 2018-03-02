@@ -69,7 +69,9 @@ import org.slf4j.LoggerFactory;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.startup.Activator;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Utils;
 
@@ -87,6 +89,8 @@ public class ResourceProvider implements Filter
 	private static final Map<String, List<IPackageReader>> componentReaders = new ConcurrentHashMap<>();
 	private static final Map<String, List<IPackageReader>> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
+
+	private final File templatesDir = new File(ApplicationServerRegistry.get().getServoyApplicationServerDirectory(), "server/webapps/ROOT/templates");
 
 	private static String getName(IPackageReader reader)
 	{
@@ -295,7 +299,17 @@ public class ResourceProvider implements Filter
 				chain.doFilter(request, response);
 				return;
 			}
-			URL url = computeURL(pathInfo, bundle);
+
+			URL url = null;
+			if (pathInfo.startsWith("/templates/"))
+			{
+				File templateFile = new File(templatesDir, pathInfo.substring("/templates/".length()));
+				if (templateFile.exists())
+				{
+					url = templateFile.toURI().toURL();
+				}
+			}
+			if (url == null) url = computeURL(pathInfo, bundle);
 
 			if (url != null)
 			{
@@ -308,7 +322,7 @@ public class ResourceProvider implements Filter
 					{
 						String file = ((JarURLConnection)connection).getEntryName();
 						ZipEntry entry = jarFile.getEntry(file);
-						if (testLastModified(request, response, entry.getTime() / 1000 * 1000)) return;
+						if (HTTPUtils.checkAndSetUnmodified((HttpServletRequest)request, (HttpServletResponse)response, entry.getTime())) return;
 						response.setContentLength((int)entry.getSize());
 						response.setContentType(MimeTypes.guessContentTypeFromName(file));
 						try (InputStream is = jarFile.getInputStream(entry))
@@ -323,7 +337,7 @@ public class ResourceProvider implements Filter
 				}
 				else
 				{
-					if (testLastModified(request, response, connection.getLastModified() / 1000 * 1000)) return;
+					if (HTTPUtils.checkAndSetUnmodified((HttpServletRequest)request, (HttpServletResponse)response, connection.getLastModified())) return;
 					response.setContentLength(connection.getContentLength());
 
 					response.setContentType(MimeTypes.guessContentTypeFromName(url.getFile()));
@@ -364,25 +378,6 @@ public class ResourceProvider implements Filter
 			Utils.streamCopy(is, response.getOutputStream());
 		}
 	}
-
-	/**
-	 * @param request
-	 * @param response
-	 * @param lastModifiedTime
-	 */
-	private boolean testLastModified(ServletRequest request, ServletResponse response, long lastModifiedTime)
-	{
-		((HttpServletResponse)response).setDateHeader("Last-Modified", lastModifiedTime);
-		((HttpServletResponse)response).setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
-		long lm = ((HttpServletRequest)request).getDateHeader("If-Modified-Since");
-		if (lm != -1 && lm == lastModifiedTime)
-		{
-			((HttpServletResponse)response).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-			return true;
-		}
-		return false;
-	}
-
 
 	private static String getText(InputStream is) throws IOException
 	{
