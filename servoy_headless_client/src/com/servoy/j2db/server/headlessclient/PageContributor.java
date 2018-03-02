@@ -211,13 +211,18 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			Component focus = ((MainPage)page).getAndResetToFocusComponent();
 			if (focus != null)
 			{
+				// use dom ready, as wicket handle that with a recursive timeout calls, and components like
+				// the autocomplete are initializing on dom ready, so we also put the focuse then with dom ready, on a timeout
+				// (to be sure the focus is called after all other dom ready handlers);
+				// note: using 'renderOnLoad' could cause problems, because that is just added to the window load event, and so,
+				// it can happen before a 'wicket'-dom ready
 				if (focus instanceof WebDataHtmlArea)
 				{
-					response.renderOnLoadJavascript("tinyMCE.activeEditor.focus()");
+					response.renderOnDomReadyJavascript("tinyMCE.activeEditor.focus()");
 				}
 				else
 				{
-					response.renderOnLoadJavascript("setTimeout(\"requestFocus('" + focus.getMarkupId() + "');\",0);"); //$NON-NLS-1$ //$NON-NLS-2$
+					response.renderOnDomReadyJavascript("setTimeout(\"requestFocus('" + focus.getMarkupId() + "');\",0);"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -269,7 +274,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 				if (splitPane.findParent(Page.class) != null && !splitPane.getScriptObject().getChangesRecorder().isChanged() &&
 					!splitPane.isParentContainerChanged())
 				{
-					response.renderOnLoadJavascript((new StringBuilder("(function() {").append(splitPane.getDividerLocationJSSetter(true).append("}).call();"))).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+					response.renderOnLoadJavascript(
+						(new StringBuilder("(function() {").append(splitPane.getDividerLocationJSSetter(true).append("}).call();"))).toString()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			splitPanesToUpdateDivider.clear();
@@ -297,7 +303,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 					url = (String)resource.getRight();
 					if (url.contains(MediaURLStreamHandler.MEDIA_URL_DEF))
 					{
-						url = StripHTMLTagsConverter.convertMediaReferences(url, application.getSolution().getName(), new ResourceReference("media"), "", true).toString(); //$NON-NLS-1$//$NON-NLS-2$
+						url = StripHTMLTagsConverter.convertMediaReferences(url, application.getSolution().getName(), new ResourceReference("media"), "", //$NON-NLS-1$//$NON-NLS-2$
+							true).toString();
 					}
 				}
 				if (url != null)
@@ -539,8 +546,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	public static List<Component> getVisibleChildren(Component component, final boolean onlyChanged)
 	{
 		final List<Component> visibleChildren = new ArrayList<Component>();
-		if (component.isVisibleInHierarchy() &&
-			(!onlyChanged || (component instanceof IProviderStylePropertyChanges && ((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())))
+		if (component.isVisibleInHierarchy() && (!onlyChanged ||
+			(component instanceof IProviderStylePropertyChanges && ((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())))
 		{
 			visibleChildren.add(component);
 		}
