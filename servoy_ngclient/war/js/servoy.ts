@@ -358,7 +358,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			else if (valign == 3)
 			{
-				style['bottom'] = 0;
+				style['top'] = '100%';
+				style['transform'] = 'translateY(-100%)';
 			}
 			else
 			{
