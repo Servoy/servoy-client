@@ -186,4 +186,10 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	 */
 	IQueryBuilderFunction coalesce(Object... args);
 
+	/**
+	 * Create a call to a custom-defined function name(arg1, arg2, ...).
+	 * Note that the function has to exist in the actual database, this may not be working cross-database.
+	 */
+	IQueryBuilderFunction custom(String name, Object... args);
+
 }

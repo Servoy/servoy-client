@@ -24,9 +24,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Functions in queries.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QueryFunction implements IQuerySelectValue
 {
@@ -63,7 +63,7 @@ public final class QueryFunction implements IQuerySelectValue
 		round,
 		ceil,
 
-		// slightly abused as function 
+		// slightly abused as function
 		distinct,
 		plus,
 		minus,
@@ -72,6 +72,9 @@ public final class QueryFunction implements IQuerySelectValue
 
 		// added
 		castfrom,
+
+		// custom
+		custom
 	}
 
 	private final QueryFunctionType function;
@@ -209,8 +212,8 @@ public final class QueryFunction implements IQuerySelectValue
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { function.name(), ReplacedObject.convertArray(args,
-			Object.class), name, alias });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { function.name(), ReplacedObject.convertArray(args, Object.class), name, alias });
 	}
 
 	public QueryFunction(ReplacedObject s)
