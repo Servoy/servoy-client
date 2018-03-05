@@ -29,6 +29,8 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.CustomJSONPropertyType;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.impl.ClientService;
@@ -42,7 +44,9 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.LayoutContainer;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Utils;
@@ -117,7 +121,26 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			sb.append(" [name]=\"state.name\" #cmp");
 			sb.append("></");
 			sb.append(spec.getName());
-			sb.append("></ng-template>\n");
+			sb.append(">");
+			Collection<PropertyDescription> properties = spec.getProperties(FormPropertyType.INSTANCE);
+			if (properties.size() == 0)
+			{
+				Map<String, IPropertyType< ? >> declaredCustomObjectTypes = spec.getDeclaredCustomObjectTypes();
+				for (IPropertyType< ? > pt : declaredCustomObjectTypes.values())
+				{
+					if (pt instanceof CustomJSONPropertyType< ? >)
+					{
+						PropertyDescription customJSONSpec = ((CustomJSONPropertyType< ? >)pt).getCustomJSONTypeDefinition();
+						properties = customJSONSpec.getProperties(FormPropertyType.INSTANCE);
+						if (properties.size() > 0) break;
+					}
+				}
+			}
+			if (properties.size() > 0)
+			{
+				sb.append("<ng-template let-name='name'><svy-form *ngIf=\"isFormAvailable(name)\" [name]=\"name\"></svy-form></ng-template>");
+			}
+			sb.append("</ng-template>\n");
 
 		}
 		System.err.println(sb.toString());
@@ -215,8 +238,22 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				if (name == null) name = fe.getName();
 				writer.value(name);
 				writer.key("type");
-				// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
-				writer.value(mapOnDefaultForDebug(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o))));
+				if (o instanceof TabPanel)
+				{
+					// special support for TabPanel so that we have a specific tabpanel,tablesspanel,accordion and splitpane
+					String type = "servoydefault-tabpanel";
+					int orient = ((TabPanel)o).getTabOrientation();
+					if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) type = "servoydefault-splitpane";
+					else if (orient == TabPanel.ACCORDION_PANEL) type = "servoydefault-accordion";
+					else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
+						type = "servoydefault-tablesspanel";
+					writer.value(ClientService.convertToJSName(type));
+				}
+				else
+				{
+					// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
+					writer.value(mapOnDefaultForDebug(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o))));
+				}
 				writer.key("position");
 				writer.object();
 				writer.key("left");
