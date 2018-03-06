@@ -20,20 +20,22 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import com.servoy.j2db.util.Utils;
+
 /**
  * @author lvostinar
  *
  */
 public class CSSPosition
 {
-	public int top;
-	public int left;
-	public int bottom;
-	public int right;
-	public int width;
-	public int height;
+	public String top;
+	public String left;
+	public String bottom;
+	public String right;
+	public String width;
+	public String height;
 
-	public CSSPosition(int top, int left, int bottom, int right, int width, int height)
+	public CSSPosition(String top, String left, String bottom, String right, String width, String height)
 	{
 		this.top = top;
 		this.left = left;
@@ -48,8 +50,9 @@ public class CSSPosition
 	{
 		if (obj instanceof CSSPosition)
 		{
-			return this.top == ((CSSPosition)obj).top && this.left == ((CSSPosition)obj).left && this.bottom == ((CSSPosition)obj).bottom &&
-				this.right == ((CSSPosition)obj).right && this.width == ((CSSPosition)obj).width && this.height == ((CSSPosition)obj).height;
+			return Utils.equalObjects(this.top, ((CSSPosition)obj).top) && Utils.equalObjects(this.left, ((CSSPosition)obj).left) &&
+				Utils.equalObjects(this.bottom, ((CSSPosition)obj).bottom) && Utils.equalObjects(this.right, ((CSSPosition)obj).right) &&
+				Utils.equalObjects(this.width, ((CSSPosition)obj).width) && Utils.equalObjects(this.height, ((CSSPosition)obj).height);
 		}
 		return false;
 	}
@@ -62,34 +65,39 @@ public class CSSPosition
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition(0, 0, -1, -1, 0, 0);
+				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
 			}
 			Form form = (Form)((BaseComponent)persist).getParent();
-			if (position.right == -1)
+			if (!isSet(position.right))
 			{
-				position.left = x;
+				position.left = pixelsToPercentage(x, form.getWidth(), position.left);
 			}
-			else if (position.left == -1)
+			else if (!isSet(position.left))
 			{
-				position.right = form.getWidth() - x - position.width;
-			}
-			else
-			{
-				position.right = position.right + position.left - x;
-				position.left = x;
-			}
-			if (position.bottom == -1)
-			{
-				position.top = y;
-			}
-			else if (position.top == -1)
-			{
-				position.bottom = form.getSize().height - y - position.height;
+				position.right = pixelsToPercentage(form.getWidth() - x - percentageToPixels(position.width, form.getWidth()), form.getWidth(), position.right);
 			}
 			else
 			{
-				position.bottom = position.bottom + position.top - y;
-				position.top = y;
+				position.right = pixelsToPercentage(
+					percentageToPixels(position.right, form.getWidth()) + percentageToPixels(position.left, form.getWidth()) - x, form.getWidth(),
+					position.right);
+				position.left = pixelsToPercentage(x, form.getWidth(), position.left);
+			}
+			if (!isSet(position.bottom))
+			{
+				position.top = pixelsToPercentage(y, form.getSize().height, position.bottom);
+			}
+			else if (!isSet(position.top))
+			{
+				position.bottom = pixelsToPercentage(form.getSize().height - y - percentageToPixels(position.height, form.getSize().height),
+					form.getSize().height, position.bottom);
+			}
+			else
+			{
+				position.bottom = pixelsToPercentage(
+					percentageToPixels(position.bottom, form.getSize().height) + percentageToPixels(position.top, form.getSize().height) - y,
+					form.getSize().height, position.bottom);
+				position.top = pixelsToPercentage(y, form.getSize().height, position.top);
 			}
 			((BaseComponent)persist).setCssPosition(position);
 		}
@@ -107,24 +115,26 @@ public class CSSPosition
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition(0, 0, -1, -1, 0, 0);
+				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
 			}
 			Form form = (Form)((BaseComponent)persist).getParent();
-			if (position.left >= 0 && position.right >= 0)
+			if (isSet(position.left) && isSet(position.right))
 			{
-				position.right = form.getWidth() - position.left - width;
+				position.right = pixelsToPercentage(form.getWidth() - percentageToPixels(position.left, form.getWidth()) - width, form.getWidth(),
+					position.right);
 			}
 			else
 			{
-				position.width = width;
+				position.width = pixelsToPercentage(width, form.getWidth(), position.width);
 			}
-			if (position.top >= 0 && position.bottom >= 0)
+			if (isSet(position.top) && isSet(position.bottom))
 			{
-				position.bottom = form.getSize().height - position.top - height;
+				position.bottom = pixelsToPercentage(form.getSize().height - percentageToPixels(position.top, form.getSize().height) - height,
+					form.getSize().height, position.bottom);
 			}
 			else
 			{
-				position.height = height;
+				position.height = pixelsToPercentage(height, form.getSize().height, position.height);
 			}
 			((BaseComponent)persist).setCssPosition(position);
 		}
@@ -142,25 +152,29 @@ public class CSSPosition
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition(0, 0, -1, -1, 0, 0);
+				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
 			}
-			int top = position.top;
-			int left = position.left;
 			Form form = (Form)((BaseComponent)persist).getParent();
+			int top = percentageToPixels(position.top, form.getSize().height);
+			int left = percentageToPixels(position.left, form.getWidth());
 			if (left == -1)
 			{
 				// not set, we should calculate it then
-				if (position.right >= 0 && position.width >= 0)
+				int right = percentageToPixels(position.right, form.getWidth());
+				int width = percentageToPixels(position.width, form.getWidth());
+				if (right >= 0 && width >= 0)
 				{
-					left = form.getWidth() - position.right - position.width;
+					left = form.getWidth() - right - width;
 				}
 			}
 			if (top == -1)
 			{
 				// not set, we should calculate it then
-				if (position.height >= 0 && position.bottom >= 0)
+				int height = percentageToPixels(position.height, form.getSize().height);
+				int bottom = percentageToPixels(position.bottom, form.getSize().height);
+				if (height >= 0 && bottom >= 0)
 				{
-					top = form.getSize().height - position.height - position.bottom;
+					top = form.getSize().height - height - bottom;
 				}
 			}
 			return new Point(left, top);
@@ -176,21 +190,57 @@ public class CSSPosition
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition(0, 0, -1, -1, 0, 0);
+				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
 			}
-			int width = position.width;
-			int height = position.height;
 			Form form = (Form)((BaseComponent)persist).getParent();
-			if (position.left >= 0 && position.right >= 0)
+			int width = percentageToPixels(position.width, form.getWidth());
+			int height = percentageToPixels(position.height, form.getSize().height);
+			int left = percentageToPixels(position.left, form.getWidth());
+			int right = percentageToPixels(position.right, form.getWidth());
+			int top = percentageToPixels(position.top, form.getSize().height);
+			int bottom = percentageToPixels(position.bottom, form.getSize().height);
+			if (left >= 0 && right >= 0)
 			{
-				width = form.getWidth() - position.right - position.left;
+				width = form.getWidth() - right - left;
 			}
-			if (position.top >= 0 && position.bottom >= 0)
+			if (top >= 0 && bottom >= 0)
 			{
-				height = form.getSize().height - position.top - position.bottom;
+				height = form.getSize().height - top - bottom;
 			}
 			return new Dimension(width, height);
 		}
 		return persist.getSize();
+	}
+
+	public static boolean isSet(String value)
+	{
+		return !"-1".equals(value);
+	}
+
+	private static int percentageToPixels(String value, int size)
+	{
+		int pixels = 0;
+		if (value.endsWith("%"))
+		{
+			pixels = Utils.getAsInteger(value.substring(0, value.length() - 1)) * size / 100;
+		}
+		else
+		{
+			if (value.endsWith("px"))
+			{
+				value = value.substring(0, value.length() - 2);
+			}
+			pixels = Utils.getAsInteger(value);
+		}
+		return pixels;
+	}
+
+	private static String pixelsToPercentage(int value, int size, String oldValue)
+	{
+		if (oldValue.endsWith("%"))
+		{
+			return String.valueOf(100 * value / size) + "%";
+		}
+		return String.valueOf(value);
 	}
 }

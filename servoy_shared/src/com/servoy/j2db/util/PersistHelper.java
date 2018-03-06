@@ -443,21 +443,21 @@ public class PersistHelper
 	public static CSSPosition createCSSPosition(String s)
 	{
 		if (s == null) return null;
-		int top = 0;
-		int left = 0;
-		int bottom = 0;
-		int right = 0;
-		int width = 0;
-		int height = 0;
+		String top = "-1";
+		String left = "-1";
+		String bottom = "-1";
+		String right = "-1";
+		String width = "-1";
+		String height = "-1";
 		try
 		{
 			StringTokenizer tk = new StringTokenizer(s, ","); //$NON-NLS-1$
-			if (tk.hasMoreTokens()) top = Utils.getAsInteger(tk.nextToken());
-			if (tk.hasMoreTokens()) left = Utils.getAsInteger(tk.nextToken());
-			if (tk.hasMoreTokens()) bottom = Utils.getAsInteger(tk.nextToken());
-			if (tk.hasMoreTokens()) right = Utils.getAsInteger(tk.nextToken());
-			if (tk.hasMoreTokens()) width = Utils.getAsInteger(tk.nextToken());
-			if (tk.hasMoreTokens()) height = Utils.getAsInteger(tk.nextToken());
+			if (tk.hasMoreTokens()) top = tk.nextToken();
+			if (tk.hasMoreTokens()) left = tk.nextToken();
+			if (tk.hasMoreTokens()) bottom = tk.nextToken();
+			if (tk.hasMoreTokens()) right = tk.nextToken();
+			if (tk.hasMoreTokens()) width = tk.nextToken();
+			if (tk.hasMoreTokens()) height = tk.nextToken();
 		}
 		catch (Exception ex)
 		{

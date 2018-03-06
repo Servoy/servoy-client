@@ -336,25 +336,25 @@ public class FormLayoutGenerator
 			if (form.getUseCssPosition())
 			{
 				CSSPosition position = bc.getCssPosition();
-				if (position.left >= 0)
+				if (CSSPosition.isSet(position.left))
 				{
 					style += "left:" + position.left + "px;";
 				}
-				if (position.top >= 0)
+				if (CSSPosition.isSet(position.top))
 				{
 					style += "top:" + position.top + "px;";
 				}
-				if (position.bottom >= 0)
+				if (CSSPosition.isSet(position.bottom))
 				{
 					style += "bottom:" + position.bottom + "px;";
 				}
-				if (position.right >= 0)
+				if (CSSPosition.isSet(position.right))
 				{
 					style += "right:" + position.right + "px;";
 				}
-				if (position.width >= 0)
+				if (CSSPosition.isSet(position.width))
 				{
-					if (position.left >= 0 && position.right >= 0)
+					if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
 					{
 						style += "min-width:" + position.width + "px;";
 					}
@@ -363,9 +363,9 @@ public class FormLayoutGenerator
 						style += "width:" + position.width + "px;";
 					}
 				}
-				if (position.height >= 0)
+				if (CSSPosition.isSet(position.height))
 				{
-					if (position.top >= 0 && position.bottom >= 0)
+					if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
 					{
 						style += "min-height:" + position.height + "px;";
 					}
