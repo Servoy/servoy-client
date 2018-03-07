@@ -85,7 +85,7 @@ public class CSSPosition
 			}
 			if (!isSet(position.bottom))
 			{
-				position.top = pixelsToPercentage(y, form.getSize().height, position.bottom);
+				position.top = pixelsToPercentage(y, form.getSize().height, position.top);
 			}
 			else if (!isSet(position.top))
 			{
