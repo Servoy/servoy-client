@@ -19,6 +19,7 @@ package com.servoy.j2db.solutionmodel;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.j2db.scripting.solutionmodel.JSCSSPosition;
 
 
 /**
@@ -198,9 +199,9 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public void setPrintable(boolean arg);
 
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
-	public String getCssPosition();
+	public JSCSSPosition getCssPosition();
 
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
-	public void setCssPosition(String arg);
+	public void setCssPosition(JSCSSPosition arg);
 
 }

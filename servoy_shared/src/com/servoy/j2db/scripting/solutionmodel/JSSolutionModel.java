@@ -106,7 +106,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 					JSList.class, JSInsetList.class, //
 					JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
 					JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class//
+					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSCSSPosition.class//
 				};
 			}
 		});

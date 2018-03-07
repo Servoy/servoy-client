@@ -490,16 +490,16 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 */
 	@Override
 	@JSGetter
-	public String getCssPosition()
+	public JSCSSPosition getCssPosition()
 	{
-		return PersistHelper.createCSSPositionString(getBaseComponent(false).getCssPosition());
+		return new JSCSSPosition(this);
 	}
 
 	@Override
 	@JSSetter
-	public void setCssPosition(String cssPosition)
+	public void setCssPosition(JSCSSPosition cssPosition)
 	{
-		getBaseComponent(true).setCssPosition(PersistHelper.createCSSPosition(cssPosition));
+		//cannot assign for now
 	}
 
 	/**
