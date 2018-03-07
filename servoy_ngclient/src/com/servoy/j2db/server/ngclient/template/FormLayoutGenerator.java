@@ -338,40 +338,40 @@ public class FormLayoutGenerator
 				CSSPosition position = bc.getCssPosition();
 				if (CSSPosition.isSet(position.left))
 				{
-					style += "left:" + position.left + "px;";
+					style += "left:" + getCSSValue(position.left) + ";";
 				}
 				if (CSSPosition.isSet(position.top))
 				{
-					style += "top:" + position.top + "px;";
+					style += "top:" + getCSSValue(position.top) + ";";
 				}
 				if (CSSPosition.isSet(position.bottom))
 				{
-					style += "bottom:" + position.bottom + "px;";
+					style += "bottom:" + getCSSValue(position.bottom) + ";";
 				}
 				if (CSSPosition.isSet(position.right))
 				{
-					style += "right:" + position.right + "px;";
+					style += "right:" + getCSSValue(position.right) + ";";
 				}
 				if (CSSPosition.isSet(position.width))
 				{
 					if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
 					{
-						style += "min-width:" + position.width + "px;";
+						style += "min-width:" + getCSSValue(position.width) + ";";
 					}
 					else
 					{
-						style += "width:" + position.width + "px;";
+						style += "width:" + getCSSValue(position.width) + ";";
 					}
 				}
 				if (CSSPosition.isSet(position.height))
 				{
 					if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
 					{
-						style += "min-height:" + position.height + "px;";
+						style += "min-height:" + getCSSValue(position.height + ";");
 					}
 					else
 					{
-						style += "height:" + position.height + "px;";
+						style += "height:" + getCSSValue(position.height) + ";";
 					}
 				}
 			}
@@ -437,6 +437,20 @@ public class FormLayoutGenerator
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 		}
 		writer.print(">");
+	}
+
+	public static String getCSSValue(String value)
+	{
+		try
+		{
+			Utils.getAsInteger(value, true);
+			return value + "px";
+		}
+		catch (Exception ex)
+		{
+
+		}
+		return value;
 	}
 
 //	private static boolean canContainComponents(WebComponentSpecification spec)
