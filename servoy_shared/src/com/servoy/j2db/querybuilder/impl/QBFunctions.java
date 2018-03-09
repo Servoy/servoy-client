@@ -28,6 +28,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunctions;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author rgansevles
@@ -134,13 +135,12 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction trim(String leading_trailing_both, String characters, String fromKeyword, Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.trim,
-			new IQuerySelectValue[] { //
-				new QueryColumnValue(leading_trailing_both, null, true), // keyword
-				new QueryColumnValue(characters, null, false), // value
-				new QueryColumnValue(fromKeyword, null, true), // keyword
-				createOperand(value) //
-			});
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.trim, new IQuerySelectValue[] { //
+			new QueryColumnValue(leading_trailing_both, null, true), // keyword
+			new QueryColumnValue(characters, null, false), // value
+			new QueryColumnValue(fromKeyword, null, true), // keyword
+			createOperand(value) //
+		});
 	}
 
 	protected IQuerySelectValue createOperand(Object value)
@@ -407,6 +407,23 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBFunction ceil(Object arg)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.ceil, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#custom(String, Object...)
+	 * @param name custom function name
+	 * @param args function arguments
+	 * @sample
+	 *  // select myadd(freight, 500) from orders
+	 * 	var query = datasources.db.example_data.orders.createSelect();
+	 * 	query.result.add(query.functions.custom('myadd', query.columns.freight, 500));
+	 * 	var dataset = databaseManager.getDataSetByQuery(query, 100);
+	 */
+	@JSFunction
+	public QBFunction custom(String name, Object... args)
+	{
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.custom,
+			Utils.arrayAdd(getRoot().createOperands(args == null ? new Object[] { null } : args, null, 0), new QueryColumnValue(name, null, true), false));
 	}
 
 	/**
