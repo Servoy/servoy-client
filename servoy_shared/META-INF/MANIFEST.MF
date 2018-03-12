@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 8.3.0.3200_b1
+Bundle-Version: 8.5.0.3600_b1
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
@@ -20,9 +20,9 @@ Bundle-ClassPath: .,
  lib/wicket.jar,
  lib/wiquery.jar,
  lib/xstream.jar
-Require-Bundle: org.eclipse.dltk.javascript.rhino;bundle-version="[8.3.0,8.4.0)",
- sablo;bundle-version="[8.3.0,8.4.0)",
- servoy_base;bundle-version="[8.3.0,8.4.0)";visibility:=reexport,
+Require-Bundle: org.eclipse.dltk.javascript.rhino;bundle-version="[8.5.0,8.6.0)",
+ sablo;bundle-version="[8.5.0,8.6.0)",
+ servoy_base;bundle-version="[8.5.0,8.5.1)";visibility:=reexport,
  org.apache.commons.io,
  log4j,
  org.apache.commons.codec,
