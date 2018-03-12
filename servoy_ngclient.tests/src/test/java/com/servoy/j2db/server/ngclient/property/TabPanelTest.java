@@ -22,12 +22,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.TabPanel;
@@ -94,11 +94,9 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.object();
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
-
-		Assert.assertEquals(
-			new JSONObject(
-				"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":3,\"svy_types\":{\"0\":\"JSON_obj\",\"1\":\"JSON_obj\",\"2\":\"JSON_obj\"},\"v\":[{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"},\"w\":false},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"},\"w\":false},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"},\"w\":false}],\"w\":false},\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\"}}").toString(),
-			new JSONObject(stringWriter.toString()).toString());
+		JSONAssert.assertEquals(
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabs\":{\"vEr\":3,\"w\":false,\"v\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":3,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab1\",\"active\":true,\"containsFormId\":\"f2\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":3,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab2\",\"active\":false,\"containsFormId\":\"f3\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":3,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab3\",\"active\":false,\"containsFormId\":\"f4\",\"disabled\":false}}],\"svy_types\":{\"2\":\"JSON_obj\",\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}}}",
+			stringWriter.toString(), true);
 		webComponent.setProperty("tabIndex", "tab2");
 
 		stringWriter = new StringWriter();
@@ -107,10 +105,10 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		Assert.assertEquals(
-			new JSONObject(
-				"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":4,\"svy_types\":{\"0\":\"JSON_obj\",\"1\":\"JSON_obj\",\"2\":\"JSON_obj\"},\"v\":[{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"},\"w\":false},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"},\"w\":false},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"},\"w\":false}],\"w\":false},\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":\"tab2\"}}").toString(),
-			new JSONObject(stringWriter.toString()).toString());
+		System.err.println(stringWriter.toString());
+		JSONAssert.assertEquals(
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":\"tab2\",\"tabs\":{\"vEr\":4,\"w\":false,\"v\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":4,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab1\",\"active\":true,\"containsFormId\":\"f2\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":4,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab2\",\"active\":false,\"containsFormId\":\"f3\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":4,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab3\",\"active\":false,\"containsFormId\":\"f4\",\"disabled\":false}}],\"svy_types\":{\"2\":\"JSON_obj\",\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}}}",
+			stringWriter.toString(), true);
 
 		webComponent.setProperty("tabIndex", Integer.valueOf(3));
 
@@ -120,9 +118,9 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		Assert.assertEquals(
-			new JSONObject(
-				"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":5,\"svy_types\":{\"0\":\"JSON_obj\",\"1\":\"JSON_obj\",\"2\":\"JSON_obj\"},\"v\":[{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"},\"w\":false},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"},\"w\":false},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"},\"w\":false}],\"w\":false},\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":3}}").toString(),
-			new JSONObject(stringWriter.toString()).toString());
+		System.err.println(stringWriter.toString());
+		JSONAssert.assertEquals(
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":3,\"tabs\":{\"vEr\":5,\"w\":false,\"v\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":5,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab1\",\"active\":true,\"containsFormId\":\"f2\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":5,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab2\",\"active\":false,\"containsFormId\":\"f3\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":5,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab3\",\"active\":false,\"containsFormId\":\"f4\",\"disabled\":false}}],\"svy_types\":{\"2\":\"JSON_obj\",\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}}}",
+			stringWriter.toString(), true);
 	}
 }

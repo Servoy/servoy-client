@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
@@ -184,10 +183,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertEquals(1, changes.content.size());
 
 		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null);
-
-		Assert.assertEquals(
-			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
-			json);
+		JSONAssert.assertEquals(
+			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
+			json, true);
 
 	}
 
@@ -216,9 +214,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
-		Assert.assertEquals(new JSONObject(
-			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}").toString(),
-			new JSONObject(json).toString());
+		JSONAssert.assertEquals(
+			"{\"atype\":{\"rt\":\"my-component.mytype\",\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+			json, true);
 	}
 
 	@Test
@@ -265,7 +263,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
 		JSONAssert.assertEquals(
-			"{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+			"{\"atype\":{\"rt\":\"my-component.mytype\",\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
 			json, true);
 	}
 

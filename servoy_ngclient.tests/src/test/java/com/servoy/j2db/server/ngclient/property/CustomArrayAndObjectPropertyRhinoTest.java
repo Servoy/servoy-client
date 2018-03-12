@@ -220,9 +220,10 @@ public class CustomArrayAndObjectPropertyRhinoTest
 //		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
 
 			changes = component.getAndClearChanges();
+			String msg = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			JSONAssert.assertEquals(
-				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"svy_types\":{\"0\":\"JSON_obj\"},\"vEr\":2}},\"svy_types\":{\"active\":\"JSON_arr\"},\"vEr\":5},\"i\":0}],\"vEr\":3}}",
-				JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
+				"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}],\"svy_types\":{\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
+				msg, JSONCompareMode.NON_EXTENSIBLE);
 
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
 
@@ -230,9 +231,10 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals(1, cam.getKeysWithUpdates().size());
 
 			changes = component.getAndClearChanges();
+			msg = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			JSONAssert.assertEquals(
-				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}",
-				JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
+				"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"u\":[{\"k\":\"active\",\"v\":{\"vEr\":2,\"u\":[{\"i\":0,\"v\":{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"u\":[{\"k\":\"percent\",\"v\":0.33}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
+				msg, JSONCompareMode.NON_EXTENSIBLE);
 
 			((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
 			((Map)((List)((Map)cal.get(0)).get("active")).get(1)).put("percent", 0.99);
