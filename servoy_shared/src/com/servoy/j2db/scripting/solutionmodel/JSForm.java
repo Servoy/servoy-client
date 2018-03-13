@@ -3381,6 +3381,27 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
+	 * Get or set the positioning (either use anchoring or use css position) for the form.
+	 * This is only working for absolute layout forms in NGClient.
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.useCssPosition = true;
+	 */
+	@JSGetter
+	public boolean getUseCssPosition()
+	{
+		return Utils.getAsBoolean(getForm().getUseCssPosition());
+	}
+
+	@JSSetter
+	public void setUseCssPosition(boolean arg)
+	{
+		checkModification();
+		getForm().setUseCssPosition(Boolean.valueOf(arg));
+	}
+
+	/**
 	 * Returns true if this form is in responsive mode
 	 *
 	 * @sample

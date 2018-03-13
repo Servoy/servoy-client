@@ -110,6 +110,7 @@ public interface IRepository
 	public static final int BOOLEAN = IRepositoryConstants.BOOLEAN;
 	public static final int BORDER = IRepositoryConstants.BORDER;
 	public static final int JSON = IRepositoryConstants.JSON;
+	public static final int CSSPOSITION = IRepositoryConstants.CSSPOSITION;
 
 	public static final int VALUELISTS = IRepositoryConstants.VALUELISTS;
 	public static final int SCRIPTVARIABLES = IRepositoryConstants.SCRIPTVARIABLES;
