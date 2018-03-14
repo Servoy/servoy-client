@@ -102,15 +102,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
 		}
 
-		var minIndex = -1;
+		var minusIndex = -1;
 		var servoyFormatMinIndex = servoyFormat.indexOf("-")
 		if (servoyFormatMinIndex > -1) {
-			//if - is at the end then we ignore it because ng-client does *=-1 even without it
-			//see https://support.servoy.com/browse/SVY-9289
-			if (servoyFormatMinIndex < (servoyFormat.length - 1)) {
-				minIndex = partchedFrmt.indexOf("-");
-			}
-			partchedFrmt = partchedFrmt.replaceAll("-", "p");
+			minusIndex = partchedFrmt.indexOf("-");
+			partchedFrmt = partchedFrmt.replaceAll("-", "");
 		}
 
 		//		else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
@@ -179,9 +175,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
 		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
-		if (minIndex > -1) ret = ret.insert(minIndex, '-');
-
-		if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
+		
+		if (minusIndex > -1) ret = ret.insert(minusIndex, '-');
+		else if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
 			ret = '-' + ret;
 		}
 		return ret;
