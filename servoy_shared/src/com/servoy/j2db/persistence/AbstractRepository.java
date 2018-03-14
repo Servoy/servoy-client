@@ -55,7 +55,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	public static void lock()
 	{
-		Debug.error("Thread " + Thread.currentThread().getName() + " gets the lock: ", new RuntimeException());
+		Debug.error("Thread " + Thread.currentThread().getName() + " gets the lock, current count:  " + REPOSITORY_LOCK.getHoldCount(), new RuntimeException());
 		Thread owner = REPOSITORY_LOCK.getOwner();
 		if (owner != null && owner != Thread.currentThread())
 		{
