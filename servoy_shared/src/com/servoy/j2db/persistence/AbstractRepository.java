@@ -38,7 +38,30 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 {
 	public static final int repository_version = 49;
 
-	public static final ReentrantLock REPOSITORY_LOCK = new ReentrantLock();
+	/**
+	 * subclass to check for the owner for debugging.
+	 * @author jcompagner
+	 */
+	private static final class OwnerReentrantLock extends ReentrantLock
+	{
+		@Override
+		public Thread getOwner()
+		{
+			return super.getOwner();
+		}
+	}
+
+	private static final OwnerReentrantLock REPOSITORY_LOCK = new OwnerReentrantLock();
+
+	public static void lock()
+	{
+		REPOSITORY_LOCK.lock();
+	}
+
+	public static void unlock()
+	{
+		REPOSITORY_LOCK.unlock();
+	}
 
 
 	/**
