@@ -36,9 +36,40 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository
 {
+	/**
+	 * @author jcomp
+	 *
+	 */
+	private static final class OwnerReentrantLock extends ReentrantLock
+	{
+		@Override
+		public Thread getOwner()
+		{
+			return super.getOwner();
+		}
+	}
+
 	public static final int repository_version = 49;
 
-	public static final ReentrantLock REPOSITORY_LOCK = new ReentrantLock();
+	private static final OwnerReentrantLock REPOSITORY_LOCK = new OwnerReentrantLock();
+
+	public static void lock()
+	{
+		Debug.error("Thread " + Thread.currentThread().getName() + " gets the lock: ", new RuntimeException());
+		Thread owner = REPOSITORY_LOCK.getOwner();
+		if (owner != null && owner != Thread.currentThread())
+		{
+			Debug.error("owner of the lock is: " + owner.getName() + " current: " + Thread.currentThread().getName());
+		}
+		REPOSITORY_LOCK.lock();
+
+	}
+
+	public static void unlock()
+	{
+		Debug.error("Thread " + Thread.currentThread().getName() + " releases  the lock: ", new RuntimeException());
+		REPOSITORY_LOCK.unlock();
+	}
 
 
 	/**
