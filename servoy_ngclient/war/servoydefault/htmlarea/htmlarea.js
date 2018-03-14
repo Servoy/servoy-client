@@ -24,9 +24,12 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 							$scope.init = true;
 							ed.getBody().setAttribute('contenteditable', $scope.model.editable);
 							
-							// see comment below where lastServerValueAsSeenByTinyMCEContent is set in dataProviderID watch
-							ed.setContent($scope.tinyValue);
-							lastServerValueAsSeenByTinyMCEContent = ed.getContent();
+							if (!$scope.svyServoyapi.isInDesigner())
+							{
+								// see comment below where lastServerValueAsSeenByTinyMCEContent is set in dataProviderID watch
+								ed.setContent($scope.tinyValue);
+								lastServerValueAsSeenByTinyMCEContent = ed.getContent(); 
+							}	 
 						});
 						$scope.$watch('model.editable',function (newVal,oldVal){
 							if (!$scope.init) return;
@@ -35,18 +38,21 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 							}    			   		
 						})
 						$scope.$watch('model.dataProviderID', function(newVal, oldVal) {
-							// only update tinyValue (and content) on init or if content really changed, so we don't lose current selection
-							if (!$scope.init || newVal != '<html><body>' + ed.getContent() + '</body></html>') {
-								$scope.tinyValue = newVal;
-								
-								if ($scope.init) {
-									// tinyValue set above would do that later but we need to set it right now so we can see the value of ed.getContent() for this input;
-									// for example DP is "aaa" then we set content and tinyValue to "aaa" but ed.getContent() will return "<p>aaa</p>" and when we loose focus,
-									// if the user didn't change the value we need to know that so that we don't send a DP change to server for no reason (see SVY-12158 for unwanted side effects of that)
-									ed.setContent(newVal);
-									lastServerValueAsSeenByTinyMCEContent = ed.getContent();
+							if (!$scope.svyServoyapi.isInDesigner())
+							{
+								// only update tinyValue (and content) on init or if content really changed, so we don't lose current selection
+								if (!$scope.init || newVal != '<html><body>' + ed.getContent() + '</body></html>') {
+									$scope.tinyValue = newVal;
+
+									if ($scope.init) {
+										// tinyValue set above would do that later but we need to set it right now so we can see the value of ed.getContent() for this input;
+										// for example DP is "aaa" then we set content and tinyValue to "aaa" but ed.getContent() will return "<p>aaa</p>" and when we loose focus,
+										// if the user didn't change the value we need to know that so that we don't send a DP change to server for no reason (see SVY-12158 for unwanted side effects of that)
+										ed.setContent(newVal);
+										lastServerValueAsSeenByTinyMCEContent = ed.getContent();
+									}
 								}
-							}							
+							}
 						})
 
 						ed.on('blur ExecCommand', function () {
