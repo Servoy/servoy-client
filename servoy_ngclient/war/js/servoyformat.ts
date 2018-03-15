@@ -102,15 +102,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
 		}
 
-		var minIndex = -1;
+		var minusIndex = -1;
 		var servoyFormatMinIndex = servoyFormat.indexOf("-")
 		if (servoyFormatMinIndex > -1) {
-			//if - is at the end then we ignore it because ng-client does *=-1 even without it
-			//see https://support.servoy.com/browse/SVY-9289
-			if (servoyFormatMinIndex < (servoyFormat.length - 1)) {
-				minIndex = partchedFrmt.indexOf("-");
-			}
-			partchedFrmt = partchedFrmt.replaceAll("-", "p");
+			minusIndex = partchedFrmt.indexOf("-");
+			partchedFrmt = partchedFrmt.replaceAll("-", "");
 		}
 
 		//		else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
@@ -179,9 +175,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
 		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
-		if (minIndex > -1) ret = ret.insert(minIndex, '-');
-
-		if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
+		
+		if (minusIndex > -1) ret = ret.insert(minusIndex, '-');
+		else if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
 			ret = '-' + ret;
 		}
 		return ret;
@@ -376,7 +372,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		},
 
 
-		unformat: function(data, servoyFormat, type) {
+		unformat: function(data, servoyFormat, type, currentValue) {
 			if ((!servoyFormat) || (!type) || (!data && data != 0)) return data;
 			if ((type == "NUMBER") || (type == "INTEGER")) {
 				return unformatNumbers(data, servoyFormat);
@@ -388,7 +384,21 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				servoyFormat = servoyFormat.replaceAll('d', 'D');
 				servoyFormat = servoyFormat.replaceAll('y', 'Y');
 				// use moment.js from calendar component
-				return moment(data, servoyFormat,true).toDate();
+				var d = moment(data, servoyFormat,true).toDate();
+				// if format has not year/month/day use the one from the current model value
+				// because moment will just use current date
+				if(currentValue) {
+					if(servoyFormat.indexOf('y') == -1) {
+						d.setFullYear(currentValue.getFullYear());
+					}
+					if(servoyFormat.indexOf('M') == -1) {
+						d.setMonth(currentValue.getMonth());
+					}
+					if(servoyFormat.indexOf('d') == -1) {
+						d.setDate(currentValue.getDate());
+					}
+				}
+				return d;
 			}
 			return data;
 		},
@@ -414,7 +424,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
 					if (element.is(":focus") && svyFormat.edit) format = svyFormat.edit
 					try {
-						var data = formatUtils.unformat(viewValue, format, type);
+						var data = formatUtils.unformat(viewValue, format, type, ngModelController.$modelValue);
 					} catch (e) {
 						console.log(e)
 							//TODO set error state
