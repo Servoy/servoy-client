@@ -55,8 +55,8 @@
 						</goals>
 						<configuration>
 							<skipTests>${maven.test.skip}</skipTests>
-							<nodeVersion>v6.10.1</nodeVersion>
-							<npmVersion>4.4.4</npmVersion>
+							<nodeVersion>v8.10.0 </nodeVersion>
+							<npmVersion>5.6.0</npmVersion>
 						</configuration>
 					</execution>
 
