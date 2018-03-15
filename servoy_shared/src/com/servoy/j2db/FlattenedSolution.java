@@ -279,6 +279,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 			});
 		}
+		if (securityAccess != null)
+		{
+			for (Object elementUUID : new HashSet(securityAccess.keySet()))
+			{
+				if (updatedElementIds.containsKey(elementUUID.toString()))
+				{
+					UUID uuid = Utils.getAsUUID(updatedElementIds.get(elementUUID.toString()), false);
+					if (uuid != null)
+					{
+						securityAccess.put(uuid, securityAccess.get(elementUUID));
+					}
+				}
+			}
+		}
 		flush(persist);
 		return clone;
 	}
