@@ -176,7 +176,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
 		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
 		
-		if (minusIndex > -1) ret = ret.insert(minusIndex, '-');
+		if (initialData < 0 && minusIndex > -1) ret = ret.insert(minusIndex, '-');
 		else if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
 			ret = '-' + ret;
 		}
