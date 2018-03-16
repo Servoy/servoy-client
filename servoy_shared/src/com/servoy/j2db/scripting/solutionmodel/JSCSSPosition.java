@@ -17,16 +17,12 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import java.util.Map;
-
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
-import com.servoy.j2db.scripting.DefaultJavaScope;
 
 /**
  * @author lvostinar
@@ -34,14 +30,13 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSCSSPosition extends DefaultJavaScope
+public class JSCSSPosition
 {
 	private final JSComponent< ? extends BaseComponent> component;
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(JSCSSPosition.class);
 
 	public JSCSSPosition(JSComponent< ? extends BaseComponent> component)
 	{
-		super(null, jsFunctions);
+		super();
 		this.component = component;
 	}
 
