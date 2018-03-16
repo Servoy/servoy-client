@@ -409,11 +409,17 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
-		if (hasForm(name))
-		{
-			// if form was not sent to client, do not send now; this is just recreateUI
-			updateController(form, name, false, formTemplateGenerator);
-		}
+		/**
+		 * we should not check for hasForm here, as the endpoint may have been recreated because of
+		 * network disconnect/reconnect, and then if this form was sent already before, now it will
+		 * report as it was not, and so, the updateController won't be performed, and the changes made
+		 * via solution model won't be shown
+		 */
+//		if (hasForm(name))
+//		{
+		// if form was not sent to client, do not send now; this is just recreateUI
+		updateController(form, name, false, formTemplateGenerator);
+//		}
 	}
 
 	@Override
