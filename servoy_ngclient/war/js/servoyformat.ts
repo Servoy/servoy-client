@@ -77,6 +77,16 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			return new Number(data).toExponential(integerDigits + fractionalDigits);
 
 		}
+		
+		var minusIndex = -1;
+		var minusLastChar = false;
+		var servoyFormatMinIndex = servoyFormat.indexOf("-")
+		if (servoyFormatMinIndex > -1) {
+			minusIndex = partchedFrmt.indexOf("-");
+			minusLastChar = (minusIndex === partchedFrmt.length-1);
+			partchedFrmt = partchedFrmt.replaceAll("-", "");
+		}
+		
 		//treat percents and per thousants
 		var centIndex = -1;
 		var milIndex = -1;
@@ -89,7 +99,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				data *= 100;
 			}	
 			centIndex = partchedFrmt.indexOf("%")
-			lastChar = (centIndex === partchedFrmt.length-1);
+			lastChar = (centIndex === partchedFrmt.length-1) || partchedFrmt.endsWith("'%'");
 			partchedFrmt = partchedFrmt.replaceAll("%", ""); // p doesn't mean anything in numeraljs
 
 		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
@@ -98,15 +108,8 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				data *= 1000;
 			}	
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
-			lastChar = (milIndex === partchedFrmt.length-1);
+			lastChar = (milIndex === partchedFrmt.length-1) || partchedFrmt.endsWith("'"+MILLSIGN+"'");
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
-		}
-
-		var minusIndex = -1;
-		var servoyFormatMinIndex = servoyFormat.indexOf("-")
-		if (servoyFormatMinIndex > -1) {
-			minusIndex = partchedFrmt.indexOf("-");
-			partchedFrmt = partchedFrmt.replaceAll("-", "");
 		}
 
 		//		else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
@@ -176,7 +179,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
 		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
 		
-		if (initialData < 0 && minusIndex > -1) ret = ret.insert(minusIndex, '-');
+		if (initialData < 0 && minusIndex > -1) ret = minusLastChar ? (ret+'-') : ('-'+ret);
 		else if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
 			ret = '-' + ret;
 		}
