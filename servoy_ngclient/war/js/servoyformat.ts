@@ -99,7 +99,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				data *= 100;
 			}	
 			centIndex = partchedFrmt.indexOf("%")
-			lastChar = (centIndex === partchedFrmt.length-1) || partchedFrmt.endsWith("'%'");
+			lastChar = (centIndex === partchedFrmt.length-1) ||endsWith(partchedFrmt, "'%'");
 			partchedFrmt = partchedFrmt.replaceAll("%", ""); // p doesn't mean anything in numeraljs
 
 		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
@@ -108,7 +108,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				data *= 1000;
 			}	
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
-			lastChar = (milIndex === partchedFrmt.length-1) || partchedFrmt.endsWith("'"+MILLSIGN+"'");
+			lastChar = (milIndex === partchedFrmt.length-1) || endsWith(partchedFrmt, "'"+MILLSIGN+"'");
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
 		}
 
