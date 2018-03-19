@@ -27,7 +27,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 							if (!$scope.svyServoyapi.isInDesigner())
 							{
 								// see comment below where lastServerValueAsSeenByTinyMCEContent is set in dataProviderID watch
-								ed.setContent($scope.tinyValue);
+								ed.setContent($scope.tinyValue || '');
 								lastServerValueAsSeenByTinyMCEContent = ed.getContent(); 
 							}	 
 						});
@@ -48,7 +48,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 										// tinyValue set above would do that later but we need to set it right now so we can see the value of ed.getContent() for this input;
 										// for example DP is "aaa" then we set content and tinyValue to "aaa" but ed.getContent() will return "<p>aaa</p>" and when we loose focus,
 										// if the user didn't change the value we need to know that so that we don't send a DP change to server for no reason (see SVY-12158 for unwanted side effects of that)
-										ed.setContent(newVal);
+										ed.setContent(newVal|| '');
 										lastServerValueAsSeenByTinyMCEContent = ed.getContent();
 									}
 								}
