@@ -5,7 +5,7 @@
 		<maven>3.3.3</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>8.2.3.3108_rc</version>
+	<version>8.2.3.3109</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
