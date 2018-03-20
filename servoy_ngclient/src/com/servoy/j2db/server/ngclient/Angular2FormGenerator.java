@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONWriter;
+import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -172,7 +173,22 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			writer.endArray();
 		}
 		writer.key("children");
+		// write the default form value object.
 		writer.array();
+		writer.object();
+		writer.key("name");
+		writer.value("");
+		writer.key("model");
+		writer.object();
+		if (cachedFormController != null && cachedFormController.getFormUI() instanceof Container)
+		{
+			Container con = (Container)cachedFormController.getFormUI();
+			DataConversion dataConversion = new DataConversion();
+			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, con.getProperties(), dataConversion);
+			JSONUtils.writeClientConversions(writer, dataConversion);
+		}
+		writer.endObject();
+		writer.endObject();
 		form.acceptVisitor(new ChildrenJSONGenerator(writer,
 			cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form));
 		writer.endArray();
