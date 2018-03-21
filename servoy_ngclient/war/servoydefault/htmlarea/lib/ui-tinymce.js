@@ -70,7 +70,8 @@ angular.module('ui.tinymce', [])
           if (!tinyInstance) {
             tinyInstance = tinymce.get(attrs.id);
           }
-          if (tinyInstance) {
+          // merge change from latest version
+          if (tinyInstance && tinyInstance.getDoc()) {
             tinyInstance.setContent(ngModel.$viewValue || '');
           }
         };
