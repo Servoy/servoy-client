@@ -17,16 +17,14 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import java.util.Map;
-
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
-import com.servoy.j2db.scripting.DefaultJavaScope;
 
 /**
  * @author lvostinar
@@ -34,14 +32,13 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSCSSPosition extends DefaultJavaScope
+public class JSCSSPosition
 {
 	private final JSComponent< ? extends BaseComponent> component;
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(JSCSSPosition.class);
 
 	public JSCSSPosition(JSComponent< ? extends BaseComponent> component)
 	{
-		super(null, jsFunctions);
+		super();
 		this.component = component;
 	}
 
@@ -49,12 +46,12 @@ public class JSCSSPosition extends DefaultJavaScope
 	 * Get left css position (in pixels or percent).
 	 *
 	 * @sample
-	 * comp.cssPosition.l()
+	 * var left = comp.cssPosition.left;
 	 *
 	 * @return left css position
 	 */
-	@JSFunction
-	public String l()
+	@JSGetter
+	public String getLeft()
 	{
 		CSSPosition position = component.getBaseComponent(false).getCssPosition();
 		if (position != null)
@@ -65,6 +62,25 @@ public class JSCSSPosition extends DefaultJavaScope
 	}
 
 	/**
+	 * Set left css position (in pixels or percent).
+	 *
+	 * @sample
+	 * comp.cssPosition.left = '10%'
+	 *
+	 * @return left css position
+	 */
+	@JSSetter
+	public void setLeft(String left)
+	{
+		CSSPosition position = component.getBaseComponent(true).getCssPosition();
+		if (position != null)
+		{
+			position.left = left;
+			component.getBaseComponent(true).setCssPosition(position);
+		}
+	}
+
+	/**
 	 * Get right css position (in pixels or percent).
 	 *
 	 * @sample
@@ -72,8 +88,8 @@ public class JSCSSPosition extends DefaultJavaScope
 	 *
 	 * @return right css position
 	 */
-	@JSFunction
-	public String r()
+	@JSGetter
+	public String getRight()
 	{
 		CSSPosition position = component.getBaseComponent(false).getCssPosition();
 		if (position != null)
@@ -84,6 +100,27 @@ public class JSCSSPosition extends DefaultJavaScope
 	}
 
 	/**
+	 * Set right css position (in pixels or percent).
+	 *
+	 * @param right right position in pixels or percentage
+	 *
+	 * @sample
+	 * comp.cssPosition.r("10").b("10").w("20%").h("30px")
+	 *
+	 * @return css position
+	 */
+	@JSSetter
+	public void setRight(String right)
+	{
+		CSSPosition position = component.getBaseComponent(true).getCssPosition();
+		if (position != null)
+		{
+			position.right = right;
+			component.getBaseComponent(true).setCssPosition(position);
+		}
+	}
+
+	/**
 	 * Get top css position (in pixels or percent).
 	 *
 	 * @sample
@@ -91,8 +128,8 @@ public class JSCSSPosition extends DefaultJavaScope
 	 *
 	 * @return top css position
 	 */
-	@JSFunction
-	public String t()
+	@JSGetter
+	public String getTop()
 	{
 		CSSPosition position = component.getBaseComponent(false).getCssPosition();
 		if (position != null)
@@ -103,6 +140,28 @@ public class JSCSSPosition extends DefaultJavaScope
 	}
 
 	/**
+	 * Set top css position (in pixels or percent).
+	 *
+	 * @param top top position in pixels or percentage
+	 *
+	 * @sample
+	 * comp.cssPosition.l("10").t("10").w("20%").h("30px")
+	 *
+	 * @return css position
+	 */
+	@JSSetter
+	public void setTop(String top)
+	{
+		CSSPosition position = component.getBaseComponent(true).getCssPosition();
+		if (position != null)
+		{
+			position.top = top;
+			component.getBaseComponent(true).setCssPosition(position);
+		}
+	}
+
+
+	/**
 	 * Get bottom css position (in pixels or percent).
 	 *
 	 * @sample
@@ -110,8 +169,8 @@ public class JSCSSPosition extends DefaultJavaScope
 	 *
 	 * @return bottom css position
 	 */
-	@JSFunction
-	public String b()
+	@JSGetter
+	public String getBottom()
 	{
 		CSSPosition position = component.getBaseComponent(false).getCssPosition();
 		if (position != null)
@@ -119,6 +178,28 @@ public class JSCSSPosition extends DefaultJavaScope
 			return position.bottom;
 		}
 		return null;
+	}
+
+
+	/**
+	 * Set bottom css position (in pixels or percent).
+	 *
+	 * @param bottom bottom position in pixels or percentage
+	 *
+	 * @sample
+	 * comp.cssPosition.r("10").b("10").w("20%").h("30px")
+	 *
+	 * @return css position
+	 */
+	@JSSetter
+	public void setBottom(String bottom)
+	{
+		CSSPosition position = component.getBaseComponent(true).getCssPosition();
+		if (position != null)
+		{
+			position.bottom = bottom;
+			component.getBaseComponent(true).setCssPosition(position);
+		}
 	}
 
 	/**
@@ -129,8 +210,8 @@ public class JSCSSPosition extends DefaultJavaScope
 	 *
 	 * @return width css position
 	 */
-	@JSFunction
-	public String w()
+	@JSGetter
+	public String getWidth()
 	{
 		CSSPosition position = component.getBaseComponent(false).getCssPosition();
 		if (position != null)
@@ -138,6 +219,28 @@ public class JSCSSPosition extends DefaultJavaScope
 			return position.width;
 		}
 		return null;
+	}
+
+
+	/**
+	 * Set width css position (in pixels or percent).
+	 *
+	 * @param width width position in pixels or percentage
+	 *
+	 * @sample
+	 * comp.cssPosition.l("10").t("10").w("20%").h("30px")
+	 *
+	 * @return css position
+	 */
+	@JSSetter
+	public void setWidth(String width)
+	{
+		CSSPosition position = component.getBaseComponent(true).getCssPosition();
+		if (position != null)
+		{
+			position.width = width;
+			component.getBaseComponent(true).setCssPosition(position);
+		}
 	}
 
 	/**
@@ -148,8 +251,8 @@ public class JSCSSPosition extends DefaultJavaScope
 	 *
 	 * @return height css position
 	 */
-	@JSFunction
-	public String h()
+	@JSGetter
+	public String getHeigth()
 	{
 		CSSPosition position = component.getBaseComponent(false).getCssPosition();
 		if (position != null)
@@ -158,6 +261,29 @@ public class JSCSSPosition extends DefaultJavaScope
 		}
 		return null;
 	}
+
+
+	/**
+	 * Set height css position (in pixels or percent).
+	 *
+	 * @param height height position in pixels or percentage
+	 *
+	 * @sample
+	 * comp.cssPosition.l("10").t("10").w("20%").h("30px")
+	 *
+	 * @return css position
+	 */
+	@JSGetter
+	public void setHeigth(String height)
+	{
+		CSSPosition position = component.getBaseComponent(true).getCssPosition();
+		if (position != null)
+		{
+			position.height = height;
+			component.getBaseComponent(true).setCssPosition(position);
+		}
+	}
+
 
 	/**
 	 * Set left css position (in pixels or percent).
