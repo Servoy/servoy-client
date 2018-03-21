@@ -24,15 +24,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 }]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $webSocket: sablo.IWebSocket, $q:angular.IQService,
 		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters,
-		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService) {
+		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign) {
 
-	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel) {
+	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel, formname) {
 
 		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanLayout(beanModel, beanLayout, changes, parentSize, false);
+				applyBeanLayout(beanModel, beanLayout, changes, parentSize, false, formname);
 			}
 		}
 		return changes;
@@ -40,7 +40,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	function sendChanges(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname]);
+			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], formname);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
@@ -55,18 +55,18 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		})
 	}
 	
-	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope) {
+	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope, formname) {
 
 		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope)
-		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true)
+		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true, formname)
 	}
 
-	function applyBeanLayout(beanModel, beanLayout, beanData, containerSize, isApplyBeanData) {
+	function applyBeanLayout(beanModel, beanLayout, beanData, containerSize, isApplyBeanData, formname) {
 
 		if (!beanLayout) return;
 		var runtimeChanges = !isApplyBeanData && ( beanData.size != undefined || beanData.location != undefined );
 		//beanData.anchors means anchors changed or must be initialized
-		if ((beanData.anchors || runtimeChanges) && containerSize && $solutionSettings.enableAnchoring) {
+		if (!clientdesign.isFormInDesign(formname) && (beanData.anchors || runtimeChanges) && containerSize && $solutionSettings.enableAnchoring) {
 			var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
 			var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
 			var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
@@ -147,7 +147,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 
 		//we set the following properties iff the bean doesn't have anchors
-		var isAnchoredTopLeftBeanModel = !beanModel.anchors || (beanModel.anchors == ($anchorConstants.NORTH + $anchorConstants.WEST));
+		var isAnchoredTopLeftBeanModel = clientdesign.isFormInDesign(formname) || !beanModel.anchors || (beanModel.anchors == ($anchorConstants.NORTH + $anchorConstants.WEST));
 		if (isAnchoredTopLeftBeanModel || !$solutionSettings.enableAnchoring)
 		{
 			if (beanModel.location)
@@ -276,7 +276,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								//size or location were changed at runtime, we need to update components with anchors
 								beanData.anchors = beanModel.anchors;
 							}
-							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false)
+							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false, formname)
 						}
 						else if (beanData['findmode'] !== undefined)
 						{
@@ -337,6 +337,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return propertyNameForServerAndRowID;
 	}
 
+	clientdesign.setDesignChangeCallback(function(formname, isDesign) {
+		var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
+		for (var beanName in formState.model) {
+			if (beanName != '') {
+				formState.layout[beanName] = { position: 'absolute' }
+				applyBeanLayout(formState.model[beanName], formState.layout[beanName], { anchors: isDesign ? 0 : formState.model[beanName].anchors }, formState.properties.designSize, false, formname)
+			}
+		}
+	});
+
 	return {
 		connect: connect,
 		// used by custom property component[] to implement nested component logic
@@ -385,7 +395,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
-						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope, formName)
 					}
 				} else {
 					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope
@@ -401,7 +411,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (formState.initializing) $sabloApplication.requestInitialData(formname, function(initialFormData,formState) {
 				for (var beanName in initialFormData) {
 					if (beanName != '') {
-						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false)
+						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false, formname)
 					}
 				}
 			});
@@ -1388,7 +1398,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		trustAsHtml: trustAsHtml
 	}
 
-}]).factory("clientdesign",['$window','$sabloApplication','$utils','$timeout',function($window,$sabloApplication,$utils,$timeout) 
+}]).factory("clientdesign",['$window','$sabloApplication','$utils','$timeout', function($window,$sabloApplication,$utils,$timeout) 
 {
 	if (typeof addEvent != 'function')
 	{
@@ -1744,6 +1754,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	 return processed;
 	};
 	var currentForms = {};
+	var designChangeListener;
 	return {
 		setFormInDesign: function(formname,names) {
 		    var dragresize = currentForms[formname];
@@ -1755,6 +1766,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			
 			dragresize = new DragResize('dragresize',{});
 			currentForms[formname] = dragresize;
+			if(designChangeListener) designChangeListener(formname, true);
 			var selectElement = function(elm)
 			{
 			 var x = $(elm).attr("ng-style");
@@ -1775,8 +1787,18 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			};
 			dragresize.ondragend = function(isResize,e) {
 				var jsevent = $utils.createJSEvent(e,"ondrop");
-				if (isResize) $sabloApplication.callService("clientdesign", "onresize",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
-				else $sabloApplication.callService("clientdesign", "ondrop",{element:$(dragresize.element).attr("ng-style"), formname:formname,event:jsevent} )
+				if (isResize) $sabloApplication.callService("clientdesign", "onresize",{
+					element:$(dragresize.element).attr("ng-style"),
+					location: { x:$(dragresize.element).position().left, y:$(dragresize.element).position().top },
+					size: { width:$(dragresize.element).outerWidth(), height:$(dragresize.element).outerHeight() },
+					formname:formname,
+					event:jsevent} )
+				else $sabloApplication.callService("clientdesign", "ondrop",{
+					element:$(dragresize.element).attr("ng-style"),
+					location: { x:$(dragresize.element).position().left, y:$(dragresize.element).position().top },
+					size: { width:$(dragresize.element).outerWidth(), height:$(dragresize.element).outerHeight() },
+					formname:formname,
+					event:jsevent} )
 			};
 			dragresize.ondragstart = function(e) {
 				var jsevent = $utils.createJSEvent(e,"ondrag");
@@ -1798,10 +1820,17 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		    var dragresize = currentForms[formname];
 		    if (dragresize) {
 		        currentForms[formname].destroy();
-		        delete  currentForms[formname];
+				delete  currentForms[formname];
+				if(designChangeListener) designChangeListener(formname, false);
 		        return true;
 		    }
 		    return false;
+		},
+		isFormInDesign: function(formname) {
+			return formname && (currentForms[formname] != null);
+		},
+		setDesignChangeCallback: function(designChangeListenerCallback) {
+			designChangeListener = designChangeListenerCallback;	
 		},
 		recreateUI: function(formname,names) {
 		    var dragresize = currentForms[formname];
