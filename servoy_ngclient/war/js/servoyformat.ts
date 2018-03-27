@@ -44,20 +44,78 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (typeof data === 'number' && isNaN(data)) return ""; // cannot format something that is not a number
 		
 		var initialData = data;
-		var partchedFrmt = servoyFormat; // patched format for numeraljs format
+		var patchedFormat = servoyFormat; // patched format for numeraljs format
 		var i, j;
-
-		if (partchedFrmt.indexOf(';') > 0) {
+		var prefix = "";
+		var sufix = "";
+		
+		if (patchedFormat.indexOf(';') > 0) {
 			if (data < 0) {
-				partchedFrmt = partchedFrmt.split(';')[1]
-			} else partchedFrmt = partchedFrmt.split(';')[0];
+				patchedFormat = patchedFormat.split(';')[1]
+			} else patchedFormat = patchedFormat.split(';')[0];
 		}
 
 		if (data < 0) data *= -1;
-
+		patchedFormat = patchedFormat.replaceAll('\u00A4', numeral.localeData().currency.symbol);
+		if (servoyFormat.indexOf("-") >= 0 && initialData >= 0 && servoyFormat.indexOf(";") < 0)
+		{
+			patchedFormat = patchedFormat.replaceAll("-", "");
+		}
+		var MILLSIGN = '\u2030' //‰
+			
+		if (patchedFormat.indexOf("%") > -1 && patchedFormat.indexOf("'%'") == -1) 
+		{
+			data *= 100;
+		} else	if (patchedFormat.indexOf(MILLSIGN) > -1 && patchedFormat.indexOf("'"+MILLSIGN+"'") == -1) 
+		{
+			data *= 1000;
+		}
+		var numberStart = patchedFormat.length;
+		var index = patchedFormat.indexOf('0');
+		if (index >= 0)
+		{
+			numberStart = index;
+		}
+		index = patchedFormat.indexOf('#');
+		if (index >= 0 && index < numberStart)
+		{
+			numberStart = index;
+		}
+		var numberEnd =  0;
+		index = patchedFormat.lastIndexOf('0');
+		if (index >= 0)
+		{
+			numberEnd = index;
+		}
+		index = patchedFormat.lastIndexOf('#');
+		if (index >= 0 && index > numberEnd)
+		{
+			numberEnd = index;
+		}
+		
+		if (numberStart > 0)
+		{
+			prefix = patchedFormat.substring(0,numberStart);
+		}
+		
+		if (numberEnd < patchedFormat.length - 1)
+		{
+			sufix = patchedFormat.substring(numberEnd+1);
+		}
+		
+		patchedFormat = patchedFormat.substring(numberStart,numberEnd+1);
+		var ret;
+		
+		prefix = prefix.replaceAll("'", "");
+		sufix = sufix.replaceAll("'", "");
+			
+		if (servoyFormat.indexOf("-") == -1 && initialData < 0 && servoyFormat.indexOf(";") < 0)
+		{
+			prefix = prefix + "-";	
+		}
 		//scientific notation case
 		if (servoyFormat.indexOf('E') > -1) {
-			var frmt = /([0#.,]+)+E0+.*/.exec(servoyFormat)[1];
+			var frmt = /([0#.,]+)+E0+.*/.exec(patchedFormat)[1];
 			var integerDigits = 0;
 			var fractionalDigits = 0;
 			var countIntegerState = true;
@@ -74,116 +132,46 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					fractionalDigits++;
 				}
 			}
-			return new Number(data).toExponential(integerDigits + fractionalDigits);
-
+			ret = new Number(data).toExponential(integerDigits + fractionalDigits);
 		}
-		
-		var minusIndex = -1;
-		var minusLastChar = false;
-		var servoyFormatMinIndex = servoyFormat.indexOf("-")
-		if (servoyFormatMinIndex > -1) {
-			minusIndex = partchedFrmt.indexOf("-");
-			minusLastChar = (minusIndex === partchedFrmt.length-1);
-			partchedFrmt = partchedFrmt.replaceAll("-", "");
-		}
-		
-		//treat percents and per thousants
-		var centIndex = -1;
-		var milIndex = -1;
-		var MILLSIGN = '\u2030' //‰
-		var lastChar = false;
-		
-		if (servoyFormat.indexOf("%") > -1) {
-			if (servoyFormat.indexOf("'%'") == -1)
-			{
-				data *= 100;
-			}	
-			centIndex = partchedFrmt.indexOf("%")
-			lastChar = (centIndex === partchedFrmt.length-1) ||endsWith(partchedFrmt, "'%'");
-			partchedFrmt = partchedFrmt.replaceAll("%", ""); // p doesn't mean anything in numeraljs
-
-		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
-			if (servoyFormat.indexOf("'"+MILLSIGN+"'") == -1)
-			{
-				data *= 1000;
-			}	
-			milIndex = partchedFrmt.indexOf(MILLSIGN)
-			lastChar = (milIndex === partchedFrmt.length-1) || endsWith(partchedFrmt, "'"+MILLSIGN+"'");
-			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
-		}
-
-		//		else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
-		//			data *= -1;
-		//		}
-
-		var currency;
-		
-		if (partchedFrmt.indexOf('$') >= 0) {
-			currency = '$';
-		}
-		
-		partchedFrmt = partchedFrmt.replaceAll('\u00A4', '$');
-		partchedFrmt = partchedFrmt.replaceAll('(#+)', '[$1]');
-		partchedFrmt = partchedFrmt.replaceAll('#', '0');
-
-		// test for currency, this should be improved inside numeral so it can handle literals inside the format.
-		if (!currency)
+		else
 		{
-			currency = getCurrency(servoyFormat);
-		}	
-		if (currency != "" && endsWith(partchedFrmt, currency))
-		{
-			partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
-		}	
-		if (currency != "" && partchedFrmt.indexOf(currency) === 0)
-		{
-			partchedFrmt = (partchedFrmt.substring(1)).trim();
-		}	
-		// get min digits
-		var minLen = 0;
-		for (i = 0; i < servoyFormat.length; i++) {
-			if (servoyFormat[i] == '0') {
-				minLen++;
-			} else if (servoyFormat[i] == '.') {
-				break;
-			}
-		}
-
-		var ret = numeral(data).format(partchedFrmt);
-
-		// set min digits
-		if (minLen > 0) {
-			var retSplit = ret.split(numeral.localeData().delimiters.decimal);
-			for (i = 0; i < retSplit[0].length; i++) {
-				if (retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
-				for (j = i; j < retSplit[0].length; j++) {
-					if (retSplit[0][j] >= '0' && retSplit[0][j] <= '9') continue;
+			patchedFormat = patchedFormat.replaceAll('(#+)', '[$1]');
+			patchedFormat = patchedFormat.replaceAll('#', '0');
+			
+			// get min digits
+			var minLen = 0;
+			for (i = 0; i < servoyFormat.length; i++) {
+				if (servoyFormat[i] == '0') {
+					minLen++;
+				} else if (servoyFormat[i] == '.') {
 					break;
 				}
-				var nrMissing0 = minLen - (j - i);
-				if (nrMissing0 > 0) {
-					ret = retSplit[0].substring(0, i);
-					for (j = 0; j < nrMissing0; j++) ret += '0';
-					ret += retSplit[0].substring(i);
-					if (retSplit.length > 1) ret += (numeral.localeData().delimiters.decimal + retSplit[1]);
+			}
+
+			ret = numeral(data).format(patchedFormat);
+
+			// set min digits
+			if (minLen > 0) {
+				var retSplit = ret.split(numeral.localeData().delimiters.decimal);
+				for (i = 0; i < retSplit[0].length; i++) {
+					if (retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
+					for (j = i; j < retSplit[0].length; j++) {
+						if (retSplit[0][j] >= '0' && retSplit[0][j] <= '9') continue;
+						break;
+					}
+					var nrMissing0 = minLen - (j - i);
+					if (nrMissing0 > 0) {
+						ret = retSplit[0].substring(0, i);
+						for (j = 0; j < nrMissing0; j++) ret += '0';
+						ret += retSplit[0].substring(i);
+						if (retSplit.length > 1) ret += (numeral.localeData().delimiters.decimal + retSplit[1]);
+					}
+					break;
 				}
-				break;
 			}
 		}
-
-		if (currency != "") {
-			if (servoyFormat.indexOf(currency) === 0) ret = currency + ' ' + ret;
-			else ret += ' ' + currency;
-		}
-
-		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
-		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
-		
-		if (initialData < 0 && minusIndex > -1) ret = minusLastChar ? (ret+'-') : ('-'+ret);
-		else if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
-			ret = '-' + ret;
-		}
-		return ret;
+		return prefix + ret + sufix;
 	}
 
 	function endsWith(str, suffix) {

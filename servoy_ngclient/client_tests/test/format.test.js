@@ -15,10 +15,22 @@ describe('servoy $formatUtils', function() {
         numeral.locale("en")
         var formatFun = $formatterUtils.format;
         var MILLSIGN = '\u2030'; //�
+        var CURRENCY = '\u00A4';
         expect(formatFun(10.49, '0.000', 'NUMBER')).toEqual("10.490");
         expect(formatFun(10, '0000.000', 'NUMBER')).toEqual("0010.000");
         expect(formatFun(-10, '0000.000', 'NUMBER')).toEqual("-0010.000");
         expect(formatFun(10.49, '#.###', 'NUMBER')).toEqual("10.49");
+        expect(formatFun(10.49, '#.###'+CURRENCY, 'NUMBER')).toEqual("10.49$");
+        expect(formatFun(10.49, '#.###$', 'NUMBER')).toEqual("10.49$");
+        expect(formatFun(10.49, '$ #.###', 'NUMBER')).toEqual("$ 10.49");
+        expect(formatFun(10.49, '$ -#.###', 'NUMBER')).toEqual("$ 10.49");
+        expect(formatFun(10.49, '-#.###$', 'NUMBER')).toEqual("10.49$");
+        expect(formatFun(-10.49, '$ -#.###', 'NUMBER')).toEqual("$ -10.49");
+        expect(formatFun(-10.49, '-#.###$', 'NUMBER')).toEqual("-10.49$");
+        expect(formatFun(-10.49, '$ #.###-', 'NUMBER')).toEqual("$ 10.49-");
+        expect(formatFun(-10.49, '#.###-$', 'NUMBER')).toEqual("10.49-$");
+        expect(formatFun(10.49, '€ #,##0.00;€ -#,##0.00#', 'NUMBER')).toEqual("€ 10.49");
+        expect(formatFun(-10.49, '€ #,##0.00;€ -#,##0.00#', 'NUMBER')).toEqual("€ -10.49");
         expect(formatFun(10.49, '+#.###', 'NUMBER')).toEqual("+10.49");
         expect(formatFun(1000, '#,###.00', 'NUMBER')).toEqual("1,000.00");
         expect(formatFun(1000, '#,###.##', 'NUMBER')).toEqual("1,000");
