@@ -120,8 +120,6 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			}
 			sb.append(" [servoyApi]=\"getServoyApi(state)\"");
 			sb.append(" [name]=\"state.name\" #cmp");
-			sb.append("></");
-			sb.append(spec.getName());
 			sb.append(">");
 			Collection<PropertyDescription> properties = spec.getProperties(FormPropertyType.INSTANCE);
 			if (properties.size() == 0)
@@ -141,6 +139,10 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			{
 				sb.append("<ng-template let-name='name'><svy-form *ngIf=\"isFormAvailable(name)\" [name]=\"name\"></svy-form></ng-template>");
 			}
+			sb.append("</");
+			sb.append(spec.getName());
+			sb.append(">");
+
 			sb.append("</ng-template>\n");
 
 		}
