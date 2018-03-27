@@ -20,7 +20,10 @@ package com.servoy.j2db.debug;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
@@ -88,22 +91,54 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 
 		public void updateForm(Form form)
 		{
-			boolean isNew = !possibleForms.containsKey(form.getName());
+			boolean isNew = !possibleForms.containsValue(form);
 			boolean isDeleted = false;
 			if (!isNew)
 			{
 				isDeleted = !((AbstractBase)form.getParent()).getAllObjectsAsList().contains(form);
 			}
-			updateForm(form, isDeleted);
+			updateForm(form, isNew, isDeleted);
 		}
 
-		private void updateForm(Form form, boolean isDeleted)
+		/**
+		 * @param form
+		 * @param isNew
+		 * @param isDeleted
+		 */
+		private void updateForm(Form form, boolean isNew, boolean isDeleted)
 		{
-			if (isDeleted)
+			if (isNew)
 			{
-				IFormController tmp = getCachedFormController(form.getName());
-				if (tmp != null) removeFormController((BasicFormController)tmp); // form was deleted in designer; remove it's controller from cached/already used forms
-				possibleForms.remove(form.getName());
+				addForm(form, false);
+			}
+			else if (isDeleted)
+			{
+				Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
+				while (iterator.hasNext())
+				{
+					Map.Entry<String, Form> entry = iterator.next();
+					if (entry.getValue().equals(form))
+					{
+						iterator.remove();
+						IFormController tmp = getCachedFormController(entry.getKey());
+						if (tmp != null)
+						{
+							tmp.destroy();
+							removeFormController((BasicFormController)tmp); // form was deleted in designer; remove it's controller from cached/already used forms
+						}
+					}
+				}
+			}
+			else
+			{
+				// just changed
+				if (possibleForms.get(form.getName()) == null)
+				{
+					// name change, first remove the form
+					updateForm(form, false, true);
+					// then add it back in
+					updateForm(form, true, false);
+				}
 			}
 		}
 	}
@@ -322,7 +357,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				}
 				else
 				{
-					((WebFormController)controller).initFormUI();
+					if (!controller.isDestroyed()) ((WebFormController)controller).initFormUI();
 				}
 				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
 			}

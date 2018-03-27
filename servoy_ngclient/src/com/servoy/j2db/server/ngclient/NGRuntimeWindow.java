@@ -178,7 +178,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public void setSize(int width, int height)
 	{
-		if (this.width != width || this.width != width)
+		if (this.width != width || this.height != height)
 		{
 			this.width = width;
 			this.height = height;
