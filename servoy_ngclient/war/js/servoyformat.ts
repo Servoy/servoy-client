@@ -382,13 +382,13 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				// if format has not year/month/day use the one from the current model value
 				// because moment will just use current date
 				if(currentValue) {
-					if(servoyFormat.indexOf('y') == -1) {
+					if(servoyFormat.indexOf('Y') == -1) {
 						d.setFullYear(currentValue.getFullYear());
 					}
 					if(servoyFormat.indexOf('M') == -1) {
 						d.setMonth(currentValue.getMonth());
 					}
-					if(servoyFormat.indexOf('d') == -1) {
+					if(servoyFormat.indexOf('D') == -1) {
 						d.setDate(currentValue.getDate());
 					}
 				}
