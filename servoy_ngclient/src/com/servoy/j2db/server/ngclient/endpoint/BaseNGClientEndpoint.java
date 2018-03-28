@@ -36,11 +36,14 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 {
 
 	/**
-	 * So basically forms can be on client/browser and have their state 'attachedToDOM' not.<br/>
+	 * So basically forms can be on client/browser and have their state 'attachedToDOM' or not.<br/>
 	 * For example a form could show, then hide so it was attached to DOM then it was detached.<br/><br/>
 	 *
 	 * The boolean in the right of each value in this map represents the attached/detached to/from DOM status.
 	 * The string in the left of each value is the URL for the form with name given by the key. A form is present in this map only
+	 * if it's state is present on client.
+	 *
+	 * TODO this is not the case if a network disconnect happens - the endpoint is recreated, so formsOnClientForThisEndpoint is empty then although the client does have the form-state on client; see SVY-12216
 	 */
 	private final ConcurrentMap<String, Pair<String, Boolean>> formsOnClientForThisEndpoint = new ConcurrentHashMap<String, Pair<String, Boolean>>();
 
