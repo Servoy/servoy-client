@@ -69,6 +69,7 @@ import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.ServoyClientService;
 import com.servoy.j2db.server.ngclient.property.ChainedRelatedFoundsetSelectionMonitor.IRelatedFoundsetChainSelectionChangeListener;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -405,7 +406,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected INGApplication getApplication()
 	{
-		return getFormUI().getDataConverterContext().getApplication();
+		if (webObjectContext.getUnderlyingWebObject() instanceof WebComponent) return getFormUI().getDataConverterContext().getApplication();
+		else if (webObjectContext.getUnderlyingWebObject() instanceof ServoyClientService)
+		{
+			// foundset type is not designed to work in services but currently it is used by old foundset manager service for dbtreeview component;
+			// in new components, a combination of foundset, foundset ref/record types & server-side component scripting allow components to get as many foundsets as they need, so
+			// there should be no more need for the foundset manager service
+			return ((ServoyClientService)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getApplication();
+		}
+		return null;
 	}
 
 	public void updateFoundset(IFoundSetInternal newFoundset)
@@ -898,7 +907,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 								if (j < columns.length() - 1) sort.append(",");
 							}
 						}
-						IWebFormController fc = getFormUI().getController();
+						IWebFormUI formUI = getFormUI();
+						IWebFormController fc = (formUI != null ? formUI.getController() : null);
 						if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0 && dataProviderID != null)
 						{
 							// our api only supports one dataproviderid sort at a time
@@ -1107,7 +1117,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	protected IWebFormUI getFormUI()
 	{
-		return ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class);
+		return webObjectContext.getUnderlyingWebObject() instanceof WebComponent
+			? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
 	}
 
 	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
