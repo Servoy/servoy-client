@@ -40,10 +40,10 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	void sendStyleSheet();
 
-	/**
-	 * Will return the window in which the form with given name is already loaded. It will return null if it's not loaded in any window yet.
-	 */
-	INGClientWindow getWindowWithForm(String formName);
+//	/**
+//	 * Will return the window in which the form with given name is already loaded. It will return null if it's not loaded in any window yet.
+//	 */
+//	INGClientWindow getWindowWithForm(String formName);
 
 	@Override
 	Collection<INGClientWindow> getWindows();

@@ -457,14 +457,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return client.getLocale();
 	}
 
-	@Override
-	public INGClientWindow getWindowWithForm(String formName)
-	{
-		for (INGClientWindow w : getWindows())
-		{
-			if (w.hasForm(formName)) return w;
-		}
-
-		return null;
-	}
+//	@Override
+//	public INGClientWindow getWindowWithForm(String formName)
+//	{
+//		for (INGClientWindow w : getWindows())
+//		{
+//			if (w.hasForm(formName)) return w;
+//		}
+//
+//		return null;
+//	}
 }
