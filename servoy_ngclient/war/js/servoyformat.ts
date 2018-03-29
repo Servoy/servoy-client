@@ -56,7 +56,10 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		}
 
 		if (data < 0) data *= -1;
-		patchedFormat = patchedFormat.replaceAll('\u00A4', numeral.localeData().currency.symbol);
+		if (patchedFormat.indexOf('\u00A4') >= 0)
+		{
+			patchedFormat = patchedFormat.replaceAll('\u00A4', numeral.localeData().currency.symbol);
+		}	
 		if (servoyFormat.indexOf("-") >= 0 && initialData >= 0 && servoyFormat.indexOf(";") < 0)
 		{
 			patchedFormat = patchedFormat.replaceAll("-", "");
@@ -379,13 +382,13 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				// if format has not year/month/day use the one from the current model value
 				// because moment will just use current date
 				if(currentValue) {
-					if(servoyFormat.indexOf('y') == -1) {
+					if(servoyFormat.indexOf('Y') == -1) {
 						d.setFullYear(currentValue.getFullYear());
 					}
 					if(servoyFormat.indexOf('M') == -1) {
 						d.setMonth(currentValue.getMonth());
 					}
-					if(servoyFormat.indexOf('d') == -1) {
+					if(servoyFormat.indexOf('D') == -1) {
 						d.setDate(currentValue.getDate());
 					}
 				}
@@ -413,7 +416,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					var format = null;
 					var type = svyFormat ? svyFormat.type : null;
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
-					if (element.is(":focus") && svyFormat.edit) format = svyFormat.edit
+					if (element.is(":focus") && svyFormat.edit && !svyFormat.isMask) format = svyFormat.edit
 					try {
 						var data = formatUtils.unformat(viewValue, format, type, ngModelController.$modelValue);
 					} catch (e) {

@@ -1332,7 +1332,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 									numeralLocaleInfo.ordinal = function (number) {
 										return ".";
 									};
-									//numeral.language(numeralLanguage, numeralLocaleInfo);
+									numeral.register('locale',numeralLanguage,numeralLocaleInfo);
 									numeral.locale(numeralLanguage);
 									if (!initializing) {
 										webStorage.session.add("locale", numeralLanguage);
