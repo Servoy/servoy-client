@@ -455,6 +455,29 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 							}
 						}
 					}
+					if (svyFormat.type == "TEXT" && svyFormat.isRaw && svyFormat.isMask) {
+						if (data && format && data.length === format.length){
+							var ret = ''
+							for (var i = 0; i < format.length; i++) {
+								switch (format[i]) {
+									case 'U': 
+									case 'L':
+									case 'A': 
+									case '?':
+									case '*':
+									case 'H':
+									case '#':
+										ret += data[i]
+										break;
+									default:
+										// ignore literal characters
+										break;
+								}
+							}
+							return ret;
+						}
+						
+					}
 				}
 				return data; //converted
 			}
