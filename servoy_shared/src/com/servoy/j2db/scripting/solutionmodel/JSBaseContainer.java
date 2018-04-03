@@ -1878,7 +1878,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			if (form.isResponsiveLayout())
 			{
 				WebComponent webComponent = container.createNewWebComponent(name, type);
-				webComponent.setLocation(new Point(0, position));
+				webComponent.setLocation(new Point(position, position));
 				return createWebComponent((IJSParent)this, webComponent, application, true);
 			}
 			else

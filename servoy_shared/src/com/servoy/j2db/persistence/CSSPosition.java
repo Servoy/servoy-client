@@ -220,6 +220,33 @@ public class CSSPosition
 	private static int percentageToPixels(String value, int size)
 	{
 		int pixels = 0;
+		if (value.startsWith("calc"))
+		{
+			if (value.indexOf("(") > 0 && value.indexOf(")") > 0)
+			{
+				value = value.substring(value.indexOf("(") + 1, value.lastIndexOf(")"));
+				value = value.trim();
+				String[] values = value.split(" ");
+				if (values.length == 3)
+				{
+					int value1 = valueToPizels(values[0], size);
+					int value2 = valueToPizels(values[2], size);
+					// only simple calc, x + y or x - y
+					boolean subtract = "-".equals(values[1]);
+					pixels = subtract ? (value1 - value2) : (value1 + value2);
+				}
+			}
+		}
+		else
+		{
+			pixels = valueToPizels(value, size);
+		}
+		return pixels;
+	}
+
+	private static int valueToPizels(String value, int size)
+	{
+		int pixels = 0;
 		if (value.endsWith("%"))
 		{
 			pixels = Utils.getAsInteger(value.substring(0, value.length() - 1)) * size / 100;
@@ -237,7 +264,44 @@ public class CSSPosition
 
 	private static String pixelsToPercentage(int value, int size, String oldValue)
 	{
-		if (oldValue.endsWith("%"))
+		if (oldValue.startsWith("calc"))
+		{
+			// must recalculate the expression
+			if (oldValue.indexOf("(") > 0 && oldValue.indexOf(")") > 0)
+			{
+				oldValue = oldValue.substring(oldValue.indexOf("(") + 1, oldValue.lastIndexOf(")"));
+				oldValue = oldValue.trim();
+				String[] values = oldValue.split(" ");
+				if (values.length == 3)
+				{
+					// only simple calc, x + y or x - y
+					boolean substract = "-".equals(values[1]);
+					int value1 = valueToPizels(values[0], size);
+					int newvalue = 0;
+					if (substract)
+					{
+						newvalue = value1 - value;
+					}
+					else
+					{
+						newvalue = value - value1;
+					}
+					if (newvalue < 0)
+					{
+						newvalue = -newvalue;
+						substract = !substract;
+					}
+					String adjustedValue = newvalue + "px";
+					if (values[2].endsWith("%"))
+					{
+						adjustedValue = (newvalue * size / 100) + "%";
+					}
+					return "calc(" + values[0] + " " + (substract ? "-" : "+") + " " + adjustedValue + ")";
+				}
+			}
+			return oldValue;
+		}
+		else if (oldValue.endsWith("%"))
 		{
 			return String.valueOf(100 * value / size) + "%";
 		}
