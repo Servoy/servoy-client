@@ -248,7 +248,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 
 			$rootScope.$watch( function() { return $location.url(); }, function( newURL, oldURL ) {
 				if ( newURL != oldURL ) {
-					var formName = $location.search().f;
+					var formName = $location.hash();
 					if ( formName && formName != $solutionSettings.mainForm.name ) {
 						$formService.goToForm( formName );
 					}
@@ -436,11 +436,16 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					else if ( $solutionSettings.windowName == name ) { // main window form switch
 						$solutionSettings.mainForm = form;
 						$solutionSettings.navigatorForm = navigatorForm;
-						var formparam = 'f=' + form.name;
-						if ( ( $location.url().indexOf( formparam + '&' ) === -1 ) && ( $location.url().indexOf( formparam, $location.url().length - formparam.length ) === -1 ) )
-							$location.url( $location.path() + '?f=' + form.name );
+						var formanchor = '#' + form.name;
+						if ($location.url().indexOf('#') === -1 )
+						{
+							$location.url( $location.url() + formanchor );
+						}	
 						else
-							$location.url( $location.url() );
+						{
+							var url = $location.url().substring(0,$location.url().indexOf('#'));
+							$location.url( url +  formanchor);
+						}	
 					}
 					if ( !$rootScope.$$phase ) {
 						if ( $log.debugLevel === $log.SPAM ) $log.debug( "svy * Will call digest from switchForm for root scope" );
