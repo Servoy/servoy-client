@@ -217,7 +217,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
 		Assert.assertEquals(new JSONObject(
-			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"svy_types\":{\"atype\":\"JSON_obj\"}}").toString(),
+			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\",\"svy_types\":{\"atype\":\"JSON_obj\"}}").toString(),
 			new JSONObject(json).toString());
 	}
 
@@ -265,7 +265,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
 		JSONAssert.assertEquals(
-			"{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+			"{\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svy_types\":{\"atype\":\"JSON_obj\"}}",
 			json, true);
 	}
 
