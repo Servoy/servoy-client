@@ -407,7 +407,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 		// update flattened form reference cause now we probably need to use a SM modified version
 		Form f = application.getFlattenedSolution().getForm(form.getName());
-		form = application.getFlattenedSolution().getFlattenedForm(f, false); // don't use case, make sure it updates the cache
+		form = application.getFlattenedSolution().getFlattenedForm(f, false); // don't use cached, make sure it updates the cache
 
 		INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getApplication().getWebsocketSession());
 		if (allWindowsProxy.hasFormChangedSinceLastSendToClient(form, getName()))
@@ -452,9 +452,10 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				tabSequence = null;
 				getFormUI().init();
+				Debug.trace("RecreateUI on form " + getName() + " only recreated form ui on server, because that form is not present client-side...");
 			}
-
-			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
+			else Debug.trace(
+				"RecreateUI on form " + getName() + " was ignored because that form was not changed or at least not since last being sent to client...");
 		}
 		application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
 		application.getFlattenedSolution().registerLiveForm(form, namedInstance);

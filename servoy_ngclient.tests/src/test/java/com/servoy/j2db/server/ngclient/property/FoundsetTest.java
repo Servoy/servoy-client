@@ -21,12 +21,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,12 +46,8 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.ISequenceProvider;
 import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.query.ISQLJoin;
@@ -186,106 +177,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		client.getFoundSetManager().createDataSourceFromDataSet("relatedtest", relatedDS, null, new String[] { "relatedtestpk" }, false);
 
 		HashMap<String, IServer> serverProxies = new HashMap<String, IServer>();
-		serverProxies.put("_sv_inmem", new IServer()
-		{
-
-			@Override
-			public ITable getTable(String tableName) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public int getTableType(String tableName) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return 0;
-			}
-
-			@Override
-			public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
-			{
-				return Collections.emptySet();
-			}
-
-			@Override
-			public String getName() throws RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public boolean isValid() throws RemoteException
-			{
-				return true;
-			}
-
-			@Override
-			public String getDatabaseProductName() throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RepositoryException, RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public String[] getDataModelClonesFrom() throws RemoteException
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public ISequenceProvider getSequenceProvider()
-			{
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-		});
+		serverProxies.put("_sv_inmem", DUMMY_ISERVER);
 		solution.setServerProxies(serverProxies);
 
 		Relation relation = solution.createNewRelation(validator, "test_to_relatedtest", "mem:test", "mem:relatedtest", ISQLJoin.LEFT_OUTER_JOIN);
