@@ -1436,7 +1436,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (toRecreate.size() > 0)
 		{
-			INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getWebsocketSession());
+			NGClientWebsocketSessionWindows allWindowsProxy = new NGClientWebsocketSessionWindows(getWebsocketSession());
 			for (Pair<Form, String> pair : toRecreate)
 			{
 				allWindowsProxy.updateForm(pair.getLeft(), pair.getRight(), new FormHTMLAndJSGenerator(this, pair.getLeft(), pair.getRight()));
