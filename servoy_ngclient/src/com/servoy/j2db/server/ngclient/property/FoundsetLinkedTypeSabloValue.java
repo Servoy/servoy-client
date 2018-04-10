@@ -51,7 +51,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Property value for {@link FoundsetLinkedPropertyType}.
@@ -315,7 +315,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						if (idForFoundset == null)
 						{
 							// register the first dataprovider used by the wrapped property to the foundset for sorting
-							idForFoundset = UUID.randomUUID().toString();
+							idForFoundset = Utils.calculateMD5HashBase16(targetDataLinks.dataProviderIDs[0]);
 							idForFoundsetChanged = true;
 							foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, targetDataLinks.dataProviderIDs[0]);
 						}

@@ -44,6 +44,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	var ID_KEY = "id";
 	var VALUE_KEY = "value";
+	var DATAPROVIDER_KEY = "dp";
+	var CONVERSIONS = "viewportConversions"; // data conversion info
 
 	var PUSH_TO_SERVER = "w";
 
@@ -349,6 +351,29 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 						return null
 					};
+					newValue.updateViewportRecord = function(rowID, columnID, newValue, oldValue) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updateRecord requested with (" + rowID + ", " + columnID + ", " + newValue);
+						var r = {};
+						r[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowID;
+						r[DATAPROVIDER_KEY] = columnID;
+						r[VALUE_KEY] = newValue;
+
+						// convert new data if necessary
+						var conversionInfo = undefined;
+						if(internalState[CONVERSIONS]) {
+							for(var idx in this.viewPort.rows) {
+								if(this.viewPort.rows[idx][$foundsetTypeConstants.ROW_ID_COL_KEY] == rowID) {
+									conversionInfo = internalState[CONVERSIONS][idx];
+									break;
+								}
+							}
+						}
+						if (conversionInfo && conversionInfo[columnID]) r[VALUE_KEY] = $sabloConverters.convertFromClientToServer(r[VALUE_KEY], conversionInfo[columnID], oldValue);
+						else r[VALUE_KEY] = $sabloUtils.convertClientObject(r[VALUE_KEY]);
+
+						internalState.requests.push({viewportDataChanged: r});
+						if (internalState.changeNotifier) internalState.changeNotifier();
+					}
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
 					newValue.addChangeListener = function(listener) {
