@@ -28,7 +28,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Date", scriptingName = "Date")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class Date
 {
 	/**
@@ -1039,6 +1039,21 @@ public class Date
 	 */
 	@JSFunction
 	public String toUTCString()
+	{
+		return null;
+	}
+
+	/**
+	 * Returns a string version of the UTC value of the date.
+	 *
+	 * @sample date.toISOString();
+	 *
+	 * @return the Date object as a string in simplified extended ISO format.
+	 *
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toISOString
+	 */
+	@JSFunction
+	public String toISOString()
 	{
 		return null;
 	}
