@@ -315,6 +315,18 @@ public class String
 	{
 		return null;
 	}
+	
+	/**
+	 * Returns the string stripped of whitespace from both ends.
+	 *
+	 * @sample string.trim();
+	 *
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/trim
+	 */
+	public String js_trim()
+	{
+		return null;
+	}
 
 	/**
 	 * returns a new string where the matches of the given regexp are replaced by newSubStr.
