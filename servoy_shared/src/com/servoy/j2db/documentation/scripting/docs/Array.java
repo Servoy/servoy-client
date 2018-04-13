@@ -455,9 +455,9 @@ public class Array
 	 *  		-accumulator: accumulates the callback's return values; it is the accumulated value previously returned
 	 * 			              in the last invocation of the callback, or initialValue, if supplied (see below).
 	 * 			-currentValue: the current element being processed in the array.
-	 * 			-currentIndexOptional: the index of the current element being processed in the array (starts at index 0,
+	 * 			-currentIndex (Optional): the index of the current element being processed in the array (starts at index 0,
 	 * 						  if an initialValue is provided, and at index 1 otherwise)
-	 * 			-arrayOptional: the array reduce() was called upon.
+	 * 			-array (Optional): the array reduce() was called upon.
 	 * @param initialValue Value to use as the first argument to the first call of the callback. If no initial value is supplied,
 	 * 					   the first element in the array will be used.
 	 * @return Object
