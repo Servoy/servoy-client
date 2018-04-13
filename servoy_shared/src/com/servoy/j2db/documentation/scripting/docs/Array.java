@@ -441,6 +441,33 @@ public class Array
 	{
 		return null;
 	}
+	
+	/**
+	 * Reduces the array to a single value by executing a provided function for each value of the array (from left-to-right).
+	 *
+	 * @sample
+	 * var euros = [29.76, 41.85, 46.5];
+	 * var sum = euros.reduce( function(total, amount) {
+	 *   return total + amount
+	 * });
+	 *
+	 * @param f Function to execute on each element in the array, taking four arguments:
+	 *  		-accumulator: accumulates the callback's return values; it is the accumulated value previously returned
+	 * 			              in the last invocation of the callback, or initialValue, if supplied (see below).
+	 * 			-currentValue: the current element being processed in the array.
+	 * 			-currentIndex (Optional): the index of the current element being processed in the array (starts at index 0,
+	 * 						  if an initialValue is provided, and at index 1 otherwise)
+	 * 			-array (Optional): the array reduce() was called upon.
+	 * @param initialValue Value to use as the first argument to the first call of the callback. If no initial value is supplied,
+	 * 					   the first element in the array will be used.
+	 * @return Object
+	 *
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/reduce
+	 */
+	public Object js_reduce(Function f, Object initialValue)
+	{
+		return null;
+	}
 
 	/**
 	 * The slice method creates a new array from a selected section of an array.

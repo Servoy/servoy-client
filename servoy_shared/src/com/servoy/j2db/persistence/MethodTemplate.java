@@ -68,10 +68,10 @@ public class MethodTemplate implements IMethodTemplate
 		calculationTemplates.put("rowBGColorCalculation", //$NON-NLS-1$
 			new MethodTemplate("Calculate the row background color", new MethodArgument("rowBGColorCalc", ArgumentType.Color, "row background color"), //
 				new MethodArgument[] { new MethodArgument("index", ArgumentType.Number, "row index"), //
-						new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
-						new MethodArgument("elementType", ArgumentType.String, "element type"), //
-						new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
-						new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
+					new MethodArgument("selected", ArgumentType.Boolean, "is the row selected"), //
+					new MethodArgument("elementType", ArgumentType.String, "element type"), //
+					new MethodArgument("dataProviderID", ArgumentType.String, "element data provider"), //
+					new MethodArgument("edited", ArgumentType.Boolean, "is the record edited") },
 				"\tif (selected)\n\t\treturn '#c4ffff';\n\telse if (index % 2)\n\t\treturn '#f4ffff';\n\telse\n\t\treturn '#FFFFFF';", true));
 
 		// Common method templates
@@ -350,7 +350,7 @@ public class MethodTemplate implements IMethodTemplate
 		{
 			@Override
 			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate,
-				Map<String, String> substitutions, boolean cleanTemplate)
+				Map<String, String> substitutions, boolean cleanTemplate, boolean override)
 			{
 				CharSequence body;
 				if (methodCode == null)
@@ -379,7 +379,7 @@ public class MethodTemplate implements IMethodTemplate
 				{
 					body = methodCode;
 				}
-				return super.getMethodDeclaration(name, body, tagToOutput, userTemplate, substitutions, cleanTemplate);
+				return super.getMethodDeclaration(name, body, tagToOutput, userTemplate, substitutions, cleanTemplate, override);
 			}
 		};
 	}
