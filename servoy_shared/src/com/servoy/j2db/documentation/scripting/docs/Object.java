@@ -22,12 +22,46 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * Dummy class for listing methods for JavaScript types in a manner that
  * suits our documentation generator.
- * 
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Object", scriptingName = "Object")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class Object
 {
+	/**
+	 * Determines whether two values are the same value.
+	 *
+	 * @sample
+	 * Object.is('foo', 'foo');
+	 *
+	 * @param value1 The first value to compare.
+	 * @param value2 The second value to compare.
+	 * @return a Boolean indicating whether or not the two arguments are the same value.
+	 *
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Object/is
+	 */
+	public static boolean js_is(Object value1, Object value2)
+	{
+		return false;
+	}
 
+	/**
+	 * Copy the values of all enumerable own properties from one or more source objects to a target object.
+	 *
+	 * @sample
+	 * var object1 = { a: 1, b: 2, c: 3};
+	 * var object2 = Object.assign({c: 4, d: 5}, object1);
+	 * application.output(object2.c, object2.d);
+	 *
+	 * @param target The target object.
+	 * @param sources The source object(s).
+	 * @return The target object.
+	 *
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Object/assign
+	 */
+	public static Object js_assign(Object target, Object... sources)
+	{
+		return null;
+	}
 }
