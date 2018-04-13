@@ -197,7 +197,18 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (format.indexOf("'%'") > -1) {
 			multFactor = 100
 		}
-
+		if (format.indexOf("'") > -1)
+		{
+			// replace the literals
+			var parts = format.split("'");
+			for (var i=0;i<parts.length;i++)
+			{
+				if (i % 2 == 1)
+				{
+					data = data.replaceAll(parts[i],"");
+				}
+			}
+		}		
 		var ret = numeral(data).value();
 		ret *= multFactor;
 		return ret
