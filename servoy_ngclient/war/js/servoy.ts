@@ -1103,7 +1103,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							      }
 						      },
 						      function(error) {
-						    	  if (!this.reject) {
+						    	  if (!promise['reject']) {
 						    		  delete cachedPromises[key]; // try again later
 						    	  }
 						    	  return $q.reject(error);
