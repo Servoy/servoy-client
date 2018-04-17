@@ -139,19 +139,22 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		}
 		else
 		{
-			patchedFormat = patchedFormat.replaceAll('(#+)', '[$1]');
-			patchedFormat = patchedFormat.replaceAll('#', '0');
-			
 			// get min digits
 			var minLen = 0;
-			for (i = 0; i < servoyFormat.length; i++) {
-				if (servoyFormat[i] == '0') {
+			var optionalDigits = 0;
+			for (i = 0; i < patchedFormat.length; i++) {
+				if (patchedFormat[i] == '0') {
 					minLen++;
-				} else if (servoyFormat[i] == '.') {
+				} else if (patchedFormat[i] == '#' && minLen === 0) {
+					optionalDigits++;
+				} else if (patchedFormat[i] == '.') {
 					break;
 				}
 			}
-
+			
+			patchedFormat = patchedFormat.replaceAll('(#+)', '[$1]');
+			patchedFormat = patchedFormat.replaceAll('#', '0');
+			
 			ret = numeral(data).format(patchedFormat);
 
 			// set min digits
@@ -171,6 +174,30 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 						if (retSplit.length > 1) ret += (numeral.localeData().delimiters.decimal + retSplit[1]);
 					}
 					break;
+				}
+			}
+			//fix the optional digits
+			if (patchedFormat.indexOf(',') == -1 && optionalDigits > 0)
+			{
+				var toEliminate = 0;
+				for (i =0;i<ret.length;i++)
+				{
+					if (ret.charAt(i) == '0')
+					{
+						toEliminate++;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (toEliminate > 0)
+				{
+					if (toEliminate > optionalDigits)
+					{
+						toEliminate = optionalDigits;
+					}	
+					ret = ret.substring(toEliminate);
 				}
 			}
 		}
