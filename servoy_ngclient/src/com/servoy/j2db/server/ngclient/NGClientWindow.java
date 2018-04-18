@@ -368,6 +368,10 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		boolean changed = true;
 		String clientUsedFormURL = getEndpoint().getFormUrl(realName);
+		if (clientUsedFormURL == null)
+		{
+			clientUsedFormURL = getDefaultFormURLStart(flattenedForm, realName);
+		}
 		if (clientUsedFormURL != null)
 		{
 			changed = !clientUsedFormURL.equals(getRealFormURLAndSeeIfItIsACopy(flattenedForm, realName, false).getLeft());
