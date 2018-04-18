@@ -47,6 +47,10 @@ describe('servoy $formatUtils', function() {
         expect(formatFun(10.49, MILLSIGN + '+00.00', 'NUMBER')).toEqual(MILLSIGN + "+10490.00");
         expect(formatFun(10.49, '+' + MILLSIGN + '00.00', 'NUMBER')).toEqual('+' + MILLSIGN + "10490.00");
         expect(formatFun(10.49, '00.00E00', 'NUMBER')).toEqual('1.0490e+1');
+        expect(formatFun(3.9, '##0.0', 'NUMBER')).toEqual("3.9");
+        expect(formatFun(30.9, '##0.0', 'NUMBER')).toEqual("30.9");
+        expect(formatFun(300, '##0.0', 'NUMBER')).toEqual("300.0");
+        expect(formatFun(3.9, '000.0', 'NUMBER')).toEqual("003.9");
 
       })
     });
@@ -64,6 +68,7 @@ describe('servoy $formatUtils', function() {
         expect(unFormatFun("1,000.00", '#,###.##', 'NUMBER')).toEqual(1000);
         expect(unFormatFun(MILLSIGN + "+10490.00", MILLSIGN + '+00.00', 'NUMBER')).toEqual(10.49);
         expect(unFormatFun('1.0490e+1', '00.00E00', 'NUMBER')).toEqual(10.49);
+        expect(unFormatFun("3", "0 'μm'", 'NUMBER')).toEqual(3);
       })
     });
   });
