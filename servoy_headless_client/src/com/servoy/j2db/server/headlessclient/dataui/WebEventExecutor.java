@@ -443,6 +443,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		Component renderScriptProvider = comp;
 		ISupplyFocusChildren< ? > componentWithChildren = renderScriptProvider.findParent(ISupplyFocusChildren.class);
 		if (componentWithChildren != null) renderScriptProvider = (Component)componentWithChildren;
+		if (renderScriptProvider instanceof WrapperContainer) renderScriptProvider = ((WrapperContainer)renderScriptProvider).getDelegate();
 
 		RenderEventExecutor renderEventExecutor = null;
 		if (renderScriptProvider instanceof IScriptableProvider)
@@ -469,9 +470,9 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				renderEventExecutor.setRenderStateChanged();
 				// if component's onRender did not change any properties, don't add it to the target
-				if (comp instanceof ISupportOnRender && WebOnRenderHelper.doRender((ISupportOnRender)comp))
+				if (renderScriptProvider instanceof ISupportOnRender && WebOnRenderHelper.doRender((ISupportOnRender)renderScriptProvider))
 				{
-					target.addComponent(comp);
+					target.addComponent(renderScriptProvider);
 				}
 			}
 		}
