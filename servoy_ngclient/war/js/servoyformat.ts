@@ -198,6 +198,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 						toEliminate = optionalDigits;
 					}	
 					ret = ret.substring(toEliminate);
+					if (ret.indexOf(numeral.localeData().delimiters.decimal) == 0)
+					{
+						//we eliminated too much
+						ret = "0" + ret;
+					}
 				}
 			}
 		}
