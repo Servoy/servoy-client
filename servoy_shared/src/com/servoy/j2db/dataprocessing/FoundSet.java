@@ -4583,6 +4583,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					// if not try to find the to remove state.
 					toDelete = pksAndRecords.getCachedRecords().indexOf(state);
+
+					if (toDelete == -1)
+					{
+						// cached record was removed/cleared, find by pk
+						toDelete = getRecordIndex(state.getPK());
+					}
 				}
 			}
 			pksAndRecords.getCachedRecords().remove(toDelete);
