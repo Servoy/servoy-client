@@ -51,6 +51,7 @@ describe('servoy $formatUtils', function() {
         expect(formatFun(30.9, '##0.0', 'NUMBER')).toEqual("30.9");
         expect(formatFun(300, '##0.0', 'NUMBER')).toEqual("300.0");
         expect(formatFun(3.9, '000.0', 'NUMBER')).toEqual("003.9");
+        expect(formatFun(0.9, '#.#', 'NUMBER')).toEqual("0.9");
 
       })
     });
