@@ -4583,6 +4583,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					// if not try to find the to remove state.
 					toDelete = pksAndRecords.getCachedRecords().indexOf(state);
+
+					if (toDelete == -1)
+					{
+						// cached record was removed/cleared, find by pk
+						toDelete = getRecordIndex(state.getPK());
+					}
 				}
 			}
 			pksAndRecords.getCachedRecords().remove(toDelete);
@@ -4745,7 +4751,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			for (IRecordInternal dsState : recordsToOmit)
 			{
 				omittedPKs.addRow(dsState.getPK());
-				removeRecordInternalEx(dsState, pksAndRecords.getCachedRecords().indexOf(dsState));
 			}
 
 			QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
@@ -4758,6 +4763,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			synchronized (pksAndRecords)
 			{
 				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
+			}
+
+			for (IRecordInternal dsState : recordsToOmit)
+			{
+				removeRecordInternalEx(dsState, pksAndRecords.getCachedRecords().indexOf(dsState));
 			}
 		}
 

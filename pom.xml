@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<servoy-repo.url> http://download.eclipse.org/eclipse/updates/4.7/R-4.7.3-201803010715/</servoy-repo.url>
+		<servoy-repo.url> http://download.eclipse.org/eclipse/updates/4.8milestones/S-4.8M6-201803080630/</servoy-repo.url>
 		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
@@ -136,6 +136,41 @@
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>org.eclipse.dltk.javascript.rhino</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_base</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_ngclient</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_shared</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_headless_client</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_smart_client</id>
 							<restrictTo>
 								<version>${project.version}</version>
 							</restrictTo>
