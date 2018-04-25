@@ -36,7 +36,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>com.servoy.eclipse.docgenerator.client.product</artifactId>
-									<version>1.4.2</version>
+									<version>1.4.3</version>
 									<type>zip</type>
 									<outputDirectory>${project.build.directory}/repository</outputDirectory>
 								</artifactItem>
