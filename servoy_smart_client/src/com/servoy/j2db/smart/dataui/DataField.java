@@ -2022,6 +2022,10 @@ public class DataField extends JFormattedTextField
 		try
 		{
 			super.commitEdit();
+			if (!isValueValid)
+			{
+				setValueValid(true, null);
+			}
 		}
 		catch (ParseException e)
 		{

@@ -340,14 +340,14 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		boolean b = ((Boolean)aValue).booleanValue();
 		if (b)
 		{
+			if (!multiValueSelect && selectedSet.size() > 0)
+			{
+				selectedSet.clear();
+			}
 			if (selectedSet.contains(i))
 			{
 				// not changed return.
 				return;
-			}
-			if (!multiValueSelect && selectedSet.size() > 0)
-			{
-				selectedSet.clear();
 			}
 			selectedSet.add(i);
 		}
@@ -378,6 +378,67 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		}
 		// data changed
 		fireContentsChanged(this, rowIndex, rowIndex);
+		// selection changed
+		fireContentsChanged(this, -1, -1);
+		if (tmp != null && relatedRecord == null)
+		{
+			relatedRecord = tmp;
+			relatedRecord.addModificationListener(this);
+		}
+	}
+
+	public void setElements(Object[] values)
+	{
+		setElements(values, listModel.getAllowEmptySelection());
+	}
+
+	private void setElements(Object[] values, boolean allowEmptySelection)
+	{
+		getSelectedRows();//to be sure it present
+		for (int i = 0; i < values.length; i++)
+		{
+			boolean b = ((Boolean)values[i]).booleanValue();
+			if (b)
+			{
+				if (selectedSet.contains(i))
+				{
+					// not changed continue.
+					continue;
+				}
+				if (!multiValueSelect && selectedSet.size() > 0)
+				{
+					selectedSet.clear();
+				}
+				selectedSet.add(i);
+			}
+			else
+			{
+				if (selectedSet.size() == 1 && selectedSet.contains(i) && !allowEmptySelection)
+				{
+					// not allowed.
+					return;
+				}
+				if (!selectedSet.contains(i))
+				{
+					// not changed continue.
+					continue;
+				}
+				selectedSet.remove(i);
+			}
+			setSelectedItem(selectedSet.size() > 0 ? getElementAt(selectedSet.iterator().next().intValue()) : null, true);
+
+		}
+		// when firing tmp remove the listener from the relatedRecord
+		// so that we don't get a modification change from our own fire.
+		IRecordInternal tmp = null;
+		if (relatedRecord != null)
+		{
+			relatedRecord.removeModificationListener(this);
+			tmp = relatedRecord;
+			relatedRecord = null;
+		}
+		// data changed
+		fireContentsChanged(this, 0, values.length - 1);
 		// selection changed
 		fireContentsChanged(this, -1, -1);
 		if (tmp != null && relatedRecord == null)

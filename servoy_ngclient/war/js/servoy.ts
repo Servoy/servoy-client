@@ -906,7 +906,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 })
 .filter('htmlFilter', function() {
 	return function(input) {
-		if (input && input.indexOf('<body') >=0 && input.lastIndexOf('</body') >=0)
+		if (input && input.indexOf && input.indexOf('<body') >=0 && input.lastIndexOf('</body') >=0)
 		{
 			input = input.substring(input.indexOf('<body')+6,input.lastIndexOf('</body'));
 		}
