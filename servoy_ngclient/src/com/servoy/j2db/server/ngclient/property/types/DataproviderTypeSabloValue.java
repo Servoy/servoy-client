@@ -73,6 +73,7 @@ import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetDataAdapterList;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -426,7 +427,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			jsonValue = null;
 		}
-		if (fireChangeEvent)
+		if (fireChangeEvent && (changed || dataAdapterList instanceof FoundsetDataAdapterList)) // if it is a foundset related DAL then always call valuechanged (the value can be of a previous row)
 		{
 			changeMonitor.valueChanged();
 		}
