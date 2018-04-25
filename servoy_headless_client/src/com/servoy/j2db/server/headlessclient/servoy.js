@@ -3294,22 +3294,64 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 	
 		registerListeners: function (elemIdMinTabIndex, elemIdMaxTabIndex)
 		{
-			Servoy.TabCycleHandling.minTabIndexElemId = elemIdMinTabIndex;
 			var elem = document.getElementById(elemIdMinTabIndex);
 			if (typeof(elem) != "undefined" && elem != null)
 			{
-				Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
+				if (Servoy.TabCycleHandling.minTabIndexElemId)
+				{
+					var oldElem = document.getElementById(Servoy.TabCycleHandling.minTabIndexElemId);
+					if (typeof(oldElem) != "undefined" && oldElem != null)
+					{
+						if (elem.tabIndex < oldElem.tabIndex)
+						{
+							elem.addEventListener("keydown",Servoy.TabCycleHandling.tabRewindHandler);
+							oldElem.removeEventListener("keydown",Servoy.TabCycleHandling.tabRewindHandler);
+							Servoy.TabCycleHandling.minTabIndexElemId = elemIdMinTabIndex;
+						}
+					}
+					else
+					{
+						elem.addEventListener("keydown",Servoy.TabCycleHandling.tabRewindHandler);
+						Servoy.TabCycleHandling.minTabIndexElemId = elemIdMinTabIndex;
+					}
+				}
+				else
+				{
+					elem.addEventListener("keydown",Servoy.TabCycleHandling.tabRewindHandler);
+					Servoy.TabCycleHandling.minTabIndexElemId = elemIdMinTabIndex;
+				}	
 			}
 			
 			var dummyElem = document.createElement("div");
 			dummyElem.innerHTML='<a href="javascript: void(0)"></a>';
 			document.body.appendChild(dummyElem);
 			
-			Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
 			elem = document.getElementById(elemIdMaxTabIndex);
 			if (typeof(elem) != "undefined" && elem != null)
 			{
-				Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
+				if (Servoy.TabCycleHandling.maxTabIndexElemId)
+				{
+					var oldElem = document.getElementById(Servoy.TabCycleHandling.maxTabIndexElemId);
+					if (typeof(oldElem) != "undefined" && oldElem != null)
+					{
+						if (elem.tabIndex > oldElem.tabIndex)
+						{
+							elem.addEventListener("keydown",Servoy.TabCycleHandling.tabForwardHandler);
+							oldElem.removeEventListener("keydown",Servoy.TabCycleHandling.tabForwardHandler);
+							Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
+						}
+					}
+					else
+					{
+						elem.addEventListener("keydown",Servoy.TabCycleHandling.tabForwardHandler);
+						Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
+					}
+				}
+				else
+				{
+					elem.addEventListener("keydown",Servoy.TabCycleHandling.tabForwardHandler);
+					Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
+				}
 			}
 		},
 		
