@@ -2615,16 +2615,39 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				Iterator< ? extends Component> cells = li.iterator();
 				while (cells.hasNext())
 				{
-					Component someCell = CellContainer.getContentsForCell(cells.next());
-					IPersist element = cellToElement.get(someCell);
-					if (element != null && elementToColumnIdentifierComponent.get(element) == columnIdentifierComponent)
+					Component someCell = cells.next();
+					if (isListViewMode())
 					{
-						cell = someCell;
-						break;
+						if (someCell instanceof WebCellBasedViewListItem)
+						{
+							someCell = ((WebCellBasedViewListItem)someCell).getListContainer();
+						}
+						if (someCell instanceof MarkupContainer)
+						{
+							for (int i = 0; i < ((MarkupContainer)someCell).size(); i++)
+							{
+								Component currentComponent = ((MarkupContainer)someCell).get(i);
+								if (currentComponent instanceof WrapperContainer) currentComponent = ((WrapperContainer)currentComponent).getDelegate();
+								IPersist element = cellToElement.get(currentComponent);
+								if (element != null && elementToColumnIdentifierComponent.get(element) == columnIdentifierComponent)
+								{
+									return currentComponent;
+								}
+							}
+						}
+					}
+					else
+					{
+						someCell = CellContainer.getContentsForCell(someCell);
+						IPersist element = cellToElement.get(someCell);
+						if (element != null && elementToColumnIdentifierComponent.get(element) == columnIdentifierComponent)
+						{
+							cell = someCell;
+							break;
+						}
 					}
 				}
 			}
-
 		}
 		return cell;
 	}
