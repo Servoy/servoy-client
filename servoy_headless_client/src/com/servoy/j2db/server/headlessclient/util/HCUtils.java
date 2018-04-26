@@ -110,9 +110,11 @@ public class HCUtils
 	public static String replaceForwardedHost(String absoluteUrl, HttpServletRequest request)
 	{
 		// headers X-Forwarded-XXX
-		String forwardedHost = request.getHeader("X-Forwarded-Host");
+		String forwardedHost = (String)request.getAttribute("X-Forwarded-Host");
+		if (forwardedHost == null) forwardedHost = request.getHeader("X-Forwarded-Host");
 
-		String forwardedScheme = request.getHeader("X-Forwarded-Proto");
+		String forwardedScheme = (String)request.getAttribute("X-Forwarded-Proto");
+		if (forwardedScheme == null) forwardedScheme = request.getHeader("X-Forwarded-Proto");
 		if (forwardedScheme == null)
 		{
 			forwardedScheme = request.getHeader("X-Forwarded-Scheme");

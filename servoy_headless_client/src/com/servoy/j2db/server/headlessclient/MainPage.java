@@ -29,10 +29,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.swing.border.Border;
 
 import org.apache.wicket.AttributeModifier;
@@ -1433,7 +1435,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	}
 
 	@SuppressWarnings("nls")
-	public static String getShowUrlScript(ShowUrlInfo showUrlInfo)
+	public static String getShowUrlScript(ShowUrlInfo showUrlInfo, Properties props)
 	{
 		if (showUrlInfo != null)
 		{
@@ -1446,7 +1448,15 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				String url = showUrlInfo.url;
 				if (showUrlInfo.useIFrame)
 				{
-					url = HCUtils.replaceForwardedHost(RequestUtils.toAbsolutePath(url), ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest());
+					HttpServletRequest request = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
+					if (props != null)
+					{
+						String host = props.getProperty("servoy.X-Forwarded-Host");
+						if (!Utils.stringIsEmpty(host)) request.setAttribute("X-Forwarded-Host", host);
+						String scheme = props.getProperty("servoy.X-Forwarded-Proto");
+						if (!Utils.stringIsEmpty(scheme)) request.setAttribute("X-Forwarded-Proto", scheme);
+					}
+					url = HCUtils.replaceForwardedHost(RequestUtils.toAbsolutePath(url), request);
 				}
 				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," +
 					showUrlInfo.pageExpiredRedirect + ");";
@@ -1492,7 +1502,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		{
 			try
 			{
-				return getShowUrlScript(showUrlInfo);
+				return getShowUrlScript(showUrlInfo, client.getSettings());
 			}
 			finally
 			{
