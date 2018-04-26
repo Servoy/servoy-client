@@ -114,7 +114,7 @@ public class HCUtils
 		if (forwardedHost == null) forwardedHost = request.getHeader("X-Forwarded-Host");
 
 		String forwardedScheme = (String)request.getAttribute("X-Forwarded-Proto");
-		if (forwardedScheme == null) request.getHeader("X-Forwarded-Proto");
+		if (forwardedScheme == null) forwardedScheme = request.getHeader("X-Forwarded-Proto");
 		if (forwardedScheme == null)
 		{
 			forwardedScheme = request.getHeader("X-Forwarded-Scheme");
