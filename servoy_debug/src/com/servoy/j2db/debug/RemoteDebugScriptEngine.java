@@ -43,9 +43,11 @@ import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
 
@@ -322,7 +324,13 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 
 		try
 		{
-			Scriptable tableScope = getExistingTableScrope(sc.getTable());
+			ITable table = sc.getTable();
+			String dataSource = table.getDataSource();
+			if (DataSourceUtils.getInmemDataSourceName(dataSource) != null)
+			{
+				table = application.getFoundSetManager().getTable(dataSource);
+			}
+			Scriptable tableScope = getExistingTableScrope(table);
 			if (tableScope instanceof LazyCompilationScope)
 			{
 				try
