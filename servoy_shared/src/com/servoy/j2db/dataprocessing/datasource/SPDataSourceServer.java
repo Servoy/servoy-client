@@ -27,14 +27,12 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
-import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.ProcedureColumn;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -43,11 +41,11 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scope for datasources.db.myserver.
+ * Scope for datasources.sp.myserver.storedProcedur();
  *
  * @author rgansevles
  *
- * @since 7.4
+ * @since 8.3
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -164,50 +162,6 @@ public class SPDataSourceServer extends DefaultJavaScope
 			}
 		}
 		return args;
-	}
-
-	/**
-	 * Get the server name.
-	 *
-	 * @sample
-	 * datasources.db.example_data.getServerName() // returns 'example_data'
-	 *
-	 * @return String server name
-	 */
-	@JSFunction
-	public String getServerName()
-	{
-		return serverName;
-	}
-
-	/**
-	 * Get the server where this server is a data model clone from.
-	 *
-	 * @sample
-	 * datasources.db.example_data99.getDataModelCloneFrom().getServerName()
-	 *
-	 * @return DBDataSourceServer server
-	 */
-	@JSFunction
-	public SPDataSourceServer getDataModelCloneFrom()
-	{
-		try
-		{
-			IServerInternal server = (IServerInternal)application.getRepository().getServer(serverName);
-			if (server != null)
-			{
-				return new SPDataSourceServer(application, server.getConfig().getDataModelCloneFrom());
-			}
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return null;
 	}
 
 	@Override
