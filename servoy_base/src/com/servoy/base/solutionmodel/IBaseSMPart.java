@@ -54,7 +54,8 @@ public interface IBaseSMPart
 	 *
 	 * A header is displayed at the top of each page when printed and can contain
 	 * summaries of the current selection of records. In List view the header is
-	 * displayed above the list of records.
+	 * displayed above the list of records. In tableview the default column headers will
+	 * not be there if this is specified.
 	 *
 	 * @sample
 	 * var header = form.newPart(JSPart.HEADER, 80);
@@ -65,6 +66,7 @@ public interface IBaseSMPart
 	 *
 	 * A Leading Grand Summary can be placed before the body part. It can contain
 	 * summary fields that will generate summaries for the entire foundset.
+	 * In tableview the default column headers will not be there if this is specified.
 	 *
 	 * @sample
 	 * var leadingGrandSummary = form.newPart(JSPart.LEADING_GRAND_SUMMARY, 120);
@@ -77,6 +79,7 @@ public interface IBaseSMPart
 	 * A Leading Subsummary can be placed before the body part. There can be multiple Leading Subsummaries
 	 * per form. Each Subsummary part has a set of Group By fields which are used to group data together.
 	 * Each Subsummary part can contain summary fields, which will be printed once for each group of data.
+	 * This part is only shown in printing
 	 *
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
@@ -86,7 +89,7 @@ public interface IBaseSMPart
 	/**
 	 * Constant use for specifying the type of form parts.
 	 *
-	 * Appears once on the first page of a printed report. If a Footer is available, it is
+	 * Appears only once on the first page of a printed report. If a Footer is available, it is
 	 * replaced by the Title Footer on the first page.
 	 *
 	 * @sample
@@ -100,6 +103,9 @@ public interface IBaseSMPart
 	 * Appears only once on the first page of a printed report or on top of the first screen
 	 * of a foundset. If a Header is available it is replace by the Title Header on the first
 	 * page.
+	 * This part is also shown in a normal none printing form, because it can be used to place components
+	 * in a tableview form and keep the default table header columns. Other parts as the HEADER will remove
+	 * the default header columns.
 	 *
 	 * @sample
 	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
@@ -120,9 +126,10 @@ public interface IBaseSMPart
 	/**
 	 * Constant use for specifying the type of form parts.
 	 *
-	 * A Trailing Subsummary can be placed before the body part. There can be multiple Trailing Subsummaries
+	 * A Trailing Subsummary can be placed after  the body part. There can be multiple Trailing Subsummaries
 	 * per form. Each Subsummary part has a set of Group By fields which are used to group data together.
 	 * Each Subsummary part can contain summary fields, which will be printed once for each group of data.
+	 * This part is only shown in printing
 	 *
 	 * @sample
 	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
