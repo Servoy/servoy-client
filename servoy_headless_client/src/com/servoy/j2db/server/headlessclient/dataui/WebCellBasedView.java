@@ -5469,6 +5469,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		@Override
+		protected boolean blockRequest()
+		{
+			return false;
+		}
+
+		@Override
 		public void renderHead(IHeaderResponse response)
 		{
 			super.renderHead(response);

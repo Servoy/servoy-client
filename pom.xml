@@ -47,6 +47,12 @@
 			</modules>
 		</profile>
 		<profile>
+			<id>design_doc</id>
+			<modules>
+				<module>servoy_doc</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>plugins</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
