@@ -19,8 +19,10 @@ package com.servoy.j2db.server.ngclient;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,12 +49,14 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
+import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.server.ngclient.property.types.RecordPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -377,6 +381,31 @@ public class NGFormServiceHandler extends FormServiceHandler
 						lookup.deregister();
 						return displayValue;
 					}
+				}
+				break;
+			}
+
+			case "getValuelistValues" :
+			{
+				List<Map<String, Object>> valuelistValues = new ArrayList<>();
+				Object valuelistID = args.get("valuelist");
+				int id = Utils.getAsInteger(valuelistID);
+				ValueList val = getApplication().getFlattenedSolution().getValueList(id);
+				if (val != null)
+				{
+					Object recordRef = args.get("record");
+					Record record = RecordPropertyType.INSTANCE.fromJSON(recordRef, null, null,
+						new BrowserConverterContext((WebFormUI)getApplication().getFormManager().getCurrentForm().getFormUI(), PushToServerEnum.allow), null);
+					IValueList realValueList = ComponentFactory.getRealValueList(getApplication(), val, true, Types.OTHER, null, null);
+					realValueList.fill(record);
+					for (int i = 0; i < realValueList.getSize(); i++)
+					{
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("realValue", realValueList.getRealElementAt(i));
+						map.put("displayValue", realValueList.getElementAt(i));
+						valuelistValues.add(map);
+					}
+					return new JSONArray(valuelistValues);
 				}
 				break;
 			}
