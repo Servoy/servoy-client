@@ -268,6 +268,11 @@ public class Debug
 
 	public static void error(String message, Throwable s)
 	{
+		if (s == null)
+		{
+			error(message);
+			return;
+		}
 		initIfFirstTime();
 		if (log == null) return;
 
