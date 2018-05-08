@@ -112,6 +112,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private LookupListModel filteredValuelist;
 	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
+	private boolean valuesRequested;
+
 	/**
 	 * Creates a new ValueListTypeSabloValue that is not ready yet for operation.<br/>
 	 * It will be initialized once it has everything it needs.
@@ -324,7 +326,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		// dataprovider will resolve this, do not send anything client side
-		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
+		if (propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return new ArrayList<Map<String, Object>>();
+		valuesRequested = false;
 
 		boolean removed = valueList.removeListDataListenerIfNeeded(this);
 
@@ -536,6 +539,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			return;
 		}
 
+		this.valuesRequested = true;
 		this.filterStringForResponse = filterString;
 		if (filteredValuelist == null)
 		{
