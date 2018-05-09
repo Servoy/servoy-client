@@ -63,12 +63,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 						return {then:function(then) {then("")}}
 					}, enumerable: false });
 				
-				Object.defineProperty(newValue, 'getValues', {
-					value: function(record) {
-						return $sabloApplication.callService('formService', 'getValuelistValues', {valuelist: internalState.valuelistid, record: record});
-					}, enumerable: false });					
-
-				
 				internalState.valuelistid = serverJSONValue.valuelistid 
 				// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 				// $sabloConverters setup
