@@ -589,7 +589,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		restrict: 'A',
 		link: function (scope:angular.IScope, element:JQuery, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs['svyEnter'],'keydown', $utils.testEnterKey, 100, false, true, attrs['ngModel']);
+			$utils.attachEventHandler($parse,element,scope,attrs['svyEnter'],'keydown', $utils.testEnterKey, 100, false, true, attrs['ngModel'] ? attrs['ngModel'] : element.parent().attr('ng-model'));
 		}
 	};
 }).directive('svyChange',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
