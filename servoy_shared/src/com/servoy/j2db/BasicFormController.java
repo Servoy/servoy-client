@@ -121,6 +121,7 @@ public abstract class BasicFormController
 	private PageFormat pageFormat = null;
 
 	private boolean didOnShowOnce = false;
+	private boolean didOnShowCall = false;
 	private boolean didOnload;
 	protected boolean executingOnLoad;
 
@@ -354,6 +355,7 @@ public abstract class BasicFormController
 							application.handleException(application.getI18NMessage("servoy.formPanel.error.showFormData"), e); //$NON-NLS-1$
 						}
 						executeOnShowMethod();
+						didOnShowCall = true;
 					}
 				}
 			};
@@ -364,7 +366,7 @@ public abstract class BasicFormController
 			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
 			isFormVisible = false;
 			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
-			if (allowHide)
+			if (allowHide && didOnShowCall)
 			{
 				allowHide = executeOnHideMethod();
 			}
@@ -379,6 +381,7 @@ public abstract class BasicFormController
 				getFormUI().changeFocusIfInvalid(invokeLaterRunnables);
 			}
 
+			didOnShowCall = false;
 			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 
 			// if form is destroyed in onHide or editRecordStopped..
@@ -706,8 +709,8 @@ public abstract class BasicFormController
 						testFindMode = Boolean.valueOf(!Utils.getAsBoolean(((Function)function).get("_AllowToRunInFind_", (Function)function))); //$NON-NLS-1$
 					}
 					ret = executeFunction((Function)function,
-						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))), scope,
-						scope, saveData, null, testFindMode.booleanValue(), false, methodProperty.getPropertyName(), false, true, false);
+						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))), scope, scope,
+						saveData, null, testFindMode.booleanValue(), false, methodProperty.getPropertyName(), false, true, false);
 				}
 			}
 			catch (Exception ex)
@@ -721,7 +724,7 @@ public abstract class BasicFormController
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-			throws Exception
+		throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
