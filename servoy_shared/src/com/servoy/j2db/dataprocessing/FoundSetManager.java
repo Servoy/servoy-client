@@ -81,6 +81,7 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
+import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -2770,6 +2771,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		try
 		{
 			ITable table = inMemDataSources.get(dataSource);
+
+			GlobalTransaction gt = getGlobalTransaction();
+			String tid = null;
+			if (gt != null)
+			{
+				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+			}
+
 			if (table != null)
 			{
 				// temp table was used before, delete all data in it
@@ -2777,20 +2786,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				foundSet.removeLastFound();
 				try
 				{
-					foundSet.deleteAllRecords();
+					QueryDelete delete = new QueryDelete(
+						new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+					SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
+						null);
+					application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
 				}
 				catch (Exception e)
 				{
 					Debug.log(e);
 					table = null;
 				}
-			}
-
-			GlobalTransaction gt = getGlobalTransaction();
-			String tid = null;
-			if (gt != null)
-			{
-				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
 			}
 
 
