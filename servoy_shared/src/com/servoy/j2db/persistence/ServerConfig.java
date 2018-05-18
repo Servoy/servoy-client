@@ -67,6 +67,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public static final int CONNECTION_EXCEPTION_VALIDATION = 0;
 	public static final int CONNECTION_METADATA_VALIDATION = 1;
 	public static final int CONNECTION_QUERY_VALIDATION = 2;
+	public static final int CONNECTION_DRIVER_VALIDATION = 3;
 	public static final int VALIDATION_TYPE_DEFAULT = CONNECTION_EXCEPTION_VALIDATION;
 
 	public static final String NONE = "<none>"; //$NON-NLS-1$
@@ -430,6 +431,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 				return "meta data validation"; //$NON-NLS-1$
 			case CONNECTION_QUERY_VALIDATION :
 				return "query validation"; //$NON-NLS-1$
+			case CONNECTION_DRIVER_VALIDATION :
+				return "driver based validation"; //$NON-NLS-1$
 			default :
 				return null;
 		}
