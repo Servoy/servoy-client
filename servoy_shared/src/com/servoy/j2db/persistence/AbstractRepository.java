@@ -333,6 +333,15 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return rootObjectCache != null;
 	}
 
+	public boolean isSolutionLoaded(String solutionName) throws RepositoryException
+	{
+		if (isRootObjectCacheInitialized())
+		{
+			return getRootObjectCache().isRootObjectCached(solutionName, IRepository.SOLUTIONS, 0);
+		}
+		return false;
+	}
+
 	protected RootObjectCache getRootObjectCache() throws RepositoryException
 	{
 		try
