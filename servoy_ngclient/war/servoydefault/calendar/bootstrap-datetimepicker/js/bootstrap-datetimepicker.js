@@ -1306,9 +1306,11 @@
                 }
 
                 if (handler) {
-                    handler.call(picker, widget);
-                    e.stopPropagation();
-                    e.preventDefault();
+                    if (handler.call(picker, widget) !== false)
+                    {
+                    	e.stopPropagation();
+                        e.preventDefault();
+                    }	
                 }
             },
 
@@ -2608,7 +2610,10 @@
                     this.date(d.clone().add(1, 'M'));
                 }
             },
-            enter: function () {
+            enter: function (widget) {
+            	if (!widget) {
+                     return false;
+                 }
                 this.hide();
             },
             escape: function () {

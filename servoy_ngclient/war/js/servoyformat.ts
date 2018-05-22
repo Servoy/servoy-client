@@ -533,9 +533,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
 					if (svyFormat.edit && element.is(":focus")) format = svyFormat.edit
 					try {
+						ngModelController.$setValidity("", true);
 						data = formatUtils.format(modelValue, format, type);
 					} catch (e) {
 						console.log(e)
+						ngModelController.$setValidity("", false);
 							//TODO set error state
 							//ngModelController.$error ..
 					}

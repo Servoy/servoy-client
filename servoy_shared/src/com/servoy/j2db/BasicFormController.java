@@ -124,6 +124,7 @@ public abstract class BasicFormController
 	private PageFormat pageFormat = null;
 
 	private boolean didOnShowOnce = false;
+	private boolean didOnShowCall = false;
 	private boolean didOnload;
 	protected boolean executingOnLoad;
 
@@ -383,6 +384,7 @@ public abstract class BasicFormController
 							application.handleException(application.getI18NMessage("servoy.formPanel.error.showFormData"), e); //$NON-NLS-1$
 						}
 						executeOnShowMethod();
+						didOnShowCall = true;
 					}
 				}
 			};
@@ -393,7 +395,7 @@ public abstract class BasicFormController
 			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
 			isFormVisible = false;
 			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
-			if (allowHide)
+			if (allowHide && didOnShowCall)
 			{
 				allowHide = executeOnHideMethod();
 			}
@@ -407,6 +409,8 @@ public abstract class BasicFormController
 				//if the focus owner becomes invalid after hiding the form, the focus needs to be changed
 				getFormUI().changeFocusIfInvalid(invokeLaterRunnables);
 			}
+
+			didOnShowCall = false;
 			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 
 			// if form is destroyed in onHide or editRecordStopped..
