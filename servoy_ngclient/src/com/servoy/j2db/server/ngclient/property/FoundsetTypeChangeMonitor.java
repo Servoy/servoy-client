@@ -30,6 +30,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -254,40 +255,50 @@ public class FoundsetTypeChangeMonitor
 
 	public void recordsDeleted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
 	{
-		int oldChangeFlags = changeFlags;
-
-		if (lastRow - firstRow >= 0) foundSetSizeChanged();
-		if (!shouldSendAll() && !shouldSendWholeViewPort())
+		if (firstRow == ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize &&
+			(firstRow + ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize < lastRow) &&
+			(viewPort.getStartIndex() + viewPort.getSize() - 1 <= lastRow))
 		{
-			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
+			// try to determine when foundset is changed by loadbyquery/loadallrecords, in this case we should not load the whole foundset based on old viewport data, we should reset the viewport to default values
+			viewPort.setPreferredViewportBounds();
+		}
+		else
+		{
+			int oldChangeFlags = changeFlags;
 
-			int slideBy;
-			if (firstRow < viewPort.getStartIndex())
+			if (lastRow - firstRow >= 0) foundSetSizeChanged();
+			if (!shouldSendAll() && !shouldSendWholeViewPort())
 			{
-				// this will adjust the viewPort startIndex (and size if needed)
-				slideBy = firstRow - Math.min(viewPort.getStartIndex(), lastRow + 1);
-			}
-			else
-			{
-				// this will adjust the viewPort size if needed (not enough records to insert in the viewPort to replace deleted ones)
-				slideBy = 0;
-			}
+				int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
 
-			if (belongsToInterval(firstRow, viewPort.getStartIndex(), viewPortEndIdx) || belongsToInterval(lastRow, viewPort.getStartIndex(), viewPortEndIdx))
-			{
-				// first row to be deleted inside current viewPort
-				int firstRowDeletedInViewport = Math.max(viewPort.getStartIndex(), firstRow);
-				int lastRowDeletedInViewport = Math.min(viewPortEndIdx, lastRow);
-				int relativeFirstRow = firstRowDeletedInViewport - viewPort.getStartIndex();
-				// number of deletes from current viewPort
-				int relativeLastRow = lastRowDeletedInViewport - viewPort.getStartIndex();
-				int numberOfDeletes = lastRowDeletedInViewport - firstRowDeletedInViewport + 1;
+				int slideBy;
+				if (firstRow < viewPort.getStartIndex())
+				{
+					// this will adjust the viewPort startIndex (and size if needed)
+					slideBy = firstRow - Math.min(viewPort.getStartIndex(), lastRow + 1);
+				}
+				else
+				{
+					// this will adjust the viewPort size if needed (not enough records to insert in the viewPort to replace deleted ones)
+					slideBy = 0;
+				}
 
-				// adjust viewPort bounds if necessary
+				if (belongsToInterval(firstRow, viewPort.getStartIndex(), viewPortEndIdx) ||
+					belongsToInterval(lastRow, viewPort.getStartIndex(), viewPortEndIdx))
+				{
+					// first row to be deleted inside current viewPort
+					int firstRowDeletedInViewport = Math.max(viewPort.getStartIndex(), firstRow);
+					int lastRowDeletedInViewport = Math.min(viewPortEndIdx, lastRow);
+					int relativeFirstRow = firstRowDeletedInViewport - viewPort.getStartIndex();
+					// number of deletes from current viewPort
+					int relativeLastRow = lastRowDeletedInViewport - viewPort.getStartIndex();
+					int numberOfDeletes = lastRowDeletedInViewport - firstRowDeletedInViewport + 1;
+
+					// adjust viewPort bounds if necessary
 //				int oldViewPortStart = viewPort.getStartIndex();
-				int oldViewPortSize = viewPort.getSize();
+					int oldViewPortSize = viewPort.getSize();
 
-				// TODO merge changes with previous ones without keeping any actual data (indexes kept in a way should be enough) - implementation started below
+					// TODO merge changes with previous ones without keeping any actual data (indexes kept in a way should be enough) - implementation started below
 //				// ok, viewPort bounds are updated; update existing recordChange data if needed; we are working here a lot with viewPort relative indexes (both client side and server side ones)
 //				ListIterator<RecordChangeDescriptor> iterator = viewPortRecordChanges.listIterator();
 //				int browserViewPortIdxDelta = 0; // delta between the current client side viewPort data relative "i" index and the old server viewPort relative "i" index
@@ -326,28 +337,29 @@ public class FoundsetTypeChangeMonitor
 //					toBeDeleted++;
 //				}
 
-				viewPort.slideAndCorrect(slideBy);
-				viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1; // update
+					viewPort.slideAndCorrect(slideBy);
+					viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1; // update
 
-				// add new records if available
-				// we need to replace same amount of records in current viewPort; append rows if available
-				for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
+					// add new records if available
+					// we need to replace same amount of records in current viewPort; append rows if available
+					for (ViewportDataChangeMonitor< ? > vpdcm : viewPortDataChangeMonitors)
+					{
+						vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx,
+							propertyValue.getFoundset(), RowData.DELETE);
+					}
+				}
+				else if (slideBy != 0)
 				{
-					vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx,
-						propertyValue.getFoundset(), RowData.DELETE);
+					viewPort.slideAndCorrect(slideBy);
 				}
 			}
-			else if (slideBy != 0)
+			else if (viewPort.getSize() > propertyValue.getFoundset().getSize())
 			{
-				viewPort.slideAndCorrect(slideBy);
+				// if it will already send the whole viewport then the size needs to be in sync with the foundset.
+				viewPort.correctAndSetViewportBoundsInternal(viewPort.getStartIndex(), viewPort.getSize());
 			}
+			if (oldChangeFlags != changeFlags) notifyChange();
 		}
-		else if (viewPort.getSize() > propertyValue.getFoundset().getSize())
-		{
-			// if it will already send the whole viewport then the size needs to be in sync with the foundset.
-			viewPort.correctAndSetViewportBoundsInternal(viewPort.getStartIndex(), viewPort.getSize());
-		}
-		if (oldChangeFlags != changeFlags) notifyChange();
 	}
 
 	public void extendClientViewport(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
