@@ -479,7 +479,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 							vSvyFormat.percent, vElement, vSvyFormat.maxLength);
 				}
 			} else if (vSvyFormat.type == "NUMBER" || ((vSvyFormat.type == "TEXT") && vSvyFormat.isNumberValidator)) {
-				var currentLanguageNumeralSymbols = vElement.localeData();
+				var currentLanguageNumeralSymbols = numeral.localeData();
 				
 				if(keyChar == undefined) {
 					return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
