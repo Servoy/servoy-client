@@ -65,7 +65,7 @@ public class FoundsetTypeViewport
 		changeMonitor.viewPortCompletelyChanged();
 	}
 
-	private void setPreferredViewportBounds()
+	public void setPreferredViewportBounds()
 	{
 		sendingInitialPreferredViewport = true;
 
