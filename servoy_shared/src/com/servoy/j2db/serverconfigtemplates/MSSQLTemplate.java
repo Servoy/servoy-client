@@ -26,11 +26,11 @@ import com.servoy.j2db.util.Utils;
  */
 public class MSSQLTemplate extends ServerTemplateDefinition
 {
-	private final String urlPattern = "jdbc:sqlserver://<host_name>:1433;DatabaseName=<database_name>;SelectMethod=cursor";
+	private final String urlPattern = "jdbc:sqlserver://<host_name>:1433;DatabaseName=<database_name>;SelectMethod=direct";
 
 	public MSSQLTemplate()
 	{
-		super(new ServerConfig("new_mssql", "sa", "", "jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=cursor", null,
+		super(new ServerConfig("new_mssql", "sa", "", "jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=direct", null,
 			"com.microsoft.sqlserver.jdbc.SQLServerDriver", null, null, true, false, null));
 	}
 
