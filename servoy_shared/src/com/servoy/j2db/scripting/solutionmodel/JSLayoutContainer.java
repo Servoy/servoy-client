@@ -36,7 +36,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
-public class JSLayoutContainer extends JSBaseContainer implements IJSParent<LayoutContainer>, IJavaScriptType
+public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType
 {
 	private LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
