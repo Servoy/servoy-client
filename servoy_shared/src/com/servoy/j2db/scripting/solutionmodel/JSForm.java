@@ -69,7 +69,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSForm")
-public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
+public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
 {
 	private Form form;
 	private final IApplication application;
