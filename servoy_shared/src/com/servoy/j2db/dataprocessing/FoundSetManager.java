@@ -1464,7 +1464,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					QueryTable qTable = (QueryTable)o;
 					for (TableFilter filter : serverFilters)
 					{
-						if (filter.getTableSQLName().equals(qTable.getName()))
+						if (Utils.stringSafeEquals(filter.getTableSQLName(), qTable.getName()))
 						{
 							if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 							{
