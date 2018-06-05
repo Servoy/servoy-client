@@ -175,6 +175,9 @@ public class WebServiceScriptable implements Scriptable
 			execScope.put("console", execScope,
 				new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope, ConsoleObject.class)));
 
+			execScope.put("servoyApi", execScope,
+				new NativeJavaObject(execScope, new ServoyApiObject(app), new InstanceJavaMembers(execScope, ServoyApiObject.class)));
+
 			getScript(context, serverScript, app).exec(context, execScope);
 			apiObject.setPrototype(model);
 		}
