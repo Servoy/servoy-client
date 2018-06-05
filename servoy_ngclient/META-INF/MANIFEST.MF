@@ -25,7 +25,7 @@ Require-Bundle: servoy_shared,
  org.jsoup,
  org.freemarker.freemarker,
  commons-lang3
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
 Import-Package: javax.servlet,
@@ -36,3 +36,4 @@ Import-Package: javax.servlet,
  org.osgi.framework
 Bundle-Activator: com.servoy.j2db.server.ngclient.startup.Activator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: servoy_ngclient

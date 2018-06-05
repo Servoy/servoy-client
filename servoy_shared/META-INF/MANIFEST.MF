@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
 Bundle-Version: 8.4.0.3400_b1
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
  lib/annotations-1.0.jar,
@@ -271,3 +271,4 @@ Import-Package: javax.servlet,
  org.sablo.specification.property.types,
  org.sablo.websocket.utils,
  org.w3c.dom
+Automatic-Module-Name: servoy_shared

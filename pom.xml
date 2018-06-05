@@ -10,11 +10,11 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>1.1.0</tycho.version>
-		<tycho.extra.version>1.1.0</tycho.extra.version>
+		<tycho.version>1.2.0</tycho.version>
+		<tycho.extra.version>1.2.0</tycho.extra.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<servoy-repo.url>http://download.eclipse.org/eclipse/updates/4.8milestones/S-4.8RC2-201805240900/</servoy-repo.url>
 		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins84/</servoy-shiplibs.url>
 	</properties>
