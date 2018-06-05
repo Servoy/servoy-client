@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jabsorb.serializer.MarshallException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -98,6 +100,7 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
+import com.servoy.j2db.util.serialize.JSONSerializerWrapper;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 import com.servoy.j2db.util.xmlxport.TableDef;
@@ -1461,7 +1464,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					QueryTable qTable = (QueryTable)o;
 					for (TableFilter filter : serverFilters)
 					{
-						if (filter.getTableSQLName().equals(qTable.getName()))
+						if (Utils.stringSafeEquals(filter.getTableSQLName(), qTable.getName()))
 						{
 							if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 							{
@@ -2725,7 +2728,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
-		if (columnsDef != null)
+		boolean[] rowsToStringserialize = null;
+		if (columnsDef == null)
+		{
+			// if we have array columns, convert values using StringSerializer
+			if (containsArrayType(fixedColumnTypes))
+			{
+				rowsToStringserialize = new boolean[fixedColumnTypes.length];
+				for (int i = 0; i < fixedColumnTypes.length; i++)
+				{
+					ColumnType columnType = fixedColumnTypes[i];
+					if (columnType.getSqlType() == Types.ARRAY)
+					{
+						fixedColumnTypes[i] = ColumnType.getColumnType(IColumnTypes.TEXT);
+						rowsToStringserialize[i] = true;
+					}
+				}
+			}
+		}
+		else
 		{
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
 			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>();
@@ -2742,7 +2763,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					inmemPKs.add(cid.name);
 				}
 				columnInfoDefinitions.put(cid.name, cid);
+
+				// apply stringserializer on designed datasources
+				if (JSONSerializerWrapper.STRING_SERIALIZER_NAME.equals(cid.converterName))
+				{
+					if (rowsToStringserialize == null)
+					{
+						rowsToStringserialize = new boolean[fixedColumnTypes.length];
+					}
+					rowsToStringserialize[j] = true;
+				}
 			}
+
 			if (pkNames == null && inmemPKs.size() > 0)
 			{
 				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
@@ -2770,6 +2802,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (fixedDataSet.getRowCount() > 0 && fixedDataSet.getRow(0).length != fixedDataSet.getColumnCount())
 		{
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
+		}
+
+		if (rowsToStringserialize != null)
+		{
+			replaceValuesWithSerializedString(dataSet, rowsToStringserialize);
 		}
 
 		try
@@ -2833,6 +2870,47 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RepositoryException(e);
 		}
 		return null;
+	}
+
+	private static void replaceValuesWithSerializedString(IDataSet dataSet, boolean[] rowsToStringserialize)
+	{
+		// run stringserializer over the rows
+		JSONSerializerWrapper stringserializer = new JSONSerializerWrapper(false);
+		for (int r = 0; r < dataSet.getRowCount(); r++)
+		{
+			Object[] row = dataSet.getRow(r).clone();
+			for (int i = 0; i < rowsToStringserialize.length; i++)
+			{
+				if (rowsToStringserialize[i] && row[i] != null && !(row[i] instanceof String))
+				{
+					// the data was not a string (so not pre-serialized from js), run it through the stringserializer.
+					try
+					{
+						row[i] = stringserializer.toJSON(row[i]).toString();
+					}
+					catch (MarshallException e)
+					{
+						Debug.warn(e);
+					}
+				}
+			}
+			dataSet.setRow(r, row);
+		}
+	}
+
+	private static boolean containsArrayType(ColumnType[] columnTypes)
+	{
+		if (columnTypes != null)
+		{
+			for (ColumnType columnType : columnTypes)
+			{
+				if (columnType.getSqlType() == Types.ARRAY)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean removeDataSource(String uri) throws RepositoryException
