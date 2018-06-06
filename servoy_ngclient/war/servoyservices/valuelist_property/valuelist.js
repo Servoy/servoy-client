@@ -38,7 +38,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 				internalState.realToDisplayCache = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL])?currentClientValue[$sabloConverters.INTERNAL_IMPL].realToDisplayCache:{};
 				Object.defineProperty(newValue, 'getDisplayValue', {
 					value: function(realValue) {
-						if (realValue) {
+						if (realValue!= null && realValue != undefined) {
 							if(internalState.valuelistid == undefined) {
 								return {then:function(then) {then(realValue)}};
 							}
