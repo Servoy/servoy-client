@@ -3,9 +3,9 @@
 	 id="{{::model.svyMarkupId}}">
   <label class='svy-check-radio'
          ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')">
-         <input type="radio" ng-model="model.dataProviderID"  
+         <input type="radio" ng-model="value[0]"  
            ng-value="item.realValue"  
-	       ng-click="radioClicked($event)"  
+	       ng-click="radioClicked($event,item.realValue)"  
 	       ng-disabled="model.enabled == false || model.editable == false" 
 	       sablo-tabseq='model.tabSeq'
 	       svy-click='handlers.onActionMethodID($event)'

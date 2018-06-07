@@ -268,6 +268,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	private boolean destroyOnHide;
+	private boolean readOnly = false;
 
 	@Override
 	public void destroy()
@@ -387,6 +388,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	@Override
 	public void setReadOnly(boolean b)
+	{
+		readOnly = b;
+		applyReadOnly(b);
+	}
+
+	private void applyReadOnly(boolean b)
 	{
 		if (b) stopUIEditing(true);
 		formUI.setReadOnly(b);
@@ -854,5 +861,22 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			return !pfc.isDestroyed();
 		}
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
+	 */
+	@Override
+	public void pushParentReadOnly(boolean b)
+	{
+		applyReadOnly(readOnly || b);
+	}
+
+	@Override
+	public boolean isReadOnly()
+	{
+		return super.isReadOnly() || readOnly;
 	}
 }
