@@ -18,11 +18,14 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONObject;
 import org.sablo.websocket.WebsocketEndpoint;
 
+import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -50,6 +53,31 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	}
 
 	@Override
+	public void onStart()
+	{
+		try
+		{
+			Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormUrls", //$NON-NLS-1$
+				new Object[0]);
+			if (formsOnClient instanceof JSONObject)
+			{
+				JSONObject json = (JSONObject)formsOnClient;
+				for (String formName : json.keySet())
+				{
+					if (!formsOnClientForThisEndpoint.containsKey(formName))
+					{
+						addFormIfAbsent(formName, json.getString(formName));
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	@Override
 	public boolean addFormIfAbsent(String formName, String formUrl)
 	{
 		return formsOnClientForThisEndpoint.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null;
@@ -64,22 +92,25 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	@Override
 	public String getFormUrl(String formName)
 	{
-		return formsOnClientForThisEndpoint.containsKey(formName) ? formsOnClientForThisEndpoint.get(formName).getLeft() : null;
+		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
+		return pair != null ? pair.getLeft() : null;
 	}
 
 	@Override
 	public void setAttachedToDOM(String formName, boolean attached)
 	{
-		if (formsOnClientForThisEndpoint.containsKey(formName))
+		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
+		if (pair != null)
 		{
-			formsOnClientForThisEndpoint.get(formName).setRight(Boolean.valueOf(attached));
+			pair.setRight(Boolean.valueOf(attached));
 		}
 	}
 
 	@Override
 	public boolean isFormAttachedToDOM(String formName)
 	{
-		return formsOnClientForThisEndpoint.containsKey(formName) && formsOnClientForThisEndpoint.get(formName).getRight().booleanValue();
+		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
+		return pair != null ? pair.getRight().booleanValue() : false;
 	}
 
 }

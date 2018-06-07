@@ -256,6 +256,10 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			} );
 
 			var self: servoy.IWindowService = {
+					
+				getLoadedFormUrls:function () {
+						return formTemplateUrls;
+					},
 				create: function( name, type ) {
 					// dispose old one
 					if ( instances[name] ) {

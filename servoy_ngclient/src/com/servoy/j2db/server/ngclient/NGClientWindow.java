@@ -245,7 +245,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
 		}
-		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, false).getLeft();
+		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
@@ -314,7 +314,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		try
 		{
-			Pair<String, Boolean> urlAndCopyState = getRealFormURLAndSeeIfItIsACopy(form, realFormName, true);
+			Pair<String, Boolean> urlAndCopyState = getRealFormURLAndSeeIfItIsACopy(form, realFormName);
 			final String realUrl = urlAndCopyState.getLeft();
 			boolean copy = urlAndCopyState.getRight().booleanValue();
 
@@ -324,11 +324,10 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 			// update endpoint URL if needed
 			String previousURL = getEndpoint().getFormUrl(realFormName);
-			String realURLWithoutSessionId = dropSessionIdFrom(realUrl);
-			if (previousURL != null && !realURLWithoutSessionId.equals(previousURL))
+			if (previousURL != null && !realUrl.equals(previousURL))
 			{
 				getEndpoint().formDestroyed(realFormName);
-				getEndpoint().addFormIfAbsent(realFormName, realURLWithoutSessionId);
+				getEndpoint().addFormIfAbsent(realFormName, realUrl);
 			}
 
 			CurrentWindow.runForWindow(this, new Runnable()
@@ -370,22 +369,17 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		String clientUsedFormURL = getEndpoint().getFormUrl(realName);
 		if (clientUsedFormURL == null)
 		{
-			clientUsedFormURL = getDefaultFormURLStart(flattenedForm, realName);
+			// need to add the session id to the default, because all urls will have that (also the one from the end point)
+			clientUsedFormURL = getDefaultFormURLStart(flattenedForm, realName) + "?sessionId=" + getSession().getUuid();
 		}
 		if (clientUsedFormURL != null)
 		{
-			changed = !clientUsedFormURL.equals(getRealFormURLAndSeeIfItIsACopy(flattenedForm, realName, false).getLeft());
+			changed = !clientUsedFormURL.equals(getRealFormURLAndSeeIfItIsACopy(flattenedForm, realName).getLeft());
 		}
 		return changed;
 	}
 
-	protected String dropSessionIdFrom(String realNewURL)
-	{
-		// drop the "?sessionId=...." or "&sessionId=..." when comparing cause those are not part of end-point kept URLs
-		return realNewURL.substring(0, realNewURL.indexOf("sessionId=") - 1);
-	}
-
-	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName, boolean addSessionID)
+	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName)
 	{
 		FlattenedSolution fs = getSession().getClient().getFlattenedSolution();
 		Solution sc = fs.getSolutionCopy(false);
@@ -394,16 +388,16 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (sc != null && sc.getChild(form.getUUID()) != null)
 		{
-			realUrl = realUrl + "?lm:" + form.getLastModified() + (addSessionID ? "&sessionId=" + getSession().getUuid() : "");
+			realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getSession().getUuid();
 			copy = true;
 		}
 		else if (!form.getName().endsWith(realFormName))
 		{
-			realUrl = realUrl + "?lm:" + form.getLastModified() + (addSessionID ? "&sessionId=" + getSession().getUuid() : "");
+			realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getSession().getUuid();
 		}
 		else
 		{
-			realUrl = realUrl + (addSessionID ? "?sessionId=" + getSession().getUuid() : "");
+			realUrl = realUrl + "?sessionId=" + getSession().getUuid();
 		}
 
 		return new Pair<String, Boolean>(realUrl, Boolean.valueOf(copy));
@@ -413,16 +407,15 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
 		/**
-		 * we should not check for hasForm here, as the endpoint may have been recreated because of
-		 * network disconnect/reconnect, and then if this form was sent already before, now it will
-		 * report as it was not, and so, the updateController won't be performed, and the changes made
-		 * via solution model won't be shown
+		 * we should have to  check for hasForm here, because we shouldn push a recreatedUI form when it is not
+		 * on the client. Because it could be not visible again and not have all the data, then the next time the touch will
+		 * just fully ignore it.
 		 */
-//		if (hasForm(name))
-//		{
-		// if form was not sent to client, do not send now; this is just recreateUI
-		updateController(form, name, false, formTemplateGenerator);
-//		}
+		if (hasForm(name))
+		{
+			// if form was not sent to client, do not send now; this is just recreateUI
+			updateController(form, name, false, formTemplateGenerator);
+		}
 	}
 
 	@Override
