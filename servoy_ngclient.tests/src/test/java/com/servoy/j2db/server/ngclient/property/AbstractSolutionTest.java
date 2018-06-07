@@ -415,7 +415,14 @@ public abstract class AbstractSolutionTest
 			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
-			endpoint = new NGClientEndpoint();
+			endpoint = new NGClientEndpoint()
+			{
+				// for testing onstart of the BaseNGClientEndpoint should not run
+				@Override
+				public void onStart()
+				{
+				};
+			};
 			endpoint.start(new Session()
 			{
 				@Override
