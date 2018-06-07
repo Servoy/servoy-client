@@ -64,22 +64,25 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	@Override
 	public String getFormUrl(String formName)
 	{
-		return formsOnClientForThisEndpoint.containsKey(formName) ? formsOnClientForThisEndpoint.get(formName).getLeft() : null;
+		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
+		return pair != null ? pair.getLeft() : null;
 	}
 
 	@Override
 	public void setAttachedToDOM(String formName, boolean attached)
 	{
-		if (formsOnClientForThisEndpoint.containsKey(formName))
+		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
+		if (pair != null)
 		{
-			formsOnClientForThisEndpoint.get(formName).setRight(Boolean.valueOf(attached));
+			pair.setRight(Boolean.valueOf(attached));
 		}
 	}
 
 	@Override
 	public boolean isFormAttachedToDOM(String formName)
 	{
-		return formsOnClientForThisEndpoint.containsKey(formName) && formsOnClientForThisEndpoint.get(formName).getRight().booleanValue();
+		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
+		return pair != null ? pair.getRight().booleanValue() : false;
 	}
 
 }
