@@ -18,11 +18,14 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONObject;
 import org.sablo.websocket.WebsocketEndpoint;
 
+import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -47,6 +50,31 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	public BaseNGClientEndpoint(String endpointType)
 	{
 		super(endpointType);
+	}
+
+	@Override
+	public void onStart()
+	{
+		try
+		{
+			Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormUrls", //$NON-NLS-1$
+				new Object[0]);
+			if (formsOnClient instanceof JSONObject)
+			{
+				JSONObject json = (JSONObject)formsOnClient;
+				for (String formName : json.keySet())
+				{
+					if (!formsOnClientForThisEndpoint.containsKey(formName))
+					{
+						addFormIfAbsent(formName, json.getString(formName));
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
