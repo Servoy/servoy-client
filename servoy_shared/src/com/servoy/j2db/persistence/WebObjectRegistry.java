@@ -47,7 +47,7 @@ public class WebObjectRegistry
 	{
 		if (trackedWebObjects != null)
 		{
-			for (WebObjectImpl webObject : trackedWebObjects)
+			for (WebObjectImpl webObject : trackedWebObjects.toArray(new WebObjectImpl[0]))
 			{
 				webObject.reload();
 			}
