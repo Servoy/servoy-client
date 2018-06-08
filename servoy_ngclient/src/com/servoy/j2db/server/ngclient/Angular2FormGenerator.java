@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -227,6 +229,12 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			{
 				// write component properties is not called so do register the container here with the current window.
 				CurrentWindow.get().registerContainer(formUI);
+
+				// add default navigator
+				if (context.getForm().getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT)
+				{
+					visit(DefaultNavigator.INSTANCE);
+				}
 			}
 		}
 
@@ -272,18 +280,22 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
 					writer.value(mapOnDefaultForDebug(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o))));
 				}
-				writer.key("position");
-				writer.object();
-				writer.key("left");
-				writer.value(((IFormElement)o).getLocation().x + "px");
-				writer.key("top");
-				writer.value(((IFormElement)o).getLocation().y + "px");
-				writer.key("width");
-				writer.value(((IFormElement)o).getSize().width + "px");
-
-				writer.key("height");
-				writer.value(((IFormElement)o).getSize().height + "px");
-				writer.endObject();
+				Point location = ((IFormElement)o).getLocation();
+				Dimension size = ((IFormElement)o).getSize();
+				if (location != null && size != null)
+				{
+					writer.key("position");
+					writer.object();
+					writer.key("left");
+					writer.value(location.x + "px");
+					writer.key("top");
+					writer.value(location.y + "px");
+					writer.key("width");
+					writer.value(size.width + "px");
+					writer.key("height");
+					writer.value(size.height + "px");
+					writer.endObject();
+				}
 				writer.key("model");
 				writer.object();
 				if (formUI != null)
