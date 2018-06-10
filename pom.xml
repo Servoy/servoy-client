@@ -30,6 +30,11 @@
 			<url>${servoy-shiplibs.url}</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>developer_repo</id>
+			<name>developer_repo</name>
+			<url>http://developer.servoy.com/mvn_repository/</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -88,8 +93,6 @@
 							<groupId>javax.jnlp</groupId>
 							<artifactId>jnlp-api</artifactId>
 							<version>8.0</version>
-							<scope>system</scope>
-							<systemPath>${java.home}/lib/javaws.jar</systemPath>
 						</dependency>
 					</extraClasspathElements>
 				</configuration>
