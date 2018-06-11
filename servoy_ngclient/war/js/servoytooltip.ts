@@ -129,7 +129,7 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 
 			var tDiv = getTooltipDiv();
 			tDiv.innerHTML = message;
-			tDiv.style.zIndex = 1000;
+			tDiv.style.zIndex = 1600;
 			tDiv.style.width = "";
 			tDiv.style.overflow = "hidden";
 			

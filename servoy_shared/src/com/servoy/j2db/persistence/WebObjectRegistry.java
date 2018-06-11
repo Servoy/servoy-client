@@ -28,7 +28,7 @@ import com.servoy.j2db.util.WeakHashSet;
 public class WebObjectRegistry
 {
 
-	private static WeakHashSet<WebObjectImpl> trackedWebObjects = null;
+	private static volatile WeakHashSet<WebObjectImpl> trackedWebObjects = null;
 
 	public static void startTracking()
 	{
@@ -39,7 +39,10 @@ public class WebObjectRegistry
 	{
 		if (trackedWebObjects != null)
 		{
-			trackedWebObjects.add(webObject);
+			synchronized (trackedWebObjects)
+			{
+				trackedWebObjects.add(webObject);
+			}
 		} // else we are not tracking anything; probably running in client
 	}
 
@@ -47,7 +50,12 @@ public class WebObjectRegistry
 	{
 		if (trackedWebObjects != null)
 		{
-			for (WebObjectImpl webObject : trackedWebObjects.toArray(new WebObjectImpl[0]))
+			WebObjectImpl[] array;
+			synchronized (trackedWebObjects)
+			{
+				array = trackedWebObjects.toArray(new WebObjectImpl[0]);
+			}
+			for (WebObjectImpl webObject : array)
 			{
 				webObject.reload();
 			}

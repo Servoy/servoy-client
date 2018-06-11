@@ -19,6 +19,7 @@
 		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins84/</servoy-shiplibs.url>
 	</properties>
 
+	
 	<repositories>
 		<repository>
 			<id>servoy</id>
@@ -29,6 +30,11 @@
 			<id>servoy_shiblibs</id>
 			<url>${servoy-shiplibs.url}</url>
 			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>developer_repo</id>
+			<name>developer_repo</name>
+			<url>http://developer.servoy.com/mvn_repository/</url>
 		</repository>
 	</repositories>
 
@@ -88,8 +94,6 @@
 							<groupId>javax.jnlp</groupId>
 							<artifactId>jnlp-api</artifactId>
 							<version>8.0</version>
-							<scope>system</scope>
-							<systemPath>${java.home}/lib/javaws.jar</systemPath>
 						</dependency>
 					</extraClasspathElements>
 				</configuration>
