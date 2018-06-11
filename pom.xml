@@ -19,6 +19,7 @@
 		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/</servoy-shiplibs.url>
 	</properties>
 
+	
 	<repositories>
 		<repository>
 			<id>servoy</id>
