@@ -220,7 +220,7 @@ angular.module('window',['servoy'])
 			getElementById(component).then(function(relatedElement)
 			{
 				var body = $('body');
-				var style = 'position:absolute;z-index:999;';
+				var style = 'position:absolute;z-index:1499;';
 				var left = $( window ).width() /2;
 				var top = $( window ).height() /2;
 				var position = null;
@@ -268,6 +268,12 @@ angular.module('window',['servoy'])
 							cancelFormPopup();
 							return;
 						}
+						 mainform = angular.element(".svy-dialog");
+						 if (mainform && mainform.find(event.target).length > 0 )
+						 {
+							 cancelFormPopup();
+							 return;
+						 }
 					});
 				},300);
 				body.append(popup);
@@ -398,7 +404,7 @@ angular.module('window',['servoy'])
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
-			var settings = {zIndex : 1000};
+			var settings = {zIndex : 1500};
 			var classname;
 			if (newvalue.popupMenus && newvalue.popupMenuShowCommand.popupName)
 			{
