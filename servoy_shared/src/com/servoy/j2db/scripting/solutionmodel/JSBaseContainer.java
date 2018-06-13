@@ -279,11 +279,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			{
 				if (o instanceof LayoutContainer && name.equals(((LayoutContainer)o).getName()))
 				{
-					JSBaseContainer<?> topContainer = JSBaseContainer.this;
 					LayoutContainer lc = (LayoutContainer)o;
-					topContainer = getParentContainer(topContainer, lc, application);
-
-					return application.getScriptEngine().getSolutionModifier().createLayoutContainer(topContainer, lc);
+					return application.getScriptEngine().getSolutionModifier().createLayoutContainer(getCorrectIJSParent(JSBaseContainer.this, lc), lc);
 				}
 				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
@@ -1919,7 +1916,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 				WebComponent webComponent = webComponents.next();
 				if (name.equals(webComponent.getName()))
 				{
-					return createWebComponent(this, webComponent, application, false);
+					return createWebComponent(getCorrectIJSParent(this, webComponent), webComponent, application, false);
 				}
 			}
 		}
@@ -1954,10 +1951,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			{
 				if (o instanceof WebComponent && name.equals(((WebComponent)o).getName()))
 				{
-					JSBaseContainer<?> topContainer = JSBaseContainer.this;
-					WebComponent wc = (WebComponent)o;
-					topContainer = getParentContainer(topContainer, wc, application);
-					return createWebComponent(topContainer, wc, application, false);
+					return createWebComponent(getCorrectIJSParent(JSBaseContainer.this, o), (WebComponent)o, application, false);
 				}
 				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
@@ -2035,7 +2029,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * @param possiblyNestedChild nested child component
 	 * @return the direct parent (IJSParent) of the given webComponent.
 	 */
-	private IJSParent< ? > getCorrectIJSParent(JSBaseContainer< ? > startingContainer, WebComponent possiblyNestedChild)
+	private IJSParent< ? > getCorrectIJSParent(JSBaseContainer< ? > startingContainer, IPersist possiblyNestedChild)
 	{
 		ArrayDeque<ISupportChilds> parentStack = new ArrayDeque<>();
 		parentStack.push(possiblyNestedChild.getParent());
@@ -2107,30 +2101,5 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		{
 			return new JSWebComponent(parent, baseComponent, application, isNew);
 		}
-	}
-
-	private static JSBaseContainer<?> getParentContainer(JSBaseContainer<?> topContainer, IPersist lc, IApplication application)
-	{
-		ArrayList<ISupportChilds> parentHierarchy = new ArrayList<>();
-		ISupportChilds parent = lc.getParent();
-		while (parent != topContainer.getContainer() && !(parent instanceof Form))
-		{
-			parentHierarchy.add(parent);
-			parent = parent.getParent();
-		}
-		for (int i = parentHierarchy.size(); --i >= 0;)
-		{
-			ISupportChilds container = parentHierarchy.get(i);
-			if (container instanceof LayoutContainer)
-			{
-				topContainer = application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)topContainer,
-					(LayoutContainer)container);
-			}
-			else
-			{
-				throw new RuntimeException("unexpected parent: " + container); //$NON-NLS-1$
-			}
-		}
-		return topContainer;
 	}
 }
