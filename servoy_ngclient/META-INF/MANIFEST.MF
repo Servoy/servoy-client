@@ -21,7 +21,7 @@ Require-Bundle: servoy_shared,
  servoy_headless_client,
  org.apache.tomcat,
  org.slf4j.api;bundle-version="1.7.2",
- org.apache.commons.io,
+ org.apache.commons.io;bundle-version="2.6.0",
  org.jsoup,
  org.freemarker.freemarker,
  commons-lang3

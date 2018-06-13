@@ -22,7 +22,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -34,7 +33,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.geom.Area;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -501,8 +499,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			Border styleBorder = getBorder(jtable, isSelected, row);
 			if (styleBorder != null && editor instanceof JComponent)
 			{
-				styleBorder = new ReducedBorder(styleBorder, 0);
-
 				if (editor instanceof AbstractButton && !((AbstractButton)editor).isBorderPainted())
 				{
 					((AbstractButton)editor).setBorderPainted(true);
@@ -1086,10 +1082,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private void applyRowBorder(JComponent component, JTable jtable, boolean isSelected, int row, boolean hasFocus)
 	{
 		Border styleBorder = getBorder(jtable, isSelected, row);
+		boolean hasStyleBorder = false;
 		if (styleBorder != null)
 		{
-			styleBorder = new ReducedBorder(styleBorder, 0);
-
+			hasStyleBorder = true;
 			if (component instanceof AbstractButton && !((AbstractButton)component).isBorderPainted())
 			{
 				((AbstractButton)component).setBorderPainted(true);
@@ -1115,7 +1111,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		if (!hasFocus)
 		{
-			if (styleBorder instanceof ReducedBorder && marginBorder != null)
+			if (hasStyleBorder && marginBorder != null)
 			{
 				styleBorder = new CompoundBorder(styleBorder, marginBorder);
 			}
@@ -1126,7 +1122,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			adjustedBorder = UIManager.getBorder("Table.focusCellHighlightBorder"); //$NON-NLS-1$
 			if (styleBorder != null)
 			{
-				if (styleBorder instanceof ReducedBorder)
+				if (hasStyleBorder)
 				{
 					if (marginBorder != null)
 					{
@@ -1887,73 +1883,4 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		// ignore
 	}
 
-	class ReducedBorder implements Border
-	{
-		public static final int LEFT = 2;
-		public static final int RIGHT = 4;
-		public static final int TOP = 8;
-		public static final int BOTTOM = 16;
-
-		private final Border sourceBorder;
-		private final int hideMask;
-
-		ReducedBorder(Border sourceBorder, int hideMask)
-		{
-			this.sourceBorder = sourceBorder;
-			this.hideMask = hideMask;
-		}
-
-		/*
-		 * @see javax.swing.border.Border#paintBorder(java.awt.Component, java.awt.Graphics, int, int, int, int)
-		 */
-		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height)
-		{
-			Insets sourceBorderInsets = sourceBorder.getBorderInsets(c);
-			Area borderClip = new Area(new Rectangle(x, y, width, height));
-			if ((hideMask & LEFT) != 0)
-			{
-				borderClip.subtract(new Area(
-					new Rectangle(x, y + sourceBorderInsets.top, sourceBorderInsets.left, height - sourceBorderInsets.top - sourceBorderInsets.bottom)));
-			}
-			if ((hideMask & RIGHT) != 0)
-			{
-				borderClip.subtract(new Area(new Rectangle(x + width - sourceBorderInsets.right, y + sourceBorderInsets.top, sourceBorderInsets.right,
-					height - sourceBorderInsets.top - sourceBorderInsets.bottom)));
-			}
-			if ((hideMask & TOP) != 0)
-			{
-				borderClip.subtract(new Area(
-					new Rectangle(x + sourceBorderInsets.left, y, width - sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.top)));
-			}
-			if ((hideMask & BOTTOM) != 0)
-			{
-				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y + height - sourceBorderInsets.bottom,
-					width - sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.bottom)));
-			}
-			g.setClip(borderClip);
-			sourceBorder.paintBorder(c, g, x, y, width, height);
-		}
-
-		/*
-		 * @see javax.swing.border.Border#getBorderInsets(java.awt.Component)
-		 */
-		public Insets getBorderInsets(Component c)
-		{
-			Insets sourceBorderInsets = sourceBorder.getBorderInsets(c);
-			int left = (hideMask & LEFT) != 0 ? 0 : sourceBorderInsets.left;
-			int right = (hideMask & RIGHT) != 0 ? 0 : sourceBorderInsets.right;
-			int top = (hideMask & TOP) != 0 ? 0 : sourceBorderInsets.top;
-			int bottom = (hideMask & BOTTOM) != 0 ? 0 : sourceBorderInsets.bottom;
-
-			return new Insets(top, left, bottom, right);
-		}
-
-		/*
-		 * @see javax.swing.border.Border#isBorderOpaque()
-		 */
-		public boolean isBorderOpaque()
-		{
-			return sourceBorder.isBorderOpaque();
-		}
-	}
 }
