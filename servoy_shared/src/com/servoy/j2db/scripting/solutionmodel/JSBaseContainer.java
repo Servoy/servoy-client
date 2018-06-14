@@ -19,7 +19,6 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -41,6 +40,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
@@ -2031,41 +2031,29 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 */
 	private IJSParent< ? > getCorrectIJSParent(JSBaseContainer< ? > startingContainer, IPersist possiblyNestedChild)
 	{
-		ArrayDeque<ISupportChilds> parentStack = new ArrayDeque<>();
-		parentStack.push(possiblyNestedChild.getParent());
-
-		// go through parents until we reach startingContainer
-		while (parentStack.peek() != null && startingContainer.getContainer() != parentStack.peek())
+		ArrayList<ISupportChilds> parentHierarchy = new ArrayList<>();
+		ISupportChilds parent = possiblyNestedChild.getParent();
+		while (parent != (startingContainer.getContainer() instanceof IFlattenedPersistWrapper< ? >
+			? ((IFlattenedPersistWrapper< ? >)startingContainer.getContainer()).getWrappedPersist() : startingContainer.getContainer()) &&
+			!(parent instanceof Form))
 		{
-			parentStack.push(parentStack.peek().getParent());
+			parentHierarchy.add(parent);
+			parent = parent.getParent();
 		}
-
-		if (parentStack.peek() == null) throw new RuntimeException("Nested child (" + possiblyNestedChild + ") does not seem to have startingContainer (" + //$NON-NLS-1$ //$NON-NLS-2$
-			startingContainer + ") as an ancestor (parent of parent of ...)."); //$NON-NLS-1$
-
-		// now we know the persist parent chain - we have to get the solution model objs. for all of them
-		JSBaseContainer< ? > currentContainer = startingContainer;
-		parentStack.pop(); // pop starting container
-		while (!parentStack.isEmpty())
+		for (int i = parentHierarchy.size(); --i >= 0;)
 		{
-			// search for current parentStack top persist inside currentContainer's layout containers
-			JSLayoutContainer[] childLayouts = currentContainer.getLayoutContainers();
-			for (JSLayoutContainer cl : childLayouts)
+			ISupportChilds container = parentHierarchy.get(i);
+			if (container instanceof LayoutContainer)
 			{
-				if (cl.getContainer() == parentStack.peek())
-				{
-					currentContainer = cl;
-					break;
-				}
+				startingContainer = application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)startingContainer,
+					(LayoutContainer)container);
 			}
-			parentStack.pop();
+			else
+			{
+				throw new RuntimeException("unexpected parent: " + container); //$NON-NLS-1$
+			}
 		}
-
-		if (currentContainer.getContainer() != possiblyNestedChild.getParent()) throw new RuntimeException(
-			"Cannot get through SM parent hierarchy to Nested child (" + possiblyNestedChild + "), although a persist path was found to startingContainer (" + //$NON-NLS-1$ //$NON-NLS-2$
-				startingContainer + ")."); //$NON-NLS-1$
-
-		return currentContainer;
+		return startingContainer;
 	}
 
 	/**
