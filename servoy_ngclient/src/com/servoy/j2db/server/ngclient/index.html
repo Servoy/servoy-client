@@ -105,7 +105,7 @@
 			}
 			if (isOldBrowser())
 			{
-				window.location = 'templates/notSupportedBrowser.html';
+				window.location = '##contextPath##templates/notSupportedBrowser.html'.replace(/"/g, "");
 			}	
 			angular.module('servoyApp').run(function($solutionSettings, $svyI18NService, $webSocket){
 					// set pathname as received by the client, may be different from browser in case of url rewrite
