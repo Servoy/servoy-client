@@ -127,7 +127,8 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 
 		if (url != null) return new MediaWrapper(value, url);
 
-		if (value != null) Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
+		if (value != null && !Utils.equalObjects(value, Integer.valueOf(0)))
+			Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
 		return null;
 	}
 
