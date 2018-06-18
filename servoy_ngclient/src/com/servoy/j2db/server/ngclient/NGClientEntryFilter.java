@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
+import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -458,7 +459,8 @@ public class NGClientEntryFilter extends WebEntry
 				}
 
 			}
-			Debug.log("No solution found for this request, calling the default filter: " + uri);
+			if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
+				Debug.log("No solution found for this request, calling the default filter: " + uri);
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
