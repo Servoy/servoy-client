@@ -536,22 +536,13 @@ function eventCallback(el, strEvent, callbackUrl, event)
 }
 
 function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
-{
-	setTimeout(function(){ postEventCallbackEx(el, strEvent, callbackUrl, event, blockRequest); }, 0);
-}
-
-function postEventCallbackEx(el, strEvent, callbackUrl, event, blockRequest)
-{
-	if(el != document.getElementById(el.id)) // element was replaced by wicket
-	{
-		return true;
-	}
-	
+{	
 	if(strEvent == "blur")
 	{	
 		ignoreFocusGained = null;
 	}
-
+	if(strEvent != "focus" && strEvent != "blur" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+	
 	var modifiers;
 	if(strEvent == "focus")
 	{
