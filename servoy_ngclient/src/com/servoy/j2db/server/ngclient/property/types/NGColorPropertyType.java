@@ -18,7 +18,6 @@ package com.servoy.j2db.server.ngclient.property.types;
 import java.awt.Color;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
@@ -90,8 +89,7 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 	{
 		try
 		{
-			return fromJSON((newValue instanceof String && ((String)newValue).startsWith("{")) ? new JSONObject((String)newValue) : newValue, null,
-				propertyDescription, null, null);
+			return fromJSON(newValue, null, propertyDescription, null, null);
 		}
 		catch (Exception e)
 		{

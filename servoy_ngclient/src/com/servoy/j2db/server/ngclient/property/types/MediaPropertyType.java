@@ -181,6 +181,10 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 				}
 			}
 		}
+		else if (value instanceof String && ((String)value).startsWith("resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS))
+		{
+			url = (String)value;
+		}
 		else if (value != null)
 		{
 			Debug.warn("Invalid media value received: " + value + ", cannot resolve it.");

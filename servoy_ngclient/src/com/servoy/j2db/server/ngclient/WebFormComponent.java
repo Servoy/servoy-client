@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -45,13 +43,9 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	protected ComponentContext componentContext;
 	private IDirtyPropertyListener dirtyPropertyListener;
 
-	private boolean propertiesInitialized; // we want to be able to convert all initial property values from sablo to web component before 'attaching' them if they are instances of ISmartPropertyValue; so we wait for all to be set and then trigger onPropertyChanged on all of them
-
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
-		super(name, WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(fe.getTypeName()));
-
-		propertiesInitialized = false;
+		super(name, WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(fe.getTypeName()), true);
 
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
@@ -316,6 +310,13 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public Object getDefaultFromPD(PropertyDescription propertyDesc)
 	{
+		return getDefaultFromPropertyDescription(propertyDesc);
+	}
+
+	public static Object getDefaultFromPropertyDescription(PropertyDescription propertyDesc)
+	{
+		// THIS METHOD IS CALLED FOR SERVICES AS WELL NOT JUST FOR COMPONENTS
+
 		Object defaultPropertyValue = null;
 
 
@@ -323,10 +324,12 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		{
 			// short story here; if a web component .spec file defines a "defaultValue" then that is interpreted as a "design value"
 			// so before reaching our WebFormComponent it will pass through 2 conversions: design-to-formElement (IDesignToFormElement) and formElement-to-sablo (IFormElementToSabloComponent);
-			// if the type implements any of the two we cannot just return the pd.getDefaultValue() here as it will probably lead to a classcast exception (it is meant to be converted before reaching runtime); whoever wants the value will have to wait for it to be converted and set on the WebFormComponent before using it
-			// but it it doesn't implement any of those 2 conversions and a default is available in spec, then it can be returned here (passed through default conversions) - as it would reach the WebFormComponent unconverted anyway
+			// if the type implements any of the two we cannot just return the pd.getDefaultValue() here as it will probably lead to a classcast exception (it is meant to be converted before reaching runtime and it will be converted but one property at a time after creating the runtime web component in ComponentFactory);
+			// whoever wants the value will have to wait for it to be converted and set on the WebFormComponent before using it - so one property then can't just get another property and expect it to have default value prepared already
 
-			// we could just return null here always (because the value will be set soon, it's just a matter of which properties are set first after being converted), but then properties like NGEnabledProperty type which ask for webObject.isEnabled on parents which then could look into enabled type properties and expect a boolean (so not null) wouldn't work in the same way; those properties don't want to wait...
+			// but if it doesn't implement any of those 2 conversions and a default is available in spec, then it can be returned here faster (passed through default conversions) - as it would reach the WebFormComponent un-converted anyway
+			// we could just return null here always (because the value will be set soon when creating the runtime web component, it's just a matter of which properties are set first after being converted),
+			// but then properties like NGEnabledProperty type which ask for webObject.isEnabled on parents right away - which then could look into enabled type properties and expect a boolean (so not null) wouldn't work in the same way; those properties don't want to wait... they want to be able to get other propertie's default boolean values right away
 
 			IPropertyType< ? > type = propertyDesc.getType();
 			if (!(type instanceof IDesignToFormElement || type instanceof IFormElementToSabloComponent))
@@ -345,35 +348,6 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		}
 
 		return defaultPropertyValue;
-	}
-
-	@Override
-	protected void onPropertyChange(String propertyName, Object oldWrappedValue, Object newWrappedValue)
-	{
-		if (propertiesInitialized)
-		{
-			super.onPropertyChange(propertyName, oldWrappedValue, newWrappedValue);
-		} // else wait for all properties to be set before triggering changes and calling "attach" on ISmartPropertyValues
-	}
-
-	/**
-	 * Call this after all initial (form element - to - sablo) properties have been set (either in defaults map or in properties map).
-	 */
-	public void propertiesInitialized()
-	{
-		// so after all of them are converted from form element to sablo and set, attach them to the webComponent (so that when attach is called on any ISmartPropertyValue at least all the other properties are converted
-		// this could help initialize smart properties that depend on each other faster then if we would convert and then attach right away each value)
-		propertiesInitialized = true;
-
-		SortedSet<String> availableInitialKeys = new TreeSet<>();
-		availableInitialKeys.addAll(defaultPropertiesUnwrapped.keySet());
-		availableInitialKeys.addAll(properties.keySet());
-
-		// notify and attach initial values
-		for (String propName : availableInitialKeys)
-		{
-			onPropertyChange(propName, null, getRawPropertyValue(propName));
-		}
 	}
 
 }
