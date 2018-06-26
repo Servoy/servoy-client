@@ -19,12 +19,18 @@ package com.servoy.j2db.server.ngclient.scripting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.mozilla.javascript.IdScriptableObject;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -66,5 +72,54 @@ public class ServoyApiObject
 			return ret;
 		}
 		return false;
+	}
+
+	@JSFunction
+	public IdScriptableObject copyObject(Object value)
+	{
+		if (value instanceof NativeObject)
+		{
+			return (NativeObject)value;
+		}
+		if (value instanceof NativeArray)
+		{
+			return (NativeArray)value;
+		}
+		if (value instanceof RhinoMapOrArrayWrapper)
+		{
+			if (((RhinoMapOrArrayWrapper)value).getWrappedValue() instanceof Map)
+			{
+				NativeObject nativeObject = new NativeObject();
+				Object[] ids = ((RhinoMapOrArrayWrapper)value).getIds();
+				for (Object id : ids)
+				{
+					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(id.toString(), null);
+					if (objectValue instanceof RhinoMapOrArrayWrapper)
+					{
+						objectValue = copyObject(objectValue);
+					}
+					nativeObject.put(id.toString(), nativeObject, objectValue);
+				}
+				return nativeObject;
+			}
+			else
+			{
+				Object[] ids = ((RhinoMapOrArrayWrapper)value).getIds();
+				Object[] values = new Object[ids.length];
+				for (int i = 0; i < ids.length; i++)
+				{
+					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(i, null);
+					if (objectValue instanceof RhinoMapOrArrayWrapper)
+					{
+						objectValue = copyObject(objectValue);
+					}
+					values[i] = objectValue;
+				}
+				NativeArray nativeArray = new NativeArray(values);
+				return nativeArray;
+			}
+		}
+		Debug.error("cannot return object: " + value + " as NativeObject");
+		return new NativeObject();
 	}
 }
