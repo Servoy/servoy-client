@@ -3,6 +3,12 @@ $scope.api.setViewportMetaDefaultForMobileAwareSites = function()
 	$scope.api.setViewportMetaForMobileAwareSites($scope.model.VIEWPORT_MOBILE_DEFAULT);
 }
 
+$scope.api.setWebsocketReconnectUIDelay = function(delay)
+{
+	$scope.model.websocketReconnectUIDelay = delay;
+}
+
+
 //JSDOC is available in htmlHeaders.js
 $scope.api.setViewportMetaForMobileAwareSites = function(viewportDefType)
 {
