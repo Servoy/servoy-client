@@ -4,12 +4,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>8.3.0.3203</version>
+		<version>8.3.1.3204_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>8.3.0.3203</version>
+	<version>8.3.1.3204_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
