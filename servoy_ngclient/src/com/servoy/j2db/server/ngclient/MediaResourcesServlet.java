@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.IMediaFieldConstants;
@@ -264,15 +265,24 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 		try
 		{
-			Media media = fs.getMedia(mediaName);
-			if (media != null)
-			{
-				return sendData(request, response, fs, media);
-			}
+			return sendMediaData(request, response, mediaName, fs);
 		}
 		finally
 		{
 			fs.close(null);
+		}
+	}
+
+	private boolean sendMediaData(HttpServletRequest request, HttpServletResponse response, String mediaName, FlattenedSolution fs) throws IOException
+	{
+		Media media = fs.getMedia(mediaName);
+		if (media == null)
+		{
+			media = fs.getMedia(mediaName.replace(".css", ".less"));
+		}
+		if (media != null)
+		{
+			return sendData(request, response, fs, media);
 		}
 		return false;
 	}
@@ -301,7 +311,9 @@ public class MediaResourcesServlet extends HttpServlet
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
+		return sendData(response,
+			media.getName().endsWith(".less") ? ResourceProvider.compileLessWithNashorn(new String(media.getMediaData())).getBytes() : media.getMediaData(),
+			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
@@ -314,11 +326,7 @@ public class MediaResourcesServlet extends HttpServlet
 			FlattenedSolution fs = client.getFlattenedSolution();
 			if (fs != null)
 			{
-				Media media = fs.getMedia(mediaName);
-				if (media != null)
-				{
-					return sendData(request, response, fs, media);
-				}
+				return sendMediaData(request, response, mediaName, fs);
 			}
 		}
 		return false;
