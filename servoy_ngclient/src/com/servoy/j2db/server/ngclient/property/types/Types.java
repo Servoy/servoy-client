@@ -56,13 +56,14 @@ public class Types
 		TypesRegistry.addType(FormComponentPropertyType.INSTANCE);
 		TypesRegistry.addType(RuntimeComponentPropertyType.INSTANCE);
 		TypesRegistry.addType(FormatPropertyType.INSTANCE);
-		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
 		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
 		TypesRegistry.addType(
 			new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(), DataproviderPropertyType.INSTANCE));
 		TypesRegistry.addType(
 			new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(), TagStringPropertyType.INSTANCE));
+		TypesRegistry.addType(
+			new FoundsetLinkedPropertyType<Object, ValueListTypeSabloValue>(ValueListPropertyType.INSTANCE.getName(), ValueListPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);

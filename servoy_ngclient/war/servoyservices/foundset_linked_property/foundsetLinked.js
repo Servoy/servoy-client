@@ -1,6 +1,9 @@
 angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property', 'foundset_viewport_module'])
 // Foundset linked type ------------------------------------------
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils) {
+.value("$foundsetLinkedTypeConstants", {
+	ID_FOR_FOUNDSET: "idForFoundset"
+})
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $foundsetLinkedTypeConstants) {
 
 	var SINGLE_VALUE = "sv";
 	var SINGLE_VALUE_UPDATE = "svu";
@@ -8,7 +11,6 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	var VIEWPORT_VALUE_UPDATE = "vpu";
 	var CONVERSION_NAME = "fsLinked";
 	var PROPERTY_CHANGE = "propertyChange";
-	var ID_FOR_FOUNDSET = "idForFoundset";
 
 	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
 
@@ -161,18 +163,18 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				}
 			}
 			
-			if (serverJSONValue[ID_FOR_FOUNDSET] === null) {
-				if (angular.isDefined(newValue[ID_FOR_FOUNDSET])) delete newValue[ID_FOR_FOUNDSET];
-			} else if (angular.isDefined(serverJSONValue[ID_FOR_FOUNDSET])) {
+			if (serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET] === null) {
+				if (angular.isDefined(newValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET])) delete newValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET];
+			} else if (angular.isDefined(serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET])) {
 				// make it non-iterable as the newValue is an array an ppl. might iterate over it - they wont expect this in the iterations
 				if (Object.defineProperty) {
-					Object.defineProperty(newValue, ID_FOR_FOUNDSET, {
+					Object.defineProperty(newValue, $foundsetLinkedTypeConstants.ID_FOR_FOUNDSET, {
 						configurable: true,
 						enumerable: false,
 						writable: true,
-						value: serverJSONValue[ID_FOR_FOUNDSET]
+						value: serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET]
 					});
-				} else newValue[ID_FOR_FOUNDSET] = serverJSONValue[ID_FOR_FOUNDSET];
+				} else newValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET] = serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET];
 			}
 			
 			// restore/add model watch

@@ -74,6 +74,8 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetDataAdapterList;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -123,6 +125,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private List<IRecordInternal> relatedRecords = new ArrayList<IRecordInternal>();
 	private String relationName;
 	private IWebObjectContext webObjectContext;
+	private String shouldResolveFromValuelistWithName;
 
 	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 		PropertyDescription dpPD)
@@ -193,6 +196,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		this.changeMonitor = changeNotifier;
 		this.webObjectContext = webObjectCntxt;
 
+		computeShouldResolveValuelistConfig();
 		// register data link and find mode listeners as needed
 		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID,
 			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null);
@@ -562,57 +566,69 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (jsonValue instanceof IJSONStringWithConversions) clientConversion.convert(((IJSONStringWithConversions)jsonValue).getDataConversions());
 	}
 
-	protected Object getValueForToJSON(Object dpValue, IBrowserConverterContext dataConverterContext) throws JSONException
+	private void computeShouldResolveValuelistConfig()
 	{
-		Object jsonValueRepresentation;
-		boolean valuelistDisplayValue = false;
+		shouldResolveFromValuelistWithName = null;
 		if (webObjectContext != null && getDataProviderConfig() != null && getDataProviderConfig().shouldResolveValuelist())
 		{
 			Collection<PropertyDescription> properties = webObjectContext.getProperties(ValueListPropertyType.INSTANCE);
 			for (PropertyDescription valuelistPD : properties)
 			{
-				if (valuelistPD.getConfig() instanceof ValueListConfig &&
-					Utils.equalObjects(((ValueListConfig)valuelistPD.getConfig()).getFor(), dpPD.getName()))
+				Object config = valuelistPD.getConfig();
+				if (config instanceof FoundsetLinkedConfig) config = ((FoundsetLinkedConfig)config).getWrappedConfig();
+				if (config instanceof ValueListConfig && Utils.equalObjects(((ValueListConfig)config).getFor(), dpPD.getName()))
 				{
-					ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(valuelistPD.getName());
-					if (valuelistSabloValue != null && valuelistSabloValue.getValueList() != null)
-					{
-						valuelistDisplayValue = true;
-						if (valuelistSabloValue.getValueList().realValueIndexOf(dpValue) != -1)
-						{
-							try
-							{
-								dpValue = valuelistSabloValue.getValueList().getElementAt(valuelistSabloValue.getValueList().realValueIndexOf(dpValue));
-							}
-							catch (Exception ex)
-							{
-								Debug.error(ex);
-							}
-						}
-						else if (valuelistSabloValue.getValueList() instanceof DBValueList)
-						{
-							try
-							{
-								LookupValueList lookup = new LookupValueList(valuelistSabloValue.getValueList().getValueList(),
-									dataAdapterList.getApplication(), ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), null, Types.OTHER,
-										null, valuelistSabloValue.getValueList().getValueList()),
-									null);
-								if (lookup.realValueIndexOf(dpValue) != -1)
-								{
-									dpValue = lookup.getElementAt(lookup.realValueIndexOf(dpValue));
-								}
-								lookup.deregister();
-							}
-							catch (Exception ex)
-							{
-								Debug.error(ex);
-							}
-						}
-					}
+					shouldResolveFromValuelistWithName = valuelistPD.getName();
 					break;
 				}
 			}
 		}
+	}
+
+	protected Object getValueForToJSON(Object dpValue, IBrowserConverterContext dataConverterContext) throws JSONException
+	{
+		Object jsonValueRepresentation;
+		boolean valuelistDisplayValue = false;
+		if (shouldResolveFromValuelistWithName != null)
+		{
+			ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)FoundsetLinkedTypeSabloValue.unwrapIfNeeded(
+				webObjectContext.getProperty(shouldResolveFromValuelistWithName));
+			if (valuelistSabloValue != null && valuelistSabloValue.getValueList() != null)
+			{
+				valuelistDisplayValue = true;
+				if (valuelistSabloValue.getValueList().realValueIndexOf(dpValue) != -1)
+				{
+					try
+					{
+						dpValue = valuelistSabloValue.getValueList().getElementAt(valuelistSabloValue.getValueList().realValueIndexOf(dpValue));
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+				}
+				else if (valuelistSabloValue.getValueList() instanceof DBValueList)
+				{
+					try
+					{
+						LookupValueList lookup = new LookupValueList(valuelistSabloValue.getValueList().getValueList(), dataAdapterList.getApplication(),
+							ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), null, Types.OTHER, null,
+								valuelistSabloValue.getValueList().getValueList()),
+							null);
+						if (lookup.realValueIndexOf(dpValue) != -1)
+						{
+							dpValue = lookup.getElementAt(lookup.realValueIndexOf(dpValue));
+						}
+						lookup.deregister();
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+				}
+			}
+		}
+
 		if (findMode)
 		{
 			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
