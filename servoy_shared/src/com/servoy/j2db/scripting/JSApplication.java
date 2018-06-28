@@ -63,11 +63,13 @@ import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.INGClientApplication;
+import com.servoy.j2db.IRefreshValueList;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.LookupValueList;
@@ -86,6 +88,8 @@ import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
+import com.servoy.j2db.ui.ISupportValueList;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
@@ -914,6 +918,56 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	/**
+	 * Refresh a global method valuelist by forcing it to call the global method. The element which has the valuelist must be provided.
+	 * If there is no propertyName specified, the element must have only one valuelist property.
+	 *
+	 * @sample
+	 * application.refreshGlobalMethodValueList(elements.mytypeahead);
+	 *
+	 * @param element form element
+	 * @return boolean indicating if valuelist was refreshed
+	 */
+	@JSFunction
+	public boolean refreshGlobalMethodValueList(Object element)
+	{
+		return refreshGlobalMethodValueList(element, null);
+	}
+
+	/**
+	 * Refresh a global method valuelist by forcing it to call the global method. The element which has the valuelist must be provided.
+	 * The valuelist is searched under provided property from the spec - for usage in NGClient custom components.
+	 *
+	 * @sample
+	 * application.refreshGlobalMethodValueList(elements.mycustomcomponent,'myvaluelistProperty');
+	 *
+	 * @param element form element
+	 * @param propertyName name of property from the spec
+	 * @return boolean indicating if valuelist was refreshed
+	 */
+	@JSFunction
+	public boolean refreshGlobalMethodValueList(Object element, String propertyName)
+	{
+		if (element instanceof AbstractRuntimeBaseComponent)
+		{
+			element = ((AbstractRuntimeBaseComponent)element).getComponent();
+		}
+		if (element instanceof ISupportValueList)
+		{
+			IValueList valuelist = ((ISupportValueList)element).getValueList();
+			if (valuelist instanceof GlobalMethodValueList)
+			{
+				((GlobalMethodValueList)valuelist).fill(true);
+				return true;
+			}
+		}
+		if (element instanceof IRefreshValueList)
+		{
+			return ((IRefreshValueList)element).refreshValueList(propertyName);
+		}
+		return false;
 	}
 
 	// Return -1L if str is not an index or the index value as lower 32
