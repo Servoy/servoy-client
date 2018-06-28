@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.IndexPageEnhancer;
+import org.sablo.specification.IYieldingType;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -44,6 +45,7 @@ import com.servoy.j2db.server.ngclient.NGClientEntryFilter;
 import com.servoy.j2db.server.ngclient.property.types.NGDatePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ServoyStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 
 /**
  * @author jcompagner
@@ -149,10 +151,24 @@ public class WebComponentSpecTest
 		Assert.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myvaluelist");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
+		Assert.assertTrue(pd.getType() == ((IYieldingType)(TypesRegistry.getType("valuelist"))).getPossibleYieldType());
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		Assert.assertEquals("mydataprovider", ((ValueListConfig)pd.getConfig()).getFor());
+	}
+
+	@Test
+	public void testValueListTypeLinkedToFoundset() throws JSONException
+	{
+		String property = "{name:'test',definition:'/test.js', model: {myfoundset:'foundset', mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider', type:'valuelist', forFoundset:'myfoundset'}}}";
+
+		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null);
+		Assert.assertEquals(3, spec.getProperties().size());
+		PropertyDescription pd = spec.getProperties().get("myvaluelist");
+		Assert.assertNotNull(pd);
+		Assert.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
+		Assert.assertTrue(pd.getType() instanceof FoundsetLinkedPropertyType);
+		Assert.assertTrue(((IYieldingType)(pd.getType())).getPossibleYieldType() == ValueListPropertyType.INSTANCE);
 	}
 
 	@Test
