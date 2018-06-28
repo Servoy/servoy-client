@@ -108,7 +108,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		if (cfg == null || cfg.forFoundset == null)
 		{
 			// the wrapped type can do it's thing then; it's not linked to a foundset so we yield to it's impl.
-			parameters.setConfig(cfg != null ? cfg.wrappedConfig : wrappedType.parseConfig(null));
+			parameters.setConfig(cfg != null ? cfg.getWrappedConfig() : wrappedType.parseConfig(null));
 			return wrappedType;
 		}
 
@@ -233,7 +233,8 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
 		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return sabloValue != null ? sabloValue.changesToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext) : writer;
+		return sabloValue != null ? sabloValue.changesToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext)
+			: writer;
 	}
 
 	@Override
