@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
+import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -72,7 +73,7 @@ import com.servoy.j2db.util.Utils;
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>
 	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
 	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
-	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>
+	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();

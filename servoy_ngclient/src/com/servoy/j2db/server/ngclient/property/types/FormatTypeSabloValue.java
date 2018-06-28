@@ -44,6 +44,8 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -168,7 +170,8 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 		if (propertyDependencies.valueListPropertyName != null)
 		{
-			ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
+			// valuelistSabloValue can be a ValuelistTypeSabloValue or FoundsetLinkedTypeSabloValue
+			Object valuelistSabloValue = webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
 			if (valuelistSabloValue != null)
 			{
 				if (valuelistContentChangeListener == null)
@@ -187,8 +190,9 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 					};
 				}
 
-				valuelistSabloValue.addStateChangeListener(valuelistContentChangeListener);
-				newValuelistID = valuelistSabloValue.getValuelistIdentifier();
+				((IHasUnderlyingState)valuelistSabloValue).addStateChangeListener(valuelistContentChangeListener);
+				ValueListTypeSabloValue vlV = ((ValueListTypeSabloValue)FoundsetLinkedTypeSabloValue.unwrapIfNeeded(valuelistSabloValue));
+				if (vlV != null) newValuelistID = vlV.getValuelistIdentifier();
 			}
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
@@ -256,7 +260,7 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 			webObjectContext.removePropertyChangeListener(propertyDependencies.valueListPropertyName, this);
 			if (valuelistContentChangeListener != null)
 			{
-				ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
+				IHasUnderlyingState valuelistSabloValue = (IHasUnderlyingState)webObjectContext.getProperty(propertyDependencies.valueListPropertyName);
 				if (valuelistSabloValue != null)
 				{
 					valuelistSabloValue.removeStateChangeListener(valuelistContentChangeListener);
@@ -341,8 +345,8 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 					else if (valuelistPersist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 					{
 						IValueList realValuelist = null;
-						ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)webObjectContext.getProperty(
-							propertyDependencies.valueListPropertyName);
+						ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)FoundsetLinkedTypeSabloValue.unwrapIfNeeded(
+							webObjectContext.getProperty(propertyDependencies.valueListPropertyName));
 						if (valuelistSabloValue != null)
 						{
 							// take it from property, may not be the shared instance in case setvaluelistitems on component was used
@@ -364,8 +368,11 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 					else if (valuelistPersist.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
 					{
 						PropertyDescription vlPD = webObjectCntxt.getPropertyDescription(propertyDependencies.valueListPropertyName);
-						boolean lazyLoad = valuelistPersist.getLazyLoading() && vlPD.getConfig() instanceof ValueListConfig &&
-							((ValueListConfig)vlPD.getConfig()).getLazyLoading();
+						Object vlPDConfig = vlPD.getConfig();
+						if (vlPDConfig instanceof FoundsetLinkedConfig) vlPDConfig = ((FoundsetLinkedConfig)vlPDConfig).getWrappedConfig();
+
+						boolean lazyLoad = valuelistPersist.getLazyLoading() && vlPDConfig instanceof ValueListConfig &&
+							((ValueListConfig)vlPDConfig).getLazyLoading();
 						if (!lazyLoad)
 						{
 							IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true,

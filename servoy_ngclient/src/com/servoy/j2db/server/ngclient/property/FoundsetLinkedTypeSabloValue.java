@@ -90,6 +90,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected String idForFoundset;
 
 	private FoundsetLinkedValueChangeHandler actualWrappedValueChangeHandlerForFoundsetLinked;
+	private IChangeListener wrappedUnderlyingStateListener;
 
 	protected Set<String> foundsetLinkedDPs = new HashSet<>();
 
@@ -118,7 +119,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	public FoundsetLinkedTypeSabloValue(YT wrappedSabloValue, String forFoundsetPropertyName, PropertyDescription wrappedPropertyDescription,
 		IWebObjectContext webObjectContext)
 	{
-		this.wrappedSabloValue = wrappedSabloValue;
+		setWrappedSabloValue(wrappedSabloValue);
 		this.forFoundsetPropertyName = forFoundsetPropertyName;
 		this.wrappedPropertyDescription = wrappedPropertyDescription;
 
@@ -136,7 +137,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		this.webObjectContext = webObjectContext;
 		this.forFoundsetPropertyName = forFoundsetPropertyName;
-		// this.wrappedSabloValue = null; // for now; waiting for foundset property availability
+		// setWrappedSabloValue(null); // for now; waiting for foundset property availability
 		wrappedValueInitialized = false;
 	}
 
@@ -210,15 +211,43 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// can already be non-null if it was a default value or if for some reason the value was detached and re-attached to a component
 			if (wrappedSabloValue == null)
 			{
-				this.wrappedSabloValue = (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
-					wrappedPropertyDescription, initializingState.formElement, (WebFormComponent)webObjectContext.getUnderlyingWebObject(), dal);
-				fireUnderlyingPropertyChangeListeners();
+				setWrappedSabloValue((YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
+					wrappedPropertyDescription, initializingState.formElement, (WebFormComponent)webObjectContext.getUnderlyingWebObject(), dal));
 			}
+			else if (wrappedSabloValue instanceof IHasUnderlyingState)
+				((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
 		}
+		else if (wrappedSabloValue instanceof IHasUnderlyingState)
+			((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
 
 		wrappedComponentContext = new NGComponentDALContext(foundsetPropValue.getDataAdapterList(), webObjectContext);
 		if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 			((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(getWrappedPropChangeMonitor(monitor), wrappedComponentContext);
+	}
+
+	private void setWrappedSabloValue(YT newValue)
+	{
+		if (wrappedSabloValue instanceof IHasUnderlyingState)
+			((IHasUnderlyingState)wrappedSabloValue).removeStateChangeListener(getWrappedUnderlyingStateListener());
+
+		wrappedSabloValue = newValue;
+		fireUnderlyingPropertyChangeListeners();
+
+		if (wrappedSabloValue instanceof IHasUnderlyingState)
+			((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
+	}
+
+	private IChangeListener getWrappedUnderlyingStateListener()
+	{
+		if (wrappedUnderlyingStateListener == null) wrappedUnderlyingStateListener = new IChangeListener()
+		{
+			@Override
+			public void valueChanged()
+			{
+				fireUnderlyingPropertyChangeListeners();
+			}
+		};
+		return wrappedUnderlyingStateListener;
 	}
 
 	private IChangeListener getWrappedPropChangeMonitor(final IChangeListener monitor)
@@ -256,6 +285,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		// this wrapped detach() should normally trigger unregister idForFoundset and remove viewPortChangeMonitor as well if needed - in dataLinkedPropertyUnregistered() below
 		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
+		if (wrappedSabloValue instanceof IHasUnderlyingState)
+			((IHasUnderlyingState)wrappedSabloValue).removeStateChangeListener(getWrappedUnderlyingStateListener());
 
 		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
 
@@ -366,6 +397,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return wrappedSabloValue;
 	}
 
+	public static Object unwrapIfNeeded(Object sabloValue)
+	{
+		if (sabloValue instanceof FoundsetLinkedTypeSabloValue< ? , ? >) return ((FoundsetLinkedTypeSabloValue)sabloValue).getWrappedValue();
+		else return sabloValue;
+	}
+
 	public void rhinoToSablo(Object rhinoValue, PropertyDescription wrappedPD, IWebObjectContext webObjectCntxt)
 	{
 		if (wrappedValueInitialized)
@@ -378,8 +415,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				// do what component would do when a property changed
 				// TODO should we make current method return a completely new instance instead and leave component code do the rest?
 				if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
-				wrappedSabloValue = newWrappedVal;
-				fireUnderlyingPropertyChangeListeners();
+
+				setWrappedSabloValue(newWrappedVal);
 
 				if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 					((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, wrappedComponentContext);
@@ -572,8 +609,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 							// do what component would do when a property changed
 							// TODO should we make current method return a completely new instance instead and leave component code do the rest?
 							if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
-							wrappedSabloValue = newWrappedValue;
-							fireUnderlyingPropertyChangeListeners();
+							setWrappedSabloValue(newWrappedValue);
 
 							if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 								((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, wrappedComponentContext);
@@ -651,8 +687,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						// do what component would do when a property changed
 						// TODO should we make current method return a completely new instance instead and leave component code do the rest?
 						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
-						wrappedSabloValue = newWrappedValue;
-						fireUnderlyingPropertyChangeListeners();
+						setWrappedSabloValue(newWrappedValue);
 
 						if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 							((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, wrappedComponentContext);

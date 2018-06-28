@@ -53,6 +53,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -730,8 +731,8 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				Object vl = component.getProperty(convertName(propertyName));
 				if (vl != null)
 				{
-					ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
-					if (value.getValueList() != null) return value.getValueList().getName();
+					ValueListTypeSabloValue value = (ValueListTypeSabloValue)FoundsetLinkedTypeSabloValue.unwrapIfNeeded(vl);
+					if (value != null && value.getValueList() != null) return value.getValueList().getName();
 				}
 			}
 			return scriptable.get(propertyName, scope);
