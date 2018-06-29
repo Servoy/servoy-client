@@ -112,6 +112,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private LookupListModel filteredValuelist;
 	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
+	private boolean recordLinked = false;
+
 	private boolean valuesRequested;
 
 	/**
@@ -301,7 +303,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (dependedDataProviders == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 		if (dependedDataProviders.length == 0) return TargetDataLinks.LINKED_TO_ALL;
 
-		boolean recordLinked = false;
+		recordLinked = false;
 		String[] dataproviders = new String[dependedDataProviders.length];
 		for (int i = 0; i < dataproviders.length; i++)
 		{
@@ -325,6 +327,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
+		// if dataprovider will resolve this and this valuelist is not meant to be sent for each row, do not send values client side to avoid needless trafic;
+		// but if valuelist is meant to be sent for each row and resolves in the DP then we block it directly in toJSON and send nothing at all, not even empty values (see similar check there) in order to avoid sending lots of valuelists with no values
+		if ((!getConfig().hasForFoundset() || !recordLinked) && propertyDependencies.dataproviderResolveValuelist && !valuesRequested)
+			return new ArrayList<Map<String, Object>>();
 		valuesRequested = false;
 
 		boolean removed = valueList.removeListDataListenerIfNeeded(this);
@@ -497,8 +503,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			return;
 		}
 
-		// if dataprovider will resolve this, do not send anything client side
-		if (propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return;
+		// if dataprovider will resolve this and this valuelist is meant to be sent for each row, do not send anything client side (not even empty array values) to avoid needless trafic;
+		// but if valuelist is only 1 for all records do send it even if it is empty so that client-side component can call filter on it to get the values once (aggrid needs that right now) - a similar check will pass in getJavaValueForJSON() then
+		if (getConfig().hasForFoundset() && recordLinked && propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return;
 
 		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
