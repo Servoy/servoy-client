@@ -325,6 +325,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
+		// dataprovider will resolve this, do not send anything client side
+		if (propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return new ArrayList<Map<String, Object>>();
+
 		valuesRequested = false;
 
 		boolean removed = valueList.removeListDataListenerIfNeeded(this);
@@ -496,9 +499,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.value(null);
 			return;
 		}
-
-		// if dataprovider will resolve this, do not send anything client side
-		if (propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return;
 
 		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
