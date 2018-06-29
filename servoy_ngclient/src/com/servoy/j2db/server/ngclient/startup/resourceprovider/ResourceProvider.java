@@ -393,6 +393,19 @@ public class ResourceProvider implements Filter
 
 	public static String compileLessWithNashorn(InputStream is)
 	{
+		try
+		{
+			return compileLessWithNashorn(getText(is));
+		}
+		catch (IOException e)
+		{
+			Debug.log(e);
+		}
+		return null;
+	}
+
+	public static String compileLessWithNashorn(String text)
+	{
 		//we have to pass in null as classloader if we want to acess the java 8 nashorn
 		ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
 		if (engine != null)
@@ -403,7 +416,7 @@ public class ResourceProvider implements Filter
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-2.5.1.js"));
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-env-2.5.1.js"));
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/lessrunner.js"));
-				Object result = invocable.invokeFunction("convert", getText(is));
+				Object result = invocable.invokeFunction("convert", text);
 				return result.toString();
 			}
 			catch (ScriptException e)
