@@ -97,7 +97,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
 		boolean lazyLoading = false;
-		boolean hasForFoundset = false;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
@@ -116,9 +115,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 					Debug.log(e);
 				}
 			}
-			hasForFoundset = json.has(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME);
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading, hasForFoundset);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading);
 	}
 
 	@Override

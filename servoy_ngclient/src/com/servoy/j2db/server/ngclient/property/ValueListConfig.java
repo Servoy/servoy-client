@@ -26,10 +26,9 @@ public class ValueListConfig
 	private final String defaultValue;
 	private final int maxCount;
 	private final boolean logMax;
-	private final boolean hasForFoundset;
 	boolean lazyLoading = false;
 
-	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading, boolean hasForFoundset)
+	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading)
 	{
 		super();
 		this.dataprovider = dataprovider;
@@ -37,7 +36,6 @@ public class ValueListConfig
 		this.maxCount = maxCount;
 		this.logMax = logMax;
 		this.lazyLoading = lazyLoading;
-		this.hasForFoundset = hasForFoundset;
 	}
 
 
@@ -64,11 +62,6 @@ public class ValueListConfig
 	public boolean getLazyLoading()
 	{
 		return lazyLoading;
-	}
-
-	public boolean hasForFoundset()
-	{
-		return hasForFoundset;
 	}
 
 }
