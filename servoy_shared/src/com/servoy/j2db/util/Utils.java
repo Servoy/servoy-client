@@ -52,7 +52,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -1724,7 +1723,7 @@ public final class Utils
 				connection.rollback();
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -1774,7 +1773,7 @@ public final class Utils
 				}
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -1790,7 +1789,7 @@ public final class Utils
 				statement.close();
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -1806,7 +1805,7 @@ public final class Utils
 				resultSet.close();
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
