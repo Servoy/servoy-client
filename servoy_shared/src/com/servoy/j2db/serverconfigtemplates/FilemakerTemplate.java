@@ -28,6 +28,6 @@ public class FilemakerTemplate extends ServerTemplateDefinition
 	public FilemakerTemplate()
 	{
 		super(new ServerConfig("new_filemaker", "sa", "", "jdbc:hsqldb:mem:.;fmphost=http://localhost:<webcompanionport>;fmpversion=5.5", null,
-			"org.hsqldb.jdbcDriver", null, null, true, false, null));
+			"org.hsqldb.jdbcDriver", null, null, true, false, null, null));
 	}
 }

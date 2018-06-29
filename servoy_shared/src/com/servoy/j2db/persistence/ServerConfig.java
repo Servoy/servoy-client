@@ -91,11 +91,13 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final boolean queryProcedures;
 	private final boolean prefixTables;
 	private int idleTimeout;
+	private final Integer selectINValueCountLimit;
 	private final String dialectClass;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
-		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout, String dialectClass)
+		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout,
+		Integer selectINValueCountLimit, String dialectClass)
 	{
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
@@ -114,6 +116,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.queryProcedures = queryProcedures;
 		this.prefixTables = prefixTables;
 		this.idleTimeout = idleTimeout;
+		this.selectINValueCountLimit = selectINValueCountLimit;
 		this.dialectClass = dialectClass;
 
 		if (driver == null || serverUrl == null)
@@ -131,11 +134,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	}
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
-		String catalog, String schema, boolean enabled, boolean skipSysTables, String dialectClass)
+		String catalog, String schema, boolean enabled, boolean skipSysTables, Integer selectINValueCountLimit, String dialectClass)
 	{
 		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
 			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, PREFIX_TABLES_DEFAULT, QUERY_PROCEDURES_DEFAULT, -1,
-			dialectClass);
+			selectINValueCountLimit, dialectClass);
 	}
 
 	public ServerConfig getNamedCopy(String newServerName)
@@ -143,7 +146,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		if (serverName.equals(newServerName)) return this;
 		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
 			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, dialectClass);
+			idleTimeout, selectINValueCountLimit, dialectClass);
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
@@ -151,7 +154,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		if (enabled == newEnabled) return this;
 		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
 			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, dialectClass);
+			idleTimeout, selectINValueCountLimit, dialectClass);
 	}
 
 	public String getServerName()
@@ -251,6 +254,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public boolean getPrefixTables()
 	{
 		return prefixTables;
+	}
+
+	public Integer getSelectINValueCountLimit()
+	{
+		return selectINValueCountLimit;
 	}
 
 	public String getDialectClass()
@@ -468,18 +476,28 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		TEMPLATES.clear();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
-		return "ServerConfig [serverName=" + serverName + ", userName=" + userName + ", serverUrl=" + serverUrl + ", connectionProperties=" +
-			connectionProperties + ", driver=" + driver + ", catalog=" + catalog + ", schema=" + schema + ", maxActive=" + maxActive + ", maxIdle=" + maxIdle +
-			", maxPreparedStatementsIdle=" + maxPreparedStatementsIdle + ", connectionValidationType=" + connectionValidationType + ", validationQuery=" +
-			validationQuery + ", dataModelCloneFrom=" + dataModelCloneFrom + ", enabled=" + enabled + ", skipSysTables=" + skipSysTables + ", idleTimeout=" +
-			idleTimeout + ", dialectClass=" + dialectClass + "]";
+		return new StringBuilder("ServerConfig [") //
+			.append("serverName=").append(serverName) //
+			.append(", userName=").append(userName) //
+			.append(", serverUrl=").append(serverUrl) //
+			.append(", connectionProperties=").append(connectionProperties) //
+			.append(", driver=").append(driver) //
+			.append(", catalog=").append(catalog) //
+			.append(", schema=").append(schema) //
+			.append(", maxActive=").append(maxActive) //
+			.append(", maxIdle=").append(maxIdle) //
+			.append(", maxPreparedStatementsIdle=").append(maxPreparedStatementsIdle) //
+			.append(", connectionValidationType=").append(connectionValidationType) //
+			.append(", validationQuery=").append(validationQuery) //
+			.append(", dataModelCloneFrom=").append(dataModelCloneFrom) //
+			.append(", enabled=").append(enabled) //
+			.append(", skipSysTables=").append(skipSysTables) //
+			.append(", idleTimeout=").append(idleTimeout) //
+			.append(", selectINValueCountLimit=").append(selectINValueCountLimit) //
+			.append(", dialectClass=").append(dialectClass) //
+			.append("]").toString();
 	}
 }
