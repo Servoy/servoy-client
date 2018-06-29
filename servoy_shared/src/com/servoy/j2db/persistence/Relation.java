@@ -577,8 +577,20 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				}
 				else if (exception == null)
 				{
-					exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
-						new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
+					String[] enumParts = pdp.split("\\."); //$NON-NLS-1$
+					if (enumParts.length > 3)
+					{
+						//enum not yet filled in
+						getForeignColumns(dataProviderHandler);
+						int type = 0;
+						if (foreign != null && pos < foreign.length && foreign[pos] != null) type = foreign[pos].getType();
+						p[pos] = new EnumDataProvider(pdp, type);
+					}
+					else
+					{
+						exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
+							new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
+					}
 				}
 			}
 			else if (pdp != null && pdp.startsWith(LiteralDataprovider.LITERAL_PREFIX))
