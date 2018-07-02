@@ -1155,9 +1155,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(pkHashAndIndex);
 		int recordIndex = splitHashAndIndex.getRight().intValue();
-		IRecordInternal record = foundset.getRecord(recordIndex);
+		IRecordInternal recordByIndexHint = foundset.getRecord(recordIndex);
 		String pkHash = splitHashAndIndex.getLeft();
-		if (record != null && !pkHash.equals(record.getPKHashKey()))
+		if (recordByIndexHint == null || !pkHash.equals(recordByIndexHint.getPKHashKey()))
 		{
 			recordIndex = foundset.getRecordIndex(pkHash, recordIndex);
 			if (recordIndex != -1)

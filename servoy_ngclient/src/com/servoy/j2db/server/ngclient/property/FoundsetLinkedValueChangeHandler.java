@@ -39,14 +39,14 @@ public class FoundsetLinkedValueChangeHandler
 		this.foundsetPropValue = foundsetPropValue;
 	}
 
-	public void valueChangedInFSLinkedUnderlyingValue(String propertyName, ViewportDataChangeMonitor< ? > viewPortChangeMonitor)
+	public void valueChangedInFSLinkedUnderlyingValue(String propertyName, ViewportDataChangeMonitor< ? > viewPortChangeMonitor, boolean granularUpdate)
 	{
-		// for example foundset linked properties can change due to other reasons then the foundset change listener firing (either they have special behavior or for example related DPs that get udpates from the DAL
-		// on the current record from the FoundsetDAL) so without an actualy change in the record itself; any actual change in the record; in this case we need to mark it correctly in viewport as a change
+		// for example foundset linked properties can change due to other reasons then the foundset change listener firing (either they have special behavior or for example related DPs that get updates from the DAL
+		// on the current record from the FoundsetDAL) so without an actual change in the record itself; any actual change in the record; in this case we need to mark it correctly in viewport as a change
 		IRecordInternal record = foundsetPropValue.getDataAdapterList().getRecord();
 		if (record != null)
 		{
-			Runnable queueChangeRunnable = queueCellChangeOnRecord(propertyName, record, viewPortChangeMonitor);
+			Runnable queueChangeRunnable = queueCellChangeOnRecord(propertyName, record, viewPortChangeMonitor, granularUpdate);
 
 			if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
 			{
@@ -84,7 +84,7 @@ public class FoundsetLinkedValueChangeHandler
 	}
 
 	private Runnable queueCellChangeOnRecord(final String propertyName, final IRecordInternal record,
-		final ViewportDataChangeMonitor< ? > viewPortChangeMonitor)
+		final ViewportDataChangeMonitor< ? > viewPortChangeMonitor, final boolean granularUpdate)
 	{
 		return new Runnable()
 		{
@@ -99,7 +99,7 @@ public class FoundsetLinkedValueChangeHandler
 					int relativeIdx = idx - viewPort.getStartIndex();
 					if (relativeIdx >= 0 && relativeIdx < viewPort.getStartIndex() + viewPort.getSize())
 					{
-						viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset());
+						viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset(), granularUpdate);
 					}
 				}
 			}

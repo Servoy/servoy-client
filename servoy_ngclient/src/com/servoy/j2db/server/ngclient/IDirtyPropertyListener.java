@@ -24,6 +24,9 @@ package com.servoy.j2db.server.ngclient;
 public interface IDirtyPropertyListener
 {
 
-	void propertyFlaggedAsDirty(String propertyName, boolean dirty);
+	/**
+	 * @param contentsUpdated only matters if dirty is true; this is false if the prop. was changed by ref, true if it's value has changed (the smart value itself called changeMonitor.valueChanged()).
+	 */
+	void propertyFlaggedAsDirty(String propertyName, boolean dirty, boolean contentsUpdated);
 
 }
