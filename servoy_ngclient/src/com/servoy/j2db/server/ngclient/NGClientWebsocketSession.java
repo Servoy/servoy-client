@@ -81,6 +81,10 @@ import com.servoy.j2db.util.Utils;
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
 	private int clientType = 1;
+	/**
+	 * the folder that contains the compiled less files
+	 */
+	public static final String SERVOY_SOLUTION_CSS = "servoy_solution_css/";
 
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
@@ -345,7 +349,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				if (!client.isInDeveloper() && media.getName().endsWith(".less"))
 				{
-					styleSheets.set(i, "servoy_solution_css/" + styleSheets.get(i).replace(".less", ".css") + "?t=" +
+					styleSheets.set(i, SERVOY_SOLUTION_CSS + styleSheets.get(i).replace(".less", ".css") + "?t=" +
 						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
 				}
 				else
