@@ -1,7 +1,7 @@
 <uib-tabset active="model.activeTabIndex" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
     <uib-tab ng-repeat="tab in model.tabs" select="select(tab)" disable="tab.disabled || !model.enabled || !tab.containsFormId">
       <uib-tab-heading  svy-mnemonic='tab.mnemonic'>
-      	<img ng-hide="tab.imageMediaID == ''"  ng-src='{{tab.imageMediaID}}'/>
+      	<img ng-show="tab.imageMediaID"  ng-src='{{tab.imageMediaID}}'/>
         <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
         	  ng-bind='tab.text'></span>
       </uib-tab-heading>
