@@ -579,4 +579,40 @@ public class ValueList extends AbstractBase
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, "".equals(deprecatedInfo) ? null : deprecatedInfo);
 	}
+
+	/**
+	 * Set the displayValue type
+	 *
+	 * @param arg the displayValue type
+	 */
+	public void setDisplayValueType(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELIST_DISPLAYVALUE_TYPE, arg);
+	}
+
+	/**
+	 * The type of the displayValue
+	 */
+	public int getDisplayValueType()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELIST_DISPLAYVALUE_TYPE).intValue();
+	}
+
+	/**
+	 * Set the realValue type
+	 *
+	 * @param arg the realValue type
+	 */
+	public void setRealValueType(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELIST_REALVALUE_TYPE, arg);
+	}
+
+	/**
+	 * The type of the realValue
+	 */
+	public int getRealValueType()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELIST_REALVALUE_TYPE).intValue();
+	}
 }
