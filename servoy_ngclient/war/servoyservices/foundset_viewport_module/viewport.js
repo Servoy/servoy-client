@@ -26,7 +26,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 				// convert new data if necessary
 				var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][idx] : undefined;
-				if (conversionInfo && conversionInfo[columnName]) r[VALUE_KEY] = $sabloConverters.convertFromClientToServer(r[VALUE_KEY], conversionInfo[columnName], oldData);
+				if (conversionInfo && (!columnName || conversionInfo[columnName])) r[VALUE_KEY] = $sabloConverters.convertFromClientToServer(r[VALUE_KEY], columnName ? conversionInfo[columnName] : conversionInfo, oldData);
 				else r[VALUE_KEY] = $sabloUtils.convertClientObject(r[VALUE_KEY]);
 
 				internalState.requests.push({viewportDataChanged: r});
@@ -61,7 +61,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 								var changed = false;
 								if (typeof newVal == "object") {
 									var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][idx] : undefined;
-									if ($sabloUtils.isChanged(newData, oldData, conversionInfo)) {
+									if ($sabloUtils.isChanged(newData, oldData, conversionInfo ? (columnName ? conversionInfo[columnName] : conversionInfo) : undefined)) {
 										changed = true;
 									}
 								} else {
@@ -175,7 +175,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 					// apply the conversions
 					var rowConversionUpdate = (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[relIdx] : undefined;
-					if (rowConversionUpdate) $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope, componentModelGetter);
+					if (rowConversionUpdate) rowUpdate.rows[relIdx] = $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope, componentModelGetter);
 					// if the rowUpdate contains '_svyRowId' then we know it's the entire/complete row object
 					if (simpleRowValue || rowUpdate.rows[relIdx][$foundsetTypeConstants.ROW_ID_COL_KEY]) {
 						viewPort[j] = rowUpdate.rows[relIdx];

@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
@@ -115,6 +116,20 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		{
 			dataLinkedPropertyRegistrationListeners.remove(listener);
 			if (dataLinkedPropertyRegistrationListeners.size() == 0) dataLinkedPropertyRegistrationListeners = null;
+		}
+	}
+
+	public void resetDALToSelectedIndexQuietly()
+	{
+		// see https://support.servoy.com/browse/SVY-11537; DataproviderTypeSabloValues do listen to related data but only on the row in the foundset DAL
+		IFoundSetInternal foundset;
+		if (getRecord() != null) foundset = getRecord().getParentFoundSet();
+		else foundset = null;
+
+		if (foundset != null && foundset.getSize() > 0)
+		{
+			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
+			setRecordQuietly(selectedRecord, true);
 		}
 	}
 

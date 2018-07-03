@@ -22,7 +22,6 @@ import org.json.JSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.util.Debug;
 
@@ -88,12 +87,6 @@ public abstract class ViewportRowDataProvider
 					clientConversionInfo.pushNode(String.valueOf(i - startIndex));
 					writeRowData(i, columnName, foundset, w, clientConversionInfo);
 					clientConversionInfo.popNode();
-				}
-				FoundsetDataAdapterList dal = getDataAdapterList();
-				if (dal != null && foundset.getSize() > 0)
-				{
-					IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-					dal.setRecordQuietly(selectedRecord, true);
 				}
 			}
 		}

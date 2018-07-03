@@ -112,7 +112,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public String toString()
 	{
-		return "<" + getName() + ">";
+		return "<'" + getName() + "' of parent " + getParent() + ">";
 	}
 
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
@@ -259,7 +259,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean markPropertyAsChangedByRef(String key)
 	{
 		boolean modified = super.markPropertyAsChangedByRef(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, false);
 		return modified;
 	}
 
@@ -267,7 +267,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean clearChangedStatusForProperty(String key)
 	{
 		boolean modified = super.clearChangedStatusForProperty(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, false);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, false, false);
 		return modified;
 	}
 
@@ -275,7 +275,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean markPropertyContentsUpdated(String key)
 	{
 		boolean modified = super.markPropertyContentsUpdated(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, true);
 		return modified;
 	}
 

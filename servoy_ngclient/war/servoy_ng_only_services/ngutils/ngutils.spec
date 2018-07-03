@@ -13,8 +13,7 @@
 		"VIEWPORT_MOBILE_DENY_ZOOM_OUT": { "type": "int", "default": 3 },
 		"VIEWPORT_MOBILE_DENY_ZOOM_IN": { "type": "int", "default": 4 },
 		"contributedTags": "tag[]",
-		"styleclasses": { "type": "object", "pushToServer": "shallow", "tags": { "scope": "private" } },
-		"websocketReconnectUIDelay" : "int"
+		"styleclasses": { "type": "object", "pushToServer": "shallow", "tags": { "scope": "private" } }
 	},
 
 	"api": {
@@ -30,9 +29,6 @@
 		},
 		"setViewportMetaDefaultForMobileAwareSites": {
 			"parameters": [ ]
-		},
-		"setWebsocketReconnectUIDelay": {
-			"parameters": [{ "name": "delay", "type": "int" }]
 		},
 		"setViewportMetaForMobileAwareSites": {
 			"parameters": [{ "name": "viewportDefType", "type": "int" }]
