@@ -934,7 +934,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-
 	@Override
 	public void setFindMode(boolean findMode)
 	{

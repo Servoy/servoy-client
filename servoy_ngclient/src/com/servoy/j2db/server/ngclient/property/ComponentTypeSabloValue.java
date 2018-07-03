@@ -288,7 +288,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 
 			@Override
-			public void propertyFlaggedAsDirty(String propertyName, boolean dirty)
+			public void propertyFlaggedAsDirty(String propertyName, boolean dirty, boolean contentChanged)
 			{
 				if (dirty)
 				{
@@ -300,7 +300,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						{
 							// for example valuelist properties can get filtered based on client sent filter in which case the property does change without
 							// any actual change in the record; in this case we need to mark it correctly in viewport as a change
-							foundsetLinkedPropOfComponentValueChangeHandler.valueChangedInFSLinkedUnderlyingValue(propertyName, viewPortChangeMonitor);
+							foundsetLinkedPropOfComponentValueChangeHandler.valueChangedInFSLinkedUnderlyingValue(propertyName, viewPortChangeMonitor,
+								contentChanged);
 						}
 						else
 						{
@@ -746,7 +747,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 								{
 									if (!foundsetValue.setEditingRowByPkHash(rowId))
 									{
-										Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
+										Debug.error("Cannot select row when component event was fired; row identifier: " + rowId + ", forFoundset: '" +
+											foundsetValue + "', component: " + (childComponent != null ? childComponent : getName()));
 										selectionOk = false;
 									}
 								}

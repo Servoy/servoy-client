@@ -40,6 +40,21 @@ input[type=date] {
 	width: 0px!important;/*override value from ng-grid css*/	
 }
 
+.svy-reconnecting-overlay
+{
+	background:lightgray;
+	opacity:.75;
+}
+
+.svy-reconnecting-overlay.ng-hide {
+  opacity: 0;
+}
+
+.svy-reconnecting-overlay.ng-hide-remove {
+  transition: all linear 0.1s;
+  transition-delay: 0.5s;
+}
+
 /*align labels for radios and check groups with input element;
  we should use flexbox instead of useless vertical-align*/
 label.svy-check-radio{

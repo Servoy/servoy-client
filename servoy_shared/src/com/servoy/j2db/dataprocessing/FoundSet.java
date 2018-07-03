@@ -1327,6 +1327,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * If you copy over a relation into this foundset, then this foundset will not be a related foundset, it will not automatically update its state
 	 * of records are updated or added that belong to that relation. It will only be a snapshot of that related foundsets state.
 	 *
+	 * Foundset filter params are copied over from the source foundset and are merged with the existing filters on this foundset.
+	 *
 	 * @sample
 	 * //Copies foundset data from another foundset
 	 * %%prefix%%foundset.loadRecords(fs);
@@ -6611,21 +6613,27 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		omittedPKs = null;
 
 		List<TableFilter> myOwnFilters = null;
-		// look for filters in this foundset that have not been appplied to the other foundset
-		if (foundSetFilters != null)
+		// look for filters in this foundset that have not been applied to the other foundset
+		for (TableFilter filter : iterate(foundSetFilters))
 		{
-			for (TableFilter filter : foundSetFilters)
+			if (fs.foundSetFilters == null || !fs.foundSetFilters.contains(filter))
 			{
-				if (fs.foundSetFilters == null || !fs.foundSetFilters.contains(filter))
-				{
-					if (myOwnFilters == null) myOwnFilters = new ArrayList<TableFilter>(foundSetFilters.size());
-					myOwnFilters.add(filter);
-				}
+				if (myOwnFilters == null) myOwnFilters = new ArrayList<TableFilter>(foundSetFilters.size());
+				myOwnFilters.add(filter);
 			}
 		}
 		sheet = fs.sheet;
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
 			addFilterconditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
+		if (fs.foundSetFilters != null)
+		{
+			// copy over the foundset filters from the other fs, merged with the filters this foundset had
+			foundSetFilters = new ArrayList<>(fs.foundSetFilters);
+			if (myOwnFilters != null)
+			{
+				foundSetFilters.addAll(myOwnFilters);
+			}
+		}
 		initialized = fs.initialized;
 
 		clearInternalState(true);
@@ -6746,6 +6754,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					filters.remove();
 					found = true;
 				}
+			}
+			if (foundSetFilters.isEmpty())
+			{
+				foundSetFilters = null;
 			}
 		}
 

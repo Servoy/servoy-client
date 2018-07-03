@@ -3024,6 +3024,8 @@ public abstract class BasicFormController
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset
 		 * that is given.
 		 *
+		 * When the form uses a seperate foundset, foundset filter params are copied over from the source foundset and are merged with the existing filters.
+		 *
 		 * @sample
 		 * //to load a (related)foundset into the form.
 		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset

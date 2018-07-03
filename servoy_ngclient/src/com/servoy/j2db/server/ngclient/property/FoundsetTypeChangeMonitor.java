@@ -434,7 +434,7 @@ public class FoundsetTypeChangeMonitor
 							for (String dataprovider : dataproviders)
 							{
 								vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex, dataprovider,
-									propertyValue.getFoundset());
+									propertyValue.getFoundset(), false);
 							}
 						}
 						else
@@ -563,6 +563,7 @@ public class FoundsetTypeChangeMonitor
 		public final int startIndex;
 		public final int endIndex;
 		public final int type;
+		public final boolean granularUpdate;
 
 		private final IJSONStringWithConversions rowData;
 
@@ -573,16 +574,17 @@ public class FoundsetTypeChangeMonitor
 
 		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type)
 		{
-			this(rowData, startIndex, endIndex, type, null);
+			this(rowData, startIndex, endIndex, type, null, false);
 		}
 
-		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type, String columnName)
+		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type, String columnName, boolean granularUpdate)
 		{
 			this.rowData = rowData;
 			this.startIndex = startIndex;
 			this.endIndex = endIndex;
 			this.type = type;
 			this.columnName = columnName;
+			this.granularUpdate = granularUpdate;
 		}
 
 		@Override
@@ -610,10 +612,13 @@ public class FoundsetTypeChangeMonitor
 		 */
 		public boolean isMadeIrrelevantBySubsequentRowData(RowData newOperation)
 		{
-			// so a change can be made obsolete by a subsequent change or delete of the same row;
+			// so a change can be made obsolete by a subsequent full change (so not granular update change) or delete of the same row;
 			// it we're talking about two change operations, it matters as well if one of them is only for a specific column of the row or for the whole row
+
+			// also a change made just for the sake of client-side listeners firing on foundset prop due to changes in foundset-linked prop. content only can be
+			// safely replaced by any similar op., a normal change or a delete on the same row
 			boolean canNewTypeOverrideOldType = (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) &&
-				(newOperation.columnName == null || newOperation.columnName.equals(columnName))) ||
+				(newOperation.columnName == null || newOperation.columnName.equals(columnName)) && !newOperation.granularUpdate) ||
 				(type == CHANGE_IN_LINKED_PROPERTY &&
 					(newOperation.type == CHANGE_IN_LINKED_PROPERTY || newOperation.type == CHANGE || newOperation.type == DELETE));
 
