@@ -510,6 +510,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (this.record != null)
 			{
 				this.record.removeModificationListener(this);
+				this.record.getParentFoundSet().removeAggregateModificationListener(this);
 			}
 			this.record = (IRecordInternal)record;
 
@@ -517,6 +518,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				pushChangedValues(null, fireChangeEvent);
 				this.record.addModificationListener(this);
+				this.record.getParentFoundSet().addAggregateModificationListener(this);
 			}
 		}
 		finally

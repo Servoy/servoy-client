@@ -1623,7 +1623,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The Cascading Style Sheet (CSS) class name applied to the form.
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
@@ -1634,7 +1634,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the syle
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void setStyleClass(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);

@@ -29,6 +29,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IPropertyDescriptionProvider;
@@ -85,6 +86,11 @@ import com.servoy.j2db.util.Utils;
 public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener, IHasUnderlyingState
 {
 
+	private final String ID_KEY = "id";
+	private final String VALUE_KEY = "value";
+	private final String HANDLED = "handledID";
+	private final String FILTER = "filter";
+
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 
 	private boolean initialized;
@@ -110,7 +116,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	private IRecordInternal previousRecord;
 	private LookupListModel filteredValuelist;
-	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
+	private Long handledIDForResponse; // when a filter(...) is requested, we must include the filter req. id (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
 	private boolean valuesRequested;
 
@@ -506,11 +512,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		DataConversion clientConversionsInsideValuelist = new DataConversion();
 		if (key != null) writer.key(key);
 		writer.object();
-		if (filterStringForResponse != null)
+		if (handledIDForResponse != null)
 		{
-			writer.key("filter");
-			writer.value(filterStringForResponse);
-			filterStringForResponse = null;
+			writer.key(HANDLED);
+			writer.object().key(ID_KEY).value(handledIDForResponse.longValue()).key(VALUE_KEY).value(true).endObject();
+			handledIDForResponse = null;
 		}
 		if (valueList != null && valueList.getValueList() != null)
 		{
@@ -541,7 +547,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	/**
 	 * Filters the values of the valuelist for type-ahead-like usage.
 	 */
-	public void filterValuelist(String filterString)
+	public void filterValuelist(JSONObject newJSONValue)
 	{
 		if (!initialized)
 		{
@@ -550,7 +556,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 
 		this.valuesRequested = true;
-		this.filterStringForResponse = filterString;
+		this.handledIDForResponse = Long.valueOf(newJSONValue.getLong(ID_KEY));
+		String filterString = newJSONValue.optString(FILTER);
 		if (filteredValuelist == null)
 		{
 			if (valueList instanceof DBValueList)

@@ -114,5 +114,11 @@ declare namespace sablo {
         setQueryString(queryString: string): void,
         getQueryString(): string
 	}
-
+	interface ISabloDeferHelper {
+		initInternalStateForDeferring(internalState, timeoutRejectLogPrefix?: string): void
+		initInternalStateForDeferringFromOldInternalState(internalState, oldInternalState): void
+		getNewDeferId(internalState): number
+		retrieveDeferForHandling(msgId: number, internalState):angular.IDeferred<any>
+		cancelAll(internalState):void
+	}
 }
