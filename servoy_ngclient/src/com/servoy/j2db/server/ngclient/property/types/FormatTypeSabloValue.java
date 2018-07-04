@@ -361,8 +361,11 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 						if (realValuelist.hasRealValues())
 						{
 							// if custom vl has both real and display values, the display values are TEXT (format is for those)
+							// of if it has displayValueType set, use that
 							isValuelistFormatSet = true;
-							return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
+							int realValueDisplayType = realValuelist.getValueList().getDisplayValueType();
+							return ComponentFormat.getComponentFormat(formatValue, realValueDisplayType != 0 ? realValueDisplayType : IColumnTypes.TEXT,
+								application);
 						}
 					}
 					else if (valuelistPersist.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
@@ -383,9 +386,12 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 								if (realValuelist.hasRealValues() || realValuelist.getSize() == 0 ||
 									(realValuelist.getSize() == 1 && valuelistPersist.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS))
 								{
-									// if global method vl has both real and display values, it seems that the display values are always TEXT (format is for those)
+									// if global method vl has both real and display values, the display values are TEXT (format is for those)
+									// of if it has displayValueType set, use that
 									isValuelistFormatSet = true;
-									return ComponentFormat.getComponentFormat(formatValue, IColumnTypes.TEXT, application);
+									int realValueDisplayType = realValuelist.getValueList().getDisplayValueType();
+									return ComponentFormat.getComponentFormat(formatValue, realValueDisplayType != 0 ? realValueDisplayType : IColumnTypes.TEXT,
+										application);
 								}
 							}
 						}
