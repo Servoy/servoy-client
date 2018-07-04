@@ -342,7 +342,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		List<Map<String, Object>> jsonValue = null;
 
 		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
-		int size = Math.min(getConfig().getMaxCount(), vlSize);
+		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
 		Object dpRealValue = null;
 		Object dpDisplayValue = null;
 		boolean containsDpValue = false;
@@ -350,7 +350,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
-			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount()))
+			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount(dataAdapterListToUse.getApplication())))
 			{
 				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
 				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
@@ -401,11 +401,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
 	{
-		if (getConfig().getMaxCount() < valuelistSize && getConfig().shouldLogWhenOverMax() &&
+		if (getConfig().getMaxCount(dataAdapterListToUse.getApplication()) < valuelistSize && getConfig().shouldLogWhenOverMax() &&
 			Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
-			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + getConfig().getMaxCount() + //$NON-NLS-1$//$NON-NLS-2$
-				" rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", //$NON-NLS-1$
-				null);
+			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + //$NON-NLS-1$//$NON-NLS-2$
+				getConfig().getMaxCount(dataAdapterListToUse.getApplication()) + " rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", null);
 	}
 
 	protected FlattenedSolution getFlattenedSolution()
