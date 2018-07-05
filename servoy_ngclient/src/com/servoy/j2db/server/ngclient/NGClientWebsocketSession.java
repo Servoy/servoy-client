@@ -94,7 +94,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public NGClientWebsocketSession(String uuid)
 	{
 		super(uuid);
-		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this));
+		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
 	}
 
 	@Override
@@ -376,7 +376,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebComponentSpecification(name);
 		if (spec == null) spec = new WebObjectSpecification(name, "", IPackageReader.WEB_SERVICE, name, null, null, null, "", null);
 
-		return new ServoyClientService(name, spec, this);
+		return new ServoyClientService(name, spec, this, true);
 	}
 
 	/*
