@@ -37,13 +37,16 @@ public class ServoyClientService extends ClientService implements IContextProvid
 {
 	private final INGClientWebsocketSession session;
 
-	public ServoyClientService(String serviceName, WebObjectSpecification spec, INGClientWebsocketSession session)
+	public ServoyClientService(String serviceName, WebObjectSpecification spec, INGClientWebsocketSession session, boolean initDefaults)
 	{
-		super(serviceName, spec, true);
+		super(serviceName, spec, initDefaults);
 		this.session = session;
 
-		initDefaults(spec);
-		propertiesInitialized();
+		if (initDefaults)
+		{
+			initDefaults(spec);
+			propertiesInitialized();
+		}
 	}
 
 	protected void initDefaults(WebObjectSpecification spec)
