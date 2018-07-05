@@ -32,6 +32,7 @@ import org.sablo.specification.property.types.TypesRegistry;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
+import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -503,6 +504,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			return;
 		}
+		FireCollector fireCollector = FireCollector.getFireCollector();
 		try
 		{
 			settingRecord = true;
@@ -525,8 +527,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			formController.getFormUI().setChanging(false);
 			settingRecord = false;
+			fireCollector.done();
 		}
-		if (record != null)
+		// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
+		if (this.record != null)
 		{
 			for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
 			{
@@ -534,7 +538,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (relation != null)
 				{
 					IWebFormController form = entry.getKey();
-					form.loadRecords(record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
+					form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
 				}
 			}
 		}
