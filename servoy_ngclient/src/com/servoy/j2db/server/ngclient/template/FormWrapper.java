@@ -39,6 +39,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
@@ -94,8 +95,9 @@ public class FormWrapper
 		this.context = context;
 		this.design = design;
 		this.runtimeData = runtimeData;
-		isTableView = !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-		isListView = !design && (form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
+		boolean hasBodyPart = context.getSolution().getFlattenedForm(form).hasPart(IPartConstants.BODY);
+		isTableView = hasBodyPart && !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+		isListView = hasBodyPart && !design && (form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
 	}
 
 	public boolean isDesign()
