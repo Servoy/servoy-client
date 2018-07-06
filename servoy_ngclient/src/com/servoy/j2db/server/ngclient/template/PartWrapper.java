@@ -116,7 +116,7 @@ public class PartWrapper
 			}
 		};
 		layoutProvider.fillPartStyle(style, part);
-		if (!design && FormLayoutGenerator.isTableOrListView(context))
+		if (!design && FormLayoutGenerator.isTableOrListView(context, converterContext.getSolution()))
 		{
 			style.remove("overflow-x");
 			style.remove("overflow-y");

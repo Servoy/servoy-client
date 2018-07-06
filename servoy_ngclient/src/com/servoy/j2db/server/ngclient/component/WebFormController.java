@@ -37,6 +37,7 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.IBasicFormManager;
@@ -96,17 +97,20 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			parentContainer = formUI.getParentContainer();
 		}
-		switch (form.getView())
+		if (form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED)
 		{
-			case IFormConstants.VIEW_TYPE_TABLE :
-			case IFormConstants.VIEW_TYPE_TABLE_LOCKED :
-			case IFormConstants.VIEW_TYPE_LIST :
-			case IFormConstants.VIEW_TYPE_LIST_LOCKED :
-				formUI = new WebListFormUI(this);
-				break;
-			default :
-				formUI = new WebFormUI(this);
+			formUI = new WebFormUI(this);
 		}
+		else if (!application.getFlattenedSolution().getFlattenedForm(form).hasPart(IPartConstants.BODY))
+		{
+			formUI = new WebFormUI(this);
+			getApplication().reportJSWarning("Form '" + form.getName() + "' is shown in record view because it does not have a body part.");
+		}
+		else
+		{
+			formUI = new WebListFormUI(this);
+		}
+
 		if (parentContainer instanceof String)
 		{
 			formUI.setParentWindowName((String)parentContainer);
