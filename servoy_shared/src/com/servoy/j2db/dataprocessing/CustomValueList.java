@@ -186,7 +186,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		this.valueType = valueType;
 		allowEmptySelection = addEmpty;
 		// always use default format for numbers
-		if (Column.mapToDefaultType(valueType) != IColumnTypes.NUMBER && Column.mapToDefaultType(valueType) != IColumnTypes.INTEGER) this.format = format;
+		if (Column.mapToDefaultType(getValueType()) != IColumnTypes.NUMBER && Column.mapToDefaultType(getValueType()) != IColumnTypes.INTEGER)
+			this.format = format;
 		else this.format = null;
 		firstFill(values, false);
 	}
@@ -261,7 +262,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 								realValues.add(null);
 							}
 						}
-						if (valueType == Types.OTHER)
+						if (getValueType() == Types.OTHER)
 						{
 							Object realValue = str[1];
 							if (str[1] != null && str[1].startsWith("%%") && ScopesUtils.isVariableScope(str[1].substring(2)) && str[1].endsWith("%%"))
@@ -290,13 +291,13 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 								try
 								{
-									realValue = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, realValue,
+									realValue = Column.getAsRightType(getValueType(), IBaseColumn.NORMAL_COLUMN, realValue,
 										format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true, false);
 								}
 								catch (RuntimeException ex)
 								{
 									Debug.error("Value List '" + getName() + "' has real value '" + str[1] + "' which cannot be converted to type:" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-										Column.getDisplayTypeString(valueType), ex);
+										Column.getDisplayTypeString(getValueType()), ex);
 								}
 								// check if it is a global var
 							}
@@ -309,7 +310,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 						{
 							displayValuesOnly = true;
 							String strval = application.getI18NMessageIfPrefixed(line);
-							if (valueType == Types.OTHER)
+							if (getValueType() == Types.OTHER)
 							{
 								super.addElement(strval);
 							}
@@ -329,13 +330,13 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 									}
 									try
 									{
-										value = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, value,
+										value = Column.getAsRightType(getValueType(), IBaseColumn.NORMAL_COLUMN, value,
 											format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true, false);
 									}
 									catch (Exception e)
 									{
 										Debug.error("Could not convert custom value list value '" + strval + "' to type " +
-											Column.getDisplayTypeString(valueType) + " for value list " + getName() + " -- skipped: " + e.getMessage());
+											Column.getDisplayTypeString(getValueType()) + " for value list " + getName() + " -- skipped: " + e.getMessage());
 										continue;
 									}
 									super.addElement(value);
@@ -396,8 +397,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					}
 					if (realValues == null)
 					{
-						o = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, o, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
-							null, true, false);
+						o = Column.getAsRightType(getValueType(), IBaseColumn.NORMAL_COLUMN, o, format == null ? null : format.getDisplayFormat(),
+							Integer.MAX_VALUE, null, true, false);
 					}
 					else
 					{
@@ -430,10 +431,10 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 			for (Object obj : allRealValues)
 			{
-				if (valueType != Types.OTHER && Column.mapToDefaultType(valueType) != IColumnTypes.MEDIA)
+				if (getValueType() != Types.OTHER && Column.mapToDefaultType(getValueType()) != IColumnTypes.MEDIA)
 				{
-					obj = Column.getAsRightType(valueType, IBaseColumn.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE,
-						null, false, false);
+					obj = Column.getAsRightType(getValueType(), IBaseColumn.NORMAL_COLUMN, obj, format == null ? null : format.getDisplayFormat(),
+						Integer.MAX_VALUE, null, false, false);
 				}
 				newRrealValues.add(obj);
 			}
@@ -469,7 +470,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		if (obj == null) ret = indexOf(null);
 		else
 		{
-			if (obj instanceof Date && format != null && valueType == IColumnTypes.DATETIME)
+			if (obj instanceof Date && format != null && getValueType() == IColumnTypes.DATETIME)
 			{
 				SimpleDateFormat sfsd = new SimpleDateFormat(format.getDisplayFormat());
 				String selectedFormat = sfsd.format(obj);
@@ -737,7 +738,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	public int getValueType()
 	{
-		return valueType;
+		int realValueType = valueList.getRealValueType();
+		return realValueType != 0 ? realValueType : valueType;
 	}
 
 	public void setValueType(int t)
