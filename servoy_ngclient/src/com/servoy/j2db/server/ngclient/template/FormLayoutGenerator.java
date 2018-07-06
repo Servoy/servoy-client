@@ -37,6 +37,7 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IForm;
@@ -272,10 +273,11 @@ public class FormLayoutGenerator
 		writer.print(">");
 	}
 
-	public static boolean isTableOrListView(Form form)
+	public static boolean isTableOrListView(Form form, FlattenedSolution flattenedSolution)
 	{
-		return (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED ||
-			form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
+		return (flattenedSolution.getFlattenedForm(form).hasPart(IPartConstants.BODY) && form.getView() == IFormConstants.VIEW_TYPE_TABLE ||
+			form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED || form.getView() == IFormConstants.VIEW_TYPE_LIST ||
+			form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
 	}
 
 	public static void generateEndDiv(PrintWriter writer)
