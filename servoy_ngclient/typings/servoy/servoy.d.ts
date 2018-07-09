@@ -62,7 +62,7 @@ declare namespace servoy {
 	
 	
 	interface IWindowService {
-	    getLoadedFormUrls(): { [s: string]: string; },
+	    getLoadedFormState(): { [s: string]: {url:string,attached:boolean}; },
 		create(name:string,type:number):WindowInstance,
 		show(name:string,form:string, title:string): void,
 		hide(name:string):void,

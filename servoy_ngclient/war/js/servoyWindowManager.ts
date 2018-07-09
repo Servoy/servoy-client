@@ -256,10 +256,22 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			} );
 
 			var self: servoy.IWindowService = {
-					
-				getLoadedFormUrls:function () {
-						return formTemplateUrls;
-					},
+
+				getLoadedFormState: function() {
+					var loadedState: { [s: string]: {url:string,attached:boolean}; } = {};
+					for ( var formName in formTemplateUrls ) {
+						if ( formName ) {
+							var state = $sabloApplication.getFormStateEvenIfNotYetResolved( formName );
+							if ( state ) { // can this be null if form name is there?
+								loadedState[formName] = {url:formTemplateUrls[formName],attached:state.getScope != null && state.getScope != undefined};
+							}
+							else {
+								loadedState[formName] = {url:formTemplateUrls[formName],attached:false};
+							}
+						}
+					}
+					return loadedState
+				},
 				create: function( name, type ) {
 					// dispose old one
 					if ( instances[name] ) {
@@ -404,7 +416,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						if ( instance['loadingIndicatorIsHidden'] ) {
 							var counter = instance['loadingIndicatorIsHidden'];
 							delete instance['loadingIndicatorIsHidden'];
-							while (counter -- > 0){
+							while ( counter-- > 0 ) {
 								$sabloLoadingIndicator.showLoading();
 							}
 						}
@@ -587,8 +599,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 				destroyController: function( formName ) {
 					$sabloApplication.clearFormState( formName );
 					delete formTemplateUrls[formName];
-					if ($solutionSettings.mainForm.name == formName)
-					{
+					if ( $solutionSettings.mainForm.name == formName ) {
 						$solutionSettings.mainForm.name = undefined;
 					}
 				},
