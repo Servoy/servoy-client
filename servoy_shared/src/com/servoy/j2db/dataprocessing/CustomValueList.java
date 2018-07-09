@@ -738,7 +738,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	public int getValueType()
 	{
-		int realValueType = valueList.getRealValueType();
+		int realValueType = valueList != null ? valueList.getRealValueType() : 0;
 		return realValueType != 0 ? realValueType : valueType;
 	}
 
