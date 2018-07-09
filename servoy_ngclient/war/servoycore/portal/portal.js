@@ -15,8 +15,6 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			servoyApi: "=svyServoyapi"
 		},
 		link: function($scope, $element, $attrs) {
-			// START TEST MODELS
-
 			// rowProxyObjects[pk][elementIndex].                             - indexed by PK as we need these linked to a record/row not to a DOM element that uigrid reuses when scrolling
 			//                                  .mergedCellModel              - is the actual cell element svyModel cache
 			//                                  .cellHandlers                 - is the actual cell element handlers cache
@@ -27,11 +25,16 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			// cellChangeNotifierCaches[renderedRowIndex][elementIndex]       - it keeps the actual $sabloConstants.modelChangeNotifier contributed by each cell to the model if any; we keep these linked to the
 			//                                                                  real DOM elements through renderedRowIndex as well - see comment above for cellAPICaches that is in a similar situation
 			// lastCellModelsOfRenderedIndex[renderedRowIndex][elementIndex]  - it keeps the last rowID that was displayed for a cell at renderedRowIndex (via getMergedCellModel())
-			
+			// delayedChangeNotificationsForRenderedIndex[renderedRowIndex]][elementIndex] - when scrolling, getMergedCellModel will change the models provided at each realRenderIndex; but we will call any changeNotifiers later, after the component did get the new model from that call
+			//                                  .oldModelValue
+			//                                  .newModelValue
+			//                                  .changeNotifierToFire
+		
 			var rowProxyObjects = {};
 			var cellAPICaches = {};
 			var cellChangeNotifierCaches = {};
 			var lastCellModelsOfRenderedIndex = {};
+			var delayedChangeNotificationsForRenderedIndex = {};
 			
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -669,16 +672,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					cellProxies.mergedCellModel = cellModel = cellData;
 				}
 				
-				//  remember last cell model that was returned for this rendered row index
-				var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
-				if (!lastModelsOfRow) {
-					lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex] = [];
-				}
-				var lastModelOfCell = lastModelsOfRow[elementIndex];
-				lastModelsOfRow[elementIndex] = cellModel;
-				
-				// if the model returned for the component in this cell has changed and the component did contribute a change notifier we have to fire changes according to the differences in old and new model...
-				fireChangesDueToFullModelChangeIfNeeded(lastModelOfCell, cellModel, cellNotifierToUse);
+				handleModelChangeAsNeeded(cellModel, cellNotifierToUse, renderedRowIndex, elementIndex);
 				
 				return cellModel;
 			}
@@ -714,6 +708,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 									if ($log.debugEnabled) $log.debug("portal ### DESTROY successful");
 									delete cellChangeNotifierCaches[renderedRowIndex];
 									delete lastCellModelsOfRenderedIndex[renderedRowIndex];
+									delete delayedChangeNotificationsForRenderedIndex[renderedRowIndex];
 								} else if ($log.debugEnabled) $log.debug("portal ### DESTROY FAILED: either cache is already cleared of rowElement is different...");
 								// is .off needed for $destroy?
 							});
@@ -725,22 +720,53 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				return cachedCellNotifier;
 			}
 			
-			function fireChangesDueToFullModelChangeIfNeeded(oldModel, newModel, changeNotifier) {
+			function handleModelChangeAsNeeded(newModel, changeNotifier, renderedRowIndex, elementIndex) {
+				//  remember last cell model that was returned for this rendered row index
+				var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
+				if (!lastModelsOfRow) {
+					lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex] = [];
+				}
+				var oldModel = lastModelsOfRow[elementIndex];
+				lastModelsOfRow[elementIndex] = newModel;
+				
+				// if the model returned for the component in this cell has changed and the component did contribute a change notifier we have to fire changes according to the differences in old and new model...
 				if (oldModel && newModel && oldModel !== newModel && changeNotifier) {
 					// can we improve this somehow or is this enough?
-					var handledProperties = {};
+					var newDelayedCall = false;
+					if (!delayedChangeNotificationsForRenderedIndex[renderedRowIndex]) {
+						delayedChangeNotificationsForRenderedIndex[renderedRowIndex] = [];
+						newDelayedCall = true;
+					}
+					var delayedNotif = delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex];
+					if (!delayedNotif) {
+						delayedNotif = delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex] = {};
+						newDelayedCall = true;
+					} // else we only need to fire last one as we fire it for all props anyway
 					
-					for (var propertyName in oldModel) {
-						if (newModel[propertyName] !== oldModel[propertyName]) {
-							changeNotifier(propertyName, newModel[propertyName]);
+					if (!delayedNotif.oldModelValue) delayedNotif.oldModelValue = oldModel;
+					delayedNotif.newModelValue = newModel;
+					delayedNotif.changeNotifierToFire = changeNotifier;
+					
+					// as this is called from getMergedCellModel, the new model is not yet given to the component; call changeNotifiers later, after angular had a chance to update the cell's scope.model to the new value
+					if (newDelayedCall) $scope.$evalAsync(function() {
+						var delayedNotifToExec = delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex];
+						if (!delayedNotifToExec) return;
+						
+						delete delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex];
+						
+						var handledProperties = {};
+						for (var propertyName in delayedNotifToExec.oldModelValue) {
+							if (delayedNotifToExec.newModelValue[propertyName] !== delayedNotifToExec.oldModelValue[propertyName]) {
+								delayedNotifToExec.changeNotifierToFire(propertyName, delayedNotifToExec.newModelValue[propertyName]);
+							}
+							handledProperties[propertyName] = true;
 						}
-						handledProperties[propertyName] = true;
-					}
-					for (var propertyName in newModel) {
-						if (!handledProperties[propertyName]) {
-							changeNotifier(propertyName, newModel[propertyName]);
+						for (var propertyName in delayedNotifToExec.newModelValue) {
+							if (!handledProperties[propertyName]) {
+								delayedNotifToExec.changeNotifierToFire(propertyName, delayedNotifToExec.newModelValue[propertyName]);
+							}
 						}
-					}
+					});
 				} // we don't need to handle changes if old is null or changeNotifier is null; new should never be null
 			}
 
@@ -1624,12 +1650,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
     			}
 
-    			if(svyFormat){
+    			if (svyFormat) {
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	var format = svyFormat.display? svyFormat.display : svyFormat.edit
 			    	try {
 			    		data = $formatterUtils.format(data,format,type);
-			    	}catch(e){
+			    	} catch(e) {
 			    		console.log(e)
 			    	}
 			    	if (data && svyFormat.type == "TEXT") {
