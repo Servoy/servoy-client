@@ -79,11 +79,33 @@ public class ServoyApiObject
 	{
 		if (value instanceof NativeObject)
 		{
-			return (NativeObject)value;
+			NativeObject nativeObject = new NativeObject();
+			Object[] ids = ((NativeObject)value).getIds();
+			for (Object id : ids)
+			{
+				Object objectValue = ((NativeObject)value).get(id.toString(), (NativeObject)value);
+				if (objectValue instanceof RhinoMapOrArrayWrapper || objectValue instanceof NativeObject || objectValue instanceof NativeArray)
+				{
+					objectValue = copyObject(objectValue);
+				}
+				nativeObject.put(id.toString(), nativeObject, objectValue);
+			}
+			return nativeObject;
 		}
 		if (value instanceof NativeArray)
 		{
-			return (NativeArray)value;
+			NativeArray arr = (NativeArray)value;
+			Object[] values = new Object[arr.size()];
+			for (int i = 0; i < arr.size(); i++)
+			{
+				Object objectValue = arr.get(i);
+				if (objectValue instanceof RhinoMapOrArrayWrapper || objectValue instanceof NativeObject || objectValue instanceof NativeArray)
+				{
+					objectValue = copyObject(objectValue);
+				}
+				values[i] = objectValue;
+			}
+			return new NativeArray(values);
 		}
 		if (value instanceof RhinoMapOrArrayWrapper)
 		{
@@ -94,7 +116,7 @@ public class ServoyApiObject
 				for (Object id : ids)
 				{
 					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(id.toString(), null);
-					if (objectValue instanceof RhinoMapOrArrayWrapper)
+					if (objectValue instanceof RhinoMapOrArrayWrapper || objectValue instanceof NativeObject || objectValue instanceof NativeArray)
 					{
 						objectValue = copyObject(objectValue);
 					}
@@ -109,7 +131,7 @@ public class ServoyApiObject
 				for (int i = 0; i < ids.length; i++)
 				{
 					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(i, null);
-					if (objectValue instanceof RhinoMapOrArrayWrapper)
+					if (objectValue instanceof RhinoMapOrArrayWrapper || objectValue instanceof NativeObject || objectValue instanceof NativeArray)
 					{
 						objectValue = copyObject(objectValue);
 					}

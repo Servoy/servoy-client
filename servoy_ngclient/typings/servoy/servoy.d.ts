@@ -62,7 +62,7 @@ declare namespace servoy {
 	
 	
 	interface IWindowService {
-	    getLoadedFormUrls(): { [s: string]: string; },
+	    getLoadedFormState(): { [s: string]: {url:string,attached:boolean}; },
 		create(name:string,type:number):WindowInstance,
 		show(name:string,form:string, title:string): void,
 		hide(name:string):void,
@@ -131,7 +131,7 @@ declare namespace servoy {
 		getEventHandler($parse:angular.IParseService,scope:angular.IScope,svyEventHandler:string):angular.ICompiledExpression,
 		attachEventHandler($parse:angular.IParseService,element:JQuery,scope:angular.IScope,svyEventHandler,domEvent:string, filterFunction?,timeout?:number,returnFalse?:boolean, doSvyApply?:boolean, dataproviderString?:string, preHandlerCallback?):void,
 		testEnterKey(e):boolean, 
-		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void],
+		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
 		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string),
 	}
 } 

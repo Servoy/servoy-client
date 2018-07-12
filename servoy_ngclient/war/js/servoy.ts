@@ -33,7 +33,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils",function($rootScope:angular.IRootScopeService, $timeout:angular.ITimeoutService, $svyProperties:servoy.IServoyProperties) {
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -197,7 +197,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		{
 			return testKeyPressed(e,13);
 		},
-		bindTwoWayObjectProperty: function (a, propertyNameA, b, propertyNameB, useObjectEquality, scope) {
+		
+		bindTwoWayObjectProperty: function(a, propertyNameA: string, b, propertyNameB: string, useObjectEquality: boolean, scope: angular.IScope): [ () => void, () => void] {
 			var toWatchA = getInDepthWatchExpression(a, propertyNameA);
 			var toWatchB = getInDepthWatchExpression(b, propertyNameB);
 			var setA = getInDepthSetter(a, propertyNameA);
@@ -479,7 +480,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				onChangeFunction(scope, { $cmd: event });
 			})});
 	};
-}).directive('svyAutoapply', function($sabloApplication:sablo.ISabloApplication, $parse:angular.IParseService, $log:angular.ILogService, $utils:servoy.IUtils) {
+}).directive('svyAutoapply', function($sabloApplication: sablo.ISabloApplication, $parse: angular.IParseService, $log: angular.ILogService, $utils: servoy.IUtils) {
 	return {
 		restrict: 'A', // only activate on element attribute
 		require: '?ngModel', // get a hold of NgModelController
