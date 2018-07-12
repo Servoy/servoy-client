@@ -121,7 +121,7 @@ describe('styles helpers', function() {
 		var ff = myDiv[0].style.fontFamily;
 		if ("Segoe UI Semibold,Verdana,Arial" === ff) ff = "'Segoe UI Semibold', Verdana, Arial"; // this is how PhantomJS prints it
 		if ("Segoe UI Semibold, Verdana, Arial" === ff) ff = "'Segoe UI Semibold', Verdana, Arial"; // this is how PhantomJS prints it
-		expect(ff).toBe("'Segoe UI Semibold', Verdana, Arial");
+		expect(ff.replace(/"/g, '\'')).toBe("'Segoe UI Semibold', Verdana, Arial");
 		// runtime change 
 		$scope.myModel ={"fontWeight":"bold","fontSize":"16px","fontFamily":"Comic Sans MS, Verdana, Arial"}
 		$scope.$digest();		
@@ -129,7 +129,7 @@ describe('styles helpers', function() {
 		ff = myDiv[0].style.fontFamily;
 		if ("Comic Sans MS,Verdana,Arial" === ff) ff = "'Comic Sans MS', Verdana, Arial"; // this is how PhantomJS prints it
 		if ("Comic Sans MS, Verdana, Arial" === ff) ff = "'Comic Sans MS', Verdana, Arial"; // this is how PhantomJS prints it
-		expect(ff).toBe("'Comic Sans MS', Verdana, Arial");
+		expect(ff.replace(/"/g, '\'')).toContain("'Comic Sans MS', Verdana, Arial");
 		expect(myDiv[0].style.fontWeight).toBe("bold");
 	});
 

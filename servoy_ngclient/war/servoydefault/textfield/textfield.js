@@ -16,7 +16,7 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			}
 			var formatState = null;
 			var className = null;
-			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
+			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, { configurable: true, value: function(property, value) {
 				switch(property) {
 					case "borderType":
 						$svyProperties.setBorder($element,value);
