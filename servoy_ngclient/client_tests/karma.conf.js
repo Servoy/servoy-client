@@ -59,6 +59,9 @@ module.exports = function(config) {
 		},
 
 		frameworks: ['jasmine'],
+		client: {
+			jasmine: { random: false }
+		},
 		browsers: ['PhantomJS'],//
 
 		/*plugins : [    <- not needed since karma loads by default all sibling plugins that start with karma-*

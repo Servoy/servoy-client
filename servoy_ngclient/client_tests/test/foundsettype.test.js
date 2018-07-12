@@ -1,9 +1,9 @@
 describe("Test foundset_custom_property suite", function() {
 
+	beforeEach(module('sabloApp')); // for 'date' conversions
 	beforeEach(module('servoy'));
 	beforeEach(module('foundset_viewport_module')); // for foundset and viewport conversions
 	beforeEach(module('foundset_custom_property'));
-	beforeEach(module('sabloApp')); // for 'date' conversions
 
 	var sabloConverters;
 	var foundsetTypeConstants;
