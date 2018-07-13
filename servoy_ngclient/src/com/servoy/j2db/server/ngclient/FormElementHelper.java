@@ -43,6 +43,7 @@ import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -508,7 +509,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					IPersist persist = it.next();
 					if (persist instanceof IFormElement)
 					{
-						Point loc = ((IFormElement)persist).getLocation();
+						Point loc = CSSPosition.getLocation((IFormElement)persist);
 						if (startPos <= loc.y && endPos > loc.y)
 						{
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
@@ -801,7 +802,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 										if (((ISupportTabSeq)element).getTabSeq() >= 0)
 										{
 											selected.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
-												formElement.getLocation()));
+												CSSPosition.getLocation(formElement)));
 										}
 										else
 										{
@@ -826,7 +827,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 													int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
 													if (tabseq >= 0)
 													{
-														selected.add(new TabSeqProperty(element, tabSeqProperty.getName(), formElement.getLocation()));
+														selected.add(
+															new TabSeqProperty(element, tabSeqProperty.getName(), CSSPosition.getLocation(formElement)));
 													}
 													else
 													{
@@ -929,8 +931,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			Point location = new Point();
 			if (element instanceof ISupportBounds)
 			{
-				location.setLocation(((ISupportBounds)element).getLocation().x + (locationOffset != null ? locationOffset.x : 0),
-					((ISupportBounds)element).getLocation().y + (locationOffset != null ? locationOffset.y : 0));
+				Point elementLocation = CSSPosition.getLocation((ISupportBounds)element);
+				location.setLocation(elementLocation.x + (locationOffset != null ? locationOffset.x : 0),
+					elementLocation.y + (locationOffset != null ? locationOffset.y : 0));
 			}
 			return location;
 		}

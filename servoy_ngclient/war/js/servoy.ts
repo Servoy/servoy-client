@@ -358,7 +358,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			else if (valign == 3)
 			{
-				style['bottom'] = 0;
+				style['top'] = '100%';
+				style['transform'] = 'translateY(-100%)';
 			}
 			else
 			{
@@ -588,7 +589,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		restrict: 'A',
 		link: function (scope:angular.IScope, element:JQuery, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs['svyEnter'],'keydown', $utils.testEnterKey, 100, false, true, attrs['ngModel']);
+			$utils.attachEventHandler($parse,element,scope,attrs['svyEnter'],'keydown', $utils.testEnterKey, 100, false, true, attrs['ngModel'] ? attrs['ngModel'] : element.parent().attr('ng-model'));
 		}
 	};
 }).directive('svyChange',  function ($parse:angular.IParseService,$utils:servoy.IUtils) {
@@ -905,7 +906,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 })
 .filter('htmlFilter', function() {
 	return function(input) {
-		if (input && input.indexOf('<body') >=0 && input.lastIndexOf('</body') >=0)
+		if (input && input.indexOf && input.indexOf('<body') >=0 && input.lastIndexOf('</body') >=0)
 		{
 			input = input.substring(input.indexOf('<body')+6,input.lastIndexOf('</body'));
 		}

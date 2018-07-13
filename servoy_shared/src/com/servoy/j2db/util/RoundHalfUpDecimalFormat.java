@@ -71,8 +71,25 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 			sb.append('-');
 			return sb;
 		}
-		// add our default precission number so that 0.0245 are half upped.
-		return super.format(number + (Utils.DEFAULT_EQUALS_PRECISION * Utils.DEFAULT_EQUALS_PRECISION), result, fieldPosition);
+		double toParse = number;
+		// add a digit after the max fraction digits of the format so that 0.0245 are half upped.
+		if (!Double.isNaN(toParse) && !Double.isInfinite(toParse))
+		{
+			int max = getMaximumFractionDigits();
+			BigDecimal db = BigDecimal.valueOf(number);
+			if (db.scale() <= max + 1)
+			{
+				if (number < 0)
+				{
+					toParse -= 1d / Math.pow(10, max + 2);
+				}
+				else
+				{
+					toParse += 1d / Math.pow(10, max + 2);
+				}
+			}
+		}
+		return super.format(toParse, result, fieldPosition);
 	}
 
 

@@ -54,6 +54,7 @@ import org.sablo.websocket.utils.PropertyUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -334,6 +335,7 @@ public final class FormElement implements INGFormElement
 		{
 			for (PropertyDescription pd : specProperties.values())
 			{
+				// IMPORTANT NOTE: if you change anything here please update NGClientWebSocketSession.createClientService as well
 				if (!map.containsKey(pd.getName()))
 				{
 					if (pd.hasDefault())
@@ -586,7 +588,7 @@ public final class FormElement implements INGFormElement
 			else return getPropertyValue(propertyName); // just in case this method gets called for events for example (which are currently stored in the same map)
 		}
 
-		if (propertyDescription != null)
+		if (propertyDescription != null) // I think this if doesn't matter at least for now, as this method is currently only called from ComponentFactory.createComponent and only for keys in the propertyValues map anyway so it will return above anyway (never reach this if)
 		{
 			// we want a defaut value to be set anyway because it was sent into template
 			return propertyDescription.getType().defaultValue(propertyDescription);
@@ -772,7 +774,7 @@ public final class FormElement implements INGFormElement
 	{
 		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportSize)
 		{
-			return ((ISupportSize)persistImpl.getPersist()).getSize();
+			return CSSPosition.getSize((ISupportSize)persistImpl.getPersist());
 		}
 		return null;
 	}
@@ -781,7 +783,7 @@ public final class FormElement implements INGFormElement
 	{
 		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportBounds)
 		{
-			return ((ISupportBounds)persistImpl.getPersist()).getLocation();
+			return CSSPosition.getLocation((ISupportBounds)persistImpl.getPersist());
 		}
 		return null;
 	}

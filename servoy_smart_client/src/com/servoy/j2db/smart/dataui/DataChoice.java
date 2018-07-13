@@ -594,7 +594,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 						Debug.error("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
 					}
 				}
-				((JToggleButton)rendererComponent).setText(resolver != null ? Text.processTags(formattedValue.toString(), resolver) : formattedValue.toString());
+				((JToggleButton)rendererComponent).setText(
+					resolver != null ? Text.processTags(formattedValue.toString(), resolver) : formattedValue.toString());
 			}
 			return rendererComponent;
 		}
@@ -939,7 +940,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				if (!isCommandKeyDown && choiceType == Field.MULTISELECT_LISTBOX && list.getSelectedRows().size() > 1)
 				{
 					// clear the selection list
-					setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
+					setElementAt(Boolean.TRUE, enclosedComponent.getEditingRow());
 				}
 				else
 				{
@@ -956,10 +957,12 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				int firstSelected = list.getSelectedRow();
 				int start = Math.min(clicked, firstSelected);
 				int end = Math.max(clicked, firstSelected);
+				List<Boolean> values = new ArrayList<Boolean>(list.getSize());
 				for (int i = 0; i < list.getSize(); i++)
 				{
-					setElementAt((i >= start && i <= end) ? Boolean.TRUE : Boolean.FALSE, i);
+					values.add((i >= start && i <= end) ? Boolean.TRUE : Boolean.FALSE);
 				}
+				list.setElements(values.toArray());
 			}
 			stopCellEditing();
 			list.setMultiValueSelect(choiceType == Field.MULTISELECT_LISTBOX);

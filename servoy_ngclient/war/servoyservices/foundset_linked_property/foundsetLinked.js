@@ -1,6 +1,10 @@
 angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property', 'foundset_viewport_module'])
 // Foundset linked type ------------------------------------------
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils) {
+.value("$foundsetLinkedTypeConstants", {
+	ID_FOR_FOUNDSET: "idForFoundset",
+	RECORD_LINKED: "recordLinked"
+})
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $foundsetLinkedTypeConstants) {
 
 	var SINGLE_VALUE = "sv";
 	var SINGLE_VALUE_UPDATE = "svu";
@@ -8,7 +12,6 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	var VIEWPORT_VALUE_UPDATE = "vpu";
 	var CONVERSION_NAME = "fsLinked";
 	var PROPERTY_CHANGE = "propertyChange";
-	var ID_FOR_FOUNDSET = "idForFoundset";
 
 	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
 
@@ -26,10 +29,10 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		}
 
 		// private impl
-		internalState.recordLinked = false;
+		internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = false;
 		internalState.viewportSizeUnwatch = null;
 		internalState.conversionInfo = [];
-		internalState.requests = [];
+		internalState.requests = []; // see viewport.js for how this will get populated
 	}
 	
 	function removeAllWatches(value) {
@@ -93,7 +96,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				var childChangedNotifier;
 				
 				if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE_UPDATE])) {
-					internalState.recordLinked = true;
+					internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
 							$sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE_UPDATE),
 							componentScope, componentModelGetter, true);
@@ -116,8 +119,8 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					
 					if (angular.isDefined(serverJSONValue[SINGLE_VALUE]) || angular.isDefined(serverJSONValue[SINGLE_VALUE_UPDATE])) {
 						// just update single value from server and make copies of it to duplicate
-						internalState.recordLinked = false;
-						var conversionInfo = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, SINGLE_VALUE);
+						internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = false;
+						var conversionInfo = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, angular.isDefined(serverJSONValue[SINGLE_VALUE]) ? SINGLE_VALUE : SINGLE_VALUE_UPDATE);
 						var singleValue = angular.isDefined(serverJSONValue[SINGLE_VALUE]) ? serverJSONValue[SINGLE_VALUE] : serverJSONValue[SINGLE_VALUE_UPDATE];
 						
 						function generateWholeViewportFromOneValue(vpSize) {
@@ -151,7 +154,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 									}
 								});
 					} else if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE])) {
-						internalState.recordLinked = true;
+						internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
 						wholeViewport = serverJSONValue[VIEWPORT_VALUE];
 						conversionInfos = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE);
 					}
@@ -161,18 +164,18 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				}
 			}
 			
-			if (serverJSONValue[ID_FOR_FOUNDSET] === null) {
-				if (angular.isDefined(newValue[ID_FOR_FOUNDSET])) delete newValue[ID_FOR_FOUNDSET];
-			} else if (angular.isDefined(serverJSONValue[ID_FOR_FOUNDSET])) {
+			if (serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET] === null) {
+				if (angular.isDefined(newValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET])) delete newValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET];
+			} else if (angular.isDefined(serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET])) {
 				// make it non-iterable as the newValue is an array an ppl. might iterate over it - they wont expect this in the iterations
 				if (Object.defineProperty) {
-					Object.defineProperty(newValue, ID_FOR_FOUNDSET, {
+					Object.defineProperty(newValue, $foundsetLinkedTypeConstants.ID_FOR_FOUNDSET, {
 						configurable: true,
 						enumerable: false,
 						writable: true,
-						value: serverJSONValue[ID_FOR_FOUNDSET]
+						value: serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET]
 					});
-				} else newValue[ID_FOR_FOUNDSET] = serverJSONValue[ID_FOR_FOUNDSET];
+				} else newValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET] = serverJSONValue[$foundsetLinkedTypeConstants.ID_FOR_FOUNDSET];
 			}
 			
 			// restore/add model watch
@@ -196,7 +199,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 			if (newClientData) {
 				var internalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (internalState.isChanged()) {
-					if (!internalState.recordLinked) {
+					if (!internalState[$foundsetLinkedTypeConstants.RECORD_LINKED]) {
 						// we don't need to send rowId to server in this case; we just need value
 						for (var index in internalState.requests) {
 							internalState.requests[index][PROPERTY_CHANGE] = internalState.requests[index].viewportDataChanged.value;

@@ -4,12 +4,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>8.3.0.3200_b1</version>
+		<version>8.4.0.3400_b1</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>8.3.0.3200_b1</version>
+	<version>8.4.0.3400_b1</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -36,7 +36,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>com.servoy.eclipse.docgenerator.client.product</artifactId>
-									<version>1.4.2</version>
+									<version>1.4.3</version>
 									<type>zip</type>
 									<outputDirectory>${project.build.directory}/repository</outputDirectory>
 								</artifactItem>
@@ -152,6 +152,11 @@
 								<dependency>
 									<groupId>com.servoy</groupId>
 									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
+									<type>eclipse-plugin</type>
+								</dependency>
+								<dependency>
+									<groupId>org.eclipse.osgi</groupId>
+									<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
 									<type>eclipse-plugin</type>
 								</dependency>
 							</dependencies>

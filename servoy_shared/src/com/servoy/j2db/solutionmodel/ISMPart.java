@@ -22,7 +22,7 @@ import com.servoy.base.solutionmodel.IBaseSMPart;
 
 /**
  * Solution model form part.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -31,12 +31,12 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 {
 
 	/**
-	 * When set, the remainder of a selected part that does not fit on the page currently 
-	 * being printed, will not be transported to the next page - it will break where the page 
-	 * ends and continue on the next page. 
-	 * 
+	 * When set, the remainder of a selected part that does not fit on the page currently
+	 * being printed, will not be transported to the next page - it will break where the page
+	 * ends and continue on the next page.
+	 *
 	 * NOTE: Make sure to set this option when you are printing more than one page per record.
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.allowBreakAcrossPageBounds = true;
@@ -46,12 +46,12 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public boolean getAllowBreakAcrossPageBounds();
 
 	/**
-	 * The background color of the form part. 
-	 * 
-	 * NOTE: When no background color has been set, the default background 
-	 * color will be determined by the Look and Feel (LAF) that has been selected 
+	 * The background color of the form part.
+	 *
+	 * NOTE: When no background color has been set, the default background
+	 * color will be determined by the Look and Feel (LAF) that has been selected
 	 * in Application Preferences.
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.background = 'green';
@@ -59,9 +59,9 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public String getBackground();
 
 	/**
-	 * When set, the remainder of a selected part that is broken due to the page 
+	 * When set, the remainder of a selected part that is broken due to the page
 	 * ending will not be printed on the next page - it will be discarded.
-	 * 
+	 *
 	 * @sampleas getAllowBreakAcrossPageBounds()
 	 * @see #getAllowBreakAcrossPageBounds()
 	 */
@@ -73,7 +73,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	 * dataproviders can be added as Break (GroupBy) dataproviders. The
 	 * Leading/Trailing Subsummary parts will be displayed once for each
 	 * resulted group of data.
-	 * 
+	 *
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
@@ -81,11 +81,11 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public String getGroupbyDataProviderIDs();
 
 	/**
-	 * The height of a selected part; specified in pixels. 
-	 * 
+	 * The height of a selected part; specified in pixels.
+	 *
 	 * This height property is the lowerbound as its ending Y value (0 == top of the form).
 	 *
-	 * @sample 
+	 * @sample
 	 * var part = form.newPart(JSPart.HEADER, 100);
 	 * part.height = 200;
 	 */
@@ -93,7 +93,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 
 	/**
 	 * A page break will be inserted after a specified number of occurences of a selected part.
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.pageBreakAfterOccurrence = 2;
@@ -103,7 +103,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 
 	/**
 	 * When set, a page break will be inserted before each occurrence of a selected part.
-	 * 
+	 *
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
@@ -115,30 +115,30 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	/**
 	 * The Y offset of the part on the form, this will include all the super forms parts if this form extends a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var allParts = form.getParts()
 	 * for (var i=0; i<allParts.length; i++) {
 	 *	if (allParts[i].getPartType() == JSPart.BODY)
 	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
 	 * }
-	 * 
+	 *
 	 * @return A number holding the Y offset of the form part.
 	 */
 	public int getPartYOffset();
 
 	/**
 	 * The type of this part.
-	 * 
+	 *
 	 * @sampleas getPartYOffset()
 	 * @see #getPartYOffset()
-	 * 
+	 *
 	 * @return A number representing the type of the form part.
 	 */
 	public int getPartType();
 
 	/**
 	 * When set, page numbering will be restarted after each occurrence of a selected part.
-	 * 
+	 *
 	 * @sample
 	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
 	 * trailingSubsummary.groupbyDataProviderIDs = 'my_table_text';
@@ -147,13 +147,14 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public boolean getRestartPageNumber();
 
 	/**
-	 * When set, the last part on a page (such as a Trailing Grand Summary part) will 
+	 * When set, the last part on a page (such as a Trailing Grand Summary part) will
 	 * "sink" to the lowest part of the page when there is free space.
-	 * 
+	 *
 	 * @sample
 	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
 	 * trailingGrandSummary.sinkWhenLast = true;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getSinkWhenLast();
 
 	public void setAllowBreakAcrossPageBounds(boolean b);

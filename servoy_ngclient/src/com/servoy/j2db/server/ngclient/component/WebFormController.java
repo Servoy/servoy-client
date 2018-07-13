@@ -37,6 +37,7 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.IBasicFormManager;
@@ -96,17 +97,20 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			parentContainer = formUI.getParentContainer();
 		}
-		switch (form.getView())
+		if (form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED)
 		{
-			case IFormConstants.VIEW_TYPE_TABLE :
-			case IFormConstants.VIEW_TYPE_TABLE_LOCKED :
-			case IFormConstants.VIEW_TYPE_LIST :
-			case IFormConstants.VIEW_TYPE_LIST_LOCKED :
-				formUI = new WebListFormUI(this);
-				break;
-			default :
-				formUI = new WebFormUI(this);
+			formUI = new WebFormUI(this);
 		}
+		else if (!application.getFlattenedSolution().getFlattenedForm(form).hasPart(IPartConstants.BODY))
+		{
+			formUI = new WebFormUI(this);
+			getApplication().reportJSWarning("Form '" + form.getName() + "' is shown in record view because it does not have a body part.");
+		}
+		else
+		{
+			formUI = new WebListFormUI(this);
+		}
+
 		if (parentContainer instanceof String)
 		{
 			formUI.setParentWindowName((String)parentContainer);
@@ -268,6 +272,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	private boolean destroyOnHide;
+	private boolean readOnly = false;
 
 	@Override
 	public void destroy()
@@ -388,6 +393,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void setReadOnly(boolean b)
 	{
+		readOnly = b;
+		applyReadOnly(b);
+	}
+
+	private void applyReadOnly(boolean b)
+	{
 		if (b) stopUIEditing(true);
 		formUI.setReadOnly(b);
 		application.getFormManager().setFormReadOnly(getName(), b);
@@ -407,7 +418,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 		// update flattened form reference cause now we probably need to use a SM modified version
 		Form f = application.getFlattenedSolution().getForm(form.getName());
-		form = application.getFlattenedSolution().getFlattenedForm(f, false); // don't use case, make sure it updates the cache
+		form = application.getFlattenedSolution().getFlattenedForm(f, false); // don't use cached, make sure it updates the cache
 
 		INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getApplication().getWebsocketSession());
 		if (allWindowsProxy.hasFormChangedSinceLastSendToClient(form, getName()))
@@ -452,9 +463,10 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				tabSequence = null;
 				getFormUI().init();
+				Debug.trace("RecreateUI on form " + getName() + " only recreated form ui on server, because that form is not present client-side...");
 			}
-
-			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
+			else Debug.trace(
+				"RecreateUI on form " + getName() + " was ignored because that form was not changed or at least not since last being sent to client...");
 		}
 		application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
 		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
@@ -853,5 +865,22 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			return !pfc.isDestroyed();
 		}
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
+	 */
+	@Override
+	public void pushParentReadOnly(boolean b)
+	{
+		applyReadOnly(readOnly || b);
+	}
+
+	@Override
+	public boolean isReadOnly()
+	{
+		return super.isReadOnly() || readOnly;
 	}
 }

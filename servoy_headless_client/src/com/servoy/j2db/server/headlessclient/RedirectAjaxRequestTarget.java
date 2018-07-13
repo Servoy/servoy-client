@@ -23,10 +23,11 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
+import com.servoy.j2db.util.Settings;
 
 /**
  * The empty AJAX request target does output an empty AJAX response.
- * 
+ *
  * @author Matej Knopp
  */
 public final class RedirectAjaxRequestTarget implements IRequestTarget
@@ -68,7 +69,7 @@ public final class RedirectAjaxRequestTarget implements IRequestTarget
 		response.write("<evaluate");
 		response.write(">");
 		response.write("<![CDATA[");
-		response.write(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(), "_self", null, 0, true, false, true)));
+		response.write(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(), "_self", null, 0, true, false, true), Settings.getInstance()));
 		response.write("]]>");
 		response.write("</evaluate>");
 		response.write("</ajax-response>");

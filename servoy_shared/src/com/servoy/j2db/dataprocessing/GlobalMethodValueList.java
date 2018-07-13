@@ -86,12 +86,22 @@ public class GlobalMethodValueList extends CustomValueList
 		return hasRealValue;
 	}
 
+	public void fill(boolean force)
+	{
+		fill(record, null, null, force);
+	}
+
 	public void fill()
 	{
 		fill(record, null, null);
 	}
 
 	public void fill(IRecordInternal state, String filter, Object real)
+	{
+		fill(state, filter, real, false);
+	}
+
+	public void fill(IRecordInternal state, String filter, Object real, boolean force)
 	{
 		String display = filter == null ? null : filter.toLowerCase();
 		if (filling)
@@ -102,7 +112,7 @@ public class GlobalMethodValueList extends CustomValueList
 		try
 		{
 			filling = true;
-			if (this.record != state || !Utils.equalObjects(display, this.displayString) || !Utils.equalObjects(real, this.realObject))
+			if (force || this.record != state || !Utils.equalObjects(display, this.displayString) || !Utils.equalObjects(real, this.realObject))
 			{
 				this.displayString = display;
 				this.realObject = real;

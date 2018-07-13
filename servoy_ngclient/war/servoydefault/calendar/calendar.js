@@ -28,10 +28,8 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						close: 'glyphicon glyphicon-ok'
 					}
 				};
-			var locale = $sabloApplication.getLocale();
-			if (locale.language) {
-				options.locale = locale.language;
-			}
+			// rely on servoy_app.js setLocale which searches the correct locale to set
+			options.locale = numeral.locale();
 			var showISOWeeks = $applicationService.getUIProperty('ngCalendarShowISOWeeks');
 			if (showISOWeeks)
 			{

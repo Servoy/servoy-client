@@ -565,7 +565,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#getDesignModeCallbacks()
 	 */
 	@Override
@@ -784,5 +784,17 @@ public class TestFormController implements IWebFormController
 	public boolean hasParentForm()
 	{
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
+	 */
+	@Override
+	public void pushParentReadOnly(boolean parentReadOnly)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

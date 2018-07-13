@@ -32,7 +32,7 @@ import com.servoy.j2db.solutionmodel.ISMBean;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean, IMobileSMBean
 {
 	public JSBean(IJSParent< ? > parent, Bean baseComponent, boolean isNew)
@@ -42,7 +42,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 
 	/**
 	 * The bean class name.
-	 * 
+	 *
 	 * @sample
 	 * var bean = form.getBean('mybean');
 	 * application.output(bean.className);
@@ -64,7 +64,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getBackground()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBackground()
-	 * 
+	 *
 	 * @deprecated the background is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -78,7 +78,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
-	 * 
+	 *
 	 * @deprecated the border type is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -92,7 +92,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getFontType()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getFontType()
-	 * 
+	 *
 	 * @deprecated the font type is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -106,7 +106,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getForeground()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getForeground()
-	 * 
+	 *
 	 * @deprecated the foreground is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -120,7 +120,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getPrintSliding()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getPrintSliding()
-	 * 
+	 *
 	 * @deprecated print sliding is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -135,7 +135,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getStyleClass()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getStyleClass()
-	 * 
+	 *
 	 * @deprecated the stlye class is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -149,7 +149,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getTransparent()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getTransparent()
-	 * 
+	 *
 	 * @deprecated transparency is handled by the bean class implementation; this solution model property is ignored
 	 */
 	@Override
@@ -162,7 +162,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.solutionmodel.ISMBeanx#toString()
 	 */
 	@SuppressWarnings("nls")

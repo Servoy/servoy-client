@@ -218,4 +218,8 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_DESIGNTIME = "design";
 	public static final String PROPERTY_ATTRIBUTES = "attributes";
 	public static final String PROPERTY_LAZY_LOADING = "lazyLoading";
+	public static final String PROPERTY_USE_CSS_POSITION = "useCssPosition";
+	public static final String PROPERTY_CSS_POSITION = "cssPosition";
+	public static final String PROPERTY_VALUELIST_REALVALUE_TYPE = "realValueType";
+	public static final String PROPERTY_VALUELIST_DISPLAYVALUE_TYPE = "displayValueType";
 }

@@ -399,29 +399,37 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		if (dataAdapters == null) return;
 
 
-		//2) handle all fields
-		Iterator<IDataAdapter> it = dataAdapters.values().iterator();
-		while (it.hasNext())
+		//2) handle all fields, make sure all the events are collected and fired later (calculations that are triggering data change events)
+		FireCollector collector = FireCollector.getFireCollector();
+		try
 		{
-			IDataAdapter da = it.next();
-			da.setRecord(state);
-		}
-
-		if (currentRecord != null && servoyAwareBeans.size() > 0)
-		{
-			ServoyBeanState sbr = new ServoyBeanState(state, getFormScope());
-			for (IServoyAwareBean da : servoyAwareBeans)
+			Iterator<IDataAdapter> it = dataAdapters.values().iterator();
+			while (it.hasNext())
 			{
-				try
+				IDataAdapter da = it.next();
+				da.setRecord(state);
+			}
+
+			if (currentRecord != null && servoyAwareBeans.size() > 0)
+			{
+				ServoyBeanState sbr = new ServoyBeanState(state, getFormScope());
+				for (IServoyAwareBean da : servoyAwareBeans)
 				{
-					da.setSelectedRecord(sbr);
-				}
-				catch (RuntimeException e)
-				{
-					//never make the app break on faulty beans
-					Debug.error(e);
+					try
+					{
+						da.setSelectedRecord(sbr);
+					}
+					catch (RuntimeException e)
+					{
+						//never make the app break on faulty beans
+						Debug.error(e);
+					}
 				}
 			}
+		}
+		finally
+		{
+			collector.done();
 		}
 		if (undoManager != null) undoManager.setIgnoreEdits(false);
 	}

@@ -4,8 +4,8 @@
 	 svy-click='handlers.onActionMethodID($event)'
 	 svy-rightclick='handlers.onRightClickMethodID($event)'
 	 id="{{::model.svyMarkupId}}">
-	<img ng-show="model.enabled == true && model.editable == true" style="top: 1px;left: 1px;position: absolute;cursor: pointer;background-color: gray;z-index: 1;width: 16px; height: 16px;" border="0" src="servoydefault/imagemedia/res/images/save.gif" alt="Save media" title="Save media" ng-click="download()">
-	<img ng-show="model.enabled == true && model.editable == true" style="top: 1px;position: absolute;cursor: pointer;background-color: gray;z-index: 1;left: 17px;width: 16px; height: 16px;" border="0" src="servoydefault/imagemedia/res/images/open_project.gif" alt="Load media" title="Load media" svy-fileupload="model.dataProviderID">
-	<img ng-show="model.enabled == true && model.editable == true" style="top: 1px;position: absolute;cursor: pointer;background-color: gray;z-index: 1;left: 33px;width: 16px; height: 16px;" border="0" src="servoydefault/imagemedia/res/images/delete.gif" alt="Remove media" title="Remove media" ng-click="clear()">	
+	<div ng-show="model.enabled == true && model.editable == true" class="glyphicon glyphicon-download-alt" style="top: 1px;left: 1px;position: absolute;cursor: pointer;z-index: 1;width: 16px; height: 16px;" title="Save media" ng-click="download()"/>
+	<div ng-show="model.enabled == true && model.editable == true" class="glyphicon glyphicon-cloud-upload" style="top: 1px;position: absolute;cursor: pointer;z-index: 1;left: 17px;width: 16px; height: 16px;" title="Load media" svy-fileupload="model.dataProviderID"/>
+	<div ng-show="model.enabled == true && model.editable == true" class="glyphicon glyphicon-remove" style="top: 1px;position: absolute;cursor: pointer;z-index: 1;left: 33px;width: 16px; height: 16px;" title="Remove media" ng-click="clear()"/>	
 	<img ng-src='{{imageURL}}' svy-imagemediafield style='position:absolute;top:0;left:0;max-width:100%; max-height:100%;'>
 </div>

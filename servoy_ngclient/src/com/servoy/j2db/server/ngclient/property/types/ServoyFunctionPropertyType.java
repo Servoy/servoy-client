@@ -105,11 +105,12 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		return toJSON(writer, key, object, pd, clientConversion,
 			dataConverterContext.getWebObject() instanceof IContextProvider
 				? ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution() : null,
-			dataConverterContext.getWebObject() instanceof WebFormComponent ? ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement() : null);
+			dataConverterContext.getWebObject() instanceof WebFormComponent ? ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement() : null,
+			dataConverterContext.getWebObject() instanceof WebFormComponent ? (WebFormComponent)dataConverterContext.getWebObject() : null);
 	}
 
 	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, DataConversion clientConversion, FlattenedSolution fs,
-		FormElement fe) throws JSONException
+		FormElement fe, WebFormComponent formComponent) throws JSONException
 	{
 		Map<String, Object> map = new HashMap<>();
 		if (object != null && fs != null)
@@ -129,7 +130,15 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 					}
 					else if (parent instanceof Form)
 					{
-						scriptString = ((Form)parent).getName() + "." + sm.getName();
+						if (formComponent != null)
+						{
+							// use the real, runtime form
+							scriptString = formComponent.getDataAdapterList().getForm().getForm().getName() + "." + sm.getName();
+						}
+						else
+						{
+							scriptString = ((Form)parent).getName() + "." + sm.getName();
+						}
 					}
 					else if (parent instanceof TableNode && fe != null)
 					{
@@ -215,7 +224,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers,
 			formElementContext != null ? formElementContext.getFlattenedSolution() : null,
-			formElementContext != null ? formElementContext.getFormElement() : null);
+			formElementContext != null ? formElementContext.getFormElement() : null, null);
 	}
 
 	@Override
@@ -237,7 +246,17 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			jsParent = jsParent.getJSParent();
 		}
-		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), jsParent, pd.getName());
+		int methodId = Utils.getAsInteger(value);
+		if (methodId > 0)
+		{
+			return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), methodId, jsParent, pd.getName());
+		}
+		else if (value instanceof String)
+		{
+			// it is a uuid string
+			return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), (String)value, jsParent, pd.getName());
+		}
+		return null;
 	}
 
 }

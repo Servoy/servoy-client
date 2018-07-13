@@ -30,6 +30,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+
 import com.servoy.base.persistence.BaseColumn;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
@@ -390,6 +393,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					{
 						return new java.sql.Date(((Number)obj).longValue());
 					}
+					if (obj instanceof String)
+					{
+						DateTime dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime((String)obj);
+						return new java.sql.Date(dateTime.toDate().getTime());
+					}
 					if (throwOnFail)
 					{
 						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
@@ -420,6 +428,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					if (obj instanceof Number)
 					{
 						return new Timestamp(((Number)obj).longValue());
+					}
+					if (obj instanceof String)
+					{
+						DateTime dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime((String)obj);
+						return new Timestamp(dateTime.toDate().getTime());
 					}
 					if (throwOnFail)
 					{

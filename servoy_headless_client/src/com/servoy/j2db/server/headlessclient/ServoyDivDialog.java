@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
@@ -57,5 +58,12 @@ public class ServoyDivDialog extends DivWindow
 			target.appendJavascript("Wicket.Window.unloadConfirmation = false;");
 		}
 		super.show(target);
+	}
+
+	protected Page page;
+
+	public void setPage(Page page)
+	{
+		this.page = page;
 	}
 }

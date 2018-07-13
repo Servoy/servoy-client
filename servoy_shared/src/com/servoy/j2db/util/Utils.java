@@ -52,7 +52,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -101,6 +100,7 @@ import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.Record;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
@@ -1724,7 +1724,7 @@ public final class Utils
 				connection.rollback();
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -1774,7 +1774,7 @@ public final class Utils
 				}
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -1790,7 +1790,7 @@ public final class Utils
 				statement.close();
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -1806,7 +1806,7 @@ public final class Utils
 				resultSet.close();
 			}
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			Debug.error(e);
 		}
@@ -2864,8 +2864,8 @@ public final class Utils
 			Object element = elements.next();
 			if (element instanceof ISupportBounds)
 			{
-				java.awt.Point location = ((ISupportBounds)element).getLocation();
-				java.awt.Dimension size = ((ISupportBounds)element).getSize();
+				java.awt.Point location = CSSPosition.getLocation((ISupportBounds)element);
+				java.awt.Dimension size = CSSPosition.getSize(((ISupportBounds)element));
 				if (location != null && size != null)
 				{
 					if (minx == -1 || minx > location.x) minx = location.x;

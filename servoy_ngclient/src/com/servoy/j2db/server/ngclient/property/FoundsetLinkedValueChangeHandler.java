@@ -39,24 +39,27 @@ public class FoundsetLinkedValueChangeHandler
 		this.foundsetPropValue = foundsetPropValue;
 	}
 
-	public void valueChangedInFSLinkedUnderlyingValue(String propertyName, ViewportDataChangeMonitor< ? > viewPortChangeMonitor)
+	public void valueChangedInFSLinkedUnderlyingValue(String propertyName, ViewportDataChangeMonitor< ? > viewPortChangeMonitor, boolean granularUpdate)
 	{
-		// for example foundset linked properties can change due to other reasons then the foundset change listener firing (either they have special behavior or for example related DPs that get udpates from the DAL
-		// on the current record from the FoundsetDAL) so without an actualy change in the record itself; any actual change in the record; in this case we need to mark it correctly in viewport as a change
+		// for example foundset linked properties can change due to other reasons then the foundset change listener firing (either they have special behavior or for example related DPs that get updates from the DAL
+		// on the current record from the FoundsetDAL) so without an actual change in the record itself; any actual change in the record; in this case we need to mark it correctly in viewport as a change
 		IRecordInternal record = foundsetPropValue.getDataAdapterList().getRecord();
-		Runnable queueChangeRunnable = queueCellChangeOnRecord(propertyName, record, viewPortChangeMonitor);
+		if (record != null)
+		{
+			Runnable queueChangeRunnable = queueCellChangeOnRecord(propertyName, record, viewPortChangeMonitor, granularUpdate);
 
-		if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
-		{
-			// if for example a dataprovider property change does in its fromJSON a monitor.valueChanged() (for example an integer DP getting client update of 1.15 would want to send back 1.00)
-			// it will end up here; we do want to send that back to the client but as the new value is not
-			// yet pushed to the record, we don't want the new value to be reverted by a DAL.setRecord() that happens when queuing changes for a specific record index
-			// so we need to handle this change at a later time
-			changesWhileUpdatingFoundsetBasedDPFromClient.add(queueChangeRunnable);
-		}
-		else
-		{
-			queueChangeRunnable.run();
+			if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
+			{
+				// if for example a dataprovider property change does in its fromJSON a monitor.valueChanged() (for example an integer DP getting client update of 1.15 would want to send back 1.00)
+				// it will end up here; we do want to send that back to the client but as the new value is not
+				// yet pushed to the record, we don't want the new value to be reverted by a DAL.setRecord() that happens when queuing changes for a specific record index
+				// so we need to handle this change at a later time
+				changesWhileUpdatingFoundsetBasedDPFromClient.add(queueChangeRunnable);
+			}
+			else
+			{
+				queueChangeRunnable.run();
+			}
 		}
 	}
 
@@ -81,7 +84,7 @@ public class FoundsetLinkedValueChangeHandler
 	}
 
 	private Runnable queueCellChangeOnRecord(final String propertyName, final IRecordInternal record,
-		final ViewportDataChangeMonitor< ? > viewPortChangeMonitor)
+		final ViewportDataChangeMonitor< ? > viewPortChangeMonitor, final boolean granularUpdate)
 	{
 		return new Runnable()
 		{
@@ -96,7 +99,7 @@ public class FoundsetLinkedValueChangeHandler
 					int relativeIdx = idx - viewPort.getStartIndex();
 					if (relativeIdx >= 0 && relativeIdx < viewPort.getStartIndex() + viewPort.getSize())
 					{
-						viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset());
+						viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset(), granularUpdate);
 					}
 				}
 			}

@@ -27,6 +27,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPushToServerSpecialType;
+import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -51,6 +52,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
+import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -69,10 +71,10 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>
-	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
-	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
-	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
+	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
+	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType, IRhinoDesignConverter,
+	II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>, ISupportsGranularUpdates<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -129,10 +131,10 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// handle any valuelist specific websocket incomming traffic
-		if (previousSabloValue != null && (newJSONValue == null || newJSONValue instanceof String))
+		if (previousSabloValue != null && (newJSONValue instanceof JSONObject))
 		{
 			// currently the only thing that can come from client is a filter request...
-			previousSabloValue.filterValuelist((String)newJSONValue);
+			previousSabloValue.filterValuelist((JSONObject)newJSONValue);
 		}
 		else Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
 
@@ -146,6 +148,17 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		if (sabloValue != null)
 		{
 			sabloValue.toJSON(writer, key, clientConversion, dataConverterContext);
+		}
+		return writer;
+	}
+
+	@Override
+	public JSONWriter changesToJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, PropertyDescription propertyDescription,
+		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+	{
+		if (sabloValue != null)
+		{
+			sabloValue.changesToJSON(writer, key, clientConversion, dataConverterContext);
 		}
 		return writer;
 	}

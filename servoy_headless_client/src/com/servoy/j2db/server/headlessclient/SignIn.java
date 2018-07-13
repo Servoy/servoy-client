@@ -91,13 +91,14 @@ public class SignIn extends WebPage
 		private static final String PROPERTY_PASSWORD = "password"; //$NON-NLS-1$
 		private static final String PROPERTY_REMEMBER_ME = "rememberMe"; //$NON-NLS-1$
 		private String cookieKeyPassword;
+		private String cookieKeyUsername;
 
 		/** El-cheapo model for form. */
 		private final ValueMap properties = new ValueMap();
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param id id of the form component
 		 * @param feedback The feedback panel to update
 		 */
@@ -105,6 +106,7 @@ public class SignIn extends WebPage
 		{
 			super(id);
 			cookieKeyPassword = id + ':' + PROPERTY_PASSWORD;
+			cookieKeyUsername = id + ':' + PROPERTY_USERNAME;
 
 			// Attach textfield components that edit properties map
 			// in lieu of a formal beans model
@@ -174,7 +176,7 @@ public class SignIn extends WebPage
 				public String load(final String key)
 				{
 					String cookieValue = super.load(key);
-					if (cookieKeyPassword.equals(key))
+					if (cookieKeyPassword.equals(key) || cookieKeyUsername.equals(key))
 					{
 						try
 						{
@@ -193,7 +195,7 @@ public class SignIn extends WebPage
 				public void save(String key, final String value)
 				{
 					String cookieValue = value;
-					if (cookieKeyPassword.equals(key))
+					if (cookieKeyPassword.equals(key) || cookieKeyUsername.equals(key))
 					{
 						try
 						{
@@ -213,7 +215,7 @@ public class SignIn extends WebPage
 
 	/**
 	 * Convenience method set persistence for username and password.
-	 * 
+	 *
 	 * @param enable Whether the fields should be persistent
 	 */
 	private void setPersistent(boolean enable)
@@ -231,7 +233,7 @@ public class SignIn extends WebPage
 
 	/**
 	 * Get model object of the rememberMe checkbox
-	 * 
+	 *
 	 * @return True if user should be remembered in the future
 	 */
 	public boolean getRememberMe()
@@ -250,7 +252,7 @@ public class SignIn extends WebPage
 
 	/**
 	 * Sign in user if possible.
-	 * 
+	 *
 	 * @param username The username
 	 * @param password The password
 	 * @return True if signin was successful

@@ -80,10 +80,12 @@ public class HTTPUtils
 	 * If it has been modified or request didn't want to use this check it will just return false.
 	 * @param lastModifiedTime the last modification time (millis) of the requested resource.
 	 */
+	@SuppressWarnings("nls")
 	public static boolean checkAndSetUnmodified(HttpServletRequest servletRequest, HttpServletResponse servletResponse, long lastModifiedTime)
 	{
 		long l = lastModifiedTime / 1000 * 1000;
 		servletResponse.setDateHeader(LAST_MODIFIED, l);
+		servletResponse.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
 		long lm = servletRequest.getDateHeader(IF_MODIFIED_SINCE);
 		if (lm != -1 && lm == l)
 		{

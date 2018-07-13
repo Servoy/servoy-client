@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jabsorb.serializer.MarshallException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -81,6 +83,7 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
+import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -97,6 +100,7 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
+import com.servoy.j2db.util.serialize.JSONSerializerWrapper;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 import com.servoy.j2db.util.xmlxport.TableDef;
@@ -111,9 +115,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private static final Entry<String, SoftReference<RelatedFoundSet>>[] EMPTY_ENTRY_ARRAY = new Map.Entry[0];
 
 	private final IApplication application;
-	private Map<Object, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
+	private Map<String, WeakReference<FoundSet>> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
 
 	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
@@ -298,20 +303,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		for (FoundSet fs : fslist)
 		{
-			try
+			refreshFoundSet(fs, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
+		}
+
+		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
+			FoundSet foundset = entry.getValue().get();
+			if (foundset == null)
 			{
-				if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinition))
-				{
-					if (fs.isInitialized())
-					{
-						fs.refreshFromDB(false, skipStopEdit);
-					}
-					affectedTables.add(fs.getTable());
-				}
+				it.remove();
 			}
-			catch (Exception e)
+			else
 			{
-				Debug.error(e);
+				refreshFoundSet(foundset, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
 			}
 		}
 		// Can't just clear substates!! if used in portal then everything is out of sync
@@ -355,6 +361,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		getEditRecordList().fireEvents();
 
 		return affectedTables;
+	}
+
+	private void refreshFoundSet(FoundSet fs, String dataSource, TableFilterdefinition tableFilterdefinition, boolean skipStopEdit, Set<ITable> affectedTables)
+	{
+		try
+		{
+			if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinition))
+			{
+				if (fs.isInitialized())
+				{
+					fs.refreshFromDB(false, skipStopEdit);
+				}
+				affectedTables.add(fs.getTable());
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
 	}
 
 	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, TableFilterdefinition tableFilterdefinition)
@@ -430,6 +455,31 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			catch (Exception e)
 			{
 				Debug.error(e);
+			}
+		}
+
+		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
+			FoundSet foundset = entry.getValue().get();
+			if (foundset == null)
+			{
+				it.remove();
+			}
+			else
+			{
+				try
+				{
+					if (dataSource.equals(foundset.getDataSource()))
+					{
+						foundset.reloadFoundsetMethod(scriptMethod);
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
 			}
 		}
 
@@ -849,8 +899,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private void initMembers()
 	{
 		sharedDataSourceFoundSet = new ConcurrentHashMap<String, FoundSet>(64);
-		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<Object, FoundSet>(32));
+		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<IFoundSetListener, FoundSet>(32));
 		foundSets = Collections.synchronizedSet(new WeakHashSet<FoundSet>(64));
+		namedFoundSets = Collections.synchronizedMap(new HashMap<String, WeakReference<FoundSet>>(32));
 		noTableFoundSet = null;
 
 		rowManagers = new ConcurrentHashMap<String, RowManager>(64);
@@ -1413,7 +1464,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					QueryTable qTable = (QueryTable)o;
 					for (TableFilter filter : serverFilters)
 					{
-						if (filter.getTableSQLName().equals(qTable.getName()))
+						if (Utils.stringSafeEquals(filter.getTableSQLName(), qTable.getName()))
 						{
 							if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 							{
@@ -1469,8 +1520,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			// make sure inmem table is created
 			getTable(l.getDataSource());
 		}
-
-		FoundSet foundset = l.getSharedFoundsetName() != null ? separateFoundSets.get(l.getSharedFoundsetName()) : separateFoundSets.get(l);
+		FoundSet foundset = null;
+		if (l.getSharedFoundsetName() != null)
+		{
+			WeakReference<FoundSet> foundsetRef = namedFoundSets.get(l.getSharedFoundsetName());
+			if (foundsetRef != null)
+			{
+				foundset = foundsetRef.get();
+				if (foundset == null) namedFoundSets.remove(l.getSharedFoundsetName());
+			}
+		}
+		else
+		{
+			foundset = separateFoundSets.get(l);
+		}
 		if (foundset == null)
 		{
 			foundset = createSeparateFoundset(l.getDataSource(), l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, defaultSortColumns);
@@ -1483,7 +1546,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(datasource);
 		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
 		if (createEmptyFoundsets) foundset.clear();
-		separateFoundSets.put(key, foundset);
+		if (key instanceof IFoundSetListener)
+		{
+			separateFoundSets.put((IFoundSetListener)key, foundset);
+		}
+		else
+		{
+			namedFoundSets.put(key.toString(), new WeakReference<FoundSet>(foundset));
+		}
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
@@ -1531,7 +1601,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public IFoundSet getNamedFoundSet(String name) throws ServoyException
 	{
 		if (name == null) throw new RuntimeException("can't ask for a named foundset with a null name");
-		IFoundSet foundset = separateFoundSets.get(name);
+		WeakReference<FoundSet> foundsetReference = namedFoundSets.get(name);
+		FoundSet foundset = null;
+		if (foundsetReference != null)
+		{
+			if (foundsetReference.get() != null)
+			{
+				foundset = foundsetReference.get();
+			}
+			else
+			{
+				namedFoundSets.remove(name);
+			}
+		}
 		if (foundset == null)
 		{
 			Iterator<Form> forms = application.getFlattenedSolution().getForms(false);
@@ -2293,6 +2375,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			String dataSource = DataSourceUtils.createInmemDataSource(name);
 			ITable table = inMemDataSources.get(dataSource);
+			GlobalTransaction gt = getGlobalTransaction();
+			String targetTid = null;
+			if (gt != null)
+			{
+				targetTid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+			}
 			if (table != null)
 			{
 				// temp table was used before, delete all data in it
@@ -2300,19 +2388,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				foundSet.removeLastFound();
 				try
 				{
-					foundSet.deleteAllRecords();
+					QueryDelete delete = new QueryDelete(
+						new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+					SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, targetTid,
+						delete, null);
+					application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
 				}
 				catch (Exception e)
 				{
 					Debug.log(e);
 					table = null;
 				}
-			}
-			GlobalTransaction gt = getGlobalTransaction();
-			String targetTid = null;
-			if (gt != null)
-			{
-				targetTid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
 			}
 
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
@@ -2642,7 +2728,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
-		if (columnsDef != null)
+		boolean[] rowsToStringserialize = null;
+		if (columnsDef == null)
+		{
+			// if we have array columns, convert values using StringSerializer
+			if (containsArrayType(fixedColumnTypes))
+			{
+				rowsToStringserialize = new boolean[fixedColumnTypes.length];
+				for (int i = 0; i < fixedColumnTypes.length; i++)
+				{
+					ColumnType columnType = fixedColumnTypes[i];
+					if (columnType.getSqlType() == Types.ARRAY)
+					{
+						fixedColumnTypes[i] = ColumnType.getColumnType(IColumnTypes.TEXT);
+						rowsToStringserialize[i] = true;
+					}
+				}
+			}
+		}
+		else
 		{
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
 			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>();
@@ -2659,7 +2763,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					inmemPKs.add(cid.name);
 				}
 				columnInfoDefinitions.put(cid.name, cid);
+
+				// apply stringserializer on designed datasources
+				if (JSONSerializerWrapper.STRING_SERIALIZER_NAME.equals(cid.converterName))
+				{
+					if (rowsToStringserialize == null)
+					{
+						rowsToStringserialize = new boolean[fixedColumnTypes.length];
+					}
+					rowsToStringserialize[j] = true;
+				}
 			}
+
 			if (pkNames == null && inmemPKs.size() > 0)
 			{
 				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
@@ -2689,9 +2804,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
 		}
 
+		if (rowsToStringserialize != null)
+		{
+			replaceValuesWithSerializedString(dataSet, rowsToStringserialize);
+		}
+
 		try
 		{
 			ITable table = inMemDataSources.get(dataSource);
+
+			GlobalTransaction gt = getGlobalTransaction();
+			String tid = null;
+			if (gt != null)
+			{
+				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+			}
+
 			if (table != null)
 			{
 				// temp table was used before, delete all data in it
@@ -2699,20 +2827,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				foundSet.removeLastFound();
 				try
 				{
-					foundSet.deleteAllRecords();
+					QueryDelete delete = new QueryDelete(
+						new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+					SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
+						null);
+					application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
 				}
 				catch (Exception e)
 				{
 					Debug.log(e);
 					table = null;
 				}
-			}
-
-			GlobalTransaction gt = getGlobalTransaction();
-			String tid = null;
-			if (gt != null)
-			{
-				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
 			}
 
 
@@ -2745,6 +2870,47 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RepositoryException(e);
 		}
 		return null;
+	}
+
+	private static void replaceValuesWithSerializedString(IDataSet dataSet, boolean[] rowsToStringserialize)
+	{
+		// run stringserializer over the rows
+		JSONSerializerWrapper stringserializer = new JSONSerializerWrapper(false);
+		for (int r = 0; r < dataSet.getRowCount(); r++)
+		{
+			Object[] row = dataSet.getRow(r).clone();
+			for (int i = 0; i < rowsToStringserialize.length; i++)
+			{
+				if (rowsToStringserialize[i] && row[i] != null && !(row[i] instanceof String))
+				{
+					// the data was not a string (so not pre-serialized from js), run it through the stringserializer.
+					try
+					{
+						row[i] = stringserializer.toJSON(row[i]).toString();
+					}
+					catch (MarshallException e)
+					{
+						Debug.warn(e);
+					}
+				}
+			}
+			dataSet.setRow(r, row);
+		}
+	}
+
+	private static boolean containsArrayType(ColumnType[] columnTypes)
+	{
+		if (columnTypes != null)
+		{
+			for (ColumnType columnType : columnTypes)
+			{
+				if (columnType.getSqlType() == Types.ARRAY)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean removeDataSource(String uri) throws RepositoryException

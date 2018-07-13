@@ -96,6 +96,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataComboBox;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataListBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataLookupField;
@@ -524,12 +525,13 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						}
 					}
 				}
-				else
+				else if (!(component.getParent() instanceof WebDataCompositeTextField))
 				{
 					if (!component.isEnabled())
 					{
 						boolean hasOnRender = (component instanceof IFieldComponent &&
-							((IFieldComponent)component).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)component).getScriptObject()).getRenderEventExecutor().hasRenderCallback());
+							((IFieldComponent)component).getScriptObject() instanceof ISupportOnRenderCallback &&
+							((ISupportOnRenderCallback)((IFieldComponent)component).getScriptObject()).getRenderEventExecutor().hasRenderCallback());
 						if (!hasOnRender)
 						{
 							// onrender may change the enable state
@@ -540,7 +542,14 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 					boolean hasFocus = false, hasBlur = false;
 					if (component instanceof IFieldComponent && ((IFieldComponent)component).getEventExecutor() != null)
 					{
-						targetComponent = component;
+						if (component instanceof WebDataCompositeTextField && ((WebDataCompositeTextField)component).getDelegate() instanceof Component)
+						{
+							targetComponent = (Component)((WebDataCompositeTextField)component).getDelegate();
+						}
+						else
+						{
+							targetComponent = component;
+						}
 						if (component instanceof WebBaseSelectBox)
 						{
 							Component[] cs = ((WebBaseSelectBox)component).getFocusChildren();
@@ -578,7 +587,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 								String callback = eventCallback.getCallbackUrl().toString();
 								if (component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice ||
 									component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof WebDataListBox ||
-									component instanceof WebDataHtmlArea)
+									component instanceof WebDataHtmlArea || component instanceof WebDataCompositeTextField)
 								{
 									// is updated via ServoyChoiceComponentUpdatingBehavior or ServoyFormComponentUpdatingBehavior, this is just for events
 									callback += "&nopostdata=true";

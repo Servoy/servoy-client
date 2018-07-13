@@ -39,10 +39,13 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -92,8 +95,9 @@ public class FormWrapper
 		this.context = context;
 		this.design = design;
 		this.runtimeData = runtimeData;
-		isTableView = !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-		isListView = !design && (form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
+		boolean hasBodyPart = context.getSolution().getFlattenedForm(form).hasPart(IPartConstants.BODY);
+		isTableView = hasBodyPart && !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+		isListView = hasBodyPart && !design && (form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
 	}
 
 	public boolean isDesign()
@@ -250,7 +254,7 @@ public class FormWrapper
 		for (IFormElement persist : persists)
 		{
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			Point location = persist.getLocation();
+			Point location = CSSPosition.getLocation(persist);
 			if (startPos <= location.y && endPos > location.y)
 			{
 				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
@@ -280,6 +284,7 @@ public class FormWrapper
 			absolute.put(fe.getName(), Boolean.TRUE);
 		}
 		properties.put("absoluteLayout", absolute);
+		properties.put(IContentSpecConstants.PROPERTY_USE_CSS_POSITION, form.getUseCssPosition());
 		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),

@@ -91,7 +91,7 @@ public class RootObjectCache
 
 	void add(RootObjectMetaData metaData, boolean allowUpdate)
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			Integer intId = new Integer(metaData.getRootObjectId());
@@ -116,14 +116,14 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 
 	public void cacheRootObject(IRootObject rootObject) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getID());
@@ -138,13 +138,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	public void renameRootObject(int rootObjectId, String name) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			RootObjectMetaData metaData = getRootObjectMetaData(rootObjectId);
@@ -160,7 +160,7 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
@@ -191,7 +191,7 @@ public class RootObjectCache
 
 	public boolean isRootObjectCached(String name, int objectTypeId, int release) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
@@ -217,13 +217,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	IRootObject getRootObject(int rootObjectId, int release) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			CacheRecord cacheRecord = getCacheRecord(rootObjectId);
@@ -250,7 +250,7 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
@@ -266,33 +266,33 @@ public class RootObjectCache
 
 	public int getLatestRelease(int rootObjectId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getLatestRelease();
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	public int getActiveRelease(int rootObjectId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getActiveRelease();
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			CacheRecord cacheRecord = getCacheRecord(rootObjectId);
@@ -300,13 +300,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			CacheRecord cacheRecord = getCacheRecord(name, objectTypeId);
@@ -314,13 +314,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsById.size()];
@@ -334,13 +334,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			List list = new SortedList(NameComparator.INSTANCE);
@@ -358,13 +358,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	void removeRootObject(int rootObjectId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			Integer key = new Integer(rootObjectId);
@@ -378,13 +378,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	void flushRootObject(int rootObjectId) throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			Integer key = new Integer(rootObjectId);
@@ -396,13 +396,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	void flushRootObjectRelease(int rootObjectId, int release)
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			CacheRecord cacheRecord = rootObjectsById.get(new Integer(rootObjectId));
@@ -427,13 +427,13 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 
 	void flush() throws RepositoryException
 	{
-		AbstractRepository.REPOSITORY_LOCK.lock();
+		AbstractRepository.lock();
 		try
 		{
 			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
@@ -445,7 +445,7 @@ public class RootObjectCache
 		}
 		finally
 		{
-			AbstractRepository.REPOSITORY_LOCK.unlock();
+			AbstractRepository.unlock();
 		}
 	}
 

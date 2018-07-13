@@ -249,6 +249,9 @@ public class ContentSpec
 				retval = Boolean.FALSE;
 				break;
 
+			case IRepository.CSSPOSITION :
+				retval = null;
+				break;
 			default :
 				throw new IllegalArgumentException("Type with id: " + type_id + " does not exist"); //$NON-NLS-2$
 		}
@@ -388,5 +391,11 @@ public class ContentSpec
 	{
 		if (objectTypes != null) objectTypes.clear();
 		contentSpecElements.clear();
+	}
+
+	ContentSpec loadObjectTypes()
+	{
+		fillObjectTypesMap();
+		return this;
 	}
 }

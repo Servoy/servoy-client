@@ -62,4 +62,6 @@ public interface IWebFormController extends IFormController
 	public RuntimeWebComponent[] getWebComponentElements();
 
 	public DesignModeCallbacks getDesignModeCallbacks();
+
+	public void pushParentReadOnly(boolean parentReadOnly);
 }

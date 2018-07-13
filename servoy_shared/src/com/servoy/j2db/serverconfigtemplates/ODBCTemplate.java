@@ -28,6 +28,6 @@ public class ODBCTemplate extends ServerTemplateDefinition
 	public ODBCTemplate()
 	{
 		super(new ServerConfig("new_ODBC_data_source_name", "sa", "", "jdbc:odbc:<odbc_DSN>", null, "sun.jdbc.odbc.JdbcOdbcDriver", null, null, true, false,
-			null));
+			null, null));
 	}
 }

@@ -127,7 +127,8 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 
 		if (url != null) return new MediaWrapper(value, url);
 
-		Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
+		if (value != null && !Utils.equalObjects(value, Integer.valueOf(0)))
+			Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
 		return null;
 	}
 
@@ -179,6 +180,10 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 					url += "uuid=" + application.getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
 				}
 			}
+		}
+		else if (value instanceof String && ((String)value).startsWith("resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS))
+		{
+			url = (String)value;
 		}
 		else if (value != null)
 		{

@@ -166,7 +166,7 @@ public class ComponentFactory
 
 	public static String getMarkupId(String formName, String elementName)
 	{
-		return Utils.calculateMD5HashBase16(formName + elementName);
+		return Utils.calculateMD5HashBase16(formName + '.' + elementName);
 	}
 
 }

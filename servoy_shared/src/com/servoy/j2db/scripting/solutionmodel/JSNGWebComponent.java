@@ -223,7 +223,7 @@ public class JSNGWebComponent extends JSWebComponent
 	public JSMethod getHandler(String handlerName)
 	{
 		Object jsonProperty = getJSONProperty(handlerName);
-		if (jsonProperty == null)
+		if (jsonProperty == null || jsonProperty == JSONObject.NULL || jsonProperty == Context.getUndefinedValue())
 		{
 			jsonProperty = getJSONProperty(handlerName + "MethodID");
 		}

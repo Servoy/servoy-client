@@ -74,6 +74,11 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
+	/**
+	 * the folder that contains the compiled less files
+	 */
+	public static final String SERVOY_SOLUTION_CSS = "servoy_solution_css/";
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
@@ -94,7 +99,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public NGClientWebsocketSession(String uuid)
 	{
 		super(uuid);
-		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this));
+		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
 	}
 
 	@Override
@@ -316,8 +321,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					timestamp = media.getLastModifiedTime();
 				}
-				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i) +
-					"?t=" + Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+				if (!client.isInDeveloper() && media.getName().endsWith(".less"))
+				{
+					styleSheets.set(i, SERVOY_SOLUTION_CSS + styleSheets.get(i).replace(".less", ".css") + "?t=" +
+						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+				}
+				else
+				{
+					styleSheets.set(i,
+						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
+							styleSheets.get(i).replace(".less", ".css") + "?t=" +
+							Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+				}
 			}
 			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}
@@ -375,7 +390,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
 		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebComponentSpecification(name);
 		if (spec == null) spec = new WebObjectSpecification(name, "", IPackageReader.WEB_SERVICE, name, null, null, null, "", null);
-		return new ServoyClientService(name, spec, this);
+
+		return new ServoyClientService(name, spec, this, true);
 	}
 
 	/*
@@ -434,14 +450,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return client.getLocale();
 	}
 
-	@Override
-	public INGClientWindow getWindowWithForm(String formName)
-	{
-		for (INGClientWindow w : getWindows())
-		{
-			if (w.hasForm(formName)) return w;
-		}
-
-		return null;
-	}
+//	@Override
+//	public INGClientWindow getWindowWithForm(String formName)
+//	{
+//		for (INGClientWindow w : getWindows())
+//		{
+//			if (w.hasForm(formName)) return w;
+//		}
+//
+//		return null;
+//	}
 }

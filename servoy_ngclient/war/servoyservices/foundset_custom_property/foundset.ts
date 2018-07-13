@@ -1,5 +1,6 @@
 /// <reference path="../../../typings/angularjs/angular.d.ts" />
 /// <reference path="../../../typings/servoy/foundset.d.ts" />
+/// <reference path="../../../typings/sablo/sablo.d.ts" />
 
 angular.module('foundset_custom_property', ['webSocketModule'])
 // Foundset type -------------------------------------------
@@ -26,7 +27,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
     ROWS_INSERTED: 1,
     ROWS_DELETED: 2
 })
-.run(function ($sabloConverters, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $viewportModule, $sabloUtils, $q, $log, $webSocket) {
+.run(function ($sabloConverters, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $viewportModule, $sabloUtils, $q, $log, $webSocket, $sabloDeferHelper: sablo.ISabloDeferHelper) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
 	var SERVER_SIZE = "serverSize";
@@ -44,6 +45,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	var ID_KEY = "id";
 	var VALUE_KEY = "value";
+	var DATAPROVIDER_KEY = "dp";
+	var CONVERSIONS = "viewportConversions"; // data conversion info
 
 	var PUSH_TO_SERVER = "w";
 
@@ -152,7 +155,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
 					handledRequests.forEach(function(handledReq) { 
-					     var defer = internalState.deferred[handledReq[ID_KEY]];
+					     var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
 					     if (defer) {
 					    	 if (defer === internalState.selectionUpdateDefer) {
 						    	 if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
@@ -163,7 +166,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						    	 if (handledReq[VALUE_KEY]) defer.resolve();
 						    	 else defer.reject();
 					    	 }
-					    	 delete internalState.deferred[handledReq[ID_KEY]];
 					     }
 					});
 					
@@ -240,17 +242,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 
 					internalState.requests = [];
-					internalState.deferred = {}; // key is msgId (which always increases), values is the q defer
-					internalState.currentMsgId = 0;
+					$sabloDeferHelper.initInternalStateForDeferring(internalState, "svy foundset * ");
 					
-					function getNewDeferId() {
-						var d = $q.defer();
-						internalState.currentMsgId++;
-						internalState.deferred[internalState.currentMsgId] = d;
-						
-						return internalState.currentMsgId;
-					}
-
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
 					$viewportModule.updateAllConversionInfo(rows, internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
 					if (newValue[VIEW_PORT][$sabloConverters.TYPES_KEY]) {
@@ -269,36 +262,36 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						if (isNaN(startIndex) || isNaN(size)) throw new Error("loadRecordsAsync: start or size are not numbers (" + startIndex + "," + size + ")");
 
 						var req = {newViewPort: {startIndex : startIndex, size : size}};
-						var requestID = getNewDeferId();
+						var requestID = $sabloDeferHelper.getNewDeferId(internalState);
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
 						
 						if (internalState.changeNotifier) internalState.changeNotifier();
-						return internalState.deferred[requestID].promise;
+						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadExtraRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadExtraRecordsAsync: extrarecords is not a number (" + negativeOrPositiveCount + ")");
 
 						var req = { loadExtraRecords: negativeOrPositiveCount };
-						var requestID = getNewDeferId();
+						var requestID = $sabloDeferHelper.getNewDeferId(internalState);
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
 						
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
-						return internalState.deferred[requestID].promise;
+						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadLessRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
 						if (isNaN(negativeOrPositiveCount)) throw new Error("loadLessRecordsAsync: lessrecords is not a number (" + negativeOrPositiveCount + ")");
 
 						var req = { loadLessRecords: negativeOrPositiveCount };
-						var requestID = getNewDeferId();
+						var requestID = $sabloDeferHelper.getNewDeferId(internalState);
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
 
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
-						return internalState.deferred[requestID].promise;
+						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.notifyChanged = function() {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * notifyChanged called");
@@ -307,11 +300,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					newValue.sort = function(columns) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * sort requested with " + JSON.stringify(columns));
 						var req = {sort: columns};
-						var requestID = getNewDeferId();
+						var requestID = $sabloDeferHelper.getNewDeferId(internalState);
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
-						return internalState.deferred[requestID].promise;
+						return internalState.deferred[requestID].defer.promise;
 					}
 					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * setPreferredViewportSize called with (" + size + ", " + sendSelectionViewportInitially + ", " + initialSelectionViewportCentered + ")");
@@ -329,8 +322,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 						delete internalState.selectionUpdateDefer;
 
-						var msgId = getNewDeferId();
-						internalState.selectionUpdateDefer = internalState.deferred[msgId];
+						var msgId = $sabloDeferHelper.getNewDeferId(internalState);
+						internalState.selectionUpdateDefer = internalState.deferred[msgId].defer;
 						
 						var req = {newClientSelectionRequest: tmpSelectedRowIdxs, selectionRequestID: msgId};
 						req[ID_KEY] = msgId;
@@ -349,6 +342,29 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 						return null
 					};
+					newValue.updateViewportRecord = function(rowID, columnID, newValue, oldValue) {
+						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updateRecord requested with (" + rowID + ", " + columnID + ", " + newValue);
+						var r = {};
+						r[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowID;
+						r[DATAPROVIDER_KEY] = columnID;
+						r[VALUE_KEY] = newValue;
+
+						// convert new data if necessary
+						var conversionInfo = undefined;
+						if(internalState[CONVERSIONS]) {
+							for(var idx in this.viewPort.rows) {
+								if(this.viewPort.rows[idx][$foundsetTypeConstants.ROW_ID_COL_KEY] == rowID) {
+									conversionInfo = internalState[CONVERSIONS][idx];
+									break;
+								}
+							}
+						}
+						if (conversionInfo && conversionInfo[columnID]) r[VALUE_KEY] = $sabloConverters.convertFromClientToServer(r[VALUE_KEY], conversionInfo[columnID], oldValue);
+						else r[VALUE_KEY] = $sabloUtils.convertClientObject(r[VALUE_KEY]);
+
+						internalState.requests.push({viewportDataChanged: r});
+						if (internalState.changeNotifier) internalState.changeNotifier();
+					}
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
 					newValue.addChangeListener = function(listener) {

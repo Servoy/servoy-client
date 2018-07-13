@@ -27,6 +27,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
@@ -100,7 +101,10 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	public void clearChanges()
 	{
 		viewPortCompletelyChanged = false;
+
 		viewPortChanges.clear();
+		FoundsetDataAdapterList fsDAL = rowDataProvider.getDataAdapterList();
+		if (fsDAL != null) fsDAL.resetDALToSelectedIndexQuietly();
 	}
 
 	/**
@@ -181,10 +185,13 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
+	 * @param granularUpdate if true then the cell (child comp. property or foundset linked prop. like a valuelist which called filter from client) called valueChanged on it's monitor, so we need to send a
+	 * granular update if available on that type; if it is false then a full toJSON for that cell should be done.
 	 *
 	 * @return true if the operation was queued, false otherwise.
 	 */
-	public boolean queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
+	public boolean queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset,
+		boolean granularUpdate)
 	{
 		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return false;
 
@@ -203,9 +210,10 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 						rowDataProvider.writeRowData(absoluteRowIndex, absoluteRowIndex, columnName, foundset, w, clientDataConversions);
 						return true;
 					}
-				}, FullValueToJSONConverter.INSTANCE);
+				}, granularUpdate ? ChangesToJSONConverter.INSTANCE : FullValueToJSONConverter.INSTANCE);
 
-				boolean added = removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
+				boolean added = removeIrrelevantOperationsAndAdd(
+					new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName, granularUpdate));
 
 				// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
 				// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property

@@ -28,6 +28,6 @@ public class MSSQLFreeTDSTemplate extends ServerTemplateDefinition
 	public MSSQLFreeTDSTemplate()
 	{
 		super(new ServerConfig("new_mssql_freetds", "sa", "", "jdbc:jtds:sqlserver://<server_host>/Northwind", null, "net.sourceforge.jtds.jdbc.Driver", null,
-			null, true, false, null));
+			null, true, false, null, null));
 	}
 }

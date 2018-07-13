@@ -279,6 +279,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 			});
 		}
+		if (securityAccess != null)
+		{
+			for (Object elementUUID : new HashSet(securityAccess.keySet()))
+			{
+				if (updatedElementIds.containsKey(elementUUID.toString()))
+				{
+					UUID uuid = Utils.getAsUUID(updatedElementIds.get(elementUUID.toString()), false);
+					if (uuid != null)
+					{
+						securityAccess.put(uuid, securityAccess.get(elementUUID));
+					}
+				}
+			}
+		}
 		flush(persist);
 		return clone;
 	}
@@ -3151,6 +3165,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		try
 		{
+			if (dataSource == null) return null;
 			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 			if (snt != null)
 			{
@@ -3158,7 +3173,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 
 			// not a server/table combi, ask the current clients foundset manager
-			if (J2DBGlobals.getServiceProvider() != null)
+			if (J2DBGlobals.getServiceProvider() != null && J2DBGlobals.getServiceProvider().getFoundSetManager() != null)
 			{
 				return J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
 			}

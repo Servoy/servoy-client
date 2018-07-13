@@ -27,7 +27,6 @@ import org.jabsorb.serializer.UnmarshallException;
 import org.jabsorb.serializer.impl.ArraySerializer;
 import org.jabsorb.serializer.impl.BeanSerializer;
 import org.jabsorb.serializer.impl.BooleanSerializer;
-import org.jabsorb.serializer.impl.DateSerializer;
 import org.jabsorb.serializer.impl.DictionarySerializer;
 import org.jabsorb.serializer.impl.ListSerializer;
 import org.jabsorb.serializer.impl.MapSerializer;
@@ -57,6 +56,8 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 {
+	public static final String STRING_SERIALIZER_NAME = "StringSerializer";
+
 	private JSONSerializer serializer;
 	private final boolean handleByteArrays;
 
@@ -260,7 +261,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
 				serializer.registerSerializer(new ListSerializer());
-				serializer.registerSerializer(new DateSerializer());
+				serializer.registerSerializer(new ServoyDateSerializer());
 				serializer.registerSerializer(handleByteArrays ? new StringByteArraySerializer() : new StringSerializer()); // handle byte arrays as base64 encoded?
 				serializer.registerSerializer(new NumberSerializer());
 				serializer.registerSerializer(new BooleanSerializer());

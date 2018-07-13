@@ -44,20 +44,81 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (typeof data === 'number' && isNaN(data)) return ""; // cannot format something that is not a number
 		
 		var initialData = data;
-		var partchedFrmt = servoyFormat; // patched format for numeraljs format
+		var patchedFormat = servoyFormat; // patched format for numeraljs format
 		var i, j;
-
-		if (partchedFrmt.indexOf(';') > 0) {
+		var prefix = "";
+		var sufix = "";
+		
+		if (patchedFormat.indexOf(';') > 0) {
 			if (data < 0) {
-				partchedFrmt = partchedFrmt.split(';')[1]
-			} else partchedFrmt = partchedFrmt.split(';')[0];
+				patchedFormat = patchedFormat.split(';')[1]
+			} else patchedFormat = patchedFormat.split(';')[0];
 		}
 
 		if (data < 0) data *= -1;
-
+		if (patchedFormat.indexOf('\u00A4') >= 0)
+		{
+			patchedFormat = patchedFormat.replaceAll('\u00A4', numeral.localeData().currency.symbol);
+		}	
+		if (servoyFormat.indexOf("-") >= 0 && initialData >= 0 && servoyFormat.indexOf(";") < 0)
+		{
+			patchedFormat = patchedFormat.replaceAll("-", "");
+		}
+		var MILLSIGN = '\u2030' //‰
+			
+		if (patchedFormat.indexOf("%") > -1 && patchedFormat.indexOf("'%'") == -1) 
+		{
+			data *= 100;
+		} else	if (patchedFormat.indexOf(MILLSIGN) > -1 && patchedFormat.indexOf("'"+MILLSIGN+"'") == -1) 
+		{
+			data *= 1000;
+		}
+		var numberStart = patchedFormat.length;
+		var index = patchedFormat.indexOf('0');
+		if (index >= 0)
+		{
+			numberStart = index;
+		}
+		index = patchedFormat.indexOf('#');
+		if (index >= 0 && index < numberStart)
+		{
+			numberStart = index;
+		}
+		var numberEnd =  0;
+		index = patchedFormat.lastIndexOf('0');
+		if (index >= 0)
+		{
+			numberEnd = index;
+		}
+		index = patchedFormat.lastIndexOf('#');
+		if (index >= 0 && index > numberEnd)
+		{
+			numberEnd = index;
+		}
+		
+		if (numberStart > 0)
+		{
+			prefix = patchedFormat.substring(0,numberStart);
+		}
+		
+		if (numberEnd < patchedFormat.length - 1)
+		{
+			sufix = patchedFormat.substring(numberEnd+1);
+		}
+		
+		patchedFormat = patchedFormat.substring(numberStart,numberEnd+1);
+		var ret;
+		
+		prefix = prefix.replaceAll("'", "");
+		sufix = sufix.replaceAll("'", "");
+			
+		if (servoyFormat.indexOf("-") == -1 && initialData < 0 && servoyFormat.indexOf(";") < 0)
+		{
+			prefix = prefix + "-";	
+		}
 		//scientific notation case
 		if (servoyFormat.indexOf('E') > -1) {
-			var frmt = /([0#.,]+)+E0+.*/.exec(servoyFormat)[1];
+			var frmt = /([0#.,]+)+E0+.*/.exec(patchedFormat)[1];
 			var integerDigits = 0;
 			var fractionalDigits = 0;
 			var countIntegerState = true;
@@ -74,117 +135,78 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					fractionalDigits++;
 				}
 			}
-			return new Number(data).toExponential(integerDigits + fractionalDigits);
-
+			ret = new Number(data).toExponential(integerDigits + fractionalDigits);
 		}
-		//treat percents and per thousants
-		var centIndex = -1;
-		var milIndex = -1;
-		var MILLSIGN = '\u2030' //‰
-		var lastChar = false;
-		
-		if (servoyFormat.indexOf("%") > -1) {
-			if (servoyFormat.indexOf("'%'") == -1)
-			{
-				data *= 100;
-			}	
-			centIndex = partchedFrmt.indexOf("%")
-			lastChar = (centIndex === partchedFrmt.length-1);
-			partchedFrmt = partchedFrmt.replaceAll("%", ""); // p doesn't mean anything in numeraljs
-
-		} else if (servoyFormat.indexOf(MILLSIGN) > -1) {
-			if (servoyFormat.indexOf("'"+MILLSIGN+"'") == -1)
-			{
-				data *= 1000;
-			}	
-			milIndex = partchedFrmt.indexOf(MILLSIGN)
-			lastChar = (milIndex === partchedFrmt.length-1);
-			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN, "");
-		}
-
-		var minIndex = -1;
-		var servoyFormatMinIndex = servoyFormat.indexOf("-")
-		if (servoyFormatMinIndex > -1) {
-			//if - is at the end then we ignore it because ng-client does *=-1 even without it
-			//see https://support.servoy.com/browse/SVY-9289
-			if (servoyFormatMinIndex < (servoyFormat.length - 1)) {
-				minIndex = partchedFrmt.indexOf("-");
-			}
-			partchedFrmt = partchedFrmt.replaceAll("-", "p");
-		}
-
-		//		else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
-		//			data *= -1;
-		//		}
-
-		var currency;
-		
-		if (partchedFrmt.indexOf('$') >= 0) {
-			currency = '$';
-		}
-		
-		partchedFrmt = partchedFrmt.replaceAll('\u00A4', '$');
-		partchedFrmt = partchedFrmt.replaceAll('(#+)', '[$1]');
-		partchedFrmt = partchedFrmt.replaceAll('#', '0');
-
-		// test for currency, this should be improved inside numeral so it can handle literals inside the format.
-		if (!currency)
+		else
 		{
-			currency = getCurrency(servoyFormat);
-		}	
-		if (currency != "" && endsWith(partchedFrmt, currency))
-		{
-			partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
-		}	
-		if (currency != "" && partchedFrmt.indexOf(currency) === 0)
-		{
-			partchedFrmt = (partchedFrmt.substring(1)).trim();
-		}	
-		// get min digits
-		var minLen = 0;
-		for (i = 0; i < servoyFormat.length; i++) {
-			if (servoyFormat[i] == '0') {
-				minLen++;
-			} else if (servoyFormat[i] == '.') {
-				break;
-			}
-		}
-
-		var ret = numeral(data).format(partchedFrmt);
-
-		// set min digits
-		if (minLen > 0) {
-			var retSplit = ret.split(numeral.localeData().delimiters.decimal);
-			for (i = 0; i < retSplit[0].length; i++) {
-				if (retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
-				for (j = i; j < retSplit[0].length; j++) {
-					if (retSplit[0][j] >= '0' && retSplit[0][j] <= '9') continue;
+			// get min digits
+			var minLen = 0;
+			var optionalDigits = 0;
+			for (i = 0; i < patchedFormat.length; i++) {
+				if (patchedFormat[i] == '0') {
+					minLen++;
+				} else if (patchedFormat[i] == '#' && minLen === 0) {
+					optionalDigits++;
+				} else if (patchedFormat[i] == '.') {
 					break;
 				}
-				var nrMissing0 = minLen - (j - i);
-				if (nrMissing0 > 0) {
-					ret = retSplit[0].substring(0, i);
-					for (j = 0; j < nrMissing0; j++) ret += '0';
-					ret += retSplit[0].substring(i);
-					if (retSplit.length > 1) ret += (numeral.localeData().delimiters.decimal + retSplit[1]);
+			}
+			
+			patchedFormat = patchedFormat.replaceAll('(#+)', '[$1]');
+			patchedFormat = patchedFormat.replaceAll('#', '0');
+			
+			ret = numeral(data).format(patchedFormat);
+
+			// set min digits
+			if (minLen > 0) {
+				var retSplit = ret.split(numeral.localeData().delimiters.decimal);
+				for (i = 0; i < retSplit[0].length; i++) {
+					if (retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
+					for (j = i; j < retSplit[0].length; j++) {
+						if (retSplit[0][j] >= '0' && retSplit[0][j] <= '9') continue;
+						break;
+					}
+					var nrMissing0 = minLen - (j - i);
+					if (nrMissing0 > 0) {
+						ret = retSplit[0].substring(0, i);
+						for (j = 0; j < nrMissing0; j++) ret += '0';
+						ret += retSplit[0].substring(i);
+						if (retSplit.length > 1) ret += (numeral.localeData().delimiters.decimal + retSplit[1]);
+					}
+					break;
 				}
-				break;
+			}
+			//fix the optional digits
+			if (patchedFormat.indexOf(',') == -1 && optionalDigits > 0)
+			{
+				var toEliminate = 0;
+				for (i =0;i<ret.length;i++)
+				{
+					if (ret.charAt(i) == '0')
+					{
+						toEliminate++;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (toEliminate > 0)
+				{
+					if (toEliminate > optionalDigits)
+					{
+						toEliminate = optionalDigits;
+					}	
+					ret = ret.substring(toEliminate);
+					if (ret.indexOf(numeral.localeData().delimiters.decimal) == 0)
+					{
+						//we eliminated too much
+						ret = "0" + ret;
+					}
+				}
 			}
 		}
-
-		if (currency != "") {
-			if (servoyFormat.indexOf(currency) === 0) ret = currency + ' ' + ret;
-			else ret += ' ' + currency;
-		}
-
-		if (centIndex > -1) ret = lastChar ? (ret+ '%') : ret.insert(centIndex, '%');
-		if (milIndex > -1) ret =  lastChar ? (ret+ MILLSIGN) : ret.insert(milIndex, MILLSIGN);
-		if (minIndex > -1) ret = ret.insert(minIndex, '-');
-
-		if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
-			ret = '-' + ret;
-		}
-		return ret;
+		return prefix + ret + sufix;
 	}
 
 	function endsWith(str, suffix) {
@@ -207,7 +229,18 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (format.indexOf("'%'") > -1) {
 			multFactor = 100
 		}
-
+		if (format.indexOf("'") > -1)
+		{
+			// replace the literals
+			var parts = format.split("'");
+			for (var i=0;i<parts.length;i++)
+			{
+				if (i % 2 == 1)
+				{
+					data = data.replaceAll(parts[i],"");
+				}
+			}
+		}		
 		var ret = numeral(data).value();
 		ret *= multFactor;
 		return ret
@@ -360,6 +393,107 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		return currency;
 	}
 
+	function getSelectedText(elementId) {
+		var sel = null;
+		var textarea = document.getElementById(elementId);
+		if(textarea) {
+			// code for IE
+			if (document['selection']) {
+				textarea.focus();
+				sel = document['selection'].createRange().text;
+			}
+			else {
+				// code for Mozilla
+				var start = textarea['selectionStart'];
+				var end = textarea['selectionEnd'];
+				sel = textarea['value'].substring(start, end);
+			}
+		}
+		return sel;
+	}
+
+	function numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
+		if (mlength > 0 && obj && obj.value) {
+			var counter = 0;
+			if (("0123456789").indexOf(keychar) != -1) counter++;
+			var stringLength = obj.value.length;
+			for (var i = 0; i < stringLength; i++) {
+				if (("0123456789").indexOf(obj.value.charAt(i)) != -1) counter++;
+			}
+			var selectedTxt = getSelectedText(obj.id);
+			if (selectedTxt) counter = counter - selectedTxt.length;
+			if (counter > mlength) return false;
+		}
+
+		if ((("-0123456789").indexOf(keychar) > -1)) {
+			return true;
+		} else if (decimal && (keychar == decimalChar)) {
+			return true;
+		} else if (keychar == groupingChar) {
+			return true;
+		} else if (keychar == currencyChar) {
+			return true;
+		} else if (keychar == percentChar) {
+			return true;
+		}
+		return false;				
+	}
+	
+	function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
+		var key;
+		var keychar;
+
+		if (window.event) {
+			key = window.event['keyCode'];
+		} else if (e) {
+			key = e.which;
+		} else {
+			return true;
+		}
+
+		if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27) || (e.ctrlKey && key == 97) || (e.ctrlKey && key == 99) || (e.ctrlKey && key ==
+				118) || (e.ctrlKey && key == 120)) { //added CTRL-A, X, C and V
+			return true;
+		}
+
+		keychar = String.fromCharCode(key);
+		return numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength);
+
+	}
+
+	function testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat) {
+		if (!vFindMode && vCheckNumbers) {
+			if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
+				$(e.target).blur()
+			} else if (vSvyFormat.type == "INTEGER") {
+				var currentLanguageNumeralSymbols = numeral.localeData();
+				
+				if(keyChar == undefined) {
+					return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
+							.symbol,
+							vSvyFormat.percent, vElement, vSvyFormat.maxLength);							
+				}
+				else {
+					return numbersonlyForChar(keyChar, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
+							.symbol,
+							vSvyFormat.percent, vElement, vSvyFormat.maxLength);
+				}
+			} else if (vSvyFormat.type == "NUMBER" || ((vSvyFormat.type == "TEXT") && vSvyFormat.isNumberValidator)) {
+				var currentLanguageNumeralSymbols = numeral.localeData();
+				
+				if(keyChar == undefined) {
+					return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
+						vSvyFormat.percent, vElement, vSvyFormat.maxLength);							
+				}
+				else {
+					return numbersonlyForChar(keyChar, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
+						vSvyFormat.percent, vElement, vSvyFormat.maxLength);														
+				}
+			}
+		}
+		return true;
+	}
+
 	return {
 
 		format: function(data, servoyFormat, type) {
@@ -376,7 +510,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		},
 
 
-		unformat: function(data, servoyFormat, type) {
+		unformat: function(data, servoyFormat, type, currentValue) {
 			if ((!servoyFormat) || (!type) || (!data && data != 0)) return data;
 			if ((type == "NUMBER") || (type == "INTEGER")) {
 				return unformatNumbers(data, servoyFormat);
@@ -388,7 +522,21 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				servoyFormat = servoyFormat.replaceAll('d', 'D');
 				servoyFormat = servoyFormat.replaceAll('y', 'Y');
 				// use moment.js from calendar component
-				return moment(data, servoyFormat,true).toDate();
+				var d = moment(data, servoyFormat,true).toDate();
+				// if format has not year/month/day use the one from the current model value
+				// because moment will just use current date
+				if(currentValue) {
+					if(servoyFormat.indexOf('Y') == -1) {
+						d.setFullYear(currentValue.getFullYear());
+					}
+					if(servoyFormat.indexOf('M') == -1) {
+						d.setMonth(currentValue.getMonth());
+					}
+					if(servoyFormat.indexOf('D') == -1) {
+						d.setDate(currentValue.getDate());
+					}
+				}
+				return d;
 			}
 			return data;
 		},
@@ -412,9 +560,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					var format = null;
 					var type = svyFormat ? svyFormat.type : null;
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
-					if (element.is(":focus") && svyFormat.edit) format = svyFormat.edit
+					if (element.is(":focus") && svyFormat.edit && !svyFormat.isMask) format = svyFormat.edit
 					try {
-						var data = formatUtils.unformat(viewValue, format, type);
+						var data = formatUtils.unformat(viewValue, format, type, ngModelController.$modelValue);
 					} catch (e) {
 						console.log(e)
 							//TODO set error state
@@ -451,6 +599,29 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 							}
 						}
 					}
+					if (svyFormat.type == "TEXT" && svyFormat.isRaw && svyFormat.isMask) {
+						if (data && format && data.length === format.length){
+							var ret = ''
+							for (var i = 0; i < format.length; i++) {
+								switch (format[i]) {
+									case 'U': 
+									case 'L':
+									case 'A': 
+									case '?':
+									case '*':
+									case 'H':
+									case '#':
+										ret += data[i]
+										break;
+									default:
+										// ignore literal characters
+										break;
+								}
+							}
+							return ret;
+						}
+						
+					}
 				}
 				return data; //converted
 			}
@@ -463,9 +634,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
 					if (svyFormat.edit && element.is(":focus")) format = svyFormat.edit
 					try {
+						ngModelController.$setValidity("", true);
 						data = formatUtils.format(modelValue, format, type);
 					} catch (e) {
 						console.log(e)
+						ngModelController.$setValidity("", false);
 							//TODO set error state
 							//ngModelController.$error ..
 					}
@@ -476,111 +649,10 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				}
 				return data; //converted
 			}
-
-            function getSelectedText(elementId) {
-                var sel = null;
-                var textarea = document.getElementById(elementId);
-                if(textarea) {
-                    // code for IE
-                    if (document['selection']) {
-                        textarea.focus();
-                        sel = document['selection'].createRange().text;
-                    }
-                    else {
-                        // code for Mozilla
-                        var start = textarea['selectionStart'];
-                        var end = textarea['selectionEnd'];
-                        sel = textarea['value'].substring(start, end);
-                    }
-                }
-                return sel;
-            }
-
-			function numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
-				if (mlength > 0 && obj && obj.value) {
-					var counter = 0;
-					if (("0123456789").indexOf(keychar) != -1) counter++;
-					var stringLength = obj.value.length;
-					for (var i = 0; i < stringLength; i++) {
-						if (("0123456789").indexOf(obj.value.charAt(i)) != -1) counter++;
-					}
-					var selectedTxt = getSelectedText(obj.id);
-					if (selectedTxt) counter = counter - selectedTxt.length;
-					if (counter > mlength) return false;
-				}
-
-				if ((("-0123456789").indexOf(keychar) > -1)) {
-					return true;
-				} else if (decimal && (keychar == decimalChar)) {
-					return true;
-				} else if (keychar == groupingChar) {
-					return true;
-				} else if (keychar == currencyChar) {
-					return true;
-				} else if (keychar == percentChar) {
-					return true;
-				}
-				return false;				
-			}
-			
-			function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
-				var key;
-				var keychar;
-
-				if (window.event) {
-					key = window.event['keyCode'];
-				} else if (e) {
-					key = e.which;
-				} else {
-					return true;
-				}
-
-				if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27) || (e.ctrlKey && key == 97) || (e.ctrlKey && key == 99) || (e.ctrlKey && key ==
-						118) || (e.ctrlKey && key == 120)) { //added CTRL-A, X, C and V
-					return true;
-				}
-
-				keychar = String.fromCharCode(key);
-				return numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength);
-
-			}
-
-			function testForNumbersOnly(e, keyChar) {
-				if (!$scope.model.findmode && checkNumbers) {
-					if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
-						$(e.target).blur()
-					} else if (svyFormat.type == "INTEGER") {
-						var currentLanguageNumeralSymbols = numeral.localeData();
-						
-						if(keyChar == undefined) {
-							return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
-									.symbol,
-									svyFormat.percent, element, svyFormat.maxLength);							
-						}
-						else {
-							return numbersonlyForChar(keyChar, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
-									.symbol,
-									svyFormat.percent, element, svyFormat.maxLength);
-						}
-					} else if (svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)) {
-						var currentLanguageNumeralSymbols = numeral.localeData();
-						
-						if(keyChar == undefined) {
-							return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
-									svyFormat.percent, element, svyFormat.maxLength);							
-						}
-						else {
-							return numbersonlyForChar(keyChar, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
-									svyFormat.percent, element, svyFormat.maxLength);														
-						}
-					}
-				}
-				return true;
-			}
 			
 			function keypress(e) {
 				isKeyPressEventFired = true;
-				return testForNumbersOnly(e, null)
+				return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
 			}
 
 			function focus(e) {
@@ -647,7 +719,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				    var pasted = inserted.length > 1 || (!inserted && !removed);
 					
 				    if(!pasted && !removed) {
-				    	if(!testForNumbersOnly(e, inserted)) {
+				    	if(!testForNumbersOnly(e, inserted, element, $scope.model.findmode, checkNumbers, svyFormat)) {
 				    		currentValue = oldInputValue; 
 				    		element.val(currentValue);
 				    	}
@@ -726,6 +798,9 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				applyValue();
 
 			}
+		},
+		testForNumbersOnly: function (e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat) {
+			return testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat);
 		}
 	}
 }]).filter('formatFilter', function($formatterUtils) { /* this filter is used for display only*/

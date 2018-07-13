@@ -781,8 +781,8 @@ public class JSValueList implements IConstantsObject, ISMValueList
 				typeString = "GlobalMethod:" + globalMethod != null ? globalMethod.getPrefixedName() : valuelist.getCustomValues();
 				break;
 			case IValueListConstants.TABLE_VALUES :
-				typeString = valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES ? "Table:" + valuelist.getDataSource() : "Related:" +
-					valuelist.getRelationName();
+				typeString = valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES ? "Table:" + valuelist.getDataSource()
+					: "Related:" + valuelist.getRelationName();
 		}
 		return "JSValueList[name:" + valuelist.getName() + ',' + typeString + ']';
 	}
@@ -819,5 +819,51 @@ public class JSValueList implements IConstantsObject, ISMValueList
 		}
 		else if (!valuelist.getUUID().equals(other.valuelist.getUUID())) return false;
 		return true;
+	}
+
+	/**
+	 * Gets or sets the display value type with one of the types
+	 * defined on JSVariable
+	 *
+	 * @sample
+	 * var myValueList = solutionModel.getValueList('myValueListHere')
+	 *  //set the display value type
+	 * myValueList.displayValueType = JSVariable.TEXT
+	 */
+	@JSSetter
+	@Override
+	public void setDisplayValueType(int arg)
+	{
+		valuelist.setDisplayValueType(arg);
+	}
+
+	@JSGetter
+	@Override
+	public int getDisplayValueType()
+	{
+		return valuelist.getDisplayValueType();
+	}
+
+	/**
+	 * Gets or sets the real value type with one of the types
+	 * defined on JSVariable
+	 *
+	 * @sample
+	 * var myValueList = solutionModel.getValueList('myValueListHere')
+	 *  // set the real value type
+	 * myValueList.realValueType = JSVariable.NUMBER
+	 */
+	@JSSetter
+	@Override
+	public void setRealValueType(int arg)
+	{
+		valuelist.setRealValueType(arg);
+	}
+
+	@JSGetter
+	@Override
+	public int getRealValueType()
+	{
+		return valuelist.getRealValueType();
 	}
 }

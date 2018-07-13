@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
@@ -61,7 +62,7 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  *
  */
-public abstract class JSBaseContainer /* implements IJSParent */
+public abstract class JSBaseContainer<T extends AbstractContainer> implements IJSParent<T>
 {
 	private final IApplication application;
 
@@ -117,7 +118,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				field.setDataProviderID(((JSVariable)dataprovider).getScriptVariable().getDataProviderID());
 			}
-			return JSField.createField((IJSParent)this, field, application, true);
+			return JSField.createField(this, field, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -154,7 +155,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				LayoutContainer layoutContainer = getContainer().createNewLayoutContainer();
 				layoutContainer.setLocation(new Point(x, y));
-				return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, layoutContainer);
+				return application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, layoutContainer);
 			}
 			else
 			{
@@ -193,7 +194,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position)
 	{
-		return createLayoutContainer(0, position);
+		return createLayoutContainer(position, position);
 	}
 
 	/**
@@ -219,7 +220,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<LayoutContainer> iterator = getContainer().getLayoutContainers();
 		while (iterator.hasNext())
 		{
-			containers.add(application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, iterator.next()));
+			containers.add(application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, iterator.next()));
 		}
 		return containers.toArray(new JSLayoutContainer[containers.size()]);
 	}
@@ -248,7 +249,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			LayoutContainer container = containers.next();
 			if (name.equals(container.getName()))
 			{
-				return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, container);
+				return application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, container);
 			}
 		}
 		return null;
@@ -278,11 +279,8 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				if (o instanceof LayoutContainer && name.equals(((LayoutContainer)o).getName()))
 				{
-					JSBaseContainer topContainer = JSBaseContainer.this;
 					LayoutContainer lc = (LayoutContainer)o;
-					topContainer = getParentContainer(topContainer, lc, application);
-
-					return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)topContainer, lc);
+					return application.getScriptEngine().getSolutionModifier().createLayoutContainer(getCorrectIJSParent(JSBaseContainer.this, lc), lc);
 				}
 				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
@@ -653,7 +651,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			gc.setText(txt);
 			if (action instanceof JSMethod)
 			{
-				JSButton button = new JSButton((IJSParent)this, gc, application, true);
+				JSButton button = new JSButton(this, gc, application, true);
 				button.setOnAction((JSMethod)action);
 				return button;
 			}
@@ -661,7 +659,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				int id = getMethodId(action, gc, application);
 				gc.setOnActionMethodID(id);
-				return new JSButton((IJSParent)this, gc, application, true);
+				return new JSButton(this, gc, application, true);
 			}
 		}
 		catch (RepositoryException e)
@@ -729,7 +727,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			gc.setText(txt);
 			if (action instanceof JSMethod)
 			{
-				JSLabel label = new JSLabel((IJSParent)this, gc, application, true);
+				JSLabel label = new JSLabel(this, gc, application, true);
 				label.setOnAction((JSMethod)action);
 				return label;
 			}
@@ -741,7 +739,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 					gc.setOnActionMethodID(methodId);
 					gc.setShowClick(false);
 				}
-				return new JSLabel((IJSParent)this, gc, application, true);
+				return new JSLabel(this, gc, application, true);
 			}
 		}
 		catch (RepositoryException e)
@@ -874,7 +872,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 				relationName = ((JSRelation)relation).getName();
 			}
 			portal.setRelationName(relationName);
-			return new JSPortal((IJSParent)this, portal, application, true);
+			return new JSPortal(this, portal, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -905,7 +903,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Portal portal = portals.next();
 			if (name.equals(portal.getName()))
 			{
-				return new JSPortal((IJSParent)this, portal, application, false);
+				return new JSPortal(this, portal, application, false);
 			}
 		}
 		return null;
@@ -974,7 +972,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<Portal> iterator = form2use.getPortals();
 		while (iterator.hasNext())
 		{
-			portals.add(new JSPortal((IJSParent)this, iterator.next(), application, false));
+			portals.add(new JSPortal(this, iterator.next(), application, false));
 		}
 		return portals.toArray(new JSPortal[portals.size()]);
 	}
@@ -1036,7 +1034,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			TabPanel tabPanel = getContainer().createNewTabPanel(name);
 			tabPanel.setSize(new Dimension(width, height));
 			tabPanel.setLocation(new Point(x, y));
-			return new JSTabPanel((IJSParent)this, tabPanel, application, true);
+			return new JSTabPanel(this, tabPanel, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -1068,7 +1066,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			TabPanel tabPanel = tabPanels.next();
 			if (name.equals(tabPanel.getName()))
 			{
-				return new JSTabPanel((IJSParent)this, tabPanel, application, false);
+				return new JSTabPanel(this, tabPanel, application, false);
 			}
 		}
 		return null;
@@ -1142,7 +1140,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<TabPanel> iterator = form2use.getTabPanels();
 		while (iterator.hasNext())
 		{
-			tabPanels.add(new JSTabPanel((IJSParent)this, iterator.next(), application, false));
+			tabPanels.add(new JSTabPanel(this, iterator.next(), application, false));
 		}
 		return tabPanels.toArray(new JSTabPanel[tabPanels.size()]);
 	}
@@ -1195,7 +1193,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Field field = fields.next();
 			if (name.equals(field.getName()))
 			{
-				return JSField.createField((IJSParent)this, field, application, false);
+				return JSField.createField(this, field, application, false);
 			}
 		}
 		return null;
@@ -1262,7 +1260,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<Field> iterator = form2use.getFields();
 		while (iterator.hasNext())
 		{
-			fields.add(JSField.createField((IJSParent)this, iterator.next(), application, false));
+			fields.add(JSField.createField(this, iterator.next(), application, false));
 		}
 		return fields.toArray(new JSField[fields.size()]);
 	}
@@ -1313,7 +1311,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			GraphicalComponent button = graphicalComponents.next();
 			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
 			{
-				return new JSButton((IJSParent)this, button, application, false);
+				return new JSButton(this, button, application, false);
 			}
 		}
 		return null;
@@ -1382,7 +1380,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			GraphicalComponent button = graphicalComponents.next();
 			if (ComponentFactory.isButton(button))
 			{
-				buttons.add(new JSButton((IJSParent)this, button, application, false));
+				buttons.add(new JSButton(this, button, application, false));
 			}
 		}
 		return buttons.toArray(new JSButton[buttons.size()]);
@@ -1437,7 +1435,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Bean bean = getContainer().createNewBean(name, className);
 			bean.setSize(new Dimension(width, height));
 			bean.setLocation(new Point(x, y));
-			return new JSBean((IJSParent)this, bean, true);
+			return new JSBean(this, bean, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -1470,7 +1468,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 				Bean bean = beans.next();
 				if (name.equals(bean.getName()))
 				{
-					return new JSBean((IJSParent)this, bean, false);
+					return new JSBean(this, bean, false);
 				}
 			}
 		}
@@ -1535,7 +1533,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<Bean> iterator = form2use.getBeans();
 		while (iterator.hasNext())
 		{
-			beans.add(new JSBean((IJSParent)this, iterator.next(), false));
+			beans.add(new JSBean(this, iterator.next(), false));
 		}
 		return beans.toArray(new JSBean[beans.size()]);
 	}
@@ -1712,7 +1710,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 				GraphicalComponent label = graphicalComponents.next();
 				if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
 				{
-					return new JSLabel((IJSParent)this, label, application, false);
+					return new JSLabel(this, label, application, false);
 				}
 			}
 		}
@@ -1788,7 +1786,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			GraphicalComponent gc = graphicalComponents.next();
 			if (!ComponentFactory.isButton(gc))
 			{
-				labels.add(new JSLabel((IJSParent)this, gc, application, false));
+				labels.add(new JSLabel(this, gc, application, false));
 			}
 		}
 		return labels.toArray(new JSLabel[labels.size()]);
@@ -1844,7 +1842,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
 			webComponent.setSize(new Dimension(width, height));
 			webComponent.setLocation(new Point(x, y));
-			return createWebComponent((IJSParent)this, webComponent, application, true);
+			return createWebComponent(this, webComponent, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -1878,8 +1876,8 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			if (form.isResponsiveLayout())
 			{
 				WebComponent webComponent = container.createNewWebComponent(name, type);
-				webComponent.setLocation(new Point(0, position));
-				return createWebComponent((IJSParent)this, webComponent, application, true);
+				webComponent.setLocation(new Point(position, position));
+				return createWebComponent(this, webComponent, application, true);
 			}
 			else
 			{
@@ -1918,7 +1916,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 				WebComponent webComponent = webComponents.next();
 				if (name.equals(webComponent.getName()))
 				{
-					return createWebComponent((IJSParent)this, webComponent, application, false);
+					return createWebComponent(getCorrectIJSParent(this, webComponent), webComponent, application, false);
 				}
 			}
 		}
@@ -1953,10 +1951,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			{
 				if (o instanceof WebComponent && name.equals(((WebComponent)o).getName()))
 				{
-					JSBaseContainer topContainer = JSBaseContainer.this;
-					WebComponent wc = (WebComponent)o;
-					topContainer = getParentContainer(topContainer, wc, application);
-					return createWebComponent((IJSParent< ? >)topContainer, wc, application, false);
+					return createWebComponent(getCorrectIJSParent(JSBaseContainer.this, o), (WebComponent)o, application, false);
 				}
 				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
@@ -2020,9 +2015,45 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<WebComponent> iterator = form2use.getWebComponents();
 		while (iterator.hasNext())
 		{
-			webComponents.add(createWebComponent((IJSParent)this, iterator.next(), application, false));
+			WebComponent webComponent = iterator.next();
+			webComponents.add(createWebComponent(getCorrectIJSParent(this, webComponent), webComponent, application, false));
 		}
 		return webComponents.toArray(new JSWebComponent[webComponents.size()]);
+	}
+
+	/**
+	 * When creating a JSWebComponent from a who-knows-how-deeply-nested (in case of responsive forms) webComponent in a form and we only know the form,
+	 * then we need to get step by step the solution model objects in order to use the correct direct parent for the child SM object creation.
+	 *
+	 * @param startingContainer
+	 * @param possiblyNestedChild nested child component
+	 * @return the direct parent (IJSParent) of the given webComponent.
+	 */
+	private IJSParent< ? > getCorrectIJSParent(JSBaseContainer< ? > startingContainer, IPersist possiblyNestedChild)
+	{
+		ArrayList<ISupportChilds> parentHierarchy = new ArrayList<>();
+		ISupportChilds parent = possiblyNestedChild.getParent();
+		while (parent != (startingContainer.getContainer() instanceof IFlattenedPersistWrapper< ? >
+			? ((IFlattenedPersistWrapper< ? >)startingContainer.getContainer()).getWrappedPersist() : startingContainer.getContainer()) &&
+			!(parent instanceof Form))
+		{
+			parentHierarchy.add(parent);
+			parent = parent.getParent();
+		}
+		for (int i = parentHierarchy.size(); --i >= 0;)
+		{
+			ISupportChilds container = parentHierarchy.get(i);
+			if (container instanceof LayoutContainer)
+			{
+				startingContainer = application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)startingContainer,
+					(LayoutContainer)container);
+			}
+			else
+			{
+				throw new RuntimeException("unexpected parent: " + container); //$NON-NLS-1$
+			}
+		}
+		return startingContainer;
 	}
 
 	/**
@@ -2058,35 +2089,5 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		{
 			return new JSWebComponent(parent, baseComponent, application, isNew);
 		}
-	}
-
-	/**
-	 * @param topContainer
-	 * @param lc
-	 * @return
-	 */
-	private static JSBaseContainer getParentContainer(JSBaseContainer topContainer, IPersist lc, IApplication application)
-	{
-		ArrayList<ISupportChilds> parentHierarchy = new ArrayList<>();
-		ISupportChilds parent = lc.getParent();
-		while (parent != topContainer.getContainer() && !(parent instanceof Form))
-		{
-			parentHierarchy.add(parent);
-			parent = parent.getParent();
-		}
-		for (int i = parentHierarchy.size(); --i >= 0;)
-		{
-			ISupportChilds container = parentHierarchy.get(i);
-			if (container instanceof LayoutContainer)
-			{
-				topContainer = application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent< ? >)topContainer,
-					(LayoutContainer)container);
-			}
-			else
-			{
-				throw new RuntimeException("unexpected parent: " + container); //$NON-NLS-1$
-			}
-		}
-		return topContainer;
 	}
 }

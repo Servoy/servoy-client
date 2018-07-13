@@ -20,7 +20,22 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 	          });
 	        }
 	          
-
+	        $scope.$watch('model.dataProviderID', function() {
+	        	// make sure the type of dpid and valuelist real value is the same
+	        	// why do we need array here, angular bug ?
+	        	$scope.value = [$scope.model.dataProviderID];
+	        	if ($scope.model.valuelistID)
+	        	{
+	        		for(var i=0;i<$scope.model.valuelistID.length;i++){
+		                  var item= $scope.model.valuelistID[i];
+		                  if((item.realValue+'') === ($scope.model.dataProviderID+''))
+		                  {	
+		                	  $scope.value = [item.realValue];
+		                	  break;
+		                  }
+		             }
+	        	}	
+	         })
 			/**
 			 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
 			 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of an element; then use the X and Y coordinates with the setScroll function to set a new scroll location. For Example:
@@ -108,7 +123,8 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 				return [];
 			}
 
-			$scope.radioClicked = function($event) {
+			$scope.radioClicked = function($event,val) {
+				$scope.model.dataProviderID = val;
 				$scope.svyServoyapi.apply('dataProviderID');
 				if ($scope.handlers.onFocusLostMethodID)
 					$scope.handlers.onFocusLostMethodID($event);

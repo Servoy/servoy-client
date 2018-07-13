@@ -285,6 +285,7 @@ public class JSUtils implements IJSUtils
 	 * Symbols meaning is:
 	 *  G        era designator
 	 *  y        year
+	 *  Y        week year
 	 *  M        month in year
 	 *  d        day in month
 	 *  h        hour in am/pm (1~12)
@@ -325,6 +326,7 @@ public class JSUtils implements IJSUtils
 	 * Symbols meaning is:
 	 *  G        era designator
 	 *  y        year
+	 *  Y        week year
 	 *  M        month in year
 	 *  d        day in month
 	 *  h        hour in am/pm (1~12)
@@ -1233,9 +1235,9 @@ public class JSUtils implements IJSUtils
 	}
 
 	private final Character[] CONVERSIONS = new Character[] { Character.valueOf('b'), Character.valueOf('B'), Character.valueOf('h'), Character.valueOf('H'), //
-	Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'), //
-	Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
-	Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
+		Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'), //
+		Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
+		Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
 
 	/**
 	 * Returns the number of words in the text string.

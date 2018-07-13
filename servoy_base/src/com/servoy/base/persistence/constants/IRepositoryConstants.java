@@ -75,4 +75,5 @@ public interface IRepositoryConstants
 	public static final int WEBCOMPONENTS = 47;
 	public static final int WEBCUSTOMTYPES = 48;
 	public static final int JSON = 49;
+	public static final int CSSPOSITION = 50;
 }

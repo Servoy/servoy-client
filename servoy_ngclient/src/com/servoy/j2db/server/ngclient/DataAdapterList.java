@@ -32,6 +32,7 @@ import org.sablo.specification.property.types.TypesRegistry;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
+import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -289,7 +290,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (relation != null)
 		{
-			for (Entry<IWebFormController, String> relatedFormEntry : visibleChildForms.entrySet())
+			HashMap<IWebFormController, String> childFormsCopy = getVisibleChildFormCopy();
+			for (Entry<IWebFormController, String> relatedFormEntry : childFormsCopy.entrySet())
 			{
 				IWebFormController relatedForm = relatedFormEntry.getKey();
 				String relatedFormRelation = relatedFormEntry.getValue();
@@ -502,6 +504,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			return;
 		}
+		FireCollector fireCollector = FireCollector.getFireCollector();
 		try
 		{
 			settingRecord = true;
@@ -509,6 +512,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (this.record != null)
 			{
 				this.record.removeModificationListener(this);
+				this.record.getParentFoundSet().removeAggregateModificationListener(this);
 			}
 			this.record = (IRecordInternal)record;
 
@@ -516,20 +520,25 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				pushChangedValues(null, fireChangeEvent);
 				this.record.addModificationListener(this);
+				this.record.getParentFoundSet().addAggregateModificationListener(this);
 			}
 		}
 		finally
 		{
 			formController.getFormUI().setChanging(false);
 			settingRecord = false;
+			fireCollector.done();
 		}
-		if (record != null)
+		// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
+		if (this.record != null)
 		{
-			for (IWebFormController form : visibleChildForms.keySet())
+			for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
 			{
-				if (visibleChildForms.get(form) != null)
+				String relation = entry.getValue();
+				if (relation != null)
 				{
-					form.loadRecords(record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns()));
+					IWebFormController form = entry.getKey();
+					form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
 				}
 			}
 		}
@@ -624,8 +633,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (record != null && e != null && e.getName() != null)
 		{
-			HashMap<IWebFormController, String> visibleChildFormsCopy = new HashMap<>(visibleChildForms);
-			for (Entry<IWebFormController, String> relatedFormEntry : visibleChildFormsCopy.entrySet())
+			for (Entry<IWebFormController, String> relatedFormEntry : getVisibleChildFormCopy().entrySet())
 			{
 				IWebFormController relatedForm = relatedFormEntry.getKey();
 				String relatedFormRelation = relatedFormEntry.getValue();
@@ -932,7 +940,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-
 	@Override
 	public void setFindMode(boolean findMode)
 	{
@@ -949,7 +956,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables, Set<IWebFormController> childFormsThatWereAlreadyNotified)
 	{
-		HashMap<IWebFormController, String> childFormsCopy = new HashMap<IWebFormController, String>(visibleChildForms);
+		HashMap<IWebFormController, String> childFormsCopy = getVisibleChildFormCopy();
 		for (IWebFormController relatedController : childFormsCopy.keySet())
 		{
 			updateParentContainer(relatedController, childFormsCopy.get(relatedController), b);
@@ -957,9 +964,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	/**
+	 * @return
+	 */
+	private HashMap<IWebFormController, String> getVisibleChildFormCopy()
+	{
+		return new HashMap<IWebFormController, String>(visibleChildForms);
+	}
+
 	public boolean stopUIEditing(boolean looseFocus)
 	{
-		for (IWebFormController relatedController : visibleChildForms.keySet())
+		for (IWebFormController relatedController : getVisibleChildFormCopy().keySet())
 		{
 			if (!relatedController.stopUIEditing(looseFocus)) return false;
 		}

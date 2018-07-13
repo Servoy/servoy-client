@@ -29,6 +29,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IPropertyDescriptionProvider;
@@ -85,6 +86,11 @@ import com.servoy.j2db.util.Utils;
 public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener, IHasUnderlyingState
 {
 
+	private final String ID_KEY = "id";
+	private final String VALUE_KEY = "value";
+	private final String HANDLED = "handledID";
+	private final String FILTER = "filter";
+
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 
 	private boolean initialized;
@@ -98,7 +104,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private final ValuelistPropertyDependencies propertyDependencies;
 	private boolean waitForDataproviderIfNull;
 	private boolean waitForFormatIfNull;
-	private IChangeListener changeMonitor;
+	private final ValueListTypeChangeMonitor changeMonitor;
 
 	// values available after the ValueListTypeSabloValue initialization was completed
 	private IValueList valueList;
@@ -110,7 +116,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	private IRecordInternal previousRecord;
 	private LookupListModel filteredValuelist;
-	private String filterStringForResponse; // when a filter(...) is requested, we must include the filter string that was applied to client (so that it can resolve the correct promise in case multiple filter calls are done quickly)
+	private Long handledIDForResponse; // when a filter(...) is requested, we must include the filter req. id (so that it can resolve the correct promise in case multiple filter calls are done quickly)
+
+	private boolean valuesRequested;
 
 	/**
 	 * Creates a new ValueListTypeSabloValue that is not ready yet for operation.<br/>
@@ -141,6 +149,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		this.waitForFormatIfNull = waitForFormatIfNull;
 		this.dataAdapterListToUse = dataAdapterListToUse;
 		this.initialized = false;
+		this.changeMonitor = new ValueListTypeChangeMonitor();
 	}
 
 	/**
@@ -152,9 +161,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	}
 
 	@Override
-	public void attachToBaseObject(IChangeListener monitor, IWebObjectContext webObjectCntxt)
+	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
 	{
-		this.changeMonitor = monitor;
+		changeMonitor.setChangeNotifier(changeNotifier);
 		this.webObjectContext = webObjectCntxt;
 
 		if (propertyDependencies.dataproviderPropertyName != null)
@@ -271,14 +280,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 						webObjectContext, new RuntimeException());
 					clearUpRuntimeValuelistAndFormat();
 				}
-				if (changeMonitor != null) changeMonitor.valueChanged();
+				changeMonitor.markFullyChanged(true);
 			}
 			else if (initialized)
 			{
 				// so we don't have yet all we need
 				// make sure value is cleared/uninitialized (just in case something became unavailable that was available before)
 				clearUpRuntimeValuelistAndFormat();
-				if (changeMonitor != null) changeMonitor.valueChanged();
+				changeMonitor.markFullyChanged(true);
 			}
 		}
 	}
@@ -317,21 +326,23 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (valueList != null) valueList.addListDataListener(this);
 
 		filteredValuelist = null;
-		if (changeMonitor != null) changeMonitor.valueChanged();
+		changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
 
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		// dataprovider will resolve this, do not send anything client side
-		if (propertyDependencies.dataproviderResolveValuelist) return new ArrayList<Map<String, Object>>();
+		if (propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return new ArrayList<Map<String, Object>>();
+
+		valuesRequested = false;
 
 		boolean removed = valueList.removeListDataListenerIfNeeded(this);
 
 		List<Map<String, Object>> jsonValue = null;
 
 		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
-		int size = Math.min(getConfig().getMaxCount(), vlSize);
+		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
 		Object dpRealValue = null;
 		Object dpDisplayValue = null;
 		boolean containsDpValue = false;
@@ -339,7 +350,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
-			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount()))
+			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount(dataAdapterListToUse.getApplication())))
 			{
 				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
 				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
@@ -390,11 +401,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
 	{
-		if (getConfig().getMaxCount() < valuelistSize && getConfig().shouldLogWhenOverMax() &&
+		if (getConfig().getMaxCount(dataAdapterListToUse.getApplication()) < valuelistSize && getConfig().shouldLogWhenOverMax() &&
 			Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
-			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + getConfig().getMaxCount() + //$NON-NLS-1$//$NON-NLS-2$
-				" rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", //$NON-NLS-1$
-				null);
+			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + //$NON-NLS-1$//$NON-NLS-2$
+				getConfig().getMaxCount(dataAdapterListToUse.getApplication()) + " rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", null);
 	}
 
 	protected FlattenedSolution getFlattenedSolution()
@@ -441,7 +451,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			if (formatPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)formatPropertyValue).removeStateChangeListener(this);
 		}
 
-		this.changeMonitor = null;
+		changeMonitor.setChangeNotifier(null);
 		webObjectContext = null;
 	}
 
@@ -495,16 +505,17 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.value(null);
 			return;
 		}
+
 		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
 		DataConversion clientConversionsInsideValuelist = new DataConversion();
 		if (key != null) writer.key(key);
 		writer.object();
-		if (filterStringForResponse != null)
+		if (handledIDForResponse != null)
 		{
-			writer.key("filter");
-			writer.value(filterStringForResponse);
-			filterStringForResponse = null;
+			writer.key(HANDLED);
+			writer.object().key(ID_KEY).value(handledIDForResponse.longValue()).key(VALUE_KEY).value(true).endObject();
+			handledIDForResponse = null;
 		}
 		if (valueList != null && valueList.getValueList() != null)
 		{
@@ -514,6 +525,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		writer.key("values");
 		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, dataConverterContext);
 		writer.endObject();
+
+		changeMonitor.clearChanges();
+	}
+
+	public void changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext)
+	{
+		if (changeMonitor.isChanged()) toJSON(writer, key, clientConversion, dataConverterContext);
 	}
 
 	private void revertFilter()
@@ -521,14 +539,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (filteredValuelist != null)
 		{
 			filteredValuelist = null;
-			if (changeMonitor != null) changeMonitor.valueChanged();
+			changeMonitor.markFullyChanged(true);
 		}
 	}
 
 	/**
 	 * Filters the values of the valuelist for type-ahead-like usage.
 	 */
-	public void filterValuelist(String filterString)
+	public void filterValuelist(JSONObject newJSONValue)
 	{
 		if (!initialized)
 		{
@@ -536,7 +554,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			return;
 		}
 
-		this.filterStringForResponse = filterString;
+		this.valuesRequested = true;
+		this.handledIDForResponse = Long.valueOf(newJSONValue.getLong(ID_KEY));
+		String filterString = newJSONValue.optString(FILTER);
 		if (filteredValuelist == null)
 		{
 			if (valueList instanceof DBValueList)
@@ -579,19 +599,19 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 					@Override
 					public void intervalRemoved(ListDataEvent e)
 					{
-						if (changeMonitor != null) changeMonitor.valueChanged();
+						changeMonitor.markFullyChanged(true);
 					}
 
 					@Override
 					public void intervalAdded(ListDataEvent e)
 					{
-						if (changeMonitor != null) changeMonitor.valueChanged();
+						changeMonitor.markFullyChanged(true);
 					}
 
 					@Override
 					public void contentsChanged(ListDataEvent e)
 					{
-						if (changeMonitor != null) changeMonitor.valueChanged();
+						changeMonitor.markFullyChanged(true);
 					}
 				});
 			}
@@ -603,8 +623,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			{
 				valueList.removeListDataListener(this);
 				Object realValue = dataAdapterListToUse.getValueObject(dataAdapterListToUse.getRecord(), dataproviderID);
+
+				// do mark it as changed but don't notify yet (false arg) because fill below will probably trigger listener above and notify anyway; that would mean that although
+				// we do call notify after fill that is likely to end up in a NO_OP changesToJSON in case of foundset-linked valuelist properties - which avoids one unwanted send to client in viewport
+				changeMonitor.markFullyChanged(false);
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
-				if (changeMonitor != null) changeMonitor.valueChanged();
+				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
+
 				valueList.addListDataListener(this);
 			}
 			catch (ServoyException e)
@@ -619,7 +644,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void intervalAdded(ListDataEvent e)
 	{
 		filteredValuelist = null;
-		if (changeMonitor != null) changeMonitor.valueChanged();
+		changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
 
@@ -627,7 +652,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void intervalRemoved(ListDataEvent e)
 	{
 		filteredValuelist = null;
-		if (changeMonitor != null) changeMonitor.valueChanged();
+		changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
 
@@ -635,7 +660,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void contentsChanged(ListDataEvent e)
 	{
 		filteredValuelist = null;
-		if (changeMonitor != null) changeMonitor.valueChanged();
+		changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
 
@@ -733,7 +758,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		// probably client language has changed - destroy this object (clean everything up) and return a new wrapper
 		clearUpRuntimeValuelistAndFormat();
 		initializeIfPossibleAndNeeded();
-		if (changeMonitor != null) changeMonitor.valueChanged();
+		changeMonitor.markFullyChanged(true);
 	}
 
 	@Override
@@ -760,4 +785,5 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 		}
 	}
+
 }

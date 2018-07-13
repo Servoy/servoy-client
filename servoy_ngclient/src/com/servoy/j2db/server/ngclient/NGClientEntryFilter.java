@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,7 @@ import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
+import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -90,7 +93,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String[] INDEX_3TH_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
 	public static final String[] INDEX_3TH_PARTY_JS = { //
-		"js/jquery-3.2.0.js", //
+		"js/jquery-3.3.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize_1.6.3.js", //
@@ -456,7 +459,8 @@ public class NGClientEntryFilter extends WebEntry
 				}
 
 			}
-			Debug.log("No solution found for this request, calling the default filter: " + uri);
+			if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
+				Debug.log("No solution found for this request, calling the default filter: " + uri);
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
@@ -549,22 +553,55 @@ public class NGClientEntryFilter extends WebEntry
 		return super.getIndexPageResource(request);
 	}
 
+	private Collection<String> appendGroupIdRequestParamToUrls(Collection<String> urls)
+	{
+		if (group_id != null)
+		{
+			ArrayList<String> groupIdRequestParamUrls = new ArrayList<>();
+			String rp = "svy_gid=" + group_id;
+			for (String url : urls)
+			{
+				try
+				{
+					URI uri = new URI(url);
+					String newQuery = uri.getQuery();
+					if (newQuery == null)
+					{
+						newQuery = rp;
+					}
+					else
+					{
+						newQuery += "&" + rp;
+					}
+					URI newUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), newQuery, uri.getFragment());
+					groupIdRequestParamUrls.add(newUri.toString());
+				}
+				catch (URISyntaxException e)
+				{
+					Debug.error("Error appending svy_gid request param to " + url, e);
+				}
+			}
+			return groupIdRequestParamUrls;
+		}
+		return urls;
+	}
+
 	@Override
 	public List<String> filterCSSContributions(List<String> cssContributions)
 	{
 		ArrayList<String> allIndexCSS;
-		if (group_id != null)
+		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")) && group_id != null)
 		{
 			allIndexCSS = new ArrayList<String>();
 			allIndexCSS.add("wro/" + SERVOY_CSS_THIRDPARTY_SVYGRP + group_id + ".css");
 			//get all css contributions which do not support grouping
-			allIndexCSS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[0]);
+			allIndexCSS.addAll(appendGroupIdRequestParamToUrls((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[0]));
 			allIndexCSS.add("wro/" + SERVOY_CSS_CONTRIBUTIONS_SVYGRP + group_id + ".css");
 		}
 		else
 		{
-			allIndexCSS = new ArrayList<String>(Arrays.asList(INDEX_3TH_PARTY_CSS));
-			allIndexCSS.addAll(cssContributions);
+			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3TH_PARTY_CSS)));
+			allIndexCSS.addAll(appendGroupIdRequestParamToUrls(cssContributions));
 		}
 		return allIndexCSS;
 	}
@@ -573,22 +610,22 @@ public class NGClientEntryFilter extends WebEntry
 	public List<String> filterJSContributions(List<String> jsContributions)
 	{
 		ArrayList<String> allIndexJS;
-		if (group_id != null)
+		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")) && group_id != null)
 		{
 			allIndexJS = new ArrayList<String>();
 			allIndexJS.add("wro/" + SERVOY_THIRDPARTY_SVYGRP + group_id + ".js");
-			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SABLO_JS)));
 			allIndexJS.add("wro/" + SERVOY_APP_SVYGRP + group_id + ".js");
 			//get all contributions which do not support grouping
-			allIndexJS.addAll((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[1]);
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[1]));
 			allIndexJS.add("wro/" + SERVOY_CONTRIBUTIONS_SVYGRP + group_id + ".js");
 		}
 		else
 		{
-			allIndexJS = new ArrayList<String>(Arrays.asList(INDEX_3TH_PARTY_JS));
-			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
-			allIndexJS.addAll(Arrays.asList(INDEX_SERVOY_JS));
-			allIndexJS.addAll(jsContributions);
+			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3TH_PARTY_JS)));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SABLO_JS)));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SERVOY_JS)));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(jsContributions));
 		}
 		if (ApplicationServerRegistry.get().isDeveloperStartup()) allIndexJS.add("js/debug.js");
 		return allIndexJS;

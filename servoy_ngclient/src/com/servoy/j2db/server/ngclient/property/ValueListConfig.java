@@ -17,6 +17,10 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.util.Utils;
+
 /**
  * @author emera
  */
@@ -49,8 +53,12 @@ public class ValueListConfig
 		return defaultValue;
 	}
 
-	public int getMaxCount()
+	public int getMaxCount(INGApplication application)
 	{
+		if (application.getClientProperty(IApplication.VALUELIST_MAX_ROWS) != null)
+		{
+			return Utils.getAsInteger(application.getClientProperty(IApplication.VALUELIST_MAX_ROWS));
+		}
 		return maxCount;
 	}
 

@@ -29,6 +29,6 @@ public class FireBirdTemplate extends ServerTemplateDefinition
 	{
 		super(new ServerConfig("new_firebird", "sysdba", "masterkey",
 			"jdbc:firebirdsql:localhost/3050:%%user.dir%%/database/<database_name>.gdb?lc_ctype=WIN1252", null, "org.firebirdsql.jdbc.FBDriver", null, null,
-			true, false, null));
+			true, false, null, null));
 	}
 }

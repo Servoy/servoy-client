@@ -445,6 +445,14 @@ public class RepositoryHelper
 		{
 			return true;
 		}
+		if (StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(name) || StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(name) ||
+			StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name))
+		{
+			if (persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition()))
+			{
+				return true;
+			}
+		}
 		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).isFormComponent()) &&
 			!name.equals("height"))
 		{

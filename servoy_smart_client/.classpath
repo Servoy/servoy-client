@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<accessrules>
 			<accessrule kind="accessible" pattern="sun/java2d/SunGraphics2D"/>
 		</accessrules>
@@ -12,5 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/l2fprod-common-outlookbar.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/MRJAdapter.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

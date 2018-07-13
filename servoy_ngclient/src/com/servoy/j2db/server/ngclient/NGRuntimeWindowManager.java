@@ -99,7 +99,13 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 				if (size != null)
 				{
 					NGRuntimeWindow window = windowName == null ? (NGRuntimeWindow)getMainApplicationWindow() : getWindow(windowName);
-					if (window != null) window.updateSize(size.optInt("width"), size.optInt("height"));
+					if (window != null)
+					{
+						if (window.updateSize(size.optInt("width"), size.optInt("height")) && window.getController() != null)
+						{
+							window.getController().notifyResized();
+						}
+					}
 				}
 				break;
 			}

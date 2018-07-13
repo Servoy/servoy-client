@@ -407,7 +407,6 @@
                     vertical = options.widgetPositioning.vertical,
                     horizontal = options.widgetPositioning.horizontal,
                     rect = element[0].getBoundingClientRect(),
-                    left = rect.left + rect.width - (widget.width() + 5),
                     parent;
 
                 if (options.widgetParent) {
@@ -454,13 +453,10 @@
                     widget.removeClass('pull-right');
                 }
 
-                if (left < 0) {
-                    left = 0;
-                }
                 widget.css({
                     top: vertical === 'top' ? (rect.top - widget.height() - 15) : (rect.top + element.outerHeight()),
                     bottom: 'auto',
-                    left: left,
+                    left: horizontal === 'left' ? rect.left : (rect.left + rect.width - widget.width()),
                     right: 'auto'
                 });
             },
@@ -1310,9 +1306,11 @@
                 }
 
                 if (handler) {
-                    handler.call(picker, widget);
-                    e.stopPropagation();
-                    e.preventDefault();
+                    if (handler.call(picker, widget) !== false)
+                    {
+                    	e.stopPropagation();
+                        e.preventDefault();
+                    }	
                 }
             },
 
@@ -2612,7 +2610,10 @@
                     this.date(d.clone().add(1, 'M'));
                 }
             },
-            enter: function () {
+            enter: function (widget) {
+            	if (!widget) {
+                     return false;
+                 }
                 this.hide();
             },
             escape: function () {

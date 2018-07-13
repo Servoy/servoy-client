@@ -270,6 +270,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				retval = PersistHelper.createInsets(s);
 				break;
 
+			case IRepository.CSSPOSITION :
+				retval = PersistHelper.createCSSPosition(s);
+				break;
+
 			case IRepository.STRING :
 			case IRepository.STYLES :
 			case IRepository.TEMPLATES :
@@ -372,6 +376,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 			case IRepository.FONT :
 				retval = (String)obj;
+				break;
+
+			case IRepository.CSSPOSITION :
+				retval = PersistHelper.createCSSPositionString((CSSPosition)obj);
 				break;
 
 			case IRepository.ELEMENTS :

@@ -11,7 +11,7 @@
 	"model":
 	{
 		"animate": "string",
-	    "dataProviderID": { "type":"dataprovider", "pushToServer": "allow","ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
+	    "dataProviderID": { "type":"dataprovider", "pushToServer": "allow","ondatachange": { "onchange":"onDataChangeMethodID"}}, 
 	   "enabled" : { "type": "enabled", "blockingOn": false, "default": true },
 	    "max": {"type":"long", "default":100},
 	    "min": {"type":"long", "default":0},

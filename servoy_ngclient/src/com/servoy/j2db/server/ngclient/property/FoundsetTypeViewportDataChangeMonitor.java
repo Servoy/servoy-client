@@ -47,7 +47,7 @@ public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMon
 		if (!rowDataProvider.isReady()) return false;
 
 		boolean changed = removeIrrelevantOperationsAndAdd(
-			new RowData(null, firstRelativeRowIndex, lastRelativeRowIndex, RowData.CHANGE_IN_LINKED_PROPERTY, columnName));
+			new RowData(null, firstRelativeRowIndex, lastRelativeRowIndex, RowData.CHANGE_IN_LINKED_PROPERTY, columnName, false));
 
 		if (changed && monitor != null) monitor.valueChanged();
 		return changed;

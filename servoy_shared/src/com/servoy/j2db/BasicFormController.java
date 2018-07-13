@@ -124,6 +124,7 @@ public abstract class BasicFormController
 	private PageFormat pageFormat = null;
 
 	private boolean didOnShowOnce = false;
+	private boolean didOnShowCall = false;
 	private boolean didOnload;
 	protected boolean executingOnLoad;
 
@@ -383,6 +384,7 @@ public abstract class BasicFormController
 							application.handleException(application.getI18NMessage("servoy.formPanel.error.showFormData"), e); //$NON-NLS-1$
 						}
 						executeOnShowMethod();
+						didOnShowCall = true;
 					}
 				}
 			};
@@ -393,7 +395,7 @@ public abstract class BasicFormController
 			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
 			isFormVisible = false;
 			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
-			if (allowHide)
+			if (allowHide && didOnShowCall)
 			{
 				allowHide = executeOnHideMethod();
 			}
@@ -407,6 +409,8 @@ public abstract class BasicFormController
 				//if the focus owner becomes invalid after hiding the form, the focus needs to be changed
 				getFormUI().changeFocusIfInvalid(invokeLaterRunnables);
 			}
+
+			didOnShowCall = false;
 			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 
 			// if form is destroyed in onHide or editRecordStopped..
@@ -3020,6 +3024,8 @@ public abstract class BasicFormController
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset
 		 * that is given.
 		 *
+		 * When the form uses a seperate foundset, foundset filter params are copied over from the source foundset and are merged with the existing filters.
+		 *
 		 * @sample
 		 * //to load a (related)foundset into the form.
 		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset
@@ -3850,7 +3856,7 @@ public abstract class BasicFormController
 		 *
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag)
 		{
 			jsFunction_setDesignMode(onDrag, null);
@@ -3864,7 +3870,7 @@ public abstract class BasicFormController
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, null);
@@ -3879,7 +3885,7 @@ public abstract class BasicFormController
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, null);
@@ -3895,7 +3901,7 @@ public abstract class BasicFormController
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, null);
@@ -3912,7 +3918,7 @@ public abstract class BasicFormController
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, onDblClick, null);
@@ -3930,7 +3936,7 @@ public abstract class BasicFormController
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
 		 * @param onrightclick org.mozilla.javascript.Function onRightClick method reference
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick, Function onRightClick)
 		{
 			checkDestroyed();
@@ -3956,7 +3962,7 @@ public abstract class BasicFormController
 		 *
 		 * @param designMode boolean sets form in design mode if true, false ends design mode.
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(boolean designMode)
 		{
 			checkDestroyed();

@@ -39,6 +39,7 @@ import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -134,7 +135,7 @@ public final class ServoyWrapFactory extends WrapFactory
 					Object value = null;
 					try
 					{
-						value = json.get(key);
+						value = ServoyJSONObject.jsonNullToNull(json.get(key));
 					}
 					catch (JSONException e)
 					{

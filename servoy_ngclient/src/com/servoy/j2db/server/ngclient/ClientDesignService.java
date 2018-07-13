@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import org.mozilla.javascript.Undefined;
 import org.sablo.websocket.IServerService;
 
 import com.servoy.base.scripting.api.IJSEvent;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 
@@ -75,6 +77,18 @@ public class ClientDesignService implements IServerService
 				{
 					if (component.getComponent().getName().equals(name))
 					{
+						JSONObject location = args.optJSONObject("location");
+						if (location != null)
+						{
+							component.getComponent().setProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(),
+								new Point(location.optInt("x"), location.optInt("y")));
+						}
+						JSONObject size = args.optJSONObject("size");
+						if (size != null)
+						{
+							component.getComponent().setProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(),
+								new Dimension(size.optInt("width"), size.optInt("height")));
+						}
 						selection.add(component);
 						break;
 					}

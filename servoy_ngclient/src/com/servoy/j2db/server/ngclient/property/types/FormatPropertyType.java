@@ -175,6 +175,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 			mask = format.parsedFormat.getDisplayFormat();
 		}
 		map.put("isMask", Boolean.valueOf(isMask));
+		map.put("isRaw", Boolean.valueOf(format.parsedFormat.isRaw()));
 		map.put("edit", mask);
 		map.put("placeHolder", placeHolder);
 		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());

@@ -220,7 +220,7 @@ angular.module('window',['servoy'])
 			getElementById(component).then(function(relatedElement)
 			{
 				var body = $('body');
-				var style = 'position:absolute;z-index:999;';
+				var style = 'position:absolute;z-index:1499;';
 				var left = $( window ).width() /2;
 				var top = $( window ).height() /2;
 				var position = null;
@@ -257,10 +257,24 @@ angular.module('window',['servoy'])
 				}
 				style+= 'left:'+left+'px;';
 				style+= 'top:'+top+'px;';
-				var popup = $compile('<div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
+				var popup = $compile('<div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()"></div>')(scope);
 				scope.popupElement = popup;
 				$timeout(function(){
-					body.on('click',cancelFormPopup);
+					body.on('click',function(event)
+					{
+						var mainform = angular.element(".svy-main-window-container");
+						if (mainform && mainform.find(event.target).length > 0 )
+						{
+							cancelFormPopup();
+							return;
+						}
+						 mainform = angular.element(".svy-dialog");
+						 if (mainform && mainform.find(event.target).length > 0 )
+						 {
+							 cancelFormPopup();
+							 return;
+						 }
+					});
 				},300);
 				body.append(popup);
 		 }, function()
@@ -390,7 +404,7 @@ angular.module('window',['servoy'])
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
-			var settings = {zIndex : 1000};
+			var settings = {zIndex : 1500};
 			var classname;
 			if (newvalue.popupMenus && newvalue.popupMenuShowCommand.popupName)
 			{

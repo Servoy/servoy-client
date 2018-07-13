@@ -27,9 +27,11 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.rmi.RemoteException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,11 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISequenceProvider;
+import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.IValidateName;
+import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
@@ -89,6 +95,95 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractSolutionTest
 {
+
+	protected static IServer DUMMY_ISERVER = new IServer()
+	{
+
+		@Override
+		public ITable getTable(String tableName) throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public int getTableType(String tableName) throws RepositoryException, RemoteException
+		{
+			return 0;
+		}
+
+		@Override
+		public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
+		{
+			return Collections.emptySet();
+		}
+
+		@Override
+		public String getName() throws RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public boolean isValid() throws RemoteException
+		{
+			return true;
+		}
+
+		@Override
+		public String getDatabaseProductName() throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RepositoryException, RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public String[] getDataModelClonesFrom() throws RemoteException
+		{
+			return null;
+		}
+
+		@Override
+		public ISequenceProvider getSequenceProvider()
+		{
+			return null;
+		}
+
+	};
 
 	private static IPackageReader[] getReaders(File[] packages, IPackageReader customComponents)
 	{
@@ -279,7 +374,11 @@ public abstract class AbstractSolutionTest
 		else
 		{
 			// it is running from sources/projects
-			File ngClientProjDir = new File(f.getParentFile(), "servoy_ngclient");
+			File ngClientProjDir = f;
+			if (!new File(ngClientProjDir, "/war/servoycore/").exists())
+			{
+				ngClientProjDir = ngClientProjDir.getParentFile();
+			}
 			componentsReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile() + "/war/servoycore/"), new File(
 				ngClientProjDir.getAbsoluteFile() + "/war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, null);
@@ -320,7 +419,14 @@ public abstract class AbstractSolutionTest
 			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
-			endpoint = new NGClientEndpoint();
+			endpoint = new NGClientEndpoint()
+			{
+				// for testing onstart of the BaseNGClientEndpoint should not run
+				@Override
+				public void onStart()
+				{
+				};
+			};
 			endpoint.start(new Session()
 			{
 				@Override
