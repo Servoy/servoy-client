@@ -127,7 +127,15 @@ public abstract class NGUtils
 		if (dp != null)
 		{
 			int dpType;
-			if (dp instanceof IColumn) dpType = app.getFoundSetManager().getConvertedTypeForColumn((IColumn)dp, true);
+			if (dp instanceof IColumn)
+			{
+				ColumnInfo ci = ((IColumn)dp).getColumnInfo();
+				if (ci != null && ci.hasFlag(IBaseColumn.UUID_COLUMN))
+				{
+					return UUID_DATAPROVIDER_CACHED_PD;
+				}
+				dpType = app.getFoundSetManager().getConvertedTypeForColumn((IColumn)dp, true);
+			}
 			else dpType = dp.getDataProviderType();
 			return getDataProviderPropertyDescription(dpType, parseHTMLIfString, useLocalDateTime);
 		}
