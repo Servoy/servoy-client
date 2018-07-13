@@ -85,7 +85,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -423,7 +422,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 
 		v = replaceTagsIfNeeded(v);
-		if (v instanceof UUID) v = v.toString();
 		boolean changed = ((v != value) && (v == null || !v.equals(value)));
 
 		value = v;
@@ -546,12 +544,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		// TODO UUIDs are now just seen as strings
-		if (value instanceof UUID)
-		{
-			value = value.toString();
-		}
-		else if (value instanceof DbIdentValue)
+		if (value instanceof DbIdentValue)
 		{
 			value = ((DbIdentValue)value).getPkValue();
 		}

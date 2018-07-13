@@ -79,7 +79,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -824,10 +823,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (value instanceof DbIdentValue)
 				{
 					value = ((DbIdentValue)value).getPkValue();
-				}
-				else if (value instanceof UUID)
-				{
-					value = ((UUID)value).toString();
 				}
 				FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, browserConverterContext);
 				clientConversionInfo.popNode();
