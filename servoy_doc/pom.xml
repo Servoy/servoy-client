@@ -123,7 +123,7 @@
 									<layout>p2</layout>
 								</repository>
 								<repository>
-									<id>servoy_shiblibs</id>
+									<id>servoy_shiplibs</id>
 									<url>${servoy-shiplibs.url}</url>
 									<layout>p2</layout>
 								</repository>
@@ -264,7 +264,7 @@
 									<layout>p2</layout>
 								</repository>
 								<repository>
-									<id>servoy_shiblibs</id>
+									<id>servoy_shiplibs</id>
 									<url>${servoy-shiplibs.url}</url>
 									<layout>p2</layout>
 								</repository>
