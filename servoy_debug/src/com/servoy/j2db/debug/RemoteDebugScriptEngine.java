@@ -73,19 +73,10 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			if (sp instanceof IApplication && sp instanceof IDebugClient)
 			{
 				IApplication application = (IApplication)sp;
-				boolean isDispatchThread = application.isEventDispatchThread() &&
-					!(Thread.currentThread() instanceof ServoyDebugger || Thread.currentThread() instanceof CommandHandlerThread);
-				if (isDispatchThread && application instanceof IWebClientApplication)
-				{
-					isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.
-				}
-				if (isDispatchThread)
-				{
-					if (debugger != null) debugger.popStackManager(cx);
-				}
 				List<Context> list = contexts.get(application);
 				if (list != null) list.remove(cx);
 			}
+			if (debugger != null) debugger.popStackManager(cx);
 		}
 
 		public void contextCreated(Context cx)
