@@ -26,7 +26,6 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
@@ -44,6 +43,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.WebObjectImpl;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -330,8 +330,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		{
 			Object[] obj = (Object[])value;
 			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
-			Context cx = Context.enter();
-			Scriptable result = cx.newObject(scope, "Array");
+			Scriptable result = DefaultScope.newArray(scope, 0);
 			for (int i = 0; i < obj.length; i++)
 			{
 				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(obj[i], desc, application, webComponent, Integer.toString(i)));
@@ -342,8 +341,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		{
 			JSONArray arr = (JSONArray)value;
 			Scriptable scope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
-			Context cx = Context.enter();
-			Scriptable result = cx.newObject(scope, "Array");
+			Scriptable result = DefaultScope.newArray(scope, 0);
 			for (int i = 0; i < arr.length(); i++)
 			{
 				result.put(i, result, JSNGWebComponent.fromDesignToRhinoValue(arr.get(i), desc, application, webComponent, Integer.toString(i)));
