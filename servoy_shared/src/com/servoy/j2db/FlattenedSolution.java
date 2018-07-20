@@ -818,30 +818,24 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return mainSolutionMetaData;
 	}
 
-	private void combineServerProxies(Map<String, IServer> orgs, Map<String, IServer> additional) throws RemoteException
+	private void combineServerProxies(ConcurrentMap<String, IServer> orgs, ConcurrentMap<String, IServer> additional) throws RemoteException
 	{
-		synchronized (additional)
+		Iterator<IServer> it = additional.values().iterator();
+		while (it.hasNext())
 		{
-			synchronized (orgs) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards)
+			IServer addObject = it.next();
+			IServer orgObject = orgs.get(addObject.getName());
+			if (addObject instanceof ServerProxy)
 			{
-				Iterator<IServer> it = additional.values().iterator();
-				while (it.hasNext())
+				ServerProxy add = (ServerProxy)addObject;
+				if (orgObject == null)
 				{
-					IServer addObject = it.next();
-					IServer orgObject = orgs.get(addObject.getName());
-					if (addObject instanceof ServerProxy)
-					{
-						ServerProxy add = (ServerProxy)addObject;
-						if (orgObject == null)
-						{
-							orgs.put(add.getName(), add);
-						}
-						else if (orgObject instanceof ServerProxy)
-						{
-							ServerProxy org = (ServerProxy)orgObject;
-							org.combineTables(add);
-						}
-					}
+					orgs.put(add.getName(), add);
+				}
+				else if (orgObject instanceof ServerProxy)
+				{
+					ServerProxy org = (ServerProxy)orgObject;
+					org.combineTables(add);
 				}
 			}
 		}

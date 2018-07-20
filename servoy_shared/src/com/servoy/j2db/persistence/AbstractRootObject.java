@@ -19,10 +19,11 @@ package com.servoy.j2db.persistence;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -40,10 +41,8 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	private transient IRepository repository;
 
 	// Because this map can be accessed from multiple places at once and changed from multiple places at once,
-	// modifying it's contents and iterating over the contents are syncronized (mutual exclusion); otherwise we would end up with concurrent modification exceptions.
 	// For example: a solution A has module B, one client opens solution A and another client opens solution B.
-	// The initial fix was using ConcurrentHashMap, but there is a bug in Terracotta with ConcurrentHashMap and serialization, so we can't use that for now. See http://jira.terracotta.org/jira/browse/CDV-1377
-	private Map<String, IServer> serverProxies; //name -> Server
+	private volatile ConcurrentMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 
 	private RootObjectMetaData metaData;
 	private int releaseNumber;
@@ -156,10 +155,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 				{
 					//wrap
 					server = new ServerProxy(server);
-					synchronized (proxies)
-					{
-						proxies.put(lowerCaseBame, server);
-					}
+					proxies.put(lowerCaseBame, server);
 				}
 			}
 			return server;
@@ -170,14 +166,13 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 		}
 	}
 
-	public Map<String, IServer> getServerProxies()
+	public ConcurrentMap<String, IServer> getServerProxies()
 	{
-		if (serverProxies == null) serverProxies = new HashMap<String, IServer>();
 		return serverProxies;
 	}
 
 	// for setting after load
-	public void setServerProxies(Map<String, IServer> serverProxies)
+	public void setServerProxies(ConcurrentMap<String, IServer> serverProxies)
 	{
 		this.serverProxies = serverProxies;
 	}

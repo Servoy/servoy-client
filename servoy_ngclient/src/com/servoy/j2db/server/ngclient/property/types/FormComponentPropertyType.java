@@ -242,7 +242,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		{
 			String formName = currentValue.optString(SVY_FORM);
 			Form form = getForm(formName, fs);
-			if (form != null)
+			while (form != null)
 			{
 				List<IFormElement> formelements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				for (IFormElement element : formelements)
@@ -272,6 +272,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 						}
 					}
 				}
+				form = form.getExtendsForm();
 			}
 		}
 		return pd;
