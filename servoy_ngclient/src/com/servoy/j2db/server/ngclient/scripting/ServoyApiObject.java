@@ -26,7 +26,9 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
@@ -35,9 +37,11 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Provides utility methods for server side scripting.
  * @author lvostinar
- *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyApi", scriptingName = "servoyApi")
+@ServoyClientSupport(sc = false, wc = false, ng = true)
 public class ServoyApiObject
 {
 	private final IApplication app;
@@ -47,6 +51,16 @@ public class ServoyApiObject
 		this.app = app;
 	}
 
+	/**
+	 * Hide a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
+	 * for hiding the form through the browser's component.
+	 *
+	 * @sample
+	 * servoyApi.hideForm(formToHideName)
+	 *
+	 * @param formName the form to hide
+	 * @return true if the form was hidden
+	 */
 	@JSFunction
 	public boolean hideForm(String formName)
 	{
@@ -74,6 +88,15 @@ public class ServoyApiObject
 		return false;
 	}
 
+	/**
+	 * Can be used to deep copy a custom value.
+	 *
+	 * @sample
+	 * var eventSourceCopy = servoyApi.copyObject(eventSource);
+	 *
+	 * @param value the value to be copied
+	 * @return a copy of the value object, the same as constructing the object in javascript from scratch
+	 */
 	@JSFunction
 	public IdScriptableObject copyObject(Object value)
 	{

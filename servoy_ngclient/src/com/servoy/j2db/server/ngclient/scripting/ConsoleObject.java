@@ -21,14 +21,18 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Support for console logging in the serverside logic of web objects.
  * @author gganea@servoy.com
- *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Console", scriptingName = "console")
+@ServoyClientSupport(sc = false, wc = false, ng = true)
 public class ConsoleObject
 {
 	private final IApplication app;
@@ -38,6 +42,14 @@ public class ConsoleObject
 		this.app = app;
 	}
 
+	/**
+	 * Report a message to the console.
+	 *
+	 * @sample
+	 * console.log('some info')
+	 *
+	 * @param value the info
+	 */
 	@JSFunction
 	public void log(Object value)
 	{
@@ -51,6 +63,14 @@ public class ConsoleObject
 		}
 	}
 
+	/**
+	 * Report a warning to the console.
+	 *
+	 * @sample
+	 * console.warn('some warning')
+	 *
+	 * @param value the warning object
+	 */
 	@JSFunction
 	public void warn(Object value)
 	{
@@ -64,6 +84,14 @@ public class ConsoleObject
 		}
 	}
 
+	/**
+	 * Report an error to the console.
+	 *
+	 * @sample
+	 * console.error('ERROR')
+	 *
+	 * @param value the error object
+	 */
 	@JSFunction
 	public void error(Object value)
 	{
