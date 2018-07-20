@@ -18,10 +18,10 @@ package com.servoy.j2db;
 
 import java.rmi.RemoteException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.persistence.AbstractRootObject;
 import com.servoy.j2db.persistence.IRepository;
@@ -35,7 +35,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * Delegate repository responsible for replacing the repository in serialized root objects with a local repository.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -99,9 +99,9 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return result;
 	}
 
-	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException
+	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException
 	{
-		if (repository == null) return new HashMap<String, IServer>();
+		if (repository == null) return new ConcurrentHashMap<String, IServer>();
 		return repository.getServerProxies(metas);
 	}
 
