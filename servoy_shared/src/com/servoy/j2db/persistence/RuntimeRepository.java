@@ -18,9 +18,10 @@
 package com.servoy.j2db.persistence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.util.UUID;
 
@@ -80,9 +81,9 @@ public class RuntimeRepository implements IRemoteRepository
 		return new long[] { 1 };
 	}
 
-	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas)
+	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas)
 	{
-		Map<String, IServer> sp = new HashMap<String, IServer>();
+		ConcurrentMap<String, IServer> sp = new ConcurrentHashMap<String, IServer>();
 		String[] names = getServerNames(false);
 		for (String name : names)
 		{

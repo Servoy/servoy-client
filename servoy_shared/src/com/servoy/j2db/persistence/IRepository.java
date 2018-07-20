@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.util.UUID;
@@ -163,7 +163,7 @@ public interface IRepository
 	 * @throws RemoteException
 	 * @throws RepositoryException
 	 */
-	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException;
+	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException;
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
