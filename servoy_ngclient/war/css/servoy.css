@@ -262,6 +262,10 @@ div.svy-label-with-focus:focus{
 	min-width: inherit;
 }
 
+.ui-select-bootstrap>.ui-select-choices{
+   width: auto !important;
+}
+
 .svyPortalGridStyle .form-control[readonly]
 {
 	cursor : default;
