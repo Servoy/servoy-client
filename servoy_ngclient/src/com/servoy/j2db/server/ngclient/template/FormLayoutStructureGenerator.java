@@ -152,7 +152,7 @@ public class FormLayoutStructureGenerator
 			// we need to specify the height
 			writer.print(" style='height:");
 			writer.print(container.getSize().height);
-			writer.print("px' ");
+			writer.print("px;position: relative;' ");
 		}
 		Map<String, String> attributes = new HashMap<String, String>(container.getMergedAttributes());
 		if (spec != null)
