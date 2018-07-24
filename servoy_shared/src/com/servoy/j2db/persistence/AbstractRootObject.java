@@ -42,7 +42,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 
 	// Because this map can be accessed from multiple places at once and changed from multiple places at once,
 	// For example: a solution A has module B, one client opens solution A and another client opens solution B.
-	private volatile ConcurrentMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
+	private volatile ConcurrentMap<String, IServer> serverProxies = null;
 
 	private RootObjectMetaData metaData;
 	private int releaseNumber;
@@ -168,6 +168,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 
 	public ConcurrentMap<String, IServer> getServerProxies()
 	{
+		if (serverProxies == null) serverProxies = new ConcurrentHashMap<>();
 		return serverProxies;
 	}
 
