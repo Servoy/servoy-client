@@ -124,6 +124,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>();
 
+	private HashMap<String, String> properties = null;
+
 	private final IPerfomanceRegistry perfRegistry;
 
 	private boolean registered = false;
@@ -302,6 +304,21 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (timeZone == null) initFromClientBrowserinformation();
 		return super.getTimeZone();
+	}
+
+	private HashMap<String, String> getUserPropertiesFromClientBrowser() throws IOException
+	{
+		HashMap<String, String> userProperties = new HashMap<>();
+
+		JSONObject data = (JSONObject)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperties", null);
+
+		if (data != null)
+		{
+			data.keys().forEachRemaining(key -> {
+				userProperties.put(key, data.getString(key));
+			});
+		}
+		return userProperties;
 	}
 
 	private void initFromClientBrowserinformation()
@@ -1002,29 +1019,59 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		String defaultUserProperty = getDefaultUserProperties().get(name);
 		if (defaultUserProperty != null) return defaultUserProperty;
-		try
+
+		if (properties == null)
 		{
-			return (String)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperty", new Object[] { name });
+			try
+			{
+				properties = getUserPropertiesFromClientBrowser();
+			}
+			catch (IOException e)
+			{
+				Debug.error("Error getting getting properties", e);
+				return null;
+			}
 		}
-		catch (IOException e)
+
+		if (properties.containsKey(name))
 		{
-			Debug.error("Error getting getting property '" + name + "'", e);
+			return properties.get(name);
 		}
-		return null;
+		else
+		{
+			return null;
+		}
 	}
+
 
 	@Override
 	public void setUserProperty(String name, String value)
 	{
 		getDefaultUserProperties().remove(name);
-		try
+
+		if (properties == null)
 		{
-			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("setUserProperty", new Object[] { name, value });
+			try
+			{
+				properties = getUserPropertiesFromClientBrowser();
+			}
+			catch (IOException e)
+			{
+				Debug.error("Error getting getting properties", e);
+				return;
+			}
 		}
-		catch (IOException e)
+
+		if (value == null)
 		{
-			Debug.error("Error getting setting property '" + name + "' value: " + value, e);
+			properties.remove(name);
 		}
+		else
+		{
+			properties.put(name, value);
+		}
+
+		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUserProperty", new Object[] { name, value });
 
 	}
 

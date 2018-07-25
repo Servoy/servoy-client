@@ -1206,8 +1206,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				$rootScope.$digest();
 			}
 		},
-		getUserProperty: function(key) {
-			return getUserProperties()[key];
+		getUserProperties: function(){
+			return getUserProperties();	
 		},
 		setUserProperty: function(key,value) {
 			var userProps = getUserProperties();
