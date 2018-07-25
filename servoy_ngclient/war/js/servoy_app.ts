@@ -1221,9 +1221,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		setUIProperty: function(key,value) {
 			$svyUIProperties.setUIProperty(key, value);
 		},
-		getUserPropertyNames: function() {
-			return Object.getOwnPropertyNames(getUserProperties());
-		},
 		showMessage: function(message) {
 			$window.alert(message);
 		},

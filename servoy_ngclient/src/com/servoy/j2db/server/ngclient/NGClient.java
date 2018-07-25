@@ -306,19 +306,37 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return super.getTimeZone();
 	}
 
-	private HashMap<String, String> getUserPropertiesFromClientBrowser() throws IOException
+	private HashMap<String, String> getUserProperties()
 	{
-		HashMap<String, String> userProperties = new HashMap<>();
-
-		JSONObject data = (JSONObject)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperties", null);
-
-		if (data != null)
+		if (properties != null)
 		{
-			data.keys().forEachRemaining(key -> {
-				userProperties.put(key, data.getString(key));
-			});
+			return properties;
 		}
-		return userProperties;
+		else
+		{
+			properties = new HashMap<>();
+
+			try
+			{
+				JSONObject data = (JSONObject)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperties",
+					null);
+
+				if (data != null)
+				{
+					data.keys().forEachRemaining(key -> {
+						properties.put(key, data.getString(key));
+					});
+				}
+				return properties;
+			}
+			catch (IOException e)
+			{
+				Debug.error("Error retrieving user properties from client browser ", e);
+				return null;
+			}
+
+
+		}
 	}
 
 	private void initFromClientBrowserinformation()
@@ -1020,27 +1038,22 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		String defaultUserProperty = getDefaultUserProperties().get(name);
 		if (defaultUserProperty != null) return defaultUserProperty;
 
-		if (properties == null)
+		Map<String, String> userProperties = getUserProperties();
+
+		if (userProperties == null)
 		{
-			try
-			{
-				properties = getUserPropertiesFromClientBrowser();
-			}
-			catch (IOException e)
-			{
-				Debug.error("Error getting getting properties", e);
-				return null;
-			}
+			return null;
 		}
 
-		if (properties.containsKey(name))
+		if (userProperties.containsKey(name))
 		{
-			return properties.get(name);
+			return userProperties.get(name);
 		}
 		else
 		{
 			return null;
 		}
+
 	}
 
 
@@ -1048,27 +1061,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public void setUserProperty(String name, String value)
 	{
 		getDefaultUserProperties().remove(name);
+		Map<String, String> userProperties = getUserProperties();
 
-		if (properties == null)
-		{
-			try
-			{
-				properties = getUserPropertiesFromClientBrowser();
-			}
-			catch (IOException e)
-			{
-				Debug.error("Error getting getting properties", e);
-				return;
-			}
-		}
+		if (userProperties == null) return;
 
 		if (value == null)
 		{
-			properties.remove(name);
+			userProperties.remove(name);
 		}
 		else
 		{
-			properties.put(name, value);
+			userProperties.put(name, value);
 		}
 
 		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUserProperty", new Object[] { name, value });
@@ -1079,29 +1082,23 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public String[] getUserPropertyNames()
 	{
-		JSONArray result;
-		try
+		Map<String, String> userProperties = getUserProperties();
+
+		List<String> names = new ArrayList<String>();
+		if (userProperties != null)
 		{
-			result = (JSONArray)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserPropertyNames", null);
-			List<String> names = new ArrayList<String>();
-			for (int i = 0; i < result.length(); i++)
-			{
-				names.add(result.optString(i));
-			}
-			for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
-			{
-				if (names.indexOf(defaultUserPropertyKey) == -1)
-				{
-					names.add(defaultUserPropertyKey);
-				}
-			}
-			return names.toArray(new String[0]);
+			userProperties.keySet().forEach(key -> names.add(key));
+
 		}
-		catch (IOException e)
+		for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
 		{
-			Debug.error("Error getting user property names", e);
+			if (names.indexOf(defaultUserPropertyKey) == -1)
+			{
+				names.add(defaultUserPropertyKey);
+			}
 		}
-		return new String[0];
+		return names.toArray(new String[0]);
+
 	}
 
 	@Override
