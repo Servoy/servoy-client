@@ -31,10 +31,7 @@ import javax.swing.border.Border;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
-import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -386,16 +383,9 @@ public class FormWrapper
 				if (component.getParent() instanceof LayoutContainer)
 				{
 					LayoutContainer container = (LayoutContainer)component.getParent();
-					WebComponentSpecProvider.getInstance();
-					PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
-						container.getPackageName());
-					if (pkg != null)
+					if (NGUtils.isAbsoluteLayoutDiv(container))
 					{
-						WebLayoutSpecification spec = pkg.getSpecification(container.getSpecName());
-						if (NGUtils.isAbsoluteLayoutDiv(spec))
-						{
-							elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
-						}
+						elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
 					}
 
 				}
