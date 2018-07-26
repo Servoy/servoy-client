@@ -453,6 +453,8 @@ public class FoundsetTypeChangeMonitor
 
 	public void recordsUpdated(int firstRow, int lastRow, int foundSetSize, final FoundsetTypeViewport viewPort, final List<String> dataproviders)
 	{
+		if (propertyValue.getDataAdapterList() != null && propertyValue.getDataAdapterList().isQuietRecordChangeInProgress()) return;
+
 		if (firstRow == 0 && lastRow == foundSetSize - 1)
 		{
 			if (viewPort.getSize() > 0) viewPortCompletelyChanged();
@@ -460,8 +462,7 @@ public class FoundsetTypeChangeMonitor
 		else
 		{
 			int oldChangeFlags = changeFlags;
-			if ((propertyValue.getDataAdapterList() == null || !propertyValue.getDataAdapterList().isQuietRecordChangeInProgress()) && !shouldSendAll() &&
-				!shouldSendWholeViewPort())
+			if (!shouldSendAll() && !shouldSendWholeViewPort())
 			{
 				// get the rows that are changed.
 				final int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);
