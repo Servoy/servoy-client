@@ -315,8 +315,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 		else
 		{
-			properties = new HashMap<>();
-
 			try
 			{
 				JSONObject data = (JSONObject)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperties",
@@ -324,6 +322,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 				if (data != null)
 				{
+					properties = new HashMap<>();
+
 					data.keys().forEachRemaining(key -> {
 						properties.put(key, data.getString(key));
 					});
