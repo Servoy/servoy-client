@@ -242,7 +242,7 @@ public class WebDataField extends TextField<Object>
 				return super.isEnabled(component) && scriptable.getPlaceholderText() != null;
 			}
 		});
-		add(new SimpleAttributeModifier("autocomplete", "off"));
+		add(new SimpleAttributeModifier("autocomplete", "false"));
 
 		focusIfInvalidAttributeModifier = new FocusIfInvalidAttributeModifier(this);
 		add(focusIfInvalidAttributeModifier);
