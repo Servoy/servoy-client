@@ -2,10 +2,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 .directive('servoycorePortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
                                    '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
-                                   '$svyProperties', '$window','i18nService',
+                                   '$svyProperties', '$window','i18nService', '$foundsetTypeUtils',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants,
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window,i18nService) {
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q,
+                                		   $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window, i18nService, $foundsetTypeUtils) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -35,6 +36,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			var cellChangeNotifierCaches = {};
 			var lastCellModelsOfRenderedIndex = {};
 			var delayedChangeNotificationsForRenderedIndex = {};
+			var componentChangeListeners;
 			
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -90,21 +92,85 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 				}
 			}
+			
+			function handleRecordDependentPropertiesChangedForFSViewportIndex(changedFoundsetViewportIndex, elementIndex) {
+				// do it later so that all the watches for size and such have updated the portal
+				$scope.$evalAsync(function() {
+					var absoluteChangedIndex = viewPortToAbsolute(changedFoundsetViewportIndex);
+					var changedRenderedIndex = absoluteToRenderedRowIndex(absoluteChangedIndex);
+					
+					var element = $scope.model.childElements[elementIndex];
 
+					var changeNotifier;
+					var changeNotifierRow = cellChangeNotifierCaches[changedRenderedIndex];
+					if (changeNotifierRow) changeNotifier = changeNotifierRow[elementIndex];
+					
+					var cellModel;
+					var cellModelsForRenderedRow = lastCellModelsOfRenderedIndex[changedRenderedIndex]
+					if (cellModelsForRenderedRow) cellModel = cellModelsForRenderedRow[elementIndex];
+					
+
+					if (changeNotifier && element && cellModel) {
+						var recordBasedPropertiesOfElement = element.foundsetConfig.recordBasedProperties;
+						for (var i in recordBasedPropertiesOfElement) {
+							var propertyName = recordBasedPropertiesOfElement[i];
+							changeNotifier(propertyName, cellModel[propertyName]);
+						}
+					}
+				});
+			}
+
+			// for triggering any component-registered changeNorifiers when we get viewport updates for a component's model
+			function getComponentChangeListener(elementIndex) {
+				return function(viewportChanges) {
+					if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED]) {
+						// TODO is this case always caught by code in handleModelChangeAsNeeded?
+					} else if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]) {
+						if ($log.debugEnabled) $log.debug("portal ### changeNotifier will be triggered according to granular comp. viewport updates for column: " + elementIndex);
+						var granularUpdates = viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED];
+						var viewportRowsWithChangesAfterAllOps = $foundsetTypeUtils.coalesceGranularRowChanges(granularUpdates.updates, granularUpdates[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED_OLD_VIEWPORTSIZE]);
+						// TODO inserts/deletes will be handled by code from getMergedCellModel (is there a situation where after delete/insert the same rowid but with different content ends up in the same renderIndex it had before and then that is not handled?)
+						
+						for (var i = 0; i < viewportRowsWithChangesAfterAllOps.length; i++) {
+							var rowChanges = viewportRowsWithChangesAfterAllOps[i]; // contains a set of changes with current indexes in foundset's viewport
+							for (var j = rowChanges.startIndex; j <= rowChanges.endIndex; j++) {
+								handleRecordDependentPropertiesChangedForFSViewportIndex(j, elementIndex);
+							}
+						}
+					}
+				}
+			}
+			
+			function updateChildElementListeners(newElements, oldElements) {
+				if (oldElements) {
+					for (var i = 0; i < oldElements.length; i++) {
+						oldElements.removeChangeListener(componentChangeListeners[i]);
+						delete oldElements[i].model[$sabloConstants.modelChangeNotifier];
+					}
+				}
+				
+				componentChangeListeners = [];
+				
+				if (newElements) {
+					for (var i = 0; i < newElements.length; i++) {
+						componentChangeListeners[i] = getComponentChangeListener(i);
+						newElements[i].addChangeListener(componentChangeListeners[i]);
+					}
+				}
+			}
+			
+			updateChildElementListeners(elements, null);
+			
 			$scope.$watchCollection('model.childElements', function(newVal, oldVal) {
 				elements = $scope.model.childElements;
 				if (newVal != oldVal) {
-					for(var i = 0; i < oldVal.length; i++) {
-						delete oldVal[i].model[$sabloConstants.modelChangeNotifier];
-					}
 					// either a component was added/removed/changed or the whole array changed
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
-					for (var someKey in rowProxyObjects)
-					{
+					for (var someKey in rowProxyObjects) {
 						disposeOfRowProxies(rowProxyObjects[someKey]);
 					}	
-
 					rowProxyObjects = {};
+					updateChildElementListeners(newVal, oldVal);
 				}
 			})
 
@@ -489,6 +555,14 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				if (result === undefined) result = -1;
 				return result;
 			}
+			
+			function renderedRowIndexToAbsolute(renderedRowIndex) {
+				return $scope.gridApi.grid.renderContainers.body.currentTopRow + renderedRowIndex;
+			}
+
+			function absoluteToRenderedRowIndex(absoluteIndex) {
+				return absoluteIndex - $scope.gridApi.grid.renderContainers.body.currentTopRow;
+			}
 
 			function rowIdToAbsoluteRowIndex(rowId) {
 				return viewPortToAbsolute(rowIdToViewportRelativeRowIndex(rowId));
@@ -629,7 +703,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 					// attach the model change notifier from the parent column model so that all calls are relayed to the cell's (cached) change notifier that might have been contributed by component
 					if (!element.model[$sabloConstants.modelChangeNotifier]) {
-						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, { configurable : true, value:function(property, value) {
+						Object.defineProperty(element.model, $sabloConstants.modelChangeNotifier, { configurable: true, value: function(property, value) {
 							// if we are here, then a column prop (so not record-based) has changed, as we are in the shared model change notifier of that column
 							
 							// now, if a component set on client a non-record-based property on it's model - that prop should be in the column,
@@ -647,25 +721,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								}
 							}
 
-							// now broadcast the change to any change notifier registered on that column - for each rendered row
-							for (var renderedRowIndex in lastCellModelsOfRenderedIndex) { // lastCellModelsOfRenderedIndex might have more entries then cellChangeNotifierCaches - iterate on those then just in case some change notifier was not yet added to cache
-								if (cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex][elementIndex]) {
-									cellChangeNotifierCaches[renderedRowIndex][elementIndex](property, value);
-									if ($log.debugEnabled) $log.debug("portal ### Sending changes to IDX: " + renderedRowIndex + ", col: " + elementIndex);
-								} else {
-									// only if we don't have it in cellChangeNotifierCaches (which we can rely on as they are indexed on rendered rows) yet check the model as well - in the
-									// unlikely case where a change was broadcasted after a cell component contributed the change notifier but before it was cached by a subsequent getMergedCellModel call
-									if ($log.debugEnabled) $log.debug("portal ### TRYING to send changes to IDX: " + renderedRowIndex + ", col: " + elementIndex + ", but listener is not cached so I am getting it from model...");
-									
-									var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
-									if (lastModelsOfRow && lastModelsOfRow[elementIndex] && lastModelsOfRow[elementIndex].hasOwnProperty($sabloConstants.modelChangeNotifier)) {
-										if ($log.debugEnabled) $log.debug("portal ### FOUND it; sending changes to IDX: " + renderedRowIndex + ", col: " + elementIndex + " via listener from model (not cached)...");
-										lastModelsOfRow[elementIndex][$sabloConstants.modelChangeNotifier](property, value);
-									} else {
-										if ($log.debugEnabled) $log.debug("portal ### NOT FOUND in model...");
-									}
-								}
-							}
+							if ($log.debugEnabled) $log.debug("portal ### changeNotifier triggered on non-record-linked model prop '" + property + "' with value <<" + value + ">> for column: " + elementIndex);
+							executeOnAllRowChangeNotifiers(elementIndex, function(changeNotifier, renderedRowIndex) {
+								changeNotifier(property, value);
+							});
 						}});
 					}
 
@@ -675,6 +734,28 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				handleModelChangeAsNeeded(cellModel, cellNotifierToUse, renderedRowIndex, elementIndex);
 				
 				return cellModel;
+			}
+			
+			function executeOnAllRowChangeNotifiers(elementIndex, funcToExec) {
+				// now broadcast the change to any change notifier registered on that column - for each rendered row
+				for (var renderedRowIndex in lastCellModelsOfRenderedIndex) { // lastCellModelsOfRenderedIndex might have more entries then cellChangeNotifierCaches - iterate on those then just in case some change notifier was not yet added to cache
+					if (cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex][elementIndex]) {
+						funcToExec(cellChangeNotifierCaches[renderedRowIndex][elementIndex], renderedRowIndex);
+						if ($log.debugEnabled) $log.debug("portal ### Sending changes to IDX: " + renderedRowIndex + ", col: " + elementIndex);
+					} else {
+						// only if we don't have it in cellChangeNotifierCaches (which we can rely on as they are indexed on rendered rows) yet check the model as well - in the
+						// unlikely case where a change was broadcasted after a cell component contributed the change notifier but before it was cached by a subsequent getMergedCellModel call
+						if ($log.debugEnabled) $log.debug("portal ### TRYING to send changes to IDX: " + renderedRowIndex + ", col: " + elementIndex + ", but listener is not cached so I am getting it from model...");
+						
+						var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
+						if (lastModelsOfRow && lastModelsOfRow[elementIndex] && lastModelsOfRow[elementIndex].hasOwnProperty($sabloConstants.modelChangeNotifier)) {
+							if ($log.debugEnabled) $log.debug("portal ### FOUND it; sending changes to IDX: " + renderedRowIndex + ", col: " + elementIndex + " via listener from model (not cached)...");
+							funcToExec(lastModelsOfRow[elementIndex][$sabloConstants.modelChangeNotifier], renderedRowIndex);
+						} else {
+							if ($log.debugEnabled) $log.debug("portal ### NOT FOUND in model...");
+						}
+					}
+				}
 			}
 			
 			function cacheOrGetCellNotifier(renderedRowIndex, elementIndex, rowElementHelper) {
@@ -1321,11 +1402,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					{
 						shouldCallDataLoaded = true;
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
-						var totalPreferedViewportSize = numberOfRows*pageSizeFactor; 
+						var totalPreferedViewportSize = numberOfRows * pageSizeFactor; 
 						if (preferredViewportSize != totalPreferedViewportSize) {
 							// make the viewport always X (pageSizeFactor) times the size then the number of rows.
 							preferredViewportSize = totalPreferedViewportSize;
-							$scope.pageSize = Math.max(totalPreferedViewportSize-numberOfRows, 25);
+							$scope.pageSize = Math.max(totalPreferedViewportSize - numberOfRows, 25);
 							$scope.gridOptions.infiniteScrollRowsFromEnd = numberOfRows;
 							$scope.foundset.setPreferredViewportSize(preferredViewportSize)
 						}
@@ -1335,14 +1416,14 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								requestViewPortSize = Math.min($scope.foundset.serverSize, numberOfRows+$scope.pageSize);
 								$scope.foundset.loadRecordsAsync(0, requestViewPortSize);
 							}
-							else if ($scope.foundset.viewPort.size < (numberOfRows+$scope.pageSize)) {
+							else if ($scope.foundset.viewPort.size < (numberOfRows + $scope.pageSize)) {
 								// only add extra needed records; note: this is not for scrolling; just for ensuring initial content + a small scroll window;
 								// requesting new data when scrolling is done in another place
 								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size);
 								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
 								$scope.foundset.loadExtraRecordsAsync(extraRecords);
 							}
-							else if ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize > $scope.foundset.viewPort.size )
+							else if ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows + $scope.pageSize > $scope.foundset.viewPort.size )
 							{
 								// some row(s) have been added in scroll window, load them
 								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize) - $scope.foundset.viewPort.size);
