@@ -144,7 +144,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			function updateChildElementListeners(newElements, oldElements) {
 				if (oldElements) {
 					for (var i = 0; i < oldElements.length; i++) {
-						oldElements.removeChangeListener(componentChangeListeners[i]);
+						oldElements[i].removeChangeListener(componentChangeListeners[i]);
 						delete oldElements[i].model[$sabloConstants.modelChangeNotifier];
 					}
 				}
