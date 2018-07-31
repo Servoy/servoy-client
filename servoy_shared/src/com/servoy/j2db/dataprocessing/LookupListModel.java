@@ -378,13 +378,13 @@ public class LookupListModel extends AbstractListModel
 		else if (lookup instanceof CustomValueList)
 		{
 			CustomValueList clist = (CustomValueList)lookup;
-			if (txt.startsWith(“%”)) txt = txt.substring(1, txt.length()); //$NON-NLS-1$
-			if (txt.endsWith(“%”)) txt = txt.substring(0, txt.length() - 1); //$NON-NLS-1$
+			if (txt.startsWith("%")) txt = txt.substring(1, txt.length()); //$NON-NLS-1$
+			if (txt.endsWith("%")) txt = txt.substring(0, txt.length() - 1); //$NON-NLS-1$
 			for (int i = 0; i < clist.getSize(); i++)
 			{
 				Object display = clist.getElementAt(i);
 				if (display == null) continue;
-				if (txt == “” || display.toString().toLowerCase().contains(txt)) //$NON-NLS-1$
+				if (txt == "" || display.toString().toLowerCase().contains(txt)) //$NON-NLS-1$
 				{
 					alDisplay.add(display);
 					alReal.add(clist.getRealElementAt(i));
