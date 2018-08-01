@@ -5,7 +5,7 @@
 angular.module('foundset_custom_property', ['webSocketModule'])
 // Foundset type -------------------------------------------
 .value("$foundsetTypeConstants", {
-	// if you change any of these please also update FoundsetChangesParam and other types in foundset.d.ts
+	// if you change any of these please also update ChangeEvent and other types in foundset.d.ts and or component.d.ts
 	ROW_ID_COL_KEY: '_svyRowId',
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	
@@ -22,7 +22,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	NOTIFY_VIEW_PORT_SIZE_CHANGED: "viewPortSizeChanged",
 	NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED: "viewportRowsCompletelyChanged",
 	NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED: "viewportRowsUpdated",
-	NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED_OLD_VIEWPORTSIZE: "oldViewportSize",
+	NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: "oldViewportSize",
+	NOTIFY_VIEW_PORT_ROW_UPDATES: "updates",
 	
 	// row update types for listener notifications - in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
 	ROWS_CHANGED: 0,
@@ -291,7 +292,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 						if (hasListeners) {
 							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewPortUpdate[UPDATE_PREFIX + ROWS] }; // viewPortUpdate[UPDATE_PREFIX + ROWS] was already prepared for listeners by $viewportModule.updateViewportGranularly
-							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED_OLD_VIEWPORTSIZE] = oldSize; 
+							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize; 
 						}
 					}
 				}
@@ -455,7 +456,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
-					newValue.addChangeListener = function(listener: (change: foundsetType.FoundsetChangesParam) => void) {
+					newValue.addChangeListener = function(listener: (change: foundsetType.ChangeEvent) => void) {
 						internalState.changeListeners.push(listener);
 					}
 					newValue.removeChangeListener = function(listener) {
@@ -464,7 +465,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							internalState.changeListeners.splice(index, 1);
 						}
 					}
-					internalState.fireChanges = function(foundsetChanges: foundsetType.FoundsetChangesParam) {
+					internalState.fireChanges = function(foundsetChanges: foundsetType.ChangeEvent) {
 						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties linked to that foundset.
 						// In order to make sure that foundset notification update code executes after all property changes have been applied (so the dataprovider properties are also up-to-date)
 						// delay change listener calls until all incoming messages are handled

@@ -136,7 +136,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 									}, false);
 					if (hasListeners) {
 						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewportUpdate }; // viewPortUpdate was already prepared for listeners by $viewportModule.updateViewportGranularly
-						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED_OLD_VIEWPORTSIZE] = oldSize;
+						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize;
 					}
 
 					done = true;
