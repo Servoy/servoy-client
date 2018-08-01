@@ -154,7 +154,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				if (newElements) {
 					for (var i = 0; i < newElements.length; i++) {
 						componentChangeListeners[i] = getComponentChangeListener(i);
-						newElements[i].addChangeListener(componentChangeListeners[i]);
+						newElements[i].addViewportChangeListener(componentChangeListeners[i]);
 					}
 				}
 			}

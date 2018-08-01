@@ -188,23 +188,23 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.beanLayout = null; // not really useful right now; just to be able to reuse existing form code 
 
 					// even if it's a completely new value, keep listeners from old one if there is an old value
-					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
-					newValue.addChangeListener = function(listener) {
-						internalState.changeListeners.push(listener);
+					internalState.viewportChangeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].viewportChangeListeners : []);
+					newValue.addViewportChangeListener = function(listener) {
+						internalState.viewportChangeListeners.push(listener);
 					}
-					newValue.removeChangeListener = function(listener) {
-						var index = internalState.changeListeners.indexOf(listener);
+					newValue.removeViewportChangeListener = function(listener) {
+						var index = internalState.viewportChangeListeners.indexOf(listener);
 						if (index > -1) {
-							internalState.changeListeners.splice(index, 1);
+							internalState.viewportChangeListeners.splice(index, 1);
 						}
 					}
-					internalState.fireChanges = function(foundsetChanges) {
+					internalState.fireChanges = function(viewportChanges) {
 						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties/child component props. linked to that foundset.
 						// In order to make sure that foundset notification update code executes after all property changes have been applied
 						// delay change listener calls until all incoming messages are handled
 						$webSocket.addIncomingMessageHandlingDoneTask(function() {
-							for(var i = 0; i < internalState.changeListeners.length; i++) {
-								internalState.changeListeners[i](foundsetChanges);
+							for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
+								internalState.viewportChangeListeners[i](viewportChanges);
 							}
 						});
 					}
