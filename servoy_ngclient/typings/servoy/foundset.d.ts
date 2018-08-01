@@ -1,6 +1,14 @@
 /// <reference path="../angularjs/angular.d.ts" />
+/// <reference path="./component.d.ts" />
 
 declare namespace foundsetType {
+	
+	type ChangeListener = (changeEvent: ChangeEvent) => void;
+	
+	interface FoundsetPropertyValue {
+		addChangeListener(changeListener : ChangeListener) : void;
+		removeChangeListener(changeListener : ChangeListener) : void;
+	}
 	
 	interface FoundsetTypeConstants {
 		ROW_ID_COL_KEY: string,
@@ -19,7 +27,8 @@ declare namespace foundsetType {
 		NOTIFY_VIEW_PORT_SIZE_CHANGED: string,
 		NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED: string,
 		NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED: string,
-		NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED_OLD_VIEWPORTSIZE: string,
+		NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: string,
+		NOTIFY_VIEW_PORT_ROW_UPDATES: string,
 	
 		// row update types for listener notifications - in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
 		ROWS_CHANGED: number,
@@ -27,7 +36,7 @@ declare namespace foundsetType {
 	    ROWS_DELETED: number
     }
 	
-	type FoundsetChangesParam = {
+	interface ChangeEvent extends componentType.ChangeEvent {
 		// if value was non-null and had a listener attached before, and a full value update was
 	    // received from server, this key is set; if newValue is non-null, it will automatically get the old
 	    // value's listeners registered to itself
@@ -46,16 +55,6 @@ declare namespace foundsetType {
 		selectedRowIndexesChanged:  { oldValue: number[], newValue: number[] },
 		viewPortStartIndexChanged:  { oldValue: number, newValue: number },
 		viewPortSizeChanged:  { oldValue: number, newValue: number },
-		viewportRowsCompletelyChanged:  { oldValue: number, newValue: number },
-	 
-	    // if we received add/remove/change operations on a set of rows from the viewport, this key
-	    // will be set; as seen below, it contains "updates" which is an array that holds a sequence of
-	    // granular update operations to the viewport; the array will hold one or more granular add or remove
-	    // or update operations;
-	    // all the "startIndex" and "endIndex" values below are relative to the viewport's state after all
-	    // previous updates in the array were already processed (so they are NOT relative to the initial state);
-	    // indexes are 0 based
-		viewportRowsUpdated: { updates: ViewportRowUpdates, oldViewportSize: number }
 	}
 	
 	type ViewportRowUpdate = RowsChanged | RowsInserted | RowsDeleted;

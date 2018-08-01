@@ -128,7 +128,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					} else if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]) {
 						if ($log.debugEnabled) $log.debug("portal ### changeNotifier will be triggered according to granular comp. viewport updates for column: " + elementIndex);
 						var granularUpdates = viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED];
-						var viewportRowsWithChangesAfterAllOps = $foundsetTypeUtils.coalesceGranularRowChanges(granularUpdates.updates, granularUpdates[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED_OLD_VIEWPORTSIZE]);
+						var viewportRowsWithChangesAfterAllOps = $foundsetTypeUtils.coalesceGranularRowChanges(granularUpdates.updates, granularUpdates[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]);
 						// TODO inserts/deletes will be handled by code from getMergedCellModel (is there a situation where after delete/insert the same rowid but with different content ends up in the same renderIndex it had before and then that is not handled?)
 						
 						for (var i = 0; i < viewportRowsWithChangesAfterAllOps.length; i++) {
