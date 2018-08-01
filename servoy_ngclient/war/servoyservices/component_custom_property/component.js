@@ -81,7 +81,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			var newValue = currentClientValue;
 
 			// see if someone is listening for changes on current value; if so, prepare to fire changes at the end of this method
-			var hasListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners.length > 0);
+			var hasListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL].viewportChangeListeners.length > 0);
 			var notificationParamForListeners = hasListeners ? { } : undefined;
 
 			// remove watches to avoid an unwanted detection of received changes
