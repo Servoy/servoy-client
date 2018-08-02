@@ -60,12 +60,13 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						let change = coalescedUpdates[j];
 						if (change.startIndex >= update.startIndex) {
 							// change is shifted right
-							let removedFromEndOfChange = update.endIndex + update.removedFromVPEnd - (currentViewportSize - 1);
+							change.startIndex += added;
+							change.endIndex += added;
+							
+							let removedFromEndOfChange = change.endIndex + 1 - (currentViewportSize - update.removedFromVPEnd + added);
 							if (removedFromEndOfChange > 0) {
 								change.endIndex -= removedFromEndOfChange;
 							}
-							change.startIndex += added;
-							change.endIndex += added;
 							
 							// see if the whole change slided out of viewport after this insert
 							if (change.startIndex > change.endIndex) coalescedUpdates.splice(j--, 1);
@@ -84,21 +85,14 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						let change = coalescedUpdates[j];
 						let intersectionStart = Math.max(change.startIndex, update.startIndex);
 						let intersectionEnd = Math.min(change.endIndex, update.endIndex);
-						if (intersectionStart >= intersectionEnd) {
+						if (intersectionStart <= intersectionEnd) {
 							// some of the changed rows were deleted
+							change.endIndex -= intersectionEnd - update.startIndex + 1;
 							if (change.startIndex == intersectionStart) {
-								change.startIndex == intersectionEnd + 1;
-								
-								// see if whole change was deleted
-								if (change.startIndex > change.endIndex) coalescedUpdates.splice(j--, 1);
-								else {
-									let shiftToLeft = change.startIndex - update.startIndex;
-									change.startIndex -= shiftToLeft;
-									change.endIndex -= shiftToLeft;
-								}
-							} else  {
-								change.endIndex = intersectionStart - 1 + (change.endIndex - intersectionEnd);
+								change.startIndex = update.startIndex;
 							}
+							// see if whole change was deleted
+							if (change.startIndex > change.endIndex) coalescedUpdates.splice(j--, 1);
 						} else if (change.startIndex > update.startIndex) {
 							// none of the changes were deleted, but their indexes must shift left
 							let shiftToLeft = update.endIndex - update.startIndex + 1;

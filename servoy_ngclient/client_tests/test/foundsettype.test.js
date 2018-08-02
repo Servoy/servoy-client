@@ -1092,3 +1092,295 @@ describe("Test foundset_custom_property suite", function() {
 	});
 
 });
+
+describe("Test $foundsetTypeUtils suite", function() {
+
+	beforeEach(module('servoy'));
+	beforeEach(module('foundset_viewport_module')); // for foundset and viewport conversions
+	beforeEach(module('foundset_custom_property'));
+	beforeEach(module('sabloApp')); // for 'date' conversions
+
+	var sabloConverters;
+	var foundsetTypeConstants;
+	var foundsetTypeUtils;
+	var $scope;
+	var iS;
+
+	var angularEquality = function(first, second) {
+		return angular.equals(first, second);
+	};
+
+	beforeEach(inject(function(_$sabloConverters_, _$rootScope_, _$foundsetTypeConstants_, _$foundsetTypeUtils_){
+		jasmine.addCustomEqualityTester(angularEquality);
+		// The injector unwraps the underscores (_) from around the parameter
+		//names when matching
+		sabloConverters = _$sabloConverters_;
+		iS = sabloConverters.INTERNAL_IMPL;
+		foundsetTypeConstants = _$foundsetTypeConstants_;
+		foundsetTypeUtils = _$foundsetTypeUtils_;
+
+		$scope = _$rootScope_.$new();
+	}));
+	
+	it("Empty updates result in empty updates", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([], 0);
+		expect(coalesced.length).toBe(0);
+	});
+
+	it("Simple updates remain the same", function() {
+		var updates = [{
+			type: 0,
+			startIndex: 1,
+			endIndex: 2
+		}, {
+			type: 0,
+			startIndex: 4,
+			endIndex: 4
+		}
+		];
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges(updates, 5);
+		expect(coalesced.length).toBe(2);
+		expect(coalesced).toEqual(updates);
+	});
+
+	it("Insert before update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+				type: 0,
+				startIndex: 3,
+				endIndex: 7
+			}, {
+				type: 1,
+				startIndex: 3,
+				endIndex: 5,
+				removedFromVPEnd: 0
+		}], 10);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 6,
+			endIndex: 10
+		}]);
+	});
+
+	it("Insert before update cutting off tail of update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 1,
+			startIndex: 3,
+			endIndex: 5,
+			removedFromVPEnd: 3
+		}], 8);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex:6,
+			endIndex: 7
+		}]);
+	});
+
+	it("Insert before update, update falling off viewport", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 1,
+			startIndex: 3,
+			endIndex: 7,
+			removedFromVPEnd: 5
+		}], 8);
+		expect(coalesced).toEqual([]);
+	});
+
+	it("Insert in the middle of update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 1,
+			startIndex: 4,
+			endIndex: 5,
+			removedFromVPEnd: 2
+		}], 15);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 3
+		}, {
+			type: 0,
+			startIndex: 6,
+			endIndex: 9
+		}]);
+	});
+
+	it("Insert in the middle of update, second part drops out of viewport", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 5
+		}, {
+			type: 1,
+			startIndex: 4,
+			endIndex: 5,
+			removedFromVPEnd: 2
+		}], 6);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 3
+		}]);
+	});
+
+	it("Insert after update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 1,
+			startIndex: 8,
+			endIndex: 20,
+			removedFromVPEnd: 4
+		}], 50);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}]);
+	});
+
+	it("Delete after update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 2,
+			startIndex: 8,
+			endIndex: 20,
+			appendedToVPEnd: 13
+		}], 50);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}]);
+	});
+
+	it("Delete before update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 2,
+			startIndex: 1,
+			endIndex: 2,
+			appendedToVPEnd: 2
+		}], 50);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 1,
+			endIndex: 5
+		}]);
+	});
+
+	it("Delete first part of update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 2,
+			startIndex: 2,
+			endIndex: 5,
+			appendedToVPEnd: 4
+		}], 50);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 2,
+			endIndex: 3
+		}]);
+	});
+	
+	it("Delete second part of update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 2,
+			startIndex: 5,
+			endIndex: 9,
+			appendedToVPEnd: 5
+		}], 50);
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 4
+		}]);
+	});
+	
+	it("Delete whole update", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 2,
+			startIndex: 3,
+			endIndex: 7,
+			appendedToVPEnd: 5
+		}], 50);
+		expect(coalesced).toEqual([]);
+	});
+	
+	it("Multiple updates, multiple inserts/deletes", function() {
+		var coalesced = foundsetTypeUtils.coalesceGranularRowChanges([{
+			type: 0,
+			startIndex: 3,
+			endIndex: 7
+		}, {
+			type: 2,
+			startIndex: 2,
+			endIndex: 4,
+			appendedToVPEnd: 1
+		}, {
+			type: 1,
+			startIndex: 1,
+			endIndex: 2,
+			removedFromVPEnd: 2
+		}, {
+			type: 0,
+			startIndex: 1,
+			endIndex: 2
+		}, {
+			type: 1,
+			startIndex: 2,
+			endIndex: 2,
+			removedFromVPEnd: 1
+		}], 8);
+		// 2-4      6
+		// 4-5      6
+		// 4-5, 1-2 6
+		// 5, 1, 3  6
+		expect(coalesced).toEqual([{
+			type: 0,
+			startIndex: 5,
+			endIndex: 5
+		}, {
+			type: 0,
+			startIndex: 1,
+			endIndex: 1
+		}, {
+			type: 0,
+			startIndex: 3,
+			endIndex: 3
+		}]);
+	});
+	
+
+	
+});

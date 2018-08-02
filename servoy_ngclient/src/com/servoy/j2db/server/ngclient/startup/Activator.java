@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.startup;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -92,6 +93,11 @@ public class Activator implements BundleActivator
 							};
 						}
 					};
+					if (wsSession.getWindowTimeout() == Long.valueOf(BaseWebsocketSession.DEFAULT_WINDOW_TIMEOUT))
+					{
+						// in developer increase the timeout to 15 minutes, else will expire during debugging
+						wsSession.setSessionWindowTimeout(new Long(60 * 15));
+					}
 					return wsSession;
 				}
 			});

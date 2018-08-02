@@ -217,12 +217,6 @@ public class TestNGClient extends NGClient
 
 			}
 
-			@Override
-			public void setGlobalMaintenanceMode(boolean maintenanceMode) throws RemoteException
-			{
-				// TODO Auto-generated method stub
-
-			}
 
 			@Override
 			public void logMessage(String msg) throws RemoteException
@@ -238,12 +232,6 @@ public class TestNGClient extends NGClient
 				return false;
 			}
 
-			@Override
-			public boolean isInGlobalMaintenanceMode() throws RemoteException
-			{
-				// TODO Auto-generated method stub
-				return false;
-			}
 
 			@Override
 			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)

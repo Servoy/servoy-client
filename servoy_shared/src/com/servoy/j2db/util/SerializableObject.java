@@ -18,12 +18,9 @@ package com.servoy.j2db.util;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
-
 /**
  * @author sebster
  */
-@TerracottaInstrumentedClass
 public class SerializableObject implements Serializable
 {
 }

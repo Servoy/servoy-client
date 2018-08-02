@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,14 +13,35 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
-package com.servoy.j2db.server.annotations;
+*/
+
+package com.servoy.j2db.server.ngclient.property.types;
+
+import org.json.JSONObject;
+import org.sablo.specification.property.types.DefaultPropertyType;
 
 /**
- * Marks a method to use terracotta autolock of type read. Using this annotation will automatically apply this behavior to the
- * methods at runtime (config file is made to match this annotation).
- * @author acostescu
+ * @author gboros
+ *
  */
-public @interface TerracottaAutolockRead
+public class MapPropertyType extends DefaultPropertyType<JSONObject>
 {
+
+	public static final MapPropertyType INSTANCE = new MapPropertyType();
+	public static final String TYPE_NAME = "map";
+
+	private MapPropertyType()
+	{
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IPropertyType#getName()
+	 */
+	@Override
+	public String getName()
+	{
+		return TYPE_NAME;
+	}
 }

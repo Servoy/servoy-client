@@ -68,16 +68,6 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	}
 
 	/**
-	 * @return
-	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IMaintenanceServer#isInGlobalMaintenanceMode()
-	 */
-	public boolean isInGlobalMaintenanceMode() throws RemoteException
-	{
-		return dataserver.isInGlobalMaintenanceMode();
-	}
-
-	/**
 	 * @param client_id
 	 * @param server_name
 	 * @param table_name
@@ -95,16 +85,6 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
 	{
 		return dataserver.acquireLocks(client_id, server_name, table_name, pkhashkeys, lockSelect, transaction_id, filters, chunkSize);
-	}
-
-	/**
-	 * @param maintenanceMode
-	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IMaintenanceServer#setGlobalMaintenanceMode(boolean)
-	 */
-	public void setGlobalMaintenanceMode(boolean maintenanceMode) throws RemoteException
-	{
-		dataserver.setGlobalMaintenanceMode(maintenanceMode);
 	}
 
 	/**

@@ -356,9 +356,7 @@ public class NGClientEntryFilter extends WebEntry
 							{
 								if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
 								{
-									boolean maintenanceMode = wsSession == null &&
-										(ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() ||
-											ApplicationServerRegistry.get().getDataServer().isInGlobalMaintenanceMode());
+									boolean maintenanceMode = wsSession == null && ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode();
 									if (maintenanceMode)
 									{
 										HttpSession session = request.getSession(false);

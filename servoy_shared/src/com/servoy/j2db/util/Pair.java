@@ -19,9 +19,6 @@ package com.servoy.j2db.util;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
-
-@TerracottaInstrumentedClass
 public class Pair<L, R> implements Comparable<Pair<L, R>>, Serializable
 {
 	private L left;
@@ -35,7 +32,7 @@ public class Pair<L, R> implements Comparable<Pair<L, R>>, Serializable
 
 	/**
 	 * Returns the left.
-	 * 
+	 *
 	 * @return Object
 	 */
 	public L getLeft()
@@ -45,7 +42,7 @@ public class Pair<L, R> implements Comparable<Pair<L, R>>, Serializable
 
 	/**
 	 * Returns the right.
-	 * 
+	 *
 	 * @return Object
 	 */
 	public R getRight()
@@ -55,7 +52,7 @@ public class Pair<L, R> implements Comparable<Pair<L, R>>, Serializable
 
 	/**
 	 * Sets the left.
-	 * 
+	 *
 	 * @param left The left to set
 	 */
 	public void setLeft(L left)
@@ -65,7 +62,7 @@ public class Pair<L, R> implements Comparable<Pair<L, R>>, Serializable
 
 	/**
 	 * Sets the right.
-	 * 
+	 *
 	 * @param right The right to set
 	 */
 	public void setRight(R right)
