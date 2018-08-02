@@ -25,17 +25,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.servoy.j2db.server.annotations.TerracottaAutolockRead;
-import com.servoy.j2db.server.annotations.TerracottaAutolockWrite;
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
-import com.servoy.j2db.server.annotations.TerracottaTransient;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SerializableObject;
 
 /**
  * @author sebster
  */
-@TerracottaInstrumentedClass
 public final class ClientInfo implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -58,12 +53,8 @@ public final class ClientInfo implements Serializable
 	private String jsCredentials;
 
 
-	// update tc-config.xml and obfuscation list if you modify this! (@TerracottaTransient annotation is just decorative)
-	@TerracottaTransient
 	private TimeZone timeZone;
 
-	// normal transient fields, not terracotta transient; so these are clustered with terracotta
-	// we could optimise clustering by making it so that servers this client does not belong to will not use or have access to these ever-changing timestamps (terracotta transient)
 	private transient long loginTimestamp = 0;
 	private transient long idleTimestamp = 0;
 	private transient String[] groups;
@@ -94,7 +85,6 @@ public final class ClientInfo implements Serializable
 	/**
 	 * @param clientInfo
 	 */
-	@TerracottaAutolockWrite
 	public ClientInfo(ClientInfo clientInfo)
 	{
 		// create a copy
@@ -120,7 +110,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void addInfo(String info)
 	{
 		synchronized (lock)
@@ -129,7 +118,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public boolean removeInfo(String info)
 	{
 		synchronized (lock)
@@ -138,7 +126,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void removeAllInfo()
 	{
 		synchronized (lock)
@@ -147,7 +134,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setInfos(List<String> infos)
 	{
 		synchronized (lock)
@@ -156,7 +142,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public List<String> getInfos()
 	{
 		synchronized (lock)
@@ -165,7 +150,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setClientId(String clientId)
 	{
 		synchronized (lock)
@@ -174,7 +158,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getClientId()
 	{
 		synchronized (lock)
@@ -183,7 +166,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setHostIdentifier(String hostIdentifier)
 	{
 		synchronized (lock)
@@ -192,7 +174,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getHostIdentifier()
 	{
 		synchronized (lock)
@@ -201,7 +182,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setUserUid(String userUid)
 	{
 		synchronized (lock)
@@ -210,7 +190,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getUserUid()
 	{
 		synchronized (lock)
@@ -224,7 +203,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @return String
 	 */
-	@TerracottaAutolockRead
 	public String getHostName()
 	{
 		synchronized (lock)
@@ -238,7 +216,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @return String
 	 */
-	@TerracottaAutolockRead
 	public String getHostAddress()
 	{
 		synchronized (lock)
@@ -252,7 +229,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @param hostName The hostName to set
 	 */
-	@TerracottaAutolockWrite
 	public void setHostName(String hostname)
 	{
 		synchronized (lock)
@@ -266,7 +242,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @param hostAddress The hostAddress to set
 	 */
-	@TerracottaAutolockWrite
 	public void setHostAddress(String ipAddress)
 	{
 		synchronized (lock)
@@ -296,7 +271,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @return String
 	 */
-	@TerracottaAutolockRead
 	public String getUserName()
 	{
 		synchronized (lock)
@@ -310,7 +284,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @param userName The userName to set
 	 */
-	@TerracottaAutolockWrite
 	public void setUserName(String userName)
 	{
 		synchronized (lock)
@@ -319,7 +292,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getSolutionIntendedToBeLoaded()
 	{
 		synchronized (lock)
@@ -338,7 +310,6 @@ public final class ClientInfo implements Serializable
 	 *
 	 * @param solutionIntendedToBeLoaded The name of the solution to be loaded.
 	 */
-	@TerracottaAutolockWrite
 	public void setSolutionIntendedToBeLoaded(String solutionIntendedToBeLoaded)
 	{
 		synchronized (lock)
@@ -347,7 +318,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public int getOpenSolutionId()
 	{
 		synchronized (lock)
@@ -356,7 +326,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public int getSolutionReleaseNumber()
 	{
 		synchronized (lock)
@@ -365,7 +334,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setOpenSolutionId(int openSolutionId)
 	{
 		synchronized (lock)
@@ -374,7 +342,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setSolutionReleaseNumber(int releaseNumber)
 	{
 		synchronized (lock)
@@ -383,7 +350,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setLoginTimestamp(long loginTimestamp)
 	{
 		synchronized (lock)
@@ -392,7 +358,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public long getLoginTimestamp()
 	{
 		synchronized (lock)
@@ -401,7 +366,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setOpenSolutionTimestamp(long openSolutionTimestamp)
 	{
 		synchronized (lock)
@@ -410,7 +374,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public long getOpenSolutionTimestamp()
 	{
 		synchronized (lock)
@@ -419,7 +382,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setIdleTimestamp(long idleTimestamp)
 	{
 		synchronized (lock)
@@ -428,7 +390,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public long getIdleTimestamp()
 	{
 		synchronized (lock)
@@ -438,7 +399,6 @@ public final class ClientInfo implements Serializable
 	}
 
 	@Override
-	@TerracottaAutolockRead
 	public String toString()
 	{
 		synchronized (lock)
@@ -488,7 +448,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void initHostInfo()
 	{
 		timeZone = TimeZone.getDefault();
@@ -516,7 +475,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String[] getUserGroups()
 	{
 		synchronized (lock)
@@ -525,7 +483,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setUserGroups(String[] g)
 	{
 		synchronized (lock)
@@ -537,7 +494,6 @@ public final class ClientInfo implements Serializable
 	/**
 	 *
 	 */
-	@TerracottaAutolockWrite
 	public void clearUserInfo()
 	{
 		synchronized (lock)
@@ -552,7 +508,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public int getApplicationType()
 	{
 		synchronized (lock)
@@ -561,7 +516,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setApplicationType(int applicationType)
 	{
 		synchronized (lock)
@@ -573,7 +527,6 @@ public final class ClientInfo implements Serializable
 	/**
 	 * @param specialClientIndentifier the specialClientIndentifier to set
 	 */
-	@TerracottaAutolockWrite
 	public void setSpecialClientIndentifier(String specialClientIndentifier)
 	{
 		synchronized (lock)
@@ -585,7 +538,6 @@ public final class ClientInfo implements Serializable
 	/**
 	 * @return the specialClientIndentifier
 	 */
-	@TerracottaAutolockRead
 	public String getSpecialClientIndentifier()
 	{
 		synchronized (lock)
@@ -597,7 +549,6 @@ public final class ClientInfo implements Serializable
 	/**
 	 * @param port
 	 */
-	@TerracottaAutolockWrite
 	public void setHostPort(int port)
 	{
 		synchronized (lock)
@@ -606,7 +557,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockWrite
 	public void setLastAuthentication(String authenticatorType, String method, String jsCredentials)
 	{
 		synchronized (lock)
@@ -617,7 +567,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getAuthenticatorType()
 	{
 		synchronized (lock)
@@ -626,7 +575,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getAuthenticatorMethod()
 	{
 		synchronized (lock)
@@ -635,7 +583,6 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	@TerracottaAutolockRead
 	public String getJsCredentials()
 	{
 		synchronized (lock)
