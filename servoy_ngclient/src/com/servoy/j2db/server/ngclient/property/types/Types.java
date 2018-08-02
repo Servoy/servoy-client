@@ -113,5 +113,6 @@ public class Types
 		TypesRegistry.addType(FoundsetReferencePropertyType.INSTANCE);
 		TypesRegistry.addType(FoundsetReferencePropertyTypeOld.INSTANCE);
 		TypesRegistry.addType(RowReferencePropertyType.INSTANCE);
+		TypesRegistry.addType(MapPropertyType.INSTANCE);
 	}
 }
