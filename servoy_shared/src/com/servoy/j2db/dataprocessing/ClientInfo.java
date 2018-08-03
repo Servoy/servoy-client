@@ -72,7 +72,6 @@ public final class ClientInfo implements Serializable
 	 * Since the methods consist of 1 statement, the lock is always given up immediately and no deadlock on this lock can occur. The lock must be a serializable
 	 * object because ClientInfo must be serializable, and the lock must always exist (and cannot be transient).
 	 *
-	 * The lock is also used for Terracotta (you need to lock on stuff that changes if you want changes to be broadcasted in the cluster).
 	 */
 	private final SerializableObject lock = new SerializableObject();
 
