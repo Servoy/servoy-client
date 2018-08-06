@@ -56,36 +56,5 @@ declare namespace foundsetType {
 		viewPortStartIndexChanged:  { oldValue: number, newValue: number },
 		viewPortSizeChanged:  { oldValue: number, newValue: number },
 	}
-	
-	type ViewportRowUpdate = RowsChanged | RowsInserted | RowsDeleted;
-	type ViewportRowUpdates = ViewportRowUpdate[];
-	
-    type RowsChanged = { type: 0, startIndex: number, endIndex: number };
 
-	/**
-	 * When an INSERT happened but viewport size remained the same, it is
-     * possible that some of the rows that were previously at the end of the viewport
-     * slided out of it; "removedFromVPEnd" gives the number of such rows that were removed
-     * from the end of the viewport due to the insert operation;
-     * NOTE: insert signifies an insert into the client viewport, not necessarily
-     * an insert in the foundset itself; for example calling "loadExtraRecordsAsync"
-     * can result in an insert notification + bigger viewport size notification,
-     * with removedFromVPEnd = 0
-     */
-    type RowsInserted = { type: 1, startIndex: number, endIndex: number, removedFromVPEnd: number };
-    
-    
-    /**
-     * When a DELETE happened inside the viewport but there were more rows available in the
-     * foundset after current viewport, it is possible that some of those rows
-     * slided into the viewport; "appendedToVPEnd " gives the number of such rows
-     * that were appended to the end of the viewport due to the DELETE operation
-     * NOTE: delete signifies a delete from the client viewport, not necessarily
-     * a delete in the foundset itself; for example calling "loadLessRecordsAsync" can
-     * result in a delete notification + smaller viewport size notification,
-     * with appendedToVPEnd = 0
-     */                                
-    type RowsDeleted = { type: 2, startIndex : number, endIndex : number, appendedToVPEnd : number }
-
-	
 } 
