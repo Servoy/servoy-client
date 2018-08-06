@@ -134,4 +134,11 @@ declare namespace servoy {
 		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
 		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string),
 	}
+	
+	interface IServoyScope extends angular.IScope {
+	    model:{},
+	    handlers:{},
+	    api:{},
+	    layout:{}
+	}
 } 

@@ -4,6 +4,7 @@
 /// <reference path="../../typings/sablo/sablo.d.ts" />
 /// <reference path="../../typings/sablo/sablo_app.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
+/// <reference path="../../typings/servoy/component.d.ts" />
 
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {
@@ -803,6 +804,191 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			else
 			{
 				element.css('cursor','default');
+			}
+		}
+	};
+})
+	.directive( 'svyFormComponent', function( $utils, $compile, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants,$sabloConstants ) {
+		return {
+			restrict: 'A',
+			link: function( scope, element, attrs ) {
+				let svyServoyApi = scope['svyServoyapi'];
+				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
+				var propertyName = attrs['svyFormComponent']
+				if ( svyServoyApi.isInDesigner() ) {
+					// in designer just show it as a normal form component
+					const newValue = scope['model'][propertyName];
+					if ( newValue ) {
+						element.empty();
+						const elements = svyServoyApi.getFormComponentElements(propertyName, newValue );
+
+						if ( newValue.absoluteLayout ) {
+							const height = newValue.formHeight;
+							const width = newValue.formWidth;
+							var template = "<div style='position:relative;";
+							if ( height ) template += "height:" + height + "px;"
+							if ( width ) template += "width:" + width + "px;"
+							template += "'";
+							template += "></div>";
+							var div = $compile( template )( scope );
+							div.append( elements );
+							element.append( div );
+						} else { // is responsive
+							element.append( elements );
+						}
+					}
+				}
+				else {
+					const parent = element.parent();
+                    const foundsetProperty = attrs['foundset'];
+                    const formComponentValue = scope['model'][propertyName];
+                    const foundset = scope['model'][foundsetProperty];
+                    const rowToModel = [];
+                    let template = null;
+
+					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
+						if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties ) {
+							childElement.foundsetConfig.recordBasedProperties.forEach(( value ) => {
+								rowModel[value] = childElement.modelViewport[viewportIndex][value];
+							} );
+						}
+					};
+					
+					function createRow(index) {
+						const rowId = foundset.viewPort.rows[index][$foundsetTypeConstants.ROW_ID_COL_KEY]
+						const row = scope.$new( false, scope ) as servoy.IServoyScope;
+						rowToModel[index] =  row;
+						row.model = {}
+						row.api = {};
+						row.layout = {};
+						row.handlers = {}
+						for ( var j = 0; j < formComponentValue.childElements.length; j++ ) {
+							const childElement = formComponentValue.childElements[j] as componentType.ComponentPropertyValue;
+					
+							function Model() {
+							}
+							Model.prototype = childElement.model;
+					
+							function ServoyApi( rowModel, rowId ) {
+								this.apply = ( property ) => {
+									ServoyApi.prototype.apply( property, rowModel, rowId );
+								}
+								this.startEdit = ( property ) => {
+									ServoyApi.prototype.startEdit( property, rowId )
+								}
+					
+							}
+							ServoyApi.prototype = childElement.servoyApi;
+					
+							function Handlers( handlers, rowModel, rowId ) {
+								this.svy_servoyApi = new ServoyApi( rowModel, rowId );
+								for (var key in handlers) {
+									this[key] = handlers[key].selectRecordHandler(rowId);
+								}
+							}
+					
+							const rowModel = new Model()
+					
+							const simpleName = childElement["svy_simple_name"];
+					
+							copyRecordProperties( childElement, rowModel, index );
+							row.model[simpleName] = rowModel;
+							row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
+							row.api[simpleName] = {};
+							if ( formComponentValue.absoluteLayout ) {
+								row.layout[simpleName] = {
+									position: "absolute",
+									left: childElement.model.location.x + "px",
+									top: childElement.model.location.y + "px",
+									width: childElement.model.size.width + "px",
+									height: childElement.model.size.height + "px"
+								};
+							}
+						}
+						const elements = $compile( template )( row );
+						const clone = element.clone();
+						clone.append( elements );
+						if (rowToModel.length -1 == index){
+						    parent.append( clone );
+					    }
+						else if (index == 0) {
+						    parent.prepend( clone );
+						}
+						else {
+						    const child = $(parent.children()[index]);
+						    clone.insertBefore(child);
+						}
+					}
+				
+					if ( foundset && foundset.viewPort && foundset.viewPort.rows
+						&& formComponentValue && formComponentValue.childElements ) {
+						element.empty();
+						parent.empty();
+						template = $templateCache.get( formComponentValue.uuid );
+						const propertyInName = '$' + propertyName + '$'
+
+						let height = formComponentValue.formHeight;
+						let width = formComponentValue.formWidth;
+
+						if ( formComponentValue.absoluteLayout ) {
+							element.css( "position", "relative" )
+							element.css( "height", height + "px" )
+							element.css( "width", width + "px" )
+						}
+
+						for ( let  j = 0; j < formComponentValue.childElements.length; j++ ) {
+							const childElement = formComponentValue.childElements[j] as componentType.ComponentPropertyValue;
+							const simpleName = childElement.name.substring( childElement.name.indexOf( propertyInName ) + propertyInName.length );
+							childElement["svy_simple_name"] = simpleName;
+							if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
+								childElement.addViewportChangeListener(( change ) => {
+									if ( change.viewportRowsUpdated ) {
+										const updates = change.viewportRowsUpdated.updates;
+										updates.forEach(( value ) => {
+											if ( value.type == $foundsetTypeConstants.ROWS_CHANGED ) {
+												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+													const row = rowToModel[k] as servoy.IServoyScope;
+													copyRecordProperties( childElement, row.model[simpleName], k );
+												}
+											}
+											else 	if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
+												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+													rowToModel.splice(k, 0, {});
+													createRow(k);
+												}
+											}
+											else     if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
+                                                for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+                                                    rowToModel.splice(k, 1);
+                                                   parent.children()[k].remove();
+                                                }
+                                            }
+										} )
+									} else if (change.viewportRowsCompletelyChanged) {
+										rowToModel.length = 0;
+										parent.empty();
+										for ( let i = 0; i < foundset.viewPort.rows.length; i++ ) {
+											createRow(i);
+										}
+									}
+								} )
+							}
+							// TODO do we always have to attach this? Because the component maybe doesn't use that modelChangeNotifier
+							// but we don't realyl know this when we are compiling the template.
+							Object.defineProperty(childElement.model, $sabloConstants.modelChangeNotifier,
+			                         { configurable: true, value: function(property,value) {
+			                        	rowToModel.some((row) => {
+			                        		if (row.model[simpleName][$sabloConstants.modelChangeNotifier]) {
+			                        			row.model[simpleName][$sabloConstants.modelChangeNotifier](property,value);
+			                        		}
+			                        		else return true; // if there is no change modifer at the first row then we can skip
+			                        	})
+			                  }});
+						}
+						for ( let i = 0; i < foundset.viewPort.rows.length; i++ ) {
+							createRow(i);
+						}
+					}
 			}
 		}
 	};
