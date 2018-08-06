@@ -43,6 +43,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.solutionmodel.IBaseSMPart;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
+import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
@@ -502,6 +503,37 @@ public class FoundsetTest extends AbstractSolutionTest
 			new JSONObject(stringWriter.toString()).toString());
 
 
+	}
+
+	@Test
+	public void foundsetViewportAllRecordDeleted() throws JSONException, ServoyException
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
+		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		FoundSet foundset = form.getFormModel();
+		viewPort.setBounds(5, 5);
+		foundset.setSelectedIndex(6);
+
+		StringWriter stringWriter = new StringWriter();
+		JSONWriter jsonWriter = new JSONWriter(stringWriter);
+		// just to clear changed flags
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		// create an empty separate foundset from the same datasource
+		FoundSet sepEmpFs = (FoundSet)client.getFoundSetManager().getNewFoundSet("mem:test");
+		foundset.js_loadRecords(sepEmpFs);
+
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.changesToJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+		System.out.println(stringWriter.toString());
+		JSONAssert.assertEquals(
+			"{\"upd_serverSize\":0,\"upd_selectedRowIndexes\":[],\"upd_viewPort\":{\"startIndex\":0,\"size\":0,\"upd_rows\":[{\"rows\":[],\"startIndex\":0,\"endIndex\":4,\"type\":2}]}}",
+			stringWriter.toString(), true);
 	}
 
 	@Test

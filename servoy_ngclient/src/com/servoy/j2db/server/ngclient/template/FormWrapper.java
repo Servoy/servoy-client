@@ -57,6 +57,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -208,6 +209,8 @@ public class FormWrapper
 			{
 				for (PropertyDescription pd : properties)
 				{
+					Object config = pd.getConfig();
+					boolean isRepeating = config instanceof ComponentTypeConfig && ((ComponentTypeConfig)config).forFoundset != null;
 					Object propertyValue = formElement.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;
@@ -216,7 +219,7 @@ public class FormWrapper
 					Dimension frmSize = frm.getSize();
 					for (FormElement element : cache.getFormComponentElements())
 					{
-						components.add((IFormElement)element.getPersistIfAvailable());
+						if (!isRepeating || design) components.add((IFormElement)element.getPersistIfAvailable());
 						formComponentParentSizes.put(element.getName(), frmSize);
 						if (!frm.isResponsiveLayout())
 						{

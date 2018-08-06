@@ -315,9 +315,12 @@ public class FoundsetTypeChangeMonitor
 				}
 
 				if (belongsToInterval(firstRow, viewPort.getStartIndex(), viewPortEndIdx) ||
-					belongsToInterval(lastRow, viewPort.getStartIndex(), viewPortEndIdx))
+					belongsToInterval(lastRow, viewPort.getStartIndex(), viewPortEndIdx) || belongsToInterval(viewPort.getStartIndex(), firstRow, lastRow))
 				{
-					// first row to be deleted inside current viewPort
+					// so either part of the viewport was deleted (firstRow or lastRow inside viewport bounds)
+					// or whole viewport was deleted ((firstRow or lastRow NOT inside viewport bounds) but viewport startIndex inside deleted bounds)
+					// so not only indexes need to be adjusted/checked but also the contents of the viewport...
+
 					int firstRowDeletedInViewport = Math.max(viewPort.getStartIndex(), firstRow);
 					int lastRowDeletedInViewport = Math.min(viewPortEndIdx, lastRow);
 					final int relativeFirstRow = firstRowDeletedInViewport - viewPort.getStartIndex();
