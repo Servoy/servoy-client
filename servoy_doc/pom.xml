@@ -75,6 +75,9 @@
 									<fileset dir="${project.basedir}/../servoy_headless_client/src" />
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
+									<fileset dir="${project.basedir}/../servoy_ngclient/src" />
+								</copy>
+								<copy todir="${workspace_dir}/servoy_shared/src">
 									<fileset
 										dir="${project.build.directory}/org.eclipse.dltk.javascript.rhino/src" />
 								</copy>
@@ -206,8 +209,6 @@
 										<args>com.servoy.j2db</args>
 										<args>com.servoy.j2db.server.headlessclient</args>
 										<args>com.servoy.base</args>
-										<args>--project</args>
-										<args>servoy_ngclient</args>
 										<args>com.servoy.j2db.server.ngclient.scripting</args>
 										<args>--output-file</args>
 										<args>/servoy_shared/_doc/servoydoc.xml</args>
