@@ -1,4 +1,5 @@
 /// <reference path="../../../typings/angularjs/angular.d.ts" />
+/// <reference path="../../../typings/servoy/component.d.ts" />
 /// <reference path="../../../typings/servoy/foundset.d.ts" />
 /// <reference path="../../../typings/sablo/sablo.d.ts" />
 
@@ -31,29 +32,43 @@ angular.module('foundset_custom_property', ['webSocketModule'])
     ROWS_DELETED: 2
 })
 .factory("$foundsetTypeUtils", ["$foundsetTypeConstants", function($foundsetTypeConstants: foundsetType.FoundsetTypeConstants) {
-	function isChange(update: foundsetType.ViewportRowUpdate): update is foundsetType.RowsChanged {
-	    return (<foundsetType.RowsChanged>update).type == $foundsetTypeConstants.ROWS_CHANGED;
+	function isChange(update: componentType.ViewportRowUpdate): update is componentType.RowsChanged {
+	    return (<componentType.RowsChanged>update).type == $foundsetTypeConstants.ROWS_CHANGED;
 	};
-	function isInsert(update: foundsetType.ViewportRowUpdate): update is foundsetType.RowsInserted {
-	    return (<foundsetType.RowsInserted>update).type == $foundsetTypeConstants.ROWS_INSERTED;
+	function isInsert(update: componentType.ViewportRowUpdate): update is componentType.RowsInserted {
+	    return (<componentType.RowsInserted>update).type == $foundsetTypeConstants.ROWS_INSERTED;
 	};
-	function isDelete(update: foundsetType.ViewportRowUpdate): update is foundsetType.RowsDeleted {
-	    return (<foundsetType.RowsDeleted>update).type == $foundsetTypeConstants.ROWS_DELETED;
+	function isDelete(update: componentType.ViewportRowUpdate): update is componentType.RowsDeleted {
+	    return (<componentType.RowsDeleted>update).type == $foundsetTypeConstants.ROWS_DELETED;
 	};
 	
 	return {
+
 		/**
-		 * The purpose of this method is to aggregate after-the-fact granular updates into
-		 * indexes that are related to the new state of the viewport. It only calculates new indexes
-		 * for updates of type ROWS_CHANGED. (taking into account any insert/delete along the way)
+		 * The purpose of this method is to aggregate after-the-fact granular updates with indexes
+		 * that are relevant only when applying updates 1-by-1 into indexes that are
+		 * related to the new/final state of the viewport. It only calculates new indexes
+		 * for updates of type $foundsetTypeConstants.ROWS_CHANGED. (taking into account
+		 * any insert/delete along the way)
+		 * 
+		 * @param viewportRowUpdates what a foundset/component property type (viewport) change listener
+		 * would receive in changeEvent[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]
+		 * [$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES]
+		 * 
+		 * @param oldViewportSize what a foundset/component property type (viewport) change listener
+		 * would receive in changeEvent[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]
+		 * [$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]
+		 * 
+		 * @returns an array of $foundsetTypeConstants.ROWS_CHANGED updates with their indexes corrected
+		 * to reflect the indexes in the final state of the viewport (after all updates were applied).
 		 */
-		coalesceGranularRowChanges: function(viewportRowUpdates: foundsetType.ViewportRowUpdates, oldViewportSize) {
-			var coalescedUpdates: foundsetType.RowsChanged[] = [];
+		coalesceGranularRowChanges: function(viewportRowUpdates: componentType.ViewportRowUpdates, oldViewportSize: number): componentType.RowsChanged[] {
+			var coalescedUpdates: componentType.RowsChanged[] = [];
 			var currentViewportSize = oldViewportSize; 
 			for (let i = 0; i < viewportRowUpdates.length; i++) {
 				let update = viewportRowUpdates[i];
 				if (isChange(update)) {
-					coalescedUpdates.push(update);
+					coalescedUpdates.push({ type: update.type, startIndex: update.startIndex, endIndex: update.endIndex });
 				} else if (isInsert(update)) {
 					let added = (update.endIndex - update.startIndex + 1);
 					for (let j = 0; j < coalescedUpdates.length; j++) {
