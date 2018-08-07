@@ -673,6 +673,20 @@ public final class FormElement implements INGFormElement
 	public Collection<String> getHandlers(boolean skipPrivate)
 	{
 		List<String> handlers = new ArrayList<>();
+		Form mainForm = getForm();
+		if (isFormComponentChild())
+		{
+			String mainFormName = ((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+			if (fs != null && mainFormName != null)
+			{
+				mainForm = fs.getForm(mainFormName);
+				mainForm = fs.getFlattenedForm(mainForm);
+			}
+		}
+		if (mainForm == null)
+		{
+			mainForm = getForm();
+		}
 		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Set<Entry<String, WebObjectFunctionDefinition>> entries = componentSpec.getHandlers().entrySet();
 		for (Entry<String, WebObjectFunctionDefinition> entry : entries)
@@ -685,12 +699,12 @@ public final class FormElement implements INGFormElement
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(getForm().getOnElementFocusGainedMethodID() > 0))
+				(mainForm.getOnElementFocusGainedMethodID() > 0))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(getForm().getOnElementFocusLostMethodID() > 0))
+				(mainForm.getOnElementFocusLostMethodID() > 0))
 			{
 				handlers.add(eventName);
 			}
