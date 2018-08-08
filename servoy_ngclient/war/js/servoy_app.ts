@@ -183,6 +183,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 	var findModeShortCutAdded = false;
 	function connect() {
+	    if($webSocket.getURLParameter('clearSession') == 'true'){
+	        $sabloApplication.clearSession();
+	    }
 		// maybe do this with defer ($q)
 		var solName = $webSocket.getURLParameter('s');
 		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($webSocket.getPathname())[1];
