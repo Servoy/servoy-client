@@ -530,7 +530,6 @@ public class FoundsetTest extends AbstractSolutionTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.changesToJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
-		System.out.println(stringWriter.toString());
 		JSONAssert.assertEquals(
 			"{\"upd_serverSize\":0,\"upd_selectedRowIndexes\":[],\"upd_viewPort\":{\"startIndex\":0,\"size\":0,\"upd_rows\":[{\"rows\":[],\"startIndex\":0,\"endIndex\":4,\"type\":2}]}}",
 			stringWriter.toString(), true);
