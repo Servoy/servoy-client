@@ -38,14 +38,15 @@ import com.servoy.j2db.util.Debug;
  * Webstart helper class
  * @author jblok
  */
-public class WebStart
+public class WebStart implements IRemoteRunner
 {
 	/**
 	 * Check if running as webstart client
 	 */
 	private static Boolean bWebstart = null;
 
-	public static boolean isRunningWebStart()
+	@Override
+	public boolean isRunningWebStart()
 	{
 		// Lookup the javax.jnlp.BasicService object, done in such a way that it is possible to not have any webstart class installed and not crashing
 		if (bWebstart == null)
@@ -64,9 +65,10 @@ public class WebStart
 		return bWebstart.booleanValue();
 	}
 
-	public static void setClipboardContent(Object o)
+	@Override
+	public void setClipboardContent(Object o)
 	{
-		if (WebStart.isRunningWebStart())
+		if (isRunningWebStart())
 		{
 			WebStartImpl.putOnClipboard(o);
 		}
@@ -85,7 +87,8 @@ public class WebStart
 		}
 	}
 
-	public static String getClipboardString()
+	@Override
+	public String getClipboardString()
 	{
 		Object obj = getClipboardContent();
 		if (obj instanceof String)
@@ -95,9 +98,10 @@ public class WebStart
 		return null;
 	}
 
-	public static Object getClipboardContent()
+	@Override
+	public Object getClipboardContent()
 	{
-		if (WebStart.isRunningWebStart())
+		if (isRunningWebStart())
 		{
 			return WebStartImpl.getFromClipboard();
 		}
@@ -119,7 +123,7 @@ public class WebStart
 						tmp = e.getMessage();
 					}
 				}
-				//DISABLED:for 1.4			
+				//DISABLED:for 1.4
 				//			else if(t.isDataFlavorSupported(DataFlavor.imageFlavor))
 				//			{
 				//				try
@@ -140,7 +144,8 @@ public class WebStart
 		}
 	}
 
-	public static URL getWebStartURL()
+	@Override
+	public URL getWebStartURL()
 	{
 		if (isRunningWebStart())
 		{
@@ -159,32 +164,8 @@ public class WebStart
 		}
 	}
 
-	public static PageFormat showPageFormatDialog(PageFormat pageFormat) throws Exception
-	{
-		return WebStartImpl.showPageFormatDialog(pageFormat);
-	}
-
-	public static void print(Printable printable) throws Exception
-	{
-		WebStartImpl.print(printable);
-	}
-
-	public static void print(Pageable printable) throws Exception
-	{
-		WebStartImpl.print(printable);
-	}
-
-	public static boolean saveFile(InputStream is, String fileName, String[] extensions) throws Exception
-	{
-		return WebStartImpl.saveFile(is, fileName, extensions);
-	}
-
-	public static InputStream loadFile(String[] extensions) throws Exception
-	{
-		return WebStartImpl.loadFile(extensions);
-	}
-
-	public static boolean showURL(URL url) throws Exception
+	@Override
+	public boolean showURL(URL url) throws Exception
 	{
 		if (isRunningWebStart())
 		{
@@ -203,7 +184,7 @@ class WebStartImpl
 			StringSelection stsel = new StringSelection((String)o);
 			try
 			{
-				javax.jnlp.ClipboardService cs = (javax.jnlp.ClipboardService)javax.jnlp.ServiceManager.lookup("javax.jnlp.ClipboardService"); //$NON-NLS-1$ 
+				javax.jnlp.ClipboardService cs = (javax.jnlp.ClipboardService)javax.jnlp.ServiceManager.lookup("javax.jnlp.ClipboardService"); //$NON-NLS-1$
 				cs.setContents(stsel);
 			}
 			catch (Throwable e)
@@ -221,14 +202,14 @@ class WebStartImpl
 	{
 		try
 		{
-			javax.jnlp.ClipboardService cs = (javax.jnlp.ClipboardService)javax.jnlp.ServiceManager.lookup("javax.jnlp.ClipboardService"); //$NON-NLS-1$ 
+			javax.jnlp.ClipboardService cs = (javax.jnlp.ClipboardService)javax.jnlp.ServiceManager.lookup("javax.jnlp.ClipboardService"); //$NON-NLS-1$
 			Transferable t = cs.getContents();
 
 			if (t.isDataFlavorSupported(DataFlavor.stringFlavor))
 			{
 				return cs.getContents().getTransferData(DataFlavor.stringFlavor);
 			}
-//DISABLED:for 1.4			
+//DISABLED:for 1.4
 //	        else if(t.isDataFlavorSupported(DataFlavor.imageFlavor))
 //	        {
 //					return cs.getContents().getTransferData(DataFlavor.imageFlavor);
@@ -252,7 +233,7 @@ class WebStartImpl
 		if (url != null) return url;
 		try
 		{
-			// Lookup the javax.jnlp.BasicService object 
+			// Lookup the javax.jnlp.BasicService object
 			javax.jnlp.BasicService bs = (javax.jnlp.BasicService)javax.jnlp.ServiceManager.lookup("javax.jnlp.BasicService"); //$NON-NLS-1$
 			url = bs.getCodeBase();
 			return url;
@@ -275,15 +256,15 @@ class WebStartImpl
 
 	static boolean showURL(URL url) throws Exception
 	{
-		// Lookup the javax.jnlp.BasicService object 
+		// Lookup the javax.jnlp.BasicService object
 		javax.jnlp.BasicService bs = (javax.jnlp.BasicService)javax.jnlp.ServiceManager.lookup("javax.jnlp.BasicService"); //$NON-NLS-1$
-		// Invoke the showDocument method 
+		// Invoke the showDocument method
 		return bs.showDocument(url);
 	}
 
 	static boolean saveFile(InputStream is, String fileName, String[] extensions) throws Exception
 	{
-		// Lookup the javax.jnlp.BasicService object 
+		// Lookup the javax.jnlp.BasicService object
 		javax.jnlp.FileSaveService bs = (javax.jnlp.FileSaveService)javax.jnlp.ServiceManager.lookup("javax.jnlp.FileSaveService"); //$NON-NLS-1$
 		Object fc = bs.saveFileDialog(null, extensions, is, fileName);
 		return (fc != null);
@@ -291,7 +272,7 @@ class WebStartImpl
 
 	static InputStream loadFile(String[] extensions) throws Exception
 	{
-		// Lookup the javax.jnlp.BasicService object 
+		// Lookup the javax.jnlp.BasicService object
 		javax.jnlp.FileOpenService bs = (javax.jnlp.FileOpenService)javax.jnlp.ServiceManager.lookup("javax.jnlp.FileOpenService"); //$NON-NLS-1$
 		javax.jnlp.FileContents fc = bs.openFileDialog(null, extensions);
 		if (fc != null)
@@ -306,7 +287,7 @@ class WebStartImpl
 
 	static PageFormat showPageFormatDialog(PageFormat pageFormat) throws Exception
 	{
-		// Lookup the Service object 
+		// Lookup the Service object
 		javax.jnlp.PrintService ps = (javax.jnlp.PrintService)javax.jnlp.ServiceManager.lookup("javax.jnlp.PrintService"); //$NON-NLS-1$
 		if (pageFormat == null) pageFormat = ps.getDefaultPage();
 		pageFormat = ps.showPageFormatDialog(pageFormat);
@@ -315,14 +296,14 @@ class WebStartImpl
 
 	static void print(Printable printable) throws Exception
 	{
-		// Lookup the Service object 
+		// Lookup the Service object
 		javax.jnlp.PrintService ps = (javax.jnlp.PrintService)javax.jnlp.ServiceManager.lookup("javax.jnlp.PrintService"); //$NON-NLS-1$
 		ps.print(printable);
 	}
 
 	static void print(Pageable printable) throws Exception
 	{
-		// Lookup the Service object 
+		// Lookup the Service object
 		javax.jnlp.PrintService ps = (javax.jnlp.PrintService)javax.jnlp.ServiceManager.lookup("javax.jnlp.PrintService"); //$NON-NLS-1$
 		ps.print(printable);
 	}

@@ -45,7 +45,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.gui.JFontChooser;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.smart.WebStart;
+import com.servoy.j2db.smart.RemoteRunnerChecker;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
@@ -55,7 +55,7 @@ import com.servoy.j2db.util.gui.IPropertyEditorDialog;
 
 /**
  * Panel to show Look and Feel preferences in the SmartClient
- * 
+ *
  * @author jcompagner
  */
 public class LFPreferencePanel extends PreferencePanel implements ItemListener, ActionListener
@@ -102,7 +102,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 		}
 
 		String font = _application.getSettings().getProperty("font");
-		if (WebStart.isRunningWebStart())
+		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
 		{
 			URL webstartbase = _application.getServerURL();
 			font = _application.getSettings().getProperty(webstartbase.getHost() + webstartbase.getPort() + "_font", font);
@@ -125,7 +125,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 		}
 		DefaultComboBoxModel modelThemes = new DefaultComboBoxModel(sl.toArray());
 		String n = ""; //$NON-NLS-1$
-		if (WebStart.isRunningWebStart())
+		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
 		{
 			URL webstartbase = _application.getServerURL();
 			n = _application.getSettings().getProperty(webstartbase.getHost() + webstartbase.getPort() + "_lnf.theme", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -229,7 +229,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 	{
 		boolean update = false;
 		// If the L&F or the font size change, we need to remove all dialog bounds,
-		// because there is a chance that the dialogs will have different sizes under the 
+		// because there is a chance that the dialogs will have different sizes under the
 		// new L&F or with the new font. If only the theme changes, there should be no
 		// such situation.
 		boolean removeAllBounds = false;
@@ -251,7 +251,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 			_current = selected;
 		}
 		String clientPrefix = "";
-		if (WebStart.isRunningWebStart())
+		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
 		{
 			URL webstartbase = _application.getServerURL();
 			clientPrefix = webstartbase.getHost() + webstartbase.getPort() + "_"; //$NON-NLS-1$
@@ -309,8 +309,8 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 				if (_choosenFont != null)
 				{
 					JButton button = (JButton)evt.getSource();
-					button.setText(_choosenFont.getName() +
-						" " + _application.getI18NMessage("servoy.preference.lookandfeel.fontsize") + _choosenFont.getSize()); //$NON-NLS-1$
+					button.setText(
+						_choosenFont.getName() + " " + _application.getI18NMessage("servoy.preference.lookandfeel.fontsize") + _choosenFont.getSize()); //$NON-NLS-1$
 				}
 			}
 		}
