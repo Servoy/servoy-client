@@ -228,7 +228,7 @@ public class LoadingUIEffects
 
 	protected URL getWebStartURL()
 	{
-		return WebStart.getWebStartURL();
+		return RemoteRunnerChecker.getInstance().getWebStartURL();
 	}
 
 }

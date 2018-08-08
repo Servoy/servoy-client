@@ -626,7 +626,8 @@ public final class FormElement implements INGFormElement
 
 	public boolean isFormComponentChild()
 	{
-		return ((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) != null;
+		return getPersistIfAvailable() instanceof AbstractBase &&
+			((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) != null;
 	}
 
 	public String getTagname()
