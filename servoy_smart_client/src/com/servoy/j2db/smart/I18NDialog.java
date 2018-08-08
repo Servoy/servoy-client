@@ -153,7 +153,7 @@ public class I18NDialog extends JEscapeDialog implements ActionListener
 		}
 		else if ("copy".equals(actionCommand)) //$NON-NLS-1$
 		{
-			WebStart.setClipboardContent(panel.getText());
+			RemoteRunnerChecker.getInstance().setClipboardContent(panel.getText());
 		}
 		else if ("cancel".equals(actionCommand)) //$NON-NLS-1$
 		{
