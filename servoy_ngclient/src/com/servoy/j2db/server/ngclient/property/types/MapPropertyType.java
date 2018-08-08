@@ -31,6 +31,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.util.Text;
 
 /**
  * @author gboros
@@ -88,7 +89,9 @@ public class MapPropertyType extends DefaultPropertyType<Map<String, ? >>
 			writer.key(key);
 			for (Map.Entry<String, ? > mapEntry : sabloValue.entrySet())
 			{
-				jsonMap.put(mapEntry.getKey(), mapEntry.getValue());
+				Object v = mapEntry.getValue();
+				if (v instanceof String) v = Text.processTags((String)v, null);
+				jsonMap.put(mapEntry.getKey(), v);
 			}
 			writer.value(jsonMap);
 		}
@@ -146,6 +149,7 @@ public class MapPropertyType extends DefaultPropertyType<Map<String, ? >>
 						}
 					}
 
+					v = Text.processTags((String)v, null);
 				}
 				fixedTypeMap.put(jsonKey, v);
 			}
