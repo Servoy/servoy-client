@@ -22,6 +22,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -31,14 +32,15 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.util.Text;
 
 /**
  * @author gboros
  *
  */
-public class MapPropertyType extends DefaultPropertyType<Map<String, ? >>
-	implements IConvertedPropertyType<Map<String, ? >>, IFormElementToTemplateJSON<JSONObject, Map<String, ? >>
+public class MapPropertyType extends DefaultPropertyType<JSONObject>
+	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>
 {
 
 	public static final MapPropertyType INSTANCE = new MapPropertyType();
@@ -66,11 +68,10 @@ public class MapPropertyType extends DefaultPropertyType<Map<String, ? >>
 	 * java.lang.Object, org.sablo.util.ValueReference)
 	 */
 	@Override
-	public Map<String, ? > fromJSON(Object newJSONValue, Map<String, ? > previousSabloValue, PropertyDescription propertyDescription,
-		IBrowserConverterContext context, ValueReference<Boolean> returnValueAdjustedIncommingValue)
+	public JSONObject fromJSON(Object newJSONValue, JSONObject previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return newJSONValue instanceof JSONObject ? (JSONObject)newJSONValue : null;
 	}
 
 	/*
@@ -80,20 +81,13 @@ public class MapPropertyType extends DefaultPropertyType<Map<String, ? >>
 	 * org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, java.lang.Object)
 	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Map<String, ? > sabloValue, PropertyDescription propertyDescription,
-		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, JSONObject sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
-			JSONObject jsonMap = new JSONObject();
 			writer.key(key);
-			for (Map.Entry<String, ? > mapEntry : sabloValue.entrySet())
-			{
-				Object v = mapEntry.getValue();
-				if (v instanceof String) v = Text.processTags((String)v, null);
-				jsonMap.put(mapEntry.getKey(), v);
-			}
-			writer.value(jsonMap);
+			writer.value(fixJSONObjectValueTypesAndI18N(sabloValue));
 		}
 		return writer;
 	}
@@ -111,51 +105,79 @@ public class MapPropertyType extends DefaultPropertyType<Map<String, ? >>
 	{
 		if (formElementValue != null)
 		{
-			JSONObject fixedTypeMap = new JSONObject();
-			for (String jsonKey : formElementValue.keySet())
+			writer.key(key);
+			writer.value(fixJSONObjectValueTypesAndI18N(formElementValue));
+		}
+		return writer;
+	}
+
+	private JSONObject fixJSONObjectValueTypesAndI18N(JSONObject jsonObject)
+	{
+		JSONObject fixedJSONObject = new JSONObject();
+		for (String jsonKey : jsonObject.keySet())
+		{
+			Object v = jsonObject.get(jsonKey);
+			if (v instanceof String)
 			{
-				Object v = formElementValue.get(jsonKey);
-				if (v instanceof String)
+				String sV = (String)v;
+				if (sV.length() > 1 && sV.startsWith("'") && sV.endsWith("'"))
 				{
-					String sV = (String)v;
-					if (sV.length() > 1 && sV.startsWith("'") && sV.endsWith("'"))
+					v = sV.substring(1, sV.length() - 1);
+				}
+				else if (sV.toLowerCase().equals("true") || sV.toLowerCase().equals("false"))
+				{
+					fixedJSONObject.put(jsonKey, Boolean.parseBoolean(sV));
+					continue;
+				}
+				else
+				{
+					try
 					{
-						v = sV.substring(1, sV.length() - 1);
-					}
-					else if (sV.toLowerCase().equals("true") || sV.toLowerCase().equals("false"))
-					{
-						fixedTypeMap.put(jsonKey, Boolean.parseBoolean(sV));
+						long lV = Long.parseLong(sV);
+						fixedJSONObject.put(jsonKey, lV);
 						continue;
 					}
-					else
+					catch (NumberFormatException ex)
 					{
 						try
 						{
-							long lV = Long.parseLong(sV);
-							fixedTypeMap.put(jsonKey, lV);
+							double dV = Double.parseDouble(sV);
+							fixedJSONObject.put(jsonKey, dV);
 							continue;
 						}
-						catch (NumberFormatException ex)
+						catch (NumberFormatException ex1)
 						{
-							try
-							{
-								double dV = Double.parseDouble(sV);
-								fixedTypeMap.put(jsonKey, dV);
-								continue;
-							}
-							catch (NumberFormatException ex1)
-							{
-							}
 						}
 					}
-
-					v = Text.processTags((String)v, null);
 				}
-				fixedTypeMap.put(jsonKey, v);
+
+				v = Text.processTags((String)v, null);
 			}
-			writer.key(key);
-			writer.value(fixedTypeMap);
+			fixedJSONObject.put(jsonKey, v);
 		}
-		return writer;
+		return fixedJSONObject;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
+	 * org.sablo.specification.PropertyDescription, org.sablo.IWebObjectContext)
+	 */
+	@Override
+	public JSONObject toSabloComponentValue(Object rhinoValue, JSONObject previousComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
+	{
+		JSONObject sabloValue = null;
+
+		if (rhinoValue instanceof Map)
+		{
+			sabloValue = new JSONObject();
+			for (Map.Entry< ? , ? > entry : ((Map< ? , ? >)rhinoValue).entrySet())
+			{
+				sabloValue.put(entry.getKey().toString(), entry.getValue());
+			}
+		}
+
+		return sabloValue;
 	}
 }
