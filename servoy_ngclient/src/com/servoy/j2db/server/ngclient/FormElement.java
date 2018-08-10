@@ -64,6 +64,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportSize;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
@@ -77,6 +78,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -409,7 +411,9 @@ public final class FormElement implements INGFormElement
 
 	protected void adjustForAbsoluteLayout()
 	{
-		if (form != null && !form.isResponsiveLayout())
+		boolean isInAbsoluteLayoutDiv = getPersistIfAvailable() != null && getPersistIfAvailable().getParent() instanceof LayoutContainer &&
+			NGUtils.isAbsoluteLayoutDiv((LayoutContainer)getPersistIfAvailable().getParent());
+		if ((form != null && !form.isResponsiveLayout()) || isInAbsoluteLayoutDiv)
 		{
 			WebObjectSpecification spec = getWebComponentSpec();
 			if (spec.getProperty("location") == null)
