@@ -1112,13 +1112,38 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
+		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
+		StringBuilder currentSolutionURL = new StringBuilder(getServerURL().toString()).append("solutions/").append(currentSolution).append("/index.html");
+
+		if (currentSolution != null && url.contains(currentSolutionURL.toString()))
+		{
+			URL newSolutionUrl = null;
+			currentSolutionURL.replace(0, currentSolutionURL.length(), url);
+			try
+			{
+				newSolutionUrl = new URL(url);
+				if (newSolutionUrl.getQuery() != null)
+				{
+					currentSolutionURL.append("&clearSession=true");
+				}
+				else currentSolutionURL.append("?clearSession=true");
+			}
+			catch (MalformedURLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			currentSolutionURL.replace(0, currentSolutionURL.length(), url);
+		}
 		// 2 calls to show url? Just send this one.
 		if (showUrl != null)
 		{
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 		}
-		showUrl = new ShowUrl(url, target, target_options, timeout, onRootFrame);
+		showUrl = new ShowUrl(currentSolutionURL.toString(), target, target_options, timeout, onRootFrame);
 		return true;
 	}
 
