@@ -453,6 +453,11 @@ public class RepositoryHelper
 				return true;
 			}
 		}
+		if (StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName().equals(name) && persist.getParent() instanceof Form &&
+			!Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition()))
+		{
+			return true;
+		}
 		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).isFormComponent()) &&
 			!name.equals("height"))
 		{
