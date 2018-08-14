@@ -710,7 +710,14 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		return getQuerySelectValue().getColumn().getColumnType();
 	}
 
+	/**
+	 * 	The flags are a bit pattern consisting of 1 or more of the following bits:
+	 *  - JSColumn.UUID_COLUMN
+	 *  - JSColumn.EXCLUDED_COLUMN
+	 *  - JSColumn.TENANT_COLUMN
+	 */
 	@Override
+	@JSFunction
 	public int getFlags()
 	{
 		return getQuerySelectValue().getColumn().getFlags();

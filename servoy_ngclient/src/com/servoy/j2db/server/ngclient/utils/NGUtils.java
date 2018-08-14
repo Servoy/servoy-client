@@ -26,11 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.sablo.Container;
-import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -50,7 +47,6 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -237,25 +233,5 @@ public abstract class NGUtils
 				component.setProperty(pd.getName(), ((II18NPropertyType)pd.getType()).resetI18nValue(component.getProperty(pd.getName()), pd, component));
 			}
 		}
-	}
-
-	public static boolean isAbsoluteLayoutDiv(WebLayoutSpecification spec)
-	{
-		return spec != null && spec.isAbsoluteLayout();
-	}
-
-	public static boolean isAbsoluteLayoutDiv(LayoutContainer container)
-	{
-		if (container != null)
-		{
-			WebComponentSpecProvider.getInstance();
-			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
-				container.getPackageName());
-			if (pkg != null)
-			{
-				return isAbsoluteLayoutDiv(pkg.getSpecification(container.getSpecName()));
-			}
-		}
-		return false;
 	}
 }

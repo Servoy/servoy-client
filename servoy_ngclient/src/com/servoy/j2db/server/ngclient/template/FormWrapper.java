@@ -60,8 +60,8 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -383,14 +383,9 @@ public class FormWrapper
 		{
 			for (IFormElement component : components)
 			{
-				if (component.getParent() instanceof LayoutContainer)
+				if (PersistHelper.isInAbsoluteLayoutMode(component))
 				{
-					LayoutContainer container = (LayoutContainer)component.getParent();
-					if (NGUtils.isAbsoluteLayoutDiv(container))
-					{
-						elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
-					}
-
+					elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
 				}
 			}
 		}

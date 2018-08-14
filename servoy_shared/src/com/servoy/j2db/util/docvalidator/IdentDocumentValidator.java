@@ -20,8 +20,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import com.servoy.j2db.util.docvalidator.ValidatingDocument.IDocumentValidator;
-
 public class IdentDocumentValidator implements ValidatingDocument.IDocumentValidator
 {
 	private final int type;
@@ -39,18 +37,18 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 	// Returns true if s is a legal Java identifier.
 	public static boolean isJavaIdentifier(String s)
 	{
-		return validateIdentifier(s, TYPE_SERVOY, true);
+		return validateIdentifier(s, TYPE_SERVOY, true) != null;
 	}
 
 	// Returns true if s is a legal SQL identifier.
 	public static boolean isSQLIdentifier(String s)
 	{
-		return validateIdentifier(s, TYPE_SQL, true);
+		return validateIdentifier(s, TYPE_SQL, true) != null;
 	}
 
 	public String validateInsertString(Document document, int offs, String str, AttributeSet a) throws BadLocationException
 	{
-		if (validateIdentifier(str, type, offs == 0))
+		if (validateIdentifier(str, type, offs == 0) != null)
 		{
 			return str;
 		}
@@ -59,6 +57,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 
 	public String validateReplace(Document document, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
 	{
+		String validString = null;
 		if (document.getLength() == 0 && text.length() == 0)
 		{
 			// no replace (this is triggered on the mac)
@@ -66,47 +65,67 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 		}
 		if (offset == 0 && document.getLength() > 0)
 		{
+			validString = validateIdentifier((text + document.getText(length, document.getLength() - length)), type, true);
 			// delete of start of string
 			if ((text.length() == 0 && length == document.getLength()) /* allow make empty */
-				|| validateIdentifier((text + document.getText(length, document.getLength() - length)), type, true))
+				|| validString != null)
 			{
-				return text;
+				return validString;
 			}
 		}
-		else if (validateIdentifier(text, type, document.getLength() == 0))
+		else
 		{
-			return text;
+			validString = validateIdentifier(text, type, document.getLength() == 0);
+			if (validString != null)
+			{
+				return validString;
+			}
 		}
 		return null;
 	}
 
-	protected static boolean validateIdentifier(String str, int type, boolean isStart)
+	protected static String validateIdentifier(String str, int type, boolean isStart)
 	{
 		char[] source = str.toCharArray();
 		if (isStart)
 		{
 			if (source.length == 0)
 			{
-				return false;
+				return null;
 			}
 			if (!Character.isJavaIdentifierStart(source[0]))
 			{
-				return false;
+				return null;
 			}
 			if (type == TYPE_SQL && source[0] == '_') // oracle does not like tables and columns to start with underscore
 			{
-				return false;
+				return null;
 			}
 		}
 
 		for (int i = 0; i < source.length; i++)
 		{
-			if (!Character.isJavaIdentifierPart(source[i]))
+			if (i > 0)
 			{
-				return false;
+				if (!Character.isJavaIdentifierPart(source[i]))
+				{
+					source[i] = ' ';
+				}
+			}
+			else if (!Character.isJavaIdentifierPart(source[i]))
+			{
+				if (type == TYPE_SQL && source[0] == '_') // oracle does not like tables and columns to start with underscore
+				{
+					return null;
+				}
+				if (source.length == 0)
+				{
+					return null;
+				}
+				return null;
 			}
 		}
-		return true;
+		return new String(source);
 	}
 
 }

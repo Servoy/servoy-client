@@ -409,7 +409,7 @@ public final class FormElement implements INGFormElement
 
 	protected void adjustForAbsoluteLayout()
 	{
-		if (form != null && !form.isResponsiveLayout())
+		if ((form != null && !form.isResponsiveLayout()) || PersistHelper.isInAbsoluteLayoutMode(getPersistIfAvailable()))
 		{
 			WebObjectSpecification spec = getWebComponentSpec();
 			if (spec.getProperty("location") == null)
