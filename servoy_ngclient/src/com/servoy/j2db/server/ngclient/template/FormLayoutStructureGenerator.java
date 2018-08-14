@@ -41,8 +41,8 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * Generates HTML for a flow layout form
@@ -90,7 +90,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
-		boolean isAbsoluteLayoutDiv = NGUtils.isAbsoluteLayoutDiv(spec);
+		boolean isAbsoluteLayoutDiv = PersistHelper.isAbsoluteLayoutDiv(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
