@@ -14,3 +14,55 @@
 {
 	height: 100%;
 }
+
+
+.relativeMaxSize {
+    position:relative;
+  	overflow:hidden;
+  	height:100%;
+  	width:100%;
+}
+
+.absoluteTopRight {
+	position:absolute;
+	top:0px;
+	right:0px;	
+}
+
+ul.nav-tabs {
+    position:absolute;
+    left:0px;
+    top:0px;
+  	min-width:3000px;
+  	margin-left:12px;
+    margin-top:0px;
+}
+
+ul.nav-tabs li{
+	display:table-cell;
+    position:relative;
+    text-align:center;
+    cursor:grab;
+    cursor:-webkit-grab;
+    color:#efefef;
+    vertical-align:middle;
+}
+
+.nav-scroller {
+  text-align:center;
+  cursor:pointer;
+  display:block;
+  padding:3px;
+  padding-top:13px;
+  white-space:no-wrap;
+  vertical-align:middle;
+  background-color:#fff;
+}
+
+.nav-scroller-right{
+  float:right;
+}
+
+.nav-scroller-left {
+  float:right;
+}
