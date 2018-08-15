@@ -357,6 +357,30 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						      left: "-" + left + "px"
 						    }, 'slow',enableButtons);
 				}
+				
+				$scope.$watch(function() {return navTabs.parent().innerWidth()}, function(newVal, oldVal) {
+					if (newVal != oldVal) {
+						var offset = Math.abs(parseInt(navTabs.css("left")));
+						if (offset > 0) {
+						  var wrapperWidth = newVal;
+						  var count = 28;
+						  navTabs.children("li").each(function() {
+							    var itemWidth = $(this).outerWidth(true);
+							    count  += itemWidth; 
+						  });	
+						  var rendered = count - offset;
+						  if (wrapperWidth > rendered) {
+							   var left = offset - rendered;
+							   if (left <0) left = 0;
+								navTabs.animate({
+								      left: "-" + left + "px"
+								    }, 'slow',enableButtons);
+						  }
+						  else enableButtons();
+						}
+						else enableButtons();
+					}
+				});
 	
 				$scope.$watch(function() {return navTabs.children().length}, function(newVal, oldVal) {
 					if (newVal > 0) {
