@@ -1112,18 +1112,20 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		StringBuilder newUrl = new StringBuilder(url);
+		String newUrl = url;
 
-		if (!target.equals("_self") && !target.equals("_top") && url.contains("/solutions/"))
+		if (target != null && !target.equals("_self") && !target.equals("_top") && url.contains("/solutions/"))
 		{
 			try
 			{
+				StringBuilder sb = new StringBuilder(newUrl);
 				URL newSolutionUrl = new URL(url);
 				if (newSolutionUrl.getQuery() != null)
 				{
-					newUrl.append("&clearSession=true");
+					sb.append("&clearSession=true");
 				}
-				else newUrl.append("?clearSession=true");
+				else sb.append("?clearSession=true");
+				newUrl = sb.toString();
 			}
 			catch (MalformedURLException e)
 			{
@@ -1136,7 +1138,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 		}
-		showUrl = new ShowUrl(newUrl.toString(), target, target_options, timeout, onRootFrame);
+		showUrl = new ShowUrl(newUrl, target, target_options, timeout, onRootFrame);
 		return true;
 	}
 
