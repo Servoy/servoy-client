@@ -1,10 +1,14 @@
-<uib-tabset active="model.activeTabIndex" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
-    <uib-tab ng-repeat="tab in model.tabs" select="select(tab)" disable="tab.disabled || !model.enabled || !tab.containsFormId">
+<uib-tabset active="model.activeTabIndex" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-tabpanel relativeMaxSize"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}" tabpanel-initializer>
+    <uib-tab ng-repeat="tab in model.tabs" select="select(tab)" disable="tab.disabled || !model.enabled || !tab.containsFormId"">
       <uib-tab-heading  svy-mnemonic='tab.mnemonic'>
       	<img ng-show="tab.imageMediaID"  ng-src='{{tab.imageMediaID}}'/>
         <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
         	  ng-bind='tab.text'></span>
       </uib-tab-heading>
       <div ng-include="getForm(tab)" sablo-tabseq='1' sablo-tabseq-config="{container: true}" ng-style='getTabsHeight()' style="position:absolute;top:40px;left:0;right:0;bottom:0;overflow:auto;"></div>
-    </tab>
+    </uib-tab>
 </uib-tabset>
+<div class="absoluteTopRight">
+  <div class="nav-scroller nav-scroller-right" ng-click="moveRight()" tabpanel-button="right"><i class="glyphicon glyphicon-chevron-right"></i></div>
+  <div class="nav-scroller nav-scroller-left" ng-click="moveLeft()" tabpanel-button="left"><i class="glyphicon glyphicon-chevron-left"></i></div>
+</div>

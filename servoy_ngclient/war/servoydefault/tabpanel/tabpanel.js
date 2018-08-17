@@ -285,6 +285,135 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			$scope.getTabsHeight = function() {
     		  return {top:$element.find(".nav-tabs").height()+"px"};
     	 	}
+			
+			// scrolling tabs section
+			var buttons = {};
+			this.setButton = function(btn, direction) {
+				buttons[direction] = btn;
+			}
+			this.initScrollTabs = function(navTabs) {
+				
+				function getLeftAndCount(compareValue) {
+					var count = 28; // margin
+					var left = 0;
+					var hitItemWidth = 0;
+
+					  navTabs.children("li").each(function() {
+						    var itemWidth = $(this).outerWidth(true);
+						    if (left == 0 && (count  + itemWidth > compareValue)) {
+						    	left = count;
+						    	hitItemWidth = itemWidth;
+						    } 
+						    count  += itemWidth
+					  });
+					  return {count:count,left:left, itemWidth:hitItemWidth};
+				}
+				
+				function enableButtons() {
+					if (buttons["left"] && buttons["right"]) {
+						var offset = Math.abs(parseInt(navTabs.css("left")));
+						var wrapperWidth = navTabs.parent().innerWidth();
+						var count = getLeftAndCount(0).count;
+	
+						if ((count - 28 > wrapperWidth) && count > (wrapperWidth+offset+1))
+							  buttons["right"].show();
+						  else
+							  buttons["right"].hide();
+						  
+						  if (offset > 0)
+							  buttons["left"].show();
+						  else
+							  buttons["left"].hide();
+					}
+				}
+
+				$scope.moveRight = function() {
+					var wrapperWidth = navTabs.parent().innerWidth();
+					var offset = parseInt(navTabs.css("left"));
+					var maxWidth = Math.abs(offset) + wrapperWidth;
+					var lc = getLeftAndCount(maxWidth);
+					var left = lc.left;
+
+					  var visibleTabsLength = lc.count - left;
+					  if (visibleTabsLength  < wrapperWidth) {
+						  left  -= (wrapperWidth-visibleTabsLength)
+					  } 
+					  navTabs.animate({
+						      left: "-" + left + "px"
+						    }, 'slow',enableButtons);
+				}
+	
+				$scope.moveLeft = function() {
+					var wrapperWidth = navTabs.parent().innerWidth();
+					var offset = Math.abs(parseInt(navTabs.css("left")));
+					var lc = getLeftAndCount(offset);
+					var left = lc.left;
+					  
+						left  = (left + lc.itemWidth + 10) - wrapperWidth;
+				    	if (left < 0) {
+				    		left = 0;
+				    	}
+				    	navTabs.animate({
+						      left: "-" + left + "px"
+						    }, 'slow',enableButtons);
+				}
+				
+				$scope.$watch(function() {return navTabs.parent().innerWidth()}, function(newVal, oldVal) {
+					if (newVal != oldVal) {
+						var offset = Math.abs(parseInt(navTabs.css("left")));
+						if (offset > 0) {
+						  var wrapperWidth = newVal;
+						  var count = 28;
+						  navTabs.children("li").each(function() {
+							    var itemWidth = $(this).outerWidth(true);
+							    count  += itemWidth; 
+						  });	
+						  var rendered = count - offset;
+						  if (wrapperWidth > rendered) {
+							   var left = offset - rendered;
+							   if (left <0) left = 0;
+								navTabs.animate({
+								      left: "-" + left + "px"
+								    }, 'slow',enableButtons);
+						  }
+						  else enableButtons();
+						}
+						else enableButtons();
+					}
+				});
+	
+				$scope.$watch(function() {return navTabs.children().length}, function(newVal, oldVal) {
+					if (newVal > 0) {
+						$timeout(function(){
+						var currentIndex = $scope.model.activeTabIndex;
+						if (currentIndex > 0) {
+							var wrapperWidth = navTabs.parent().innerWidth();
+							  var count = 28;
+							  var left = 0;
+							  navTabs.children("li").each(function() {
+								    var itemWidth = $(this).outerWidth(true);
+								    if (currentIndex-- == 0) {
+								    	left = count;
+								    }
+								    count  += itemWidth; 
+							  });	
+							  if (count - 28 > wrapperWidth) {
+								  var visibleTabsLength = count - left;
+								  if (visibleTabsLength  < wrapperWidth) {
+									  left  -= (wrapperWidth-visibleTabsLength)
+									  left = count - wrapperWidth
+								  } 
+									navTabs.animate({
+									      left: "-" + left + "px"
+									    }, 'slow',enableButtons);
+							  }
+							  else enableButtons();
+						}
+						else enableButtons();
+						})
+					}
+				});
+			}
 
 			// the api defined in the spec file
 			/**
@@ -543,6 +672,22 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				return $scope.model.name;
 			}
 		},
-		template: "<div style='height:100%;width:100%;position:absolute;' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()'></div></div>"
+		template: "<div style='height:100%;width:100%;position:absolute;' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()' class='relativeMaxSize'></div></div>"
 	};
+}).directive("tabpanelInitializer", function() {
+	return {
+		restrict: 'A',
+		require: "^servoydefaultTabpanel",
+		link: function (scope, element, attrs, tabCtrl) {
+			tabCtrl.initScrollTabs(element.children("ul"));
+		    }
+	}
+}).directive("tabpanelButton", function() {
+	return {
+		restrict: 'A',
+		require: "^servoydefaultTabpanel",
+		link: function (scope, element, attrs, tabCtrl) {
+			tabCtrl.setButton(element, attrs["tabpanelButton"]);
+		    }
+	}
 })
