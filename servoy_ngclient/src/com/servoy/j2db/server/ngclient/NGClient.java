@@ -47,6 +47,7 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
@@ -1122,9 +1123,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				URL newSolutionUrl = new URL(url);
 				if (newSolutionUrl.getQuery() != null)
 				{
-					sb.append("&clearSession=true");
+					sb.append("&").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
 				}
-				else sb.append("?clearSession=true");
+				else sb.append("?").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
 				newUrl = sb.toString();
 			}
 			catch (MalformedURLException e)
