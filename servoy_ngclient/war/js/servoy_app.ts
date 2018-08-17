@@ -5,7 +5,6 @@
 /// <reference path="../../typings/jquery/jquery.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
 
-const CLEAR_SESSION_PARAM = "sabloClearSession";
 var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
@@ -184,12 +183,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 	var findModeShortCutAdded = false;
 	function connect() {
-	    if($webSocket.getURLParameter(CLEAR_SESSION_PARAM) == 'true'){
-            $sabloApplication.clearSabloSession();
-            var index = $webSocket.getQueryString().indexOf(CLEAR_SESSION_PARAM);
-            var query = $webSocket.getQueryString().replace($webSocket.getQueryString().substring(index-1,index+CLEAR_SESSION_PARAM.length+5),"");
-            $webSocket.setQueryString(query);
-        }
 		// maybe do this with defer ($q)
 		var solName = $webSocket.getURLParameter('s');
 		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($webSocket.getPathname())[1];
