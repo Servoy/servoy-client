@@ -162,7 +162,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	private void appendArgumentsScopeToPreferedSolutionMethodArguments(StartupArguments argumentsScope)
 	{
-		if (preferredSolutionMethodArguments != null && preferredSolutionMethodArguments.length == 1 || preferredSolutionMethodNameToCall != null)
+		if (argumentsScope.toJSMap().size() > 0)
 		{
 			if (preferredSolutionMethodArguments == null)
 			{
