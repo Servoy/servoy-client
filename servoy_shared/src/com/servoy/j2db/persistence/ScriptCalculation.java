@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.query.ColumnType;
@@ -189,6 +190,30 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 			Debug.error(e);
 		}
 		setType(dpType);
+	}
+
+	/*
+	 * Return the default return method string based on column type
+	 *
+	 * @param index The method return type.
+	 */
+	public static String getDefaultReturnMethodString(int index)
+	{
+		switch ((index))
+		{
+			case IColumnTypes.TEXT :
+				return "return '';";
+			case IColumnTypes.INTEGER :
+				return "return 1;";
+			case IColumnTypes.NUMBER :
+				return "return 1;";
+			case IColumnTypes.DATETIME :
+				return "return new Date(2018, 0, 1);";
+			case IColumnTypes.MEDIA :
+				return "return null;";
+			default :
+				return "return '';";
+		}
 	}
 
 	/*
