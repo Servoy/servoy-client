@@ -133,6 +133,8 @@ declare namespace servoy {
 		testEnterKey(e):boolean, 
 		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
 		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string),
+		shouldBlockDuplicateEvents(beanName:string, model, eventType:string, row:number),
+		eventExecuted(beanName:string, model, eventType:string, row:number)
 	}
 	
 	interface IServoyScope extends angular.IScope {
@@ -141,4 +143,6 @@ declare namespace servoy {
 	    api:{},
 	    layout:{}
 	}
+	
+	interface IApplicationService {}
 } 
