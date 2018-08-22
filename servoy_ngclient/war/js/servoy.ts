@@ -808,10 +808,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-	.directive( 'svyFormComponent', function( $utils, $compile, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants,$sabloConstants ) {
+	.directive( 'svyFormComponent', function( $utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants,$sabloConstants) {
 		return {
 			restrict: 'A',
-			link: function( scope, element, attrs ) {
+			link: function( scope: any, element, attrs ) {
 				let svyServoyApi = scope['svyServoyapi'];
 				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
 				var propertyName = attrs['svyFormComponent']
@@ -839,13 +839,27 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 				}
 				else {
+					let page = 0; // todo should be a model hidden object
+					scope.moveRight = function() {
+						page++;
+						createRows();
+						pager.children().css("cursor","progress");
+					}
+					scope.moveLeft = function() {
+						if (page > 0) {
+							page--;
+							createRows();
+							pager.children().css("cursor","progress");
+						}
+					}
 					const parent = element.parent();
                     const foundsetProperty = attrs['foundset'];
                     const formComponentValue = scope['model'][propertyName];
                     const foundset = scope['model'][foundsetProperty];
-                    const rowToModel = [];
-                    let template = null;
+                    const rowToModel: Array<servoy.IServoyScope> = [];
+					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px'><div style='text-align:center;cursor:pointer;display:none;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:#fff;' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;display:none;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:#fff;' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
 
+                    let template = null;
 					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
 						if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties ) {
 							childElement.foundsetConfig.recordBasedProperties.forEach(( value ) => {
@@ -853,6 +867,44 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							} );
 						}
 					};
+					
+					
+					function destroyScopes(array: Array<servoy.IServoyScope>) {
+					    array.forEach(scope => scope.$destroy());
+					    array.length = 0;
+					}
+					function createRows() {
+                        const parentWidth = parent.outerWidth();
+                        const parentHeight = parent.outerHeight();
+                        const height = formComponentValue.formHeight;
+                        const  width = formComponentValue.formWidth;
+                        const numberOfColumns = Math.floor(parentWidth/width);
+                        const numberOfRows = Math.floor(parentHeight/height);
+                        const numberOfCells  = numberOfRows * numberOfColumns;
+
+                        foundset.setPreferredViewportSize(numberOfCells);
+                        
+                        const startIndex = page*numberOfCells;
+                        if (foundset.viewPort.startIndex != startIndex) {
+                        	foundset.loadRecordsAsync(startIndex, numberOfCells);
+                        }
+                        else {
+						    destroyScopes(rowToModel);
+						    parent.children("[svy-form-component]" ).remove();
+	                        const maxRows = Math.min(numberOfCells, foundset.viewPort.rows.length);
+	                        for ( let i = 0; i < maxRows; i++ ) {
+	                        	createRow(i);
+	                        }
+	                        if (numberOfCells > foundset.viewPort.rows.length && foundset.viewPort.rows.length != 0) {
+	                        	foundset.loadExtraRecordsAsync(numberOfCells - foundset.viewPort.rows.length);
+	                        }
+	                        const pagerChildren = pager.children();
+	                        pagerChildren.css("cursor","pointer");
+	                        pagerChildren.first().css("display",page> 0?"inline":"none");
+	    					const showNext = foundset.hasMoreRows || (foundset.serverSize - (startIndex + maxRows)) > 0;
+	    					pagerChildren.last().css("display",showNext?"inline":"none");
+                        }
+					}
 					
 					function createRow(index) {
 						const rowId = foundset.viewPort.rows[index][$foundsetTypeConstants.ROW_ID_COL_KEY]
@@ -905,30 +957,33 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								};
 							}
 						}
-						const elements = $compile( template )( row );
-						const clone = element.clone();
-						clone.append( elements );
-						if (rowToModel.length -1 == index){
-						    parent.append( clone );
-					    }
-						else if (index == 0) {
-						    parent.prepend( clone );
-						}
-						else {
-						    const child = $(parent.children()[index]);
-						    clone.insertBefore(child);
-						}
+						const elements = template( row , function(cloned) {;
+							const clone = element.clone();
+							clone.append( cloned );
+							if (rowToModel.length -1 == index){
+							    parent.append( clone );
+						    }
+							else if (index == 0) {
+							    parent.prepend( clone );
+							}
+							else {
+							    const child = $(parent.children()[index]);
+							    clone.insertBefore(child);
+							}
+						})
 					}
 				
 					if ( foundset && foundset.viewPort && foundset.viewPort.rows
 						&& formComponentValue && formComponentValue.childElements ) {
 						element.empty();
 						parent.empty();
-						template = $templateCache.get( formComponentValue.uuid );
+						parent.append( pager );
+                        console.log("pagerr created")
+						template = $compile( $templateCache.get( formComponentValue.uuid ));
 						const propertyInName = '$' + propertyName + '$'
 
-						let height = formComponentValue.formHeight;
-						let width = formComponentValue.formWidth;
+						const height = formComponentValue.formHeight;
+						const  width = formComponentValue.formWidth;
 
 						if ( formComponentValue.absoluteLayout ) {
 							element.css( "position", "relative" )
@@ -953,23 +1008,19 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 											}
 											else 	if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
 												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-													rowToModel.splice(k, 0, {});
+												    destroyScopes(rowToModel.splice(k, 0, {} as servoy.IServoyScope));
 													createRow(k);
 												}
 											}
 											else     if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
                                                 for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-                                                    rowToModel.splice(k, 1);
+                                                    destroyScopes(rowToModel.splice(k, 1));
                                                    parent.children()[k].remove();
                                                 }
                                             }
 										} )
 									} else if (change.viewportRowsCompletelyChanged) {
-										rowToModel.length = 0;
-										parent.empty();
-										for ( let i = 0; i < foundset.viewPort.rows.length; i++ ) {
-											createRow(i);
-										}
+										createRows();
 									}
 								} )
 							}
@@ -985,9 +1036,25 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			                        	})
 			                  }});
 						}
-						for ( let i = 0; i < foundset.viewPort.rows.length; i++ ) {
-							createRow(i);
-						}
+						let lastValue = 0;
+						let lastChangeTimed= 0;
+						scope.$watch(()=>{
+			                        const parentWidth = parent.outerWidth();
+			                        const parentHeight = parent.outerHeight();
+			                        const height = formComponentValue.formHeight;
+			                        const  width = formComponentValue.formWidth;
+			                        const numberOfColumns = Math.floor(parentWidth/width);
+			                        const numberOfRows = Math.floor(parentHeight/height);
+			                        const numberOfCells = numberOfRows * numberOfColumns;
+			                        if (lastValue != numberOfCells && (new Date().getTime() - lastChangeTimed) > 1500) {
+			                        	console.log(new Date().getTime() - lastChangeTimed);
+			                        	lastValue = numberOfCells;
+			                        	lastChangeTimed = new Date().getTime();
+			                        }
+						            return lastValue;
+						        },(newValue) => {
+                                        createRows();
+						})
 					}
 			}
 		}
