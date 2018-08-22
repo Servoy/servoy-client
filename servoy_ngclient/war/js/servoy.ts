@@ -34,7 +34,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $services, $applicationService) {
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -281,45 +281,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 			}
 			return jsEvent;
-		},
-		
-		shouldBlockDuplicateEvents: function(beanName, model, eventType, row) {
-			var blockDuplicates = null;
-			var scope = $services.getServiceScope('$utils');
-			if (!scope.executingEvents) scope.executingEvents = [];
-			if (model && model.clientProperty &&  angular.isDefined(model.clientProperty.ngBlockDuplicateEvents))
-			{
-				blockDuplicates = model.clientProperty.ngBlockDuplicateEvents
-			}
-			else
-			{
-				blockDuplicates = $applicationService.getUIProperty("ngBlockDuplicateEvents");
-			}
-			if (blockDuplicates && beanName && eventType)
-			{
-				for (var i=0;i < scope.executingEvents.length; i++)
-				{
-					if (scope.executingEvents[i].beanName === beanName && scope.executingEvents[i].eventType === eventType && scope.executingEvents[i].rowId === row)
-					{
-						return true;
-					}
-				}
-			}
-			scope.executingEvents[scope.executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': row};
-			return false;
-			
-		},
-		
-		eventExecuted: function(beanName, model, eventType, row) {
-			var scope = $services.getServiceScope('$utils');
-			for (var i = 0; i < scope.executingEvents.length; i++)
-			{
-				if (scope.executingEvents[i].beanName === beanName && scope.executingEvents[i].eventType === eventType && scope.executingEvents[i].rowId === row)
-				{
-					scope.executingEvents.splice(i,1);
-					break;
-				}
-			}
 		}
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {

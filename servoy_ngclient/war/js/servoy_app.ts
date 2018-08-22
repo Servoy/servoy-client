@@ -1839,6 +1839,48 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 }])
+.factory("$uiBlocker", function($services, $applicationService) {
+	return {
+		shouldBlockDuplicateEvents: function(beanName, model, eventType, row) {
+			var blockDuplicates = null;
+			var scope = $services.getServiceScope('$uiBlocker');
+			if (!scope.executingEvents) scope.executingEvents = [];
+			if (model && model.clientProperty &&  angular.isDefined(model.clientProperty.ngBlockDuplicateEvents))
+			{
+				blockDuplicates = model.clientProperty.ngBlockDuplicateEvents
+			}
+			else
+			{
+				blockDuplicates = $applicationService.getUIProperty("ngBlockDuplicateEvents");
+			}
+			if (blockDuplicates && beanName && eventType)
+			{
+				for (var i=0;i < scope.executingEvents.length; i++)
+				{
+					if (scope.executingEvents[i].beanName === beanName && scope.executingEvents[i].eventType === eventType && scope.executingEvents[i].rowId === row)
+					{
+						return true;
+					}
+				}
+			}
+			scope.executingEvents[scope.executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': row};
+			return false;
+			
+		},
+		
+		eventExecuted: function(beanName, model, eventType, row) {
+			var scope = $services.getServiceScope('$uiBlocker');
+			for (var i = 0; i < scope.executingEvents.length; i++)
+			{
+				if (scope.executingEvents[i].beanName === beanName && scope.executingEvents[i].eventType === eventType && scope.executingEvents[i].rowId === row)
+				{
+					scope.executingEvents.splice(i,1);
+					break;
+				}
+			}
+		}
+	}
+})
 .run(function($window, $sabloApplication:sablo.ISabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {
 		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)

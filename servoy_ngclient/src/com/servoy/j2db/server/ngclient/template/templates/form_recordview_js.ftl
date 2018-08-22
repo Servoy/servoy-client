@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$templateCache,$compile, $utils) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$templateCache,$compile, $uiBlocker) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -60,7 +60,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		var callExecutor = function(args, rowId) {
 			if ($scope.model && $scope.model[beanName])
 			{
-				if($utils.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
+				if($uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
 				{
 					// reject execution
 					console.log("rejecting execution of: "+eventType +" on "+beanName);
@@ -68,7 +68,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				}
 				var promise = $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 				promise.finally(function(){
-					$utils.eventExecuted(beanName, $scope.model[beanName], eventType, rowId);
+					$uiBlocker.eventExecuted(beanName, $scope.model[beanName], eventType, rowId);
 				});
 				return promise;
 			}
