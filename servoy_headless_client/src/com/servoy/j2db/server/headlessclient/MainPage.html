@@ -2,6 +2,15 @@
 	<head>
 		<title servoy:id='title'>Container for holding a form and navigator</title>
 		<link servoy:id='main_form_style' rel='stylesheet' type='text/css' />
+		<style>
+			input::-webkit-contacts-auto-fill-button {
+  				visibility: hidden;
+  				display: none !important;
+  				pointer-events: none;
+  				position: absolute;
+  				right: 0;
+			}
+		</style>
 	</head>
 	<body servoy:id='servoy_page' id='servoy_page' topmargin=0 leftmargin=0 bottommargin=0 rightmargin=0>
 		<div id='mktipmsg' class='mktipmsg'></div>
