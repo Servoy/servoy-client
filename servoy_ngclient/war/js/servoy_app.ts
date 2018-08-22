@@ -981,6 +981,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService) {
 	$servoyInternal.connect();
 
+	String.prototype.endsWith = function(suffix){ 
+		return this.indexOf(suffix, this.length - suffix.length) !== -1; 
+	}
+	
 	// initialize locale client side
 	var locale = webStorage.session.get("locale");
 	if (!locale) {
