@@ -110,6 +110,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				newScope.layout = {};
 				newScope.handlers = {}
 				var prefix = beanname + '$' + propertyName + '$';
+				if (propertyName.indexOf(beanname + '$') == 0) prefix = propertyName;
 				for(var key in $scope.model) {
 					if (key.substr(0, prefix.length) === prefix) {
 						newScope.model[key.substr(prefix.length)] = $scope.model[key];
