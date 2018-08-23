@@ -55,6 +55,7 @@ import com.servoy.j2db.server.ngclient.FormElementExtension;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -239,8 +240,16 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 					}
 					else throw new RuntimeException("JS Object key must be either String or Number.");
 
-					rhinoObjectCopy.put(keyAsString, (SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, null,
-						getCustomJSONTypeDefinition().getProperty(keyAsString), customObjectContext));
+					Object sabloComponentValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, null,
+						getCustomJSONTypeDefinition().getProperty(keyAsString), customObjectContext);
+
+					// set this now, so foundset-linked-properties from this loop, can find it
+					if (sabloComponentValue instanceof FoundsetTypeSabloValue)
+					{
+						customObjectContext.setProperty(keyAsString, sabloComponentValue);
+					}
+
+					rhinoObjectCopy.put(keyAsString, (SabloT)sabloComponentValue);
 				}
 
 				// create the new change-aware-map based on the converted sub-properties
@@ -430,7 +439,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
 	 */
 	@Override
@@ -441,7 +450,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
 	 */
 	@Override

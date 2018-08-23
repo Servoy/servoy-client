@@ -287,22 +287,29 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		if (previousComponentValue == null)
 		{
 			FoundsetTypeSabloValue foundsetSabloValue = (FoundsetTypeSabloValue)webObjectContext.getProperty(getConfig(pd).forFoundset);
-			if (foundsetSabloValue != null && foundsetSabloValue.getDataAdapterList() != null)
+			if (foundsetSabloValue != null)
 			{
-				// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
-				NGComponentDALContext wrappedComponentContext = new NGComponentDALContext(foundsetSabloValue.getDataAdapterList(), webObjectContext);
-
-				YT newWrappedVal;
-				newWrappedVal = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, getConfig(pd).wrappedPropertyDescription,
-					wrappedComponentContext);
-
-				if (newWrappedVal != null)
+				if (foundsetSabloValue.getDataAdapterList() != null)
 				{
-					// we wrap it - it will automatically be attached afterwards when it it set into the webObject after the/this conversion is done
-					newFsLinkedVal = new FoundsetLinkedTypeSabloValue<YF, YT>(newWrappedVal, getConfig(pd).forFoundset,
-						getConfig(pd).wrappedPropertyDescription, wrappedComponentContext);
+					// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
+					NGComponentDALContext wrappedComponentContext = new NGComponentDALContext(foundsetSabloValue.getDataAdapterList(), webObjectContext);
+
+					YT newWrappedVal;
+					newWrappedVal = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, getConfig(pd).wrappedPropertyDescription,
+						wrappedComponentContext);
+
+					if (newWrappedVal != null)
+					{
+						// we wrap it - it will automatically be attached afterwards when it it set into the webObject after the/this conversion is done
+						newFsLinkedVal = new FoundsetLinkedTypeSabloValue<YF, YT>(newWrappedVal, getConfig(pd).forFoundset,
+							getConfig(pd).wrappedPropertyDescription, wrappedComponentContext);
+					}
+					else newFsLinkedVal = null;
 				}
-				else newFsLinkedVal = null;
+				else
+				{
+					newFsLinkedVal = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, getConfig(pd).wrappedPropertyDescription, rhinoValue);
+				}
 			}
 			else
 			{
