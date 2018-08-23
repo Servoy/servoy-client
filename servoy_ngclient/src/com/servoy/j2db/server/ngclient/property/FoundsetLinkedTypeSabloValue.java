@@ -141,6 +141,21 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		wrappedValueInitialized = false;
 	}
 
+	private boolean createWrappedValueFromRhino;
+	private Object rhinoValue;
+
+	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, PropertyDescription wrappedPropertyDescription, Object rhinoValue)
+	{
+		this.createWrappedValueFromRhino = true;
+		this.rhinoValue = rhinoValue;
+
+		this.forFoundsetPropertyName = forFoundsetPropertyName;
+		this.wrappedPropertyDescription = wrappedPropertyDescription;
+
+		wrappedValueInitialized = false;
+	}
+
+
 	private FoundsetTypeSabloValue getFoundsetValue()
 	{
 		if (webObjectContext != null)
@@ -211,8 +226,21 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// can already be non-null if it was a default value or if for some reason the value was detached and re-attached to a component
 			if (wrappedSabloValue == null)
 			{
-				setWrappedSabloValue((YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
-					wrappedPropertyDescription, initializingState.formElement, (WebFormComponent)webObjectContext.getUnderlyingWebObject(), dal));
+				if (createWrappedValueFromRhino)
+				{
+					// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
+					NGComponentDALContext newWrappedComponentContext = new NGComponentDALContext(dal, webObjectContext);
+
+					YT newWrappedVal;
+					newWrappedVal = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, wrappedPropertyDescription,
+						newWrappedComponentContext);
+					setWrappedSabloValue(newWrappedVal);
+				}
+				else
+				{
+					setWrappedSabloValue((YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
+						wrappedPropertyDescription, initializingState.formElement, (WebFormComponent)webObjectContext.getUnderlyingWebObject(), dal));
+				}
 			}
 			else if (wrappedSabloValue instanceof IHasUnderlyingState)
 				((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
