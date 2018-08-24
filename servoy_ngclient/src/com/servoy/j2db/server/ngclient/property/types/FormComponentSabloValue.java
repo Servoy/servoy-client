@@ -33,6 +33,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
@@ -49,6 +50,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 	private final ComponentTypeSabloValue[] components;
 	private final Form form;
 	private final FormComponentCache cache;
+	private final String elementStartName;
 
 	public FormComponentSabloValue(List<FormElement> elements, PropertyDescription pd, DataAdapterList dal, WebFormComponent component, Form form,
 		FormComponentCache cache)
@@ -56,6 +58,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		this.form = form;
 		this.cache = cache;
 		this.components = new ComponentTypeSabloValue[elements.size()];
+		this.elementStartName = FormElementHelper.getStartElementName(component.getFormElement(), pd);
 		PropertyPath path = new PropertyPath();
 		path.add("childElements");
 		JSONObject tags = new JSONObject();
@@ -116,6 +119,8 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.value(form.getSize().width);
 		writer.key("absoluteLayout");
 		writer.value(!form.isResponsiveLayout());
+		writer.key("startName");
+		writer.value(elementStartName);
 		writer.key("childElements");
 		writer.array();
 		DataConversion componentConversionMarkers = new DataConversion();

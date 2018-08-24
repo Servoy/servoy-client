@@ -4,7 +4,11 @@
 /// <reference path="../../typings/sablo/sablo.d.ts" />
 /// <reference path="../../typings/jquery/jquery.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
-
+if (typeof String.endsWith != "function"){
+	String.prototype.endsWith = function (suffix) {
+	      return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	}
+}
 var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
@@ -183,9 +187,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 	var findModeShortCutAdded = false;
 	function connect() {
-	    if($webSocket.getURLParameter('clearSession') == 'true'){
-	        $sabloApplication.clearSession();
-	    }
 		// maybe do this with defer ($q)
 		var solName = $webSocket.getURLParameter('s');
 		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($webSocket.getPathname())[1];
@@ -979,7 +980,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	enableAnchoring: true
 }).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService) {
 	$servoyInternal.connect();
-
 	// initialize locale client side
 	var locale = webStorage.session.get("locale");
 	if (!locale) {
@@ -1842,6 +1842,46 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 }])
+.factory("$uiBlocker", function($services, $applicationService) {
+	var executingEvents = [];
+	return {
+		shouldBlockDuplicateEvents: function(beanName, model, eventType, row) {
+			var blockDuplicates = null;
+			if (model && model.clientProperty &&  angular.isDefined(model.clientProperty.ngBlockDuplicateEvents))
+			{
+				blockDuplicates = model.clientProperty.ngBlockDuplicateEvents
+			}
+			else
+			{
+				blockDuplicates = $applicationService.getUIProperty("ngBlockDuplicateEvents");
+			}
+			if (blockDuplicates && beanName && eventType)
+			{
+				for (var i=0;i < executingEvents.length; i++)
+				{
+					if (executingEvents[i].beanName === beanName && executingEvents[i].eventType === eventType && executingEvents[i].rowId === row)
+					{
+						return true;
+					}
+				}
+			}
+			executingEvents[executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': row};
+			return false;
+			
+		},
+		
+		eventExecuted: function(beanName, model, eventType, row) {
+			for (var i = 0; i < executingEvents.length; i++)
+			{
+				if (executingEvents[i].beanName === beanName && executingEvents[i].eventType === eventType && executingEvents[i].rowId === row)
+				{
+					executingEvents.splice(i,1);
+					break;
+				}
+			}
+		}
+	}
+})
 .run(function($window, $sabloApplication:sablo.ISabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {
 		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)

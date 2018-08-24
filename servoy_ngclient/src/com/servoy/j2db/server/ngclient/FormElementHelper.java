@@ -331,12 +331,18 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						else((AbstractBase)element).setProperty(key, val);
 					}
 				}
-				String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
-				element.setName(name != null ? (name + '$' + pd.getName() + '$' + elementName) : elementName);
+				String name = getStartElementName(parent, pd);
+				element.setName(name != null ? (name + elementName) : elementName);
 				elements.add(element);
 			}
 		}
 		return elements;
+	}
+
+	public static String getStartElementName(INGFormElement parent, PropertyDescription pd)
+	{
+		String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
+		return name != null ? name + '$' + pd.getName() + '$' : null;
 	}
 
 	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs)

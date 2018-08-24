@@ -1257,4 +1257,30 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
+	/**
+	 * @param data
+	 * @return
+	 */
+	public boolean allowPush(Object jsonValue)
+	{
+		if (jsonValue instanceof JSONArray)
+		{
+			List<String> allowed = Arrays.asList(PREFERRED_VIEWPORT_SIZE);
+			JSONArray arr = (JSONArray)jsonValue;
+			for (int i = 0; i < arr.length(); i++)
+			{
+				JSONObject update = (JSONObject)arr.get(i);
+				for (String key : update.keySet())
+				{
+					if (!allowed.contains(key))
+					{
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
 }

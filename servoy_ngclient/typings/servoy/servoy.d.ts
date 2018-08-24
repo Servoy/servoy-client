@@ -132,7 +132,7 @@ declare namespace servoy {
 		attachEventHandler($parse:angular.IParseService,element:JQuery,scope:angular.IScope,svyEventHandler,domEvent:string, filterFunction?,timeout?:number,returnFalse?:boolean, doSvyApply?:boolean, dataproviderString?:string, preHandlerCallback?):void,
 		testEnterKey(e):boolean, 
 		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
-		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string),
+		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string)
 	}
 	
 	interface IServoyScope extends angular.IScope {
@@ -141,4 +141,6 @@ declare namespace servoy {
 	    api:{},
 	    layout:{}
 	}
+	
+	interface IApplicationService {}
 } 

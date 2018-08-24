@@ -5,7 +5,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
 .run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log,
-		$foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry, $sabloService, $webSocket) {
+		$foundsetTypeConstants, $propertyWatchesRegistry, $sabloService, $webSocket, $uiBlocker, $q) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -164,7 +164,14 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						};
 						delete serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					}
-					var executeHandler = function(type,args,row) {
+					var executeHandler = function(type, args, row, name, model) {		
+						if ($uiBlocker.shouldBlockDuplicateEvents(name, model, type, row))
+						{
+							// reject execution
+							console.log("rejecting execution of: "+type +" on "+name +" row "+row);
+							return $q.resolve(null);
+						}
+						
 						var promiseAndCmsid = $sabloService.createDeferedEvent();
 						var newargs = $sabloUtils.getEventArgs(args,type);
 						internalState.requests.push({ handlerExec: {
@@ -174,6 +181,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							defid: promiseAndCmsid.defid
 						}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						promiseAndCmsid.promise.finally(function(){$uiBlocker.eventExecuted(name, model, type, row);});
 						return promiseAndCmsid.promise;
 					};
 
@@ -250,7 +258,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							(function(key) {
 								var eventHandler = function (args,rowId)
 								{
-									return executeHandler(key,args,rowId);
+									return executeHandler(key, args, rowId, serverJSONValue.name, serverJSONValue.model);
 								}
 								var wrapper = function() {
 									return eventHandler(arguments, null);
