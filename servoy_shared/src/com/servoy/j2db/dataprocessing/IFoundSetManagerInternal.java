@@ -177,4 +177,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public IFoundSetInternal findFoundset(int id);
 
 	public int getNextFoundSetID();
+
+	void handleUserLoggedin();
 }

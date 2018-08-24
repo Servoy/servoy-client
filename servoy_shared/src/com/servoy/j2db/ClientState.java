@@ -407,6 +407,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			// user logged in or switched user
 			solutionRoot.clearLoginSolution(getActiveSolutionHandler());
+			if (foundSetManager != null)
+			{
+				foundSetManager.handleUserLoggedin();
+			}
 		}
 
 		// open the solution previously selected or show solution selection
@@ -1810,13 +1814,13 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		//try to make number object in realValues, do content type guessing
 		int entries = 0;
-		for (int i = 0; i < realValues.length; i++)
+		for (Object realValue : realValues)
 		{
-			if (realValues[i] == null)
+			if (realValue == null)
 			{
 				continue;
 			}
-			if ((realValues[i] instanceof Number) || !Utils.equalObjects(Long.valueOf(Utils.getAsLong(realValues[i])), realValues[i]))
+			if ((realValue instanceof Number) || !Utils.equalObjects(Long.valueOf(Utils.getAsLong(realValue)), realValue))
 			{
 				return Types.OTHER;
 			}
