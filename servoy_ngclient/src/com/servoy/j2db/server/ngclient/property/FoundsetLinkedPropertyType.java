@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
@@ -136,7 +137,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	{
 		YT wrappedDefault = wrappedType.defaultValue(getConfig(pd).wrappedPropertyDescription);
 		return wrappedDefault == null ? null
-			: new FoundsetLinkedTypeSabloValue<YF, YT>(wrappedDefault, getConfig(pd).forFoundset, getConfig(pd).wrappedPropertyDescription, null);
+			: new FoundsetLinkedTypeSabloValue<YF, YT>(wrappedDefault, getConfig(pd).forFoundset, getConfig(pd).wrappedPropertyDescription);
 	}
 
 	@Override
@@ -198,8 +199,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(YF formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, formElementValue, getConfig(pd).wrappedPropertyDescription, formElement,
-			component);
+		return new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, formElementValue, getConfig(pd).wrappedPropertyDescription, formElement);
 	}
 
 	@Override
@@ -282,42 +282,13 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(Object rhinoValue, FoundsetLinkedTypeSabloValue<YF, YT> previousComponentValue,
 		PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
+		if (rhinoValue == null || Undefined.isUndefined(rhinoValue)) return null;
+
 		FoundsetLinkedTypeSabloValue<YF, YT> newFsLinkedVal;
 
 		if (previousComponentValue == null)
 		{
-			FoundsetTypeSabloValue foundsetSabloValue = (FoundsetTypeSabloValue)webObjectContext.getProperty(getConfig(pd).forFoundset);
-			if (foundsetSabloValue != null)
-			{
-				if (foundsetSabloValue.getDataAdapterList() != null)
-				{
-					// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
-					NGComponentDALContext wrappedComponentContext = new NGComponentDALContext(foundsetSabloValue.getDataAdapterList(), webObjectContext);
-
-					YT newWrappedVal;
-					newWrappedVal = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, getConfig(pd).wrappedPropertyDescription,
-						wrappedComponentContext);
-
-					if (newWrappedVal != null)
-					{
-						// we wrap it - it will automatically be attached afterwards when it it set into the webObject after the/this conversion is done
-						newFsLinkedVal = new FoundsetLinkedTypeSabloValue<YF, YT>(newWrappedVal, getConfig(pd).forFoundset,
-							getConfig(pd).wrappedPropertyDescription, wrappedComponentContext);
-					}
-					else newFsLinkedVal = null;
-				}
-				else
-				{
-					newFsLinkedVal = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, getConfig(pd).wrappedPropertyDescription, rhinoValue);
-				}
-			}
-			else
-			{
-				// should we treat this as well? I don't think this should ever happen under normal conditions
-				Debug.error("An attempt to set foundset linked property '" + getConfig(pd).wrappedPropertyDescription + "' from scripting on " +
-					webObjectContext + " failed because the foundset prop. or it's DAL are null (previous val. was null)...", new RuntimeException());
-				newFsLinkedVal = null;
-			}
+			newFsLinkedVal = new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, rhinoValue, getConfig(pd).wrappedPropertyDescription);
 		}
 		else
 		{

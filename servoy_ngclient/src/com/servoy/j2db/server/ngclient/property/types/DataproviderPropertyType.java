@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -165,7 +166,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public DataproviderTypeSabloValue toSabloComponentValue(Object rhinoValue, DataproviderTypeSabloValue previousComponentValue, PropertyDescription pd,
 		IWebObjectContext webObjectContext)
 	{
-		if (rhinoValue == null) return null;
+		if (rhinoValue == null || Undefined.isUndefined(rhinoValue)) return null;
 
 		IDataAdapterList dal = NGComponentDALContext.getDataAdapterList(webObjectContext);
 		if (rhinoValue instanceof String && !(previousComponentValue != null && rhinoValue.equals(previousComponentValue.getDataProviderID())) &&
