@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
@@ -74,7 +75,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	/**
 	 * When non-null then the wrapped property is not yet initialized - waiting for forFoundset property's DAL to be available
 	 */
-	protected InitializingState initializingState;
+	protected InitializingState<YT> initializingState;
 	protected boolean wrappedValueInitialized;
 
 	protected YT wrappedSabloValue;
@@ -100,61 +101,79 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 
-	protected class InitializingState
+	/**
+	 * Called when we already know the wrapped value (probably default value...)
+	 */
+	public FoundsetLinkedTypeSabloValue(YT wrappedSabloValue, String forFoundsetPropertyName, PropertyDescription wrappedPropertyDescription)
+	{
+		this(forFoundsetPropertyName, wrappedPropertyDescription, true);
+		setWrappedSabloValue(wrappedSabloValue);
+		// initializingState = null; // it is null by default, just mentioning it
+	}
+
+	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, YF formElementValue, PropertyDescription wrappedPropertyDescription,
+		INGFormElement formElement)
+	{
+		this(forFoundsetPropertyName, wrappedPropertyDescription, false);
+		initializingState = new FormElementInitializingState(formElementValue, formElement);
+	}
+
+	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, Object rhinoValue, PropertyDescription wrappedPropertyDescription)
+	{
+		this(forFoundsetPropertyName, wrappedPropertyDescription, false);
+		initializingState = new RhinoInitializingState(rhinoValue);
+	}
+
+	private FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, PropertyDescription wrappedPropertyDescription, boolean wrappedValueInitialized)
+	{
+		this.forFoundsetPropertyName = forFoundsetPropertyName;
+		this.wrappedPropertyDescription = wrappedPropertyDescription;
+
+		this.wrappedValueInitialized = wrappedValueInitialized;
+	}
+
+	private interface InitializingState<YT>
+	{
+		public YT initialize();
+	}
+
+	private class FormElementInitializingState implements InitializingState<YT>
 	{
 
 		protected final YF formElementValue;
 		protected final INGFormElement formElement;
 
-		public InitializingState(YF formElementValue, INGFormElement formElement)
+		public FormElementInitializingState(YF formElementValue, INGFormElement formElement)
 		{
 			this.formElementValue = formElementValue;
 			this.formElement = formElement;
 		}
+
+		public YT initialize()
+		{
+			return (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(formElementValue, wrappedPropertyDescription, formElement,
+				(WebFormComponent)webObjectContext.getUnderlyingWebObject(), (DataAdapterList)wrappedComponentContext.getDataAdapterList());
+		}
+
 	}
 
-	/**
-	 * Called when we already know the wrapped value (probably default value...)
-	 */
-	public FoundsetLinkedTypeSabloValue(YT wrappedSabloValue, String forFoundsetPropertyName, PropertyDescription wrappedPropertyDescription,
-		IWebObjectContext webObjectContext)
+	private class RhinoInitializingState implements InitializingState<YT>
 	{
-		setWrappedSabloValue(wrappedSabloValue);
-		this.forFoundsetPropertyName = forFoundsetPropertyName;
-		this.wrappedPropertyDescription = wrappedPropertyDescription;
 
-		this.webObjectContext = webObjectContext;
+		private final Object rhinoValue;
 
-		// initializingState = null; // it is null by default, just mentioning it
-		wrappedValueInitialized = true;
+		public RhinoInitializingState(Object rhinoValue)
+		{
+			this.rhinoValue = rhinoValue;
+		}
+
+		public YT initialize()
+		{
+			// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
+			return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, wrappedPropertyDescription, wrappedComponentContext);
+		}
+
 	}
-
-	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, YF formElementValue, PropertyDescription wrappedPropertyDescription,
-		INGFormElement formElement, IWebObjectContext webObjectContext)
-	{
-		initializingState = new InitializingState(formElementValue, formElement);
-		this.wrappedPropertyDescription = wrappedPropertyDescription;
-
-		this.webObjectContext = webObjectContext;
-		this.forFoundsetPropertyName = forFoundsetPropertyName;
-		// setWrappedSabloValue(null); // for now; waiting for foundset property availability
-		wrappedValueInitialized = false;
-	}
-
-	private boolean createWrappedValueFromRhino;
-	private Object rhinoValue;
-
-	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, PropertyDescription wrappedPropertyDescription, Object rhinoValue)
-	{
-		this.createWrappedValueFromRhino = true;
-		this.rhinoValue = rhinoValue;
-
-		this.forFoundsetPropertyName = forFoundsetPropertyName;
-		this.wrappedPropertyDescription = wrappedPropertyDescription;
-
-		wrappedValueInitialized = false;
-	}
-
 
 	private FoundsetTypeSabloValue getFoundsetValue()
 	{
@@ -218,6 +237,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		foundsetLinkedDPs.clear();
 		dal.addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener(changeMonitor, foundsetPropValue));
 
+		wrappedComponentContext = new NGComponentDALContext(foundsetPropValue.getDataAdapterList(), webObjectContext);
+
 		if (!wrappedValueInitialized)
 		{
 			wrappedValueInitialized = true;
@@ -226,21 +247,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// can already be non-null if it was a default value or if for some reason the value was detached and re-attached to a component
 			if (wrappedSabloValue == null)
 			{
-				if (createWrappedValueFromRhino)
-				{
-					// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
-					NGComponentDALContext newWrappedComponentContext = new NGComponentDALContext(dal, webObjectContext);
-
-					YT newWrappedVal;
-					newWrappedVal = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, wrappedPropertyDescription,
-						newWrappedComponentContext);
-					setWrappedSabloValue(newWrappedVal);
-				}
-				else
-				{
-					setWrappedSabloValue((YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(initializingState.formElementValue,
-						wrappedPropertyDescription, initializingState.formElement, (WebFormComponent)webObjectContext.getUnderlyingWebObject(), dal));
-				}
+				setWrappedSabloValue(initializingState.initialize());
 			}
 			else if (wrappedSabloValue instanceof IHasUnderlyingState)
 				((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
@@ -248,7 +255,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		else if (wrappedSabloValue instanceof IHasUnderlyingState)
 			((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
 
-		wrappedComponentContext = new NGComponentDALContext(foundsetPropValue.getDataAdapterList(), webObjectContext);
 		if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 			((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(getWrappedPropChangeMonitor(monitor), wrappedComponentContext);
 	}
