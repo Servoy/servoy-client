@@ -885,6 +885,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        const numberOfColumns = Math.floor(parentWidth/width);
 		                        const numberOfRows = Math.floor(parentHeight/height);
 		                        numberOfCells  = numberOfRows * numberOfColumns;
+		                        // always just render 1
+		                        if (numberOfCells < 1) numberOfCells = 1;
                         	}
                         	else {
                         		parent.append(angular.element("<span>responsivePageSize property must be set when using a responsive form component</span>"));
