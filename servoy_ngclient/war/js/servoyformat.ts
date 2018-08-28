@@ -413,15 +413,20 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 	}
 
 	function numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
-		if (mlength > 0 && obj && obj.value) {
+		if (mlength > 0 && obj && obj[0] && obj[0].value) {
 			var counter = 0;
 			if (("0123456789").indexOf(keychar) != -1) counter++;
-			var stringLength = obj.value.length;
+			var stringLength = obj[0].value.length;
 			for (var i = 0; i < stringLength; i++) {
-				if (("0123456789").indexOf(obj.value.charAt(i)) != -1) counter++;
+				if (("0123456789").indexOf(obj[0].value.charAt(i)) != -1) counter++;
 			}
-			var selectedTxt = getSelectedText(obj.id);
-			if (selectedTxt) counter = counter - selectedTxt.length;
+			var selectedTxt = getSelectedText(obj[0].id);
+			if (selectedTxt) {
+				// selection will get deleted/replaced by typed key
+				for (var i = 0; i < selectedTxt.length; i++) {
+					if (("0123456789").indexOf(selectedTxt.charAt(i)) != -1) counter--;
+				}
+			}
 			if (counter > mlength) return false;
 		}
 
@@ -651,7 +656,12 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			}
 			
 			function keypress(e) {
+				// FIXME this flag is never reset! either find a way to reset it properly
+				// or find a way to not need it/remove it completely 
 				isKeyPressEventFired = true;
+
+				// this method is called when a key is pressed that would modify the content of the field (so some special keys do not trigger this)
+				// on Chrome some key combinations such as paste will no trigger this either
 				return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
 			}
 

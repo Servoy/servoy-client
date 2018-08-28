@@ -878,6 +878,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return array;
 	}
 
+	public void handleUserLoggedin()
+	{
+		// sqlGenerator may have calculations loaded based on the lgin flattened solution
+		sqlGenerator = null;
+	}
+
 	public void flushCachedItems()
 	{
 		trackingInfoMap.clear();
