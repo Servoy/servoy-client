@@ -3055,6 +3055,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return fs;
 	}
 
+	@Override
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
+	{
+		return new ViewFoundSet(DataSourceUtils.createViewDataSource(name), query.build(), application.getFoundSetManager(), pkChunkSize);
+	}
+
+
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException
 	{
 		return getDataSetByQuery(query, true, max_returned_rows);
