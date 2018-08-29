@@ -631,18 +631,16 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			}
 			
 			function keypress(e) {
-				// FIXME this flag is never reset! either find a way to reset it properly
-				// or find a way to not need it/remove it completely 
-				isKeyPressEventFired = true;
-
-				// this method is called when a key is pressed that would modify the content of the field (so some special keys do not trigger this)
-				// on Chrome some key combinations such as paste will no trigger this either
-				return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
-			}
+			    isKeyPressEventFired = true;
+				if(e.target.type.toUpperCase() == 'NUMBER') 
+				    return e.target.maxLength > e.target.value.length && testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
+				else 
+				    return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
+                }
 
 			function focus(e) {
 				if(e.target.tagName.toUpperCase() == 'INPUT') {
-					oldInputValue = element.val();
+					oldInputValue = element.val().substring(0, e.target.maxLength);
 				}
 				if (!$scope.model.findmode) {
 					if (svyFormat.edit && svyFormat.isMask) {
@@ -709,8 +707,20 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				    		element.val(currentValue);
 				    	}
 			        }
-					oldInputValue = currentValue; 
-				}				
+				    if(e.target.type.toUpperCase() == 'NUMBER'){
+    				    if(currentValue.length > e.target.maxLength){
+                            currentValue = currentValue.substring(0, e.target.maxLength)
+                            element.val(currentValue);
+                            let b =  formatNumbers(currentValue, e.target.type);
+    				    }
+    				    else oldInputValue = currentValue;
+				    }
+				    else oldInputValue = currentValue;
+	                isKeyPressEventFired = false;
+				}
+				if(isKeyPressEventFired)
+				    isKeyPressEventFired = false;
+
 			}
 
 			function findDelta(value, prevValue) {
