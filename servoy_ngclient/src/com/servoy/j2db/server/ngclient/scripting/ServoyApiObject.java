@@ -28,11 +28,14 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -49,6 +52,24 @@ public class ServoyApiObject
 	public ServoyApiObject(IApplication app)
 	{
 		this.app = app;
+	}
+
+	@JSFunction
+	/**
+	 * Creates a view (read-only) foundset.
+	 * @param name foundset name
+	 * @param query query builder used to get the data for the foundset
+	 * @return the view foundset
+	 * @throws ServoyException
+	 */
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query) throws ServoyException
+	{
+		if (!app.haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
+		}
+		return app.getFoundSetManager().getViewFoundSet(name, query);
 	}
 
 	/**

@@ -345,7 +345,7 @@ public class ViewFoundSet implements IFoundSetInternal
 	@Override
 	public int[] getSelectedIndexes()
 	{
-		return selection;
+		return selection == null ? new int[0] : selection;
 	}
 
 	@JSFunction
