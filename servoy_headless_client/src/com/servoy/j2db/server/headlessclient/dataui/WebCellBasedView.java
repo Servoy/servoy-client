@@ -216,7 +216,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private final Map<IPersist, Map<Object, Object>> elementToClientProperties = new HashMap<>();
 
-
 	private String relationName;
 	private List<SortColumn> defaultSort = null;
 
@@ -261,7 +260,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private ScrollBehavior scrollBehavior;
 	private TopPlaceholderUpdater topPlaceholderUpdater;
 	private int maxRowsPerPage;
+
 	private boolean isScrollFirstShow = true;
+	// hide the body of this table/list (in case isKeepLoadedRowsInScrollMode == false) on initial render to avoid a possible flicker effect due to initial show followed by quick scroll and empty space divs being added
+	boolean displayNoneUntilAfterRender = false;
 	private boolean isKeepLoadedRowsInScrollMode;
 	private boolean hasTopBuffer, hasBottomBuffer;
 	private int currentScrollTop;
@@ -275,7 +277,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private boolean isListViewMode;
 
-	private StringBuilder jsHeadScrollViewport;
+	private StringBuilder javascriptForScrollBehaviorRenderHead;
 
 	private final class HeaderHeightCalculationBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 	{
@@ -815,9 +817,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				// apply properties that need to be applied to <td> tag instead
 				parent.setVisible(comp.isVisible());
 			}
-
 		}
-
 
 		@Override
 		protected IModel<IRecordInternal> getListItemModel(final IModel< ? extends List<IRecordInternal>> listViewModel, final int index)
@@ -915,6 +915,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			removedListItems.add(listItem);
 		}
+
 	}
 
 	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
@@ -1855,6 +1856,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 
 		tableContainerBody.add(table);
+
+		if (!isKeepLoadedRowsInScrollMode) tableContainerBody.add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				return displayNoneUntilAfterRender ? "display: none" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}));
+
 		add(tableContainerBody);
 
 		final LinkedHashMap<String, IDataAdapter> dataadapters = new LinkedHashMap<String, IDataAdapter>();
@@ -3071,6 +3084,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		nrUpdatedListItems = 0;
 
 		clearSelectionByCellActionFlag();
+
+		displayNoneUntilAfterRender = false;
 	}
 
 	@Override
@@ -3162,6 +3177,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						table.setStartIndex(0);
 						table.setViewSize((int)(NEW_PAGE_MULITPLIER * maxRowsPerPage));
+						displayNoneUntilAfterRender = true;
 						isScrollFirstShow = false;
 					}
 					else
@@ -3204,13 +3220,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (isScrollMode())
 		{
 			selectionChanged = true;
-			jsHeadScrollViewport = new StringBuilder();
+			javascriptForScrollBehaviorRenderHead = new StringBuilder();
 			scrollViewPort(new JSAppendTarget()
 			{
 				@Override
 				public void appendJavascript(String javascript)
 				{
-					jsHeadScrollViewport.append(javascript);
+					javascriptForScrollBehaviorRenderHead.append(javascript);
 				}
 
 				@Override
@@ -3218,7 +3234,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					return true;
 				}
-			});
+			}, true);
 		}
 	}
 
@@ -5439,14 +5455,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				return false;
 			}
-		});
+		}, false);
 	}
 
-	private void scrollViewPort(JSAppendTarget target)
+	private void scrollViewPort(JSAppendTarget target, boolean initialShow)
 	{
 		if (selectionChanged && !isScrollFirstShow)
 		{
-			scrollBehavior.scrollViewPort(target);
+			scrollBehavior.scrollViewPortToSelection(target, initialShow);
 			selectionChanged = false;
 			nrUpdatedListItems = 0;
 		}
@@ -5495,10 +5511,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			response.renderOnLoadJavascript(sb.toString());
 
-			if (jsHeadScrollViewport != null && jsHeadScrollViewport.length() > 0)
+			if (javascriptForScrollBehaviorRenderHead != null && javascriptForScrollBehaviorRenderHead.length() > 0)
 			{
-				response.renderOnLoadJavascript(jsHeadScrollViewport.toString());
-				jsHeadScrollViewport = null;
+				response.renderOnLoadJavascript(javascriptForScrollBehaviorRenderHead.toString());
+				javascriptForScrollBehaviorRenderHead = null;
 			}
 		}
 
@@ -5584,13 +5600,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/**
 		 * called each time a new selection is applied  , </br>
-		 *  - if the selection is in the viewPort ,it does nothing </br>
-		 *  - if the selection is in the rendered view but not in the viewport ,it scrolls to that position</br>
+		 *  - if the selection is in the viewPort, it does nothing </br>
+		 *  - if the selection is in the rendered view but not in the viewport, it scrolls to that position</br>
 		 *  + if the selection is outside of the view and viewport:</br>
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
+		 * @param initialShow if this method is called as a result of the first render of this list/table view
 		 */
-		public void scrollViewPort(JSAppendTarget target)
+		public void scrollViewPortToSelection(JSAppendTarget target, boolean initialShow)
 		{
 			if (currentData == null) return;
 			Collection<ListItem< ? >> newRows = null;
@@ -5622,45 +5639,71 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
 				return;
 			}
-			if (table.size() > 0 && (((ListItem<IRecordInternal>)table.get(0)).getIndex() == 0 &&
-				((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex() == table.size() - 1)) // check if have all the row components loaded
-			{
-				boolean needToRenderRows = true;
-				if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
 
-				if (needToRenderRows)
-				{// this block handles the case where there is not need to render new rows, only to scroll into viewPort
-					int cellHeight = getCellHeight();
-					int cellScroll = cellHeight * (selectedIndex.intValue() + 1);
-					String tableMarkupId = WebCellBasedView.this.tableContainerBody.getMarkupId();
-					if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
+			if (table.size() > 0)
+			{
+				// if we don't have selection (should never happen as size > 0)
+				// or if selection > current table size and we are keeping all rows from client loaded (isKeepLoadedRowsInScrollMode == true) from index 0, then avoid
+				// scrolling to not generate performance issues
+				if (selectedIndex != null && (selectedIndex < tableSize || !isKeepLoadedRowsInScrollMode))
+				{
+					// we need to check the loaded view - that might not start from index 0 if isKeepLoadedRowsInScrollMode is false
+					int selectedIdx = selectedIndex.intValue();
+					int firstRenderedRowIndex = ((ListItem<IRecordInternal>)table.get(0)).getIndex();
+					int lastRenderedRowIndex = ((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex();
+
+					if (firstRenderedRowIndex <= selectedIdx && selectedIdx <= lastRenderedRowIndex)
 					{
-						needToRenderRows = false;
-					}
-					else if (isKeepLoadedRowsInScrollMode && (cellScroll < viewSize * cellHeight))
-					{
-						//selection was in the loaded rows but not visible in the viewport, scroll without loading records
-						cellScroll -= cellHeight; // this is to compensate for the +1 in 'cellHeight * (selectedIndex.intValue() + 1)' so that the cell really is into view
-						target.appendJavascript("Servoy.TableView.scrollIntoView('" + tableMarkupId + "',0," + cellScroll + ");");
-						needToRenderRows = false;
-					}
-					else if (!isKeepLoadedRowsInScrollMode &&
-						(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
-					{
-						//selection was within the loaded viewSize
-						cellScroll -= cellHeight; // this is to compensate for the +1 in 'cellHeight * (selectedIndex.intValue() + 1)' so that the cell really is into view
-						target.appendJavascript("Servoy.TableView.scrollIntoView('" + tableMarkupId + "',0," + cellScroll + ");");
-						needToRenderRows = false;
+						// double-ckeck (I think) using scroll positions instead of indexes...
+						boolean needToRenderRows = true;
+
+						if (needToRenderRows)
+						{
+							String tableMarkupId = WebCellBasedView.this.tableContainerBody.getMarkupId();
+							// this block handles the case where there is not need to render new rows, only to scroll into viewPort
+							int cellHeight = getCellHeight();
+							int cellScrollTop = cellHeight * selectedIndex.intValue();
+							int cellScrollBottom = cellScrollTop + cellHeight;
+							if (cellScrollTop > currentScrollTop && (cellScrollBottom < currentScrollTop + bodyHeightHint))
+							{
+								if (!isKeepLoadedRowsInScrollMode) target.appendJavascript("Servoy.TableView.clearDisplayNone(null, '" + tableMarkupId + "');");
+								needToRenderRows = false;
+							}
+							else if (isKeepLoadedRowsInScrollMode && (cellScrollBottom < viewSize * cellHeight))
+							{
+								// selection was in the loaded rows but not visible in the viewport, scroll without loading records
+								target.appendJavascript(
+									"Servoy.TableView.scrollRowIntoView('" + tableMarkupId + "',0," + cellScrollTop + "," + cellHeight + ",false);");
+								needToRenderRows = false;
+							}
+							else if (!isKeepLoadedRowsInScrollMode &&
+								(cellScrollTop > currentScrollTop - bodyHeightHint && (cellScrollBottom < currentScrollTop + 2 * bodyHeightHint)))
+							{
+								// selection was within the loaded viewSize
+								target.appendJavascript(
+									"Servoy.TableView.scrollRowIntoView('" + tableMarkupId + "',0," + cellScrollTop + "," + cellHeight + ",true);");
+								needToRenderRows = false;
+							}
+						}
+						if (!needToRenderRows)
+						{
+							target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
+							return;
+						}
 					}
 				}
-				if (!needToRenderRows)
+				else
 				{
+					// it should never happen that size > 0 and selectedIndex = null but
+					// it could happen that isKeepLoadedRowsInScrollMode = true and selectedIndex > table.size() in which case we avoid jumping to that if it would mean loading too many rows...
+					// (at least that is what I think previous code was trying to do with if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false; on a branch that was only
+					// entered when startIndex was 0...
 					target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
 					return;
 				}
 			}
 
-
+			// ok so we probably need to send some rows over to the client as well, not just scroll to selection
 			boolean skipAppendRows = false;
 			if (isKeepLoadedRowsInScrollMode)
 			{
@@ -5678,23 +5721,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				int viewStartIndex = selectedIndex - 1 - maxRowsPerPage > 0 ? selectedIndex - 1 - maxRowsPerPage : 0;
 				newRowsCount = Math.min(tableSize - viewStartIndex, pageViewSize);
-				rowsToRemove = viewStartIndex;
+				rowsToRemove = initialShow ? 0 : viewStartIndex; // initial render will send appropriate rows anyway no need to remove anything
 				table.setStartIndex(viewStartIndex);
 				table.setViewSize(newRowsCount);
 				isGettingRows = true;
 				table.removeAll();
-				//get the actual 3*pageSize rows
-				newRows = getRows(table, viewStartIndex, newRowsCount);
-				rowsBuffer = renderRows(getResponse(), newRows);
+				// get the actual 3 * pageSize rows
+				newRows = getRows(table, viewStartIndex, newRowsCount); // initial render will send appropriate rows anyway
+				rowsBuffer = initialShow ? null : renderRows(getResponse(), newRows); // initial show will render them anyway
 				isGettingRows = false;
 				selectedIndex = new Integer(selectedIndex.intValue() - viewStartIndex);
-
 			}
+
+			int cellHeight = 0;
 
 			if (rowsBuffer != null)
 			{
 				StringBuffer sb = new StringBuffer();
-
 				if (!skipAppendRows)
 				{
 					hasTopBuffer = table.getStartIndex() > 0;
@@ -5716,12 +5759,30 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 
-				int cellHeight = getCellHeight();
-				int cellScroll = cellHeight * (table.getStartIndex() + selectedIndex.intValue());
-				sb.append("Servoy.TableView.scrollIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScroll + ");");
+				cellHeight = getCellHeight();
+
+				int cellScrollTop = cellHeight * (table.getStartIndex() + selectedIndex.intValue());
+				sb.append("Servoy.TableView.scrollRowIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScrollTop + "," + //$NON-NLS-3$
+					cellHeight + ",false);");
 				target.appendJavascript(sb.toString());
 			}
+			else if (initialShow) // && !isKeepLoadedRowsInScrollMode - because you would not hit this else otherwise
+			{
+				// initial show will render the rows in the viewport anyway so they will be inserted there automatically
+				// we don't need to send them again via append rows, but we do need to handle top/buttom empty spaces as needed
+				StringBuffer sb = new StringBuffer();
+				hasTopBuffer = table.getStartIndex() > 0;
+				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+				cellHeight = getCellHeight();
 
+				sb.append("Servoy.TableView.updateTopAndButtomBuffers('"); //$NON-NLS-1$
+				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("',"); //$NON-NLS-1$
+				sb.append(hasTopBuffer ? table.getStartIndex() * cellHeight : 0).append(","); //$NON-NLS-1$
+				sb.append(hasBottomBuffer).append(",").append(cellHeight * (table.getStartIndex() + selectedIndex.intValue())).append( //$NON-NLS-1$
+					");");
+
+				target.appendJavascript(sb.toString());
+			}
 		}
 
 		/**

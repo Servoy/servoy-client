@@ -85,6 +85,12 @@ public class FormLayoutStructureGenerator
 
 	private static boolean hasVisibleComponents(FlattenedSolution fs, LayoutContainer container)
 	{
+		if (!container.getAllObjects().hasNext())
+		{
+			//it can be an empty container used for aligning(clearfix)
+			return true;
+		}
+
 		Iterator<WebComponent> it = container.getWebComponents();
 		while (it.hasNext())
 		{
