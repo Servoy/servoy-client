@@ -11,7 +11,7 @@ angular.module('date_custom_property', ['webSocketModule'])
 				if (!newClientData) return null;
 
 				var r = newClientData;
-				if (typeof newClientData === 'string' || typeof newClientData === 'number') r = new Date(newClientData);
+				if (typeof newClientData === 'string' || typeof newClientData === 'number') r = new Date(newClientData as number);
 				if (isNaN(r.getTime())) throw new Error("Invalid date/time value: " + newClientData)// what should happen in this scenario , should we return null;
 				return moment(r).format();
 			},

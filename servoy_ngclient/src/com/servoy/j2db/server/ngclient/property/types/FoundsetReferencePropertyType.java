@@ -18,6 +18,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -131,9 +132,11 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	public IFoundSetInternal toSabloComponentValue(Object rhinoValue, IFoundSetInternal previousComponentValue, PropertyDescription pd,
 		IWebObjectContext componentOrService)
 	{
-		if (rhinoValue instanceof IFoundSetInternal)
+		Object value = rhinoValue;
+		if (value instanceof Wrapper) value = ((Wrapper)value).unwrap();
+		if (value instanceof IFoundSetInternal)
 		{
-			return (IFoundSetInternal)rhinoValue;
+			return (IFoundSetInternal)value;
 		}
 		return null;
 	}

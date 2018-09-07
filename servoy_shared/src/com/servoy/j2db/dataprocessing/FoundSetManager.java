@@ -878,6 +878,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return array;
 	}
 
+	public void handleUserLoggedin()
+	{
+		// sqlGenerator may have calculations loaded based on the lgin flattened solution
+		sqlGenerator = null;
+	}
+
 	public void flushCachedItems()
 	{
 		trackingInfoMap.clear();
@@ -3048,6 +3054,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		fs.loadAllRecords();
 		return fs;
 	}
+
+	@Override
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
+	{
+		return new ViewFoundSet(DataSourceUtils.createViewDataSource(name), query.build(), application.getFoundSetManager(), pkChunkSize);
+	}
+
 
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException
 	{

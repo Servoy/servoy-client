@@ -130,7 +130,8 @@
 	  		"width": "int",
 	  		"height": "int",
 	  		"x": "int",
-	  		"y": "int"
+	  		"y": "int",
+			"showBackdrop": "boolean" 
 	  	}
 	  },
 	  "popupMenuShowCommand":{

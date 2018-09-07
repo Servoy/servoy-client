@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -177,4 +178,13 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public IFoundSetInternal findFoundset(int id);
 
 	public int getNextFoundSetID();
+
+	void handleUserLoggedin();
+	
+		/**
+	 * @param name
+	 * @param query
+	 * @return
+	 */
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query);
 }

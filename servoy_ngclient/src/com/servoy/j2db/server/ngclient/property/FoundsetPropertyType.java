@@ -23,6 +23,7 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONPropertyType;
@@ -337,6 +338,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		{
 			NativeObject obj = (NativeObject)rhinoValue;
 			Object foundset = obj.get(FOUNDSET_KEY_FOR_RHINO, obj);
+			if (foundset instanceof Wrapper) foundset = ((Wrapper)foundset).unwrap();
 			if (foundset instanceof IFoundSetInternal)
 			{
 				newFoundset = (IFoundSetInternal)foundset;

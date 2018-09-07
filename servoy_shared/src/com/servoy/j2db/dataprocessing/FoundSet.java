@@ -2104,10 +2104,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			// must strip of the order-by part because not all databases (Oracle, who else) like order-by in subselect
 			String customQuery = query;
-			while (order_by_index > 0)
+			if (order_by_index > 0)
 			{
-				// query contains order-by clause, remove it until a closing bracket or end-of-string.
-				// order-by has to be removed because some dbs do not allow that inside subselect
+				// query contains order-by clause, find the next a closing bracket if it exists.
+				// order-by has to be removed because some dbs do not allow that inside subselect.
 				char[] chars = query.toCharArray();
 				int level = 1;
 				int i;
@@ -2123,8 +2123,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							break;
 					}
 				}
-				customQuery = query.substring(0, order_by_index) + ((level > 0) ? "" : query.substring(i - 1)); //$NON-NLS-1$
-				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
+				// if level is 0, then the order-by clause was within a sub-part of the query and not at the end,
+				// in that case we can leave the ordering in place because it it not the sorting of the top-level query.
+				if (level == 1)
+				{
+					// order-by clause was at the end
+					customQuery = query.substring(0, order_by_index);
+				}
 			}
 			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, new SetCondition(IBaseSQLCondition.IN_OPERATOR,
 				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(customQuery, whereArgs), true));
@@ -7142,39 +7147,5 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-	}
-
-	private static class CallJavaScriptCallBack implements IRecordCallback
-	{
-		private final Function callback;
-		private final IExecutingEnviroment scriptEngine;
-		private final Scriptable thisObject;
-
-		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine, Scriptable thisObject)
-		{
-			this.callback = callback;
-			this.scriptEngine = scriptEngine;
-			this.thisObject = thisObject;
-		}
-
-		@Override
-		public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
-		{
-			Scriptable callbackScope = callback.getParentScope();
-			try
-			{
-				return scriptEngine.executeFunction(callback, callbackScope, (Scriptable)(thisObject == null ? foundset : thisObject),
-					new Object[] { record, Integer.valueOf(recordIndex + 1), foundset }, false, true);
-			}
-			catch (Exception ex)
-			{
-				Debug.error("Error executing callback: ", ex);
-				if (ex instanceof RuntimeException)
-				{
-					throw (RuntimeException)ex;
-				}
-			}
-			return null;
-		}
 	}
 }

@@ -193,6 +193,7 @@ public class TestNGClient extends NGClient
 		settings.setProperty("log4j.logger.com.servoy.j2db.server.persistence.Server", "WARN");
 		settings.setProperty("log4j.logger.com.servoy.j2db.util.Debug", "WARN");
 		settings.setProperty("log4j.logger.org.apache.wicket", "WARN");
+		settings.setProperty("log4j.logger.persistence.Server", "WARN");
 		settings.setProperty("log4j.logger.org.apache.wicket.request.target.component.listener.BehaviorRequestTarget", "ERROR");
 		settings.setProperty("log4j.logger.org.sablo", "WARN");
 		settings.setProperty("log4j.logger.org.sablo.specification.property", "WARN");
