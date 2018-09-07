@@ -38,6 +38,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
@@ -77,9 +78,30 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
+	private static boolean isSecurityVisible(FlattenedSolution fs, IPersist persist)
+	{
+		return (fs.getSecurityAccess(persist.getUUID()) & IRepository.VIEWABLE) != 0;
+	}
+
+	private static boolean hasVisibleComponents(FlattenedSolution fs, LayoutContainer container)
+	{
+		Iterator<WebComponent> it = container.getWebComponents();
+		while (it.hasNext())
+		{
+			if (isSecurityVisible(fs, it.next())) return true;
+		}
+		Iterator<LayoutContainer> it2 = container.getLayoutContainers();
+		while (it2.hasNext())
+		{
+			if (hasVisibleComponents(fs, it2.next())) return true;
+		}
+		return false;
+	}
+
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
 		IFormElementCache cache)
 	{
+		if (!hasVisibleComponents(fs, container)) return;
 		WebLayoutSpecification spec = null;
 		if (container.getPackageName() != null)
 		{
@@ -197,6 +219,10 @@ public class FormLayoutStructureGenerator
 			else if (component instanceof IFormElement)
 			{
 				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design);
+				if (!isSecurityVisible(fs, fe.getPersistIfAvailable()))
+				{
+					continue;
+				}
 				if (isAbsoluteLayoutDiv)
 				{
 					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, false);
