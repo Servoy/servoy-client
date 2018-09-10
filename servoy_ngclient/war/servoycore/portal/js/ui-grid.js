@@ -1,5 +1,5 @@
 /*!
- * ui-grid - v4.2.2-0141ce2 - 2018-01-26
+ * ui-grid - v - 2018-09-10
  * Copyright (c) 2018 ; License: MIT 
  */
 
@@ -13,7 +13,7 @@
 
   /**
    * @ngdoc object
-   * @name ui.grid.service:uiGridConst`ants
+   * @name ui.grid.service:uiGridConstants
    * @description Constants for use across many grid features
    *
    */
@@ -10883,11 +10883,11 @@ module.service('gridUtil', ['$log', '$window', '$document', '$http', '$templateC
       return columnName.replace(/_+/g, ' ')
         // Replace a completely all-capsed word with a first-letter-capitalized version
         .replace(/^[A-Z]+$/, function (match) {
-          return angular.lowercase(angular.uppercase(match.charAt(0)) + match.slice(1));
+          return (match.charAt(0).toUpperCase() + match.slice(1)).toUpperCase();
         })
         // Capitalize the first letter of words
         .replace(/([\w\u00C0-\u017F]+)/g, function (match) {
-          return angular.uppercase(match.charAt(0)) + match.slice(1);
+          return (match.charAt(0).toUpperCase() + match.slice(1)).toUpperCase();
         })
         // Put a space in between words that have partial capilizations (i.e. 'firstName' becomes 'First Name')
         // .replace(/([A-Z]|[A-Z]\w+)([A-Z])/g, "$1 $2");
@@ -11540,7 +11540,7 @@ module.service('gridUtil', ['$log', '$window', '$document', '$http', '$templateC
 
 
   ['width', 'height'].forEach(function (name) {
-    var capsName = angular.uppercase(name.charAt(0)) + name.substr(1);
+    var capsName = name.charAt(0).toUpperCase() + name.substr(1);
     s['element' + capsName] = function (elem, extra) {
       var e = elem;
       if (e && typeof(e.length) !== 'undefined' && e.length) {
@@ -29610,26 +29610,16 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/uiGridColumnMenu',
-    "<div class=\"ui-grid-column-menu\"><div ui-grid-menu menu-items=\"menuItems\"><!-- <div class=\"ui-grid-column-menu\">\r" +
-    "\n" +
-    "    <div class=\"inner\" ng-show=\"menuShown\">\r" +
-    "\n" +
-    "      <ul>\r" +
-    "\n" +
-    "        <div ng-show=\"grid.options.enableSorting\">\r" +
-    "\n" +
-    "          <li ng-click=\"sortColumn($event, asc)\" ng-class=\"{ 'selected' : col.sort.direction == asc }\"><i class=\"ui-grid-icon-sort-alt-up\"></i> Sort Ascending</li>\r" +
-    "\n" +
-    "          <li ng-click=\"sortColumn($event, desc)\" ng-class=\"{ 'selected' : col.sort.direction == desc }\"><i class=\"ui-grid-icon-sort-alt-down\"></i> Sort Descending</li>\r" +
-    "\n" +
-    "          <li ng-show=\"col.sort.direction\" ng-click=\"unsortColumn()\"><i class=\"ui-grid-icon-cancel\"></i> Remove Sort</li>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "      </ul>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
+    "<div class=\"ui-grid-column-menu\"><div ui-grid-menu menu-items=\"menuItems\"><!-- <div class=\"ui-grid-column-menu\">\n" +
+    "    <div class=\"inner\" ng-show=\"menuShown\">\n" +
+    "      <ul>\n" +
+    "        <div ng-show=\"grid.options.enableSorting\">\n" +
+    "          <li ng-click=\"sortColumn($event, asc)\" ng-class=\"{ 'selected' : col.sort.direction == asc }\"><i class=\"ui-grid-icon-sort-alt-up\"></i> Sort Ascending</li>\n" +
+    "          <li ng-click=\"sortColumn($event, desc)\" ng-class=\"{ 'selected' : col.sort.direction == desc }\"><i class=\"ui-grid-icon-sort-alt-down\"></i> Sort Descending</li>\n" +
+    "          <li ng-show=\"col.sort.direction\" ng-click=\"unsortColumn()\"><i class=\"ui-grid-icon-cancel\"></i> Remove Sort</li>\n" +
+    "        </div>\n" +
+    "      </ul>\n" +
+    "    </div>\n" +
     "  </div> --></div></div>"
   );
 
