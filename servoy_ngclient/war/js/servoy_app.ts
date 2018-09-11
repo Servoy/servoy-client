@@ -1251,9 +1251,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						$window.document.body.appendChild(ifrm);
 					}
 				}
-				else {
-					$window.open(url,target,targetOptions);
-				}
+				else  if (target === '_self' && targetOptions === 'no-history=true') {
+			        $window.location.replace(url)
+			    } else {
+			        $window.open(url,target,targetOptions);
+			    }
 			}, timeout*1000)
 		},
 		setStatusText:function(text){
