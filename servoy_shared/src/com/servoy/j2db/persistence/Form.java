@@ -181,7 +181,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		{
 			if (persist instanceof IFormElement)
 			{
-				int persistWidth = ((IFormElement)persist).getLocation().x + ((IFormElement)persist).getSize().width;
+				int persistWidth = CSSPosition.getLocation((IFormElement)persist).x + CSSPosition.getSize((IFormElement)persist).width;
 				if (persistWidth > minWidth) minWidth = persistWidth;
 			}
 		}
@@ -2099,6 +2099,18 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setFormComponent(Boolean formAsComponent)
 	{
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_FORM_COMPONENT }, formAsComponent);
+	}
+
+	public Boolean getUseCssPosition()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_CSS_POSITION });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return Boolean.FALSE;
+	}
+
+	public void setUseCssPosition(Boolean cssPosition)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_CSS_POSITION }, cssPosition);
 	}
 
 	/**

@@ -27,14 +27,10 @@ public interface IMaintenanceServer
 {
 	/**
 	 * Log a message on the server
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void logMessage(String msg) throws RemoteException;
-
-	boolean isInGlobalMaintenanceMode() throws RemoteException;
-
-	void setGlobalMaintenanceMode(boolean maintenanceMode) throws RemoteException;
 
 	boolean isInServerMaintenanceMode() throws RemoteException;
 

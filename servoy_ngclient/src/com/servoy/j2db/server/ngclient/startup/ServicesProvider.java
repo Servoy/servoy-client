@@ -6,11 +6,11 @@ import java.util.Set;
 import org.apache.tomcat.starter.IServicesProvider;
 
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
-import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientEntryFilter;
 import com.servoy.j2db.server.ngclient.SelectNGSolutionFilter;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.endpoint.RecordingEndpoint;
+import com.servoy.j2db.server.ngclient.startup.resourceprovider.DeveloperMediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
 
 
@@ -28,7 +28,7 @@ public class ServicesProvider implements IServicesProvider
 		if ("".equals(context))
 		{
 			HashSet<Class< ? >> set = new HashSet<Class< ? >>();
-			set.add(MediaResourcesServlet.class);
+			set.add(DeveloperMediaResourcesServlet.class);
 			set.add(ComponentsModuleGenerator.class);
 			set.add(NGClientEntryFilter.class);
 			set.add(NGClientEndpoint.class);

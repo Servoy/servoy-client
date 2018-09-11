@@ -19,10 +19,8 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
 
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 import com.servoy.j2db.util.SafeArrayList;
 
-@TerracottaInstrumentedClass
 public class ThinIDataSetCopy
 {
 

@@ -41,8 +41,6 @@ public class ServerProxy implements IServer, Serializable
 	//local cache
 	private String serverName;
 	private String databaseProductName;
-	// handle serialization of ConcurrentHashMap in writeObject/readObject (tables transient) because in a terracotta environment serialization of
-	// ConcurrentHashMap is broken, See http://jira.terracotta.org/jira/browse/CDV-1377
 	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
 
 	public ServerProxy(IServer a_server)

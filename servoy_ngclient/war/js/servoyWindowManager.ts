@@ -461,7 +461,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						{
 							var url = $location.url().substring(0,$location.url().indexOf('#'));
 							$location.url( url +  formanchor);
-						}
+						}	
 					}
 					if ( !$rootScope.$$phase ) {
 						if ( $log.debugLevel === $log.SPAM ) $log.debug( "svy * Will call digest from switchForm for root scope" );

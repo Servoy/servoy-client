@@ -528,7 +528,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public RuntimeWebComponent getRuntimeWebComponent(String elementName)
 	{
-		return (RuntimeWebComponent)getElementsScope().get(elementName, getElementsScope());
+		Object element = getElementsScope().get(elementName, getElementsScope());
+		if (element instanceof RuntimeWebComponent) return (RuntimeWebComponent)element;
+		return null;
 	}
 
 	public void setParentContainer(WebFormComponent parentContainer)

@@ -74,6 +74,11 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
+	/**
+	 * the folder that contains the compiled less files
+	 */
+	public static final String SERVOY_SOLUTION_CSS = "servoy_solution_css/";
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
@@ -316,8 +321,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					timestamp = media.getLastModifiedTime();
 				}
-				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheets.get(i) +
-					"?t=" + Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+				if (!client.isInDeveloper() && media.getName().endsWith(".less"))
+				{
+					styleSheets.set(i, SERVOY_SOLUTION_CSS + styleSheets.get(i).replace(".less", ".css") + "?t=" +
+						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+				}
+				else
+				{
+					styleSheets.set(i,
+						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
+							styleSheets.get(i).replace(".less", ".css") + "?t=" +
+							Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+				}
 			}
 			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}

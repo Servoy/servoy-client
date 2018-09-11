@@ -111,15 +111,22 @@ public class MethodTemplate implements IMethodTemplate
 	private final boolean addTodoBlock;
 	private final String defaultMethodCode;
 	private boolean privateMethod = false;
+	private boolean addSuper = false;
 
 
-	public MethodTemplate(String description, MethodArgument signature, MethodArgument[] args, String defaultMethodCode, boolean addTodoBlock)
+	public MethodTemplate(String description, MethodArgument signature, MethodArgument[] args, String defaultMethodCode, boolean addTodoBlock, boolean addSuper)
 	{
 		this.signature = signature;
 		this.args = args;
 		this.description = description;
 		this.defaultMethodCode = defaultMethodCode;
 		this.addTodoBlock = addTodoBlock;
+		this.addSuper = addSuper;
+	}
+
+	public MethodTemplate(String description, MethodArgument signature, MethodArgument[] args, String defaultMethodCode, boolean addTodoBlock)
+	{
+		this(description, signature, args, defaultMethodCode, addTodoBlock, false);
 	}
 
 	public MethodTemplate(IMethodTemplate templ)
@@ -181,9 +188,33 @@ public class MethodTemplate implements IMethodTemplate
 		return getMethodDeclaration(name, methodCode, tagToOutput, userTemplate, substitutions, cleanTemplate, false);
 	}
 
-	public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate, Map<String, String> substitutions,
+	public String getMethodDeclaration(CharSequence name, CharSequence methCode, int tagToOutput, String userTemplate, Map<String, String> substitutions,
 		boolean cleanTemplate, boolean override)
 	{
+		CharSequence methodCode = methCode;
+		if (addSuper && methodCode == null)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append("return _super.").append(name);
+			if (getArguments() == null || getArguments().length == 0)
+			{
+				sb.append(
+					".apply(this, arguments); \n/** When the number of arguments that ought to be send into the _super call are known,\n the _super call can also be made like this: _super." +
+						name + "(arg1,arg2)*/");
+			}
+			else
+			{
+				sb.append('(');
+				for (int i = 0; getArguments() != null && i < getArguments().length; i++)
+				{
+					if (i > 0) sb.append(", ");
+					sb.append(getArguments()[i].getName());
+				}
+				sb.append(')');
+			}
+			methodCode = sb.toString();
+		}
+
 		StringBuilder sb = new StringBuilder();
 		if (!cleanTemplate && description != null && description.length() > 0)
 		{
@@ -346,42 +377,7 @@ public class MethodTemplate implements IMethodTemplate
 		{
 			signature = returnType;
 		}
-		return new MethodTemplate(template.description, signature, Utils.arrayMerge(template.args, formalArguments), null, true)
-		{
-			@Override
-			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate,
-				Map<String, String> substitutions, boolean cleanTemplate, boolean override)
-			{
-				CharSequence body;
-				if (methodCode == null)
-				{
-					StringBuilder sb = new StringBuilder();
-					sb.append("return _super.").append(name);
-					if (getArguments() == null || getArguments().length == 0)
-					{
-						sb.append(
-							".apply(this, arguments); \n/** When the number of arguments that ought to be send into the _super call are known,\n the _super call can also be made like this: _super." +
-								name + "(arg1,arg2)*/");
-					}
-					else
-					{
-						sb.append('(');
-						for (int i = 0; getArguments() != null && i < getArguments().length; i++)
-						{
-							if (i > 0) sb.append(", ");
-							sb.append(getArguments()[i].getName());
-						}
-						sb.append(')');
-					}
-					body = sb.toString();
-				}
-				else
-				{
-					body = methodCode;
-				}
-				return super.getMethodDeclaration(name, body, tagToOutput, userTemplate, substitutions, cleanTemplate, override);
-			}
-		};
+		return new MethodTemplate(template.description, signature, Utils.arrayMerge(template.args, formalArguments), null, true, true);
 	}
 
 	public String getDefaultMethodCode()

@@ -193,6 +193,7 @@ public class TestNGClient extends NGClient
 		settings.setProperty("log4j.logger.com.servoy.j2db.server.persistence.Server", "WARN");
 		settings.setProperty("log4j.logger.com.servoy.j2db.util.Debug", "WARN");
 		settings.setProperty("log4j.logger.org.apache.wicket", "WARN");
+		settings.setProperty("log4j.logger.persistence.Server", "WARN");
 		settings.setProperty("log4j.logger.org.apache.wicket.request.target.component.listener.BehaviorRequestTarget", "ERROR");
 		settings.setProperty("log4j.logger.org.sablo", "WARN");
 		settings.setProperty("log4j.logger.org.sablo.specification.property", "WARN");
@@ -217,12 +218,6 @@ public class TestNGClient extends NGClient
 
 			}
 
-			@Override
-			public void setGlobalMaintenanceMode(boolean maintenanceMode) throws RemoteException
-			{
-				// TODO Auto-generated method stub
-
-			}
 
 			@Override
 			public void logMessage(String msg) throws RemoteException
@@ -238,12 +233,6 @@ public class TestNGClient extends NGClient
 				return false;
 			}
 
-			@Override
-			public boolean isInGlobalMaintenanceMode() throws RemoteException
-			{
-				// TODO Auto-generated method stub
-				return false;
-			}
 
 			@Override
 			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)

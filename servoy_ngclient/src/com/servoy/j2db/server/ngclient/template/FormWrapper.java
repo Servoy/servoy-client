@@ -31,10 +31,7 @@ import javax.swing.border.Border;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
-import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -42,8 +39,10 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -58,10 +57,11 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -209,6 +209,8 @@ public class FormWrapper
 			{
 				for (PropertyDescription pd : properties)
 				{
+					Object config = pd.getConfig();
+					boolean isRepeating = config instanceof ComponentTypeConfig && ((ComponentTypeConfig)config).forFoundset != null;
 					Object propertyValue = formElement.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;
@@ -217,7 +219,7 @@ public class FormWrapper
 					Dimension frmSize = frm.getSize();
 					for (FormElement element : cache.getFormComponentElements())
 					{
-						components.add((IFormElement)element.getPersistIfAvailable());
+						if (!isRepeating || design) components.add((IFormElement)element.getPersistIfAvailable());
 						formComponentParentSizes.put(element.getName(), frmSize);
 						if (!frm.isResponsiveLayout())
 						{
@@ -252,7 +254,7 @@ public class FormWrapper
 		for (IFormElement persist : persists)
 		{
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			Point location = persist.getLocation();
+			Point location = CSSPosition.getLocation(persist);
 			if (startPos <= location.y && endPos > location.y)
 			{
 				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
@@ -282,6 +284,7 @@ public class FormWrapper
 			absolute.put(fe.getName(), Boolean.TRUE);
 		}
 		properties.put("absoluteLayout", absolute);
+		properties.put(IContentSpecConstants.PROPERTY_USE_CSS_POSITION, form.getUseCssPosition());
 		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
@@ -380,21 +383,9 @@ public class FormWrapper
 		{
 			for (IFormElement component : components)
 			{
-				if (component.getParent() instanceof LayoutContainer)
+				if (PersistHelper.isInAbsoluteLayoutMode(component))
 				{
-					LayoutContainer container = (LayoutContainer)component.getParent();
-					WebComponentSpecProvider.getInstance();
-					PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
-						container.getPackageName());
-					if (pkg != null)
-					{
-						WebLayoutSpecification spec = pkg.getSpecification(container.getSpecName());
-						if (NGUtils.isAbsoluteLayoutDiv(spec))
-						{
-							elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
-						}
-					}
-
+					elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
 				}
 			}
 		}

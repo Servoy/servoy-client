@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Debug Core Plug-in
 Bundle-SymbolicName: servoy_debug;singleton:=true
-Bundle-Version: 8.3.2.3207
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 8.4.0.3400_b1
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_headless_client,
  servoy_shared,
@@ -19,3 +19,4 @@ Export-Package: com.servoy.j2db.debug,
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.servlet,
  javax.servlet.http
+Automatic-Module-Name: servoy_debug

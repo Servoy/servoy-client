@@ -4,6 +4,7 @@
 /// <reference path="../../typings/sablo/sablo.d.ts" />
 /// <reference path="../../typings/sablo/sablo_app.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
+/// <reference path="../../typings/servoy/component.d.ts" />
 
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {
@@ -803,6 +804,275 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			else
 			{
 				element.css('cursor','default');
+			}
+		}
+	};
+})
+	.directive( 'svyFormComponent', function( $utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants,$sabloConstants) {
+		return {
+			restrict: 'A',
+			scope: {
+				svyFormComponent: "=svyFormComponent",
+				foundset: "=foundset",
+				responsivePageSize: "=responsivePageSize"
+			},
+			link: function( scope: any, element, attrs ) {
+				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
+				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
+				if ( svyServoyApi.isInDesigner() ) {
+					// in designer just show it as a normal form component
+					const newValue = scope.svyFormComponent
+					if ( newValue ) {
+						element.empty();
+						const elements = svyServoyApi.getFormComponentElements(newValue.startName, newValue );
+
+						if ( newValue.absoluteLayout ) {
+							const height = newValue.formHeight;
+							const width = newValue.formWidth;
+							var template = "<div style='position:relative;";
+							if ( height ) template += "height:" + height + "px;"
+							if ( width ) template += "width:" + width + "px;"
+							template += "'";
+							template += "></div>";
+							var div = $compile( template )( scope );
+							div.append( elements );
+							element.append( div );
+						} else { // is responsive
+							element.append( elements );
+						}
+					}
+				}
+				else {
+					let page = 0; // todo should be a model hidden object
+					scope.moveRight = function() {
+						pager.children().css("cursor","progress");
+						page++;
+						createRows();
+					}
+					scope.moveLeft = function() {
+						if (page > 0) {
+							pager.children().css("cursor","progress");
+							page--;
+							createRows();
+						}
+					}
+					const parent = element.parent();
+                    const rowToModel: Array<servoy.IServoyScope> = [];
+					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1'><div style='text-align:center;cursor:pointer;display:none;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:#fff;' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;display:none;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:#fff;' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
+
+                    let template = null;
+					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
+						if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties ) {
+							childElement.foundsetConfig.recordBasedProperties.forEach(( value ) => {
+								rowModel[value] = childElement.modelViewport[viewportIndex][value];
+							} );
+						}
+					};
+					
+					
+					function destroyScopes(array: Array<servoy.IServoyScope>) {
+					    array.forEach(scope => scope.$destroy());
+					    array.length = 0;
+					}
+					function createRows() {
+                        let numberOfCells  = scope.responsivePageSize;
+                        if (numberOfCells == 0 ) {
+                        	if (scope.svyFormComponent.absoluteLayout) {
+		                        const parentWidth = parent.outerWidth();
+		                        const parentHeight = parent.outerHeight();
+		                        const height = scope.svyFormComponent.formHeight;
+		                        const  width = scope.svyFormComponent.formWidth;
+		                        const numberOfColumns = Math.floor(parentWidth/width);
+		                        const numberOfRows = Math.floor(parentHeight/height);
+		                        numberOfCells  = numberOfRows * numberOfColumns;
+		                        // always just render 1
+		                        if (numberOfCells < 1) numberOfCells = 1;
+                        	}
+                        	else {
+                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a responsive form component</span>"));
+                        		return;
+                        	}
+                        }
+
+                        scope.foundset.setPreferredViewportSize(numberOfCells);
+                        
+                        const startIndex = page*numberOfCells;
+                        if (scope.foundset.viewPort.startIndex != startIndex) {
+                        	scope.foundset.loadRecordsAsync(startIndex, numberOfCells);
+                        }
+                        else {
+						    destroyScopes(rowToModel);
+						    parent.children("[svy-form-component]" ).remove();
+	                        const maxRows = Math.min(numberOfCells, scope.foundset.viewPort.rows.length);
+	                        for ( let i = 0; i < maxRows; i++ ) {
+	                        	createRow(i);
+	                        }
+	                        if (numberOfCells > scope.foundset.viewPort.rows.length && scope.foundset.viewPort.rows.length != 0) {
+	                        	scope.foundset.loadExtraRecordsAsync(numberOfCells - scope.foundset.viewPort.rows.length);
+	                        }
+	                        const pagerChildren = pager.children();
+	                        pagerChildren.css("cursor","pointer");
+	                        pagerChildren.first().css("display",page> 0?"inline":"none");
+	    					const showNext = scope.foundset.hasMoreRows || (scope.foundset.serverSize - (startIndex + maxRows)) > 0;
+	    					pagerChildren.last().css("display",showNext?"inline":"none");
+                        }
+					}
+					
+					function createRow(index) {
+						const rowId = scope.foundset.viewPort.rows[index][$foundsetTypeConstants.ROW_ID_COL_KEY]
+						const row = scope.$new( false, scope ) as servoy.IServoyScope;
+						rowToModel[index] =  row;
+						row.model = {}
+						row.api = {};
+						row.layout = {};
+						row.handlers = {}
+						for ( var j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
+							const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
+					
+							function Model() {
+							}
+							Model.prototype = childElement.model;
+					
+							function ServoyApi( rowModel, rowId ) {
+								this.apply = ( property ) => {
+									ServoyApi.prototype.apply( property, rowModel, rowId );
+								}
+								this.startEdit = ( property ) => {
+									ServoyApi.prototype.startEdit( property, rowId )
+								}
+					
+							}
+							ServoyApi.prototype = childElement.servoyApi;
+					
+							function Handlers( handlers, rowModel, rowId ) {
+								this.svy_servoyApi = new ServoyApi( rowModel, rowId );
+								for (var key in handlers) {
+									this[key] = handlers[key].selectRecordHandler(rowId);
+								}
+							}
+					
+							const rowModel = new Model()
+					
+							const simpleName = childElement["svy_simple_name"];
+					
+							copyRecordProperties( childElement, rowModel, index );
+							row.model[simpleName] = rowModel;
+							row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
+							row.api[simpleName] = {};
+							if ( scope.svyFormComponent.absoluteLayout ) {
+								row.layout[simpleName] = {
+									position: "absolute",
+									left: childElement.model.location.x + "px",
+									top: childElement.model.location.y + "px",
+									width: childElement.model.size.width + "px",
+									height: childElement.model.size.height + "px"
+								};
+							}
+						}
+						const elements = template( row , function(cloned) {;
+							const clone = element.clone();
+							clone.append( cloned );
+							if (rowToModel.length -1 == index){
+							    parent.append( clone );
+						    }
+							else if (index == 0) {
+							    parent.prepend( clone );
+							}
+							else {
+							    const child = $(parent.children()[index]);
+							    clone.insertBefore(child);
+							}
+						})
+					}
+				
+					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
+						&& scope.svyFormComponent && scope.svyFormComponent.childElements ) {
+						element.empty();
+						parent.empty();
+						parent.append( pager );
+						template = $compile( $templateCache.get( scope.svyFormComponent.uuid ));
+						const propertyInName = scope.svyFormComponent.startName
+
+						const height = scope.svyFormComponent.formHeight;
+						const  width = scope.svyFormComponent.formWidth;
+
+						if ( scope.svyFormComponent.absoluteLayout ) {
+							element.css( "position", "relative" )
+							element.css( "height", height + "px" )
+							element.css( "width", width + "px" )
+						}
+
+						for ( let  j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
+							const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
+							if (childElement.name.indexOf(propertyInName ) != 0) throw "The child name " + childElement.name + " should start with " +  propertyInName;
+							const simpleName = childElement.name.substring(propertyInName.length );
+							childElement["svy_simple_name"] = simpleName;
+							if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
+								childElement.addViewportChangeListener(( change ) => {
+									if ( change.viewportRowsUpdated ) {
+										const updates = change.viewportRowsUpdated.updates;
+										updates.forEach(( value ) => {
+											if ( value.type == $foundsetTypeConstants.ROWS_CHANGED ) {
+												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+													const row = rowToModel[k] as servoy.IServoyScope;
+													copyRecordProperties( childElement, row.model[simpleName], k );
+												}
+											}
+											else 	if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
+												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+												    destroyScopes(rowToModel.splice(k, 0, {} as servoy.IServoyScope));
+													createRow(k);
+												}
+											}
+											else     if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
+                                                for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+                                                    destroyScopes(rowToModel.splice(k, 1));
+                                                   parent.children()[k].remove();
+                                                }
+                                            }
+										} )
+									} else if (change.viewportRowsCompletelyChanged) {
+										createRows();
+									}
+								} )
+							}
+							// TODO do we always have to attach this? Because the component maybe doesn't use that modelChangeNotifier
+							// but we don't realyl know this when we are compiling the template.
+							Object.defineProperty(childElement.model, $sabloConstants.modelChangeNotifier,
+			                         { configurable: true, value: function(property,value) {
+			                        	rowToModel.some((row) => {
+			                        		if (row.model[simpleName][$sabloConstants.modelChangeNotifier]) {
+			                        			row.model[simpleName][$sabloConstants.modelChangeNotifier](property,value);
+			                        		}
+			                        		else return true; // if there is no change modifer at the first row then we can skip
+			                        	})
+			                  }});
+						}
+						if (scope.responsivePageSize == 0){
+							let lastValue = 0;
+							let lastChangeTimed= 0;
+							scope.$watch(()=>{
+				                        const parentWidth = parent.outerWidth();
+				                        const parentHeight = parent.outerHeight();
+				                        const height = scope.svyFormComponent.formHeight;
+				                        const  width = scope.svyFormComponent.formWidth;
+				                        const numberOfColumns = Math.floor(parentWidth/width);
+				                        const numberOfRows = Math.floor(parentHeight/height);
+				                        const numberOfCells = numberOfRows * numberOfColumns;
+				                        if (lastValue != numberOfCells && (new Date().getTime() - lastChangeTimed) > 1500) {
+				                        	console.log(new Date().getTime() - lastChangeTimed);
+				                        	lastValue = numberOfCells;
+				                        	lastChangeTimed = new Date().getTime();
+				                        }
+							            return lastValue;
+							        },(newValue) => {
+	                                        createRows();
+							})
+						}
+						else {
+							createRows();
+						}
+					}
 			}
 		}
 	};

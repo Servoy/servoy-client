@@ -44,6 +44,9 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.IRefreshValueList;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportAnchors;
@@ -61,6 +64,8 @@ import com.servoy.j2db.server.ngclient.property.types.LabelForPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.Pair;
@@ -70,7 +75,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class RuntimeWebComponent implements Scriptable, IInstanceOf
+public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshValueList
 {
 	/**
 	 *  a constanst set on the current context that a server side script is executing
@@ -615,6 +620,37 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			((DataAdapterList)formUI.getDataAdapterList()).updateRelatedVisibleForms(oldForms, getVisibleForms());
 		}
+	}
+
+	@Override
+	public boolean refreshValueList(String propertyName)
+	{
+		if (propertyName == null)
+		{
+			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
+			for (String name : specs.keySet())
+			{
+				if (specs.get(name).getType() instanceof ValueListPropertyType)
+				{
+					propertyName = name;
+					break;
+				}
+			}
+		}
+		if (propertyName != null)
+		{
+			Object value = component.getProperty(propertyName);
+			if (value instanceof ValueListTypeSabloValue)
+			{
+				IValueList valuelist = ((ValueListTypeSabloValue)value).getValueList();
+				if (valuelist instanceof GlobalMethodValueList)
+				{
+					((GlobalMethodValueList)valuelist).fill(true);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override

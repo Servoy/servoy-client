@@ -7148,38 +7148,4 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 	}
-
-	private static class CallJavaScriptCallBack implements IRecordCallback
-	{
-		private final Function callback;
-		private final IExecutingEnviroment scriptEngine;
-		private final Scriptable thisObject;
-
-		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine, Scriptable thisObject)
-		{
-			this.callback = callback;
-			this.scriptEngine = scriptEngine;
-			this.thisObject = thisObject;
-		}
-
-		@Override
-		public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
-		{
-			Scriptable callbackScope = callback.getParentScope();
-			try
-			{
-				return scriptEngine.executeFunction(callback, callbackScope, (Scriptable)(thisObject == null ? foundset : thisObject),
-					new Object[] { record, Integer.valueOf(recordIndex + 1), foundset }, false, true);
-			}
-			catch (Exception ex)
-			{
-				Debug.error("Error executing callback: ", ex);
-				if (ex instanceof RuntimeException)
-				{
-					throw (RuntimeException)ex;
-				}
-			}
-			return null;
-		}
-	}
 }

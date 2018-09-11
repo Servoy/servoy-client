@@ -4,12 +4,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>8.3.2.3207</version>
+		<version>8.4.0.3400_b1</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>8.3.2.3207</version>
+	<version>8.4.0.3400_b1</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -36,7 +36,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>com.servoy.eclipse.docgenerator.client.product</artifactId>
-									<version>1.4.2</version>
+									<version>1.4.3</version>
 									<type>zip</type>
 									<outputDirectory>${project.build.directory}/repository</outputDirectory>
 								</artifactItem>
@@ -73,6 +73,9 @@
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
 									<fileset dir="${project.basedir}/../servoy_headless_client/src" />
+								</copy>
+								<copy todir="${workspace_dir}/servoy_shared/src">
+									<fileset dir="${project.basedir}/../servoy_ngclient/src" />
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
 									<fileset
@@ -154,6 +157,11 @@
 									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
 									<type>eclipse-plugin</type>
 								</dependency>
+								<dependency>
+									<groupId>org.eclipse.osgi</groupId>
+									<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+									<type>eclipse-plugin</type>
+								</dependency>
 							</dependencies>
 						</configuration>
 						<executions>
@@ -201,6 +209,7 @@
 										<args>com.servoy.j2db</args>
 										<args>com.servoy.j2db.server.headlessclient</args>
 										<args>com.servoy.base</args>
+										<args>com.servoy.j2db.server.ngclient.scripting</args>
 										<args>--output-file</args>
 										<args>/servoy_shared/_doc/servoydoc.xml</args>
 										<args>--categories</args>

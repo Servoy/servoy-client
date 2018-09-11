@@ -1876,7 +1876,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			if (form.isResponsiveLayout())
 			{
 				WebComponent webComponent = container.createNewWebComponent(name, type);
-				webComponent.setLocation(new Point(0, position));
+				webComponent.setLocation(new Point(position, position));
 				return createWebComponent(this, webComponent, application, true);
 			}
 			else

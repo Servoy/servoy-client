@@ -90,7 +90,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	public static final Logger log = LoggerFactory.getLogger(ComponentTypeSabloValue.class.getCanonicalName());
 
-	private static final String TAG_ADD_TO_ELEMENTS_SCOPE = "addToElementsScope";
+	public static final String TAG_ADD_TO_ELEMENTS_SCOPE = "addToElementsScope";
 
 	public static final String NO_OP = "n";
 
@@ -998,6 +998,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			return new RuntimeWebComponent(childComponent, childComponent.getSpecification());
 		}
 		return null;
+	}
+
+	/**
+	 * @return the childComponent
+	 */
+	public WebFormComponent getChildComponent()
+	{
+		return childComponent;
 	}
 
 	protected final class ComponentDataLinkedPropertyListener implements IDataLinkedPropertyRegistrationListener

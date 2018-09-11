@@ -42,8 +42,8 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * Generates HTML for a flow layout form
@@ -118,7 +118,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
-		boolean isAbsoluteLayoutDiv = NGUtils.isAbsoluteLayoutDiv(spec);
+		boolean isAbsoluteLayoutDiv = PersistHelper.isAbsoluteLayoutDiv(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -180,7 +180,7 @@ public class FormLayoutStructureGenerator
 			// we need to specify the height
 			writer.print(" style='height:");
 			writer.print(container.getSize().height);
-			writer.print("px' ");
+			writer.print("px;position: relative;' ");
 		}
 		Map<String, String> attributes = new HashMap<String, String>(container.getMergedAttributes());
 		if (spec != null)

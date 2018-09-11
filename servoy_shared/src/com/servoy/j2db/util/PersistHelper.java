@@ -40,9 +40,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.sablo.specification.PackageSpecification;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
@@ -419,6 +424,51 @@ public class PersistHelper
 			}
 		}
 		return retval;
+	}
+
+	public static String createCSSPositionString(CSSPosition position)
+	{
+		if (position == null) return null;
+		StringBuilder retval = new StringBuilder();
+		retval.append(position.top);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.left);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.bottom);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.right);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.width);
+		retval.append(","); //$NON-NLS-1$
+		retval.append(position.height);
+		return retval.toString();
+	}
+
+	public static CSSPosition createCSSPosition(String s)
+	{
+		if (s == null) return null;
+		String top = "-1";
+		String left = "-1";
+		String bottom = "-1";
+		String right = "-1";
+		String width = "-1";
+		String height = "-1";
+		try
+		{
+			StringTokenizer tk = new StringTokenizer(s, ","); //$NON-NLS-1$
+			if (tk.hasMoreTokens()) top = tk.nextToken();
+			if (tk.hasMoreTokens()) left = tk.nextToken();
+			if (tk.hasMoreTokens()) bottom = tk.nextToken();
+			if (tk.hasMoreTokens()) right = tk.nextToken();
+			if (tk.hasMoreTokens()) width = tk.nextToken();
+			if (tk.hasMoreTokens()) height = tk.nextToken();
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			return null;
+		}
+		return new CSSPosition(top, left, bottom, right, width, height);
 	}
 
 	private static Map<String, Font> allFonts = new HashMap<String, Font>();
@@ -1169,5 +1219,36 @@ public class PersistHelper
 				}
 			}
 		}
+	}
+
+	public static boolean isAbsoluteLayoutDiv(WebLayoutSpecification spec)
+	{
+		return spec != null && spec.isAbsoluteLayout();
+	}
+
+	public static boolean isAbsoluteLayoutDiv(LayoutContainer container)
+	{
+		if (container != null)
+		{
+			WebComponentSpecProvider.getInstance();
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+				container.getPackageName());
+			if (pkg != null)
+			{
+				return isAbsoluteLayoutDiv(pkg.getSpecification(container.getSpecName()));
+			}
+		}
+		return false;
+	}
+
+	public static boolean isInAbsoluteLayoutMode(IPersist persist)
+	{
+		while (persist != null)
+		{
+			persist = persist.getParent();
+			if (persist instanceof LayoutContainer) return isAbsoluteLayoutDiv((LayoutContainer)persist);
+			if (persist instanceof Form) break;
+		}
+		return false;
 	}
 }

@@ -28,7 +28,6 @@ import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
-import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -234,10 +233,5 @@ public abstract class NGUtils
 				component.setProperty(pd.getName(), ((II18NPropertyType)pd.getType()).resetI18nValue(component.getProperty(pd.getName()), pd, component));
 			}
 		}
-	}
-
-	public static boolean isAbsoluteLayoutDiv(WebLayoutSpecification spec)
-	{
-		return spec != null && spec.isAbsoluteLayout();
 	}
 }

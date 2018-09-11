@@ -5,6 +5,11 @@ declare namespace componentType {
 	type ViewportChangeListener = (changeEvent: ChangeEvent) => void;
 	
 	interface ComponentPropertyValue {
+		name:string;
+		model:any;
+		handlers:any;
+		foundsetConfig?:{recordBasedProperties?:Array<string>;apiCallTypes?:Array<any>}
+		servoyApi:{ startEdit:(property:string, rowId:object)=>void;apply:(property:string, modelOfComponent:object, rowId:object)=>void}
 		addViewportChangeListener(viewportChangeListener : ViewportChangeListener) : void;
 		removeViewportChangeListener(viewportChangeListener : ViewportChangeListener) : void;
 	}

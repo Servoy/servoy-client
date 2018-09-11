@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Smart Client Plug-in
 Bundle-SymbolicName: servoy_smart_client
-Bundle-Version: 8.3.2.3207
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 8.4.0.3400_b1
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino
@@ -39,3 +39,4 @@ Bundle-ClassPath: lib/BrowserLauncher2.jar,
  lib/MRJAdapter.jar,
  lib/slf4j-jdk14.jar,
  .
+Automatic-Module-Name: servoy_smart_client

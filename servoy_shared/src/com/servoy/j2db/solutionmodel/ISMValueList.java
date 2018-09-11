@@ -366,4 +366,11 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	public void setValueListType(int arg);
 
+	public void setDisplayValueType(int arg);
+
+	public int getDisplayValueType();
+
+	public void setRealValueType(int arg);
+
+	public int getRealValueType();
 }

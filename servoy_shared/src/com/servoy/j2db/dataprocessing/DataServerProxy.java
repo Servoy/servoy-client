@@ -284,15 +284,6 @@ public class DataServerProxy implements IDataServer
 		ds.dropTemporaryTable(client_id, getMappedServerName(serverName), tableName);
 	}
 
-	public boolean isInGlobalMaintenanceMode() throws RemoteException
-	{
-		return ds.isInGlobalMaintenanceMode();
-	}
-
-	public void setGlobalMaintenanceMode(boolean maintenanceMode) throws RemoteException
-	{
-		ds.setGlobalMaintenanceMode(maintenanceMode);
-	}
 
 	public boolean isInServerMaintenanceMode() throws RemoteException
 	{

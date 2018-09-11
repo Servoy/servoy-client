@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Headless Client Plug-in
 Bundle-SymbolicName: servoy_headless_client
-Bundle-Version: 8.3.2.3207
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 8.4.0.3400_b1
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
-Require-Bundle: org.eclipse.dltk.javascript.rhino;bundle-version="[8.3.0,8.4.0)",
+Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_shared,
  servoy_smart_client,
  org.slf4j.api,
@@ -21,3 +21,4 @@ Export-Package: com.servoy.j2db.server.headlessclient,
  com.servoy.j2db.server.headlessclient.yui
 Import-Package: javax.servlet,
  javax.servlet.http
+Automatic-Module-Name: servoy_headless_client

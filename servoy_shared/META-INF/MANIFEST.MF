@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 8.3.2.3207
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 8.4.0.3400_b1
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
  lib/annotations-1.0.jar,
@@ -20,10 +20,10 @@ Bundle-ClassPath: .,
  lib/wicket.jar,
  lib/wiquery.jar,
  lib/xstream.jar
-Require-Bundle: org.eclipse.dltk.javascript.rhino;bundle-version="[8.3.0,8.4.0)",
- sablo;bundle-version="[8.3.0,8.4.0)",
- servoy_base;bundle-version="[8.3.0,8.4.0)";visibility:=reexport,
- org.apache.commons.io,
+Require-Bundle: org.eclipse.dltk.javascript.rhino,
+ sablo,
+ servoy_base;visibility:=reexport,
+ org.apache.commons.io;bundle-version="2.6.0",
  log4j,
  org.apache.commons.codec,
  jabsorb;visibility:=reexport,
@@ -53,7 +53,6 @@ Export-Package: com.servoy.extension,
  com.servoy.j2db.scripting.annotations,
  com.servoy.j2db.scripting.info,
  com.servoy.j2db.scripting.solutionmodel,
- com.servoy.j2db.server.annotations,
  com.servoy.j2db.server.shared,
  com.servoy.j2db.serverconfigtemplates,
  com.servoy.j2db.solutionmodel,
@@ -271,3 +270,4 @@ Import-Package: javax.servlet,
  org.sablo.specification.property.types,
  org.sablo.websocket.utils,
  org.w3c.dom
+Automatic-Module-Name: servoy_shared

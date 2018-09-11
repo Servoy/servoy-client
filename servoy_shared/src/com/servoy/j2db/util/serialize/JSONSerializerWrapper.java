@@ -56,6 +56,8 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 {
+	public static final String STRING_SERIALIZER_NAME = "StringSerializer";
+
 	private JSONSerializer serializer;
 	private final boolean handleByteArrays;
 

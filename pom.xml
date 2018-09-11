@@ -5,18 +5,18 @@
 		<maven>3.3.3</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>8.3.2.3207</version>
+	<version>8.4.0.3400_b1</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>1.1.0</tycho.version>
-		<tycho.extra.version>1.1.0</tycho.extra.version>
+		<tycho.version>1.2.0</tycho.version>
+		<tycho.extra.version>1.2.0</tycho.extra.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<servoy-repo.url> http://download.eclipse.org/eclipse/updates/4.7/R-4.7.3-201803010715/</servoy-repo.url>
-		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/</servoy-shiplibs.url>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<servoy-repo.url>http://download.eclipse.org/eclipse/updates/4.8/</servoy-repo.url>
+		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins84/</servoy-shiplibs.url>
 	</properties>
 
 	
@@ -135,6 +135,57 @@
 					<dependency-resolution>
 						<optionalDependencies>ignore</optionalDependencies>
 					</dependency-resolution>
+					<filters>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>sablo</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.dltk.javascript.rhino</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_base</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_ngclient</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_shared</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_headless_client</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>servoy_smart_client</id>
+							<restrictTo>
+								<version>${project.version}</version>
+							</restrictTo>
+						</filter>
+					</filters>
 				</configuration>
 			</plugin>
 			<plugin>

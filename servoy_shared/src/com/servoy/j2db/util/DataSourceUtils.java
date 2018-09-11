@@ -42,6 +42,9 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	public static final String INMEM_DATASOURCE = "mem"; //$NON-NLS-1$
 	public static final String INMEM_DATASOURCE_SCHEME_COLON = INMEM_DATASOURCE + ':';
 
+	public static final String VIEW_DATASOURCE = "view"; //$NON-NLS-1$
+	public static final String VIEW_DATASOURCE_SCHEME_COLON = INMEM_DATASOURCE + ':';
+
 	private DataSourceUtils()
 	{
 	}
@@ -90,6 +93,16 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		if (name == null) return null;
 		return new StringBuilder().append(INMEM_DATASOURCE_SCHEME_COLON).append(name).toString();
 	}
+
+	/**
+	 * @param name
+	 */
+	public static String createViewDataSource(String name)
+	{
+		if (name == null) return null;
+		return new StringBuilder().append(VIEW_DATASOURCE_SCHEME_COLON).append(name).toString();
+	}
+
 
 	/**
 	 * Get the datasource name from the in-mem datasource uri.
@@ -216,4 +229,5 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		}
 		return null;
 	}
+
 }

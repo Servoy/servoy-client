@@ -46,7 +46,7 @@ public class PositionComparator
 		{
 			if (o1 instanceof ISupportBounds && o2 instanceof ISupportBounds)
 			{
-				return comparePoint(xy, ((ISupportBounds)o1).getLocation(), ((ISupportBounds)o2).getLocation());
+				return comparePoint(xy, CSSPosition.getLocation((ISupportBounds)o1), CSSPosition.getLocation((ISupportBounds)o2));
 			}
 			if (o1 instanceof ISupportBounds && !(o2 instanceof ISupportBounds))
 			{

@@ -49,7 +49,6 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
@@ -264,43 +263,51 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 		try
 		{
-			Media media = fs.getMedia(mediaName);
-			if (media != null)
-			{
-				return sendData(request, response, fs, media);
-			}
+			return findAndSendMediaData(request, response, mediaName, fs);
 		}
 		finally
 		{
 			fs.close(null);
 		}
+	}
+
+	protected boolean findAndSendMediaData(HttpServletRequest request, HttpServletResponse response, String mediaName, FlattenedSolution fs) throws IOException
+	{
+		Media media = fs.getMedia(mediaName);
+		if (media != null)
+		{
+			return sendData(request, response, fs, media);
+		}
 		return false;
 	}
 
-	private boolean sendData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
+	protected void setHeaders(HttpServletRequest request, HttpServletResponse response)
 	{
-		if (ApplicationServerRegistry.get().isDeveloperStartup())
+		String param = request.getParameter("t");
+		try
 		{
-			response.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate");
-		}
-		else
-		{
-			String param = request.getParameter("t");
-			try
+			if (param != null && Long.parseLong(param, 16) > 0)
 			{
-				if (param != null && Long.parseLong(param, 16) > 0)
-				{
-					response.addHeader("Cache-Control", "public, max-age=" + NGCachingFilter.ONE_YEAR_MAX_AGE);
-				}
-			}
-			catch (Exception e)
-			{
-				// ignore, the "t" is not a hex value.
+				response.addHeader("Cache-Control", "public, max-age=" + NGCachingFilter.ONE_YEAR_MAX_AGE);
 			}
 		}
+		catch (Exception e)
+		{
+			// ignore, the "t" is not a hex value.
+		}
+	}
+
+	protected boolean sendData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
+	{
+		setHeaders(request, response);
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
+		return sendMediaData(response, media);
+	}
+
+	protected boolean sendMediaData(HttpServletResponse response, Media media) throws IOException
+	{
 		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
 	}
 
@@ -314,11 +321,7 @@ public class MediaResourcesServlet extends HttpServlet
 			FlattenedSolution fs = client.getFlattenedSolution();
 			if (fs != null)
 			{
-				Media media = fs.getMedia(mediaName);
-				if (media != null)
-				{
-					return sendData(request, response, fs, media);
-				}
+				return findAndSendMediaData(request, response, mediaName, fs);
 			}
 		}
 		return false;
@@ -328,29 +331,15 @@ public class MediaResourcesServlet extends HttpServlet
 	 * @param clientUUID
 	 * @return
 	 */
-	private IApplication getClient(String clientUUID)
+	protected IApplication getClient(String clientUUID)
 	{
 		// try to look it up as clientId. (solution model)
 		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
 			clientUUID);
-
-		IApplication client = null;
-		if (wsSession == null)
-		{
-			IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
-			if (debugClientHandler != null)
-			{
-				client = debugClientHandler.getDebugNGClient();
-			}
-		}
-		else
-		{
-			client = wsSession.getClient();
-		}
-		return client;
+		return wsSession != null ? wsSession.getClient() : null;
 	}
 
-	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
+	protected boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
 	{
 		boolean dataWasSent = false;
 		if (mediaData != null && mediaData.length > 0)

@@ -44,6 +44,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -333,15 +334,60 @@ public class FormLayoutGenerator
 		if (!isResponsive && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
-			int anchors = bc.getAnchors();
 			String style = "";
-			if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
+			if (form.getUseCssPosition() || PersistHelper.isInAbsoluteLayoutMode(bc))
 			{
-				style += "min-width:" + bc.getSize().width + "px;";
+				CSSPosition position = bc.getCssPosition();
+				if (CSSPosition.isSet(position.left))
+				{
+					style += "left:" + getCSSValue(position.left) + ";";
+				}
+				if (CSSPosition.isSet(position.top))
+				{
+					style += "top:" + getCSSValue(position.top) + ";";
+				}
+				if (CSSPosition.isSet(position.bottom))
+				{
+					style += "bottom:" + getCSSValue(position.bottom) + ";";
+				}
+				if (CSSPosition.isSet(position.right))
+				{
+					style += "right:" + getCSSValue(position.right) + ";";
+				}
+				if (CSSPosition.isSet(position.width))
+				{
+					if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
+					{
+						style += "min-width:" + getCSSValue(position.width) + ";";
+					}
+					else
+					{
+						style += "width:" + getCSSValue(position.width) + ";";
+					}
+				}
+				if (CSSPosition.isSet(position.height))
+				{
+					if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
+					{
+						style += "min-height:" + getCSSValue(position.height + ";");
+					}
+					else
+					{
+						style += "height:" + getCSSValue(position.height) + ";";
+					}
+				}
 			}
-			if (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0))
+			else
 			{
-				style += "min-height:" + bc.getSize().height + "px";
+				int anchors = bc.getAnchors();
+				if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
+				{
+					style += "min-width:" + bc.getSize().width + "px;";
+				}
+				if (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0))
+				{
+					style += "min-height:" + bc.getSize().height + "px";
+				}
 			}
 			if (!style.isEmpty())
 			{
@@ -393,6 +439,20 @@ public class FormLayoutGenerator
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 		}
 		writer.print(">");
+	}
+
+	public static String getCSSValue(String value)
+	{
+		try
+		{
+			Utils.getAsInteger(value, true);
+			return value + "px";
+		}
+		catch (Exception ex)
+		{
+
+		}
+		return value;
 	}
 
 //	private static boolean canContainComponents(WebComponentSpecification spec)

@@ -54,7 +54,7 @@ ul.nav-tabs li{
   display:block;
   padding:3px;
   padding-top:13px;
-  white-space:no-wrap;
+  white-space:nowrap;
   vertical-align:middle;
   background-color:#fff;
 }

@@ -16,9 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.servoy.base.persistence.IBasePart;
@@ -424,28 +422,6 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 			}
 		}
 		return prevPart;
-	}
-
-	/**
-	 * Helper method to get all form elements inside of the part, note they all have the part Y offset in there location!
-	 * @return list of all elements in the part
-	 */
-	public List<IFormElement> getFormElementsSortedByYX()
-	{
-		List<IFormElement> retval = new ArrayList<IFormElement>();
-		Form f = (Form)getParent();
-		int top = f.getPartStartYPos(getID());
-		int bottom = f.getPartStartYPos(getID());
-		Iterator<IPersist> le = f.getAllObjects(PositionComparator.YX_PERSIST_COMPARATOR);
-		while (le.hasNext())
-		{
-			IPersist p = le.next();
-			if (p instanceof IFormElement && ((IFormElement)p).getLocation().y >= top && ((IFormElement)p).getLocation().y < bottom)
-			{
-				retval.add((IFormElement)p);
-			}
-		}
-		return retval;
 	}
 
 	public int getExtendsID()

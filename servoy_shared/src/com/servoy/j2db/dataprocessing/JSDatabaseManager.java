@@ -864,7 +864,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-	
+
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -953,7 +953,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-	
+
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2747,7 +2747,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-	
+
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2774,7 +2774,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-	
+
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2887,6 +2887,22 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			throw new RuntimeException("Can't get new foundset for: " + query, e); //$NON-NLS-1$
 		}
 	}
+
+	/**
+	 * Returns a foundset object for a specified pk query.
+	 *
+	 * @sampleas getFoundSet(String)
+	 *
+	 * @param query The query to get the JSFoundset for.
+	 *
+	 * @return A new JSFoundset for that query.
+	 */
+	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().getViewFoundSet(name, query);
+	}
+
 
 	/**
 	 * Gets the next sequence for a column which has a sequence defined in its column dataprovider properties.
@@ -3941,7 +3957,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-	
+
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException

@@ -3381,6 +3381,27 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	/**
+	 * Get or set the positioning (either use anchoring or use css position) for the form.
+	 * This is only working for absolute layout forms in NGClient.
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.useCssPosition = true;
+	 */
+	@JSGetter
+	public boolean getUseCssPosition()
+	{
+		return Utils.getAsBoolean(getForm().getUseCssPosition());
+	}
+
+	@JSSetter
+	public void setUseCssPosition(boolean arg)
+	{
+		checkModification();
+		getForm().setUseCssPosition(Boolean.valueOf(arg));
+	}
+
+	/**
 	 * Returns true if this form is in responsive mode
 	 *
 	 * @sample
@@ -3469,6 +3490,433 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public UUID getUUID()
 	{
 		return getForm().getUUID();
+	}
+
+	/**
+	 * Creates a new JSField object on the form - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
+	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
+	 * var field = form.newField(variable, JSField.TEXT_FIELD);
+	 * field.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @param type the display type of the JSField object (see the Solution Model -> JSField node for display types)
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newField(Object dataprovider, int type)
+	{
+		return newField(dataprovider, type, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of TEXT_FIELD - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
+	 * form.useCssPosition = true
+	 * var x = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
+	 * x.defaultValue = "'Text from a global variable'"
+	 * var textField = form.newTextField(x);
+	 * textField.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a JSField object with the displayType of TEXT_FIELD
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newTextField(Object dataprovider)
+	{
+		return newField(dataprovider, Field.TEXT_FIELD, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of TEXT_AREA - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
+	 * form.useCssPosition = true
+	 * var globalVar = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
+	 * globalVar.defaultValue = "'Type your text in here'";
+	 * var textArea = form.newTextArea(globalVar);
+	 * textArea.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a JSField object with the displayType of TEXT_AREA
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newTextArea(Object dataprovider)
+	{
+		return newField(dataprovider, Field.TEXT_AREA, 0, 0, 100, 100);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of COMBOBOX - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var combo = form.newComboBox(myDataProvider);
+	 * combo.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of COMBOBOX
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newComboBox(Object dataprovider)
+	{
+		return newField(dataprovider, Field.COMBOBOX, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of LISTBOX - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var list = form.newListBox(myDataProvider);
+	 * list.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of LISTBOX
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newListBox(Object dataprovider)
+	{
+		return newField(dataprovider, Field.LIST_BOX, 0, 0, 100, 100);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of MULTISELECT_LISTBOX - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var list = form.newMultiSelectListBox(myDataProvider);
+	 * list.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newMultiSelectListBox(Object dataprovider)
+	{
+		return newField(dataprovider, Field.MULTISELECT_LISTBOX, 0, 0, 100, 100);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of SPINNER - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var spinner = form.newSpinner(myDataProvider, 10, 460, 100, 20);
+	 * spinner.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of SPINNER
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newSpinner(Object dataprovider)
+	{
+		return newField(dataprovider, Field.SPINNER, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "value1\nvalue2\nvalue3";
+	 * var radios = form.newRadios('columnDataProvider');
+	 * radios.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * radios.valuelist = vlist;
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a JSField object with the displayType of RADIOS (radio buttons)
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newRadios(Object dataprovider)
+	{
+		return newField(dataprovider, Field.RADIOS, 0, 0, 100, 100);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var check = form.newCheck(myDataProvider);
+	 * check.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of CHECK (checkbox)
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newCheck(Object dataprovider)
+	{
+		return newField(dataprovider, Field.CHECKS, 0, 0, 100, 100);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of CALENDAR - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var calendar = form.newCalendar(myDataProvider);
+	 * calendar.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of CALENDAR
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newCalendar(Object dataprovider)
+	{
+		return newField(dataprovider, Field.CALENDAR, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of HTML_AREA - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var textProvider = form.newVariable('myVar',JSVariable.TEXT);
+	 * textProvider.defaultValue = "'This is a triple quoted text!'";
+	 * var htmlArea = myListViewForm.newHtmlArea(textProvider);
+	 * htmlArea.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a JSField object on the form with the displayType of HTML_AREA
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newHtmlArea(Object dataprovider)
+	{
+		return newField(dataprovider, Field.HTML_AREA, 0, 0, 200, 300);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of IMAGE_MEDIA - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var myMediaVar = form.newVariable("media", JSVariable.MEDIA);
+	 * var imageMedia = form.newImageMedia(myMediaVar)
+	 * imageMedia.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of IMAGE_MEDIA
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newImageMedia(Object dataprovider)
+	{
+		return newField(dataprovider, Field.IMAGE_MEDIA, 0, 0, 200, 200);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of TYPE_AHEAD - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
+	 * form.useCssPosition = true
+	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "value1\nvalue2\nvalue3";
+	 * var typeAhead = form.newTypeAhead(columnTextDataProvider);
+	 * typeAhead.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * typeAhead.valuelist = vlist;
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a JSField object with the displayType of TYPE_AHEAD
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newTypeAhead(Object dataprovider)
+	{
+		return newField(dataprovider, Field.TYPE_AHEAD, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new JSField object on the form with the displayType of PASSWORD - including the dataprovider/JSVariable of the JSField object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var pass = form.newPassword(scopes.globals.aVariable);
+	 * pass.cssPosition.l("10").t("10").w("20%").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 *
+	 * @return a new JSField object on the form with the displayType of PASSWORD
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSField newPassword(Object dataprovider)
+	{
+		return newField(dataprovider, Field.PASSWORD, 0, 0, 100, 20);
+	}
+
+	/**
+	 * Creates a new button on the form with the given text and JSMethod as the onAction event triggered action. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var method = form.newMethod('function onAction(event) { application.output("onAction intercepted on " + event.getFormName()); }');
+	 * var button = form.newButton('myButton', method);
+	 * button.cssPosition.l("10%").t("10%").w("80px").h("30px")
+	 * application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
+	 *
+	 * @param txt the text on the button
+	 *
+	 * @param action the method assigned to handle an onAction event
+	 *
+	 * @return a new JSButton object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSButton newButton(String txt, Object action)
+	{
+		return newButton(txt, 0, 0, 100, 20, action);
+	}
+
+	/**
+	 * Creates a new JSLabel object on the form - including the text of the label. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var label = form.newLabel('The text on the label');
+	 * label.cssPosition.l("10%").t("10%").w("80px").h("30px")
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param txt the specified text of the label object
+	 *
+	 * @return a JSLabel object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSLabel newLabel(String txt)
+	{
+		return newLabel(txt, 0, 0, 100, 20, null);
+	}
+
+	/**
+	 * Creates a new JSPortal object on the form - including the name of the JSPortal object and the relation the JSPortal object is based on. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/table1','db:/server2/table2',JSRelation.INNER_JOIN);
+	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
+	 * var portal = form.newPortal('portal',relation);
+	 * portal.cssPosition.l("10%").t("10%").b("10%").r("10%")
+	 * portal.newField('someColumn',JSField.TEXT_FIELD,200,200,120);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param name the specified name of the JSPortal object
+	 * @param relation the relation of the JSPortal object
+	 *
+	 * @return a JSPortal object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSPortal newPortal(String name, Object relation)
+	{
+		return newPortal(name, relation, 0, 0, 300, 300);
+	}
+
+	/**
+	 * Creates a new JSTabPanel object on the form - including the name of the JSTabPanel object. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('parentForm','db:/server1/parent_table',null,false,640,480);
+	 * form.useCssPosition = true
+	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
+	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20);
+	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
+	 * parentToChild.newRelationItem('parent_table_id','=','child_table_parent_id');
+	 * var childTwo = solutionModel.newForm('childTwo','db:/server1/my_table',null,false,400,300);
+	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA,10,10,100,100);
+	 * var tabPanel = form.newTabPanel('tabs');
+	 * tabPanel.cssPosition.l("10%").t("10%").b("10%").r("10%")
+	 * tabPanel.newTab('tab1','Child One',childOne,parentToChild);
+	 * tabPanel.newTab('tab2','Child Two',childTwo);
+	 * forms['parentForm'].controller.show();
+	 *
+	 * @param name the specified name of the JSTabPanel object
+	 *
+	 * @return a JSTabPanel object
+	 */
+	@JSFunction
+	public JSTabPanel newTabPanel(String name)
+	{
+		return newTabPanel(name, 0, 0, 100, 100);
+	}
+
+	/**
+	 * Creates a new JSWebComponent (spec based component) object on a form. You must set location/dimension or css position afterwards
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * form.useCssPosition = true
+	 * var webcomponent = form.newWebComponent('mywebcomponent','mypackage-testcomponent');
+	 *
+	 * @param name the specified name of the JSWebComponent object
+	 * @param type the webcomponent name as it appears in the spec
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent newWebComponent(String name, String type)
+	{
+		return newWebComponent(name, type, 0, 0, 100, 100);
 	}
 
 	public IApplication getApplication()
