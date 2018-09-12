@@ -38,7 +38,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
@@ -83,31 +82,9 @@ public class FormLayoutStructureGenerator
 		return (fs.getSecurityAccess(persist.getUUID()) & IRepository.VIEWABLE) != 0;
 	}
 
-	private static boolean hasVisibleComponents(FlattenedSolution fs, LayoutContainer container)
-	{
-		if (!container.getAllObjects().hasNext())
-		{
-			//it can be an empty container used for aligning(clearfix)
-			return true;
-		}
-
-		Iterator<WebComponent> it = container.getWebComponents();
-		while (it.hasNext())
-		{
-			if (isSecurityVisible(fs, it.next())) return true;
-		}
-		Iterator<LayoutContainer> it2 = container.getLayoutContainers();
-		while (it2.hasNext())
-		{
-			if (hasVisibleComponents(fs, it2.next())) return true;
-		}
-		return false;
-	}
-
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
 		IFormElementCache cache)
 	{
-		if (!hasVisibleComponents(fs, container)) return;
 		WebLayoutSpecification spec = null;
 		if (container.getPackageName() != null)
 		{
