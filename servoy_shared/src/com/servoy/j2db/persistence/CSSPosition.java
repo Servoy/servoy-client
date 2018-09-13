@@ -330,4 +330,30 @@ public class CSSPosition
 		}
 		return null;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("{");
+		buffer.append("top:");
+		buffer.append(this.top);
+		buffer.append(",");
+		buffer.append("left:");
+		buffer.append(this.left);
+		buffer.append(",");
+		buffer.append("bottom:");
+		buffer.append(this.bottom);
+		buffer.append(",");
+		buffer.append("right:");
+		buffer.append(this.right);
+		buffer.append(",");
+		buffer.append("width:");
+		buffer.append(this.width);
+		buffer.append(",");
+		buffer.append("height:");
+		buffer.append(this.height);
+		buffer.append("}");
+		return buffer.toString();
+	}
 }
