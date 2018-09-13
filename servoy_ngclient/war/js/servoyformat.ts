@@ -611,12 +611,13 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			function modelToView(modelValue) {
 				var data = modelValue;
 				if (svyFormat && !$scope.model.findmode) {
+				    $scope.model.inputType === 'number' && data && data.toString().length >= svyFormat.maxLength ? data = data.toString().substring(0, svyFormat.maxLength): data;
 					var format = null;
 					var type = svyFormat ? svyFormat.type : null;
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
 					if (svyFormat.edit && element.is(":focus")) format = svyFormat.edit
 					try {
-						data = formatUtils.format(modelValue, format, type);
+						data = formatUtils.format(data, format, type);
 					} catch (e) {
 						console.log(e)
 							//TODO set error state
