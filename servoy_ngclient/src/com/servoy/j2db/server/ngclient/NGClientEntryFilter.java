@@ -104,8 +104,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/locales.js", //
 		"js/angular-file-upload/dist/ng-file-upload.js", //
 		"js/bootstrap-window/js/Window.js", //
-		"js/bootstrap-window/js/WindowManager.js", //
-		"js/bindonce.js" };
+		"js/bootstrap-window/js/WindowManager.js" };
 	private static final String[] INDEX_SABLO_JS = { //
 		"sablo/lib/reconnecting-websocket.js", //
 		"sablo/js/websocket.js", //

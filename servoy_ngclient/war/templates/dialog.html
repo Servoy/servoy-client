@@ -1,15 +1,15 @@
-	<div class="svy-dialog" svy-window sablo-tabseq='1' sablo-tabseq-config="{container: true}"  bindonce bo-class="{'window':!isUndecorated(), '{{win.cssClassName}}':win.cssClassName}"  
-				  bo-style="{'background-color':win.transparent ? 'transparent':'inherit'}" >
-		<div bo-style="{'opacity':win.opacity}">
+	<div class="svy-dialog" svy-window sablo-tabseq='1' sablo-tabseq-config="{container: true}"  ng-class="::{'window':!isUndecorated(), '{{win.cssClassName}}':win.cssClassName}"  
+				  ng-style="::{'background-color':win.transparent ? 'transparent':'inherit'}" >
+		<div ng-style="::{'opacity':win.opacity}">
 			<div  class='window-header'
-				  bo-style="{'display':isUndecorated()? 'none':'block'}"  tabindex="-1"  style="outline:0;">
+				  ng-style="::{'display':isUndecorated()? 'none':'block'}"  tabindex="-1"  style="outline:0;">
 				<button type="button" class="svy-dialog-close"
 					ng-click="cancel()"
 					aria-hidden="true" tabindex="-1">x</button>
 				<h4 class="window-title"  ng-bind='win.title'></h4>
 			</div>	
 		    <div class="window-body" 
-		    	 bo-style="getBodySize()">
+		    	 ng-style="::getBodySize()">
 		    	 <div ng-if="win.navigatorForm.name" ng-style="{'width':win.navigatorForm.size.width+'px'}"
 					  ng-include="getNavigatorFormUrl()" unwanted-dialog-scrollbars-workaround></div>
 				 <div id="tabStart" sablo-tabseq='1' ng-focus="firstElementFocused()"></div>
@@ -18,6 +18,6 @@
 				 <div id="tabStop" sablo-tabseq='3' ng-focus="lastElementFocused()"></div>	    	 
 		    </div>    
 			<div class="window-footer"
-				 bo-style="{'display':isUndecorated()? 'none':'block'}"></div>
+				 ng-style="::{'display':isUndecorated()? 'none':'block'}"></div>
 		</div>
 	</div>
