@@ -31,6 +31,7 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -413,13 +414,42 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 			PropertyDescription propertyPD = pd;
 			for (int i = 0; i < split.length - 1; i++)
 			{
-				propertyPD = propertyPD != null ? propertyPD.getProperty(split[i]) : null;
-				JSONObject tmp = obj.optJSONObject(split[i]);
-				if (tmp == null)
+				JSONObject tmp = null;
+				if (split[i].endsWith("]"))
 				{
-					if (!create) break;
-					tmp = new JSONObject();
-					obj.put(split[i], tmp);
+					String propertyID = split[i].substring(0, split[i].indexOf("["));
+					propertyPD = propertyPD != null ? propertyPD.getProperty(propertyID) : null;
+					if (propertyPD != null && propertyPD.getType() instanceof ICustomType)
+					{
+						propertyPD = ((ICustomType)propertyPD.getType()).getCustomJSONTypeDefinition();
+					}
+					JSONArray array = obj.optJSONArray(propertyID);
+					if (array == null)
+					{
+						if (!create) break;
+						array = new JSONArray();
+						obj.put(propertyID, array);
+					}
+					int index = Utils.getAsInteger(split[i].substring(split[i].indexOf("[") + 1, split[i].indexOf("]")));
+					if (index >= 0)
+					{
+						for (int j = array.length(); j <= index; j++)
+						{
+							array.put(new JSONObject());
+						}
+						tmp = (JSONObject)array.get(index);
+					}
+				}
+				else
+				{
+					propertyPD = propertyPD != null ? propertyPD.getProperty(split[i]) : null;
+					tmp = obj.optJSONObject(split[i]);
+					if (tmp == null)
+					{
+						if (!create) break;
+						tmp = new JSONObject();
+						obj.put(split[i], tmp);
+					}
 				}
 				obj = tmp;
 			}

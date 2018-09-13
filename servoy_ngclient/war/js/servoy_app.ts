@@ -16,7 +16,7 @@ if (!String.prototype.startsWith) {
 }
 var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
-                             'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
+                             'ngSanitize', 'pascalprecht.translate']
 
 ).config(['$controllerProvider', '$translateProvider', '$qProvider', function($controllerProvider: angular.IControllerProvider, $translateProvider, $qProvider) {
 	controllerProvider = $controllerProvider;
