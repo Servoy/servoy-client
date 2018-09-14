@@ -2,7 +2,7 @@ angular.module('date_custom_property', ['webSocketModule'])
 // Valuelist type -------------------------------------------
 .run(function ($sabloConverters, $sabloUtils, $q, $sabloTestability,$sabloApplication) {
 	var dateConverter =  {
-			fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+			fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 				var dateObj = new Date(serverJSONValue);
 				return dateObj;
 			},
