@@ -45,7 +45,7 @@ describe("Test component_custom_property suite", function() {
 				                                  {_svyRowId: 222},
 				                                  {_svyRowId: 333} ] } }
 		}
-		componentModelGetter = function() { return componentModel; };
+		componentModelGetter = function(prop) { return componentModel[prop]; };
 
 		var template = '<div></div>';
 		$compile(template)($scope);

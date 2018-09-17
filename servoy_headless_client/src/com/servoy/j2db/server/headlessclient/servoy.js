@@ -3361,10 +3361,6 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 				}	
 			}
 			
-			var dummyElem = document.createElement("div");
-			dummyElem.innerHTML='<a href="javascript: void(0)"></a>';
-			document.body.appendChild(dummyElem);
-			
 			elem = document.getElementById(elemIdMaxTabIndex);
 			if (typeof(elem) != "undefined" && elem != null)
 			{
@@ -3435,10 +3431,6 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		
 		forceTabbingSequence: function (indexEntries)
 		{
-			var dummyElem = document.createElement("div");
-			dummyElem.innerHTML='<a href="javascript: void(0)"></a>';
-			document.body.appendChild(dummyElem);
-			
 			Servoy.TabCycleHandling.elementsArray = new Array();
 			for (var i=0; i < indexEntries.length; i++)
 			{

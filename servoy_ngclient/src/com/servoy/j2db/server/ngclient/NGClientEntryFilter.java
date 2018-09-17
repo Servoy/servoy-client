@@ -90,9 +90,9 @@ public class NGClientEntryFilter extends WebEntry
 		{ "angular-touch", "js/angular-modules/1.7.3/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
-	public static final String[] INDEX_3TH_PARTY_CSS = { //
+	public static final String[] INDEX_3RD_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
-	public static final String[] INDEX_3TH_PARTY_JS = { //
+	public static final String[] INDEX_3RD_PARTY_JS = { //
 		"js/jquery-3.3.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
@@ -136,7 +136,7 @@ public class NGClientEntryFilter extends WebEntry
 	{
 		this.filterConfig = fc;
 		ApplicationServerRegistry.getServiceRegistry().registerService(IMessagesRecorder.class, new MessageRecorder());
-		//when started in developer - init is done in the ResourceProvider filter
+		// when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
 			try (InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties"))
@@ -194,7 +194,6 @@ public class NGClientEntryFilter extends WebEntry
 
 			super.init(fc);
 		}
-
 	}
 
 	@Override
@@ -388,7 +387,7 @@ public class NGClientEntryFilter extends WebEntry
 
 								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 
-								String ipaddr = request.getHeader("X-Forwarded-For");// in case there is a forwarding proxy
+								String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 								if (ipaddr == null)
 								{
 									ipaddr = request.getRemoteAddr();
@@ -597,7 +596,7 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		else
 		{
-			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3TH_PARTY_CSS)));
+			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3RD_PARTY_CSS)));
 			allIndexCSS.addAll(appendGroupIdRequestParamToUrls(cssContributions));
 		}
 		return allIndexCSS;
@@ -619,7 +618,7 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		else
 		{
-			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3TH_PARTY_JS)));
+			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3RD_PARTY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SABLO_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SERVOY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(jsContributions));

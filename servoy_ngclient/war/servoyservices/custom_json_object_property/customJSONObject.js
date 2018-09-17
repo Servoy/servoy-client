@@ -154,9 +154,18 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 			}
 		}
 	}
+	
+	function getCustomObjectPropertyContext(customObjectValue, parentPropertyContext) {
+		// property context that we pass here should search first in the current custom object value and only fallback to "parentPropertyContext" if needed
+		return function (propertyName) {
+			if (customObjectValue.hasOwnProperty(propertyName)) return customObjectValue[propertyName]; // can even be null or undefined as long as it is set on this object
+			else return parentPropertyContext ? parentPropertyContext(propertyName) : undefined; // fall back to parent object nesting context
+		}
+	}
 
 	$sabloConverters.registerCustomPropertyHandler('JSON_obj', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue = currentClientValue;
 
 			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
@@ -171,6 +180,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 					if (typeof serverJSONValue[PUSH_TO_SERVER] !== 'undefined') internalState[PUSH_TO_SERVER] = serverJSONValue[PUSH_TO_SERVER];
 						
+					var customObjectPropertyContext = getCustomObjectPropertyContext(newValue, propertyContext);
 					for (var c in newValue) {
 						var elem = newValue[c];
 						var conversionInfo = null;
@@ -180,7 +190,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 						if (conversionInfo) {
 							internalState.conversionInfo[c] = conversionInfo;
-							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, componentModelGetter);
+							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, customObjectPropertyContext);
 						}
 
 						if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -201,6 +211,8 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 						var updates = serverJSONValue[UPDATES];
 						var conversionInfos = serverJSONValue[$sabloConverters.TYPES_KEY];
 						var i;
+						var customObjectPropertyContext = getCustomObjectPropertyContext(currentClientValue, propertyContext);
+
 						for (i in updates) {
 							var update = updates[i];
 							var key = update[KEY];
@@ -213,7 +225,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 							if (conversionInfo) {
 								internalState.conversionInfo[key] = conversionInfo;
-								currentClientValue[key] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[key], componentScope, componentModelGetter);
+								currentClientValue[key] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[key], componentScope, customObjectPropertyContext);
 							} else currentClientValue[key] = val;
 
 							if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
