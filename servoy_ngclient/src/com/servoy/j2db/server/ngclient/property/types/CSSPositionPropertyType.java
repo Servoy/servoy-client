@@ -28,13 +28,20 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author lvostinar
  *
  */
-public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition> implements IClassPropertyType<CSSPosition>
+public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
+	implements IClassPropertyType<CSSPosition>, IFormElementToTemplateJSON<CSSPosition, CSSPosition>, IDesignToFormElement<Object, CSSPosition, CSSPosition>
 {
 	public static final CSSPositionPropertyType INSTANCE = new CSSPositionPropertyType();
 	public static final String TYPE_NAME = "cssPosition";
@@ -69,6 +76,29 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition> im
 		JSONUtils.addKeyIfPresent(writer, key);
 		return writer.object().key("top").value(object.top).key("left").value(object.left).key("bottom").value(object.bottom).key("right").value(
 			object.right).key("width").value(object.width).key("height").value(object.height).endObject();
+	}
+
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, CSSPosition formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	{
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+	}
+
+	@Override
+	public CSSPosition toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
+		PropertyPath propertyPath)
+	{
+		if (designValue instanceof JSONObject)
+		{
+			return fromJSON(designValue, null, pd, null, null);
+		}
+		if (!(designValue instanceof CSSPosition))
+		{
+			Debug.error("Wrong design value for css position:" + designValue);
+			return defaultValue(pd);
+		}
+		return (CSSPosition)designValue;
 	}
 
 	@Override

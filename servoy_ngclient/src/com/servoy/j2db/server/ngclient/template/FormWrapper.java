@@ -284,7 +284,7 @@ public class FormWrapper
 			absolute.put(fe.getName(), Boolean.TRUE);
 		}
 		properties.put("absoluteLayout", absolute);
-		properties.put(IContentSpecConstants.PROPERTY_USE_CSS_POSITION, form.getUseCssPosition());
+		properties.put(IContentSpecConstants.PROPERTY_USE_CSS_POSITION, form.getUseCssPosition() || form.isResponsiveLayout());
 		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
