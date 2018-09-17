@@ -4,11 +4,18 @@
 /// <reference path="../../typings/sablo/sablo.d.ts" />
 /// <reference path="../../typings/jquery/jquery.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
-if (typeof String.endsWith != "function"){
+
+if (!String.prototype.endsWith){
 	String.prototype.endsWith = function (suffix) {
 	      return this.indexOf(suffix, this.length - suffix.length) !== -1;
 	}
 }
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(search, pos) {
+		return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+	};
+}
+
 var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']

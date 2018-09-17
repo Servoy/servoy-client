@@ -60,10 +60,10 @@ describe("Test foundset_linked_property suite", function() {
 						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" } ]
 					}
 			};
-			componentModelGetter = function() {
+			componentModelGetter = function(prop) {
 				return {
 					myfoundset: myfoundset
-				}
+				}[prop];
 			};
 
 			serverValue = { forFoundset: "myfoundset" };
@@ -109,10 +109,10 @@ describe("Test foundset_linked_property suite", function() {
 						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" } ]
 					}
 			};
-			componentModelGetter = function() {
+			componentModelGetter = function(prop) {
 				return {
 					myfoundset: myfoundset
-				}
+				}[prop];
 			};
 
 			serverValue = { forFoundset: "myfoundset", w: false };
@@ -165,10 +165,10 @@ describe("Test foundset_linked_property suite", function() {
 						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" }, { "_svyRowId" : "bl bl" }, { "_svyRowId" : "ha ha" }, { "_svyRowId" : "b b" }, { "_svyRowId" : "h h" } ]
 					}
 			};
-			componentModelGetter = function() {
+			componentModelGetter = function(prop) {
 				return {
 					myfoundset: myfoundset
-				}
+				}[prop];
 			};
 
 			serverValue = { forFoundset: "myfoundset" };
@@ -217,10 +217,10 @@ describe("Test foundset_linked_property suite", function() {
 						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" }, { "_svyRowId" : "bl bl" }, { "_svyRowId" : "ha ha" }, { "_svyRowId" : "b b" }, { "_svyRowId" : "h h" } ]
 					}
 			};
-			componentModelGetter = function() {
+			componentModelGetter = function(prop) {
 				return {
 					myfoundset: myfoundset
-				}
+				}[prop];
 			};
 
 			serverValue = { forFoundset: "myfoundset", w: false };
