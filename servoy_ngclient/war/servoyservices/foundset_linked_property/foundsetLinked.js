@@ -51,7 +51,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	};
 
 	$sabloConverters.registerCustomPropertyHandler(CONVERSION_NAME, {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue = (currentClientValue ? currentClientValue : []);
 
 			// remove watches to avoid an unwanted detection of received changes
@@ -84,7 +84,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					// the foundset that this property is linked to; keep that info in internal state; viewport.js needs it
 					var forFoundsetPropertyName = serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = function() {
-						return componentModelGetter()[forFoundsetPropertyName];
+						return propertyContext(forFoundsetPropertyName);
 					};
 					didSomething = true;
 				}
@@ -99,7 +99,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
 							$sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE_UPDATE),
-							componentScope, componentModelGetter, true);
+							componentScope, propertyContext, true);
 					internalState.fireChanges(serverJSONValue[VIEWPORT_VALUE_UPDATE]);
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
@@ -108,7 +108,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					
 					function updateWholeViewport() {
 						var viewPortHolder = { "tmp" : newValue };
-						$viewportModule.updateWholeViewport(viewPortHolder, "tmp", internalState, wholeViewport, conversionInfos, componentScope, componentModelGetter);
+						$viewportModule.updateWholeViewport(viewPortHolder, "tmp", internalState, wholeViewport, conversionInfos, componentScope, propertyContext);
 						
 						// updateWholeViewport probably changed "tmp" reference to value of "wholeViewport"...
 						// update current value reference because that is what is present in the model

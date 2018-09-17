@@ -77,7 +77,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	};
 
 	$sabloConverters.registerCustomPropertyHandler('component', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue = currentClientValue;
 
 			// see if someone is listening for changes on current value; if so, prepare to fire changes at the end of this method
@@ -160,7 +160,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						// if it's linked to a foundset, keep that info in internal state; viewport.js needs it
 						var forFoundsetPropertyName = serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 						internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = function() {
-							return componentModelGetter()[forFoundsetPropertyName];
+							return propertyContext(forFoundsetPropertyName);
 						};
 						delete serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					}
