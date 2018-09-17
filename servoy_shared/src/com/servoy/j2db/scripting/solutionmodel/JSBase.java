@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.util.List;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.persistence.AbstractBase;
@@ -119,6 +121,17 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 					{
 						parentPersist = PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist);
 					}
+
+					//first check if the override persist already exists, and return it in that case
+					List<IPersist> children = PersistHelper.getHierarchyChildren((AbstractBase)parent.getSupportChild());
+					for (IPersist p : children)
+					{
+						if (parentPersist.getID() == ((ISupportExtendsID)p).getExtendsID())
+						{
+							return (AbstractBase)p;
+						}
+					}
+
 					baseComponent = (AbstractBase)persist.cloneObj(parent.getSupportChild(), false, null, false, false, false);
 					baseComponent.copyPropertiesMap(null, true);
 					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getID());
