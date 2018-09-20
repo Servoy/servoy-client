@@ -1011,6 +1011,13 @@ public class ComponentFactory
 				}
 			}
 
+			// list is founds based on UUID, check if it is also the same persist,
+			// as it may have been changed via solution model (that creates a new persist copy ), and then we need to replace the cached value
+			if (list != null && list.getValueList() != valuelist)
+			{
+				list = null;
+			}
+
 			if (list == null)
 			{
 				list = ValueListFactory.createRealValueList(application, valuelist, type, format);
@@ -1338,7 +1345,7 @@ public class ComponentFactory
 				break;
 			}
 
-				// else treat as the default case: TEXT_FIELD
+			// else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD
 				if (field.getValuelistID() > 0)
 				{

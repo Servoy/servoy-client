@@ -42,6 +42,7 @@ import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -126,14 +127,15 @@ public abstract class NGUtils
 		if (dp != null)
 		{
 			int dpType;
-			if (dp instanceof IColumn)
+			if (dp instanceof IColumn || dp instanceof ColumnWrapper)
 			{
-				ColumnInfo ci = ((IColumn)dp).getColumnInfo();
+				IColumn column = (dp instanceof IColumn) ? (IColumn)dp : ((ColumnWrapper)dp).getColumn();
+				ColumnInfo ci = column.getColumnInfo();
 				if (ci != null && ci.hasFlag(IBaseColumn.UUID_COLUMN))
 				{
 					return UUID_DATAPROVIDER_CACHED_PD;
 				}
-				dpType = app.getFoundSetManager().getConvertedTypeForColumn((IColumn)dp, true);
+				dpType = app.getFoundSetManager().getConvertedTypeForColumn(column, true);
 			}
 			else dpType = dp.getDataProviderType();
 			return getDataProviderPropertyDescription(dpType, parseHTMLIfString, useLocalDateTime);
