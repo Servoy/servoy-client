@@ -70,7 +70,6 @@ public class Debug
 	{
 		try
 		{
-			// RAGTEST te laat
 			System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
 			System.setProperty("org.apache.commons.logging.simplelog.dateTimeFormat", "yyyy-MM-dd HH:mm");
 			System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "warn");
@@ -134,34 +133,7 @@ public class Debug
 		}
 	}
 
-	private static Boolean HASMDC = null;
-
-	@SuppressWarnings("nls")
 	private static boolean insertClientInfo(boolean insert)
-	{
-		if (HASMDC == null)
-		{
-			try
-			{// RAGTEST log4j2
-				Class.forName("org.slf4j.MDC");
-				HASMDC = Boolean.TRUE;
-			}
-			catch (Exception e)
-			{
-				HASMDC = Boolean.FALSE;
-			}
-		}
-		if (!HASMDC.booleanValue()) return false;
-
-		return insetClientInfoWithMDC(insert);
-	}
-
-	/**
-	 * @param message
-	 * @return
-	 */
-	@SuppressWarnings("nls")
-	private static boolean insetClientInfoWithMDC(boolean insert)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
 		if (insert && serviceProvider != null)
