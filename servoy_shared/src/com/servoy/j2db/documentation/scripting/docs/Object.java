@@ -376,7 +376,7 @@ public class Object
 
 	/**
 	 * Indicates whether the specified property is enumerable.
-	 * @param prop The name of the property to test.
+	 * @param prop The name or symbol of the property to test.
 	 * @return A Boolean indicating whether the specified property is enumerable.
 	 *
 	 * @sample
@@ -389,7 +389,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/propertyIsEnumerable
 	 */
-	public boolean js_propertyIsEnumerable(String prop)
+	public boolean js_propertyIsEnumerable(Object prop)
 	{
 		return false;
 	}
@@ -400,7 +400,7 @@ public class Object
 	 *
 	 * @sample
 	 * const number1 = 123456.789;
-	 * application.output(number1.toLocaleString('de-DE')); // expected output: "123.456,789"
+	 * application.output(number1.toLocaleString()); // expected output: "123.456,789"
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toLocaleString
 	 */
@@ -417,7 +417,7 @@ public class Object
 	 * function Dog(name) {
 	 *   this.name = name;
 	 * }
-	 * dog1 = new Dog('Spike');
+	 * var dog1 = new Dog('Spike');
 	 * Dog.prototype.toString = function dogToString() { return this.name; }
 	 *
 	 * application.output(dog1.toString());
