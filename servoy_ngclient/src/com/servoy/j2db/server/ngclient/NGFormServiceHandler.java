@@ -196,7 +196,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 			{
 				IWebFormController parentForm = null;
 				IWebFormController controller = null;
-				String formName = args.optString("formname");
+				String formName = args.optString("formname", null);
 
 				checkAndSetParentWindow(formName);
 				if (args.has("parentForm") && !args.isNull("parentForm"))
