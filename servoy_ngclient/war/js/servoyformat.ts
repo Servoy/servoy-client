@@ -611,6 +611,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			function modelToView(modelValue) {
 				var data = modelValue;
 				if (svyFormat && !$scope.model.findmode) {
+				    $scope.model.inputType === 'number' && data && data.toString().length >= svyFormat.maxLength ? data = data.toString().substring(0, svyFormat.maxLength): data;
 					var format = null;
 					var type = svyFormat ? svyFormat.type : null;
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
@@ -626,14 +627,6 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 						if (svyFormat.uppercase) data = data.toUpperCase();
 						else if (svyFormat.lowercase) data = data.toLowerCase();
 					}
-                    if(data && (svyFormat.type === 'NUMBER' || $scope.model.inputType === 'number' || svyFormat.isNumberValidator)){
-                        if(/^\d+$/.test(data) && data !== ''){                            
-                         if( data.toString().length >= svyFormat.maxLength)
-                               data = data.toString().substring(0, svyFormat.maxLength);
-                        }
-                         else
-                             return element.val();
-                    }
 				}
 				return data; //converted
 			}
@@ -715,14 +708,13 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				    		element.val(currentValue);
 				    	}
 			        }
-				    if(inserted !== "" && (e.target.type.toUpperCase() == 'NUMBER' || svyFormat.type.toUpperCase() === 'NUMBER' || svyFormat.isNumberValidator)){
-				        if( /^\d+$/.test(currentValue)){
-				            
-				            if(currentValue.length > e.target.maxLength)
-                                element.val(+currentValue.substring(0, e.target.maxLength));
-        				    else oldInputValue = currentValue;				            
-				        }
-				        else element.val(+oldInputValue);				       				        
+				    if(e.target.type.toUpperCase() == 'NUMBER'){
+    				    if(currentValue.length > e.target.maxLength){
+                            currentValue = currentValue.substring(0, e.target.maxLength)
+                            element.val(currentValue);
+                            let b =  formatNumbers(currentValue, e.target.type);
+    				    }
+    				    else oldInputValue = currentValue;
 				    }
 				    else oldInputValue = currentValue;
 	                isKeyPressEventFired = false;
