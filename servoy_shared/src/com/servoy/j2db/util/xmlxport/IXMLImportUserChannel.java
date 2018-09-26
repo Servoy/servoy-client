@@ -265,7 +265,7 @@ public interface IXMLImportUserChannel extends InfoChannel
 	 */
 	public String askProtectionPassword(String solutionName);
 
-	public int getAllowDataModelChange();
+	public int getAllowDataModelChange(String serverName);
 
 	public boolean getDisplayDataModelChange();
 

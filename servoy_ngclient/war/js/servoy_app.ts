@@ -518,7 +518,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return $q.when(null);
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex,formnameThatWillBeShown,relationnameThatWillBeShown,formIndexThatWillBeShown) {
-			if (!formname) {
+			if (!formname && !formnameThatWillBeShown) {
 				throw new Error("formname is undefined");
 			}
 			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex,show:{formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown}});
@@ -863,19 +863,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	return {
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
-			var formName = tAttrs['formname'];
+			let formName = tAttrs['formname'];
 			if ($log.debugEnabled) $log.debug("svy * compile svyFormload for form = " + formName);
 
 			// it sometimes happens that this gets called from a div that is detatched from the real page body somewhere in parents - and
 			// top-most $scope of parents is also destroyed already, although child scopes are not marked as destroyed; (this looks like an angular bug actually)
 			// for example sometimes when a recreateUI of the main form happens (and main form URL changes while the form remains the same);
 			// we should ignore such situations...
-			var blocked = false;
-			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
-			var someAncestor = tElem.get(0).parentNode;
+			let blocked = false;
+			let formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
+			let someAncestor = tElem.get(0).parentNode;
+			let inHiddenDiv;
 			while (someAncestor && someAncestor !== window.document) someAncestor = someAncestor.parentNode;
 			if (someAncestor === window.document) {
-				var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
+				inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
 				if(!inHiddenDiv) {
 					// skip nested forms
 					if(tElem.closest("[hiddendiv]").length) {
@@ -888,9 +889,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
 					// someone already loaded or is loading this form....
 					if ($rootScope.updatingFormName === formName) {
-						// in updatingFormUrl must be cleared as this form will show or is already showing elsewhere
+						// updatingFormUrl (hidden div) must be cleared as this form will show or is already showing elsewhere
 						$rootScope.updatingFormUrl = '';
 						delete $rootScope.updatingFormName;
+						
+						// call scope destroy right away on the scope in hidden div to avoid new location link methods being called before the hidden div scope destroy;
+						// because that could lead to $modelChangeNotifier being set by new location before old location clears it in scope on destroy... see SVY-12816
+						let formScopeToDisposeFromHiddenDiv = (formState.getScope ? formState.getScope() : undefined);
+						if (formScopeToDisposeFromHiddenDiv) {
+							formScopeToDisposeFromHiddenDiv.$destroy();
+						}
 					} 
 					else {
 						// make sure the resolving state is deleted then so it corrects itself.
