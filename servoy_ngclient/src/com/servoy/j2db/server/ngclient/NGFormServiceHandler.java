@@ -43,7 +43,7 @@ import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
-import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupValueList;
@@ -250,8 +250,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 						}
 						if (isVisible && relationName != null)
 						{
-							FoundSet parentFs = parentForm.getFormModel();
-							IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
+							IFoundSetInternal parentFs = parentForm.getFormModel();
+							IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
 							if (selectedRecord != null)
 							{
 								controller.loadRecords(selectedRecord.getRelatedFoundSet(relationName));

@@ -864,7 +864,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -953,7 +953,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2747,7 +2747,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2774,7 +2774,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2890,8 +2890,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Returns a foundset object for a specified pk query.
+	 * This just creates one without keeping any reference to it,
+	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
+	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work
+	 * They are for the most part readonly, but the records can get updated values, but that will only be in memory and the developer is
+	 * responsible for saving it really to a persisted store.
 	 *
-	 * @sampleas getFoundSet(String)
+	 * @sample
+	 * /** @type {ViewFoundSet<view:myname>} *&#47;
+	 * var vfs = databaseManager.getViewFoundSet('myname', query)
+	 * // register now this view foundset to the system so they can be picked up by forms.
+	 * databaseMananger.registerViewFoundSet(vfs);
 	 *
 	 * @param query The query to get the JSFoundset for.
 	 *
@@ -2903,6 +2912,44 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return application.getFoundSetManager().getViewFoundSet(name, query);
 	}
 
+	/**
+	 * Registers the give ViewFoundSet to the system so they are picked up by forms that has this datasource asinged.
+	 * The forms foundset will then have a much more limited api, so a lot of stuff can't be done like newRecord() or deleteRecords()
+	 * Also records can be updated in memory, so they are not full readonly, but the developer is responsible for saving this to a persisted store.
+	 *
+	 * If the solution doesn't need this ViewFoundSet plus use unregisterViewFoundSset(datasource).
+	 * Because this register will hold on to this foundset for that datasource for ever.
+	 *
+	 * @sampleas getViewFoundSet(String, QBSelect)
+	 *
+	 * @param foundset The ViewFoundSet to regsiter to the system.
+	 * @throws ServoyException
+	 */
+	public boolean js_registerViewFoundSet(ViewFoundSet foundset) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().registerViewFoundSet(foundset);
+	}
+
+	/**
+	 * Unregisters a ViewFoundSet based by the datasource. (ViewFoundSet.getDataSource())
+	 *
+	 * This cleans up the state (the foundset and its loaded records) from the system. So call this when you don't need it anymore
+	 * and for example can be recreated when a user returns to this form.
+	 * If a form is still loaded in memory having this foundset then that foundset wil be kept there. (until the form is also unloaded)
+	 *
+	 * @sampleas getViewFoundSet(String, QBSelect)
+	 *
+	 * @param datasource The ViewFoundSet datasource to unregister
+	 *
+	 * @return returns true if it could unregister this datasource
+	 * @throws ServoyException
+	 */
+	public boolean js_unegisterViewFoundSet(String datasource) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().unregisterViewFoundSet(datasource);
+	}
 
 	/**
 	 * Gets the next sequence for a column which has a sequence defined in its column dataprovider properties.
@@ -3957,7 +4004,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-
+	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException

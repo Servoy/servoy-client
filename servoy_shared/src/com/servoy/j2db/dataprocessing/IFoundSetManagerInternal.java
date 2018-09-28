@@ -180,11 +180,23 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public int getNextFoundSetID();
 
 	void handleUserLoggedin();
-	
-		/**
-	 * @param name
-	 * @param query
+
+	/**
+	* @param name
+	* @param query
+	* @return
+	*/
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query);
+
+	/**
+	 * @param foundset
 	 * @return
 	 */
-	public ViewFoundSet getViewFoundSet(String name, QBSelect query);
+	public boolean registerViewFoundSet(ViewFoundSet foundset);
+
+	/**
+	 * @param datasource
+	 * @return
+	 */
+	public boolean unregisterViewFoundSet(String datasource);
 }

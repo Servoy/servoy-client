@@ -36,7 +36,6 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
-import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
@@ -191,7 +190,7 @@ public class WebFormManager extends FormManager
 			if (fp != null)
 			{
 				boolean formVisible = fp.isFormVisible();
-				FoundSet foundset = fp.getFormModel();
+				IFoundSetInternal foundset = fp.getFormModel();
 				WebForm wf = (WebForm)fp.getFormUI();
 				MarkupContainer wfParent = wf.getParent();
 
@@ -201,7 +200,7 @@ public class WebFormManager extends FormManager
 				{
 					try
 					{
-						foundset = (FoundSet)(getApplication()).getFoundSetManager().getSharedFoundSet(fp.getDataSource());
+						foundset = (getApplication()).getFoundSetManager().getSharedFoundSet(fp.getDataSource());
 						foundset.loadAllRecords();
 						refresh = true;
 					}

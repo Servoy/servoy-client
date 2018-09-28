@@ -108,6 +108,7 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ISupportAsyncLoading;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
+import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplay;
@@ -881,9 +882,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (t != null)
 			{
 				List<SortColumn> sortColumns = null;
-				if (options == null || options.length() == 0)
+				if ((options == null || options.length() == 0) && formController.getFormModel() instanceof FoundSet)
 				{
-					sortColumns = formController.getFormModel().getLastSortColumns();
+					sortColumns = ((FoundSet)formController.getFormModel()).getLastSortColumns();
 				}
 				else
 				{
@@ -1186,8 +1187,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		if (formModel.getSize() >= ((FoundSetManager)formModel.getFoundSetManager()).pkChunkSize)
 		{
 			Object[] options = new String[] { Messages.getString("servoy.button.ok"), //$NON-NLS-1$
-			Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
-			Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
+				Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
+				Messages.getString("servoy.formPanel.printCurrentRecord") //$NON-NLS-1$
 			};
 			ISmartClientApplication application = (ISmartClientApplication)formController.getApplication();
 			return JOptionPane.showOptionDialog(application.getMainApplicationFrame(),
