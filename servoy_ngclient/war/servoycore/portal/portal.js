@@ -243,6 +243,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					var columnTitle = getColumnTitle(idx);
 					var cellTemplate, editableCellTemplate;
 					var isEditable = false;
+					var isReadOnlyOptimized = false;
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
@@ -261,6 +262,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';						
 						isEditable = true;
 						isRowEditable = true;
+						isReadOnlyOptimized = true;
 						var handlers = ""
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
@@ -325,7 +327,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							enableSorting:isSortable,
 							sortDirectionCycle: [uiGridConstants.ASC, uiGridConstants.DESC],
 							enableHiding: false,
-							allowCellFocus: $scope.readOnlyOptimizedMode,
+							allowCellFocus: $scope.readOnlyOptimizedMode && isReadOnlyOptimized,
 							headerCellClass: headerCellClass,
 							svyHeaderAction: headerAction,
 							svyRightClick: headerRightClick,
