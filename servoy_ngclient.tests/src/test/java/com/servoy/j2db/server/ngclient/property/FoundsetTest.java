@@ -514,7 +514,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
-		FoundSet foundset = form.getFormModel();
+		FoundSet foundset = (FoundSet)form.getFormModel();
 		viewPort.setBounds(5, 5);
 		foundset.setSelectedIndex(6);
 

@@ -25,6 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListDataListener;
+import javax.swing.table.AbstractTableModel;
+
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -46,14 +50,18 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
  * @author jcompagner
  * @since 8.4
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
-public class ViewFoundSet implements IFoundSetInternal
+public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 {
+	protected transient AlwaysRowSelectedSelectionModel selectionModel;
+	private transient TableAndListEventDelegate tableAndListEventDelegate;
+
 	private final String datasource;
 	private final IFoundSetManagerInternal manager;
 
@@ -68,11 +76,15 @@ public class ViewFoundSet implements IFoundSetInternal
 	private int foundsetID = 0;
 
 	private boolean hasMore = false;
-	private boolean refesh = true;
+	private boolean refresh = true;
 	private int currentChunkSize;
 	private final int chunkSize;
-	private boolean multiSelect;
-	private int[] selection;
+
+	// forms might force their foundset to remain at a certain multiselect value
+	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
+	// if more then 1 form wishes to pin multiselect at a time, the form with lowest elementid wins
+	private int multiSelectPinnedTo = -1;
+	private int multiSelectPinLevel;
 
 	public ViewFoundSet(String datasource, QuerySelect select, IFoundSetManagerInternal manager, int chunkSize)
 	{
@@ -81,6 +93,13 @@ public class ViewFoundSet implements IFoundSetInternal
 		this.manager = manager;
 		this.chunkSize = chunkSize;
 		this.currentChunkSize = chunkSize;
+		createSelectionModel();
+	}
+
+	@Override
+	public boolean isInitialized()
+	{
+		return !refresh;
 	}
 
 	@Override
@@ -90,6 +109,7 @@ public class ViewFoundSet implements IFoundSetInternal
 	}
 
 	@Override
+	@JSFunction
 	public String getDataSource()
 	{
 		return datasource;
@@ -104,7 +124,7 @@ public class ViewFoundSet implements IFoundSetInternal
 	@Override
 	public int getSize()
 	{
-		if (refesh)
+		if (refresh)
 		{
 			try
 			{
@@ -115,6 +135,12 @@ public class ViewFoundSet implements IFoundSetInternal
 				Debug.error(e);
 			}
 		}
+		return records.size();
+	}
+
+	@Override
+	public int getRawSize()
+	{
 		return records.size();
 	}
 
@@ -203,7 +229,7 @@ public class ViewFoundSet implements IFoundSetInternal
 	@Override
 	public boolean isRecordEditable(int row)
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -234,7 +260,7 @@ public class ViewFoundSet implements IFoundSetInternal
 		{
 			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
 				manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
-			refesh = false;
+			refresh = false;
 			String[] columnNames = select.getColumnNames();
 			int firstChange = -1;
 			int currentSize = records.size();
@@ -277,7 +303,7 @@ public class ViewFoundSet implements IFoundSetInternal
 	{
 		int prevIndex = records.size();
 		records.clear();
-		refesh = false;
+		refresh = false;
 		hasMore = false;
 		currentChunkSize = chunkSize;
 		fireFoundSetEvent(0, prevIndex - 1, FoundSetEvent.CHANGE_DELETE);
@@ -307,45 +333,107 @@ public class ViewFoundSet implements IFoundSetInternal
 		throw new UnsupportedOperationException("Can't create records  from a View Foundset of datasource " + this.datasource);
 	}
 
+	private void createSelectionModel()
+	{
+		if (selectionModel == null)
+		{
+			selectionModel = new AlwaysRowSelectedSelectionModel(this);
+			addListDataListener(selectionModel);
+		}
+	}
+
 	@Override
 	public int getSelectedIndex()
 	{
-		if (selection != null && selection.length > 0) return selection[0];
-		return -1;
+		if (selectionModel == null) createSelectionModel();
+
+		return selectionModel.getSelectedRow();
 	}
 
 	@Override
 	public void setSelectedIndex(int selectedRow)
 	{
-		this.selection = new int[] { selectedRow };
+		if (selectionModel == null) createSelectionModel();
+		selectionModel.setSelectedRow(selectedRow);
+	}
+
+	protected void setMultiSelectInternal(boolean isMultiSelect)
+	{
+		if (selectionModel == null) createSelectionModel();
+		if (isMultiSelect != isMultiSelect())
+		{
+			selectionModel.setSelectionMode(isMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+		}
+	}
+
+	/**
+	 * @param pinId lower id has priority over higher id when using the same pinLevel. (refers to form element id)
+	 * @param pinLevel lower level has priority in pinning over higher level. (refers to visible/invisible forms)
+	 */
+	public void pinMultiSelectIfNeeded(boolean multiSelect, int pinId, int pinLevel)
+	{
+		if (multiSelectPinnedTo == -1)
+		{
+			// no current pinning; just pin
+			multiSelectPinLevel = pinLevel;
+			multiSelectPinnedTo = pinId;
+			setMultiSelectInternal(multiSelect);
+		}
+		else if (pinLevel < multiSelectPinLevel)
+		{
+			// current pin was for hidden form, this is a visible form
+			multiSelectPinLevel = pinLevel;
+			if (multiSelectPinnedTo != pinId)
+			{
+				multiSelectPinnedTo = pinId;
+				setMultiSelectInternal(multiSelect);
+			}
+		}
+		else if (pinLevel == multiSelectPinLevel)
+		{
+			// same pin level, different forms; always choose one with lowest id
+			if (pinId < multiSelectPinnedTo)
+			{
+				multiSelectPinnedTo = pinId;
+				setMultiSelectInternal(multiSelect);
+			}
+		}
+		else if (pinId == multiSelectPinnedTo) // && (pinLevel > multiSelectPinLevel) implied
+		{
+			// pinlevel is higher then current; if this is the current pinned form, update the pin level
+			// maybe other visible forms using this foundset want to pin selection mode in this case (visible pinning form became hidden)
+			multiSelectPinLevel = pinLevel;
+			fireSelectionModeChange();
+		}
 	}
 
 	@Override
 	@JSGetter
 	public void setMultiSelect(boolean multiSelect)
 	{
-		this.multiSelect = multiSelect;
+		if (multiSelectPinnedTo == -1) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
 	}
 
 	@Override
 	@JSGetter
 	public boolean isMultiSelect()
 	{
-		return multiSelect;
+		if (selectionModel == null) createSelectionModel();
+		return selectionModel.getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 	}
 
 	@Override
 	public void setSelectedIndexes(int[] indexes)
 	{
-		if (!multiSelect && indexes != null && indexes.length > 1) setSelectedIndex(indexes[0]);
-		else this.selection = indexes;
-
+		if (selectionModel == null) createSelectionModel();
+		selectionModel.setSelectedRows(indexes);
 	}
 
 	@Override
 	public int[] getSelectedIndexes()
 	{
-		return selection == null ? new int[0] : selection;
+		if (selectionModel == null) createSelectionModel();
+		return selectionModel.getSelectedRows();
 	}
 
 	@JSFunction
@@ -732,7 +820,7 @@ public class ViewFoundSet implements IFoundSetInternal
 	private void testForLoadMore(int maxIndex)
 	{
 		boolean queryForMore = hasMore && (maxIndex == records.size() - 1);
-		if (refesh || queryForMore)
+		if (refresh || queryForMore)
 		{
 			try
 			{
@@ -849,6 +937,12 @@ public class ViewFoundSet implements IFoundSetInternal
 		return foundsetID;
 	}
 
+	@Override
+	public void fireFoundSetChanged()
+	{
+		fireFoundSetEvent(0, records.size() - 1, FoundSetEvent.CHANGE_UPDATE);
+	}
+
 	/**
 	 * Fire difference based on real size (not corrected for fires!)
 	 *
@@ -888,6 +982,7 @@ public class ViewFoundSet implements IFoundSetInternal
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}
 
+
 	protected void fireFoundSetEvent(final FoundSetEvent e)
 	{
 		if (foundSetEventListeners.size() > 0)
@@ -920,6 +1015,103 @@ public class ViewFoundSet implements IFoundSetInternal
 			{
 				this.manager.getApplication().invokeLater(run);
 			}
+		}
+		int type = e.getChangeType();
+		int firstRow = e.getFirstRow();
+		int lastRow = e.getLastRow();
+		// always fire also if there are no listeners (because of always-first-selection rule)
+		if (type == FoundSetEvent.CHANGE_INSERT || type == FoundSetEvent.CHANGE_DELETE)
+		{
+			// if for example both a record view and a table view listen for this event and the record view changes the selection before the table view tries to adjust it due to the insert (on the same selectionModel)
+			// selection might become wrong (selection = 165 when only 164 records are available); so selectionModel needs to know; similar situations might happen for delete also
+			boolean before = selectionModel.setFoundsetIsFiringSizeChangeTableAndListEvent(true);
+			try
+			{
+				getTableAndListEventDelegate().fireTableAndListEvent(getFoundSetManager().getApplication(), firstRow, lastRow, type);
+			}
+			finally
+			{
+				selectionModel.setFoundsetIsFiringSizeChangeTableAndListEvent(before);
+			}
+		}
+		else if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+		{
+			getTableAndListEventDelegate().fireTableAndListEvent(getFoundSetManager().getApplication(), firstRow, lastRow, type);
+		}
+	}
+
+
+	@Override
+	public int getRowCount()
+	{
+		return getSize();
+	}
+
+	@Override
+	public int getColumnCount()
+	{
+		//do nothing handled in CellAdapter
+		return 0;
+	}
+
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex)
+	{
+		//do nothing handled in CellAdapter
+		return null;
+	}
+
+	@Override
+	public boolean isCellEditable(int rowIndex)
+	{
+		return isRecordEditable(rowIndex);
+	}
+
+	@Override
+	public void setElementAt(Object aValue, int rowIndex)
+	{
+		//not needed
+	}
+
+	@Override
+	public Object getElementAt(int index)
+	{
+		return getRecord(index);
+	}
+
+	@Override
+	public AlwaysRowSelectedSelectionModel getSelectionModel()
+	{
+		return selectionModel;
+	}
+
+	protected TableAndListEventDelegate getTableAndListEventDelegate()
+	{
+		if (tableAndListEventDelegate == null) tableAndListEventDelegate = new TableAndListEventDelegate(this);
+		return tableAndListEventDelegate;
+	}
+
+	@Override
+	public void addListDataListener(ListDataListener l)
+	{
+		getTableAndListEventDelegate().addListDataListener(l);
+	}
+
+	@Override
+	public void removeListDataListener(ListDataListener l)
+	{
+		if (tableAndListEventDelegate != null)
+		{
+			tableAndListEventDelegate.removeListDataListener(l);
+		}
+	}
+
+	@Override
+	public void fireTableModelEvent(int firstRow, int lastRow, int column, int type)
+	{
+		if (tableAndListEventDelegate != null)
+		{
+			tableAndListEventDelegate.fireTableModelEvent(firstRow, lastRow, column, type);
 		}
 	}
 
@@ -1039,6 +1231,5 @@ public class ViewFoundSet implements IFoundSetInternal
 			}
 			return false;
 		}
-
 	}
 }

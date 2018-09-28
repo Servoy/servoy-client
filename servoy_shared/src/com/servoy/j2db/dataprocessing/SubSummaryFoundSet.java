@@ -632,4 +632,21 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return 0;
 	}
+
+	@Override
+	public int getRawSize()
+	{
+		return getSize();
+	}
+
+	@Override
+	public boolean isInitialized()
+	{
+		return true;
+	}
+
+	@Override
+	public void fireFoundSetChanged()
+	{
+	}
 }

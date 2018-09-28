@@ -117,6 +117,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private final IApplication application;
 	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
+	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
 	private Map<String, WeakReference<FoundSet>> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -908,6 +909,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<IFoundSetListener, FoundSet>(32));
 		foundSets = Collections.synchronizedSet(new WeakHashSet<FoundSet>(64));
 		namedFoundSets = Collections.synchronizedMap(new HashMap<String, WeakReference<FoundSet>>(32));
+		viewFoundSets = new ConcurrentHashMap<String, ViewFoundSet>(16);
 		noTableFoundSet = null;
 
 		rowManagers = new ConcurrentHashMap<String, RowManager>(64);
@@ -1046,6 +1048,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 		ITable table = inMemDataSources.get(dataSource);
+		if (table == null)
+		{
+			ViewFoundSet vfs = viewFoundSets.get(dataSource);
+			table = vfs != null ? vfs.getTable() : null;
+		}
 		if (table == null)
 		{
 			// when it is a db:/server/table data source
@@ -1646,6 +1653,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			// make sure inmem table is created
 			getTable(dataSource);
+		}
+		if (DataSourceUtils.getViewDataSourceName(dataSource) != null)
+		{
+			ViewFoundSet vfs = viewFoundSets.get(dataSource);
+			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
+				" is not registered yet on the form manager, please use databaseManager.regiserViewFoundset() first before showing a form");
+			return vfs;
 		}
 
 		FoundSet foundset = sharedDataSourceFoundSet.get(dataSource);
@@ -3058,7 +3072,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
 	{
-		return new ViewFoundSet(DataSourceUtils.createViewDataSource(name), query.build(), application.getFoundSetManager(), pkChunkSize);
+		ViewFoundSet vfs = new ViewFoundSet(DataSourceUtils.createViewDataSource(name), query.build(), application.getFoundSetManager(), pkChunkSize);
+		// if this datasource defintion is created already in the developer then we need to chechk if the query columns are correctly matching it.
+		return vfs;
+	}
+
+	@Override
+	public boolean registerViewFoundSet(ViewFoundSet foundset)
+	{
+		if (foundset == null) return false;
+		viewFoundSets.put(foundset.getDataSource(), foundset);
+		return true;
+	}
+
+	@Override
+	public boolean unregisterViewFoundSet(String datasource)
+	{
+		return viewFoundSets.remove(datasource) != null;
 	}
 
 

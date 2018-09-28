@@ -43,7 +43,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	public static final String INMEM_DATASOURCE_SCHEME_COLON = INMEM_DATASOURCE + ':';
 
 	public static final String VIEW_DATASOURCE = "view"; //$NON-NLS-1$
-	public static final String VIEW_DATASOURCE_SCHEME_COLON = INMEM_DATASOURCE + ':';
+	public static final String VIEW_DATASOURCE_SCHEME_COLON = VIEW_DATASOURCE + ':';
 
 	private DataSourceUtils()
 	{
@@ -108,7 +108,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	 * Get the datasource name from the in-mem datasource uri.
 	 *
 	 * @param dataSource the dataSource
-	 * @return the server and table name (or null if not a db datasource)
+	 * @return the server and table name (or null if not a mem datasource)
 	 */
 	public static String getInmemDataSourceName(String dataSource)
 	{
@@ -116,6 +116,22 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		if (dataSource != null && dataSource.startsWith(INMEM_DATASOURCE_SCHEME_COLON))
 		{
 			return dataSource.substring(INMEM_DATASOURCE_SCHEME_COLON.length());
+		}
+		return null;
+	}
+
+	/**
+	 * Get the datasource name from the view datasource uri.
+	 *
+	 * @param dataSource the dataSource
+	 * @return the name (or null if not a view datasource)
+	 */
+	public static String getViewDataSourceName(String dataSource)
+	{
+		// view:name
+		if (dataSource != null && dataSource.startsWith(VIEW_DATASOURCE_SCHEME_COLON))
+		{
+			return dataSource.substring(VIEW_DATASOURCE_SCHEME_COLON.length());
 		}
 		return null;
 	}
