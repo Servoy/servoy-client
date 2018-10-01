@@ -793,7 +793,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive('svyRollovercursor',  function ($timeout:angular.ITimeoutService) {
+.directive('svyRollovercursor',  function ($timeout: angular.ITimeoutService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -808,7 +808,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-	.directive( 'svyFormComponent', function( $utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants,$sabloConstants) {
+.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService) {
 		return {
 			restrict: 'A',
 			scope: {
@@ -881,7 +881,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();
 		                        const height = scope.svyFormComponent.formHeight;
-		                        const  width = scope.svyFormComponent.formWidth;
+		                        const width = scope.svyFormComponent.formWidth;
 		                        const numberOfColumns = Math.floor(parentWidth/width);
 		                        const numberOfRows = Math.floor(parentHeight/height);
 		                        numberOfCells  = numberOfRows * numberOfColumns;
@@ -912,9 +912,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	                        }
 	                        const pagerChildren = pager.children();
 	                        pagerChildren.css("cursor","pointer");
-	                        pagerChildren.first().css("display",page> 0?"inline":"none");
+	                        pagerChildren.first().css("display", page > 0 ? "inline" : "none");
 	    					const showNext = scope.foundset.hasMoreRows || (scope.foundset.serverSize - (startIndex + maxRows)) > 0;
-	    					pagerChildren.last().css("display",showNext?"inline":"none");
+	    					pagerChildren.last().css("display", showNext ? "inline" : "none");
                         }
 					}
 					
@@ -969,7 +969,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								};
 							}
 						}
-						const elements = template( row , function(cloned) {;
+						const elements = template( row , function(cloned) {
 							const clone = element.clone();
 							clone.append( cloned );
 							if (rowToModel.length -1 == index){
@@ -982,7 +982,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							    const child = $(parent.children()[index]);
 							    clone.insertBefore(child);
 							}
-						})
+						});
 					}
 				
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
@@ -1018,18 +1018,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 													copyRecordProperties( childElement, row.model[simpleName], k );
 												}
 											}
-											else 	if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
+											else if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
 												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-												    destroyScopes(rowToModel.splice(k, 0, {} as servoy.IServoyScope));
+													rowToModel.splice(k, 0, {} as servoy.IServoyScope);
 													createRow(k);
+													// TODO what if insert automatically deleted some rows from the end of viewport (info that is available in 'change')? handle that as well
 												}
 											}
-											else     if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
-                                                for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-                                                    destroyScopes(rowToModel.splice(k, 1));
-                                                   parent.children()[k].remove();
-                                                }
-                                            }
+											else if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
+												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+													destroyScopes(rowToModel.splice(k, 1));
+													parent.children()[k].remove();
+													// TODO what if delete automatically inserted some rows at the end of viewport (info that is available in 'change')? handle that as well
+												}
+											}
 										} )
 									} else if (change.viewportRowsCompletelyChanged) {
 										createRows();
@@ -1051,23 +1053,35 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						if (scope.responsivePageSize == 0){
 							let lastValue = 0;
 							let lastChangeTimed= 0;
-							scope.$watch(()=>{
+							const NUMBER_OF_CELLS_CHANGE_TIMEOUT = 500;
+							let resizeTimeoutID;
+							scope.$watch(() => {
 				                        const parentWidth = parent.outerWidth();
 				                        const parentHeight = parent.outerHeight();
 				                        const height = scope.svyFormComponent.formHeight;
-				                        const  width = scope.svyFormComponent.formWidth;
+				                        const width = scope.svyFormComponent.formWidth;
 				                        const numberOfColumns = Math.floor(parentWidth/width);
 				                        const numberOfRows = Math.floor(parentHeight/height);
 				                        const numberOfCells = numberOfRows * numberOfColumns;
-				                        if (lastValue != numberOfCells && (new Date().getTime() - lastChangeTimed) > 1500) {
-				                        	console.log(new Date().getTime() - lastChangeTimed);
+				                        let currentTime;
+				                        if (lastValue != numberOfCells && ((currentTime = new Date().getTime()) - lastChangeTimed) > NUMBER_OF_CELLS_CHANGE_TIMEOUT) {
 				                        	lastValue = numberOfCells;
-				                        	lastChangeTimed = new Date().getTime();
+				                        	lastChangeTimed = currentTime;
+				                        	if (resizeTimeoutID) {
+				                        		$timeout.cancel(resizeTimeoutID);
+				                        		resizeTimeoutID = undefined;
+				                        	}
+				                        } else if (!resizeTimeoutID) {
+				                        	resizeTimeoutID = $timeout( function() {
+				        						// nothing to do here; it will just make sure to trigger an angular digest that will call the $watch above again - to not miss handling last change
+				                        		resizeTimeoutID = undefined;
+				        					}, NUMBER_OF_CELLS_CHANGE_TIMEOUT);
 				                        }
+				                        
 							            return lastValue;
-							        },(newValue) => {
-	                                        createRows();
-							})
+							        }, (newValue) => {
+	                                    createRows();
+							        });
 						}
 						else {
 							createRows();

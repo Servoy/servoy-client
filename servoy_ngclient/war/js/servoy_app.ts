@@ -834,23 +834,27 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			if (!compModel) return; // not found, maybe a missing bean
 
-			if(isForm || compModel.anchors) {
-				var resizeTimeoutID = null;
-				var onResize = function() {
-					if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
-					resizeTimeoutID = $timeout( function() {
+			if (isForm || compModel.anchors) {
+				let resizeTimeoutID = null;
+				const onResize = function() {
+					// the $timeout below will trigger an angular digest as well when it executes (so only when there are anchored forms present)
+					// that means that any angular watches that rely on being called on window resize will get evaluated only when this $timeout executes (if there is no other code in other places triggering a digest)
+					if (!resizeTimeoutID) resizeTimeoutID = $timeout( function() {
+						resizeTimeoutID = null;
+						
 						// TODO: visibility must be based on properties of type visible, not on property name
-						if(isForm || compModel.visible) {
+						if (isForm || compModel.visible) {
 							if(compModel.location) {
 								compModel.location.x = $element.offset().left;
 								compModel.location.y = $element.offset().top;
 							}
-							if(compModel.size) {
+							if (compModel.size) {
 								compModel.size.width = $element.width();
 								compModel.size.height = $element.height();  
 							}
 						}
-					}, 1000);
+					}, 400);
+					
 				}
 				$window.addEventListener('resize', onResize);
 				$scope.$on("$destroy", function() {
