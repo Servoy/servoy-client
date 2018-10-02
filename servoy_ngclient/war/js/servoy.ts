@@ -792,7 +792,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive('svyRollovercursor',  function ($timeout:angular.ITimeoutService) {
+.directive('svyRollovercursor',  function ($timeout: angular.ITimeoutService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
