@@ -1055,6 +1055,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							let lastChangeTimed= 0;
 							const NUMBER_OF_CELLS_CHANGE_TIMEOUT = 500;
 							let resizeTimeoutID;
+							
+							// this watch will also be called when resizing browser window due to the $timeout in servoy_app.ts -> svyLayoutUpdate
 							scope.$watch(() => {
 				                        const parentWidth = parent.outerWidth();
 				                        const parentHeight = parent.outerHeight();
