@@ -30,7 +30,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 
 		// private impl
 		internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = false;
-		internalState.singleValueState = null;
+		internalState.singleValueState = undefined;
 		internalState.conversionInfo = [];
 		internalState.requests = []; // see viewport.js for how this will get populated
 	}
@@ -54,7 +54,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 			
 			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, iS[PUSH_TO_SERVER]);
 			
-			if (componentScope && !iS[$foundsetLinkedTypeConstants.RECORD_LINKED]) {
+			if (componentScope && iS.singleValueState) {
 				// watch foundSet viewport size; when it changes generate a new viewport client side as this is a repeated single value; it is not record linked
 				function vpSizeGetter() { return $sabloUtils.getInDepthProperty(iS[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY](), "viewPort", "size") };
 
@@ -154,7 +154,9 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				var childChangedNotifier;
 				
 				if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE_UPDATE])) {
+					internalState.singleValueState = undefined;
 					internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
+					
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
 							$sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE_UPDATE),
 							componentScope, propertyContext, true);
@@ -162,7 +164,6 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
 					var conversionInfos;
-					
 					var updateWholeViewportFunc = getUpdateWholeViewportFunc(propertyContext);
 					
 					var wholeViewport;
@@ -176,7 +177,9 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 						conversionInfos = internalState.singleValueState.conversionInfos;
 						// addBackWatches below (end of function) will add a watch for foundset prop. size to regenerate the viewport when that changes - fill it up with single values
 					} else if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE])) {
+						internalState.singleValueState = undefined;
 						internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
+						
 						wholeViewport = serverJSONValue[VIEWPORT_VALUE];
 						conversionInfos = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE);
 					}
