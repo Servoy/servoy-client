@@ -62,6 +62,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IUserClient;
@@ -258,9 +259,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		if (send && !("".equals(l.getLanguage()) && "".equals(l.getCountry())))
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
 				new Object[] { l.getLanguage(), l.getCountry() });
+
 		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
-		Map< ? , ? > cachedValueList = (Map< ? , ? >)getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
-		if (cachedValueList != null) cachedValueList.clear();
+		ComponentFactory.flushAllValueLists(this, false);
+
 		List<IFormController> allControllers = getFormManager().getCachedFormControllers();
 		for (IFormController fc : allControllers)
 		{
@@ -1266,6 +1268,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				((CustomValueList)valueList).setValueType(guessedType);
 				((CustomValueList)valueList).fillWithArrayValues(displayValues, realValues);
+				((CustomValueList)valueList).setRuntimeChanged(true);
 			}
 		}
 	}

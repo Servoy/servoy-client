@@ -38,10 +38,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 					scope.style['min-height'] = scope.model.size.height + 'px';
 					if (!scope.svyServoyapi.isInDesigner())
 					{
-						if (element.parent().hasClass('svy-wrapper'))
-						{
-							scope.style['min-width'] = element.parent().width() + 'px';
-						}
+						scope.style['min-width'] = element.parent().width() + 'px';
 					}
 				}	
 			});
