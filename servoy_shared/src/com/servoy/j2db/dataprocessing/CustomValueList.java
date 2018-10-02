@@ -166,6 +166,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	protected IValueList fallbackValueList;
 
+	private boolean isRuntimeChanged;
+
 	/*
 	 * _____ Declaration and definition of constructors
 	 */
@@ -782,5 +784,15 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	public IDataProvider[] getDependedDataProviders()
 	{
 		return null;
+	}
+
+	public void setRuntimeChanged(boolean isChanged)
+	{
+		isRuntimeChanged = isChanged;
+	}
+
+	public boolean isRuntimeChanged()
+	{
+		return isRuntimeChanged;
 	}
 }
