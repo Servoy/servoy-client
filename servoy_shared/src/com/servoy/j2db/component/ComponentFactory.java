@@ -2115,6 +2115,37 @@ public class ComponentFactory
 		}
 	}
 
+	public static void flushAllValueLists(IServiceProvider sp, boolean includeRuntimeChanged)
+	{
+		Map< ? , ? > cachedValueList = (Map< ? , ? >)sp.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+		if (cachedValueList != null)
+		{
+			if (includeRuntimeChanged)
+			{
+				cachedValueList.clear();
+			}
+			else
+			{
+				for (Iterator< ? > it = cachedValueList.entrySet().iterator(); it.hasNext();)
+				{
+					Map.Entry< ? , ? > entry = (Map.Entry< ? , ? >)it.next();
+					Object entryValue = entry.getValue();
+
+					if (entryValue instanceof SoftReference< ? >)
+					{
+						SoftReference< ? > sr = (SoftReference< ? >)entryValue;
+						Object list = sr.get();
+						if (list instanceof CustomValueList && ((CustomValueList)list).isRuntimeChanged())
+						{
+							continue;
+						}
+					}
+					it.remove();
+				}
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public static void flushCachedItems(IServiceProvider provider)
 	{

@@ -30,25 +30,83 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 
 		// private impl
 		internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = false;
-		internalState.viewportSizeUnwatch = null;
+		internalState.singleValueState = undefined;
 		internalState.conversionInfo = [];
 		internalState.requests = []; // see viewport.js for how this will get populated
 	}
+	
+	function getUpdateWholeViewportFunc(propertyContext) {
+		return function updateWholeViewport(propValue, internalState, wholeViewport, conversionInfos, componentScope) {
+			var viewPortHolder = { "tmp" : propValue };
+			$viewportModule.updateWholeViewport(viewPortHolder, "tmp", internalState, wholeViewport, conversionInfos, componentScope, propertyContext);
+			
+			// updateWholeViewport probably changed "tmp" reference to value of "wholeViewport"...
+			// update current value reference because that is what is present in the model
+			propValue.splice(0, propValue.length);
+			var tmp = viewPortHolder["tmp"];
+			for (var tz = 0; tz < tmp.length; tz++) propValue.push(tmp[tz]);
+		}
+	}
+
+	function addBackWatches(value, componentScope) {
+		if (angular.isDefined(value) && value !== null) {
+			var iS = value[$sabloConverters.INTERNAL_IMPL];
+			
+			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, iS[PUSH_TO_SERVER]);
+			
+			if (componentScope && iS.singleValueState) {
+				// watch foundSet viewport size; when it changes generate a new viewport client side as this is a repeated single value; it is not record linked
+				function vpSizeGetter() { return $sabloUtils.getInDepthProperty(iS[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY](), "viewPort", "size") };
+
+				iS.singleValueState.viewportSizeUnwatch = componentScope.$watch(vpSizeGetter,
+						function (newViewportSize) {
+							if (newViewportSize === iS.singleValueState.initialVPSize) return;
+							iS.singleValueState.initialVPSize = -1;
+							if (!angular.isDefined(newViewportSize)) newViewportSize = 0;
+							
+							componentScope.$evalAsync(function() {
+								$viewportModule.removeDataWatchesFromRows(value.length, iS);
+								var wholeViewport = iS.singleValueState.generateWholeViewportFromOneValue(iS, newViewportSize);
+								iS.singleValueState.updateWholeViewport(value, iS, wholeViewport, iS.singleValueState.conversionInfos, componentScope);
+								$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, iS[PUSH_TO_SERVER]);
+							})
+						});
+			}
+		}
+	};
 	
 	function removeAllWatches(value) {
 		if (value != null && angular.isDefined(value)) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
 			$viewportModule.removeDataWatchesFromRows(value.length, iS);
-			if (iS.viewportSizeUnwatch) iS.viewportSizeUnwatch();
+			if (iS.singleValueState && iS.singleValueState.viewportSizeUnwatch) {
+				iS.singleValueState.viewportSizeUnwatch();
+				iS.singleValueState.viewportSizeUnwatch = undefined;
+			}
 		}
 	};
 
-	function addBackWatches(value, componentScope) {
-		if (angular.isDefined(value) && value !== null) {
-			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, iS[PUSH_TO_SERVER]);
+	function handleSingleValue(singleValue, iS, conversionInfo) {
+		// this gets called for values that are not actually record linked, and we 'fake' a viewport containing the same value on each row in the array
+		iS[$foundsetLinkedTypeConstants.RECORD_LINKED] = false;
+		
+		// *** BEGIN we need the following in addBackWatches that is also called by updateAngularScope, that is why they are stored in internalState (iS)
+		iS.singleValueState.generateWholeViewportFromOneValue = function(internalState, vpSize) {
+			if (angular.isUndefined(vpSize)) vpSize = 0;
+			var wholeViewport = [];
+			internalState.singleValueState.conversionInfos = conversionInfo ? [] : undefined; 
+			
+			for (var index = vpSize - 1; index >= 0; index--) {
+				wholeViewport.push(singleValue);
+				if (conversionInfo) internalState.singleValueState.conversionInfos.push(conversionInfo);
+			}
+			return wholeViewport;
 		}
-	};
+		iS.singleValueState.initialVPSize = $sabloUtils.getInDepthProperty(iS[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY](), "viewPort", "size");
+		// *** END
+		
+		return iS.singleValueState.generateWholeViewportFromOneValue(iS, iS.singleValueState.initialVPSize);
+	}
 
 	$sabloConverters.registerCustomPropertyHandler(CONVERSION_NAME, {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
@@ -74,7 +132,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 						}
 					}
 					internalState.fireChanges = function(values) {
-						for(var i=0;i<changeListeners.length;i++) {
+						for (var i = 0; i < changeListeners.length; i++) {
 							changeListeners[i](values);
 						}
 					}
@@ -96,70 +154,37 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				var childChangedNotifier;
 				
 				if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE_UPDATE])) {
+					internalState.singleValueState = undefined;
 					internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
+					
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
 							$sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE_UPDATE),
 							componentScope, propertyContext, true);
 					internalState.fireChanges(serverJSONValue[VIEWPORT_VALUE_UPDATE]);
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
-					var wholeViewport;
 					var conversionInfos;
+					var updateWholeViewportFunc = getUpdateWholeViewportFunc(propertyContext);
 					
-					function updateWholeViewport() {
-						var viewPortHolder = { "tmp" : newValue };
-						$viewportModule.updateWholeViewport(viewPortHolder, "tmp", internalState, wholeViewport, conversionInfos, componentScope, propertyContext);
-						
-						// updateWholeViewport probably changed "tmp" reference to value of "wholeViewport"...
-						// update current value reference because that is what is present in the model
-						newValue.splice(0, newValue.length);
-						var tmp = viewPortHolder["tmp"];
-						for (var tz = 0; tz < tmp.length; tz++) newValue.push(tmp[tz]);
-					}
-					
+					var wholeViewport;
 					if (angular.isDefined(serverJSONValue[SINGLE_VALUE]) || angular.isDefined(serverJSONValue[SINGLE_VALUE_UPDATE])) {
 						// just update single value from server and make copies of it to duplicate
-						internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = false;
 						var conversionInfo = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, angular.isDefined(serverJSONValue[SINGLE_VALUE]) ? SINGLE_VALUE : SINGLE_VALUE_UPDATE);
 						var singleValue = angular.isDefined(serverJSONValue[SINGLE_VALUE]) ? serverJSONValue[SINGLE_VALUE] : serverJSONValue[SINGLE_VALUE_UPDATE];
-						
-						function generateWholeViewportFromOneValue(vpSize) {
-							if (angular.isUndefined(vpSize)) vpSize = 0;
-							wholeViewport = [];
-							conversionInfos = conversionInfo ? [] : undefined;
-							
-							for (var index = vpSize - 1; index >= 0; index--) {
-								wholeViewport.push(singleValue);
-								if (conversionInfo) conversionInfos.push(conversionInfo);
-							}
-						}
-						function vpSizeGetter() { return $sabloUtils.getInDepthProperty(internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY](), "viewPort", "size") };
-						var initialVPSize = vpSizeGetter();
-						generateWholeViewportFromOneValue(initialVPSize);
-						
-						// watch foundSet viewport size; when it changes generate a new viewport client side
-						internalState.viewportSizeUnwatch = componentScope.$watch(vpSizeGetter,
-								function (newV) {
-									if (newV === initialVPSize) return;
-									initialVPSize = -1;
-									if (!angular.isDefined(newV)) newV = 0;
-									
-									if (componentScope) {
-										componentScope.$evalAsync(function(){
-											$viewportModule.removeDataWatchesFromRows(newValue.length, internalState);
-											generateWholeViewportFromOneValue(newV);
-											updateWholeViewport();
-											$viewportModule.addDataWatchesToRows(newValue, internalState, componentScope, true, internalState[PUSH_TO_SERVER]);
-										})
-									}
-								});
+						internalState.singleValueState = {};
+						internalState.singleValueState.updateWholeViewport = updateWholeViewportFunc;
+						wholeViewport = handleSingleValue(singleValue, internalState, conversionInfo);
+						conversionInfos = internalState.singleValueState.conversionInfos;
+						// addBackWatches below (end of function) will add a watch for foundset prop. size to regenerate the viewport when that changes - fill it up with single values
 					} else if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE])) {
+						internalState.singleValueState = undefined;
 						internalState[$foundsetLinkedTypeConstants.RECORD_LINKED] = true;
+						
 						wholeViewport = serverJSONValue[VIEWPORT_VALUE];
 						conversionInfos = $sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE);
 					}
 					
-					if (angular.isDefined(wholeViewport)) updateWholeViewport();
+					if (angular.isDefined(wholeViewport)) updateWholeViewportFunc(newValue, internalState, wholeViewport, conversionInfos, componentScope);
 					else if (!didSomething) $log.error("Can't interpret foundset linked prop. server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
 				}
 			}
