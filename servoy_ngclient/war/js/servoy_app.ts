@@ -49,7 +49,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	function sendChanges(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], !formState.properties.useCssPosition, formname);
+			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], !formState.properties.useCssPosition[beanname], formname);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
@@ -283,7 +283,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								//size or location were changed at runtime, we need to update components with anchors
 								beanData.anchors = beanModel.anchors;
 							}
-							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false,!formState.properties.useCssPosition, formname)
+							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false,!formState.properties.useCssPosition[beanname], formname)
 						}
 						else if (beanData['findmode'] !== undefined)
 						{
@@ -402,7 +402,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
-						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope,!formProperties.useCssPosition, formName)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope,!formProperties.useCssPosition[beanName], formName)
 					}
 				} else {
 					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope
@@ -418,7 +418,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (formState.initializing) $sabloApplication.requestInitialData(formname, function(initialFormData,formState) {
 				for (var beanName in initialFormData) {
 					if (beanName != '') {
-						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false,!formState.properties.useCssPosition, formname)
+						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false,!formState.properties.useCssPosition[beanName], formname)
 					}
 				}
 			});
