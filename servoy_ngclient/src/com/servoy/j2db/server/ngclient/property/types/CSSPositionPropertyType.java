@@ -74,8 +74,14 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		return writer.object().key("top").value(object.top).key("left").value(object.left).key("bottom").value(object.bottom).key("right").value(
-			object.right).key("width").value(object.width).key("height").value(object.height).endObject();
+		writer.object();
+		if (object != null)
+		{
+			writer.key("top").value(object.top).key("left").value(object.left).key("bottom").value(object.bottom).key("right").value(object.right).key(
+				"width").value(object.width).key("height").value(object.height);
+		}
+		writer.endObject();
+		return writer;
 	}
 
 	@Override
