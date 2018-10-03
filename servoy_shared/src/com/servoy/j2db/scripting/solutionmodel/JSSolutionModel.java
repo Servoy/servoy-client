@@ -1101,6 +1101,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Gets an existing valuelist by the specified name and returns a JSValueList Object that can be assigned to a field.
 	 *
+	 * NOTE: Changes to valuelist should be done before showing any form that has component using the valuelist.
+	 *
 	 * @sample
 	 * var myValueList = solutionModel.getValueList('myValueListHere')
 	 * //now set the valueList property of your field
@@ -1125,6 +1127,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets an array of all valuelists for the currently active solution.
+	 *
+	 * NOTE: Changes to valuelist should be done before showing any form that has component using the valuelist.
 	 *
 	 * @sample
 	 * var valueLists = solutionModel.getValueLists();
