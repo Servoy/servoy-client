@@ -445,6 +445,10 @@ public class RepositoryHelper
 		{
 			return true;
 		}
+		if (persist instanceof Form && StaticContentSpecLoader.PROPERTY_VIEW.getPropertyName().equals(name) && ((Form)persist).getUseCssPosition())
+		{
+			return true;
+		}
 		if (StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(name) || StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(name) ||
 			StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name))
 		{

@@ -83,6 +83,7 @@ public class FormWrapper
 	private final Map<String, String> formComponentTemplates = new HashMap<>();
 	private final Map<String, Dimension> formComponentParentSizes = new HashMap<>();
 	private final Map<String, Boolean> formComponentsLayout = new HashMap<>();
+	private final List<String> formComponentCSSPositionElementNames = new ArrayList<String>();
 	private final JSONObject runtimeData;
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, IServoyDataConverterContext context, boolean design, JSONObject runtimeData)
@@ -225,6 +226,8 @@ public class FormWrapper
 						{
 							formComponentsLayout.put(element.getName(), Boolean.TRUE);
 						}
+						if (frm.getUseCssPosition() && !formComponentCSSPositionElementNames.contains(element.getName()))
+							formComponentCSSPositionElementNames.add(element.getName());
 						checkFormComponents(components, element);
 					}
 					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
@@ -284,7 +287,7 @@ public class FormWrapper
 			absolute.put(fe.getName(), Boolean.TRUE);
 		}
 		properties.put("absoluteLayout", absolute);
-		properties.put(IContentSpecConstants.PROPERTY_USE_CSS_POSITION, form.getUseCssPosition() || form.isResponsiveLayout());
+		properties.put(IContentSpecConstants.PROPERTY_USE_CSS_POSITION, getCSSPositionElementNames());
 		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
@@ -390,5 +393,20 @@ public class FormWrapper
 			}
 		}
 		return elements;
+	}
+
+	private List<String> getCSSPositionElementNames()
+	{
+		List<String> names = new ArrayList<String>();
+		names.addAll(formComponentCSSPositionElementNames);
+		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		for (IFormElement persist : persists)
+		{
+			if (form.getUseCssPosition() || PersistHelper.isInAbsoluteLayoutMode(persist))
+			{
+				if (!names.contains(persist.getName())) names.add(persist.getName());
+			}
+		}
+		return names;
 	}
 }

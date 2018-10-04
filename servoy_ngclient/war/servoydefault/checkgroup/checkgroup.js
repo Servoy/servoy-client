@@ -31,7 +31,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
         	   $scope.model.valuelistID = [{realValue:1,displayValue:"Item1"},{realValue:2,displayValue:"Item2"},{realValue:3,displayValue:"Item3"}];
             }
             if(!$scope.model.valuelistID) return; // not loaded yet
-            if(isValueListNull($scope.model.valuelistID[0])) allowNullinc=1;
+            if($scope.model.valuelistID.length > 0 && isValueListNull($scope.model.valuelistID[0])) allowNullinc=1;
             setSelectionFromDataprovider();
             
             $scope.tabIndexChanged($element.children().attr("tabindex"));
@@ -158,7 +158,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             arr.forEach(function(element, index, array){
                 for(var i=0;i<$scope.model.valuelistID.length;i++){
                   var item= $scope.model.valuelistID[i];
-                    if(item.realValue==element && !isValueListNull(item)) $scope.selection[i-allowNullinc] = true;
+                    if(item.realValue+''==element+'' && !isValueListNull(item)) $scope.selection[i-allowNullinc] = true;
                 }
             });
           }
