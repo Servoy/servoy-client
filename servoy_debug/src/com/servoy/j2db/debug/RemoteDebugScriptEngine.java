@@ -97,7 +97,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 					}
 					if (isDispatchThread)
 					{
-						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 						debugger.pushStackManager(cx);
 						cx.setDebugger(debugger, null);
 						cx.setGeneratingDebug(true);
@@ -105,7 +105,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 					}
 					else if (!(cx.getApplicationClassLoader() instanceof ExtendableURLClassLoader))
 					{
-						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 					}
 				}
 
