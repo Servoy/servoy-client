@@ -40,6 +40,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
           
           $scope.checkBoxClicked = function($event,$index){
              var checkedTotal = 0;
+             var changed = true;
              for(var i=0;i< $scope.selection.length ;i++){
             	 if($scope.selection[i]==true) checkedTotal++;            	 
              }
@@ -51,15 +52,15 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
                  }
             	 $scope.selection[$index] = true; 
              }
+			changed = !(checkedTotal == 0 && allowNullinc == 0 && !$scope.model.findmode)
             // prevent unselection of the last element if 'allow null' is not set                                          
-            if(checkedTotal==0 && allowNullinc ==0){
+            if(!changed){
                $scope.selection[$index] = true;
             }
             $scope.model.dataProviderID = getDataproviderFromSelection()
             
-            if(checkedTotal==0 && allowNullinc ==0) return;// only push if it was actualy changed
-            $scope.svyServoyapi.apply('dataProviderID')        
-            if($scope.handlers.onFocusLostMethodID) $scope.handlers.onFocusLostMethodID($event)
+            if(changed) $scope.svyServoyapi.apply('dataProviderID') //Only if changed       
+            if($scope.handlers.onFocusLostMethodID) $scope.handlers.onFocusLostMethodID($.Event("blur"))
           }
           
          /**
