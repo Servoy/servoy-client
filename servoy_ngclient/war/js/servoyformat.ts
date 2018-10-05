@@ -226,9 +226,6 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (format.indexOf(MILLSIGN) > -1 && format.indexOf("'"+MILLSIGN+"'") == -1) {
 			multFactor *= 0.001
 		}
-		if (format.indexOf("'%'") > -1) {
-			multFactor = 100
-		}
 		if (format.indexOf("'") > -1)
 		{
 			// replace the literals
