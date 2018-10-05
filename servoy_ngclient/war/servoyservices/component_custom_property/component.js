@@ -1,10 +1,11 @@
-angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property', 'foundset_viewport_module','$sabloService'])
+angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property', 'foundset_viewport_module', '$sabloService'])
 //Component type ------------------------------------------
 .value("$componentTypeConstants", {
 	CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
 	CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry,$sabloService) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log,
+		$foundsetTypeConstants, $propertyWatchesRegistry, $sabloService, $webSocket, $uiBlocker, $q) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -24,7 +25,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
 
-		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo, internalState.beanLayout, containerSize, propertyName, componentState.model);
+		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo,
+				internalState.beanLayout, containerSize, propertyName, componentState.model);
 	};
 
 	function getBeanPropertyChangeNotifierGenerator(propertyValue) {
@@ -75,8 +77,12 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	};
 
 	$sabloConverters.registerCustomPropertyHandler('component', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue = currentClientValue;
+
+			// see if someone is listening for changes on current value; if so, prepare to fire changes at the end of this method
+			var hasListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL].viewportChangeListeners.length > 0);
+			var notificationParamForListeners = hasListeners ? { } : undefined;
 
 			// remove watches to avoid an unwanted detection of received changes
 			removeAllWatches(currentClientValue);
@@ -111,20 +117,28 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 				// if component is linked to a foundset, then record - dependent property values are sent over as as viewport representing values for the foundset property's viewport
 				if (wholeViewportUpdate) {
-					if (!angular.isDefined(currentClientValue[MODEL_VIEWPORT])) currentClientValue[MODEL_VIEWPORT] = [];
+					var oldRows = currentClientValue[MODEL_VIEWPORT];
+					if (!angular.isDefined(oldRows)) currentClientValue[MODEL_VIEWPORT] = [];
 
 					$viewportModule.updateWholeViewport(currentClientValue, MODEL_VIEWPORT,
 							internalState, wholeViewportUpdate, beanUpdate[$sabloConverters.TYPES_KEY] && beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_KEY] ?
 									beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_KEY] : undefined, componentScope, function () {
 										return currentClientValue[MODEL_KEY]
 									});
+					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue: oldRows, newValue: currentClientValue[MODEL_VIEWPORT] };
 					done = true;
 				} else if (viewportUpdate) {
+					var oldSize = currentClientValue[MODEL_VIEWPORT].length;
 					$viewportModule.updateViewportGranularly(currentClientValue[MODEL_VIEWPORT], internalState, viewportUpdate,
 							beanUpdate[$sabloConverters.TYPES_KEY] && beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_CHANGES_KEY] ?
 									beanUpdate[$sabloConverters.TYPES_KEY][MODEL_VIEWPORT_CHANGES_KEY] : undefined, componentScope, function () {
 										return currentClientValue[MODEL_KEY]
 									}, false);
+					if (hasListeners) {
+						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewportUpdate }; // viewPortUpdate was already prepared for listeners by $viewportModule.updateViewportGranularly
+						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize;
+					}
+
 					done = true;
 				}
 
@@ -146,11 +160,18 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						// if it's linked to a foundset, keep that info in internal state; viewport.js needs it
 						var forFoundsetPropertyName = serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 						internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = function() {
-							return componentModelGetter()[forFoundsetPropertyName];
+							return propertyContext(forFoundsetPropertyName);
 						};
 						delete serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					}
-					var executeHandler = function(type,args,row) {
+					var executeHandler = function(type, args, row, name, model) {		
+						if ($uiBlocker.shouldBlockDuplicateEvents(name, model, type, row))
+						{
+							// reject execution
+							console.log("rejecting execution of: "+type +" on "+name +" row "+row);
+							return $q.resolve(null);
+						}
+						
 						var promiseAndCmsid = $sabloService.createDeferedEvent();
 						var newargs = $sabloUtils.getEventArgs(args,type);
 						internalState.requests.push({ handlerExec: {
@@ -160,6 +181,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							defid: promiseAndCmsid.defid
 						}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						promiseAndCmsid.promise.finally(function(){$uiBlocker.eventExecuted(name, model, type, row);});
 						return promiseAndCmsid.promise;
 					};
 
@@ -172,6 +194,28 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					// private impl
 					internalState.requests = [];
 					internalState.beanLayout = null; // not really useful right now; just to be able to reuse existing form code 
+
+					// even if it's a completely new value, keep listeners from old one if there is an old value
+					internalState.viewportChangeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].viewportChangeListeners : []);
+					newValue.addViewportChangeListener = function(listener) {
+						internalState.viewportChangeListeners.push(listener);
+					}
+					newValue.removeViewportChangeListener = function(listener) {
+						var index = internalState.viewportChangeListeners.indexOf(listener);
+						if (index > -1) {
+							internalState.viewportChangeListeners.splice(index, 1);
+						}
+					}
+					internalState.fireChanges = function(viewportChanges) {
+						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties/child component props. linked to that foundset.
+						// In order to make sure that foundset notification update code executes after all property changes have been applied
+						// delay change listener calls until all incoming messages are handled
+						$webSocket.addIncomingMessageHandlingDoneTask(function() {
+							for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
+								internalState.viewportChangeListeners[i](viewportChanges);
+							}
+						});
+					}
 
 					internalState.modelUnwatch = null;
 
@@ -214,7 +258,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							(function(key) {
 								var eventHandler = function (args,rowId)
 								{
-									return executeHandler(key,args,rowId);
+									return executeHandler(key, args, rowId, serverJSONValue.name, serverJSONValue.model);
 								}
 								var wrapper = function() {
 									return eventHandler(arguments, null);
@@ -268,6 +312,12 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 			// restore/add model watch
 			addBackWatches(newValue, componentScope, childChangedNotifierGenerator);
+			
+			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
+				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
+				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
+				currentClientValue[$sabloConverters.INTERNAL_IMPL].fireChanges(notificationParamForListeners);
+			}
 
 			return newValue;
 		},

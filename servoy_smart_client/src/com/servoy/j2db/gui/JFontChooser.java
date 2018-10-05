@@ -50,7 +50,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.smart.WebStart;
+import com.servoy.j2db.smart.RemoteRunnerChecker;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
@@ -61,7 +61,7 @@ import com.servoy.j2db.util.gui.JEscapeDialog;
  * the JFileChooser, JOptionPane and JColorChooser components provided
  * with Swing.<p>
  * Upon initialization, the JFontChooser polls the system for all available
- * fonts, initializes the various JList components to the values of the 
+ * fonts, initializes the various JList components to the values of the
  * default font and provides a preview of the font. As options are changed/selected
  * the preview is updated to display the current font.<p>
  * JFileChooser can either be created and added to a GUI as a typical
@@ -278,7 +278,7 @@ public class JFontChooser extends JComponent implements ActionListener, ListSele
 
 	/**
 	 * Processes action events from the okay and cancel buttons
-	 * as well as the current size TextField. 
+	 * as well as the current size TextField.
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -313,7 +313,7 @@ public class JFontChooser extends JComponent implements ActionListener, ListSele
 		if (font != null)
 		{
 			String sfont = PersistHelper.createFontString(font);
-			WebStart.setClipboardContent("'" + sfont + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+			RemoteRunnerChecker.getInstance().setClipboardContent("'" + sfont + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -339,13 +339,13 @@ public class JFontChooser extends JComponent implements ActionListener, ListSele
 			int style = Font.PLAIN;
 			String selection = (String)fontStyles.getSelectedValue();
 			if (selection.equals("Regular")) //$NON-NLS-1$
-			style = Font.PLAIN;
+				style = Font.PLAIN;
 			if (selection.equals("Bold")) //$NON-NLS-1$
-			style = Font.BOLD;
+				style = Font.BOLD;
 			if (selection.equals("Italic")) //$NON-NLS-1$
-			style = Font.ITALIC;
+				style = Font.ITALIC;
 			if (selection.equals("BoldItalic")) //$NON-NLS-1$
-			style = (Font.BOLD | Font.ITALIC);
+				style = (Font.BOLD | Font.ITALIC);
 			updateFontStyle(style);
 		}
 	}

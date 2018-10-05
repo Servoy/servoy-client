@@ -41,8 +41,8 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * Generates HTML for a flow layout form
@@ -77,6 +77,11 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
+	private static boolean isSecurityVisible(FlattenedSolution fs, IPersist persist)
+	{
+		return (fs.getSecurityAccess(persist.getUUID()) & IRepository.VIEWABLE) != 0;
+	}
+
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
 		IFormElementCache cache)
 	{
@@ -90,7 +95,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
-		boolean isAbsoluteLayoutDiv = NGUtils.isAbsoluteLayoutDiv(spec);
+		boolean isAbsoluteLayoutDiv = PersistHelper.isAbsoluteLayoutDiv(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -152,7 +157,7 @@ public class FormLayoutStructureGenerator
 			// we need to specify the height
 			writer.print(" style='height:");
 			writer.print(container.getSize().height);
-			writer.print("px' ");
+			writer.print("px;position: relative;' ");
 		}
 		Map<String, String> attributes = new HashMap<String, String>(container.getMergedAttributes());
 		if (spec != null)
@@ -197,6 +202,10 @@ public class FormLayoutStructureGenerator
 			else if (component instanceof IFormElement)
 			{
 				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design);
+				if (!isSecurityVisible(fs, fe.getPersistIfAvailable()))
+				{
+					continue;
+				}
 				if (isAbsoluteLayoutDiv)
 				{
 					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, false);

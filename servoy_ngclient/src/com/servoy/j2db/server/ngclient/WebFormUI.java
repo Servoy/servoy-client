@@ -331,7 +331,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 	private static WebComponent findChildComponent(String compname, WebComponent rootComponent)
 	{
-		if (compname.equals(rootComponent.getName())) return rootComponent;
 		if (rootComponent instanceof Container)
 		{
 			Collection<WebComponent> childComponents = ((Container)rootComponent).getComponents();
@@ -339,6 +338,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			{
 				for (WebComponent wc : childComponents)
 				{
+					if (compname.equals(wc.getName())) return wc;
 					WebComponent foundChildComponent = findChildComponent(compname, wc);
 					if (foundChildComponent != null) return foundChildComponent;
 				}
@@ -528,7 +528,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public RuntimeWebComponent getRuntimeWebComponent(String elementName)
 	{
-		return (RuntimeWebComponent)getElementsScope().get(elementName, getElementsScope());
+		Object element = getElementsScope().get(elementName, getElementsScope());
+		if (element instanceof RuntimeWebComponent) return (RuntimeWebComponent)element;
+		return null;
 	}
 
 	public void setParentContainer(WebFormComponent parentContainer)

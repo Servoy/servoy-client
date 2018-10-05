@@ -23,14 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
-
 /**
  *  This class represents a object containing all the startup arguments
  *
  * @author gboros
  */
-@TerracottaInstrumentedClass
 public class StartupArguments extends HashMap<String, Object>
 {
 	private static final long serialVersionUID = 1L;

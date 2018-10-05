@@ -113,6 +113,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 
 			$scope.startEdit = function() {
 				editing = true;
+				$scope.svyServoyapi.startEdit("dataProviderID")
 				if (setCaret)
 				{
 					setCaret = false;

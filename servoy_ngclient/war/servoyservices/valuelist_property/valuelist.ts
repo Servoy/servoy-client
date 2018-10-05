@@ -10,10 +10,11 @@ angular.module('valuelist_property', ['webSocketModule'])
 	var FILTER = "filter";
 
 	$sabloConverters.registerCustomPropertyHandler('valuelist', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue;
 			if (serverJSONValue) {
 				newValue = serverJSONValue.values;
+				var internalState;
 				
 				// because we reuse directly what we get from server serverJSONValue.values and because valuelists can be foundset linked (forFoundset in .spec) but not actually bound to records (for example custom valuelist),
 				// it is possible that foundsetLinked.js generates the whole viewport of the foundset using the same value comming from the server => this conversion will be called multiple times
@@ -21,7 +22,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 				if (!newValue[$sabloConverters.INTERNAL_IMPL]) {
 					// initialize
 					$sabloConverters.prepareInternalState(newValue);
-					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
+					internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 
 					if (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL]) $sabloDeferHelper.initInternalStateForDeferringFromOldInternalState(internalState, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
 					else $sabloDeferHelper.initInternalStateForDeferring(internalState, "svy valuelist * ");
@@ -76,7 +77,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 						internalState.changeNotifier = changeNotifier; 
 					}
 					internalState.isChanged = function() { return angular.isDefined(internalState.filterStringReq); }
-				}
+				} else internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				
 				// if we have a deferred filter request, notify that the new value has arrived
 				if (angular.isDefined(serverJSONValue[HANDLED])) {

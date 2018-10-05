@@ -1892,7 +1892,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * application.showURL('http://www.example.com');
 	 *
-	 * //webclient specific additional parameters...
+	 * //NGClient and webclient specific additional parameters...
 	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window
 	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
@@ -1912,13 +1912,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param webclientTarget Target frame or named dialog/window
+	 * @param clientTarget Target frame or named dialog/window
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String webclientTarget)
+	public boolean js_showURL(String url, String clientTarget)
 	{
-		return js_showURL(url, webclientTarget, null, 0);
+		return js_showURL(url, clientTarget, null, 0);
 	}
 
 	/**
@@ -1927,14 +1927,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param webclientTarget Target frame or named dialog/window
-	 * @param webclientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param clientTarget Target frame or named dialog/window
+	 * @param clientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions)
+	public boolean js_showURL(String url, String clientTarget, String clientTargetOptions)
 	{
-		return js_showURL(url, webclientTarget, webclientTargetOptions, 0);
+		return js_showURL(url, clientTarget, clientTargetOptions, 0);
 	}
 
 	/**
@@ -1943,14 +1943,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param webclientTarget Target frame or named dialog/window
+	 * @param clientTarget Target frame or named dialog/window
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String webclientTarget, Number timeout)
+	public boolean js_showURL(String url, String clientTarget, Number timeout)
 	{
-		return js_showURL(url, webclientTarget, null, timeout);
+		return js_showURL(url, clientTarget, null, timeout);
 	}
 
 	/**
@@ -1959,16 +1959,16 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param webclientTarget Target frame or named dialog/window
-	 * @param webclientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param clientTarget Target frame or named dialog/window
+	 * @param clientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions, Number timeout)
+	public boolean js_showURL(String url, String clientTarget, String clientTargetOptions, Number timeout)
 	{
 		int _timeout = Utils.getAsInteger(timeout);
-		return application.showURL(url, webclientTarget, webclientTargetOptions, _timeout, true);
+		return application.showURL(url, clientTarget, clientTargetOptions, _timeout, true);
 	}
 
 	/**

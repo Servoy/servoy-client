@@ -32,6 +32,7 @@ import org.mozilla.javascript.JavaScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
@@ -622,7 +623,7 @@ public class EditRecordList
 								if (!same && values[l] != null)
 								{
 									Column pkColumn = row.getRowManager().getSQLSheet().getTable().getColumn(pkColumns[j]);
-									if (pkColumn.hasFlag(Column.UUID_COLUMN))
+									if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
 									{
 										// same uuids are the same even if not the same object
 										same = Utils.equalObjects(pkObject, values[l], 0, true);
@@ -1471,7 +1472,7 @@ public class EditRecordList
 	 * @param set
 	 * @return
 	 */
-	public IRecordInternal[] getUnmarkedEditedRecords(FoundSet set)
+	public IRecordInternal[] getUnmarkedEditedRecords(IFoundSetInternal set)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();

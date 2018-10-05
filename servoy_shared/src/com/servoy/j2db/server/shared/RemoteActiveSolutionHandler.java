@@ -28,6 +28,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -46,7 +47,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Load solutions from local client cache if the active update seq matches
- * 
+ *
  * @author jblok
  */
 public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
@@ -79,7 +80,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 				try
 				{
 					long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
-					Map<String, IServer> sps = getRepository().getServerProxies(solutionDefs);
+					ConcurrentMap<String, IServer> sps = getRepository().getServerProxies(solutionDefs);
 					for (int i = 0; i < solutionDefs.length; i++)
 					{
 						Solution s = loadCachedSolution(solutionDefs[i], asus[i], sps);
@@ -149,7 +150,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 							sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
 						}
 						long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
-						Map<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
+						ConcurrentMap<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
 
 						for (int i = 0; i < loginSolutionDefinitions.length; i++)
 						{
@@ -192,7 +193,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 	}
 
 
-	private Solution loadCachedSolution(RootObjectMetaData solutionDef, long lastModified, Map<String, IServer> serverProxies)
+	private Solution loadCachedSolution(RootObjectMetaData solutionDef, long lastModified, ConcurrentMap<String, IServer> serverProxies)
 	{
 
 		int solID = solutionDef.getRootObjectId();
@@ -208,8 +209,8 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 			URL url = getServiceProvider().getServerURL();
 			String name = (url.getHost() + '_' + url.getPort()) + '_' + solutionDef.getName();
 
-			file = new File(
-				getServiceProvider().getSettings().getProperty(SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME, System.getProperty("user.home")), J2DBGlobals.CLIENT_LOCAL_DIR + name + ".solution"); //$NON-NLS-1$ //$NON-NLS-2$
+			file = new File(getServiceProvider().getSettings().getProperty(SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME, System.getProperty("user.home")), //$NON-NLS-1$
+				J2DBGlobals.CLIENT_LOCAL_DIR + name + ".solution"); //$NON-NLS-1$
 			if (file.exists())
 			{
 				fis = new FileInputStream(file);
@@ -278,7 +279,8 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 		String name = (url.getHost() + '_' + url.getPort()) + '_' + solution.getName();
 
 		File hiddendir = new File(
-			getServiceProvider().getSettings().getProperty(SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME, System.getProperty("user.home")), J2DBGlobals.CLIENT_LOCAL_DIR); //$NON-NLS-1$
+			getServiceProvider().getSettings().getProperty(SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME, System.getProperty("user.home")), //$NON-NLS-1$
+			J2DBGlobals.CLIENT_LOCAL_DIR);
 		if (!hiddendir.exists()) hiddendir.mkdirs();
 
 		Long asus = loadedActiveSolutionUpdateSequences.get(new Integer(solution.getSolutionID()));

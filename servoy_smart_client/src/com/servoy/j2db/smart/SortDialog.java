@@ -131,17 +131,17 @@ public class SortDialog extends JEscapeDialog implements ActionListener
 	{
 		String command = event.getActionCommand();
 		if (command.equals("ok")) //$NON-NLS-1$
-		ok();
+			ok();
 		else if (command.equals("cancel")) //$NON-NLS-1$
-		cancel();
+			cancel();
 		else if (command.equals("copy")) //$NON-NLS-1$
-		copy();
+			copy();
 	}
 
 	private void copy()
 	{
 		List<SortColumn> list = sortEditor.getData();
-		WebStart.setClipboardContent(FoundSetManager.getSortColumnsAsString(list));
+		RemoteRunnerChecker.getInstance().setClipboardContent(FoundSetManager.getSortColumnsAsString(list));
 	}
 
 	private void ok()

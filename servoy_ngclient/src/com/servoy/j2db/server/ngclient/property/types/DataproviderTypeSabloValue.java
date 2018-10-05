@@ -78,6 +78,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -85,7 +86,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -101,7 +101,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	protected final String dataProviderID;
 
-	protected final IDataAdapterList dataAdapterList;
+	protected IDataAdapterList dataAdapterList;
 	protected final IServoyDataConverterContext servoyDataConverterContext;
 
 	protected Object value;
@@ -195,7 +195,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	{
 		this.changeMonitor = changeNotifier;
 		this.webObjectContext = webObjectCntxt;
-
+		if (webObjectCntxt instanceof INGWebObjectContext) this.dataAdapterList = ((INGWebObjectContext)webObjectCntxt).getDataAdapterList();
 		computeShouldResolveValuelistConfig();
 		// register data link and find mode listeners as needed
 		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID,
@@ -423,7 +423,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 
 		v = replaceTagsIfNeeded(v);
-		if (v instanceof UUID) v = v.toString();
 		boolean changed = ((v != value) && (v == null || !v.equals(value)));
 
 		value = v;
@@ -546,12 +545,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		// TODO UUIDs are now just seen as strings
-		if (value instanceof UUID)
-		{
-			value = value.toString();
-		}
-		else if (value instanceof DbIdentValue)
+		if (value instanceof DbIdentValue)
 		{
 			value = ((DbIdentValue)value).getPkValue();
 		}

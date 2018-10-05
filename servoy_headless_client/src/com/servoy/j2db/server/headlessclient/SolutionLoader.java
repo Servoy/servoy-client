@@ -61,8 +61,7 @@ public class SolutionLoader extends WebPage
 
 		try
 		{
-			if (ApplicationServerRegistry.get().getDataServer().isInGlobalMaintenanceMode() ||
-				ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode())
+			if (ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode())
 			{
 				// do this before redirect & register client - where it is usually detected, because when clustered
 				// this should result in a valid switch to another server in the cluster by the load balancer; if we wait until
@@ -94,10 +93,9 @@ public class SolutionLoader extends WebPage
 		{
 			IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 			SolutionMetaData smd = (SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
-			if (smd == null ||
-					smd.getSolutionType() == SolutionMetaData.SOLUTION ||
-					smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY ||
-					((smd.getSolutionType() == SolutionMetaData.MOBILE || smd.getSolutionType() == SolutionMetaData.MODULE) && ApplicationServerRegistry.get().isDeveloperStartup()))
+			if (smd == null || smd.getSolutionType() == SolutionMetaData.SOLUTION || smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY ||
+				((smd.getSolutionType() == SolutionMetaData.MOBILE || smd.getSolutionType() == SolutionMetaData.MODULE) &&
+					ApplicationServerRegistry.get().isDeveloperStartup()))
 			{
 				theReq = smd;
 			}

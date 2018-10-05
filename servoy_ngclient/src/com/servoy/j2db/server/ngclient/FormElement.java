@@ -58,6 +58,7 @@ import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportBounds;
@@ -66,6 +67,7 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.CSSPositionPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
@@ -407,7 +409,7 @@ public final class FormElement implements INGFormElement
 
 	protected void adjustForAbsoluteLayout()
 	{
-		if (form != null && !form.isResponsiveLayout())
+		if ((form != null && !form.isResponsiveLayout()) || PersistHelper.isInAbsoluteLayoutMode(getPersistIfAvailable()))
 		{
 			WebObjectSpecification spec = getWebComponentSpec();
 			if (spec.getProperty("location") == null)
@@ -418,6 +420,8 @@ public final class FormElement implements INGFormElement
 				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 			if (spec.getProperty("formIndex") == null)
 				spec.putProperty("formIndex", new PropertyDescription("formIndex", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+			if (spec.getProperty(IContentSpecConstants.PROPERTY_CSS_POSITION) == null) spec.putProperty(IContentSpecConstants.PROPERTY_CSS_POSITION,
+				new PropertyDescription(IContentSpecConstants.PROPERTY_CSS_POSITION, TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)));
 			// TODO the following is a workaround that allows not clearing the form element cache when reloading any ng package (so only when reloaded spec was actually altered here before and it might need to be re-altered again)
 			WebComponentSpecProvider.getSpecReloadSubject().addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
 		}
@@ -626,7 +630,8 @@ public final class FormElement implements INGFormElement
 
 	public boolean isFormComponentChild()
 	{
-		return ((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) != null;
+		return getPersistIfAvailable() instanceof AbstractBase &&
+			((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) != null;
 	}
 
 	public String getTagname()
@@ -674,6 +679,20 @@ public final class FormElement implements INGFormElement
 	public Collection<String> getHandlers(boolean skipPrivate)
 	{
 		List<String> handlers = new ArrayList<>();
+		Form mainForm = getForm();
+		if (isFormComponentChild())
+		{
+			String mainFormName = ((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+			if (fs != null && mainFormName != null)
+			{
+				mainForm = fs.getForm(mainFormName);
+				mainForm = fs.getFlattenedForm(mainForm);
+			}
+		}
+		if (mainForm == null)
+		{
+			mainForm = getForm();
+		}
 		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Set<Entry<String, WebObjectFunctionDefinition>> entries = componentSpec.getHandlers().entrySet();
 		for (Entry<String, WebObjectFunctionDefinition> entry : entries)
@@ -686,12 +705,12 @@ public final class FormElement implements INGFormElement
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(getForm().getOnElementFocusGainedMethodID() > 0))
+				(mainForm.getOnElementFocusGainedMethodID() > 0))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(getForm().getOnElementFocusLostMethodID() > 0))
+				(mainForm.getOnElementFocusLostMethodID() > 0))
 			{
 				handlers.add(eventName);
 			}

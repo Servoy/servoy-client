@@ -41,7 +41,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class ScriptMenuItem extends JMenuItem implements ActionListener
 {
@@ -52,7 +52,7 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 
 	/**
 	 * Constructor for ScriptMenuItem.
-	 * 
+	 *
 	 * @param text
 	 */
 	public ScriptMenuItem(IApplication application, FunctionDefinition functionDefinition, String text, int autoSortcut)
@@ -109,9 +109,9 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 								Debug.error(ex);
 								return;
 							}
-							if (scriptMethod != null)
+							if (scriptMethod != null && formController.getFormModel() instanceof Scriptable)
 							{
-								sc = formController.getFormModel();
+								sc = (Scriptable)formController.getFormModel();
 								fn = sc.getPrototype().get(scriptMethod.getName(), sc);
 							}
 						}
@@ -148,7 +148,7 @@ public class ScriptMenuItem extends JMenuItem implements ActionListener
 					catch (Exception e1)
 					{
 						application.reportError(
-							Messages.getString("servoy.formPanel.error.executingMethod", new Object[] { functionDefinition.getMethodName() }), e1); //$NON-NLS-1$ 
+							Messages.getString("servoy.formPanel.error.executingMethod", new Object[] { functionDefinition.getMethodName() }), e1); //$NON-NLS-1$
 					}
 				}
 			}

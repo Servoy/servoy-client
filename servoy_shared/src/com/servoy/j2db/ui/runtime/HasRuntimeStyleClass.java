@@ -52,4 +52,16 @@ public interface HasRuntimeStyleClass
 	 */
 	@JSFunction
 	public void removeStyleClass(String styleName);
+
+	/**
+	 * Check if an element already have a style from the styleClass property.
+	 *
+	 * @param styleName the name of the style class to be checked
+	 *
+	 * @sample
+	 *  %%prefix%%%%elementName%%.hasStyleClass('redbg');
+	 *
+	 */
+	@JSFunction
+	public void hasStyleClass(String styleName);
 }

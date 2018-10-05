@@ -116,9 +116,10 @@ angular.module('window',['servoy'])
 		 * @param height the popup height
 		 * @param x the popup x location
 		 * @param y the popup y location
+		 * @param showBackdrop whatever to show backdrop
 		 *
 		 */
-		showFormPopup : function(component,form,width,height,x,y)
+		showFormPopup : function(component,form,width,height,x,y,showBackdrop)
 		{
 			$formService.formWillShow(form, true);
 			scope.getFormUrl = function(){
@@ -262,6 +263,13 @@ angular.module('window',['servoy'])
 				$timeout(function(){
 					body.on('click',function(event)
 					{
+						var backdrop = angular.element(".formpopup-backdrop");
+						if (backdrop && (backdrop.get(0) == event.target))
+						{
+							backdrop.remove();
+							cancelFormPopup();
+							return;
+						}
 						var mainform = angular.element(".svy-main-window-container");
 						if (mainform && mainform.find(event.target).length > 0 )
 						{
@@ -276,6 +284,9 @@ angular.module('window',['servoy'])
 						 }
 					});
 				},300);
+				if(showBackdrop) {
+					body.append('<div class="formpopup-backdrop modal-backdrop fade in" style="z-index:1498"></div>');
+				}
 				body.append(popup);
 		 }, function()
 		 {
@@ -400,7 +411,7 @@ angular.module('window',['servoy'])
 		}
 		if (newvalue && newvalue.popupform && !oldvalue.popupform)
 		{
-			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y);
+			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{

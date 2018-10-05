@@ -26,7 +26,7 @@ import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.smart.WebStart;
+import com.servoy.j2db.smart.RemoteRunnerChecker;
 import com.servoy.j2db.util.BrowserLauncher;
 import com.servoy.j2db.util.Debug;
 
@@ -45,9 +45,8 @@ public class CmdHelp extends AbstractCmd
  */
 	public CmdHelp(ISmartClientApplication app)
 	{
-		super(
-			app,
-			"CmdHelp", app.getI18NMessage("servoy.menuitem.help"), "servoy.menuitem.help", app.getI18NMessage("servoy.menuitem.help.mnemonic").charAt(0), app.loadImage("help.gif")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		super(app, "CmdHelp", app.getI18NMessage("servoy.menuitem.help"), "servoy.menuitem.help", app.getI18NMessage("servoy.menuitem.help.mnemonic").charAt(0), //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			app.loadImage("help.gif")); //$NON-NLS-1$
 		setActionCommand("help"); //$NON-NLS-1$
 		setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 		setEnabled(true);
@@ -59,12 +58,12 @@ public class CmdHelp extends AbstractCmd
 	@Override
 	public UndoableEdit doIt(java.util.EventObject ae)
 	{
-		if (WebStart.isRunningWebStart())
+		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
 		{
 			try
 			{
 				URL url = new URL(application.getServerURL(), "/client_manual/index.htm"); //$NON-NLS-1$
-				WebStart.showURL(url);
+				RemoteRunnerChecker.getInstance().showURL(url);
 			}
 			catch (Exception ex)
 			{
@@ -76,7 +75,7 @@ public class CmdHelp extends AbstractCmd
 			try
 			{
 				String user_dir = application.getSettings().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
-				BrowserLauncher.openURL(new File(user_dir, "server/webapps/ROOT/client_manual/index.htm").getCanonicalFile().toURI().toURL().toString()); //$NON-NLS-1$ 
+				BrowserLauncher.openURL(new File(user_dir, "server/webapps/ROOT/client_manual/index.htm").getCanonicalFile().toURI().toURL().toString()); //$NON-NLS-1$
 			}
 			catch (Throwable e)//catch all for apple mac
 			{

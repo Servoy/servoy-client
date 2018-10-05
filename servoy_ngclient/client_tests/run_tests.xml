@@ -13,22 +13,24 @@
 
 	<target name="typescript_transpiling">
 		<echo message="Transpiling ${project}"/>
-		<exec executable="${tsc}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="unix">
-		   <arg line="-p ${project}" />
-		</exec>		
-		<exec executable="${tsc}.cmd" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="windows">
-		   <arg line="-p ${project}" />
+		<exec executable="bash" dir="${project}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="unix">
+			<arg value="-c"/>
+			<arg value="npm run build"/>
+		</exec>
+		
+		<exec executable="cmd" dir="${project}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="windows">
+			<arg line="/c npm run build" />
 		</exec>		
 	</target>
 	
 	<!-- checks if used dependencies from package.json are outdated should be used manualy from time to time--> 
 	<target name="check_outdated">
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 					failonerror="true">
 					<arg value="-c"/>
 					<arg value="npm outdated"/>
 		</exec>
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 					failonerror="true">
 					<arg value="/c" />
 					<arg value="npm"/>
@@ -36,10 +38,24 @@
 		</exec>
 	</target>
 	
+	<target name="update outdated">
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
+					failonerror="true">
+					<arg value="-c"/>
+					<arg value="npm update"/>
+		</exec>
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
+					failonerror="true">
+					<arg value="/c" />
+					<arg value="npm"/>
+					<arg value="update"/>
+		</exec>
+	</target>
+	
 	 <!-- used to run install karma only once -->
 	 <target name="karma_installed_check" >
 	    <condition property="karma.installed">
-	      <available file="./node_modules" type="dir"/>
+	      <available file="./../node_modules" type="dir"/>
 	    </condition>
 	 </target>
 	
@@ -50,21 +66,21 @@
 	
 	<!-- installs karma with it's dependencies  based on package.json file  run only once-->
 	<target name="install_karma">
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 			failonerror="true">
 			<arg line="/c npm config set color false" />
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 			failonerror="true">
 			<arg value="-c" />
 			<arg value="npm config set color false"/>
 		</exec>
 
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 			failonerror="true">
 			<arg line="/c npm install" />
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 			failonerror="true">
 			<arg line="-c" />
 			<arg value="npm install"/>
@@ -81,16 +97,18 @@
 			<param name="project" value=".."/>
 		</antcall>
 		
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<echo message="Done transpiling."/>
+		
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 					failonerror="true">
 					<arg value="/c"/>
 					<arg value="node"/>
 					<arg value="./node_modules/karma/bin/karma"/>
 					<arg value="start"/>
-					<arg value="${karma.conf}"/>
+					<arg value="./client_tests/${karma.conf}"/>
 		</exec>
-		<property name="temp1" value="node ./node_modules/karma/bin/karma start ${karma.conf}"/>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<property name="temp1" value="node ./node_modules/karma/bin/karma start ./client_tests/${karma.conf}"/>
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 							failonerror="true">
 			                <arg value="-c"/>
 							<arg value="${temp1}"/>

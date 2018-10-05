@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.servoy.j2db.util.Debug;
@@ -676,17 +678,14 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	}
 
-	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RepositoryException
+	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RepositoryException
 	{
-		Map<String, IServer> retval = new HashMap<String, IServer>();
+		ConcurrentMap<String, IServer> retval = new ConcurrentHashMap<String, IServer>();
 		for (RootObjectMetaData element : metas)
 		{
 			Solution s = (Solution)getRootObject(element.getRootObjectId(), element.getActiveRelease());
 			Map<String, IServer> sps = s.getServerProxies();
-			synchronized (sps)
-			{
-				retval.putAll(sps);
-			}
+			retval.putAll(sps);
 		}
 		return retval;
 	}

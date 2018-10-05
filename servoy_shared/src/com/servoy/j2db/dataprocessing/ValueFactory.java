@@ -22,20 +22,17 @@ import java.lang.ref.SoftReference;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.scripting.ReferenceOnlyInJS;
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 import com.servoy.j2db.util.IntHashMap;
 
 /**
  * Special wrapper values factory
- * 
+ *
  * @author jblok
  */
-@TerracottaInstrumentedClass
-public class ValueFactory // terracotta instrumented class because for example NullValue can reach shared object graph
+public class ValueFactory
 {
 	private static IntHashMap<NullValue> nullValuesByType = new IntHashMap<NullValue>();
 
-	@TerracottaInstrumentedClass
 	public static class NullValue implements Serializable, Wrapper
 	{
 		private final int type;
@@ -67,7 +64,6 @@ public class ValueFactory // terracotta instrumented class because for example N
 
 	private static TableFlushValue tableFlushValue = new TableFlushValue();
 
-	@TerracottaInstrumentedClass
 	public static class TableFlushValue implements Serializable
 	{
 	}
@@ -109,7 +105,6 @@ public class ValueFactory // terracotta instrumented class because for example N
 
 	private static BlobMarkerValue blobMarkerValue = new BlobMarkerValue();
 
-	@TerracottaInstrumentedClass
 	public static class BlobMarkerValue implements Serializable
 	{
 		private transient SoftReference<byte[]> cachedData;

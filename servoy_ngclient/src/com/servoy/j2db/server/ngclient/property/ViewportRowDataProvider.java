@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 
+import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.util.Debug;
@@ -82,11 +83,23 @@ public abstract class ViewportRowDataProvider
 				{
 					Debug.error("Illegal state: view ports end index " + endIndex + " is bigger then the size " + size, new RuntimeException());
 				}
-				for (int i = startIndex; i <= endIndex; i++)
+
+				// as our goal here is to write contents of all these rows to JSON without triggering calculations that end up triggering data-change-related solution handlers that might in
+				// turn change data/bounds of data that we are trying to write to JSON, we use fire collector; after we are done writing, any such handlers will be called
+				// and if they alter anything in the foundset, the foundset/other listeners will pick that up and generate a new change to be written to JSON...
+				FireCollector fireCollector = FireCollector.getFireCollector();
+				try
 				{
-					clientConversionInfo.pushNode(String.valueOf(i - startIndex));
-					writeRowData(i, columnName, foundset, w, clientConversionInfo);
-					clientConversionInfo.popNode();
+					for (int i = startIndex; i <= endIndex; i++)
+					{
+						clientConversionInfo.pushNode(String.valueOf(i - startIndex));
+						writeRowData(i, columnName, foundset, w, clientConversionInfo);
+						clientConversionInfo.popNode();
+					}
+				}
+				finally
+				{
+					fireCollector.done();
 				}
 			}
 		}

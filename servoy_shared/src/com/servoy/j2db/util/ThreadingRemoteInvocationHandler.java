@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  * Invocation handler that runs all methods in a thread, so thread locals of the calling thread do not conflict with the thread locals used in the call.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -62,7 +62,7 @@ public class ThreadingRemoteInvocationHandler<T extends Remote> extends Abstract
 
 	/*
 	 * Invoke methods in a separate thread.
-	 * 
+	 *
 	 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
 	 */
 	public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable
@@ -101,7 +101,7 @@ public class ThreadingRemoteInvocationHandler<T extends Remote> extends Abstract
 			}
 			catch (InterruptedException e)
 			{
-				Debug.error(e);
+				Debug.error("Unexpected call interruption, this is likely to be caused by a client shutdown", e);
 				throw new RepositoryException(e.getMessage());
 			}
 		}

@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.wicket.RequestCycle;
+import org.eclipse.dltk.rhino.dbgp.CommandHandlerThread;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
 import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
@@ -66,22 +67,16 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 
 	private static final ContextFactory.Listener contextListener = new ContextFactory.Listener()
 	{
-		private final ThreadLocal<DBGPStackManager> manager = new ThreadLocal<DBGPStackManager>();
-
 		public void contextReleased(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
 			if (sp instanceof IApplication && sp instanceof IDebugClient)
 			{
 				IApplication application = (IApplication)sp;
-				if (manager.get() != null && application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger))
-				{
-					if (debugger != null) debugger.setStackManager(manager.get());
-					manager.remove();
-				}
 				List<Context> list = contexts.get(application);
 				if (list != null) list.remove(cx);
 			}
+			if (debugger != null) debugger.popStackManager(cx);
 		}
 
 		public void contextCreated(Context cx)
@@ -94,28 +89,24 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 				{
 					// executing can be done multiply in a thread (calc)
 					// only allow the event threads (AWT and web client request thread) to debug.
-					boolean isDispatchThread = application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger);
+					boolean isDispatchThread = application.isEventDispatchThread() &&
+						!(Thread.currentThread() instanceof ServoyDebugger || Thread.currentThread() instanceof CommandHandlerThread);
 					if (isDispatchThread && application instanceof IWebClientApplication)
 					{
 						isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.
 					}
 					if (isDispatchThread)
 					{
-						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
-						manager.set(debugger.getStackManager());
-						debugger.setContext(cx);
+						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
+						debugger.pushStackManager(cx);
 						cx.setDebugger(debugger, null);
 						cx.setGeneratingDebug(true);
 						cx.setOptimizationLevel(-1);
 					}
 					else if (!(cx.getApplicationClassLoader() instanceof ExtendableURLClassLoader))
 					{
-						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 					}
-				}
-				else
-				{
-					manager.remove();
 				}
 
 				// context for this client

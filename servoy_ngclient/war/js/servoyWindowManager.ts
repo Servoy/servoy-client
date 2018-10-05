@@ -179,7 +179,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			};
 			return self;
 
-		}] ).factory( "$windowService", function( $servoyWindowManager: servoy.IServoyWindowManager, $log: sablo.ILogService, $rootScope: servoy.IRootScopeService, $solutionSettings: servoy.SolutionSettings, $window: angular.IWindowService, $timeout: angular.ITimeoutService, $formService, $sabloApplication: sablo.ISabloApplication, webStorage, WindowType: servoy.WindowType, $servoyInternal, $templateCache: angular.ITemplateCacheService, $location: angular.ILocationService, $sabloLoadingIndicator, $sabloTestability ) {
+		}] ).factory( "$windowService", function( $servoyWindowManager: servoy.IServoyWindowManager, $log: sablo.ILogService, $rootScope: servoy.IRootScopeService, $solutionSettings: servoy.SolutionSettings, $window: angular.IWindowService, $timeout: angular.ITimeoutService, $formService, $sabloApplication: sablo.ISabloApplication, webStorage, WindowType: servoy.WindowType, $servoyInternal, $templateCache: angular.ITemplateCacheService, $location: angular.ILocationService, $sabloLoadingIndicator, $sabloTestability, $svyUIProperties ) {
 			var instances = $servoyWindowManager.instances;
 			var formTemplateUrls: { [s: string]: string; } = {};
 			var storage = webStorage.local;
@@ -256,10 +256,22 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			} );
 
 			var self: servoy.IWindowService = {
-					
-				getLoadedFormUrls:function () {
-						return formTemplateUrls;
-					},
+
+				getLoadedFormState: function() {
+					var loadedState: { [s: string]: {url:string,attached:boolean}; } = {};
+					for ( var formName in formTemplateUrls ) {
+						if ( formName ) {
+							var state = $sabloApplication.getFormStateEvenIfNotYetResolved( formName );
+							if ( state ) { // can this be null if form name is there?
+								loadedState[formName] = {url:formTemplateUrls[formName],attached:state.getScope != null && state.getScope != undefined};
+							}
+							else {
+								loadedState[formName] = {url:formTemplateUrls[formName],attached:false};
+							}
+						}
+					}
+					return loadedState
+				},
 				create: function( name, type ) {
 					// dispose old one
 					if ( instances[name] ) {
@@ -404,7 +416,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						if ( instance['loadingIndicatorIsHidden'] ) {
 							var counter = instance['loadingIndicatorIsHidden'];
 							delete instance['loadingIndicatorIsHidden'];
-							while (counter -- > 0){
+							while ( counter-- > 0 ) {
 								$sabloLoadingIndicator.showLoading();
 							}
 						}
@@ -436,20 +448,13 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					if ( instances[name] && instances[name].type != WindowType.WINDOW ) {
 						instances[name].form = form;
 						instances[name].navigatorForm = navigatorForm;
-					}
-					else if ( $solutionSettings.windowName == name ) { // main window form switch
+					} else if ( $solutionSettings.windowName == name ) { // main window form switch
 						$solutionSettings.mainForm = form;
 						$solutionSettings.navigatorForm = navigatorForm;
-						var formanchor = '#' + form.name;
-						if ($location.url().indexOf('#') === -1 )
-						{
-							$location.url( $location.url() + formanchor );
-						}	
-						else
-						{
-							var url = $location.url().substring(0,$location.url().indexOf('#'));
-							$location.url( url +  formanchor);
-						}	
+
+						if ($svyUIProperties.getUIProperty("servoy.ngclient.formbased_browser_history") !== false ) {
+							$location.hash(form.name)
+			            }
 					}
 					if ( !$rootScope.$$phase ) {
 						if ( $log.debugLevel === $log.SPAM ) $log.debug( "svy * Will call digest from switchForm for root scope" );
@@ -592,8 +597,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 				destroyController: function( formName ) {
 					$sabloApplication.clearFormState( formName );
 					delete formTemplateUrls[formName];
-					if ($solutionSettings.mainForm.name == formName)
-					{
+					if ( $solutionSettings.mainForm.name == formName ) {
 						$solutionSettings.mainForm.name = undefined;
 					}
 				},

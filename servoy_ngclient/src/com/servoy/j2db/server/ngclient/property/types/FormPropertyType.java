@@ -161,7 +161,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext, Scriptable startScriptable)
 	{
 		if (webComponentValue instanceof Form)
 		{
@@ -171,9 +171,9 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		{
 			// form is stored as uuid on disk
 			UUID uuid = Utils.getAsUUID(webComponentValue, false);
-			if (uuid != null && componentOrService instanceof IContextProvider)
+			if (uuid != null && webObjectContext.getUnderlyingWebObject() instanceof IContextProvider)
 			{
-				Form form = (Form)((IContextProvider)componentOrService).getDataConverterContext().getSolution().searchPersist(uuid);
+				Form form = (Form)((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getSolution().searchPersist(uuid);
 				if (form != null)
 				{
 					return form.getName();

@@ -165,6 +165,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				}
 				registered = true;
 
+				// performance optimalization, look when it is not filled by query (related list is not filled in) that the first related foundset is still the same
+				if (this.parentState instanceof Record && related.size() > 0)
+				{
+					IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(relations[0].getName());
+					if (related.indexOf(relatedFoundSet) == 0) return;
+				}
+
 				int size = super.getSize();
 
 				stopBundlingEvents(); // to be on the safe side

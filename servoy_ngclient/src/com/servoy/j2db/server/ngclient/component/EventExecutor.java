@@ -109,7 +109,7 @@ public class EventExecutor
 					if (method != null)
 					{
 						name = method.getName();
-						scope = formController.getFormModel();
+						scope = (Scriptable)formController.getFormModel(); // TODO ViewFoundSets should be come a scriptable if they have foundset methods..
 						f = (Function)scope.getPrototype().get(name, scope);
 					}
 				}

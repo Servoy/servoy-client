@@ -335,7 +335,7 @@ public class FormLayoutGenerator
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			String style = "";
-			if (form.getUseCssPosition())
+			if (form.getUseCssPosition() || PersistHelper.isInAbsoluteLayoutMode(bc))
 			{
 				CSSPosition position = bc.getCssPosition();
 				if (CSSPosition.isSet(position.left))

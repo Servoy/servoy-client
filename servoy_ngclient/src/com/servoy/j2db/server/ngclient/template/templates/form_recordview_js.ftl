@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$templateCache,$compile) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$templateCache,$compile, $uiBlocker) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -58,37 +58,17 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	var getExecutor = function(beanName,eventType) {
 		var callExecutor = function(args, rowId) {
-			var blockDuplicates = null;
-			if ($scope.model && $scope.model[beanName] && $scope.model[beanName].clientProperty &&  angular.isDefined($scope.model[beanName].clientProperty.ngBlockDuplicateEvents))
+			if ($scope.model && $scope.model[beanName])
 			{
-				blockDuplicates = $scope.model[beanName].clientProperty.ngBlockDuplicateEvents
-			}
-			else
-			{
-				blockDuplicates = $applicationService.getUIProperty("ngBlockDuplicateEvents");
-			}
-			if (blockDuplicates && beanName && eventType)
-			{
-				for (var i=0;i<executingEvents.length;i++)
+				if($uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
 				{
-					if (executingEvents[i].beanName === beanName && executingEvents[i].eventType === eventType && executingEvents[i].rowId === rowId)
-					{
-						// reject execution
-						console.log("rejecting execution of: "+eventType +" on "+beanName);
-						return $q.resolve(null);
-					}
+					// reject execution
+					console.log("rejecting execution of: "+eventType +" on "+beanName);
+					return $q.resolve(null);
 				}
-				executingEvents[executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': rowId};
 				var promise = $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 				promise.finally(function(){
-					for (var i=0;i<executingEvents.length;i++)
-					{
-						if (executingEvents[i].beanName === beanName && executingEvents[i].eventType === eventType && executingEvents[i].rowId === rowId)
-						{
-							executingEvents.splice(i,1);
-							break;
-						}
-					}
+					$uiBlocker.eventExecuted(beanName, $scope.model[beanName], eventType, rowId);
 				});
 				return promise;
 			}
@@ -130,6 +110,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				newScope.layout = {};
 				newScope.handlers = {}
 				var prefix = beanname + '$' + propertyName + '$';
+				if (propertyName.indexOf(beanname + '$') == 0) prefix = propertyName;
 				for(var key in $scope.model) {
 					if (key.substr(0, prefix.length) === prefix) {
 						newScope.model[key.substr(prefix.length)] = $scope.model[key];

@@ -32,7 +32,7 @@ import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.ISupportNavigator;
-import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebForm;
@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The default Navigator for the webclient.
- * 
+ *
  * @author jcompagner,jblok
  */
 public class WebDefaultRecordNavigator extends Panel implements IProviderStylePropertyChanges, ISupplyFocusChildren<Component>
@@ -191,7 +191,7 @@ public class WebDefaultRecordNavigator extends Panel implements IProviderStylePr
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		FoundSet fs = foundSetIndexModel.getFoundSet();
+		IFoundSetInternal fs = foundSetIndexModel.getFoundSet();
 		if (fs != null)
 		{
 			totalRecords = (fs.getSize() == 0 ? "" : (fs.getSize() + (fs.hadMoreRows() ? "+" : "")));
@@ -202,7 +202,7 @@ public class WebDefaultRecordNavigator extends Panel implements IProviderStylePr
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		// the recorder is only used for isChanged, set the correct value before returning the instance
-		FoundSet fs = foundSetIndexModel.getFoundSet();
+		IFoundSetInternal fs = foundSetIndexModel.getFoundSet();
 		if (fs == null)
 		{
 			jsChangeRecorder.setRendered();
@@ -281,7 +281,7 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 
 	/**
 	 * Construct
-	 * 
+	 *
 	 * @param listView The ListView
 	 * @param index The index of this model
 	 */
@@ -290,7 +290,7 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 		form = listView;
 	}
 
-	public FoundSet getFoundSet()
+	public IFoundSetInternal getFoundSet()
 	{
 		return form.getController().getFormModel();
 	}
@@ -306,12 +306,12 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 
 	public void next()
 	{
-		FoundSet fs = form.getController().getFormModel();
+		IFoundSetInternal fs = form.getController().getFormModel();
 		if (fs != null)
 		{
 			int index = fs.getSelectedIndex();
-			if (index + 1 < fs.getSize() &&
-				((form.getController().getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0))
+			if (index + 1 < fs.getSize() && ((form.getController().getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) &
+				(ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0))
 			{
 				fs.setSelectedIndex(index + 1);
 			}
@@ -320,10 +320,9 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 
 	public void prev()
 	{
-		FoundSet fs = form.getController().getFormModel();
-		if (fs != null &&
-			fs.getSelectedIndex() > 0 &&
-			((form.getController().getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0))
+		IFoundSetInternal fs = form.getController().getFormModel();
+		if (fs != null && fs.getSelectedIndex() > 0 && ((form.getController().getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) &
+			(ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0))
 		{
 			fs.setSelectedIndex(fs.getSelectedIndex() - 1);
 		}
@@ -360,7 +359,7 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 		public Object getObject()
 		{
 
-			FoundSet fs = form.getController().getFormModel();
+			IFoundSetInternal fs = form.getController().getFormModel();
 			if (fs != null)
 			{
 				if ("firstRecordIndex".equals(component.getId()))
@@ -386,7 +385,7 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 		public void setObject(Object object)
 		{
 
-			FoundSet fs = form.getController().getFormModel();
+			IFoundSetInternal fs = form.getController().getFormModel();
 			if (fs != null)
 			{
 				if ("currentRecordIndex".equals(component.getId()))
@@ -401,7 +400,8 @@ class FoundSetIndexModel extends Model implements IComponentAssignedModel
 						index = fs.getSize();
 					}
 					if (index != fs.getSelectedIndex() + 1 &&
-						((form.getController().getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0))
+						((form.getController().getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) &
+							(ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0))
 					{
 						fs.setSelectedIndex(index - 1);
 					}

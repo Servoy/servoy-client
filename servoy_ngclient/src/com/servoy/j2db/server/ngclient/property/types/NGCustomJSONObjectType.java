@@ -273,9 +273,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	protected CustomObjectContext<SabloT, SabloWT> createComponentOrServiceExtension(final IWebObjectContext webObjectContext)
 	{
-		CustomObjectContext<SabloT, SabloWT> componentOrServiceExtension = new CustomObjectContext<SabloT, SabloWT>(getCustomJSONTypeDefinition(),
-			webObjectContext);
-		return componentOrServiceExtension;
+		return new CustomObjectContext<SabloT, SabloWT>(getCustomJSONTypeDefinition(), webObjectContext);
 	}
 
 	@Override
@@ -428,22 +426,12 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		return property;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription)
 	{
 		return designValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Object toDesignValue(Object javaValue, PropertyDescription pd)
 	{

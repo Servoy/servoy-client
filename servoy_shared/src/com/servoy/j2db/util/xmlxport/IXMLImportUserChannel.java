@@ -265,7 +265,7 @@ public interface IXMLImportUserChannel extends InfoChannel
 	 */
 	public String askProtectionPassword(String solutionName);
 
-	public int getAllowDataModelChange();
+	public int getAllowDataModelChange(String serverName);
 
 	public boolean getDisplayDataModelChange();
 
@@ -286,4 +286,6 @@ public interface IXMLImportUserChannel extends InfoChannel
 	 * @return boolean true if it should first compact
 	 */
 	public boolean compactSolutions();
+
+	public boolean allowImportEmptySolution();
 }

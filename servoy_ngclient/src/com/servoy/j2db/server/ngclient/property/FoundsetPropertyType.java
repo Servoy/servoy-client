@@ -23,11 +23,13 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IGranularProtectionChecker;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.util.ValueReference;
@@ -59,7 +61,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
 	IFormElementDefaultValueToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IConvertedPropertyType<FoundsetTypeSabloValue>,
 	ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
-	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
+	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType, IGranularProtectionChecker<FoundsetTypeSabloValue>
 {
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
 
@@ -282,6 +284,16 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 	}
 
+	@Override
+	public boolean allowPush(Object data, FoundsetTypeSabloValue sabloValue)
+	{
+		if (sabloValue != null)
+		{
+			return sabloValue.allowPush(data);
+		}
+		return false;
+	}
+
 
 	@Override
 	public boolean shouldAlwaysAllowIncommingJSON()
@@ -326,6 +338,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		{
 			NativeObject obj = (NativeObject)rhinoValue;
 			Object foundset = obj.get(FOUNDSET_KEY_FOR_RHINO, obj);
+			if (foundset instanceof Wrapper) foundset = ((Wrapper)foundset).unwrap();
 			if (foundset instanceof IFoundSetInternal)
 			{
 				newFoundset = (IFoundSetInternal)foundset;

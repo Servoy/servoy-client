@@ -81,11 +81,11 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 			{
 				if (number < 0)
 				{
-					toParse -= 1d / Math.pow(10, max + 2);
+					toParse -= 1d / Math.pow(10, max + 4);
 				}
 				else
 				{
-					toParse += 1d / Math.pow(10, max + 2);
+					toParse += 1d / Math.pow(10, max + 4);
 				}
 			}
 		}

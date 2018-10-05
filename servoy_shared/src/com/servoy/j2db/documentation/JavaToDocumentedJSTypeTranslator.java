@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONArray;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.scripting.api.IJSController;
@@ -149,6 +150,7 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(JSONArray.class, com.servoy.j2db.documentation.scripting.docs.Array.class);
 
 		javaClassToDocumentedJavaClass.put(Object.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
+		javaClassToDocumentedJavaClass.put(NativeObject.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
 		javaClassToDocumentedJavaClass.put(Scriptable.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
 		javaClassToDocumentedJavaClass.put(JSMap.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
 

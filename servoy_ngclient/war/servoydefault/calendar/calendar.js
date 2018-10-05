@@ -166,6 +166,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				} else {
 					$element.off("dp.error");
 					child.datetimepicker({
+						widgetParent: $(document.body),
 						useCurrent : false,
 						useStrict : true,
 						showClear : true,

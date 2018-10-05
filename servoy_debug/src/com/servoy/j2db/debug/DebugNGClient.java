@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
+import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -438,49 +439,48 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		return designerCallback;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.NGClient#onStartSubAction(java.lang.String, java.lang.String, org.sablo.specification.WebObjectApiDefinition)
-	 */
 	@Override
 	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
 	{
 
 		Pair<UUID, UUID> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
-		IExecutingEnviroment engine = getScriptEngine();
-		if (engine instanceof RemoteDebugScriptEngine && ((RemoteDebugScriptEngine)engine).getDebugger() != null)
+		DBGPDebugFrame stackFrame = getStackFrame();
+
+		if (stackFrame instanceof ServoyDebugFrame)
 		{
-			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
-			DBGPDebugFrame stackFrame = debugger.getStackManager().getStackFrame(0);
-			if (stackFrame instanceof ServoyDebugFrame)
-			{
-				ServoyDebugFrame servoyDebugFrame = (ServoyDebugFrame)stackFrame;
-				servoyDebugFrame.onEnterSubAction(serviceName + "." + functionName, args);
-			}
+			ServoyDebugFrame servoyDebugFrame = (ServoyDebugFrame)stackFrame;
+			servoyDebugFrame.onEnterSubAction(serviceName + "." + functionName, args);
 		}
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.NGClient#onStopSubAction(com.servoy.j2db.util.Pair)
+	/**
+	 * @return
 	 */
-	@Override
-	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	private DBGPDebugFrame getStackFrame()
 	{
-		super.onStopSubAction(perfId);
 		IExecutingEnviroment engine = getScriptEngine();
 		if (engine instanceof RemoteDebugScriptEngine && ((RemoteDebugScriptEngine)engine).getDebugger() != null)
 		{
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
-			DBGPDebugFrame stackFrame = debugger.getStackManager().getStackFrame(0);
-			if (stackFrame instanceof ServoyDebugFrame)
+			DBGPStackManager stackManager = debugger.getStackManager();
+			if (stackManager != null)
 			{
-				ServoyDebugFrame servoyDebugFrame = (ServoyDebugFrame)stackFrame;
-				servoyDebugFrame.onExitSubAction();
+				return debugger.getStackManager().getStackFrame(0);
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	{
+		super.onStopSubAction(perfId);
+		DBGPDebugFrame stackFrame = getStackFrame();
+		if (stackFrame instanceof ServoyDebugFrame)
+		{
+			ServoyDebugFrame servoyDebugFrame = (ServoyDebugFrame)stackFrame;
+			servoyDebugFrame.onExitSubAction();
 		}
 	}
 

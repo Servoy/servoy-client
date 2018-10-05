@@ -61,6 +61,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
@@ -113,7 +114,7 @@ public abstract class BasicFormController
 
 
 	protected final IApplication application;
-	protected FoundSet formModel; //performs the queries and passes stateobjects
+	protected IFoundSetInternal formModel; //performs the queries and passes stateobjects
 	protected Form form;
 	protected String namedInstance;
 	protected boolean isFormVisible = false;
@@ -152,7 +153,7 @@ public abstract class BasicFormController
 		}
 	}
 
-	protected boolean setModel(FoundSet newModel) throws ServoyException
+	protected boolean setModel(IFoundSetInternal newModel) throws ServoyException
 	{
 		if (newModel == formModel || adjustingModel)
 		{
@@ -188,7 +189,7 @@ public abstract class BasicFormController
 					((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 					((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 					((ISwingFoundSet)formModel).removeTableModelListener(this);
-					formModel.flushAllCachedItems();//to make sure all data is gc'ed
+					if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 				}
 				catch (Exception ex)
 				{
@@ -418,7 +419,7 @@ public abstract class BasicFormController
 			{
 				// -2 is a form model change before this. dont get the selected index from the new model
 				if (lastSelectedIndex != -2) lastSelectedIndex = formModel.getSelectedIndex();
-				formModel.flushAllCachedItems(); //make sure we are not running out of memory
+				if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems(); //make sure we are not running out of memory
 			}
 		}
 
@@ -592,7 +593,7 @@ public abstract class BasicFormController
 		return application;
 	}
 
-	public FoundSet getFormModel()
+	public IFoundSetInternal getFormModel()
 	{
 		return formModel;
 	}
@@ -765,14 +766,14 @@ public abstract class BasicFormController
 					}
 				}
 
-				if (allowFoundsetMethods && !(function instanceof Function) && formModel != null)
+				if (allowFoundsetMethods && !(function instanceof Function) && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
 				{
 					// try foundset method
 					ScriptMethod scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(),
 						id.intValue());
 					if (scriptMethod != null)
 					{
-						scope = formModel;
+						scope = (FoundSet)formModel;
 						function = scope.getPrototype().get(scriptMethod.getName(), scope);
 					}
 				}
@@ -871,7 +872,7 @@ public abstract class BasicFormController
 			function = formScope.getFunctionByName(name);
 		}
 
-		if (allowFoundsetMethods && !global && function == null && formModel != null)
+		if (allowFoundsetMethods && !global && function == null && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
 		{
 			// try foundset method
 			ScriptMethod scriptMethod;
@@ -885,7 +886,7 @@ public abstract class BasicFormController
 			}
 			if (name != null)
 			{
-				scope = formModel;
+				scope = (FoundSet)formModel;
 				function = scope.getPrototype().get(name, scope);
 			}
 		}
@@ -1129,7 +1130,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 			//			formModel.removeEditListener(this);
 			((ISwingFoundSet)formModel).removeTableModelListener(this);
-			formModel.flushAllCachedItems();//to make sure all data is gc'ed
+			if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 		}
 		setFormModelInternal(null);
 		lastState = null;
@@ -1176,7 +1177,7 @@ public abstract class BasicFormController
 	{
 		try
 		{
-			setModel((FoundSet)e.getSource());
+			setModel((IFoundSetInternal)e.getSource());
 		}
 		catch (Exception ex)
 		{
@@ -1239,7 +1240,7 @@ public abstract class BasicFormController
 	public int performFindImpl(final boolean clearLastResult, final boolean reduceSearch, final boolean showDialogOnNoResults) throws ServoyException
 	{
 		int count = 0;
-		if (formModel.isInFindMode())
+		if (formModel.isInFindMode() && formModel instanceof FoundSet)
 		{
 			if (Debug.tracing())
 			{
@@ -1251,7 +1252,7 @@ public abstract class BasicFormController
 			try
 			{
 				List<String> invalidRangeConditions = null;
-				count = formModel.performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, false,
+				count = ((FoundSet)formModel).performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, false,
 					showDialogOnNoResults ? invalidRangeConditions = new ArrayList<String>() : null);
 				if (application.getCmdManager() instanceof ICmdManagerInternal)
 				{
@@ -1281,7 +1282,7 @@ public abstract class BasicFormController
 					boolean userChoseYes = getFormUI().showYesNoQuestionDialog(application, dlgMessage, "Search"); //$NON-NLS-1$
 					if (!userChoseYes)
 					{
-						formModel.browseAll(true);//this removes the findmode
+						((FoundSet)formModel).browseAll(true);//this removes the findmode
 
 						exitFindMode();
 					}
@@ -1299,7 +1300,7 @@ public abstract class BasicFormController
 			}
 			catch (ServoyException ex)
 			{
-				formModel.browseAll(true); // make sure we get nicely out of find mode; something went wrong with the performFind
+				((FoundSet)formModel).browseAll(true); // make sure we get nicely out of find mode; something went wrong with the performFind
 				exitFindMode();
 				throw ex;
 			}
@@ -1355,7 +1356,7 @@ public abstract class BasicFormController
 		switch (mode)
 		{
 			case IModeManager.FIND_MODE :
-				formModel.setFindMode();
+				if (formModel instanceof FoundSet) ((FoundSet)formModel).setFindMode();
 				break;
 
 			default ://all other modes
@@ -1375,7 +1376,7 @@ public abstract class BasicFormController
 		return true;
 	}
 
-	protected void setFormModelInternal(FoundSet newModel)
+	protected void setFormModelInternal(IFoundSetInternal newModel)
 	{
 		if (formModel == newModel) return;
 		boolean isInFind = false;
@@ -1384,7 +1385,10 @@ public abstract class BasicFormController
 		{
 			formModel.removeFoundSetEventListener(this);
 			isInFind = formModel.isInFindMode();
-			mustUnpinSelectionMode = formModel;
+			if (formModel instanceof FoundSet)
+			{
+				mustUnpinSelectionMode = (FoundSet)formModel;
+			}
 		}
 		formModel = newModel;
 
@@ -1408,7 +1412,7 @@ public abstract class BasicFormController
 
 	protected void pinSelectionModeIfNecessary()
 	{
-		if (formModel != null)
+		if (formModel instanceof ISwingFoundSet)
 		{
 			int selectionMode = form.getSelectionMode();
 			if (selectionMode != IForm.SELECTION_MODE_DEFAULT)
@@ -1416,11 +1420,11 @@ public abstract class BasicFormController
 				int pinLevel = isFormVisible ? PIN_VISIBLE : PIN_HIDDEN;
 				if (selectionMode == IForm.SELECTION_MODE_SINGLE)
 				{
-					formModel.pinMultiSelectIfNeeded(false, form.getID(), pinLevel); // form wants to enforce single selection on the foundsets it uses
+					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(false, form.getID(), pinLevel); // form wants to enforce single selection on the foundsets it uses
 				}
 				else if (selectionMode == IForm.SELECTION_MODE_MULTI)
 				{
-					formModel.pinMultiSelectIfNeeded(true, form.getID(), pinLevel); // form wants to enforce multi selection on the foundsets it uses
+					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(true, form.getID(), pinLevel); // form wants to enforce multi selection on the foundsets it uses
 				}
 			}
 		} // else this form model's multiSelect is already forced by a form and this form is not visible or this form has default non-forcing behavior
@@ -1558,13 +1562,13 @@ public abstract class BasicFormController
 
 	public String copyAllRecords()
 	{
-		if (formModel != null && formModel.getTable() == null)
+		if (formModel != null && formModel.getTable() == null || !(formModel instanceof FoundSet))
 		{
 			return null;
 		}
 		checkInitialized();
 
-		String str = formModel.getAsTabSeparated(-1);
+		String str = ((FoundSet)formModel).getAsTabSeparated(-1);
 		if (application instanceof ISmartClientApplication)
 		{
 			((ISmartClientApplication)application).setClipboardContent(str);
@@ -1615,9 +1619,9 @@ public abstract class BasicFormController
 		}
 		checkInitialized();
 
-		if (application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel) == ISaveConstants.STOPPED)
+		if (formModel instanceof FoundSet && application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel) == ISaveConstants.STOPPED)
 		{
-			return formModel.showOmitted();
+			return ((FoundSet)formModel).showOmitted();
 		}
 		return false;
 	}
@@ -1740,16 +1744,16 @@ public abstract class BasicFormController
 				}
 				else if (!destinationRelated && destinationSeparate)
 				{
-					if (formModel == null)
+					if (formModel == null || !(formModel instanceof FoundSet))
 					{
-						setFormModelInternal((FoundSet)application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
+						setFormModelInternal(application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
 					}
-					formModel.copyFrom(fs);
+					((FoundSet)formModel).copyFrom(fs);
 					returnValue = setModel(formModel);
 				}
 				else
 				{
-					returnValue = setModel((FoundSet)fs.copy(false));
+					returnValue = setModel(fs.copy(false));
 				}
 			}
 			catch (Exception ex)
@@ -1757,6 +1761,18 @@ public abstract class BasicFormController
 //				application.reportError(application.getI18NMessage("servoy.formPanel.error.settingFoundset") + ex.getMessage(), ex); //$NON-NLS-1$
 //				returnValue = false;
 				throw new RuntimeException(application.getI18NMessage("servoy.formPanel.error.settingFoundset") + ex.getMessage(), ex); //$NON-NLS-1$
+			}
+		}
+		else if (data instanceof IFoundSetInternal)
+		{
+			// for now just always set that, don't look at seperated
+			try
+			{
+				returnValue = setModel((IFoundSetInternal)data);
+			}
+			catch (ServoyException e)
+			{
+				throw new RuntimeException(application.getI18NMessage("servoy.formPanel.error.settingFoundset") + e.getMessage(), e); //$NON-NLS-1$
 			}
 		}
 		else if (data instanceof JSDataSet || data instanceof IDataSet || data instanceof Number || data instanceof UUID)
@@ -1769,9 +1785,9 @@ public abstract class BasicFormController
 					dataset.addRow(new Object[] { data });
 					data = dataset;
 				}
-				if (formModel == null)
+				if (formModel == null || !(formModel instanceof FoundSet))
 				{
-					setFormModelInternal((FoundSet)application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
+					setFormModelInternal(application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
 				}
 				if (formModel.getRelationName() != null)
 				{
@@ -1790,7 +1806,7 @@ public abstract class BasicFormController
 				{
 					set = (IDataSet)data;
 				}
-				returnValue = formModel.loadExternalPKList(set);
+				returnValue = ((FoundSet)formModel).loadExternalPKList(set);
 				if (returnValue)
 				{
 					returnValue = setModel(formModel);
@@ -1809,14 +1825,14 @@ public abstract class BasicFormController
 			{
 				if (formModel == null)
 				{
-					setFormModelInternal((FoundSet)application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
+					setFormModelInternal(application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
 				}
 				if (formModel.getRelationName() != null)
 				{
 					((FoundSetManager)application.getFoundSetManager()).giveMeFoundSet(this);
 				}
 
-				if (data instanceof String) returnValue = formModel.loadByQuery((String)data, args);
+				if (data instanceof String) returnValue = ((FoundSet)formModel).loadByQuery((String)data, args); // TODO load by query string can only be done for FoundSet
 				else returnValue = formModel.loadByQuery((IQueryBuilder)data);
 
 				if (returnValue)
@@ -1882,7 +1898,7 @@ public abstract class BasicFormController
 
 	public void reLookupValues()
 	{
-		if (formModel != null) formModel.processCopyValues(getRecordIndex());
+		if (formModel instanceof FoundSet) ((FoundSet)formModel).processCopyValues(getRecordIndex());
 	}
 
 
@@ -1997,7 +2013,7 @@ public abstract class BasicFormController
 	{
 		try
 		{
-			if (formModel != null) formModel.removeLastFound();
+			if (formModel instanceof FoundSet) ((FoundSet)formModel).removeLastFound();
 		}
 		catch (Exception ex)
 		{
@@ -2182,9 +2198,9 @@ public abstract class BasicFormController
 			// TODO disabled this for now
 			//loadAllRecordsImpl(true);//unrelate !! ,otherwise a foreign key is filled in which is unwanted behavior
 			// Do a copy so that the foundset itself stays exactly the same (same set of data, but the foundset is unrelated)
-			setModel((FoundSet)formModel.copy(true));
+			setModel(formModel.copy(true));
 		}
-		int idx = formModel.newRecord(index);
+		int idx = formModel.newRecord(index, true);
 		if (idx != -1)
 		{
 			setRecordIndex(idx);
@@ -2195,7 +2211,7 @@ public abstract class BasicFormController
 
 	protected boolean omitRecordImpl() throws ServoyException
 	{
-		if (formModel != null && formModel.getTable() == null)
+		if (formModel != null && formModel.getTable() == null || !(formModel instanceof FoundSet))
 		{
 			getApplication().reportJSWarning("ommit fails because of an invalid table on form " + getName());
 			return false;
@@ -2203,18 +2219,18 @@ public abstract class BasicFormController
 		checkInitialized();
 
 		int[] omitRecIdx = formModel.getSelectedIndexes();
-		return formModel.omitState(omitRecIdx);
+		return ((FoundSet)formModel).omitState(omitRecIdx);
 	}
 
 	public String copyRecord()
 	{
-		if (formModel != null && formModel.getTable() == null)
+		if (formModel != null && formModel.getTable() == null || !(formModel instanceof FoundSet))
 		{
 			return null;
 		}
 		checkInitialized();
 
-		String str = formModel.getAsTabSeparated(getRecordIndex());
+		String str = ((FoundSet)formModel).getAsTabSeparated(getRecordIndex());
 		if (application instanceof ISmartClientApplication)
 		{
 			((ISmartClientApplication)application).setClipboardContent(str);
@@ -2224,7 +2240,7 @@ public abstract class BasicFormController
 
 	protected boolean invertRecordsImpl() throws ServoyException
 	{
-		if (formModel != null && formModel.getTable() == null)
+		if (formModel != null && formModel.getTable() == null || !(formModel instanceof FoundSet))
 		{
 			return false;
 		}
@@ -2232,7 +2248,7 @@ public abstract class BasicFormController
 
 		if (application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel) == ISaveConstants.STOPPED)
 		{
-			formModel.invert();
+			((FoundSet)formModel).invert();
 			return true;
 		}
 		return false;
@@ -2252,7 +2268,7 @@ public abstract class BasicFormController
 			// TODO disabled this for now
 			//loadAllRecordsImpl(true);//unrelate !! ,otherwise a foreign key is filled in which is unwanted behavior
 			// Do a copy so that the foundset itself stays exactly the same (same set of data, but the foundset is unrelated)
-			setModel((FoundSet)formModel.copy(true));
+			setModel(formModel.copy(true));
 		}
 		int idx = formModel.duplicateRecord(getRecordIndex(), indexToAdd);
 		if (idx != -1)
@@ -3035,6 +3051,30 @@ public abstract class BasicFormController
 		 * @return true if successful
 		 */
 		public boolean js_loadRecords(FoundSet foundset)
+		{
+			checkDestroyed();
+			return formController.loadData(foundset, null);
+		}
+
+		/**
+		 * Loads a (related) foundset into the form.
+		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
+		 *
+		 * This will really update the foundset instance itself of the form, so now existing foundset is altered just the new foundset is shown.
+		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset
+		 * that is given.
+		 *
+		 * When the form uses a seperate foundset, foundset filter params are copied over from the source foundset and are merged with the existing filters.
+		 *
+		 * @sample
+		 * //to load a (related)foundset into the form.
+		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset
+		 * %%prefix%%controller.loadRecords(order_to_orderdetails);
+		 *
+		 * @param foundset to load
+		 * @return true if successful
+		 */
+		public boolean js_loadRecords(ViewFoundSet foundset)
 		{
 			checkDestroyed();
 			return formController.loadData(foundset, null);
@@ -4295,8 +4335,8 @@ public abstract class BasicFormController
 		public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value) throws ServoyException
 		{
 			checkDestroyed();
-			FoundSet fs = formController.getFormModel();
-			return fs != null && fs.addFilterParam(null, dataprovider, operator, value);
+			IFoundSetInternal fs = formController.getFormModel();
+			return fs instanceof FoundSet && ((FoundSet)fs).addFilterParam(null, dataprovider, operator, value);
 		}
 
 		/**
@@ -4315,10 +4355,10 @@ public abstract class BasicFormController
 			{
 				return formScope.get(dataProvider, formScope);
 			}
-			FoundSet fs = formController.getFormModel();
-			if (fs != null && fs.has(dataProvider, fs))
+			IFoundSetInternal fs = formController.getFormModel();
+			if (fs instanceof FoundSet && ((FoundSet)fs).has(dataProvider, (FoundSet)fs))
 			{
-				return fs.get(dataProvider, fs);
+				return ((FoundSet)fs).get(dataProvider, (FoundSet)fs);
 			}
 			return null;
 		}
@@ -4341,10 +4381,10 @@ public abstract class BasicFormController
 			}
 			else
 			{
-				FoundSet fs = formController.getFormModel();
-				if (fs != null)
+				IFoundSetInternal fs = formController.getFormModel();
+				if (fs instanceof FoundSet)
 				{
-					fs.put(dataprovider, fs, value);
+					((FoundSet)fs).put(dataprovider, (FoundSet)fs, value);
 				}
 			}
 		}

@@ -137,10 +137,10 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 			updateRowConversionInfo(i, internalState, serverConversionInfo ? serverConversionInfo[i] : undefined);
 	};
 
-	function updateWholeViewport(viewPortHolder, viewPortPropertyName, internalState, viewPortUpdate, viewPortUpdateConversions, componentScope, componentModelGetter) {
+	function updateWholeViewport(viewPortHolder, viewPortPropertyName, internalState, viewPortUpdate, viewPortUpdateConversions, componentScope, propertyContext) {
 		if (viewPortUpdateConversions) {
 			// do the actual conversion
-			viewPortUpdate = $sabloConverters.convertFromServerToClient(viewPortUpdate, viewPortUpdateConversions, viewPortHolder[viewPortPropertyName], componentScope, componentModelGetter);
+			viewPortUpdate = $sabloConverters.convertFromServerToClient(viewPortUpdate, viewPortUpdateConversions, viewPortHolder[viewPortPropertyName], componentScope, propertyContext);
 		}
 		viewPortHolder[viewPortPropertyName] = viewPortUpdate;
 		// update conversion info
@@ -148,7 +148,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	};
 
 	function updateViewportGranularly(viewPort, internalState, rowUpdates, rowUpdateConversions, componentScope,
-			componentModelGetter, simpleRowValue/*not key/value pairs in each row*/, rowPrototype) {
+            propertyContext, simpleRowValue/*not key/value pairs in each row*/, rowPrototype) {
 		// partial row updates (remove/insert/update)
 
 		// {
@@ -175,7 +175,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 					// apply the conversions
 					var rowConversionUpdate = (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[relIdx] : undefined;
-					if (rowConversionUpdate) rowUpdate.rows[relIdx] = $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope, componentModelGetter);
+					if (rowConversionUpdate) rowUpdate.rows[relIdx] = $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope, propertyContext);
 					// if the rowUpdate contains '_svyRowId' then we know it's the entire/complete row object
 					if (simpleRowValue || rowUpdate.rows[relIdx][$foundsetTypeConstants.ROW_ID_COL_KEY]) {
 						viewPort[j] = rowUpdate.rows[relIdx];
@@ -212,7 +212,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					}
 				}
 			} else if (rowUpdate.type == INSERT) {
-				if (rowUpdateConversions && rowUpdateConversions[i]) $sabloConverters.convertFromServerToClient(rowUpdate, rowUpdateConversions[i], undefined, componentScope, componentModelGetter);
+				if (rowUpdateConversions && rowUpdateConversions[i]) $sabloConverters.convertFromServerToClient(rowUpdate, rowUpdateConversions[i], undefined, componentScope, propertyContext);
 
 				for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) {
 					viewPort.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
@@ -233,7 +233,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				}
 				rowUpdate.endIndex = rowUpdate.startIndex + rowUpdate.rows.length - 1; // prepare rowUpdate for listener notifications
 			} else if (rowUpdate.type == DELETE) {
-				if (rowUpdateConversions && rowUpdateConversions[i]) $sabloConverters.convertFromServerToClient(rowUpdate, rowUpdateConversions[i], undefined, componentScope, componentModelGetter);
+				if (rowUpdateConversions && rowUpdateConversions[i]) $sabloConverters.convertFromServerToClient(rowUpdate, rowUpdateConversions[i], undefined, componentScope, propertyContext);
 
 				var oldLength = viewPort.length;
 				if (internalState[CONVERSIONS]) {

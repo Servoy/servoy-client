@@ -4,7 +4,7 @@
   		 ng-repeat="item in  model.valuelistID  | filter:notNullOrEmpty('realValue')">
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
            ng-disabled="model.enabled == false || model.editable == false"
-           ng-click="checkBoxClicked($event,$index)"
+           ng-change="checkBoxClicked($event,$index)"
            svy-click='handlers.onActionMethodID($event)'
            svy-focusgained='handlers.onFocusGainedMethodID($event)'/>
      <span ng-bind='item.displayValue'></span>

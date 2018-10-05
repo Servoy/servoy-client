@@ -119,7 +119,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 	}
 
 	$sabloConverters.registerCustomPropertyHandler('JSON_arr', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue = currentClientValue;
 
 			// remove old watches (and, at the end create new ones) to avoid old watches getting triggered by server side change
@@ -145,7 +145,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 	
 							if (conversionInfo) {
 								internalState.conversionInfo[c] = conversionInfo;
-								newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, componentModelGetter);
+								newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, propertyContext);
 							}
 	
 							if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -189,7 +189,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 								if (conversionInfo) {
 									internalState.conversionInfo[idx] = conversionInfo;
-									val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, componentModelGetter);
+									val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, propertyContext);
 								}
 								currentClientValue.splice(idx, 0, val);
 
@@ -215,7 +215,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 								if (conversionInfo) {
 									internalState.conversionInfo[idx] = conversionInfo;
-									currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, componentModelGetter);
+									currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, propertyContext);
 								} else currentClientValue[idx] = val;
 
 								if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {

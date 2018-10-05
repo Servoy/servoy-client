@@ -47,6 +47,7 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
@@ -61,6 +62,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IUserClient;
@@ -123,6 +125,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	private Map<Object, Object> uiProperties;
 
 	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>();
+
+	private HashMap<String, String> properties = null;
 
 	private final IPerfomanceRegistry perfRegistry;
 
@@ -255,9 +259,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		if (send && !("".equals(l.getLanguage()) && "".equals(l.getCountry())))
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
 				new Object[] { l.getLanguage(), l.getCountry() });
+
 		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
-		Map< ? , ? > cachedValueList = (Map< ? , ? >)getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
-		if (cachedValueList != null) cachedValueList.clear();
+		ComponentFactory.flushAllValueLists(this, false);
+
 		List<IFormController> allControllers = getFormManager().getCachedFormControllers();
 		for (IFormController fc : allControllers)
 		{
@@ -302,6 +307,39 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (timeZone == null) initFromClientBrowserinformation();
 		return super.getTimeZone();
+	}
+
+	private HashMap<String, String> getUserProperties()
+	{
+		if (properties != null)
+		{
+			return properties;
+		}
+		else
+		{
+			try
+			{
+				JSONObject data = (JSONObject)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperties",
+					null);
+
+				if (data != null)
+				{
+					properties = new HashMap<>();
+
+					data.keys().forEachRemaining(key -> {
+						properties.put(key, data.getString(key));
+					});
+				}
+				return properties;
+			}
+			catch (IOException e)
+			{
+				Debug.error("Error retrieving user properties from client browser ", e);
+				return null;
+			}
+
+
+		}
 	}
 
 	private void initFromClientBrowserinformation()
@@ -1002,29 +1040,44 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		String defaultUserProperty = getDefaultUserProperties().get(name);
 		if (defaultUserProperty != null) return defaultUserProperty;
-		try
+
+		Map<String, String> userProperties = getUserProperties();
+
+		if (userProperties == null)
 		{
-			return (String)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperty", new Object[] { name });
+			return null;
 		}
-		catch (IOException e)
+
+		if (userProperties.containsKey(name))
 		{
-			Debug.error("Error getting getting property '" + name + "'", e);
+			return userProperties.get(name);
 		}
-		return null;
+		else
+		{
+			return null;
+		}
+
 	}
+
 
 	@Override
 	public void setUserProperty(String name, String value)
 	{
 		getDefaultUserProperties().remove(name);
-		try
+		Map<String, String> userProperties = getUserProperties();
+
+		if (userProperties == null) return;
+
+		if (value == null)
 		{
-			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("setUserProperty", new Object[] { name, value });
+			userProperties.remove(name);
 		}
-		catch (IOException e)
+		else
 		{
-			Debug.error("Error getting setting property '" + name + "' value: " + value, e);
+			userProperties.put(name, value);
 		}
+
+		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUserProperty", new Object[] { name, value });
 
 	}
 
@@ -1032,29 +1085,23 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public String[] getUserPropertyNames()
 	{
-		JSONArray result;
-		try
+		Map<String, String> userProperties = getUserProperties();
+
+		List<String> names = new ArrayList<String>();
+		if (userProperties != null)
 		{
-			result = (JSONArray)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserPropertyNames", null);
-			List<String> names = new ArrayList<String>();
-			for (int i = 0; i < result.length(); i++)
-			{
-				names.add(result.optString(i));
-			}
-			for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
-			{
-				if (names.indexOf(defaultUserPropertyKey) == -1)
-				{
-					names.add(defaultUserPropertyKey);
-				}
-			}
-			return names.toArray(new String[0]);
+			userProperties.keySet().forEach(key -> names.add(key));
+
 		}
-		catch (IOException e)
+		for (String defaultUserPropertyKey : getDefaultUserProperties().keySet())
 		{
-			Debug.error("Error getting user property names", e);
+			if (names.indexOf(defaultUserPropertyKey) == -1)
+			{
+				names.add(defaultUserPropertyKey);
+			}
 		}
-		return new String[0];
+		return names.toArray(new String[0]);
+
 	}
 
 	@Override
@@ -1068,13 +1115,33 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
+		String newUrl = url;
+
+		if (target != null && !target.equals("_self") && !target.equals("_top") && url.contains("/solutions/"))
+		{
+			try
+			{
+				StringBuilder sb = new StringBuilder(newUrl);
+				URL newSolutionUrl = new URL(url);
+				if (newSolutionUrl.getQuery() != null)
+				{
+					sb.append("&").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
+				}
+				else sb.append("?").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
+				newUrl = sb.toString();
+			}
+			catch (MalformedURLException e)
+			{
+				e.printStackTrace();
+			}
+		}
 		// 2 calls to show url? Just send this one.
 		if (showUrl != null)
 		{
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 		}
-		showUrl = new ShowUrl(url, target, target_options, timeout, onRootFrame);
+		showUrl = new ShowUrl(newUrl, target, target_options, timeout, onRootFrame);
 		return true;
 	}
 
@@ -1201,6 +1268,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				((CustomValueList)valueList).setValueType(guessedType);
 				((CustomValueList)valueList).fillWithArrayValues(displayValues, realValues);
+				((CustomValueList)valueList).setRuntimeChanged(true);
 			}
 		}
 	}

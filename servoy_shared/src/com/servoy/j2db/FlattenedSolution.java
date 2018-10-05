@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -75,7 +74,6 @@ import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ISupportUpdateableName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
@@ -818,30 +816,24 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return mainSolutionMetaData;
 	}
 
-	private void combineServerProxies(Map<String, IServer> orgs, Map<String, IServer> additional) throws RemoteException
+	private void combineServerProxies(ConcurrentMap<String, IServer> orgs, ConcurrentMap<String, IServer> additional) throws RemoteException
 	{
-		synchronized (additional)
+		Iterator<IServer> it = additional.values().iterator();
+		while (it.hasNext())
 		{
-			synchronized (orgs) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards)
+			IServer addObject = it.next();
+			IServer orgObject = orgs.get(addObject.getName());
+			if (addObject instanceof ServerProxy)
 			{
-				Iterator<IServer> it = additional.values().iterator();
-				while (it.hasNext())
+				ServerProxy add = (ServerProxy)addObject;
+				if (orgObject == null)
 				{
-					IServer addObject = it.next();
-					IServer orgObject = orgs.get(addObject.getName());
-					if (addObject instanceof ServerProxy)
-					{
-						ServerProxy add = (ServerProxy)addObject;
-						if (orgObject == null)
-						{
-							orgs.put(add.getName(), add);
-						}
-						else if (orgObject instanceof ServerProxy)
-						{
-							ServerProxy org = (ServerProxy)orgObject;
-							org.combineTables(add);
-						}
-					}
+					orgs.put(add.getName(), add);
+				}
+				else if (orgObject instanceof ServerProxy)
+				{
+					ServerProxy org = (ServerProxy)orgObject;
+					org.combineTables(add);
 				}
 			}
 		}
@@ -3207,16 +3199,5 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			Debug.error(e);
 		}
 		return null;
-	}
-
-	public Set<Form> getForms(String datasource)
-	{
-		Set<Form> forms = new TreeSet<Form>(NameComparator.INSTANCE);
-		Iterator<Form> it = Solution.getForms(getAllObjectsAsList(), datasource, true);
-		while (it.hasNext())
-		{
-			forms.add(it.next());
-		}
-		return forms;
 	}
 }

@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.smart.WebStart;
+import com.servoy.j2db.smart.RemoteRunnerChecker;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.JEscapeDialog;
 
@@ -108,13 +108,13 @@ public class CustomColorChooserDialog extends JEscapeDialog implements ActionLis
 	{
 		String command = e.getActionCommand();
 		if (command.equals("ok")) //$NON-NLS-1$
-		ok();
+			ok();
 		else if (command.equals("cancel")) //$NON-NLS-1$
-		cancel();
+			cancel();
 		else if (command.equals("default")) //$NON-NLS-1$
-		chooserPane.setColor(defaultval);
+			chooserPane.setColor(defaultval);
 		else if (command.equals("copy")) //$NON-NLS-1$
-		copy();
+			copy();
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class CustomColorChooserDialog extends JEscapeDialog implements ActionLis
 		if (c != null)
 		{
 			String scolor = PersistHelper.createColorString(c);
-			WebStart.setClipboardContent(scolor);
+			RemoteRunnerChecker.getInstance().setClipboardContent(scolor);
 		}
 	}
 

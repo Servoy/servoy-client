@@ -72,7 +72,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		obj.setName(name);
 		MethodTemplate template = MethodTemplate.getTemplate(ScriptCalculation.class, null);
-		obj.setDeclaration(template.getMethodDeclaration(name, "\treturn 1;", userTemplate)); //$NON-NLS-1$
+		obj.setDeclaration(template.getMethodDeclaration(name, "\treturn '';", userTemplate)); //$NON-NLS-1$
 		addChild(obj);
 		return obj;
 	}

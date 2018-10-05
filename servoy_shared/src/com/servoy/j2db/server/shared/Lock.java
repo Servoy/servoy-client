@@ -22,16 +22,13 @@ import java.util.TreeSet;
 
 import net.jcip.annotations.ThreadSafe;
 
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
-
 /**
  * This class represents a lock held by a client on the server.
- * 
+ *
  * @author svanerk
  */
 
 @ThreadSafe
-@TerracottaInstrumentedClass
 public class Lock implements Comparable<Lock>, Cloneable
 {
 	private final String serverName; // The server name of the server in which the records live.

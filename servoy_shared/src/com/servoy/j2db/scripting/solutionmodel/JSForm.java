@@ -1998,6 +1998,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSSetter
 	public void setView(int arg)
 	{
+		if (getForm().getUseCssPosition())
+			throw new RuntimeException("Cannot modify view type of css position form via solution model. Css position form should always be in record view.");
 		checkModification();
 		getForm().setView(arg);
 	}

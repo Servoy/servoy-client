@@ -18,6 +18,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import java.util.Collection;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -30,10 +31,14 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPushToServerSpecialType;
+import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
@@ -55,6 +60,7 @@ import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -69,8 +75,9 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class FormComponentPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>,
-	IFormElementToTemplateJSON<Object, Object>, IFormElementToSabloComponent<Object, Object>, IFormComponentType
+public class FormComponentPropertyType extends DefaultPropertyType<Object>
+	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>,
+	IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType, ISupportsGranularUpdates<Object>
 {
 	public static final String SVY_FORM = "svy_form";
 
@@ -90,20 +97,34 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		return json;
+		if (json == null) return null;
+
+		String forFoundset = json.optString("forFoundset"); //$NON-NLS-1$
+		// we return here a ComponentTypeConfig because this is used in the ComponentPropertyType
+		return forFoundset == null || forFoundset.length() == 0 ? null : new ComponentTypeConfig(forFoundset);
 	}
 
 	@Override
 	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
+		if (newJSONValue instanceof JSONArray && previousSabloValue instanceof FormComponentSabloValue)
+		{
+			((FormComponentSabloValue)previousSabloValue).browserUpdatesReceived((JSONArray)newJSONValue);
+		}
 		return previousSabloValue;
 	}
+
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, DataConversion clientConversion,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
+		if (sabloValue instanceof FormComponentSabloValue)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			((FormComponentSabloValue)sabloValue).fullToJSON(writer, clientConversion, this, dataConverterContext);
+		}
 		return writer;
 	}
 
@@ -122,8 +143,15 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
 		FlattenedSolution fs = webFormComponent.getDataConverterContext().getSolution();
 		Form form = getForm(webComponentValue, fs);
-		FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form,
-			fs);
+		FormComponentCache cache = null;
+		if (webComponentValue instanceof FormComponentSabloValue)
+		{
+			cache = ((FormComponentSabloValue)webComponentValue).getCache();
+		}
+		else
+		{
+			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
+		}
 		for (FormElement fe : cache.getFormComponentElements())
 		{
 			String name = fe.getPersistIfAvailable() instanceof AbstractBase
@@ -138,6 +166,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			}
 		}
 		return newObject;
+
 	}
 
 	@Override
@@ -213,14 +242,22 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, dataAdapterList.getApplication().getFlattenedSolution());
 		if (form != null)
 		{
-			IWebFormUI formUI = component.findParent(IWebFormUI.class);
-			List<FormElement> elements = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
-				dataAdapterList.getApplication().getFlattenedSolution()).getFormComponentElements();
-			for (FormElement element : elements)
+			FormComponentCache formComponentCache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
+				dataAdapterList.getApplication().getFlattenedSolution());
+			List<FormElement> elements = formComponentCache.getFormComponentElements();
+			if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
 			{
-				WebFormComponent child = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
-					dataAdapterList.getForm().getForm());
-				formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
+				return new FormComponentSabloValue(elements, pd, dataAdapterList, component, form, formComponentCache);
+			}
+			else
+			{
+				IWebFormUI formUI = component.findParent(IWebFormUI.class);
+				for (FormElement element : elements)
+				{
+					WebFormComponent child = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
+						dataAdapterList.getForm().getForm());
+					formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
+				}
 			}
 		}
 		return formElementValue;
@@ -242,7 +279,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		{
 			String formName = currentValue.optString(SVY_FORM);
 			Form form = getForm(formName, fs);
-			if (form != null)
+			while (form != null)
 			{
 				List<IFormElement> formelements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				for (IFormElement element : formelements)
@@ -272,6 +309,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 						}
 					}
 				}
+				form = form.getExtendsForm();
 			}
 		}
 		return pd;
@@ -376,13 +414,42 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			PropertyDescription propertyPD = pd;
 			for (int i = 0; i < split.length - 1; i++)
 			{
-				propertyPD = propertyPD != null ? propertyPD.getProperty(split[i]) : null;
-				JSONObject tmp = obj.optJSONObject(split[i]);
-				if (tmp == null)
+				JSONObject tmp = null;
+				if (split[i].endsWith("]"))
 				{
-					if (!create) break;
-					tmp = new JSONObject();
-					obj.put(split[i], tmp);
+					String propertyID = split[i].substring(0, split[i].indexOf("["));
+					propertyPD = propertyPD != null ? propertyPD.getProperty(propertyID) : null;
+					if (propertyPD != null && propertyPD.getType() instanceof ICustomType)
+					{
+						propertyPD = ((ICustomType)propertyPD.getType()).getCustomJSONTypeDefinition();
+					}
+					JSONArray array = obj.optJSONArray(propertyID);
+					if (array == null)
+					{
+						if (!create) break;
+						array = new JSONArray();
+						obj.put(propertyID, array);
+					}
+					int index = Utils.getAsInteger(split[i].substring(split[i].indexOf("[") + 1, split[i].indexOf("]")));
+					if (index >= 0)
+					{
+						for (int j = array.length(); j <= index; j++)
+						{
+							array.put(new JSONObject());
+						}
+						tmp = (JSONObject)array.get(index);
+					}
+				}
+				else
+				{
+					propertyPD = propertyPD != null ? propertyPD.getProperty(split[i]) : null;
+					tmp = obj.optJSONObject(split[i]);
+					if (tmp == null)
+					{
+						if (!create) break;
+						tmp = new JSONObject();
+						obj.put(split[i], tmp);
+					}
 				}
 				obj = tmp;
 			}
@@ -418,5 +485,23 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			}
 			return new Pair<PropertyDescription, String>(last, propname);
 		}
+	}
+
+	@Override
+	public boolean shouldAlwaysAllowIncommingJSON()
+	{
+		return true;
+	}
+
+	@Override
+	public JSONWriter changesToJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
+	{
+		if (sabloValue instanceof FormComponentSabloValue)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			((FormComponentSabloValue)sabloValue).changesToJSON(writer, clientConversion, this);
+		}
+		return writer;
 	}
 }

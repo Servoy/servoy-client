@@ -5,9 +5,20 @@
 /// <reference path="../../typings/jquery/jquery.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
 
+if (!String.prototype.endsWith){
+	String.prototype.endsWith = function (suffix) {
+	      return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	}
+}
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(search, pos) {
+		return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+	};
+}
+
 var controllerProvider : angular.IControllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
-                             'pasvaz.bindonce', 'ngSanitize', 'pascalprecht.translate']
+                             'ngSanitize', 'pascalprecht.translate']
 
 ).config(['$controllerProvider', '$translateProvider', '$qProvider', function($controllerProvider: angular.IControllerProvider, $translateProvider, $qProvider) {
 	controllerProvider = $controllerProvider;
@@ -38,7 +49,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	function sendChanges(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], !formState.properties.useCssPosition, formname);
+			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], !formState.properties.useCssPosition[beanname], formname);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
@@ -272,7 +283,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								//size or location were changed at runtime, we need to update components with anchors
 								beanData.anchors = beanModel.anchors;
 							}
-							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false,!formState.properties.useCssPosition, formname)
+							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false,!formState.properties.useCssPosition[beanname], formname)
 						}
 						else if (beanData['findmode'] !== undefined)
 						{
@@ -391,7 +402,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
-						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope,!formProperties.useCssPosition, formName)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope,!formProperties.useCssPosition[beanName], formName)
 					}
 				} else {
 					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope
@@ -407,7 +418,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (formState.initializing) $sabloApplication.requestInitialData(formname, function(initialFormData,formState) {
 				for (var beanName in initialFormData) {
 					if (beanName != '') {
-						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false,!formState.properties.useCssPosition, formname)
+						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false,!formState.properties.useCssPosition[beanName], formname)
 					}
 				}
 			});
@@ -507,7 +518,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return $q.when(null);
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex,formnameThatWillBeShown,relationnameThatWillBeShown,formIndexThatWillBeShown) {
-			if (!formname) {
+			if (!formname && !formnameThatWillBeShown) {
 				throw new Error("formname is undefined");
 			}
 			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex,show:{formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown}});
@@ -823,23 +834,27 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			if (!compModel) return; // not found, maybe a missing bean
 
-			if(isForm || compModel.anchors) {
-				var resizeTimeoutID = null;
-				var onResize = function() {
-					if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
-					resizeTimeoutID = $timeout( function() {
+			if (isForm || compModel.anchors) {
+				let resizeTimeoutID = null;
+				const onResize = function() {
+					// the $timeout below will trigger an angular digest as well when it executes (so only when there are anchored forms present)
+					// that means that any angular watches that rely on being called on window resize will get evaluated only when this $timeout executes (if there is no other code in other places triggering a digest)
+					if (!resizeTimeoutID) resizeTimeoutID = $timeout( function() {
+						resizeTimeoutID = null;
+						
 						// TODO: visibility must be based on properties of type visible, not on property name
-						if(isForm || compModel.visible) {
+						if (isForm || compModel.visible) {
 							if(compModel.location) {
 								compModel.location.x = $element.offset().left;
 								compModel.location.y = $element.offset().top;
 							}
-							if(compModel.size) {
+							if (compModel.size) {
 								compModel.size.width = $element.width();
 								compModel.size.height = $element.height();  
 							}
 						}
-					}, 1000);
+					}, 400);
+					
 				}
 				$window.addEventListener('resize', onResize);
 				$scope.$on("$destroy", function() {
@@ -852,19 +867,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	return {
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
-			var formName = tAttrs['formname'];
+			let formName = tAttrs['formname'];
 			if ($log.debugEnabled) $log.debug("svy * compile svyFormload for form = " + formName);
 
 			// it sometimes happens that this gets called from a div that is detatched from the real page body somewhere in parents - and
 			// top-most $scope of parents is also destroyed already, although child scopes are not marked as destroyed; (this looks like an angular bug actually)
 			// for example sometimes when a recreateUI of the main form happens (and main form URL changes while the form remains the same);
 			// we should ignore such situations...
-			var blocked = false;
-			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
-			var someAncestor = tElem.get(0).parentNode;
+			let blocked = false;
+			let formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
+			let someAncestor = tElem.get(0).parentNode;
+			let inHiddenDiv;
 			while (someAncestor && someAncestor !== window.document) someAncestor = someAncestor.parentNode;
 			if (someAncestor === window.document) {
-				var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
+				inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
 				if(!inHiddenDiv) {
 					// skip nested forms
 					if(tElem.closest("[hiddendiv]").length) {
@@ -877,9 +893,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
 					// someone already loaded or is loading this form....
 					if ($rootScope.updatingFormName === formName) {
-						// in updatingFormUrl must be cleared as this form will show or is already showing elsewhere
+						// updatingFormUrl (hidden div) must be cleared as this form will show or is already showing elsewhere
 						$rootScope.updatingFormUrl = '';
 						delete $rootScope.updatingFormName;
+						
+						// call scope destroy right away on the scope in hidden div to avoid new location link methods being called before the hidden div scope destroy;
+						// because that could lead to $modelChangeNotifier being set by new location before old location clears it in scope on destroy... see SVY-12816
+						let formScopeToDisposeFromHiddenDiv = (formState.getScope ? formState.getScope() : undefined);
+						if (formScopeToDisposeFromHiddenDiv) {
+							formScopeToDisposeFromHiddenDiv.$destroy();
+						}
 					} 
 					else {
 						// make sure the resolving state is deleted then so it corrects itself.
@@ -976,7 +999,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	enableAnchoring: true
 }).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService) {
 	$servoyInternal.connect();
-
 	// initialize locale client side
 	var locale = webStorage.session.get("locale");
 	if (!locale) {
@@ -1206,8 +1228,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				$rootScope.$digest();
 			}
 		},
-		getUserProperty: function(key) {
-			return getUserProperties()[key];
+		getUserProperties: function(){
+			return getUserProperties();	
 		},
 		setUserProperty: function(key,value) {
 			var userProps = getUserProperties();
@@ -1220,9 +1242,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		setUIProperty: function(key,value) {
 			$svyUIProperties.setUIProperty(key, value);
-		},
-		getUserPropertyNames: function() {
-			return Object.getOwnPropertyNames(getUserProperties());
 		},
 		showMessage: function(message) {
 			$window.alert(message);
@@ -1246,9 +1265,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						$window.document.body.appendChild(ifrm);
 					}
 				}
-				else {
-					$window.open(url,target,targetOptions);
-				}
+				else  if (target === '_self' && targetOptions === 'no-history=true') {
+			        $window.location.replace(url)
+			    } else {
+			        $window.open(url,target,targetOptions);
+			    }
 			}, timeout*1000)
 		},
 		setStatusText:function(text){
@@ -1842,6 +1863,46 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 }])
+.factory("$uiBlocker", function($services, $applicationService) {
+	var executingEvents = [];
+	return {
+		shouldBlockDuplicateEvents: function(beanName, model, eventType, row) {
+			var blockDuplicates = null;
+			if (model && model.clientProperty &&  angular.isDefined(model.clientProperty.ngBlockDuplicateEvents))
+			{
+				blockDuplicates = model.clientProperty.ngBlockDuplicateEvents
+			}
+			else
+			{
+				blockDuplicates = $applicationService.getUIProperty("ngBlockDuplicateEvents");
+			}
+			if (blockDuplicates && beanName && eventType)
+			{
+				for (var i=0;i < executingEvents.length; i++)
+				{
+					if (executingEvents[i].beanName === beanName && executingEvents[i].eventType === eventType && executingEvents[i].rowId === row)
+					{
+						return true;
+					}
+				}
+			}
+			executingEvents[executingEvents.length] = {'beanName': beanName, 'eventType': eventType,'rowId': row};
+			return false;
+			
+		},
+		
+		eventExecuted: function(beanName, model, eventType, row) {
+			for (var i = 0; i < executingEvents.length; i++)
+			{
+				if (executingEvents[i].beanName === beanName && executingEvents[i].eventType === eventType && executingEvents[i].rowId === row)
+				{
+					executingEvents.splice(i,1);
+					break;
+				}
+			}
+		}
+	}
+})
 .run(function($window, $sabloApplication:sablo.ISabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {
 		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)

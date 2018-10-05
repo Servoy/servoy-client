@@ -218,6 +218,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 				// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
 				// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property
 				// notify that an update occurred in this case, even though it didn't actually affect the foundset property itself... but the other foundset linked properties.
+				// in the future if we impl. change listeners for foundset linked or foundset linked component types, we could avoid this "queueLinkedPropertyUpdate" completely
 				if (added && foundsetTypeViewportDataChangeMonitor != null)
 				{
 					foundsetTypeViewportDataChangeMonitor.queueLinkedPropertyUpdate(relativeRowIndex, relativeRowIndex, columnName);
@@ -238,7 +239,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 * Ignores update record events for the record with given pkHash.
 	 *
 	 * @deprecated disabled for now. Should we really do this? when an update comes from client who's to say a data change handler or something won't\
-	 * change other properties of the componen/values of the record that should get sent to client?
+	 * change other properties of the component/values of the record that should get sent to client?
 	 */
 	@Deprecated
 	protected void pauseRowUpdateListener(String pkHash)

@@ -24,18 +24,15 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
-import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
-
 /**
  * This class is resistent to inserts, adds and gets on positions not defined, and it uses the Utils.equalsObject(...) to perform equals on objects (which is
  * more data compatible).<br>
  * <br>
  * Changed the class to wrap an ArrayList instance instead of extending ArrayList because it is shared with Terracotta when running a cluster of servers and it would no be "portable" because it would extend
  * a "logically managed" class and override some of it's methods.
- * 
+ *
  * @author jblok
  */
-@TerracottaInstrumentedClass
 public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, Cloneable, java.io.Serializable
 {
 	private int initialCapacity;
@@ -60,7 +57,7 @@ public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, C
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@SuppressWarnings("unchecked")
@@ -136,7 +133,7 @@ public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, C
 
 	/**
 	 * Searches for the first occurence of the given argument, testing for equality using the <tt>equals</tt> method.
-	 * 
+	 *
 	 * @param elem an object.
 	 * @return the index of the first occurrence of the argument in this list; returns <tt>-1</tt> if the object is not found.
 	 * @see Object#equals(Object)
@@ -168,7 +165,7 @@ public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, C
 
 	/**
 	 * Returns the index of the last occurrence of the specified object in this list.
-	 * 
+	 *
 	 * @param elem the desired element.
 	 * @return the index of the last occurrence of the specified object in this list; returns -1 if the object is not found.
 	 */

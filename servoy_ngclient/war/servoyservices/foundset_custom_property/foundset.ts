@@ -1,10 +1,12 @@
 /// <reference path="../../../typings/angularjs/angular.d.ts" />
+/// <reference path="../../../typings/servoy/component.d.ts" />
 /// <reference path="../../../typings/servoy/foundset.d.ts" />
 /// <reference path="../../../typings/sablo/sablo.d.ts" />
 
 angular.module('foundset_custom_property', ['webSocketModule'])
 // Foundset type -------------------------------------------
 .value("$foundsetTypeConstants", {
+	// if you change any of these please also update ChangeEvent and other types in foundset.d.ts and or component.d.ts
 	ROW_ID_COL_KEY: '_svyRowId',
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	
@@ -21,12 +23,105 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	NOTIFY_VIEW_PORT_SIZE_CHANGED: "viewPortSizeChanged",
 	NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED: "viewportRowsCompletelyChanged",
 	NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED: "viewportRowsUpdated",
+	NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: "oldViewportSize",
+	NOTIFY_VIEW_PORT_ROW_UPDATES: "updates",
 	
 	// row update types for listener notifications - in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
 	ROWS_CHANGED: 0,
     ROWS_INSERTED: 1,
     ROWS_DELETED: 2
 })
+.factory("$foundsetTypeUtils", ["$foundsetTypeConstants", function($foundsetTypeConstants: foundsetType.FoundsetTypeConstants) {
+	function isChange(update: componentType.ViewportRowUpdate): update is componentType.RowsChanged {
+	    return (<componentType.RowsChanged>update).type == $foundsetTypeConstants.ROWS_CHANGED;
+	};
+	function isInsert(update: componentType.ViewportRowUpdate): update is componentType.RowsInserted {
+	    return (<componentType.RowsInserted>update).type == $foundsetTypeConstants.ROWS_INSERTED;
+	};
+	function isDelete(update: componentType.ViewportRowUpdate): update is componentType.RowsDeleted {
+	    return (<componentType.RowsDeleted>update).type == $foundsetTypeConstants.ROWS_DELETED;
+	};
+	
+	return {
+
+		/**
+		 * The purpose of this method is to aggregate after-the-fact granular updates with indexes
+		 * that are relevant only when applying updates 1-by-1 into indexes that are
+		 * related to the new/final state of the viewport. It only calculates new indexes
+		 * for updates of type $foundsetTypeConstants.ROWS_CHANGED. (taking into account
+		 * any insert/delete along the way)
+		 * 
+		 * @param viewportRowUpdates what a foundset/component property type (viewport) change listener
+		 * would receive in changeEvent[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]
+		 * [$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES]
+		 * 
+		 * @param oldViewportSize what a foundset/component property type (viewport) change listener
+		 * would receive in changeEvent[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]
+		 * [$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]
+		 * 
+		 * @returns an array of $foundsetTypeConstants.ROWS_CHANGED updates with their indexes corrected
+		 * to reflect the indexes in the final state of the viewport (after all updates were applied).
+		 */
+		coalesceGranularRowChanges: function(viewportRowUpdates: componentType.ViewportRowUpdates, oldViewportSize: number): componentType.RowsChanged[] {
+			var coalescedUpdates: componentType.RowsChanged[] = [];
+			var currentViewportSize = oldViewportSize; 
+			for (let i = 0; i < viewportRowUpdates.length; i++) {
+				let update = viewportRowUpdates[i];
+				if (isChange(update)) {
+					coalescedUpdates.push({ type: update.type, startIndex: update.startIndex, endIndex: update.endIndex });
+				} else if (isInsert(update)) {
+					let added = (update.endIndex - update.startIndex + 1);
+					for (let j = 0; j < coalescedUpdates.length; j++) {
+						let change = coalescedUpdates[j];
+						if (change.startIndex >= update.startIndex) {
+							// change is shifted right
+							change.startIndex += added;
+							change.endIndex += added;
+							
+							let removedFromEndOfChange = change.endIndex + 1 - (currentViewportSize - update.removedFromVPEnd + added);
+							if (removedFromEndOfChange > 0) {
+								change.endIndex -= removedFromEndOfChange;
+							}
+							
+							// see if the whole change slided out of viewport after this insert
+							if (change.startIndex > change.endIndex) coalescedUpdates.splice(j--, 1);
+						} else if (change.endIndex >= update.startIndex) {
+							// change is split in two
+							coalescedUpdates.splice(j, 0, { type: change.type,
+								startIndex: change.startIndex, endIndex: update.startIndex - 1});
+							change.startIndex = update.startIndex; // due to splice above that adds one element at current j, next
+							// loop exec will handle this same (remaining 2nd part of split) change to shift it to right as needed...
+						}
+					}
+					currentViewportSize += added - update.removedFromVPEnd;
+				} else if (isDelete(update)) {
+					let deleted = (update.endIndex - update.startIndex + 1);
+					for (let j = 0; j < coalescedUpdates.length; j++) {
+						let change = coalescedUpdates[j];
+						let intersectionStart = Math.max(change.startIndex, update.startIndex);
+						let intersectionEnd = Math.min(change.endIndex, update.endIndex);
+						if (intersectionStart <= intersectionEnd) {
+							// some of the changed rows were deleted
+							change.endIndex -= intersectionEnd - update.startIndex + 1;
+							if (change.startIndex == intersectionStart) {
+								change.startIndex = update.startIndex;
+							}
+							// see if whole change was deleted
+							if (change.startIndex > change.endIndex) coalescedUpdates.splice(j--, 1);
+						} else if (change.startIndex > update.startIndex) {
+							// none of the changes were deleted, but their indexes must shift left
+							let shiftToLeft = update.endIndex - update.startIndex + 1;
+							change.startIndex -= shiftToLeft;
+							change.endIndex -= shiftToLeft;
+						}
+					}
+					currentViewportSize += update.appendedToVPEnd - deleted;
+				}
+			}
+			return coalescedUpdates;
+		}
+	}
+}])
 .run(function ($sabloConverters, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $viewportModule, $sabloUtils, $q, $log, $webSocket, $sabloDeferHelper: sablo.ISabloDeferHelper) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 
@@ -86,7 +181,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	};
 
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue = currentClientValue;
 
 			// see if someone is listening for changes on current value; if so, prepare to fire changes at the end of this method
@@ -192,7 +287,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					if (angular.isDefined(viewPortUpdate[ROWS])) {
 						var oldRows = currentClientValue[VIEW_PORT][ROWS];
 						$viewportModule.updateWholeViewport(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[ROWS],
-								viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] : undefined, componentScope, componentModelGetter);
+								viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][ROWS] : undefined, componentScope, propertyContext);
 						
 						// new rows; set prototype for each row
 						var rows = currentClientValue[VIEW_PORT][ROWS];
@@ -202,9 +297,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						
 						if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue : oldRows, newValue : currentClientValue[VIEW_PORT][ROWS] };
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
-						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false, internalState.rowPrototype);
+						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[$sabloConverters.TYPES_KEY] && viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] ? viewPortUpdate[$sabloConverters.TYPES_KEY][UPDATE_PREFIX + ROWS] : undefined, componentScope, propertyContext, false, internalState.rowPrototype);
 
-						if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewPortUpdate[UPDATE_PREFIX + ROWS] }; // viewPortUpdate[UPDATE_PREFIX + ROWS] was already prepared for listeners by $viewportModule.updateViewportGranularly
+						if (hasListeners) {
+							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewPortUpdate[UPDATE_PREFIX + ROWS] }; // viewPortUpdate[UPDATE_PREFIX + ROWS] was already prepared for listeners by $viewportModule.updateViewportGranularly
+							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize; 
+						}
 					}
 				}
 
@@ -248,7 +346,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					$viewportModule.updateAllConversionInfo(rows, internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
 					if (newValue[VIEW_PORT][$sabloConverters.TYPES_KEY]) {
 						// relocate conversion info in internal state and convert
-						$sabloConverters.convertFromServerToClient(rows, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS], componentScope, componentModelGetter);
+						$sabloConverters.convertFromServerToClient(rows, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS], componentScope, propertyContext);
 						delete newValue[VIEW_PORT][$sabloConverters.TYPES_KEY];
 					}
 					// do set prototype after rows are converted
@@ -367,7 +465,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
-					newValue.addChangeListener = function(listener) {
+					newValue.addChangeListener = function(listener: (change: foundsetType.ChangeEvent) => void) {
 						internalState.changeListeners.push(listener);
 					}
 					newValue.removeChangeListener = function(listener) {
@@ -376,7 +474,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							internalState.changeListeners.splice(index, 1);
 						}
 					}
-					internalState.fireChanges = function(foundsetChanges) {
+					internalState.fireChanges = function(foundsetChanges: foundsetType.ChangeEvent) {
 						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties linked to that foundset.
 						// In order to make sure that foundset notification update code executes after all property changes have been applied (so the dataprovider properties are also up-to-date)
 						// delay change listener calls until all incoming messages are handled

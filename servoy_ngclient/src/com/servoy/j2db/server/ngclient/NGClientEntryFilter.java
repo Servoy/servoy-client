@@ -79,33 +79,32 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SOLUTIONS_PATH = "/solutions/";
 	public static final String FORMS_PATH = "/forms/";
 
-	public static final String ANGULAR_JS = "js/angular_1.6.3.js";
+	public static final String ANGULAR_JS = "js/angular_1.7.3.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
-		{ "angular-animate", "js/angular-modules/1.6.3/angular-animate.js" }, //
-		{ "angular-aria", "js/angular-modules/1.6.3/angular-aria.js" }, //
-		{ "angular-cookies", "js/angular-modules/1.6.3/angular-cookies.js" }, //
-		{ "angular-message-format", "js/angular-modules/1.6.3/angular-message-format.js" }, //
-		{ "angular-messages", "js/angular-modules/1.6.3/angular-messages.js" }, //
-		{ "angular-resource", "js/angular-modules/1.6.3/angular-resource.js" }, //
-		{ "angular-touch", "js/angular-modules/1.6.3/angular-touch.js" } };
+		{ "angular-animate", "js/angular-modules/1.7.3/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.7.3/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.7.3/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.7.3/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.7.3/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.7.3/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.7.3/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
-	public static final String[] INDEX_3TH_PARTY_CSS = { //
+	public static final String[] INDEX_3RD_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
-	public static final String[] INDEX_3TH_PARTY_JS = { //
+	public static final String[] INDEX_3RD_PARTY_JS = { //
 		"js/jquery-3.3.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
-		"js/angular-sanitize_1.6.3.js", //
-		"js/angular-translate-2.8.1.js", //
+		"js/angular-sanitize_1.7.3.js", //
+		"js/angular-translate-2.18.1.js", //
 		"js/angular-webstorage.js", //
 		"js/angularui/ui-bootstrap-tpls-2.4.0.js", //
 		"js/numeral.js", //
 		"js/locales.js", //
 		"js/angular-file-upload/dist/ng-file-upload.js", //
 		"js/bootstrap-window/js/Window.js", //
-		"js/bootstrap-window/js/WindowManager.js", //
-		"js/bindonce.js" };
+		"js/bootstrap-window/js/WindowManager.js" };
 	private static final String[] INDEX_SABLO_JS = { //
 		"sablo/lib/reconnecting-websocket.js", //
 		"sablo/js/websocket.js", //
@@ -137,7 +136,7 @@ public class NGClientEntryFilter extends WebEntry
 	{
 		this.filterConfig = fc;
 		ApplicationServerRegistry.getServiceRegistry().registerService(IMessagesRecorder.class, new MessageRecorder());
-		//when started in developer - init is done in the ResourceProvider filter
+		// when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
 			try (InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties"))
@@ -195,7 +194,6 @@ public class NGClientEntryFilter extends WebEntry
 
 			super.init(fc);
 		}
-
 	}
 
 	@Override
@@ -356,9 +354,7 @@ public class NGClientEntryFilter extends WebEntry
 							{
 								if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
 								{
-									boolean maintenanceMode = wsSession == null &&
-										(ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() ||
-											ApplicationServerRegistry.get().getDataServer().isInGlobalMaintenanceMode());
+									boolean maintenanceMode = wsSession == null && ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode();
 									if (maintenanceMode)
 									{
 										HttpSession session = request.getSession(false);
@@ -391,7 +387,7 @@ public class NGClientEntryFilter extends WebEntry
 
 								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 
-								String ipaddr = request.getHeader("X-Forwarded-For");// in case there is a forwarding proxy
+								String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 								if (ipaddr == null)
 								{
 									ipaddr = request.getRemoteAddr();
@@ -600,7 +596,7 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		else
 		{
-			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3TH_PARTY_CSS)));
+			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3RD_PARTY_CSS)));
 			allIndexCSS.addAll(appendGroupIdRequestParamToUrls(cssContributions));
 		}
 		return allIndexCSS;
@@ -622,7 +618,7 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		else
 		{
-			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3TH_PARTY_JS)));
+			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3RD_PARTY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SABLO_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SERVOY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(jsContributions));

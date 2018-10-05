@@ -429,4 +429,10 @@ public class RuntimeGroup implements IRuntimeGroup
 		//only implemented in ngclient
 
 	}
+
+	@Override
+	public void hasStyleClass(String styleName)
+	{
+		//only implemented in ngclient
+	}
 }

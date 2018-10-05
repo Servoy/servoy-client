@@ -2,10 +2,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 .directive('servoycorePortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
                                    '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
-                                   '$svyProperties', '$window','i18nService',
+                                   '$svyProperties', '$window','i18nService', '$foundsetTypeUtils',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants,
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window,i18nService) {
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q,
+                                		   $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window, i18nService, $foundsetTypeUtils) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -15,17 +16,27 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			servoyApi: "=svyServoyapi"
 		},
 		link: function($scope, $element, $attrs) {
-			// START TEST MODELS
-
-			// rowProxyObjects[pk][elementIndex].
-			//                                  .mergedCellModel         - is the actual cell element svyModel cache
-			//                                  .cellHandlers            - is the actual cell element handlers cache
-			//                                  .cellServoyApi 	         - is the actual cell element Servoy Api cache
-			// cellAPICaches[renderedRowIndex][elementIndex]             - is the actual cell element API cache
-			// cellChangeNotifierCaches[renderedRowIndex][elementIndex]  - is cache of the $sabloConstants.modelChangeNotifier after cell cache is destroyed, so it can be reused
+			// rowProxyObjects[pk][elementIndex].                             - indexed by PK as we need these linked to a record/row not to a DOM element that uigrid reuses when scrolling
+			//                                  .mergedCellModel              - is the actual cell element svyModel cache
+			//                                  .cellHandlers                 - is the actual cell element handlers cache
+			//                                  .cellServoyApi 	              - is the actual cell element Servoy Api cache
+			// cellAPICaches[renderedRowIndex][elementIndex]                  - is the actual cell element contributed API cache if any (by renderedRowIndex which is the real actual DOM row index - uigrid reuses
+            //                                                                  DOM elements for rows when scrolling, and we need to keep provided API's for each real DOM element not for eack row's pk
+			//                                                                  (which can change each time the user scrolls in each DOM element) because the API might modify the DOM element)
+			// cellChangeNotifierCaches[renderedRowIndex][elementIndex]       - it keeps the actual $sabloConstants.modelChangeNotifier contributed by each cell to the model if any; we keep these linked to the
+			//                                                                  real DOM elements through renderedRowIndex as well - see comment above for cellAPICaches that is in a similar situation
+			// lastCellModelsOfRenderedIndex[renderedRowIndex][elementIndex]  - it keeps the last rowID that was displayed for a cell at renderedRowIndex (via getMergedCellModel())
+			// delayedChangeNotificationsForRenderedIndex[renderedRowIndex]][elementIndex] - when scrolling, getMergedCellModel will change the models provided at each realRenderIndex; but we will call any changeNotifiers later, after the component did get the new model from that call
+			//                                  .oldModelValue
+			//                                  .newModelValue
+			//                                  .changeNotifierToFire
+		
 			var rowProxyObjects = {};
 			var cellAPICaches = {};
 			var cellChangeNotifierCaches = {};
+			var lastCellModelsOfRenderedIndex = {};
+			var delayedChangeNotificationsForRenderedIndex = {};
+			var componentChangeListeners;
 			
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -74,64 +85,92 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				}
 			})
 
-			function disposeOfRowProxies(rowProxy,renderedRowIdx) {
-				var renderedRowIndex = renderedRowIdx;
-				if (renderedRowIndex !== undefined)
-				{
-					var newCellChangeNotifierCaches = {};
-					for(var sRowIdx in cellChangeNotifierCaches)
-					{
-						var rowIdx = parseInt(sRowIdx);
-						if(rowIdx <= renderedRowIndex) {
-							newCellChangeNotifierCaches[rowIdx] = cellChangeNotifierCaches[rowIdx];
-						}
-						else {
-							newCellChangeNotifierCaches[rowIdx + 1] = cellChangeNotifierCaches[rowIdx];
-						}
-					}
-					if(newCellChangeNotifierCaches[renderedRowIndex]) {
-						renderedRowIndex++;
-					}
-					cellChangeNotifierCaches = newCellChangeNotifierCaches;
-
-					cellChangeNotifierCaches[renderedRowIndex] = []
-				}
+			function disposeOfRowProxies(rowProxy) {
 				for (var elIdx in rowProxy) {
-					if (renderedRowIndex !== undefined && rowProxy[elIdx].mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
-					{
-						cellChangeNotifierCaches[renderedRowIndex][elIdx] = rowProxy[elIdx].mergedCellModel[$sabloConstants.modelChangeNotifier];
-					}	
 					if (rowProxy[elIdx].unwatchFuncs) {
 						rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
 					}
 				}
 			}
+			
+			function handleRecordDependentPropertiesChangedForFSViewportIndex(changedFoundsetViewportIndex, elementIndex) {
+				// do it later so that all the watches for size and such have updated the portal
+				$scope.$evalAsync(function() {
+					var absoluteChangedIndex = viewPortToAbsolute(changedFoundsetViewportIndex);
+					var changedRenderedIndex = absoluteToRenderedRowIndex(absoluteChangedIndex);
+					
+					var element = $scope.model.childElements[elementIndex];
 
+					var changeNotifier;
+					var changeNotifierRow = cellChangeNotifierCaches[changedRenderedIndex];
+					if (changeNotifierRow) changeNotifier = changeNotifierRow[elementIndex];
+					
+					var cellModel;
+					var cellModelsForRenderedRow = lastCellModelsOfRenderedIndex[changedRenderedIndex]
+					if (cellModelsForRenderedRow) cellModel = cellModelsForRenderedRow[elementIndex];
+					
+
+					if (changeNotifier && element && cellModel) {
+						var recordBasedPropertiesOfElement = element.foundsetConfig.recordBasedProperties;
+						for (var i in recordBasedPropertiesOfElement) {
+							var propertyName = recordBasedPropertiesOfElement[i];
+							changeNotifier(propertyName, cellModel[propertyName]);
+						}
+					}
+				});
+			}
+
+			// for triggering any component-registered changeNorifiers when we get viewport updates for a component's model
+			function getComponentChangeListener(elementIndex) {
+				return function(viewportChanges) {
+					if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED]) {
+						// TODO is this case always caught by code in handleModelChangeAsNeeded?
+					} else if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]) {
+						if ($log.debugEnabled) $log.debug("portal ### changeNotifier will be triggered according to granular comp. viewport updates for column: " + elementIndex);
+						var granularUpdates = viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED];
+						var viewportRowsWithChangesAfterAllOps = $foundsetTypeUtils.coalesceGranularRowChanges(granularUpdates.updates, granularUpdates[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]);
+						// TODO inserts/deletes will be handled by code from getMergedCellModel (is there a situation where after delete/insert the same rowid but with different content ends up in the same renderIndex it had before and then that is not handled?)
+						
+						for (var i = 0; i < viewportRowsWithChangesAfterAllOps.length; i++) {
+							var rowChanges = viewportRowsWithChangesAfterAllOps[i]; // contains a set of changes with current indexes in foundset's viewport
+							for (var j = rowChanges.startIndex; j <= rowChanges.endIndex; j++) {
+								handleRecordDependentPropertiesChangedForFSViewportIndex(j, elementIndex);
+							}
+						}
+					}
+				}
+			}
+			
+			function updateChildElementListeners(newElements, oldElements) {
+				if (oldElements) {
+					for (var i = 0; i < oldElements.length; i++) {
+						oldElements[i].removeViewportChangeListener(componentChangeListeners[i]);
+						delete oldElements[i].model[$sabloConstants.modelChangeNotifier];
+					}
+				}
+				
+				componentChangeListeners = [];
+				
+				if (newElements) {
+					for (var i = 0; i < newElements.length; i++) {
+						componentChangeListeners[i] = getComponentChangeListener(i);
+						newElements[i].addViewportChangeListener(componentChangeListeners[i]);
+					}
+				}
+			}
+			
+			updateChildElementListeners(elements, null);
+			
 			$scope.$watchCollection('model.childElements', function(newVal, oldVal) {
 				elements = $scope.model.childElements;
 				if (newVal != oldVal) {
-					for(var i=0;i<oldVal.length;i++) {
-						delete oldVal[i].model[$sabloConstants.modelChangeNotifier];
-					}
 					// either a component was added/removed/changed or the whole array changed
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
-					for (var someKey in rowProxyObjects)
-					{
-						var renderedRowIndex = undefined;
-						if ($scope.foundset && $scope.foundset.viewPort && $scope.foundset.viewPort.rows) {
-							for (var idx in $scope.foundset.viewPort.rows) 
-							{
-								if ($scope.foundset.viewPort.rows[idx][$foundsetTypeConstants.ROW_ID_COL_KEY] === someKey)
-								{
-									renderedRowIndex = idx;
-									break;
-								}
-							}
-						}
-						disposeOfRowProxies(rowProxyObjects[someKey],renderedRowIndex);
+					for (var someKey in rowProxyObjects) {
+						disposeOfRowProxies(rowProxyObjects[someKey]);
 					}	
-
 					rowProxyObjects = {};
+					updateChildElementListeners(newVal, oldVal);
 				}
 			})
 
@@ -204,11 +243,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					var columnTitle = getColumnTitle(idx);
 					var cellTemplate, editableCellTemplate;
 					var isEditable = false;
+					var isReadOnlyOptimized = false;
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
 					+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
-					+ ', rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
+					+ ', rowRenderIndex, rowElementHelper)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
 					+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
 					+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
@@ -222,11 +262,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						editableCellTemplate = $scope.model.multiLine ? cellTemplate : '<div svy-grid-editor>' + cellTemplate + '</div>';						
 						isEditable = true;
 						isRowEditable = true;
+						isReadOnlyOptimized = true;
 						var handlers = ""
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
 						}
-						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm svy-padding-xs" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex)"' + handlers + ' tabIndex="-1"></div>';
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm svy-padding-xs" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex, rowElementHelper)"' + handlers + ' tabIndex="-1"></div>';
 					}
 
 
@@ -286,7 +327,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							enableSorting:isSortable,
 							sortDirectionCycle: [uiGridConstants.ASC, uiGridConstants.DESC],
 							enableHiding: false,
-							allowCellFocus: $scope.readOnlyOptimizedMode,
+							allowCellFocus: $scope.readOnlyOptimizedMode && isReadOnlyOptimized,
 							headerCellClass: headerCellClass,
 							svyHeaderAction: headerAction,
 							svyRightClick: headerRightClick,
@@ -516,6 +557,14 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				if (result === undefined) result = -1;
 				return result;
 			}
+			
+			function renderedRowIndexToAbsolute(renderedRowIndex) {
+				return $scope.gridApi.grid.renderContainers.body.currentTopRow + renderedRowIndex;
+			}
+
+			function absoluteToRenderedRowIndex(absoluteIndex) {
+				return absoluteIndex - $scope.gridApi.grid.renderContainers.body.currentTopRow;
+			}
 
 			function rowIdToAbsoluteRowIndex(rowId) {
 				return viewPortToAbsolute(rowIdToViewportRelativeRowIndex(rowId));
@@ -614,9 +663,10 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			}
 
 			// merges component model and modelViewport (for record dependent properties like dataprovider/tagstring/...) the cell's element's model
-			$scope.getMergedCellModel = function(ngGridRow, elementIndex, renderedRowIndex) {
+			$scope.getMergedCellModel = function(ngGridRow, elementIndex, renderedRowIndex, rowElementHelper) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				var cellNotifierToUse = cacheOrGetCellNotifier(renderedRowIndex, elementIndex, rowElementHelper); // cellNotifiers are contributed to models but should be stable based on renderedRowIndex not on rowId as models do
 
 				var relativeRowIndex = rowIdToViewportRelativeRowIndex(rowId);
 				if(relativeRowIndex < 0) {
@@ -653,53 +703,154 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							cellProxies.unwatchFuncs = cellProxies.unwatchFuncs.concat($utils.bindTwoWayObjectProperty(cellData, propertyName, elements, [elementIndex, "modelViewport", function() { return rowIdToViewportRelativeRowIndex(rowId); }, propertyName], false, $scope));
 						}
 					}
-					// attach the model change notifier from the parent column model so that all calls are relayed to the cell.
+					// attach the model change notifier from the parent column model so that all calls are relayed to the cell's (cached) change notifier that might have been contributed by component
 					if (!element.model[$sabloConstants.modelChangeNotifier]) {
-						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {configurable : true,value:function(property,value) {
-							// make sure model change notifier is also called on cell elements initialized with already deleted rows
-							if(cellChangeNotifierCaches) {
-								for(var rowIndex in cellChangeNotifierCaches) {
-									if(cellChangeNotifierCaches[rowIndex][elementIndex]) {
-										cellChangeNotifierCaches[rowIndex][elementIndex](property, value);
-									}
-								}
-							}
-							var isRecordBasedProperty = false;
-							if (element.foundsetConfig && element.foundsetConfig.recordBasedProperties)
-							{
-								for (var i in element.foundsetConfig.recordBasedProperties) {
-									if(property ==  element.foundsetConfig.recordBasedProperties[i])
-									{
-										isRecordBasedProperty = true;
-										break;
-									}	
-								}
-							}	
-							for(var key in rowProxyObjects) {
+						Object.defineProperty(element.model, $sabloConstants.modelChangeNotifier, { configurable: true, value: function(property, value) {
+							// if we are here, then a column prop (so not record-based) has changed, as we are in the shared model change notifier of that column
+							
+							// now, if a component set on client a non-record-based property on it's model - that prop should be in the column,
+							// so the model's prototype, because otherwise future changes to it from server that end up in the prototype would be obscured by
+							// the model's own property with the same name; when it comes back from server do that, move value from own prop to prototype/column prop
+							for (var key in rowProxyObjects) {
 								// test if there is a column at this point for that index, it could be hidden and not created yet.
 								if (rowProxyObjects[key][elementIndex]) {
-									var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
-									if (!isRecordBasedProperty && mergedCellModel.hasOwnProperty(property))
+									var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel;
+									if (mergedCellModel.hasOwnProperty(property))
 									{
 										// if not record based, value should be taken from prototype, delete it from model itself, if present
 										delete mergedCellModel[property];
 									}
-									// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same)
-									if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
-										mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
-									else return;
 								}
 							}
+
+							if ($log.debugEnabled) $log.debug("portal ### changeNotifier triggered on non-record-linked model prop '" + property + "' with value <<" + value + ">> for column: " + elementIndex);
+							executeOnAllRowChangeNotifiers(elementIndex, function(changeNotifier, renderedRowIndex) {
+								changeNotifier(property, value);
+							});
 						}});
 					}
-					if (!cellData.hasOwnProperty($sabloConstants.modelChangeNotifier) && cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex].length > elementIndex && cellChangeNotifierCaches[renderedRowIndex][elementIndex])
-					{
-						Object.defineProperty(cellData,$sabloConstants.modelChangeNotifier, {configurable : true,value:cellChangeNotifierCaches[renderedRowIndex][elementIndex]});
-						cellChangeNotifierCaches[renderedRowIndex][elementIndex] = null;
-					}	
+
 					cellProxies.mergedCellModel = cellModel = cellData;
 				}
+				
+				handleModelChangeAsNeeded(cellModel, cellNotifierToUse, renderedRowIndex, elementIndex);
+				
 				return cellModel;
+			}
+			
+			function executeOnAllRowChangeNotifiers(elementIndex, funcToExec) {
+				// now broadcast the change to any change notifier registered on that column - for each rendered row
+				for (var renderedRowIndex in lastCellModelsOfRenderedIndex) { // lastCellModelsOfRenderedIndex might have more entries then cellChangeNotifierCaches - iterate on those then just in case some change notifier was not yet added to cache
+					if (cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex][elementIndex]) {
+						funcToExec(cellChangeNotifierCaches[renderedRowIndex][elementIndex], renderedRowIndex);
+						if ($log.debugEnabled) $log.debug("portal ### Sending changes to IDX: " + renderedRowIndex + ", col: " + elementIndex);
+					} else {
+						// only if we don't have it in cellChangeNotifierCaches (which we can rely on as they are indexed on rendered rows) yet check the model as well - in the
+						// unlikely case where a change was broadcasted after a cell component contributed the change notifier but before it was cached by a subsequent getMergedCellModel call
+						if ($log.debugEnabled) $log.debug("portal ### TRYING to send changes to IDX: " + renderedRowIndex + ", col: " + elementIndex + ", but listener is not cached so I am getting it from model...");
+						
+						var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
+						if (lastModelsOfRow && lastModelsOfRow[elementIndex] && lastModelsOfRow[elementIndex].hasOwnProperty($sabloConstants.modelChangeNotifier)) {
+							if ($log.debugEnabled) $log.debug("portal ### FOUND it; sending changes to IDX: " + renderedRowIndex + ", col: " + elementIndex + " via listener from model (not cached)...");
+							funcToExec(lastModelsOfRow[elementIndex][$sabloConstants.modelChangeNotifier], renderedRowIndex);
+						} else {
+							if ($log.debugEnabled) $log.debug("portal ### NOT FOUND in model...");
+						}
+					}
+				}
+			}
+			
+			function cacheOrGetCellNotifier(renderedRowIndex, elementIndex, rowElementHelper) {
+				// see if we previously cached a cell notifier contributed by this cell's component; if so use it
+				var cachedRowNotifiers = cellChangeNotifierCaches[renderedRowIndex];
+				
+				if (cachedRowNotifiers && (cachedRowNotifiers.rowElement !== rowElementHelper.getRowElement())) {
+					// if a new/different element is rendered at this renderindex, cache must get updated as well
+					if ($log.debugEnabled) $log.debug("portal ### DELETING all change notifiers cached at IDX: " + renderedRowIndex + " because rowElement is now different at that index...");
+					delete cellChangeNotifierCaches[renderedRowIndex];
+					cachedRowNotifiers = undefined;
+				}
+				
+				var cachedCellNotifier = (cachedRowNotifiers ? cachedRowNotifiers[elementIndex] : undefined);
+					
+				if (!cachedCellNotifier) {				
+					// we don't have a cached cell notifier for this cell yet; see if component has contributed that in the cell's old model (as this func is called from getMergedCellModel which will set the new model in the cell);
+					var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
+					var lastModelOfCell = (lastModelsOfRow ? lastModelsOfRow[elementIndex] : undefined);
+					
+					if (lastModelOfCell && lastModelOfCell.hasOwnProperty($sabloConstants.modelChangeNotifier)) {
+						cachedCellNotifier = lastModelOfCell[$sabloConstants.modelChangeNotifier];
+						if (!cachedRowNotifiers) {
+							cachedRowNotifiers = cellChangeNotifierCaches[renderedRowIndex] = [];
+							cachedRowNotifiers.rowElement = rowElementHelper.getRowElement();
+							if ($log.debugEnabled) $log.debug("portal ### CREATED change notifier cache for IDX: " + renderedRowIndex);
+
+							cachedRowNotifiers.rowElement.on('$destroy', function () {
+								if ($log.debugEnabled) $log.debug("portal ### DESTROY called for IDX: " + renderedRowIndex + "; trying to clear listener cache...");
+								if (cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex].rowElement == cachedRowNotifiers.rowElement) {
+									if ($log.debugEnabled) $log.debug("portal ### DESTROY successful");
+									delete cellChangeNotifierCaches[renderedRowIndex];
+									delete lastCellModelsOfRenderedIndex[renderedRowIndex];
+									delete delayedChangeNotificationsForRenderedIndex[renderedRowIndex];
+								} else if ($log.debugEnabled) $log.debug("portal ### DESTROY FAILED: either cache is already cleared of rowElement is different...");
+								// is .off needed for $destroy?
+							});
+						}
+						cellChangeNotifierCaches[renderedRowIndex][elementIndex] = cachedCellNotifier;
+						if ($log.debugEnabled) $log.debug("portal ### ADDED change notifier cache for IDX: " + renderedRowIndex + ", col: " + elementIndex);
+					}
+				}
+				return cachedCellNotifier;
+			}
+			
+			function handleModelChangeAsNeeded(newModel, changeNotifier, renderedRowIndex, elementIndex) {
+				//  remember last cell model that was returned for this rendered row index
+				var lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex];
+				if (!lastModelsOfRow) {
+					lastModelsOfRow = lastCellModelsOfRenderedIndex[renderedRowIndex] = [];
+				}
+				var oldModel = lastModelsOfRow[elementIndex];
+				lastModelsOfRow[elementIndex] = newModel;
+				
+				// if the model returned for the component in this cell has changed and the component did contribute a change notifier we have to fire changes according to the differences in old and new model...
+				if (oldModel && newModel && oldModel !== newModel && changeNotifier) {
+					// can we improve this somehow or is this enough?
+					var newDelayedCall = false;
+					if (!delayedChangeNotificationsForRenderedIndex[renderedRowIndex]) {
+						delayedChangeNotificationsForRenderedIndex[renderedRowIndex] = [];
+						newDelayedCall = true;
+					}
+					var delayedNotif = delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex];
+					if (!delayedNotif) {
+						delayedNotif = delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex] = {};
+						newDelayedCall = true;
+					} // else we only need to fire last one as we fire it for all props anyway
+					
+					if (!delayedNotif.oldModelValue) delayedNotif.oldModelValue = oldModel;
+					delayedNotif.newModelValue = newModel;
+					delayedNotif.changeNotifierToFire = changeNotifier;
+					
+					// as this is called from getMergedCellModel, the new model is not yet given to the component; call changeNotifiers later, after angular had a chance to update the cell's scope.model to the new value
+					if (newDelayedCall) $scope.$evalAsync(function() {
+						var delayedNotifToExec = delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex];
+						if (!delayedNotifToExec) return;
+						
+						delete delayedChangeNotificationsForRenderedIndex[renderedRowIndex][elementIndex];
+						
+						var handledProperties = {};
+						for (var propertyName in delayedNotifToExec.oldModelValue) {
+							if (delayedNotifToExec.newModelValue[propertyName] !== delayedNotifToExec.oldModelValue[propertyName]) {
+								delayedNotifToExec.changeNotifierToFire(propertyName, delayedNotifToExec.newModelValue[propertyName]);
+							}
+							handledProperties[propertyName] = true;
+						}
+						for (var propertyName in delayedNotifToExec.newModelValue) {
+							if (!handledProperties[propertyName]) {
+								delayedNotifToExec.changeNotifierToFire(propertyName, delayedNotifToExec.newModelValue[propertyName]);
+							}
+						}
+					});
+				} // we don't need to handle changes if old is null or changeNotifier is null; new should never be null
 			}
 
 			var deferredAPICallExecution;
@@ -741,7 +892,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								if (cellAPIToUse && !changinOrUnstableAPIPromise) retVal = cellAPIToUse.apply(cellAPI, functionArguments);
 								else if (!cellAPIToUse){
 									// cannot find it yet - it probably didn't actually load scrolled contents yet; it just scrolled; delay a bit more
-									if ($log.debugEnabled) $log.debug("API method call - waiting for scrolled contents to load. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									if ($log.debugEnabled) $log.debug("portal ### API method call - waiting for scrolled contents to load. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									var deferred = $q.defer();
 									var removeListener = $scope.gridApi.core.on.scrollEnd($scope, function () {
 										removeListener();
@@ -825,7 +976,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								});
 							}
 						} else if ($scope.foundset.serverSize == 0) {
-							if ($log.debugEnabled) $log.debug("API method called when there was no record selected (foundset size is 0). Api call: '" + apiFunctionName + "' on column " + elementIndex);
+							if ($log.debugEnabled) $log.debug("portal ### API method called when there was no record selected (foundset size is 0). Api call: '" + apiFunctionName + "' on column " + elementIndex);
 						} else $log.error("API method called when there was no record selected although foundset size is: " + $scope.foundset.serverSize + ". Api call: '" + apiFunctionName + "' on column " + elementIndex);
 					} else {
 						var retValForSelectedStored = false;
@@ -1253,11 +1404,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					{
 						shouldCallDataLoaded = true;
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
-						var totalPreferedViewportSize = numberOfRows*pageSizeFactor; 
+						var totalPreferedViewportSize = numberOfRows * pageSizeFactor; 
 						if (preferredViewportSize != totalPreferedViewportSize) {
 							// make the viewport always X (pageSizeFactor) times the size then the number of rows.
 							preferredViewportSize = totalPreferedViewportSize;
-							$scope.pageSize = Math.max(totalPreferedViewportSize-numberOfRows, 25);
+							$scope.pageSize = Math.max(totalPreferedViewportSize - numberOfRows, 25);
 							$scope.gridOptions.infiniteScrollRowsFromEnd = numberOfRows;
 							$scope.foundset.setPreferredViewportSize(preferredViewportSize)
 						}
@@ -1267,14 +1418,14 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								requestViewPortSize = Math.min($scope.foundset.serverSize, numberOfRows+$scope.pageSize);
 								$scope.foundset.loadRecordsAsync(0, requestViewPortSize);
 							}
-							else if ($scope.foundset.viewPort.size < (numberOfRows+$scope.pageSize)) {
+							else if ($scope.foundset.viewPort.size < (numberOfRows + $scope.pageSize)) {
 								// only add extra needed records; note: this is not for scrolling; just for ensuring initial content + a small scroll window;
 								// requesting new data when scrolling is done in another place
 								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size);
 								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
 								$scope.foundset.loadExtraRecordsAsync(extraRecords);
 							}
-							else if ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize > $scope.foundset.viewPort.size )
+							else if ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows + $scope.pageSize > $scope.foundset.viewPort.size )
 							{
 								// some row(s) have been added in scroll window, load them
 								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, ($scope.gridApi.grid.renderContainers.body.currentTopRow + numberOfRows+$scope.pageSize) - $scope.foundset.viewPort.size);
@@ -1428,18 +1579,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						}
 						for (var oldRowId in rowProxyObjects) {
 							if (!newRowIDs[oldRowId]) {
-								var renderedRowIndex = undefined;
-								if (oldVal && newVal && newVal.length > 0)
-								{
-									for (var i = 0; i < oldVal.length && i < newVal.length ;i++) {
-										if(oldVal[i][$foundsetTypeConstants.ROW_ID_COL_KEY] == oldRowId)
-										{
-											renderedRowIndex = i;
-											break;
-										}	
-									}
-								}	
-								disposeOfRowProxies(rowProxyObjects[oldRowId],renderedRowIndex);
+								disposeOfRowProxies(rowProxyObjects[oldRowId]);
 								delete rowProxyObjects[oldRowId];
 							}
 						}
@@ -1453,7 +1593,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							$scope.gridApi.infiniteScroll.dataLoaded(scrollUp,scrollDown);
 						}
 					});
-				},0)
+				}, 0)
 				
 				$scope.$watch("model.enabled", function(newVal,oldVal){
 					if (newVal !=  $scope.gridOptions.enableRowSelection) {
@@ -1554,7 +1694,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
   );	
 
   $templateCache.put('ui-grid/uiGridHeaderCell',
-		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\" svy-click=\"col.colDef.svyHeaderAction($event)\" svy-rightclick=\"col.colDef.svyRightClick($event)\" svy-dblclick=\"col.colDef.svyDoubleClick($event)\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS | trustAsHtml:servoyApi.trustAsHtml()\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\" ng-class=\"{'ui-grid-column-menu-button-last-col': isLastCol && grid.options.enableGridMenu}\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
+		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\" svy-click=\"col.colDef.svyHeaderAction($event)\" svy-rightclick=\"col.colDef.svyRightClick($event)\" svy-dblclick=\"col.colDef.svyDoubleClick($event)\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS | trustAsHtml:servoyApi.trustAsHtml()\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName ? col.displayName : '&nbsp;' CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
   );
 
 }])
@@ -1593,12 +1733,12 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
     			}
 
-    			if(svyFormat){
+    			if (svyFormat) {
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	var format = svyFormat.display? svyFormat.display : svyFormat.edit
 			    	try {
 			    		data = $formatterUtils.format(data,format,type);
-			    	}catch(e){
+			    	} catch(e) {
 			    		console.log(e)
 			    	}
 			    	if (data && svyFormat.type == "TEXT") {

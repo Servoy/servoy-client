@@ -49,6 +49,19 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String WINDOW_TIMEOUT = "window.timeout"; //$NON-NLS-1$
 
+	/**
+	 * By default the NGClient appends the name of the current main form to the url in the address bar of the browser using a fragment identifier (#....)
+	 * <p>
+	 * By setting the FORM_BASED_BROWSER_HISTORY property to false, this is disabled
+	 *
+	 * The value can be true/false
+	 * DEFAULT: true
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_NG_PROPERTY.FORM_BASED_BROWSER_HISTORY, false);
+	 */
+	public static final String FORM_BASED_BROWSER_HISTORY = "servoy.ngclient.formbased_browser_history"; //$NON-NLS-1$
+
 	public String getPrefix()
 	{
 		return "APP_NG_PROPERTY";

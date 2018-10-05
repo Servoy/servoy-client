@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -119,7 +120,7 @@ public class ValuelistPropTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(18), "value18", "valueR" });
 		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" }, false);
 
-		HashMap<String, IServer> serverProxies = new HashMap<String, IServer>();
+		ConcurrentHashMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);
 		solution.setServerProxies(serverProxies);
 	}

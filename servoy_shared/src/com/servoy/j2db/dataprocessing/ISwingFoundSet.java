@@ -34,4 +34,6 @@ public interface ISwingFoundSet extends IFoundSetInternal, TableModel, IEditList
 	public void removeTableModelListener(TableModelListener l);
 
 	public void fireTableModelEvent(int row, int row2, int column, int update);
+
+	public void pinMultiSelectIfNeeded(boolean multiSelect, int pinId, int pinLevel);
 }

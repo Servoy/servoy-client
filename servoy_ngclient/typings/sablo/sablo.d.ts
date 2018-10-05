@@ -71,17 +71,18 @@ declare namespace sablo {
         setLocale(locale:Locale): void;
         getCurrentFormUrl(fetch:boolean): string;
         setCurrentFormUrl(url:string, push:boolean): void;
+        clearSabloSession():void;
 	}
 	
 	interface ISabloConverters {
         INTERNAL_IMPL: string,
         TYPES_KEY: string,
         prepareInternalState(propertyValue, optionalInternalStateValue):void
-        convertFromServerToClient(serverSentData:any, conversionInfo:any, currentClientData:any, scope:angular.IScope, modelGetter:()=>any): any,
+        convertFromServerToClient(serverSentData:any, conversionInfo:any, currentClientData:any, scope:angular.IScope, propertyContext:(propertyName: string)=>any): any,
         convertFromClientToServer(newClientData:any, conversionInfo:any, oldClientData:any): any,
         updateAngularScope(value, conversionInfo, scope:angular.IScope): void,
         registerCustomPropertyHandler(propertyTypeID:string, customHandler:{
-			fromServerToClient(serverJSONValue, currentClientValue, componentScope:angular.IScope, componentModelGetter:()=>any):void,
+			fromServerToClient(serverJSONValue, currentClientValue, componentScope:angular.IScope, propertyContext:(propertyName: string)=>any):void,
 			fromClientToServer(newClientData, oldClientData):void,
 			updateAngularScope(clientValue, componentScope:angular.IScope):void
 		},overwrite:boolean): void 

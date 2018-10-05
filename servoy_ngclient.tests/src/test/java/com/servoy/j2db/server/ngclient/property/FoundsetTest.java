@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +43,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.solutionmodel.IBaseSMPart;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
+import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
@@ -176,7 +178,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		relatedDS.addRow(new Object[] { Integer.valueOf(16), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
 		client.getFoundSetManager().createDataSourceFromDataSet("relatedtest", relatedDS, null, new String[] { "relatedtestpk" }, false);
 
-		HashMap<String, IServer> serverProxies = new HashMap<String, IServer>();
+		ConcurrentHashMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);
 		solution.setServerProxies(serverProxies);
 
@@ -501,6 +503,36 @@ public class FoundsetTest extends AbstractSolutionTest
 			new JSONObject(stringWriter.toString()).toString());
 
 
+	}
+
+	@Test
+	public void foundsetViewportAllRecordDeleted() throws JSONException, ServoyException
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
+		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		FoundSet foundset = (FoundSet)form.getFormModel();
+		viewPort.setBounds(5, 5);
+		foundset.setSelectedIndex(6);
+
+		StringWriter stringWriter = new StringWriter();
+		JSONWriter jsonWriter = new JSONWriter(stringWriter);
+		// just to clear changed flags
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+
+		// create an empty separate foundset from the same datasource
+		FoundSet sepEmpFs = (FoundSet)client.getFoundSetManager().getNewFoundSet("mem:test");
+		foundset.js_loadRecords(sepEmpFs);
+
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.changesToJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+		JSONAssert.assertEquals(
+			"{\"upd_serverSize\":0,\"upd_selectedRowIndexes\":[],\"upd_viewPort\":{\"startIndex\":0,\"size\":0,\"upd_rows\":[{\"rows\":[],\"startIndex\":0,\"endIndex\":4,\"type\":2}]}}",
+			stringWriter.toString(), true);
 	}
 
 	@Test
