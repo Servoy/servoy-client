@@ -412,4 +412,28 @@ public class Debug
 			init();
 		}
 	}
+
+	public static void log(Object msg, int level)
+	{
+		if (level == ILogLevel.DEBUG)
+		{
+			debug(msg);
+		}
+		else if (level == ILogLevel.WARNING)
+		{
+			warn(msg);
+		}
+		else if (level == ILogLevel.ERROR)
+		{
+			error(msg);
+		}
+		else if (level == ILogLevel.FATAL)
+		{
+			fatal(msg);
+		}
+		else
+		{
+			log(msg);
+		}
+	}
 }
