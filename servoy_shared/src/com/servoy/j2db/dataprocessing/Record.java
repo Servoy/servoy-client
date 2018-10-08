@@ -930,6 +930,22 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
+	 * Returns true or false if the related foundset is already loaded. Will not load the related foundset.
+	 *
+	 * @sample
+	 * var isLoaded = foundset.getSelectedRecord().isRelatedFoundSetLoaded(relationName)
+	 *
+	 * @param relationName name of the relation to check for
+	 *
+	 * @return a boolean when loaded.
+	 */
+	@JSFunction
+	public boolean isRelatedFoundSetLoaded(String relationName)
+	{
+		return isRelatedFoundSetLoaded(relationName, null);
+	}
+
+	/**
 	 * Returns true or false if the record is being edited or not.
 	 *
 	 * This will not check if the record doesn't really have any changes, it just returns the edit state.
