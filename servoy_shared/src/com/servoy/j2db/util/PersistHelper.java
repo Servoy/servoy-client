@@ -1221,12 +1221,12 @@ public class PersistHelper
 		}
 	}
 
-	public static boolean isAbsoluteLayoutDiv(WebLayoutSpecification spec)
+	public static boolean isCSSPositionContainer(WebLayoutSpecification spec)
 	{
 		return spec != null && spec.isAbsoluteLayout();
 	}
 
-	public static boolean isAbsoluteLayoutDiv(LayoutContainer container)
+	public static boolean isCSSPositionContainer(LayoutContainer container)
 	{
 		if (container != null)
 		{
@@ -1235,7 +1235,7 @@ public class PersistHelper
 				container.getPackageName());
 			if (pkg != null)
 			{
-				return isAbsoluteLayoutDiv(pkg.getSpecification(container.getSpecName()));
+				return isCSSPositionContainer(pkg.getSpecification(container.getSpecName()));
 			}
 		}
 		return false;
@@ -1246,7 +1246,7 @@ public class PersistHelper
 		while (persist != null)
 		{
 			persist = persist.getParent();
-			if (persist instanceof LayoutContainer) return isAbsoluteLayoutDiv((LayoutContainer)persist);
+			if (persist instanceof LayoutContainer) return isCSSPositionContainer((LayoutContainer)persist);
 			if (persist instanceof Form) break;
 		}
 		return false;
