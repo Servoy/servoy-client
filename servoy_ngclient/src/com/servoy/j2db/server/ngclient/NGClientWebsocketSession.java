@@ -43,6 +43,7 @@ import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
+import org.sablo.websocket.IMessageLogger;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -435,14 +436,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return client.getLocale();
 	}
 
-//	@Override
-//	public INGClientWindow getWindowWithForm(String formName)
-//	{
-//		for (INGClientWindow w : getWindows())
-//		{
-//			if (w.hasForm(formName)) return w;
-//		}
-//
-//		return null;
-//	}
+	@Override
+	public IMessageLogger getMessageLogger(IWindow window)
+	{
+		if (MessageLogger.doLog)
+		{
+			return new MessageLogger(this, window.getUuid());
+		}
+		return null;
+	}
 }
