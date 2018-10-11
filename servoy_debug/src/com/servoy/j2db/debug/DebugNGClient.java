@@ -487,7 +487,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE;
+		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE | SolutionMetaData.NG_MODULE;
 	}
 
 	@Override
