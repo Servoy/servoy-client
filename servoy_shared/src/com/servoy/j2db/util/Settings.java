@@ -826,6 +826,11 @@ public final class Settings extends SortedProperties
 		{
 			Debug.warn("too many levels while replacing variables for:" + key);
 		}
+		if (value != null)
+		{
+			String app_server_dir = super.getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
+			if (app_server_dir != null) value = value.replace("%%servoy_app_server_dir%%", app_server_dir);
+		}
 		return value;
 	}
 }

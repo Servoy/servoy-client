@@ -1223,7 +1223,7 @@ public class PersistHelper
 
 	public static boolean isCSSPositionContainer(WebLayoutSpecification spec)
 	{
-		return spec != null && spec.isAbsoluteLayout();
+		return spec != null && spec.isCSSPosition();
 	}
 
 	public static boolean isCSSPositionContainer(LayoutContainer container)

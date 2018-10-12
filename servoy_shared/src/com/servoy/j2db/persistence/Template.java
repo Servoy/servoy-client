@@ -37,6 +37,7 @@ public class Template extends StringResource implements Serializable
 
 	public static final String LAYOUT_TYPE_ABSOLUTE = "Absolute-Layout"; //$NON-NLS-1$
 	public static final String LAYOUT_TYPE_RESPONSIVE = "Responsive-Layout"; //$NON-NLS-1$
+	public static final String LAYOUT_TYPE_CSS_POSITION = "CssPosition-Layout"; //$NON-NLS-1$
 
 	Template(IRepository repository, RootObjectMetaData metaData)
 	{
