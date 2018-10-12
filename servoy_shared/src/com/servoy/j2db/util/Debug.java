@@ -133,34 +133,7 @@ public class Debug
 		}
 	}
 
-	private static Boolean HASMDC = null;
-
-	@SuppressWarnings("nls")
 	private static boolean insertClientInfo(boolean insert)
-	{
-		if (HASMDC == null)
-		{
-			try
-			{
-				Class.forName("org.slf4j.MDC");
-				HASMDC = Boolean.TRUE;
-			}
-			catch (Exception e)
-			{
-				HASMDC = Boolean.FALSE;
-			}
-		}
-		if (!HASMDC.booleanValue()) return false;
-
-		return insetClientInfoWithMDC(insert);
-	}
-
-	/**
-	 * @param message
-	 * @return
-	 */
-	@SuppressWarnings("nls")
-	private static boolean insetClientInfoWithMDC(boolean insert)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
 		if (insert && serviceProvider != null)
@@ -437,6 +410,30 @@ public class Debug
 		if (log == null)
 		{
 			init();
+		}
+	}
+
+	public static void log(Object msg, int level)
+	{
+		if (level == ILogLevel.DEBUG)
+		{
+			debug(msg);
+		}
+		else if (level == ILogLevel.WARNING)
+		{
+			warn(msg);
+		}
+		else if (level == ILogLevel.ERROR)
+		{
+			error(msg);
+		}
+		else if (level == ILogLevel.FATAL)
+		{
+			fatal(msg);
+		}
+		else
+		{
+			log(msg);
 		}
 	}
 }

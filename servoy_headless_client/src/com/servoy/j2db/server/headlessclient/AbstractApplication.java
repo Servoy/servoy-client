@@ -128,26 +128,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	public void output(Object msg, int level)
 	{
-		if (level == DEBUG)
-		{
-			Debug.debug(msg);
-		}
-		else if (level == WARNING)
-		{
-			Debug.warn(msg);
-		}
-		else if (level == ERROR)
-		{
-			Debug.error(msg);
-		}
-		else if (level == FATAL)
-		{
-			Debug.fatal(msg);
-		}
-		else
-		{
-			Debug.log(msg);
-		}
+		Debug.log(msg, level);
 	}
 
 

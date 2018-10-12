@@ -24,10 +24,11 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino,
  sablo,
  servoy_base;visibility:=reexport,
  org.apache.commons.io;bundle-version="2.6.0",
- log4j,
+ org.apache.logging.log4j.api,
+ org.apache.logging.log4j.core,
  org.apache.commons.codec,
  jabsorb;visibility:=reexport,
- org.slf4j.api
+ slf4j.api
 Export-Package: com.servoy.extension,
  com.servoy.extension.dependency,
  com.servoy.extension.hook,

@@ -699,6 +699,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 *
+	 * // see https://wiki.servoy.com/display/DOCS/Using+Table+Filters
+	 *
 	 * @param dataprovider String column to filter on.
 	 *
 	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
