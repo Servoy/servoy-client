@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.Serializable;
 
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -27,7 +28,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class CSSPosition
+public class CSSPosition implements Serializable
 {
 	public String top;
 	public String left;
