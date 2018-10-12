@@ -53,10 +53,9 @@ public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 	}
 
 	@Override
-	protected boolean sendMediaData(HttpServletResponse response, Media media) throws IOException
+	protected boolean sendMediaData(HttpServletResponse response, Media media, FlattenedSolution fs) throws IOException
 	{
-		return sendData(response,
-			media.getName().endsWith(".less") ? ResourceProvider.compileLessWithNashorn(new String(media.getMediaData())).getBytes() : media.getMediaData(),
+		return sendData(response, media.getName().endsWith(".less") ? ResourceProvider.compileSolutionLessFile(media, fs).getBytes() : media.getMediaData(),
 			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 

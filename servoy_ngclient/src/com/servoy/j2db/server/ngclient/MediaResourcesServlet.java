@@ -303,10 +303,10 @@ public class MediaResourcesServlet extends HttpServlet
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-		return sendMediaData(response, media);
+		return sendMediaData(response, media, fs);
 	}
 
-	protected boolean sendMediaData(HttpServletResponse response, Media media) throws IOException
+	protected boolean sendMediaData(HttpServletResponse response, Media media, FlattenedSolution fs) throws IOException
 	{
 		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
 	}
