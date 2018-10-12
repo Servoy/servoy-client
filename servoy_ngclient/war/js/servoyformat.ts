@@ -226,9 +226,6 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		if (format.indexOf(MILLSIGN) > -1 && format.indexOf("'"+MILLSIGN+"'") == -1) {
 			multFactor *= 0.001
 		}
-		if (format.indexOf("'%'") > -1) {
-			multFactor = 100
-		}
 		if (format.indexOf("'") > -1)
 		{
 			// replace the literals
@@ -658,11 +655,8 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			
 			function keypress(e) {
 			    isKeyPressEventFired = true;
-				if(e.target.type.toUpperCase() == 'NUMBER') 
-				    return e.target.maxLength > e.target.value.length && testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
-				else 
-				    return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat);
-                }
+			    return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat)
+             }
 
 			function focus(e) {
 				if(e.target.tagName.toUpperCase() == 'INPUT') {
@@ -718,35 +712,36 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			var oldInputValue;
 			
 			function input(e) {
-				if(!isKeyPressEventFired && e.target.tagName.toUpperCase() == 'INPUT') {
-					var currentValue = element.val();
+			    var currentValue = element.val();
+
+				if(!isKeyPressEventFired && e.target.tagName.toUpperCase() == 'INPUT') {			    
+				    //If number validator, check all chars in string and extract only the valid chars.
+				    if(e.target.type.toUpperCase() == 'NUMBER' || svyFormat.type =='NUMBER' || svyFormat.type == 'INTEGER' || svyFormat.isNumberValidator){				        
+				        currentValue = getNumbersFromString(e,currentValue, oldInputValue);
+                        ngModelController.$setViewValue(currentValue);
+		            }
 				    // get inserted chars
 				    var inserted = findDelta(currentValue, oldInputValue);
 				    // get removed chars
 				    var removed = findDelta(oldInputValue, currentValue);
-				    // determine if user pasted content
+				    // determine if user pasted content				    
 				    var pasted = inserted.length > 1 || (!inserted && !removed);
-					
-				    if(!pasted && !removed) {
-				    	if(!testForNumbersOnly(e, inserted, element, $scope.model.findmode, checkNumbers, svyFormat)) {
-				    		currentValue = oldInputValue; 
-				    		element.val(currentValue);
-				    	}
-			        }
-				    if(e.target.type.toUpperCase() == 'NUMBER'){
-    				    if(currentValue.length > e.target.maxLength){
-                            currentValue = currentValue.substring(0, e.target.maxLength)
+				    
+                    if(!pasted && !removed) {
+                        if(!testForNumbersOnly(e, inserted, element, $scope.model.findmode, checkNumbers, svyFormat)) {
+                            currentValue = oldInputValue;
                             element.val(currentValue);
-                            let b =  formatNumbers(currentValue, e.target.type);
-    				    }
-    				    else oldInputValue = currentValue;
-				    }
-				    else oldInputValue = currentValue;
-	                isKeyPressEventFired = false;
-				}
-				if(isKeyPressEventFired)
+                            ngModelController.$setViewValue(currentValue);
+                        }
+                    }
+	                oldInputValue = currentValue; 
 				    isKeyPressEventFired = false;
+				}
 
+				if(isKeyPressEventFired){
+	                oldInputValue = currentValue;
+                    isKeyPressEventFired = false;
+				}
 			}
 
 			function findDelta(value, prevValue) {
@@ -759,6 +754,25 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				}
 				return delta;
 			}			
+			
+	        function getNumbersFromString(e, str, oldInputValue){
+	            if(str.length > svyFormat.maxLength) str = str.substr(0, svyFormat.maxLength);
+                if(oldInputValue === str){
+                    element.val(str);
+                    return str;               
+                }   
+	            var newString = "";
+	                
+                for (var i = 0; i < str.length; i++) {
+                    //removing the char to be tested from input field, otherwise testForNumbersOnly return false when str.length === svyFormat.maxLength
+                    element.val(str.replace(str[i],""))
+                    if(testForNumbersOnly(e, str.charAt(i), element, $scope.model.findmode, true, svyFormat)){
+                        newString = newString+str.charAt(i);
+                    }
+                }
+	            element.val(newString);
+	            return newString;    
+	        }
 
 			function register() {
 				element.on('focus', focus)

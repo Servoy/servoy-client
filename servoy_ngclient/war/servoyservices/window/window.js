@@ -126,6 +126,15 @@ angular.module('window',['servoy'])
 				return $windowService.getFormUrl(form);
 			};
 			
+			scope.lastElementFocused = function( e ) {
+				$( '[tabindex=2]' ).focus();
+			}
+			
+			scope.firstElementFocused =  function( e ) {
+				var tabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
+				$( '[tabindex=' + ( tabIndex - 1 ) + ']' ).focus();
+			}
+			
 			function getElementById(id)
 			{
 				var defered = $q.defer();
@@ -258,7 +267,7 @@ angular.module('window',['servoy'])
 				}
 				style+= 'left:'+left+'px;';
 				style+= 'top:'+top+'px;';
-				var popup = $compile('<div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()"></div>')(scope);
+				var popup = $compile('<div id="tabStart" sablo-tabseq="1" ng-focus="firstElementFocused()"></div><div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" sablo-tabseq="2" sablo-tabseq-config="{container: true}"></div><div id="tabStop" sablo-tabseq="3" ng-focus="lastElementFocused()"></div>')(scope);
 				scope.popupElement = popup;
 				$timeout(function(){
 					body.on('click',function(event)

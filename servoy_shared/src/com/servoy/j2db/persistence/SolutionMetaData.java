@@ -40,9 +40,10 @@ public class SolutionMetaData extends RootObjectMetaData
 	public static final int MOBILE = 256;
 	public static final int MOBILE_MODULE = 512;
 	public static final int NG_CLIENT_ONLY = 1024;
+	public static final int NG_MODULE = 2048;
 
-	public static final String[] solutionTypeNames = { "Normal", "Module", "Web client only", "Smart client only", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG client only", };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$
-	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY };
+	public static final String[] solutionTypeNames = { "Normal", "Module", "Web Client", "Smart Client", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$
+	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE };
 
 	private int solutionType;
 
@@ -124,8 +125,8 @@ public class SolutionMetaData extends RootObjectMetaData
 		if (root instanceof Solution)
 		{
 			isServoyNGSolution = ((Solution)root).getSolutionType() == SolutionMetaData.NG_CLIENT_ONLY ||
-				((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION || ((Solution)root).getSolutionType() == SolutionMetaData.MODULE ||
-				((Solution)root).getSolutionType() == SolutionMetaData.LOGIN_SOLUTION; // TODO can this be done? just all modules are also NG_CLIENT?
+				((Solution)root).getSolutionType() == SolutionMetaData.NG_MODULE || ((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION ||
+				((Solution)root).getSolutionType() == SolutionMetaData.MODULE || ((Solution)root).getSolutionType() == SolutionMetaData.LOGIN_SOLUTION; // TODO can this be done? just all modules are also NG_CLIENT?
 		}
 		return isServoyNGSolution;
 	}
@@ -164,5 +165,10 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		return meta != null && (isPreImportHook(meta.getName()) || isPostImportHook(meta.getName()) || meta.getSolutionType() == PRE_IMPORT_HOOK ||
 			meta.getSolutionType() == POST_IMPORT_HOOK);
+	}
+
+	public static boolean isNGOnlySolution(int solutionType)
+	{
+		return solutionType == NG_CLIENT_ONLY || solutionType == NG_MODULE;
 	}
 }

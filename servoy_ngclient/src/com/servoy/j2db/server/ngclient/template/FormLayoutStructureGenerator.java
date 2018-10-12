@@ -95,7 +95,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
-		boolean isAbsoluteLayoutDiv = PersistHelper.isAbsoluteLayoutDiv(spec);
+		boolean isCSSPositionContainer = PersistHelper.isCSSPositionContainer(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)
@@ -152,7 +152,7 @@ public class FormLayoutStructureGenerator
 			writer.print("' ");
 		}
 		writer.print(" svy-autosave ");
-		if (isAbsoluteLayoutDiv)
+		if (isCSSPositionContainer)
 		{
 			// we need to specify the height
 			writer.print(" style='height:");
@@ -206,12 +206,12 @@ public class FormLayoutStructureGenerator
 				{
 					continue;
 				}
-				if (isAbsoluteLayoutDiv)
+				if (isCSSPositionContainer)
 				{
 					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, false);
 				}
 				FormLayoutGenerator.generateFormElement(writer, fe, form);
-				if (isAbsoluteLayoutDiv)
+				if (isCSSPositionContainer)
 				{
 					FormLayoutGenerator.generateEndDiv(writer);
 				}

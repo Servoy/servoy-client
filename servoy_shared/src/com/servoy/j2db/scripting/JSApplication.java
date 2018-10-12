@@ -1912,13 +1912,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param clientTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String clientTarget)
+	public boolean js_showURL(String url, String browserTarget)
 	{
-		return js_showURL(url, clientTarget, null, 0);
+		return js_showURL(url, browserTarget, null, 0);
 	}
 
 	/**
@@ -1927,14 +1927,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param clientTarget Target frame or named dialog/window
-	 * @param clientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String clientTarget, String clientTargetOptions)
+	public boolean js_showURL(String url, String browserTarget, String browserTargetOptions)
 	{
-		return js_showURL(url, clientTarget, clientTargetOptions, 0);
+		return js_showURL(url, browserTarget, browserTargetOptions, 0);
 	}
 
 	/**
@@ -1943,14 +1943,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param clientTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String clientTarget, Number timeout)
+	public boolean js_showURL(String url, String browserTarget, Number timeout)
 	{
-		return js_showURL(url, clientTarget, null, timeout);
+		return js_showURL(url, browserTarget, null, timeout);
 	}
 
 	/**
@@ -1959,16 +1959,16 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param clientTarget Target frame or named dialog/window
-	 * @param clientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String clientTarget, String clientTargetOptions, Number timeout)
+	public boolean js_showURL(String url, String browserTarget, String browserTargetOptions, Number timeout)
 	{
 		int _timeout = Utils.getAsInteger(timeout);
-		return application.showURL(url, clientTarget, clientTargetOptions, _timeout, true);
+		return application.showURL(url, browserTarget, browserTargetOptions, _timeout, true);
 	}
 
 	/**

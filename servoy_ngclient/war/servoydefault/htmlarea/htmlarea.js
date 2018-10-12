@@ -11,7 +11,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			var lastServerValueAsSeenByTinyMCEContent;
 
 			$scope.findMode = false;
-			$scope.tinyValue = '';
+			$scope.tinyValue = !$scope.svyServoyapi.isInDesigner() && $scope.model.dataProviderID ? $scope.model.dataProviderID : '' ;
 			$scope.init = false;
 			//evaluated by ui-tinymce directive
 			$scope.tinyConfig ={

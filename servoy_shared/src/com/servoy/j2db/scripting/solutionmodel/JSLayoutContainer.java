@@ -306,7 +306,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	}
 
 	/**
-	 * Get/set container height. This is only used for Absolute Layout Container.
+	 * Get/set container height. This is only used for CSS Position Container.
 	 *
 	 * @sample
 	 * layoutContainer.height = 300;
@@ -325,7 +325,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	}
 
 	/**
-	 * Get/set container width. This is only used for Absolute Layout Container.
+	 * Get/set container width. This is only used for CSS Position Container.
 	 *
 	 * @deprecated
 	 * @sample
