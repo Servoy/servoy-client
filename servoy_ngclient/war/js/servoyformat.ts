@@ -463,7 +463,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 	}
 
-	function testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat) {
+	function testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat, skipMaxLength) {
 		if (!vFindMode && vCheckNumbers) {
 			if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
 				$(e.target).blur()
@@ -473,23 +473,23 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				if(keyChar == undefined) {
 					return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
 							.symbol,
-							vSvyFormat.percent, vElement, vSvyFormat.maxLength);							
+							vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength,);							
 				}
 				else {
 					return numbersonlyForChar(keyChar, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
 							.symbol,
-							vSvyFormat.percent, vElement, vSvyFormat.maxLength);
+							vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength);
 				}
 			} else if (vSvyFormat.type == "NUMBER" || ((vSvyFormat.type == "TEXT") && vSvyFormat.isNumberValidator)) {
 				var currentLanguageNumeralSymbols = numeral.localeData();
 				
 				if(keyChar == undefined) {
 					return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
-						vSvyFormat.percent, vElement, vSvyFormat.maxLength);							
+						vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength);							
 				}
 				else {
 					return numbersonlyForChar(keyChar, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
-						vSvyFormat.percent, vElement, vSvyFormat.maxLength);														
+						vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength);														
 				}
 			}
 		}
@@ -655,7 +655,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			
 			function keypress(e) {
 			    isKeyPressEventFired = true;
-			    return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat)
+			    return testForNumbersOnly(e, null, element, $scope.model.findmode, checkNumbers, svyFormat, false)
              }
 
 			function focus(e) {
@@ -715,11 +715,6 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			    var currentValue = element.val();
 
 				if(!isKeyPressEventFired && e.target.tagName.toUpperCase() == 'INPUT') {			    
-				    //If number validator, check all chars in string and extract only the valid chars.
-				    if(e.target.type.toUpperCase() == 'NUMBER' || svyFormat.type =='NUMBER' || svyFormat.type == 'INTEGER' || svyFormat.isNumberValidator){				        
-				        currentValue = getNumbersFromString(e,currentValue, oldInputValue);
-                        ngModelController.$setViewValue(currentValue);
-		            }
 				    // get inserted chars
 				    var inserted = findDelta(currentValue, oldInputValue);
 				    // get removed chars
@@ -728,12 +723,20 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				    var pasted = inserted.length > 1 || (!inserted && !removed);
 				    
                     if(!pasted && !removed) {
-                        if(!testForNumbersOnly(e, inserted, element, $scope.model.findmode, checkNumbers, svyFormat)) {
+                        if(!testForNumbersOnly(e, inserted, element, $scope.model.findmode, checkNumbers, svyFormat, true)) {
                             currentValue = oldInputValue;
-                            element.val(currentValue);
-                            ngModelController.$setViewValue(currentValue);
                         }
                     }
+                    
+                    //If number validator, check all chars in string and extract only the valid chars.
+                    if(e.target.type.toUpperCase() == 'NUMBER' || svyFormat.type =='NUMBER' || svyFormat.type == 'INTEGER' || svyFormat.isNumberValidator){                     
+                        currentValue = getNumbersFromString(e,currentValue, oldInputValue);
+                    }
+                    
+                    element.val(currentValue);
+                    ngModelController.$setViewValue(currentValue);
+                    ngModelController.$render();
+                    
 	                oldInputValue = currentValue; 
 				    isKeyPressEventFired = false;
 				}
@@ -755,23 +758,18 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				return delta;
 			}			
 			
-	        function getNumbersFromString(e, str, oldInputValue){
-	            if(str.length > svyFormat.maxLength) str = str.substr(0, svyFormat.maxLength);
-                if(oldInputValue === str){
-                    element.val(str);
-                    return str;               
+	        function getNumbersFromString(e, currentValue, oldInputValue){
+                if(oldInputValue === currentValue){
+                    return currentValue;               
                 }   
-	            var newString = "";
-	                
-                for (var i = 0; i < str.length; i++) {
-                    //removing the char to be tested from input field, otherwise testForNumbersOnly return false when str.length === svyFormat.maxLength
-                    element.val(str.replace(str[i],""))
-                    if(testForNumbersOnly(e, str.charAt(i), element, $scope.model.findmode, true, svyFormat)){
-                        newString = newString+str.charAt(i);
+	            var stripped = "";
+                for (var i = 0; i < currentValue.length; i++) {
+                    if(testForNumbersOnly(e, currentValue.charAt(i), element, $scope.model.findmode, true, svyFormat,true)){
+                        stripped = stripped + currentValue.charAt(i);
+                        if(stripped.length === svyFormat.maxLength) break;
                     }
                 }
-	            element.val(newString);
-	            return newString;    
+	            return stripped;    
 	        }
 
 			function register() {
@@ -834,8 +832,8 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 			}
 		},
-		testForNumbersOnly: function (e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat) {
-			return testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat);
+		testForNumbersOnly: function (e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat, skipMaxLength) {
+			return testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat, skipMaxLength);
 		}
 	}
 }]).filter('formatFilter', function($formatterUtils) { /* this filter is used for display only*/
