@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.Serializable;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -330,6 +331,28 @@ public class CSSPosition implements Serializable
 			currentComponent = component.getParent();
 		}
 		return null;
+	}
+
+	public static void convertToCSSPosition(Form form)
+	{
+		if (form != null && !form.isResponsiveLayout() &&
+			(form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED))
+		{
+			form.setUseCssPosition(true);
+			form.acceptVisitor(new IPersistVisitor()
+			{
+				@Override
+				public Object visit(IPersist o)
+				{
+					if (o instanceof IFormElement)
+					{
+						setLocation((IFormElement)o, ((IFormElement)o).getLocation().x, ((IFormElement)o).getLocation().y);
+						setSize((IFormElement)o, ((IFormElement)o).getSize().width, ((IFormElement)o).getSize().height);
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
+		}
 	}
 
 	@Override
