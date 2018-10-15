@@ -87,7 +87,7 @@ import com.servoy.j2db.util.Utils;
 public class ResourceProvider implements Filter
 {
 	private static final String SERVOY_LESS_PATH = "resources/servoy.less";
-	public static final String PROPERTIES_LESS = "properties.less";
+	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
 
