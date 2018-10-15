@@ -72,6 +72,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.MethodArgument;
 import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -292,7 +293,7 @@ public abstract class BasicFormController
 
 	protected abstract FormAndComponent getJSApplicationNames(Object source, Function function, boolean useFormAsEventSourceEventually);
 
-	protected abstract JSEvent getJSEvent(Object src);
+	protected abstract JSEvent getJSEvent(Object src, String eventName);
 
 	// TODO this one should i guess move to the basic
 	public abstract void showNavigator(List<Runnable> invokeLaterRunnables);
@@ -636,7 +637,8 @@ public abstract class BasicFormController
 				executingOnLoad = true;
 				try
 				{
-					Object[] args = new Object[] { getJSEvent(formScope) };
+					Object[] args = new Object[] { getJSEvent(formScope,
+						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
 					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
 				}
 				finally
@@ -651,7 +653,8 @@ public abstract class BasicFormController
 	{
 		if (!executingOnLoad && form.getOnShowMethodID() > 0)
 		{
-			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope) };//isFirstTime
+			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID.getPropertyName(), Form.class)) };//isFirstTime
 			didOnShowOnce = true;
 			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, args, null, true, true);
 		}
@@ -664,7 +667,8 @@ public abstract class BasicFormController
 	private boolean executeOnHideMethod()
 	{
 		return form.getOnHideMethodID() == 0 ||
-			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope) }, null, true, true));
+			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID.getPropertyName(), Form.class)) }, null, true, true));
 	}
 
 	protected void executeOnRecordSelect()
@@ -1015,7 +1019,7 @@ public abstract class BasicFormController
 										if (args == null || args.length <= i || args[i] == null)
 										{
 											// no event argument there yet, insert a form event
-											JSEvent event = getJSEvent(formAndComponent.src);
+											JSEvent event = getJSEvent(formAndComponent.src, methodKey);
 											if (args == null || args.length <= i)
 											{
 												newArgs = new Object[i + 1];
@@ -1119,7 +1123,10 @@ public abstract class BasicFormController
 	{
 		if (form.getOnUnLoadMethodID() > 0)
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, new Object[] { getJSEvent(formScope) }, Boolean.TRUE, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
+				new Object[] { getJSEvent(formScope,
+					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
+				Boolean.TRUE, true, true);
 		}
 		application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 		((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);

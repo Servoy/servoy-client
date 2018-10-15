@@ -95,6 +95,7 @@ public class ClientDesignService implements IServerService
 				}
 			}
 			event.setData(selection.toArray());
+			event.setName(methodName);
 			switch (methodName)
 			{
 				case "onselect" : //$NON-NLS-1$

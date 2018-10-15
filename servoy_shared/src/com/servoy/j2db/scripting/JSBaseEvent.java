@@ -28,14 +28,15 @@ import com.servoy.j2db.component.ComponentFactory;
 
 /**
  * JSBaseEvent base class for js event objects
- * 
+ *
  * @author gboros
- * 
+ *
  * @since 6.1
  */
 public class JSBaseEvent implements IConstantsObject, IJSEvent
 {
 	protected String type = IJSEvent.NONE;
+	protected String name;
 	protected Date timestamp;
 	protected Object source;
 	protected String formName;
@@ -56,11 +57,11 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	 * Plugins can create events with there own types.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ACTION) 
+	 * if (event.getType() == JSEvent.ACTION)
 	 * {
 	 * 	// its an action event.
-	 * }	
-	 * 
+	 * }
+	 *
 	 * @return a String representing the type of this event.
 	 */
 	@JSFunction
@@ -73,7 +74,7 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	 * Returns the time the event occurred.
 	 *
 	 * @sample event.getTimestamp();
-	 * 
+	 *
 	 * @return a Date when this event happened.
 	 */
 	@JSFunction
@@ -91,7 +92,7 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	 * /** @type {RuntimeTextField} *&#47;
 	 * var source = event.getSource();
 	 * var sourceDataProvider = source.getDataProviderID();
-	 * 
+	 *
 	 * @return an Object representing the source of this event.
 	 */
 	@JSFunction
@@ -106,7 +107,7 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	 *
 	 * @sample
 	 * forms[event.getFormName()].myFormMethod();
-	 * 
+	 *
 	 * @return a String representing the form name.
 	 */
 	@JSFunction
@@ -116,14 +117,14 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	}
 
 	/**
-	 * returns the name of the element, can be null if the form was the source of the event. 
-	 * 
+	 * returns the name of the element, can be null if the form was the source of the event.
+	 *
 	 * @sample
 	 * if (event.getElementName() == 'myElement')
 	 * {
 	 *     elements[event.getElementName()].bgcolor = '#ff0000';
 	 * }
-	 * 
+	 *
 	 * @return a String representing the element name.
 	 */
 	@JSFunction
@@ -141,7 +142,7 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	 * {
 	 * 	//do shift action
 	 * }
-	 * 
+	 *
 	 * @return an int which holds the modifiers as a bitset.
 	 */
 	@JSFunction
@@ -153,12 +154,12 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	/**
 	 * Returns the x position of the event, relative to the component that fired it, if applicable.
 	 * For example drag'n'drop events will set the x,y positions.
-	 * 
+	 *
 	 * @sample
 	 * var x = event.getX();
 	 * var xPrevious = previousEvent.getX();
 	 * var movedXPixels = x -xPrevious;
-	 * 
+	 *
 	 * @return an int representing the X position.
 	 */
 	@JSFunction
@@ -170,12 +171,12 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	/**
 	 * Returns the y position of the event, relative to the component that fired it, if applicable.
 	 * For example drag'n'drop events will set the x,y positions.
-	 * 
+	 *
 	 * @sample
 	 * var y = event.getY();
 	 * var yPrevious = previousEvent.getY();
 	 * var movedYPixels = y -yPrevious;
-	 * 
+	 *
 	 * @return an int representing the Y position.
 	 */
 	@JSFunction
@@ -199,16 +200,16 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	 *      	return true;
 	 *      }
 	 * }
-	 * 
+	 *
 	 * // code for a data drag method
 	 * event.data = "drag me!";
 	 * return DRAGNDROP.COPY;
-	 * 
+	 *
 	 * // code for a data drop method
 	 * var data = event.data;
-	 * elemements[event.getElementName()].setText(data);
+	 * elements[event.getElementName()].setText(data);
 	 * return true;
-	 * 
+	 *
 	 */
 	@JSGetter
 	public Object getData()
@@ -222,9 +223,32 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 		this.data = object;
 	}
 
+	/**
+	 * Returns the name of the event which was triggered
+	 *
+	 * @sample
+	 * var name = event.getName();
+	 *
+	 * @return name of event as string
+	 */
+	@JSFunction
+	public String getName()
+	{
+		if (name != null)
+		{
+			return name;
+		}
+		return getType();
+	}
+
 	public void setType(String type)
 	{
 		this.type = type;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	public void setType(JSEvent.EventType type)

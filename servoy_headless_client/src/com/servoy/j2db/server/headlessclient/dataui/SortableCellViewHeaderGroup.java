@@ -48,6 +48,8 @@ import com.servoy.j2db.persistence.ISupportDataProviderID;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.RepositoryHelper;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebForm;
@@ -135,6 +137,8 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 							{ //execute on action
 								JSEvent event = new JSEvent();
 								event.setType(JSEvent.EventType.action);
+								event.setName(
+									RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID.getPropertyName(), Form.class));
 								event.setFormName(view.getDataAdapterList().getFormController().getName());
 								event.setModifiers(modifiers);
 								event.setElementName(gc.getName());
@@ -208,6 +212,8 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 									{
 										JSEvent event = new JSEvent();
 										event.setType(JSEvent.EventType.none);
+										event.setName(
+											RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID.getPropertyName(), Form.class));
 										event.setFormName(view.getDataAdapterList().getFormController().getName());
 										event.setModifiers(modifiers);
 										fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()), Utils.arrayMerge(

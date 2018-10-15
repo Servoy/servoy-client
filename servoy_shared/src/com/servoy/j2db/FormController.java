@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -1098,10 +1099,11 @@ public class FormController extends BasicFormController
 	}
 
 	@Override
-	protected JSEvent getJSEvent(Object src)
+	protected JSEvent getJSEvent(Object src, String eventName)
 	{
 		JSEvent event = new JSEvent();
 		event.setType(JSEvent.EventType.form);
+		if (eventName != null) event.setName(RepositoryHelper.getDisplayName(eventName, Form.class));
 		event.setFormName(getName());
 		event.setSource(src);
 		event.setElementName(src instanceof IComponent ? ((IComponent)src).getName() : null);
