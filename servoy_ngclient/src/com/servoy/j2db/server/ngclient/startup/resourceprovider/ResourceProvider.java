@@ -66,6 +66,8 @@ import org.sablo.websocket.WebsocketSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.WebObjectRegistry;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -84,6 +86,9 @@ import com.servoy.j2db.util.Utils;
 @WebFilter(urlPatterns = { "/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 public class ResourceProvider implements Filter
 {
+	private static final String SERVOY_LESS_PATH = "resources/servoy.less";
+	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
+
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
 
 	// TODO add comment; what is the key? resource name, package name, ...?
@@ -662,5 +667,26 @@ public class ResourceProvider implements Filter
 			}
 		}
 		return null;
+	}
+
+	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
+	{
+		StringBuilder sb = new StringBuilder();
+		Media properties = fs.getMedia(PROPERTIES_LESS);
+		if (properties != null)
+		{
+			//if there is a properties file, then we concatenate the properties, servoy default less and solution less files
+			sb.append(new String(properties.getMediaData()));
+			try (InputStream is = ResourceProvider.class.getResource(SERVOY_LESS_PATH).openStream())
+			{
+				sb.append(Utils.getTXTFileContent(is, Charset.forName("UTF8")));
+			}
+			catch (Exception e)
+			{
+				log.error("Cannot find servoy default less file.", e);
+			}
+		}
+		sb.append(new String(media.getMediaData()));
+		return ResourceProvider.compileLessWithNashorn(sb.toString());
 	}
 }

@@ -8,7 +8,7 @@ Bundle-ClassPath: .
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_shared,
  servoy_smart_client,
- org.slf4j.api,
+ slf4j.api,
  org.jsoup
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.j2db.server.headlessclient,

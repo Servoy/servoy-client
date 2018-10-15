@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -199,7 +198,7 @@ public class TestNGClient extends NGClient
 		settings.setProperty("log4j.logger.org.sablo.specification.property", "WARN");
 		settings.setProperty("log4j.rootCategory", "WARN, stdout");
 
-		PropertyConfigurator.configure(settings);
+		//TODO 	PropertyConfigurator.configure(settings);
 		Debug.init();
 	}
 

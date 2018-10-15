@@ -49,6 +49,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.DefaultScope;
@@ -669,10 +670,11 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	protected JSEvent getJSEvent(Object src)
+	protected JSEvent getJSEvent(Object src, String eventName)
 	{
 		JSEvent event = new JSEvent();
 		event.setType(JSEvent.EventType.form);
+		if (eventName != null) event.setName(RepositoryHelper.getDisplayName(eventName, Form.class));
 		event.setFormName(getName());
 		event.setSource(src);
 		if (src instanceof WebFormComponent) event.setElementName(((WebFormComponent)src).getFormElement().getRawName());

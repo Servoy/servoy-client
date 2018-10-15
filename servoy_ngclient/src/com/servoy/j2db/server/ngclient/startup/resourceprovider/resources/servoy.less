@@ -1,0 +1,1300 @@
+
+/* 12 Grid margin reset */
+div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]) > .row {
+	margin-right: 0;
+	margin-left: 0;
+}
+
+/* General Style */
+:focus {
+	outline: none;
+}
+
+.full-size {
+	width: 100%;
+	height: 100%;
+}
+
+.full-width {
+	width: 100%;
+}
+
+.full-height {
+	height: 100%;
+}
+
+.no-border {
+	border-style: none;
+}
+
+.no-padding {
+	padding: 0;
+}
+
+.no-margin {
+	margin: 0;
+}
+
+/* To be used on a tab/tabless panel when nesting responsive form. Is used to indent the nested form with the container form */
+.margin-reset {
+	margin-left: -15px;
+	margin-right: -15px;
+}
+
+/* Margins, to be used on rows to separate lines */
+.margin-top-10 {
+	margin-top: @box-size-10;
+}
+
+.margin-top-20 {
+	margin-top: @box-size-20;
+}
+
+.margin-top-30 {
+	margin-top: @box-size-30;
+}
+
+.margin-bottom-10 {
+	margin-bottom: @box-size-10;
+}
+
+.margin-bottom-20 {
+	margin-bottom: @box-size-20;
+}
+
+.margin-bottom-30 {
+	margin-bottom: @box-size-30;
+}
+
+.margin-right-10 {
+	margin-right: @box-size-10;
+}
+
+.margin-right-20 {
+	margin-right: @box-size-20;
+}
+
+.margin-right-30 {
+	margin-right: @box-size-30;
+}
+
+.margin-left-10 {
+	margin-left: @box-size-10;
+}
+
+.margin-left-20 {
+	margin-left: @box-size-20;
+}
+
+.margin-left-30 {
+	margin-left: @box-size-30;
+}
+
+/* Forms */
+/* TODO enable form bgs !?
+.svy-form {
+	background-color: @body-bg;
+}
+
+.svy-form-inverse {
+	background-color: @body-bg-inverse;
+}
+*/
+
+/* Dialogs */
+.svy-dialog .svy-header {
+	background: @window-header-bg;
+	color: @window-header-color;
+}
+
+.svy-dialog .svy-body {
+	background: @window-body-bg;
+}
+
+.svy-dialog .svy-footer {
+	background: @window-footer-bg;
+}
+
+/* Button */
+.svy-button,
+.bts-button,
+.btn {
+	border-radius: @border-radius;
+}
+
+.btn:focus, .btn:active:focus, 
+.btn.active:focus, .btn.focus, 
+.btn:active.focus, .btn.active.focus {
+	outline-color: @main-color-light;
+	border-color: @main-color-light;
+}
+
+/* Label */
+.svy-label,
+.bts-label {
+	color: @text-color;
+	font-weight: 100;
+	/* font-size: 12px; */
+}
+
+/* Fields */
+.form-control {
+	box-shadow: none;
+	border-radius: @border-radius;
+	background-color: @field-bg;
+}
+
+.form-control:focus {
+	outline: 1px;
+	outline-color: @main-color-light;
+	border-color: @main-color-light;
+	box-shadow: none;
+}
+
+.svy-field, .svy-password,
+.svy-textarea, .bts-textarea,
+.svy-textfield, .bts-textbox,
+.svy-typeahead, .bts-typeahead,
+.svy-combobox, .svy-combobox ~ .input-group-addon,
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
+.bts-calendar input, .bts-calendar input ~ .input-group-addon {
+	box-shadow: none;
+	color: @field-color;
+	font-size: 14px;
+	-webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	   -moz-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	    -ms-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	     -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  	        transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+
+
+.svy-field, .svy-password,
+.svy-textarea, .bts-textarea,
+.svy-textfield, .bts-textbox,
+.svy-typeahead, .bts-typeahead,
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
+.bts-calendar input, .bts-calendar input ~ .input-group-addon {
+	border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+	border-radius: 0;
+}
+
+.input-group-addon:last-child,
+.svy-calendar ~ .input-group-addon,
+.bts-calendar input ~ .input-group-addon {
+	border-left: 0;
+}
+
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
+.bts-calendar input, .bts-calendar input ~ .input-group-addon  {
+	background-color: @field-addon-bg;
+}
+
+
+/*
+.input-group.date .input-group-addon {
+	background-color: @field-addon-bg;
+} */
+
+.svy-field:focus, .svy-password:focus,
+.svy-textarea:focus, .bts-textarea:focus,
+.svy-textfield:focus, .bts-textbox:focus,
+.svy-typeahead:focus, .bts-typeahead:focus,
+.svy-combobox:focus, .svy-combobox:focus ~ .input-group-addon,
+.bts-select:focus, .bts-select:focus ~ .input-group-addon,
+.svy-calendar:focus, .svy-calendar:focus ~ .input-group-addon,
+.bts-calendar input:focus, .bts-calendar input:focus ~ .input-group-addon  {
+	border-color: @main-color;
+}
+
+.form-control[disabled], 
+.form-control[readonly], 
+fieldset[disabled] .form-control {
+	background-color: @field-disabled-bg;
+	opacity: 0.6;
+	border-color: @border-color;
+}
+
+/* Checkbox */
+/*** custom checkboxes ***/
+.svy-check label,
+.svy-checkgroup label,
+.svy-radiogroup label,
+.bts-check label,
+.bts-radiogroup label {
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+
+.svy-check input[type=checkbox],
+.svy-check input[type=radio],
+.svy-checkgroup input[type=checkbox],
+.svy-radiogroup input[type=radio],
+.bts-check input[type=checkbox],
+.bts-radiogroup input[type=checkbox],
+.bts-radiogroup input[type=radio] { 
+	display:none; /* to hide the checkbox itself */
+} 
+
+.svy-check input[type=checkbox] + span:before,
+.svy-check input[type=radio] + span:before,
+.svy-checkgroup input[type=checkbox] + span:before,
+.svy-radiogroup input[type=radio] + span:before,
+.bts-check input[type=checkbox] + span:before,
+.bts-radiogroup input[type=checkbox] + span:before,
+.bts-radiogroup input[type=radio] + span:before {
+  	display: inline-block;
+  	font-family: 'Glyphicons Halflings';
+  	letter-spacing: 5px;
+}
+
+input[type="radio"][disabled] + span, 
+input[type="checkbox"][disabled] + span, 
+input[type="radio"].disabled + span, 
+input[type="checkbox"].disabled + span, 
+fieldset[disabled] input[type="radio"] + span, 
+fieldset[disabled] input[type="checkbox"] + span {
+    cursor: not-allowed;
+}
+
+input[type="radio"][disabled] + span:before, 
+input[type="checkbox"][disabled] + span:before, 
+input[type="radio"].disabled + span:before, 
+input[type="checkbox"].disabled + span:before, 
+fieldset[disabled] input[type="radio"] + span:before, 
+fieldset[disabled] input[type="checkbox"] + span:before {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.svy-check input[type=checkbox] + span:before,
+.bts-check input[type=checkbox] + span:before,
+.svy-checkgroup input[type=checkbox] + span:before,
+.bts-radiogroup input[type=checkbox] + span:before { 
+	content: "\e157";
+}
+
+.svy-check input[type=checkbox]:checked + span:before,
+.bts-check input[type=checkbox]:checked + span:before,
+.svy-checkgroup input[type=checkbox]:checked + span:before,
+.bts-radiogroup input[type=checkbox]:checked + span:before {
+	content: "\e067";
+}
+
+.svy-radiogroup input[type=radio] + span:before,
+.bts-radiogroup input[type=radio] + span:before { 
+	content: "\e157";
+}
+
+.svy-radiogroup input[type=radio]:checked + span:before,
+.bts-radiogroup input[type=radio]:checked + span:before {
+	content: "\e165";
+}
+
+/* Calendar Field */
+
+/*
+.bts-calendar input {
+	border: 0;
+}
+
+/* Input Groups *
+.input-group .input-group-addon {
+	background-color: @field-addon-bg;
+	border-radius: 0;
+	border-width: 0;
+	border-color: @border-color;
+	border-bottom-width: 1px;
+	-webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	   -moz-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	    -ms-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	     -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  	        transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+
+.svy-field:focus ~ .input-group-addon,
+.svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
+.svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
+.svy-typeahead:focus ~ .input-group-addon, .bts-typeahead:focus ~ .input-group-addon,
+.svy-combobox:focus ~ .input-group-addon, .bts-select:focus ~ .input-group-addon,
+.svy-calendar:focus ~ .input-group-addon, .bts-calendar:focus ~ .input-group-addon, 
+.bts-calendar input:focus ~ .input-group-addon  {
+	border-color: @main-color;
+}
+
+.svy-field:focus ~ .input-group-addon,
+.svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
+.svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
+.svy-typeahead:focus ~ .input-group-addon, .bts-typeahead:focus ~ .input-group-addon,
+.svy-combobox:focus ~ .input-group-addon, .bts-select:focus ~ .input-group-addon,
+.svy-calendar:focus ~ .input-group-addon, .bts-calendar:focus ~ .input-group-addon, 
+.bts-calendar input:focus ~ .input-group-addon  {
+	border-color: @main-color;
+}
+
+.svy-calendar input,
+.bts-calendar input,
+.table .input-group .input-group-addon {
+	background-color: @field-addon-bg;
+}
+*/
+
+/* Calendar Picker */
+.bootstrap-datetimepicker-widget a {
+	color: @main-color-light;
+}
+
+.bootstrap-datetimepicker-widget table td.today {
+	color: @main-color;
+}
+
+.bootstrap-datetimepicker-widget table td.active, 
+.bootstrap-datetimepicker-widget table td.active:hover {
+	background-color: @main-color;
+	color: @main-color-inverse;
+}
+
+/* Combobox */
+.svy-combobox .ui-select-toggle {
+    border: 0;
+    border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.svy-combobox .ui-select-toggle:hover {
+    background-color: @field-addon-bg;
+    border-color: @main-color;
+}
+
+.svy-combobox input {
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.svy-combobox input:focus {
+	-webkit-box-shadow: none;
+    box-shadow: none;
+    border-style: @border-style;
+	border-color: @main-color-light;
+	border-width: @field-border-width;
+}
+
+.svy-combobox.ui-select-bootstrap .ui-select-choices-row.active>span {
+	background-color: @main-color;
+}
+
+
+/* Dropdown field */
+.dropdown-menu > li > a {
+	color: @text-color;
+}
+
+.dropdown-menu > .active > a, 
+.dropdown-menu > .active > a:hover, 
+.dropdown-menu > .active > a:focus {
+	background-color: @main-color;
+}
+
+/* Bootstrap Select  
+.bts-select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	-webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+} */
+
+.bts-select option {
+	
+}
+
+.bts-select option:checked,
+.bts-select option:focus,
+.bts-select option:hover,
+.bts-select option:active {
+	background-color: @main-color !important;
+	background: @main-color !important;
+	outline: none;
+}
+
+/* Select2Tokenizer Servoy Extra */
+.svy-select2-autotokenizer-dropdown .select2-results__option.select2-results__option--highlighted {
+	background-color: @main-color;
+}
+
+.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple {
+   	background-color: @field-bg;
+   	color: @field-color;
+    border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+	border-radius: 0;
+    cursor: text;
+}
+
+.svy-select2-autotokenizer .select2-container--default.select2-container--focus .select2-selection--multiple {
+	outline: 1px;
+	outline-color: @main-color-light;
+	border-color: @main-color-light;
+	box-shadow: none;
+}
+
+.svy-select2-autotokenizer .select2-container .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2px 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-selection__choice, .svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-search--inline .select2-search__field {
+    margin-bottom: 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #76BB29;
+    border: 0px solid #d8d8d8;
+    border-radius: 30px;
+    cursor: default;
+    margin-right: 10px;
+    margin-top: 5px;
+    padding: 1px 15px 1px 10px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #4A4A4A;
+    cursor: pointer;
+    font-weight: normal;
+    margin-right: 5px;
+    font-size: 0px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:before {
+	font-family: "FontAwesome";
+	content: "\F15A";
+	color: #ffffff;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover:before {
+	font-family: "FontAwesome";
+	content: "\F159";
+	/* color: #ffffff; */
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true] {
+	background-color: @main-color;
+	color: @main-color-inverse;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected]:before {
+	font-family: "FontAwesome";
+	content: "\f096";
+	margin-right: 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true]:before {
+	content: "\f14a";
+}
+
+
+/* Badge */
+.btn-filter .badge {
+    background-color: @main-color;
+}
+
+/* TabPanel */
+.svy-tabpanel > .nav-tabs,
+.bts-tabpanel > .nav-tabs {
+	border: 0;
+	background-color: @tab-bg;
+}
+
+.svy-tabpanel > .nav-tabs > li,
+.bts-tabpanel > .nav-tabs > li {
+	margin-bottom: 0;
+}
+
+.svy-tabpanel > .nav-tabs > li > a,
+.bts-tabpanel > .nav-tabs > li > a {
+	background-color: @tab-bg;
+	color: @tab-text-color;
+	padding: 8px 15px;
+	border: @tab-border;
+	border-radius: @tab-border-radius;
+}
+
+.svy-tabpanel .nav-tabs > li > a,
+.svy-tabpanel .nav-tabs > li.active > a, 
+.svy-tabpanel .nav-tabs > li.active > a:hover, 
+.svy-tabpanel .nav-tabs > li.active > a:focus,
+.bts-tabpanel .nav-tabs > li > a,
+.bts-tabpanel .nav-tabs > li.active > a, 
+.bts-tabpanel .nav-tabs > li.active > a:hover, 
+.bts-tabpanel .nav-tabs > li.active > a:focus {
+	/* border: @tab-border;
+	border-radius: @tab-border-radius; */
+}
+
+.svy-tabpanel > .nav-tabs > li.active > a, 
+.svy-tabpanel > .nav-tabs > li.active > a:hover, 
+.svy-tabpanel > .nav-tabs > li.active > a:focus,
+.bts-tabpanel > .nav-tabs > li.active > a, 
+.bts-tabpanel > .nav-tabs > li.active > a:hover, 
+.bts-tabpanel > .nav-tabs > li.active > a:focus {
+	background-color: @tab-active-bg;
+	color: @tab-active-text-color;
+	border: @tab-active-border;
+}
+
+/* Font Awesome *
+data-servoyextra-fontawesome > div {
+	display: inline;
+	float: left;
+	font-size: 18px;
+	margin : 0 15px;
+}
+*/
+
+/* Sidenav Servoy Extra */
+.svy-sidenav {
+	background-color: @sidenav-color;
+	color: @sidenav-text-color;
+	border: 0;
+}
+
+.svy-sidenav-menu,
+.svy-sidenav-collapse-icon {
+	font-size: 12px;
+	line-height: 36px;
+	color: @sidenav-text-color;
+}
+
+.svy-sidenav-divider {
+	line-height: 0px;
+	padding: 0;
+}
+
+.svy-sidenav-item {
+	font-size: 12px;
+}
+
+.svy-sidenav-dropdown {
+	background-color: @sidenav-color;
+	color: @sidenav-text-color;
+}
+
+.svy-sidenav-dropdown {
+	font-weight: initial;
+}
+
+/* Override padding to obtain hover effect */
+.svy-sidenav-menu ul {
+    padding-left: 0px;
+}
+
+.svy-sidenav-item {
+	padding-left: 20px;
+}
+
+.svy-sidenav-item.sn-level-2 {
+	padding-left: 40px;
+}
+
+.svy-sidenav-item.sn-level-3 {
+	padding-left: 60px;
+}
+
+.svy-sidenav-item.sn-level-4 {
+	padding-left: 80px;
+}
+
+/*
+.svy-sidenav-dropdown.sn-level-2 {
+	margin-left: -20px;
+	padding-left: 20px;
+}
+
+.svy-sidenav-item.sn-level-2 {
+	margin-right: 0;
+}
+
+.svy-sidenav-dropdown.sn-level-3 {
+	margin-left: -40px;
+	padding-left: 40px;
+}
+
+.svy-sidenav-dropdown.sn-level-4 {
+	margin-left: -60px;
+	padding-left: 60px;
+}*/
+
+.svy-navitem-selected {
+	/* TODO inverse the column when selected */
+	color: @sidenav-selected-text-color;
+	background-color: @sidenav-selected-color;
+}
+
+.svy-navitem-selected.sn-level-1 {
+	border-left: 5px solid @main-color;
+}
+
+.svy-sidenav-dropdown.sn-level-1:not(.svy-navitem-selected) {
+	padding-left: 5px; /* align non selected items with the selected item */
+}
+
+.svy-sidenav-item:hover,
+.svy-sidenav-item:hover > .svy-sidenav-collapse-icon,
+.svy-sidenav-dropdown.sn-level-2:hover,
+.svy-sidenav-dropdown.sn-level-3:hover,
+.svy-sidenav-dropdown.sn-level-4:hover {
+	/* TODO inverse the column when selected ! */
+	color: @sidenav-selected-text-color;
+	background-color: @sidenav-selected-color;
+}
+
+/* Navbar Bootstrap Extra */
+.navbar {
+	border-radius: 0;
+}
+
+/* Input Group Bootstrap Extra */
+.bts-extra-navbar .form-control,
+.bts-extra-input-group .form-control {
+	border: 1px solid @border-color;
+}
+
+.bts-extra-navbar .form-control:focus,
+.bts-extra-input-group .form-control:focus {
+    outline: 1px;
+    outline-color: @main-color-light;
+    border-color: @main-color-light;
+}
+
+.bts-extra-input-group .form-control:first-child {
+   border-top-left-radius: 2px;
+   border-bottom-left-radius: 2px;
+}
+
+.bts-extra-input-group .form-control:last-child {
+   border-top-right-radius: 2px;
+   border-bottom-right-radius: 2px;
+}
+
+/* Default Table */
+.ui-grid {
+	/*border: 0; TODO fix this*/
+	/*border: @table-border-width @border-style @border-color;*/
+}
+
+.ui-grid-header-cell {
+	text-transform: @table-header-text-transform;
+	border-width: @table-border-width;
+	font-style: @table-header-font-style;
+/*	font-size: 12px; */
+}
+
+.ui-grid-header,
+.ui-grid-top-panel,
+.ui-grid-header-cell,
+.ui-grid-row:nth-child(even) .ui-grid-cell,
+.ui-grid-row:nth-child(odd) .ui-grid-cell {
+	background: #FFF; /* TODO should be inherit !? */
+	color: @text-color;
+}
+
+.ui-grid-row .ui-grid-cell {
+	border-bottom: @border-width @border-style @border-color;
+	border-color: @border-color;
+}
+
+.ui-grid-row div.ui-grid-cell > * {
+	border-width: 0;
+	box-shadow: none;
+}
+
+/* Selected Row */
+.ui-grid-row.ui-grid-row-selected div.ui-grid-cell {
+	background-color: @main-color !important;
+}
+
+.ui-grid-cell .svy-field, 
+.ui-grid-cell .svy-password, 
+.ui-grid-cell .svy-textarea, 
+.ui-grid-cell .bts-textarea, 
+.ui-grid-cell .svy-textfield, 
+.ui-grid-cell .bts-textbox, 
+.ui-grid-cell .svy-typeahead, 
+.ui-grid-cell .bts-typeahead, 
+.ui-grid-cell .svy-combobox, .ui-grid-cell .svy-combobox .ui-select-toggle, .ui-grid-cell .svy-combobox input,
+.ui-grid-cell .bts-select, 
+.ui-grid-cell .svy-calendar, 
+.ui-grid-cell .svy-calendar ~ .input-group-addon, 
+.ui-grid-cell .bts-calendar input, 
+.ui-grid-cell .bts-calendar input ~ .input-group-addon{
+	border: 0;
+}
+
+.ui-grid-cell .svy-label,
+.ui-grid-cell .bts-label {
+	font-size: 14px;
+}
+
+.ui-grid-row-selected div.ui-grid-cell .svy-label,
+.ui-grid-row-selected div.ui-grid-cell .bts-label {
+	color: @main-color-inverse;
+}
+
+.ui-grid-row-selected .ui-grid-cell .svy-field,
+.ui-grid-row-selected .ui-grid-cell .svy-password,  
+.ui-grid-row-selected .ui-grid-cell .svy-textarea, 
+.ui-grid-row-selected .ui-grid-cell .bts-textarea, 
+.ui-grid-row-selected .ui-grid-cell .svy-textfield, 
+.ui-grid-row-selected .ui-grid-cell .bts-textbox, 
+.ui-grid-row-selected .ui-grid-cell .svy-typeahead, 
+.ui-grid-row-selected .ui-grid-cell .bts-typeahead, 
+.ui-grid-row-selected .ui-grid-cell .svy-combobox, 
+.ui-grid-row-selected .ui-grid-cell .svy-combobox .ui-select-toggle, .ui-grid-row-selected .ui-grid-cell .svy-combobox input,
+.ui-grid-row-selected .ui-grid-cell .bts-select, 
+.ui-grid-row-selected .ui-grid-cell .svy-calendar, 
+.ui-grid-row-selected .ui-grid-cell .bts-calendar, 
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input {
+	outline: @main-color;
+	background-color: inherit;
+	color: @main-color-inverse; /* inverse color for selected */
+}
+
+.ui-grid-row-selected .ui-grid-cell .bts-select, .ui-grid-row-selected .ui-grid-cell .bts-select ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .svy-calendar, .ui-grid-row-selected .ui-grid-cell .svy-calendar ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input, .ui-grid-row-selected .ui-grid-cell .bts-calendar input ~ .input-group-addon  {
+	background-color: inherit;
+}
+
+.ui-grid-row-selected .ui-grid-cell .svy-field:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-password:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-textarea:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-textarea:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-textfield:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-textbox:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-typeahead:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-typeahead:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-combobox:focus, 
+.ui-grid-row-selected .ui-grid-cell .svy-combobox:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-select:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-select:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .svy-calendar:focus, 
+.ui-grid-row-selected .ui-grid-cell .svy-calendar:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input:focus ~ .input-group-addon  {
+	/* background-color: @field-bg;
+	color: @field-color;
+	border-radius: 0;*/
+}
+
+.ui-grid-row-selected .ui-grid-cell .svy-combobox:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-select:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .svy-calendar:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input:focus ~ .input-group-addon  {
+	/* background-color: @field-addon-bg;
+	color: @field-color; */
+}
+
+/* Servoy Bootstrap/Extra Table */
+.svy-table,
+.bts-table {
+	border: @table-border-width @border-style @border-color;
+}
+
+.table-bootstrapcomponent-selected,
+.table-servoyextra-selected {
+	background-color: @main-color;
+	color: @main-color-inverse; /* inverse color for selected */
+}
+
+.svy-table  th,
+.svy-table  td,
+.bts-table  th,
+.bts-table  td {
+	border-color: @border-color;
+}
+
+.svy-table thead,
+.bts-table thead,
+.ui-grid-header-cell {
+	background-color: @table-header-bg;
+	border-style: @border-style;
+	border-color: @border-color;
+	border-width: @table-border-width;
+}
+
+.ui-grid-header-cell,
+.svy-table th,
+.bts-table th,
+.table > thead > tr > th {
+	border-width: @table-border-width;
+	text-transform: @table-header-text-transform;
+	font-weight: @table-header-font-style;
+/*	font-size: 12px; */
+}
+
+/* AG Grid Table */
+.ag-table {
+	color: @text-color;
+}
+
+.ag-table .ag-header {
+	color: @text-color;
+	text-transform: @table-header-text-transform;
+	font-weight: @table-header-font-style;
+}
+
+.ag-table .ag-row-selected {
+	background-color: @main-color;
+	color: @main-color-inverse;
+}
+
+.ag-table .ag-cell-inline-editing input {
+	color: @field-color;
+}
+
+.ag-table .ag-cell.font-icon {
+    padding: 0 8px;
+}
+
+
+/* AG Grid Tool Panel */
+
+.ag-tool-panel .ag-column-select-panel .ag-column-name-filter {
+	
+}
+
+.ag-tool-panel .ag-column-drop {
+    clear: both;
+    overflow: auto;
+    padding: 4px 0;
+    padding-bottom: 8px;
+}
+
+.ag-table .ag-column-drop.ag-column-drop-horizontal .ag-right-arrow {
+	padding: 0 4px;
+	display: none;
+}
+
+.ag-table .ag-column-drop.ag-column-drop-horizontal .ag-column-drop-cell .ag-column-drop-cell-button:after {
+    font-family: FontAwesome;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    content: "\f054";
+    vertical-align: middle;
+}
+
+.ag-tool-panel .ag-column-drop .ag-column-drop-cell {
+    padding-left: 10px;
+    /*line-height: 32px;*/
+    display: block;
+}
+
+.ag-table .ag-column-drop .ag-column-drop-cell-text,
+.ag-tool-panel .ag-column-drop .ag-column-drop-cell-text {
+    border: 1px @border-style @border-color;
+    padding: 4px 16px;
+    border-radius: @border-radius;
+}
+
+.ag-tool-panel .ag-column-drop .ag-column-drop-cell .ag-column-drop-cell-button {
+    float: initial;
+}
+
+.ag-column-drop-empty-message, .ag-column-drop .ag-column-drop-cell:last-child:after {
+    content: "Drop a column";
+    border: 1px dashed @border-color;
+    color: @text-color;
+    border-radius: @border-radius;
+    padding: 4px 16px;
+    display: inline-block;
+    line-height: 20px;
+}
+
+/* AG Grid side panel */
+.ag-table .ag-tool-panel > .ag-side-buttons > button {
+	webkit-appearance:none;
+	-webkit-appearance: none;
+    background: none;
+    border: none;
+}
+
+.ag-table .ag-tool-panel > .ag-side-buttons> button:before {
+    content: "\f0c9";
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+}
+
+
+/* Popup */
+.yuimenu {
+	padding: 0;
+	background: #FFF;
+    border-radius: @border-radius;
+}
+
+.yuimenuitemlabel {
+	color: @text-color;
+}
+
+.yuimenuitemlabel a:hover, .yuimenuitemlabel a:focus {
+	color: @text-color;
+}
+
+.yuimenuitemlabel:hover,
+.yuimenuitemlabel-selected,
+.yuimenuitemlabel-selected:hover {
+	background-color: @main-color;
+}
+
+.yuimenubaritemlabel:focus,
+.yuimenubaritemlabel:hover,
+.yuimenuitemlabel:hover,
+.yuimenuitemlabel:focus {
+	outline: none;
+	text-decoration: initial;
+	color: inherit;
+}
+
+.yuimenubaritemlabel-selected, 
+.yuimenubaritemlabel-selected:hover, 
+.yuimenubaritemlabel-selected:focus, 
+.yuimenubaritemlabel-selected:visited, 
+.yuimenuitemlabel-selected, 
+.yuimenuitemlabel-selected:hover,
+.yuimenuitemlabel-selected:focus,  
+.yuimenuitemlabel-selected:visited {
+	background-color: @main-color;
+    color: @main-color-inverse;
+    text-decoration: inherit;
+}
+
+.yuimenubaritemlabel-disabled:focus,
+.yuimenubaritemlabel-disabled:hover,
+.yuimenuitemlabel-disabled:hover,
+.yuimenuitemlabel-disabled:focus {
+	color: @border-color;
+}
+
+/* Scrollbar Style */
+::-webkit-scrollbar {
+	width: 12px;
+	height: 12px;
+	padding: 0 5px;
+}
+
+::-webkit-scrollbar-track {
+	border-radius: 0px;
+	background: #FFF;
+	border: @table-border-width @border-style @border-color;
+	border-top: 0;
+	border-bottom: 0;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background: @border-color;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: #F8F8F8;
+}
+
+/************************************************************************************
+ Style Layout Containers
+ *************************************************************************************/
+
+/* Simple Collapsible */
+.simple-collapsible {
+	margin-bottom: 15px;
+}
+
+.simple-collapsible-toggle {
+	color: @main-color;
+	border-bottom: 1px solid @main-color;
+}
+
+.simple-collapsible-content > *:first-child {
+	margin-top: 15px;
+}
+
+.simple-collapsible-content > *:last-child {
+	margin-bottom: 15px;
+}
+
+.simple-collapsible-content {
+	border-bottom: 1px solid @main-color;
+}
+
+.simple-collapsible-toggle .svy-label,
+.simple-collapsible-toggle .bts-label {
+	color: @main-color;
+	font-size: 18px;
+}
+
+/* Inline Groups */
+.inline-group > .inline-group-left,
+.inline-group > .inline-group-right  {
+	line-height: 34px;
+}
+
+/* Style the flex footer if used on a form with theme servoy */
+> .flexlayout > .flex-footer {
+	background-color: @main-color;
+	color: @main-color-inverse;
+	height: 80px;
+}
+
+> .flexlayout > .flex-footer .svy-label,
+> .flexlayout > .flex-footer .bts-label {
+	color: @main-color-inverse;
+}
+
+/* Background colors */
+.bg {
+	background-color: @body-bg;
+}
+
+.bg-inverse {
+	background-color: @body-bg-inverse;
+}
+
+.bg-primary {
+	background-color: @brand-primary;
+}
+
+.bg-success {
+	background-color: @brand-success;
+}
+
+.bg-info {
+	background-color: @brand-info;
+}
+
+.bg-warning {
+	background-color: @brand-warning;
+}
+
+.bg-danger {
+	background-color: @brand-danger;
+}
+
+/* Fonts */
+.font-weight-bold {
+	font-weight: bold;
+}
+
+/* Labels */
+.label_header_0 {
+	background: #F8F8F8;
+	color: @main-color;
+	font-size: 24px;
+	padding-left: 30px;
+	text-transform: uppercase;
+}
+
+.label_header_1 {
+	color: @main-color-light;
+	background: @main-color-inverse;
+	border-bottom: 1px solid @main-color-light;
+	font-size: 24px;
+	font-weight: 100;
+}
+
+.label_header_2,
+.label_header_3 {
+	padding-left: 6px;
+	background: @main-color;
+	color: white;
+	font-weight: 100;
+	border-radius: 25px;
+}
+
+.label_header_0,
+.label_header_1,
+.label_header_2,
+.label_header_3 {
+	display: inline-block;
+	width: 100%;
+}
+
+.svy-layoutcontainer > * > .label_header_1,
+.svy-layoutcontainer > * > .label_header_2 {
+	margin: 15px 0;
+}
+
+.svy-layoutcontainer > * > .label_header_2 {
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+.svy-layoutcontainer > * > .label_header_0,
+.svy-layoutcontainer > * > .label_header_3 {
+	display: inline-block;
+	width: 100%;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.label_header_3 {
+	text-align: center;
+}
+
+.label_subheader_0 {
+	position: absolute;
+    top: 25px;
+    left: 160px;
+}
+
+/* Typography */
+.text-center {
+	text-align: center;
+}
+
+.text-uppercase {
+	text-transform: uppercase;
+}
+
+.label-primary
+.label-success,
+.label-info, 
+.label-warning,
+.label-danger {
+	color: #FFF;
+	text-align: center;
+	border-radius: 2px;
+}
+
+.btn-primary,
+.btn-success,
+.btn-info,
+.btn-warning,
+.btn-danger {
+	color: #FFF;
+}
+
+.bts-label.text-center {
+	display: block;
+	white-space: initial;
+}
+
+.text-primary,
+.label-primary, 
+.btn.text-primary {
+	color: @brand-primary;	
+}
+
+.text-success,
+.label-success, 
+.btn.text-success {
+	color: @brand-success;	
+}
+
+.text-info,
+.label-info, 
+.btn.text-info {
+	color: @brand-info;	
+}
+
+.text-warning,
+.label-warning, 
+.btn.text-warning {
+	color: @brand-warning;	
+}
+
+.text-danger,
+.label-danger, 
+.btn.text-danger {
+	color: @brand-danger;	
+}
+
+/* Buttons */
+.btn-round {
+	border-radius: 50px;
+}
+
+/* Fields */
+.form-default {
+	background-color: #FFF; /* TODO setting for default color does make sense !? */
+}
+
+.form-primary {
+	background-color: @brand-primary;
+}
+
+.form-success {
+	background-color: @brand-success;
+}
+
+.form-info {
+	background-color: @brand-info;
+}
+
+.form-warning {
+	background-color: @brand-warning;
+}
+
+.form-danger {
+	background-color: @brand-danger;
+}
+
+
+/************************************************************************************
+ Class Templates Top Bar 
+ *************************************************************************************/
+.header-bar {
+	border-top: 12px solid @main-color-light;
+	background-color: @main-color;
+	color: white;
+	padding: 30px 0;
+	font-size: 24px;
+	text-transform: uppercase;
+}
+
+.header-bar {
+	/* height: initial !important; TODO what is this for, to center the text of a navbar ? */
+	
+}
+
+.header-bar .bts-label,
+.header-bar .svy-label {
+	color: #FFF;
+}
+
+.header-title {
+    text-align: center;
+    float: left;
+    width: calc(100% - 98px);
+    font-size: 24px;
+}
+
+/* Container styles */
+.content-panel {
+	border-radius: 4px;
+	border: 2px solid @main-color;
+	padding: 30px 15px;
+	border-bottom-width: 30px;
+	min-width: 640px;
+}
+
+/* Shapes */
+.hr {
+	border : 0 solid @border-color;
+	border-bottom-width: 1px;
+}

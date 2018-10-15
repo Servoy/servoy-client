@@ -39,8 +39,10 @@ import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
@@ -131,6 +133,7 @@ public class EventExecutor
 					JSONObject json = (JSONObject)newargs[i];
 					JSEvent event = new JSEvent();
 					event.setType(getEventType(eventType));
+					event.setName(RepositoryHelper.getDisplayName(eventType, BaseComponent.class));
 					event.setFormName(formController.getName());
 					// the names used in scripting are the actual persist names
 					// not the processed names (web friendly)
