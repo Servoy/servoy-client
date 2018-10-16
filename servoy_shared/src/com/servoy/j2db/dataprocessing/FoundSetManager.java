@@ -3050,4 +3050,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return type;
 	}
 
+	void clearFlushActions()
+	{
+		runOnEditOrTransactionStoppedActions.clear();
+	}
 }
