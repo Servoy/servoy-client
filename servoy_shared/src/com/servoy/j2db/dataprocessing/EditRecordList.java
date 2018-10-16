@@ -1533,6 +1533,9 @@ public class EditRecordList
 		{
 			editRecordsLock.unlock();
 		}
+		// make sure that flush actions on the foundset manager, that are called by that fireEditChange() are not executed anymore
+		// shouldn't be needed for a solution.close() or exit();
+		fsm.clearFlushActions();
 		fireEditChange();
 	}
 
