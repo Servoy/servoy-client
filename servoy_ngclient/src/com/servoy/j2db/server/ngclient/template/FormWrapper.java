@@ -83,7 +83,7 @@ public class FormWrapper
 	private final Map<String, String> formComponentTemplates = new HashMap<>();
 	private final Map<String, Dimension> formComponentParentSizes = new HashMap<>();
 	private final Map<String, Boolean> formComponentsLayout = new HashMap<>();
-	private final List<String> formComponentCSSPositionElementNames = new ArrayList<String>();
+	private final Map<String, Boolean> formComponentCSSPositionElementNames = new HashMap<String, Boolean>();
 	private final JSONObject runtimeData;
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, IServoyDataConverterContext context, boolean design, JSONObject runtimeData)
@@ -226,8 +226,8 @@ public class FormWrapper
 						{
 							formComponentsLayout.put(element.getName(), Boolean.TRUE);
 						}
-						if (frm.getUseCssPosition() && !formComponentCSSPositionElementNames.contains(element.getName()))
-							formComponentCSSPositionElementNames.add(element.getName());
+						if (frm.getUseCssPosition() && !formComponentCSSPositionElementNames.containsKey(element.getName()))
+							formComponentCSSPositionElementNames.put(element.getName(), Boolean.TRUE);
 						checkFormComponents(components, element);
 					}
 					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
@@ -395,16 +395,17 @@ public class FormWrapper
 		return elements;
 	}
 
-	private List<String> getCSSPositionElementNames()
+	private Map<String, Boolean> getCSSPositionElementNames()
 	{
-		List<String> names = new ArrayList<String>();
-		names.addAll(formComponentCSSPositionElementNames);
+		Map<String, Boolean> names = new HashMap<String, Boolean>();
+		names.putAll(formComponentCSSPositionElementNames);
 		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
 			if (form.getUseCssPosition() || PersistHelper.isInAbsoluteLayoutMode(persist))
 			{
-				if (!names.contains(persist.getName())) names.add(persist.getName());
+				String name = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design).getName();
+				if (!names.containsKey(name)) names.put(name, Boolean.TRUE);
 			}
 		}
 		return names;
