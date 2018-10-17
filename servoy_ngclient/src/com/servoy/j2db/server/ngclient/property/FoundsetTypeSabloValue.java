@@ -713,7 +713,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					addViewPortBounds(destinationJSON);
 					somethingChanged = true;
 				}
-				List<com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData> viewPortChanges = changeMonitor.getViewPortChanges();
+				List<com.servoy.j2db.server.ngclient.property.ViewportOperation> viewPortChanges = changeMonitor.getViewPortChanges();
 				if (viewPortChanges.size() > 0)
 				{
 					if (!somethingChanged) destinationJSON.object();

@@ -46,7 +46,6 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -572,7 +571,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
 
-				List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				List<ViewportOperation> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 
 				writer.array();
 				for (int i = 0; i < viewPortChanges.size(); i++)
@@ -738,7 +737,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						if (firstViewPortIndex <= lastViewPortIndex)
 						{
 							viewPortChangeMonitor.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-								firstViewPortIndex, lastViewPortIndex, foundsetPropertyValue.getFoundset(), RowData.CHANGE);
+								firstViewPortIndex, lastViewPortIndex, foundsetPropertyValue.getFoundset(), ViewportOperation.CHANGE);
 						}
 					}
 				}

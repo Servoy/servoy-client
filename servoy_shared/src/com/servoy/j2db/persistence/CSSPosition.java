@@ -38,12 +38,12 @@ public class CSSPosition implements Serializable
 	public String width;
 	public String height;
 
-	public CSSPosition(String top, String left, String bottom, String right, String width, String height)
+	public CSSPosition(String top, String right, String bottom, String left, String width, String height)
 	{
 		this.top = top;
-		this.left = left;
-		this.bottom = bottom;
 		this.right = right;
+		this.bottom = bottom;
+		this.left = left;
 		this.width = width;
 		this.height = height;
 	}
@@ -67,7 +67,7 @@ public class CSSPosition implements Serializable
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
+				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			if (!isSet(position.right))
@@ -117,7 +117,7 @@ public class CSSPosition implements Serializable
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
+				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			if (isSet(position.left) && isSet(position.right))
@@ -153,7 +153,7 @@ public class CSSPosition implements Serializable
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
+				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			int top = percentageToPixels(position.top, container.getSize().height);
@@ -190,7 +190,7 @@ public class CSSPosition implements Serializable
 			CSSPosition position = ((BaseComponent)persist).getCssPosition();
 			if (position == null)
 			{
-				position = new CSSPosition("0", "0", "-1", "-1", "0", "0");
+				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			int width = percentageToPixels(position.width, container.getSize().width);
@@ -363,14 +363,14 @@ public class CSSPosition implements Serializable
 		buffer.append("top:");
 		buffer.append(this.top);
 		buffer.append(",");
-		buffer.append("left:");
-		buffer.append(this.left);
+		buffer.append("right:");
+		buffer.append(this.right);
 		buffer.append(",");
 		buffer.append("bottom:");
 		buffer.append(this.bottom);
 		buffer.append(",");
-		buffer.append("right:");
-		buffer.append(this.right);
+		buffer.append("left:");
+		buffer.append(this.left);
 		buffer.append(",");
 		buffer.append("width:");
 		buffer.append(this.width);

@@ -432,11 +432,11 @@ public class PersistHelper
 		StringBuilder retval = new StringBuilder();
 		retval.append(position.top);
 		retval.append(","); //$NON-NLS-1$
-		retval.append(position.left);
+		retval.append(position.right);
 		retval.append(","); //$NON-NLS-1$
 		retval.append(position.bottom);
 		retval.append(","); //$NON-NLS-1$
-		retval.append(position.right);
+		retval.append(position.left);
 		retval.append(","); //$NON-NLS-1$
 		retval.append(position.width);
 		retval.append(","); //$NON-NLS-1$
@@ -457,9 +457,9 @@ public class PersistHelper
 		{
 			StringTokenizer tk = new StringTokenizer(s, ","); //$NON-NLS-1$
 			if (tk.hasMoreTokens()) top = tk.nextToken();
-			if (tk.hasMoreTokens()) left = tk.nextToken();
-			if (tk.hasMoreTokens()) bottom = tk.nextToken();
 			if (tk.hasMoreTokens()) right = tk.nextToken();
+			if (tk.hasMoreTokens()) bottom = tk.nextToken();
+			if (tk.hasMoreTokens()) left = tk.nextToken();
 			if (tk.hasMoreTokens()) width = tk.nextToken();
 			if (tk.hasMoreTokens()) height = tk.nextToken();
 		}
@@ -468,7 +468,7 @@ public class PersistHelper
 			Debug.error(ex);
 			return null;
 		}
-		return new CSSPosition(top, left, bottom, right, width, height);
+		return new CSSPosition(top, right, bottom, left, width, height);
 	}
 
 	private static Map<String, Font> allFonts = new HashMap<String, Font>();

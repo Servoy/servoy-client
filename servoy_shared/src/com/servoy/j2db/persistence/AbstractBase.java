@@ -430,7 +430,7 @@ public abstract class AbstractBase implements IPersist
 		}
 		if (value instanceof CSSPosition)
 		{
-			return new CSSPosition(((CSSPosition)value).top, ((CSSPosition)value).left, ((CSSPosition)value).bottom, ((CSSPosition)value).right,
+			return new CSSPosition(((CSSPosition)value).top, ((CSSPosition)value).right, ((CSSPosition)value).bottom, ((CSSPosition)value).left,
 				((CSSPosition)value).width, ((CSSPosition)value).height);
 		}
 		return value;
