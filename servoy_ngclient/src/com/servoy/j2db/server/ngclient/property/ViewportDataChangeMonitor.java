@@ -33,7 +33,6 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -52,7 +51,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 */
 	protected boolean viewPortCompletelyChanged = false;
 
-	protected List<RowData> viewPortChanges = new ArrayList<>();
+	protected List<ViewportOperation> viewPortChanges = new ArrayList<>();
 
 	protected final DPT rowDataProvider;
 
@@ -93,7 +92,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 		return viewPortCompletelyChanged;
 	}
 
-	public List<RowData> getViewPortChanges()
+	public List<ViewportOperation> getViewPortChanges()
 	{
 		return viewPortChanges;
 	}
@@ -113,7 +112,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
-	 * @param operationType can be one of {@link RowData#DELETE}, {@link RowData#INSERT} or {@link RowData#CHANGE}.
+	 * @param operationType can be one of {@link ViewportOperation#DELETE}, {@link ViewportOperation#INSERT} or {@link ViewportOperation#CHANGE}.
 	 *
 	 * @return true if the operation was queued, false otherwise.
 	 */
@@ -145,7 +144,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				removeIrrelevantOperationsAndAdd(new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType));
+				removeIrrelevantOperationsAndAdd(new ViewportOperation(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType));
 
 				if (changed && monitor != null) monitor.valueChanged();
 				return true;
@@ -159,7 +158,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 		return false;
 	}
 
-	protected boolean removeIrrelevantOperationsAndAdd(RowData newOperation)
+	protected boolean removeIrrelevantOperationsAndAdd(ViewportOperation newOperation)
 	{
 		boolean changed = false;
 		// it happens often that we get multiple change events for the same row one after another; don't send each one to browser as it's not needed
@@ -213,7 +212,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 				}, granularUpdate ? ChangesToJSONConverter.INSTANCE : FullValueToJSONConverter.INSTANCE);
 
 				boolean added = removeIrrelevantOperationsAndAdd(
-					new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName, granularUpdate));
+					new ViewportOperation(writtenAsJSON, relativeRowIndex, relativeRowIndex, ViewportOperation.CHANGE, columnName, granularUpdate));
 
 				// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
 				// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property

@@ -1038,15 +1038,16 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 									}
 								} )
 							}
+							
 							// TODO do we always have to attach this? Because the component maybe doesn't use that modelChangeNotifier
-							// but we don't realyl know this when we are compiling the template.
+							// but we don't really know this when we are compiling the template.
 							Object.defineProperty(childElement.model, $sabloConstants.modelChangeNotifier,
 			                         { configurable: true, value: function(property,value) {
 			                        	rowToModel.some((row) => {
 			                        		if (row.model[simpleName][$sabloConstants.modelChangeNotifier]) {
 			                        			row.model[simpleName][$sabloConstants.modelChangeNotifier](property,value);
 			                        		}
-			                        		else return true; // if there is no change modifer at the first row then we can skip
+			                        		else return true; // if there is no change modifier at the first row then we can skip
 			                        	})
 			                  }});
 						}

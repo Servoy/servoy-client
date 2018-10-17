@@ -19,8 +19,6 @@ package com.servoy.j2db.server.ngclient.property;
 
 import org.sablo.IChangeListener;
 
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
-
 /**
  * A ViewportDataChangeMonitor that is for the foundset property type itself.
  *
@@ -47,7 +45,7 @@ public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMon
 		if (!rowDataProvider.isReady()) return false;
 
 		boolean changed = removeIrrelevantOperationsAndAdd(
-			new RowData(null, firstRelativeRowIndex, lastRelativeRowIndex, RowData.CHANGE_IN_LINKED_PROPERTY, columnName, false));
+			new ViewportOperation(null, firstRelativeRowIndex, lastRelativeRowIndex, ViewportOperation.CHANGE_IN_LINKED_PROPERTY, columnName, false));
 
 		if (changed && monitor != null) monitor.valueChanged();
 		return changed;

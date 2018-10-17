@@ -62,7 +62,6 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType.IModelWriter;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -565,7 +564,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			else
 			// viewPortChanges.size() > 0
 			{
-				List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				List<ViewportOperation> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				DataConversion clientConversionInfo = new DataConversion();
 
 				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);

@@ -20,15 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONWriter;
 import org.sablo.IChangeListener;
-import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.websocket.IToJSONWriter;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
-import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -254,7 +246,7 @@ public class FoundsetTypeChangeMonitor
 				@Override
 				public void run(ViewportDataChangeMonitor< ? > vpdcm)
 				{
-					vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(), RowData.DELETE);
+					vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(), ViewportOperation.DELETE);
 				}
 			});
 		}
@@ -329,47 +321,7 @@ public class FoundsetTypeChangeMonitor
 					final int numberOfDeletes = lastRowDeletedInViewport - firstRowDeletedInViewport + 1;
 
 					// adjust viewPort bounds if necessary
-//				int oldViewPortStart = viewPort.getStartIndex();
 					final int oldViewPortSize = viewPort.getSize();
-
-					// TODO merge changes with previous ones without keeping any actual data (indexes kept in a way should be enough) - implementation started below
-//				// ok, viewPort bounds are updated; update existing recordChange data if needed; we are working here a lot with viewPort relative indexes (both client side and server side ones)
-//				ListIterator<RecordChangeDescriptor> iterator = viewPortRecordChanges.listIterator();
-//				int browserViewPortIdxDelta = 0; // delta between the current client side viewPort data relative "i" index and the old server viewPort relative "i" index
-//				int toBeDeleted = relativeFirstRow;
-//				while (iterator.hasNext())
-//				{
-//					RecordChangeDescriptor recordChange = iterator.next();
-//					while (toBeDeleted <= relativeLastRow && toBeDeleted + browserViewPortIdxDelta < recordChange.relativeIndex)
-//					{
-//						// record deleted before previous Add/Remove/Update operation; add before
-//						iterator.add(new RecordChangeDescriptor(RecordChangeDescriptor.Types.REMOVE_FROM_VIEWPORT, browserViewPortIdxDelta + toBeDeleted));
-//						if (toBeDeleted + browserViewPortIdxDelta >= viewPort.getSize())
-//						{
-//
-//						}
-//						toBeDeleted++;
-//					}
-//
-//					switch (recordChange.type)
-//					{
-//						case REMOVE_FROM_VIEWPORT :
-//							browserViewPortIdxDelta++;
-//							break;
-//						case ADD_TO_VIEWPORT :
-//							// TODO
-//							break;
-//						case CHANGE :
-//							// TODO
-//							break;
-//					}
-//				}
-//				while (toBeDeleted <= relativeLastRow && )
-//				{
-//					// record deleted before previous Add/Remove/Update operation; add before
-//					iterator.add(new RecordChangeDescriptor(RecordChangeDescriptor.Types.REMOVE_FROM_VIEWPORT, browserViewPortIdxDelta + toBeDeleted));
-//					toBeDeleted++;
-//				}
 
 					viewPort.slideAndCorrect(slideBy);
 					viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1; // update
@@ -382,7 +334,7 @@ public class FoundsetTypeChangeMonitor
 						public void run(ViewportDataChangeMonitor< ? > vpdcm)
 						{
 							vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes,
-								viewPortEndIdxFinal, propertyValue.getFoundset(), RowData.DELETE);
+								viewPortEndIdxFinal, propertyValue.getFoundset(), ViewportOperation.DELETE);
 						}
 					});
 				}
@@ -413,7 +365,7 @@ public class FoundsetTypeChangeMonitor
 				public void run(ViewportDataChangeMonitor< ? > vpdcm)
 				{
 					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
-						RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+						ViewportOperation.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 				}
 			});
 		}
@@ -441,7 +393,7 @@ public class FoundsetTypeChangeMonitor
 					public void run(ViewportDataChangeMonitor< ? > vpdcm)
 					{
 						vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
-							RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+							ViewportOperation.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 					}
 				});
 			}
@@ -487,7 +439,7 @@ public class FoundsetTypeChangeMonitor
 							else
 							{
 								vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-									firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(), RowData.CHANGE);
+									firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(), ViewportOperation.CHANGE);
 							}
 						}
 					});
@@ -567,7 +519,7 @@ public class FoundsetTypeChangeMonitor
 		return viewPortDataChangeMonitor.shouldSendWholeViewport();
 	}
 
-	public List<RowData> getViewPortChanges()
+	public List<ViewportOperation> getViewPortChanges()
 	{
 		return viewPortDataChangeMonitor.getViewPortChanges();
 	}
@@ -599,101 +551,6 @@ public class FoundsetTypeChangeMonitor
 	protected void notifyChange()
 	{
 		if (changeNotifier != null) changeNotifier.valueChanged();
-	}
-
-	public static class RowData implements IToJSONWriter<IBrowserConverterContext>
-	{
-		public static final int CHANGE = 0;
-		public static final int INSERT = 1;
-		public static final int DELETE = 2;
-		public static final int CHANGE_IN_LINKED_PROPERTY = 9;
-
-		public final int startIndex;
-		public final int endIndex;
-		public final int type;
-		public final boolean granularUpdate;
-
-		private final IJSONStringWithConversions rowData;
-
-		/**
-		 * Null if it's a whole row, and non-null of only one column of the row is in this row data.
-		 */
-		public final String columnName;
-
-		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type)
-		{
-			this(rowData, startIndex, endIndex, type, null, false);
-		}
-
-		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type, String columnName, boolean granularUpdate)
-		{
-			this.rowData = rowData;
-			this.startIndex = startIndex;
-			this.endIndex = endIndex;
-			this.type = type;
-			this.columnName = columnName;
-			this.granularUpdate = granularUpdate;
-		}
-
-		@Override
-		public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
-			DataConversion clientDataConversions) throws JSONException
-		{
-			JSONUtils.addKeyIfPresent(w, keyInParent);
-
-			w.object();
-			if (rowData != null)
-			{
-				w.key("rows").value(rowData);
-				clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
-			}
-
-			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(
-				Integer.valueOf(type)).endObject();
-
-			return true;
-		}
-
-		/**
-		 * True if the data of this RowData would be completely replaced by another immediately following RowData.
-		 * @param newOperation the following change/update operation.
-		 */
-		public boolean isMadeIrrelevantBySubsequentRowData(RowData newOperation)
-		{
-			// so a change can be made obsolete by a subsequent full change (so not granular update change) or delete of the same row;
-			// it we're talking about two change operations, it matters as well if one of them is only for a specific column of the row or for the whole row
-
-			// also a change made just for the sake of client-side listeners firing on foundset prop due to changes in foundset-linked prop. content only can be
-			// safely replaced by any similar op., a normal change or a delete on the same row
-			boolean canNewTypeOverrideOldType = (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) &&
-				(newOperation.columnName == null || newOperation.columnName.equals(columnName)) && !newOperation.granularUpdate) ||
-				(type == CHANGE_IN_LINKED_PROPERTY &&
-					(newOperation.type == CHANGE_IN_LINKED_PROPERTY || newOperation.type == CHANGE || newOperation.type == DELETE));
-
-			return canNewTypeOverrideOldType && startIndex >= newOperation.startIndex && endIndex <= newOperation.endIndex;
-		}
-
-		/**
-		 * True if the data of this RowData would be completely redundant taking into consideration the previous RowData that was scheduled - so it should not be added.<br/><br/>
-		 * This only needs to check situations where the previousOperation was not already removed due to {@link #isMadeIrrelevantBySubsequentRowData(RowData)} returning true on the previous RowData for current RowData as newOperation.
-		 *
-		 * @param previousOperation the previous change/update operation.
-		 */
-		public boolean isMadeIrrelevantByPreviousRowData(RowData previousOperation)
-		{
-			// so a change can be redundant if it is an CHANGE_IN_LINKED_PROPERTY that happens right after a real CHANGE on the same rows/column
-			boolean canOldTypeOverrideNewType = (type == CHANGE_IN_LINKED_PROPERTY && previousOperation.type == CHANGE);
-
-			return canOldTypeOverrideNewType && startIndex >= previousOperation.startIndex && endIndex <= previousOperation.endIndex;
-		}
-
-		@Override
-		public String toString()
-		{
-			return "RowData [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", rowData=" + rowData + ", columnName=" + columnName +
-				"]";
-		}
-
 	}
 
 	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor< ? > viewPortChangeMonitor)
