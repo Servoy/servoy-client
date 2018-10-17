@@ -158,6 +158,7 @@ public abstract class AbstractContainer extends AbstractBase
 
 		//set all the required properties
 		CSSPosition.setLocation(obj, location.x, location.y);
+		CSSPosition.setSize(obj, 140, 20);
 
 		addChild(obj);
 		return obj;
@@ -216,6 +217,7 @@ public abstract class AbstractContainer extends AbstractBase
 		//set all the required properties
 
 		CSSPosition.setLocation(obj, location.x, location.y);
+		CSSPosition.setSize(obj, 80, 20);
 
 		addChild(obj);
 		return obj;
