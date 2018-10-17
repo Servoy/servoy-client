@@ -63,7 +63,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		if (newValue instanceof JSONObject)
 		{
 			JSONObject json = (JSONObject)newValue;
-			return new CSSPosition(json.optString("top"), json.optString("left"), json.optString("bottom"), json.optString("right"), json.optString("width"),
+			return new CSSPosition(json.optString("top"), json.optString("right"), json.optString("bottom"), json.optString("left"), json.optString("width"),
 				json.optString("height"));
 		}
 		return null;
@@ -77,7 +77,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		writer.object();
 		if (object != null)
 		{
-			writer.key("top").value(object.top).key("left").value(object.left).key("bottom").value(object.bottom).key("right").value(object.right).key(
+			writer.key("top").value(object.top).key("right").value(object.right).key("bottom").value(object.bottom).key("left").value(object.left).key(
 				"width").value(object.width).key("height").value(object.height);
 		}
 		writer.endObject();
@@ -110,7 +110,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	@Override
 	public CSSPosition defaultValue(PropertyDescription pd)
 	{
-		return new CSSPosition("0", "0", "-1", "-1", "80", "20");
+		return new CSSPosition("0", "-1", "-1", "0", "80", "20");
 	}
 
 	@Override
