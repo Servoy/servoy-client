@@ -71,9 +71,21 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	{
 		Object managebleValue = Utils.mapToNullIfUnmanageble(value);
 		Object prevValue = values.get(dataProviderID);
-		values.put(dataProviderID, managebleValue);
-		notifyChange(new ModificationEvent(dataProviderID, value, this), null);
-		return prevValue;
+		if (!Utils.equalObjects(managebleValue, prevValue))
+		{
+			values.put(dataProviderID, managebleValue);
+			FireCollector fireCollector = FireCollector.getFireCollector();
+			try
+			{
+				notifyChange(new ModificationEvent(dataProviderID, value, this), fireCollector);
+			}
+			finally
+			{
+				fireCollector.done();
+			}
+			return prevValue;
+		}
+		return value;
 	}
 
 	@Override

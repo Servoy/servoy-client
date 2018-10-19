@@ -20,10 +20,14 @@ package com.servoy.j2db.dataprocessing;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -35,11 +39,15 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
@@ -65,11 +73,15 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	private final String datasource;
 	private final IFoundSetManagerInternal manager;
 
-	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
+	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>(3);
+	// this is just a list to keep hard references to the RowListeners we give the RowManager (that is kept weak in there)
+	private final List<IRowListener> rowListeners = new ArrayList<IRowListener>(3);
 
 	private List<ViewRecord> records = new ArrayList<>();
 
 	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<WeakReference<IRecordInternal>>(6);
+
+	private final Map<String, Map<String, List<Integer>>> pkByDatasourceCache = new HashMap<>();
 
 	private QuerySelect select;
 
@@ -94,6 +106,58 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		this.chunkSize = chunkSize;
 		this.currentChunkSize = chunkSize;
 		createSelectionModel();
+
+		final Map<String, List<String>> pkColumnsForTable = new HashMap<>();
+		final Map<String, List<String>> columnsForTable = new HashMap<>();
+		for (IQuerySelectValue selectValue : select.getColumns())
+		{
+			QueryColumn column = selectValue.getColumn();
+			String tableDs = column.getTable().getDataSource();
+			if ((column.getFlags() & IBaseColumn.IDENT_COLUMNS) != 0)
+			{
+				List<String> list = pkColumnsForTable.get(tableDs);
+				if (list == null)
+				{
+					list = new ArrayList<>();
+					pkColumnsForTable.put(tableDs, list);
+				}
+				list.add(column.getName());
+			}
+			else
+			{
+				List<String> list = columnsForTable.get(tableDs);
+				if (list == null)
+				{
+					list = new ArrayList<>();
+					columnsForTable.put(tableDs, list);
+				}
+				list.add(column.getName());
+			}
+		}
+		if (!pkColumnsForTable.isEmpty())
+		{
+			// touch the row manager for all datasources and register our selfs as a IRowListener
+			for (Entry<String, List<String>> entry : pkColumnsForTable.entrySet())
+			{
+				try
+				{
+					RowManager rowManager = manager.getRowManager(entry.getKey());
+					if (rowManager != null)
+					{
+						RowListener rl = new RowListener(entry.getKey(), entry.getValue(), columnsForTable.get(entry.getKey()));
+						// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
+						rowListeners.add(rl);
+						rowManager.register(rl);
+					}
+				}
+				catch (ServoyException e)
+				{
+					e.printStackTrace();
+				}
+
+
+			}
+		}
 	}
 
 	@Override
@@ -122,6 +186,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	}
 
 	@Override
+	@JSFunction
 	public int getSize()
 	{
 		if (refresh)
@@ -266,6 +331,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 			int currentSize = records.size();
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
+			pkByDatasourceCache.clear();
 
 			for (int i = 0; i < ds.getRowCount(); i++)
 			{
@@ -580,9 +646,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		int start = Integer.MAX_VALUE;
 		int end = -1;
 		List<String> dataproviders = null;
-		for (IRecord record : entries.keySet())
+		for (Entry<IRecord, List<String>> entry : entries.entrySet())
 		{
-			int index = getRecordIndex(record);
+			int index = getRecordIndex(entry.getKey());
 			if (index != -1 && start > index)
 			{
 				start = index;
@@ -591,7 +657,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 			{
 				end = index;
 			}
-			dataproviders = entries.get(record);
+			if (dataproviders == null) dataproviders = entry.getValue();
+			else dataproviders.addAll(entry.getValue());
 		}
 		if (start != Integer.MAX_VALUE && end != -1)
 		{
@@ -847,7 +914,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	@Override
 	public void deleteAllInternal() throws ServoyException
 	{
-		throw new UnsupportedOperationException("Can't create records  from a View Foundset of datasource " + this.datasource);
+		throw new UnsupportedOperationException("Can't delete records  from a View Foundset of datasource " + this.datasource);
 	}
 
 	@Override
@@ -873,7 +940,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	@Override
 	public void deleteRecord(IRecordInternal record) throws ServoyException
 	{
-		throw new UnsupportedOperationException("Can't create records  from a View Foundset of datasource " + this.datasource);
+		throw new UnsupportedOperationException("Can't delete records  from a View Foundset of datasource " + this.datasource);
 	}
 
 	@Override
@@ -1115,6 +1182,48 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		}
 	}
 
+	private Map<String, List<Integer>> getPkCacheByDatasource(String ds, String[] pkColumns)
+	{
+		Map<String, List<Integer>> cache = pkByDatasourceCache.get(ds);
+		if (cache == null)
+		{
+			cache = new HashMap<>();
+			Object[] pks = new Object[pkColumns.length];
+			for (int j = records.size(); --j >= 0;)
+			{
+				ViewRecord record = records.get(j);
+				for (int i = pkColumns.length; --i >= 0;)
+				{
+					pks[i] = record.getValue(pkColumns[i]);
+				}
+				String pkHashKey = RowManager.createPKHashKey(pks);
+				List<Integer> list = cache.get(pkHashKey);
+				if (list == null)
+				{
+					cache.put(pkHashKey, Collections.singletonList(Integer.valueOf(j)));
+				}
+				else if (list.size() == 1)
+				{
+					List<Integer> copy = new ArrayList<>(list);
+					copy.add(Integer.valueOf(j));
+					cache.put(pkHashKey, copy);
+				}
+				else
+				{
+					list.add(Integer.valueOf(j));
+				}
+			}
+			pkByDatasourceCache.put(ds, cache);
+		}
+		return cache;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ",hadMoreRows:" + hasMore + "]";
+	}
+
 	private class FoundSetIterator implements Iterator<IRecord>
 	{
 		private int currentIndex = -1;
@@ -1230,6 +1339,116 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 				}
 			}
 			return false;
+		}
+	}
+
+	private class RowListener implements IRowListener
+	{
+		private final String ds;
+		private final String[] pkColumns;
+		private final String[] columns;
+
+		public RowListener(String datasource, List<String> pkColumns, List<String> columns)
+		{
+			this.ds = datasource;
+			this.pkColumns = pkColumns.toArray(new String[pkColumns.size()]);
+			this.columns = columns.toArray(new String[columns.size()]);
+			Arrays.sort(this.columns);
+		}
+
+		@Override
+		public void notifyChange(RowEvent e)
+		{
+			if (e.getPkHashKey() == null) return;
+
+			if (e.getType() == RowEvent.UPDATE)
+			{
+				Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(ds, pkColumns);
+				List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
+				if (rowIndexes != null)
+				{
+					// get the values directly from the row
+					FireCollector fireCollector = FireCollector.getFireCollector();
+					try
+					{
+						for (Integer rowIndex : rowIndexes)
+						{
+
+							ViewRecord viewRecord = records.get(rowIndex.intValue());
+							Row row = e.getRow();
+							if (row != null)
+							{
+								for (String column : columns)
+								{
+									Object rowValue = row.getValue(column);
+									viewRecord.setValue(column, rowValue);
+								}
+							}
+							else
+							{
+								// query for the values if needed.
+								String[] columnsToQuery = this.columns;
+								if (e.getChangedColumnNames() != null)
+								{
+									List<String> changed = new ArrayList<>(e.getChangedColumnNames().length);
+									for (Object changedColumn : e.getChangedColumnNames())
+									{
+										if (Arrays.binarySearch(columns, changedColumn) >= 0)
+										{
+											changed.add((String)changedColumn);
+										}
+									}
+									columnsToQuery = new String[changed.size()];
+									if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
+								}
+								if (columnsToQuery.length > 0)
+								{
+									try
+									{
+										IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
+										for (String column : columnsToQuery)
+										{
+											queryBuilder.result().add(queryBuilder.getColumn(column));
+										}
+										for (String pkColumn : pkColumns)
+										{
+											queryBuilder.where().add(queryBuilder.getColumn(pkColumn).eq(viewRecord.getValue(pkColumn)));
+										}
+										ISQLSelect updateSelect = queryBuilder.build();
+										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+										String transaction_id = manager.getTransactionID(serverName);
+										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
+											serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
+											currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+										if (updatedDS.getRowCount() > 0)
+										{
+											// should be just 1 row for a pk query...
+											Object[] updateData = updatedDS.getRow(0);
+											for (int i = columnsToQuery.length; --i >= 0;)
+											{
+												String column = columnsToQuery[i];
+												Object rowValue = updateData[i];
+												viewRecord.setValue(column, rowValue);
+											}
+										}
+
+									}
+									catch (Exception e1)
+									{
+										Debug.error(e1);
+									}
+								}
+
+							}
+						}
+					}
+					finally
+					{
+						fireCollector.done();
+					}
+				}
+
+			}
 		}
 	}
 }
