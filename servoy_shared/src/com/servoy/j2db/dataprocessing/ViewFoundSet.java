@@ -144,15 +144,25 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 					RowManager rowManager = manager.getRowManager(entry.getKey());
 					if (rowManager != null)
 					{
-						RowListener rl = new RowListener(entry.getKey(), entry.getValue(), columnsForTable.get(entry.getKey()));
-						// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
-						rowListeners.add(rl);
-						rowManager.register(rl);
+						String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
+						List<String> queryPks = entry.getValue();
+						if (queryPks.size() == realOrderedPks.length && queryPks.containsAll(Arrays.asList(realOrderedPks)))
+						{
+							RowListener rl = new RowListener(entry.getKey(), realOrderedPks, columnsForTable.get(entry.getKey()));
+							// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
+							rowListeners.add(rl);
+							rowManager.register(rl);
+						}
+						else
+						{
+							manager.getApplication().reportJSWarning("View FoundSets did get pks '" + entry.getValue() + "' for datasource " + entry.getKey() +
+								" but they should be " + Arrays.toString(realOrderedPks));
+						}
 					}
 				}
 				catch (ServoyException e)
 				{
-					e.printStackTrace();
+					Debug.error(e);
 				}
 
 
@@ -1348,10 +1358,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		private final String[] pkColumns;
 		private final String[] columns;
 
-		public RowListener(String datasource, List<String> pkColumns, List<String> columns)
+		public RowListener(String datasource, String[] pkColumns, List<String> columns)
 		{
 			this.ds = datasource;
-			this.pkColumns = pkColumns.toArray(new String[pkColumns.size()]);
+			this.pkColumns = pkColumns;
 			this.columns = columns.toArray(new String[columns.size()]);
 			Arrays.sort(this.columns);
 		}
