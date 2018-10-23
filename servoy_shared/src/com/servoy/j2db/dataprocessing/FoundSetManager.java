@@ -2807,6 +2807,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					Debug.log(e);
 					table = null;
 				}
+				RowManager element = rowManagers.get(dataSource);
+				if (element != null)
+				{
+					element.flushAllCachedRows();
+				}
 			}
 
 
