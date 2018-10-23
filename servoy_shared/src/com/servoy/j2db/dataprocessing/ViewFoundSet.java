@@ -108,7 +108,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		createSelectionModel();
 
 		final Map<String, List<String>> pkColumnsForTable = new HashMap<>();
-		final Map<String, List<String>> columnsForTable = new HashMap<>();
+		final Map<String, List<IQuerySelectValue>> columnsForTable = new HashMap<>();
 		for (IQuerySelectValue selectValue : select.getColumns())
 		{
 			QueryColumn column = selectValue.getColumn();
@@ -125,13 +125,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 			}
 			else
 			{
-				List<String> list = columnsForTable.get(tableDs);
+				List<IQuerySelectValue> list = columnsForTable.get(tableDs);
 				if (list == null)
 				{
 					list = new ArrayList<>();
 					columnsForTable.put(tableDs, list);
 				}
-				list.add(column.getName());
+				list.add(column);
 			}
 		}
 		if (!pkColumnsForTable.isEmpty())
@@ -336,7 +336,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
 				manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 			refresh = false;
-			String[] columnNames = select.getColumnNames();
+			ArrayList<IQuerySelectValue> cols = select.getColumns();
+			String[] columnNames = new String[cols.size()];
+			for (int i = cols.size(); --i >= 0;)
+			{
+				IQuerySelectValue col = cols.get(i);
+				String alias = col.getAlias();
+				columnNames[i] = alias != null ? alias : col.getColumn().getName();
+			}
 			int firstChange = -1;
 			int currentSize = records.size();
 			List<ViewRecord> old = records;
@@ -1356,14 +1363,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	{
 		private final String ds;
 		private final String[] pkColumns;
-		private final String[] columns;
+		private final IQuerySelectValue[] columns;
 
-		public RowListener(String datasource, String[] pkColumns, List<String> columns)
+		public RowListener(String datasource, String[] pkColumns, List<IQuerySelectValue> list)
 		{
 			this.ds = datasource;
 			this.pkColumns = pkColumns;
-			this.columns = columns.toArray(new String[columns.size()]);
-			Arrays.sort(this.columns);
+			this.columns = list.toArray(new IQuerySelectValue[list.size()]);
 		}
 
 		@Override
@@ -1384,31 +1390,35 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 						Row row = e.getRow();
 						if (row != null)
 						{
-							for (String column : columns)
+							for (IQuerySelectValue column : columns)
 							{
-								Object rowValue = row.getValue(column);
+								Object rowValue = row.getValue(column.getColumn().getName());
 								for (Integer rowIndex : rowIndexes)
 								{
 									ViewRecord viewRecord = records.get(rowIndex.intValue());
-									viewRecord.setValue(column, rowValue);
+									viewRecord.setValue(column.getAlias() != null ? column.getAlias() : column.getColumn().getName(), rowValue);
 								}
 							}
 						}
 						else
 						{
 							// query for the values if needed.
-							String[] columnsToQuery = this.columns;
+							IQuerySelectValue[] columnsToQuery = this.columns;
 							if (e.getChangedColumnNames() != null)
 							{
-								List<String> changed = new ArrayList<>(e.getChangedColumnNames().length);
+								List<IQuerySelectValue> changed = new ArrayList<>(e.getChangedColumnNames().length);
 								for (Object changedColumn : e.getChangedColumnNames())
 								{
-									if (Arrays.binarySearch(columns, changedColumn) >= 0)
+									for (IQuerySelectValue selectValue : columns)
 									{
-										changed.add((String)changedColumn);
+										if (selectValue.getColumn().getName().equals(changedColumn))
+										{
+											changed.add(selectValue);
+											break;
+										}
 									}
 								}
-								columnsToQuery = new String[changed.size()];
+								columnsToQuery = new IQuerySelectValue[changed.size()];
 								if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
 							}
 							if (columnsToQuery.length > 0)
@@ -1416,9 +1426,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 								try
 								{
 									IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
-									for (String column : columnsToQuery)
+									for (IQuerySelectValue column : columnsToQuery)
 									{
-										queryBuilder.result().add(queryBuilder.getColumn(column));
+										queryBuilder.result().add(queryBuilder.getColumn(column.getColumn().getName()));
 									}
 									for (String pkColumn : pkColumns)
 									{
@@ -1437,12 +1447,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 										Object[] updateData = updatedDS.getRow(0);
 										for (int i = columnsToQuery.length; --i >= 0;)
 										{
-											String column = columnsToQuery[i];
+											IQuerySelectValue column = columnsToQuery[i];
 											Object rowValue = updateData[i];
 											for (Integer rowIndex : rowIndexes)
 											{
 												ViewRecord viewRecord = records.get(rowIndex.intValue());
-												viewRecord.setValue(column, rowValue);
+												viewRecord.setValue(column.getAlias() != null ? column.getAlias() : column.getColumn().getName(), rowValue);
 											}
 										}
 									}
