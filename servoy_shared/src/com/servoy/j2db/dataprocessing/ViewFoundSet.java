@@ -1381,74 +1381,76 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 					FireCollector fireCollector = FireCollector.getFireCollector();
 					try
 					{
-						for (Integer rowIndex : rowIndexes)
+						Row row = e.getRow();
+						if (row != null)
 						{
-
-							ViewRecord viewRecord = records.get(rowIndex.intValue());
-							Row row = e.getRow();
-							if (row != null)
+							for (String column : columns)
 							{
-								for (String column : columns)
+								Object rowValue = row.getValue(column);
+								for (Integer rowIndex : rowIndexes)
 								{
-									Object rowValue = row.getValue(column);
+									ViewRecord viewRecord = records.get(rowIndex.intValue());
 									viewRecord.setValue(column, rowValue);
 								}
 							}
-							else
+						}
+						else
+						{
+							// query for the values if needed.
+							String[] columnsToQuery = this.columns;
+							if (e.getChangedColumnNames() != null)
 							{
-								// query for the values if needed.
-								String[] columnsToQuery = this.columns;
-								if (e.getChangedColumnNames() != null)
+								List<String> changed = new ArrayList<>(e.getChangedColumnNames().length);
+								for (Object changedColumn : e.getChangedColumnNames())
 								{
-									List<String> changed = new ArrayList<>(e.getChangedColumnNames().length);
-									for (Object changedColumn : e.getChangedColumnNames())
+									if (Arrays.binarySearch(columns, changedColumn) >= 0)
 									{
-										if (Arrays.binarySearch(columns, changedColumn) >= 0)
-										{
-											changed.add((String)changedColumn);
-										}
+										changed.add((String)changedColumn);
 									}
-									columnsToQuery = new String[changed.size()];
-									if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
 								}
-								if (columnsToQuery.length > 0)
+								columnsToQuery = new String[changed.size()];
+								if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
+							}
+							if (columnsToQuery.length > 0)
+							{
+								try
 								{
-									try
+									IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
+									for (String column : columnsToQuery)
 									{
-										IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
-										for (String column : columnsToQuery)
+										queryBuilder.result().add(queryBuilder.getColumn(column));
+									}
+									for (String pkColumn : pkColumns)
+									{
+										// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
+										queryBuilder.where().add(queryBuilder.getColumn(pkColumn).eq(records.get(0).getValue(pkColumn)));
+									}
+									ISQLSelect updateSelect = queryBuilder.build();
+									String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+									String transaction_id = manager.getTransactionID(serverName);
+									IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
+										serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
+										currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+									if (updatedDS.getRowCount() > 0)
+									{
+										// should be just 1 row for a pk query...
+										Object[] updateData = updatedDS.getRow(0);
+										for (int i = columnsToQuery.length; --i >= 0;)
 										{
-											queryBuilder.result().add(queryBuilder.getColumn(column));
-										}
-										for (String pkColumn : pkColumns)
-										{
-											queryBuilder.where().add(queryBuilder.getColumn(pkColumn).eq(viewRecord.getValue(pkColumn)));
-										}
-										ISQLSelect updateSelect = queryBuilder.build();
-										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
-										String transaction_id = manager.getTransactionID(serverName);
-										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
-											serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
-											currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
-										if (updatedDS.getRowCount() > 0)
-										{
-											// should be just 1 row for a pk query...
-											Object[] updateData = updatedDS.getRow(0);
-											for (int i = columnsToQuery.length; --i >= 0;)
+											String column = columnsToQuery[i];
+											Object rowValue = updateData[i];
+											for (Integer rowIndex : rowIndexes)
 											{
-												String column = columnsToQuery[i];
-												Object rowValue = updateData[i];
+												ViewRecord viewRecord = records.get(rowIndex.intValue());
 												viewRecord.setValue(column, rowValue);
 											}
 										}
-
-									}
-									catch (Exception e1)
-									{
-										Debug.error(e1);
 									}
 								}
-
+								catch (Exception e1)
+								{
+									Debug.error(e1);
+								}
 							}
 						}
 					}
