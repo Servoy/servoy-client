@@ -368,9 +368,12 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 					else if (valuelistPersist.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
 					{
 						PropertyDescription vlPD = webObjectCntxt.getPropertyDescription(propertyDependencies.valueListPropertyName);
-						Object vlPDConfig = vlPD.getConfig();
-						if (vlPDConfig instanceof FoundsetLinkedConfig) vlPDConfig = ((FoundsetLinkedConfig)vlPDConfig).getWrappedConfig();
-
+						Object vlPDConfig = null;
+						if (vlPD != null)
+						{
+							vlPDConfig = vlPD.getConfig();
+							if (vlPDConfig instanceof FoundsetLinkedConfig) vlPDConfig = ((FoundsetLinkedConfig)vlPDConfig).getWrappedConfig();
+						}
 						boolean lazyLoad = valuelistPersist.getLazyLoading() && vlPDConfig instanceof ValueListConfig &&
 							((ValueListConfig)vlPDConfig).getLazyLoading();
 						if (!lazyLoad)
