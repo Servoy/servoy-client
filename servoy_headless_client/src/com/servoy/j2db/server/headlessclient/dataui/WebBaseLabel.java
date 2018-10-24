@@ -1030,10 +1030,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	{
 		super.onBeforeRender();
 
-		if (hasHtmlOrImage())
+		WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+		if (wcbw != null && hasHtmlOrImage())
 		{
-			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
-			if (wcbw != null) wcbw.addLabelCssClass(getId());
+			wcbw.addLabelCssClass(getId());
 		}
 		fireOnRender(false);
 	}

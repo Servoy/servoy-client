@@ -72,6 +72,20 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	}
 
 	@Override
+	public void unregisterContainer(Container container)
+	{
+		if (lastKnownWindow != null) lastKnownWindow.unregisterContainer(container);
+		else super.unregisterContainer(container);
+	}
+
+	@Override
+	public void registerContainer(Container container)
+	{
+		if (lastKnownWindow != null) lastKnownWindow.registerContainer(container);
+		else super.registerContainer(container);
+	}
+
+	@Override
 	public String getCurrentFormUrl()
 	{
 		if (lastKnownWindow != null) return lastKnownWindow.getCurrentFormUrl();

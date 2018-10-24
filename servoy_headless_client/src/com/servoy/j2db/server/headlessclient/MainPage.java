@@ -2525,6 +2525,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		}
 		if (isShowingInWindow() && size != null) return size.width;
 
+		if (client != null && client.isShutDown()) return 0;
 		// keep backwards compatibility (if size cannot be found use main window width as stored in session properties)
 		if (WebClientSession.get() != null && WebClientSession.get().getClientInfo() instanceof WebClientInfo)
 		{
@@ -2542,6 +2543,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			if (divDialog != null) return divDialog.getHeight();
 		}
 		if (isShowingInWindow() && size != null) return size.height;
+
+		if (client != null && client.isShutDown()) return 0;
 
 		// main page or closed page; keep backwards compatibility (if size cannot be found use main window width as stored in session properties)
 		if (WebClientSession.get() != null && WebClientSession.get().getClientInfo() instanceof WebClientInfo)
