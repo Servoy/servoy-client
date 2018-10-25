@@ -55,8 +55,7 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	public UUID fromJSON(Object newJSONValue, UUID previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newJSONValue instanceof String && (previousSabloValue == null || !((String)newJSONValue).equals(previousSabloValue.toString())))
-			return UUID.fromString((String)newJSONValue);
+		if (newJSONValue instanceof String) return UUID.fromString((String)newJSONValue);
 		return null;
 	}
 
