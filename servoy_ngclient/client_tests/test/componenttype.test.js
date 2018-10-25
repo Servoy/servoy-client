@@ -198,31 +198,36 @@ describe("Test component_custom_property suite", function() {
 		expect(typeof converted.modelViewport[1].dataProviderID2).toBe('object');
 		expect(converted.modelViewport[1].dataProviderID2.getTime()).toBe(1141240331667);
 		
-		// incremental INSERT from server (4 full rows: 2 by 1 and 1 by 2) and DELETE (remove one previously existing row)
+		// incremental INSERT from server (4 full rows: 2 by 1 and 1 by 2) and DELETE (remove two previously existing rows + slide into the viewport one other)
 		updateValue = {
 				propertyUpdates: {
 					
 					model_vp_ch : [ {
 						rows: [ {dataProviderID1:'book2.1 inserted', dataProviderID2: 1141240331670, recordDependentText:'aha2.1'} ],
 						startIndex: 2,
-						endIndex: 5, // actually this means 'new viewport size' for INSERTS
+						endIndex: 2, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
 						rows: [ {dataProviderID1:'book5 inserted', dataProviderID2: 1141240331671, recordDependentText:'aha5'} ],
 						startIndex: 4,
-						endIndex: 6, // actually this means 'new viewport size' for INSERTS
+						endIndex: 4, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
 						rows: [ {dataProviderID1:'book0.1 inserted', dataProviderID2: 1141240331672, recordDependentText:'aha0.1'},
 						        {dataProviderID1:'book0.2 inserted', dataProviderID2: 1141240331673, recordDependentText:'aha0.2'} ],
 						startIndex: 0,
-						endIndex: 8, // actually this means 'new viewport size' for INSERTS
+						endIndex: 1, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
-						rows: [ {dataProviderID1:'book 6 replacing 1 and 2 inserted', dataProviderID2: 1141240331674, recordDependentText:'aha6'} ],
 						startIndex: 2,
-						endIndex: 3, // so we delete the initial rows 'book1' and 'book2', and they will get replaced with 1 new row
+						endIndex: 3, // so we delete the initial rows 'book1' and 'book2'
 						type: DELETE
+					}, {
+						// and they will get replaced with 1 new row
+						rows: [ {dataProviderID1:'book 6 replacing 1 and 2 inserted', dataProviderID2: 1141240331674, recordDependentText:'aha6'} ],
+						startIndex: 6,
+						endIndex: 6, // so we delete the initial rows 'book1' and 'book2', and they will get replaced with 1 new row
+						type: INSERT
 					} ],
 					
 					svy_types : {
@@ -230,7 +235,8 @@ describe("Test component_custom_property suite", function() {
 							"0": { rows: { "0" : { dataProviderID2: 'Date' } } },
 							"1": { rows: { "0" : { dataProviderID2: 'Date' } } },
 							"2": { rows: { "0" : { dataProviderID2: 'Date' }, "1" : { dataProviderID2: 'Date' } } },
-							"3": { rows: { "0" : { dataProviderID2: 'Date' } } }
+							"3": null,
+							"4": { rows: { "0" : { dataProviderID2: 'Date' } } }
 						}
 					}
 				}

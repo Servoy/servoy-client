@@ -264,7 +264,7 @@ describe("Test foundset_custom_property suite", function() {
 						{
 							"rows": [{"d": null, "i": 1234, "_svyRowId": "5.11078;_1"}],
 							"startIndex": 1,
-							"endIndex": 7,
+							"endIndex": 1,
 							"type": 1
 						},
 						{
@@ -276,7 +276,7 @@ describe("Test foundset_custom_property suite", function() {
 						{
 							"rows": [{"d": someDateMs, "i": 1234, "_svyRowId": "5.11079;_2"}],
 							"startIndex": 2,
-							"endIndex": 8,
+							"endIndex": 2,
 							"type": 1
 						},
 						{
@@ -355,33 +355,18 @@ describe("Test foundset_custom_property suite", function() {
 					"upd_rows": 
 					[
 						{
-							"rows": 
-							[
-								
-							],
-
 							"startIndex": 1,
 							"endIndex": 1,
 							"type": 2
 						},
 
 						{
-							"rows": 
-							[
-								
-							],
-
 							"startIndex": 1,
 							"endIndex": 1,
 							"type": 2
 						},
 
 						{
-							"rows": 
-							[
-								
-							],
-
 							"startIndex": 1,
 							"endIndex": 1,
 							"type": 2
@@ -573,7 +558,7 @@ describe("Test foundset_custom_property suite", function() {
 				],
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}},"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}},"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}},"4":null}},
 					"upd_rows": 
 					[
 						{
@@ -585,7 +570,7 @@ describe("Test foundset_custom_property suite", function() {
 							],
 
 							"startIndex": 0,
-							"endIndex": 9,
+							"endIndex": 0,
 							"type": 1
 						},
 
@@ -611,7 +596,7 @@ describe("Test foundset_custom_property suite", function() {
 							],
 
 							"startIndex": 1,
-							"endIndex": 9,
+							"endIndex": 1,
 							"type": 1
 						},
 
@@ -626,6 +611,12 @@ describe("Test foundset_custom_property suite", function() {
 							"startIndex": 1,
 							"endIndex": 1,
 							"type": 0
+						},
+						
+						{
+							"startIndex": 9,
+							"endIndex": 10,
+							"type": 2
 						}
 					]
 				}
@@ -690,7 +681,7 @@ describe("Test foundset_custom_property suite", function() {
 				"upd_serverSize": 15,
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":null,"2":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -702,8 +693,14 @@ describe("Test foundset_custom_property suite", function() {
 							],
 
 							"startIndex": 8,
-							"endIndex": 9,
+							"endIndex": 8,
 							"type": 1
+						},
+
+						{
+							"startIndex": 9,
+							"endIndex": 9,
+							"type": 2
 						},
 
 						{
@@ -781,9 +778,15 @@ describe("Test foundset_custom_property suite", function() {
 				"upd_serverSize": 14,
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":null,"1":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
+						{
+							"startIndex": 8,
+							"endIndex": 8,
+							"type": 2
+						},
+						
 						{
 							"rows": 
 							[
@@ -794,7 +797,7 @@ describe("Test foundset_custom_property suite", function() {
 
 							"startIndex": 8,
 							"endIndex": 8,
-							"type": 2
+							"type": 1
 						}
 					]
 				}
@@ -864,9 +867,15 @@ describe("Test foundset_custom_property suite", function() {
 
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}}}},
+					"svy_types": {"upd_rows":{"0":null,"1":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
+						{
+							"startIndex": 0,
+							"endIndex": 0,
+							"type": 2
+						},
+						
 						{
 							"rows": 
 							[
@@ -875,9 +884,9 @@ describe("Test foundset_custom_property suite", function() {
 								}
 							],
 
-							"startIndex": 0,
-							"endIndex": 0,
-							"type": 2
+							"startIndex": 8,
+							"endIndex": 8,
+							"type": 1
 						}
 					]
 				}
@@ -977,7 +986,7 @@ describe("Test foundset_custom_property suite", function() {
 							],
 
 							"startIndex": 9,
-							"endIndex": 13,
+							"endIndex": 12,
 							"type": 1
 						}
 					]
