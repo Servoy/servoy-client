@@ -24,7 +24,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +42,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
@@ -81,7 +84,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 
 	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<WeakReference<IRecordInternal>>(6);
 
-	private final Map<String, Map<String, List<Integer>>> pkByDatasourceCache = new HashMap<>();
+	private final Map<IQuerySelectValue[], Map<String, List<Integer>>> pkByDatasourceCache = new HashMap<>();
+
+	private final Map<IQuerySelectValue, String> columnNames = new LinkedHashMap<>();
 
 	private QuerySelect select;
 
@@ -107,48 +112,82 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		this.currentChunkSize = chunkSize;
 		createSelectionModel();
 
-		final Map<String, List<String>> pkColumnsForTable = new HashMap<>();
-		final Map<String, List<IQuerySelectValue>> columnsForTable = new HashMap<>();
+		BaseQueryTable baseTable = select.getTable();
+		final Map<String, IQuerySelectValue> nameToSelect = new HashMap<>();
+		final Map<IQuerySelectValue, String> selectToName = new HashMap<>();
+		final Map<BaseQueryTable, List<IQuerySelectValue>> pkColumnsForTable = new IdentityHashMap<>();
+		final Map<BaseQueryTable, List<IQuerySelectValue>> columnsForTable = new IdentityHashMap<>();
 		for (IQuerySelectValue selectValue : select.getColumns())
 		{
 			QueryColumn column = selectValue.getColumn();
-			String tableDs = column.getTable().getDataSource();
-			if ((column.getFlags() & IBaseColumn.IDENT_COLUMNS) != 0)
+			String name = selectValue.getAlias() != null ? selectValue.getAlias() : column.getName();
+			IQuerySelectValue duplicate = nameToSelect.get(name);
+			if (duplicate != null)
 			{
-				List<String> list = pkColumnsForTable.get(tableDs);
-				if (list == null)
+				if (duplicate.getColumn().getTable() == baseTable)
 				{
-					list = new ArrayList<>();
-					pkColumnsForTable.put(tableDs, list);
+					BaseQueryTable colTable = column.getTable();
+					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '.' + name;
+					nameToSelect.put(name, selectValue);
+					selectToName.put(selectValue, name);
 				}
-				list.add(column.getName());
+				else
+				{
+					nameToSelect.put(name, selectValue);
+					selectToName.put(selectValue, name);
+					BaseQueryTable colTable = duplicate.getColumn().getTable();
+					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '.' + name;
+					nameToSelect.put(name, selectValue);
+					selectToName.put(selectValue, name);
+				}
 			}
 			else
 			{
-				List<IQuerySelectValue> list = columnsForTable.get(tableDs);
+				nameToSelect.put(name, selectValue);
+				selectToName.put(selectValue, name);
+			}
+			BaseQueryTable table = column.getTable();
+			if ((column.getFlags() & IBaseColumn.IDENT_COLUMNS) != 0)
+			{
+				List<IQuerySelectValue> list = pkColumnsForTable.get(table);
 				if (list == null)
 				{
 					list = new ArrayList<>();
-					columnsForTable.put(tableDs, list);
+					pkColumnsForTable.put(table, list);
+				}
+				list.add(column);
+			}
+			else
+			{
+				List<IQuerySelectValue> list = columnsForTable.get(table);
+				if (list == null)
+				{
+					list = new ArrayList<>();
+					columnsForTable.put(table, list);
 				}
 				list.add(column);
 			}
 		}
+
+		for (IQuerySelectValue selectValue : select.getColumns())
+		{
+			columnNames.put(selectValue, selectToName.get(selectValue));
+		}
 		if (!pkColumnsForTable.isEmpty())
 		{
 			// touch the row manager for all datasources and register our selfs as a IRowListener
-			for (Entry<String, List<String>> entry : pkColumnsForTable.entrySet())
+			for (Entry<BaseQueryTable, List<IQuerySelectValue>> entry : pkColumnsForTable.entrySet())
 			{
 				try
 				{
-					RowManager rowManager = manager.getRowManager(entry.getKey());
+					RowManager rowManager = manager.getRowManager(entry.getKey().getDataSource());
 					if (rowManager != null)
 					{
 						String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
-						List<String> queryPks = entry.getValue();
-						if (queryPks.size() == realOrderedPks.length && queryPks.containsAll(Arrays.asList(realOrderedPks)))
+						IQuerySelectValue[] queryPks = getOrderedPkColumns(entry.getValue(), realOrderedPks);
+						if (queryPks != null)
 						{
-							RowListener rl = new RowListener(entry.getKey(), realOrderedPks, columnsForTable.get(entry.getKey()));
+							RowListener rl = new RowListener(entry.getKey().getDataSource(), queryPks, columnsForTable.get(entry.getKey()));
 							// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
 							rowListeners.add(rl);
 							rowManager.register(rl);
@@ -168,6 +207,30 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 
 			}
 		}
+	}
+
+	/**
+	 * @param queryPks
+	 * @param realOrderedPks
+	 * @return
+	 */
+	private IQuerySelectValue[] getOrderedPkColumns(List<IQuerySelectValue> queryPks, String[] realOrderedPks)
+	{
+		if (queryPks.size() != realOrderedPks.length) return null;
+		IQuerySelectValue[] retValue = new IQuerySelectValue[realOrderedPks.length];
+		for (int i = 0; i < realOrderedPks.length; i++)
+		{
+			for (IQuerySelectValue selectValue : queryPks)
+			{
+				if (selectValue.getColumn().getName().equals(realOrderedPks[i]))
+				{
+					retValue[i] = selectValue;
+					break;
+				}
+			}
+			if (retValue[i] == null) return null;
+		}
+		return retValue;
 	}
 
 	@Override
@@ -337,18 +400,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 				manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 			refresh = false;
 			ArrayList<IQuerySelectValue> cols = select.getColumns();
-			String[] columnNames = new String[cols.size()];
-			for (int i = cols.size(); --i >= 0;)
-			{
-				IQuerySelectValue col = cols.get(i);
-				String alias = col.getAlias();
-				columnNames[i] = alias != null ? alias : col.getColumn().getName();
-			}
 			int firstChange = -1;
 			int currentSize = records.size();
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
 			pkByDatasourceCache.clear();
+
+			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
 
 			for (int i = 0; i < ds.getRowCount(); i++)
 			{
@@ -366,7 +424,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 						firstChange = i;
 					}
 				}
-				records.add(new ViewRecord(columnNames, rowData, i, this));
+				records.add(new ViewRecord(colNames, rowData, i, this));
 			}
 			hasMore = ds.hadMoreRows();
 			if (firstChange != -1 && currentSize <= records.size())
@@ -1199,9 +1257,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		}
 	}
 
-	private Map<String, List<Integer>> getPkCacheByDatasource(String ds, String[] pkColumns)
+	private Map<String, List<Integer>> getPkCacheByDatasource(IQuerySelectValue[] pkColumns)
 	{
-		Map<String, List<Integer>> cache = pkByDatasourceCache.get(ds);
+		Map<String, List<Integer>> cache = pkByDatasourceCache.get(pkColumns);
 		if (cache == null)
 		{
 			cache = new HashMap<>();
@@ -1211,7 +1269,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 				ViewRecord record = records.get(j);
 				for (int i = pkColumns.length; --i >= 0;)
 				{
-					pks[i] = record.getValue(pkColumns[i]);
+					pks[i] = record.getValue(columnNames.get(pkColumns[i]));
 				}
 				String pkHashKey = RowManager.createPKHashKey(pks);
 				List<Integer> list = cache.get(pkHashKey);
@@ -1230,7 +1288,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 					list.add(Integer.valueOf(j));
 				}
 			}
-			pkByDatasourceCache.put(ds, cache);
+			pkByDatasourceCache.put(pkColumns, cache);
 		}
 		return cache;
 	}
@@ -1362,13 +1420,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	private class RowListener implements IRowListener
 	{
 		private final String ds;
-		private final String[] pkColumns;
+		private final IQuerySelectValue[] pkColumns;
 		private final IQuerySelectValue[] columns;
 
-		public RowListener(String datasource, String[] pkColumns, List<IQuerySelectValue> list)
+		public RowListener(String datasource, IQuerySelectValue[] queryPks, List<IQuerySelectValue> list)
 		{
 			this.ds = datasource;
-			this.pkColumns = pkColumns;
+			this.pkColumns = queryPks;
 			this.columns = list.toArray(new IQuerySelectValue[list.size()]);
 		}
 
@@ -1379,7 +1437,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 
 			if (e.getType() == RowEvent.UPDATE)
 			{
-				Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(ds, pkColumns);
+				Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(pkColumns);
 				List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
 				if (rowIndexes != null)
 				{
@@ -1396,7 +1454,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 								for (Integer rowIndex : rowIndexes)
 								{
 									ViewRecord viewRecord = records.get(rowIndex.intValue());
-									viewRecord.setValue(column.getAlias() != null ? column.getAlias() : column.getColumn().getName(), rowValue);
+									viewRecord.setValue(columnNames.get(column), rowValue);
 								}
 							}
 						}
@@ -1430,10 +1488,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 									{
 										queryBuilder.result().add(queryBuilder.getColumn(column.getColumn().getName()));
 									}
-									for (String pkColumn : pkColumns)
+									for (IQuerySelectValue pkColumn : pkColumns)
 									{
 										// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
-										queryBuilder.where().add(queryBuilder.getColumn(pkColumn).eq(records.get(0).getValue(pkColumn)));
+										queryBuilder.where().add(
+											queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(records.get(0).getValue(columnNames.get(pkColumn))));
 									}
 									ISQLSelect updateSelect = queryBuilder.build();
 									String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
@@ -1452,7 +1511,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 											for (Integer rowIndex : rowIndexes)
 											{
 												ViewRecord viewRecord = records.get(rowIndex.intValue());
-												viewRecord.setValue(column.getAlias() != null ? column.getAlias() : column.getColumn().getName(), rowValue);
+												viewRecord.setValue(columnNames.get(column), rowValue);
 											}
 										}
 									}
