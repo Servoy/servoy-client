@@ -39,12 +39,10 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private final Map<String, Object> values = new HashMap<>();
 	private final List<IModificationListener> modificationListeners;
 	private final IFoundSetInternal foundset;
-	private final Object[] data;
 	private final int pk;
 
 	public ViewRecord(String[] columnNames, Object[] data, int pk, IFoundSetInternal foundset)
 	{
-		this.data = data;
 		this.pk = pk;
 		this.foundset = foundset;
 		for (int i = 0; i < data.length; i++)
@@ -201,9 +199,13 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return null;
 	}
 
-	Object[] getData()
+	boolean equalsTo(String[] columnNames, Object[] data)
 	{
-		return data;
+		for (int i = columnNames.length; --i >= 0;)
+		{
+			if (!Utils.equalObjects(values.get(columnNames[i]), data[i])) return false;
+		}
+		return true;
 	}
 
 	@Override

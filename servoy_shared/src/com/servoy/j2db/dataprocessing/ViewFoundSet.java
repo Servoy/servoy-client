@@ -358,7 +358,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 					if (firstChange == -1)
 					{
 						ViewRecord current = old.get(i);
-						if (Utils.equalObjects(rowData, current.getData()))
+						if (current.equalsTo(colNames, rowData))
 						{
 							records.add(current);
 							continue;
