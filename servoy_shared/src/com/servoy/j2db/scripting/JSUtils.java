@@ -29,6 +29,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import javax.swing.text.MaskFormatter;
+
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -1232,6 +1234,33 @@ public class JSUtils implements IJSUtils
 			return new Formatter().format(text_to_format, parameters).toString();
 		}
 		else return text_to_format;
+	}
+
+	/**
+	 * Format a string using mask.
+	 *
+	 * @sample
+	 * var formattedString = utils.stringFormat('0771231231', '(###)####-###'); //returns (077)1231-231
+	 *
+	 * @param text the string to format
+	 * @param format the format
+	 * @return the resulting text
+	 */
+	@JSFunction
+	public String js_stringFormat(String text, String mask)
+	{
+		MaskFormatter mf;
+		try
+		{
+			mf = new MaskFormatter(mask);
+			mf.setValueContainsLiteralCharacters(false);
+			return mf.valueToString(text);
+		}
+		catch (ParseException e1)
+		{
+			Debug.error("Error when formmating string", e1); //$NON-NLS-1$
+		}
+		return null;
 	}
 
 	private final Character[] CONVERSIONS = new Character[] { Character.valueOf('b'), Character.valueOf('B'), Character.valueOf('h'), Character.valueOf('H'), //

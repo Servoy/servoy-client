@@ -195,17 +195,25 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 
 			function updateActiveTabIndex() {
 				if($scope.model.tabs) {
-					$scope.model.activeTabIndex = 0;
-
+					var updatedActiveIndex = 0;
 					var activeSet = false;
 					for(var i=0;i<$scope.model.tabs.length;i++) {
 						$scope.model.tabs[i].isActive = activeSet ? false : $scope.model.tabs[i].active; 
 						if (!activeSet && $scope.model.tabs[i].active)
 						{
-							$scope.model.activeTabIndex = i;
+							updatedActiveIndex = i;
 							activeSet = true;
 						}
+						else if (activeSet && $scope.model.tabs[i].active)
+						{
+							// we have a second tab active
+							if (i == $scope.model.tabIndex - 1)
+							{
+								updatedActiveIndex = i;
+							}	
+						}	
 					}
+					$scope.model.activeTabIndex = updatedActiveIndex;
 				}
 			}
 			
