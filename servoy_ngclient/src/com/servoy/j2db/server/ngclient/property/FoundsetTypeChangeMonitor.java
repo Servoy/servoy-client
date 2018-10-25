@@ -237,7 +237,7 @@ public class FoundsetTypeChangeMonitor
 		if (propertyValue.viewPort.size > 0) allChanged();
 	}
 
-	public void shrinkClientViewport(final int relativeFirstRowToOldViewport, final int relativeLastRowToOldViewport)
+	public void shrinkClientViewport(final int relativeFirstRowToOldViewport, final int relativeLastRowToOldViewport, int oldSize)
 	{
 		if (!shouldSendAll() && !shouldSendWholeViewPort() && relativeFirstRowToOldViewport <= relativeLastRowToOldViewport)
 		{
@@ -246,7 +246,7 @@ public class FoundsetTypeChangeMonitor
 				@Override
 				public void run(ViewportDataChangeMonitor< ? > vpdcm)
 				{
-					vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, 0, -1, propertyValue.getFoundset(), ViewportOperation.DELETE);
+					vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, oldSize, ViewportOperation.DELETE);
 				}
 			});
 		}
@@ -325,7 +325,8 @@ public class FoundsetTypeChangeMonitor
 
 					viewPort.slideAndCorrect(slideBy);
 					viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1; // update
-					final int viewPortEndIdxFinal = viewPortEndIdx;
+					final int insertedStartDueToSlidingInRelative = oldViewPortSize - numberOfDeletes;
+					final int insertedEndDueToSlidingInRelative = viewPortEndIdx - viewPort.getStartIndex();
 
 					// add new records if available
 					// we need to replace same amount of records in current viewPort; append rows if available
@@ -333,8 +334,12 @@ public class FoundsetTypeChangeMonitor
 					{
 						public void run(ViewportDataChangeMonitor< ? > vpdcm)
 						{
-							vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes,
-								viewPortEndIdxFinal, propertyValue.getFoundset(), ViewportOperation.DELETE);
+							vpdcm.queueOperation(relativeFirstRow, relativeLastRow, oldViewPortSize, ViewportOperation.DELETE);
+
+							// see if records slided automatically into the viewport due to delete; generate an INSERT for those
+							if (insertedStartDueToSlidingInRelative <= insertedEndDueToSlidingInRelative)
+								vpdcm.queueOperation(insertedStartDueToSlidingInRelative, insertedEndDueToSlidingInRelative, oldViewPortSize,
+									ViewportOperation.INSERT);
 						}
 					});
 				}
@@ -352,20 +357,19 @@ public class FoundsetTypeChangeMonitor
 		}
 	}
 
-	public void extendClientViewport(final int firstRow, int lastRow, final FoundsetTypeViewport viewPort)
+	public void extendClientViewport(final int firstRow, int lastRow, int oldSize, final FoundsetTypeViewport viewPort)
 	{
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
-			final int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
+			final int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx); // actually this should always be lastRow as we assume given [firstRow, lastRow] are first part or last part of viewPort (viewport bounds were already adjusted by caller)
 
 			// add records that were inserted in viewPort
 			callAllViewportDataChangeMonitorsWrappedInFireCollector(new IVPDCMRunnable()
 			{
 				public void run(ViewportDataChangeMonitor< ? > vpdcm)
 				{
-					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
-						ViewportOperation.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), oldSize, ViewportOperation.INSERT);
 				}
 			});
 		}
@@ -377,7 +381,7 @@ public class FoundsetTypeChangeMonitor
 	 * @param lastRow the last row of the insertion.
 	 * @param viewPort the current viewPort.
 	 */
-	public void recordsInserted(final int firstRow, int lastRow, final FoundsetTypeViewport viewPort)
+	public void recordsInserted(final int firstRow, int lastRow, int oldSize, final FoundsetTypeViewport viewPort)
 	{
 		int oldChangeFlags = changeFlags;
 		if (lastRow - firstRow >= 0) foundSetSizeChanged();
@@ -392,8 +396,14 @@ public class FoundsetTypeChangeMonitor
 				{
 					public void run(ViewportDataChangeMonitor< ? > vpdcm)
 					{
-						vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
-							ViewportOperation.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+						vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), oldSize,
+							ViewportOperation.INSERT);
+
+						// for insert operations that will push some rows out of the viewport we need to generate a delete operation as well (so that viewport data is correct afterwards)
+						int rowsInsertedInViewport = lastViewPortInsert - firstRow + 1;
+						int rowsThatSlidedOutOfViewport = oldSize + rowsInsertedInViewport - viewPort.getSize();
+						if (rowsThatSlidedOutOfViewport > 0)
+							vpdcm.queueOperation(viewPort.getSize(), viewPort.getSize() + rowsThatSlidedOutOfViewport - 1, oldSize, ViewportOperation.DELETE);
 					}
 				});
 			}
@@ -432,14 +442,13 @@ public class FoundsetTypeChangeMonitor
 							{
 								for (String dataprovider : dataproviders)
 								{
-									vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex, dataprovider,
-										propertyValue.getFoundset(), false);
+									vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
 								}
 							}
 							else
 							{
 								vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-									firstViewPortIndex, lastViewPortIndex, propertyValue.getFoundset(), ViewportOperation.CHANGE);
+									viewPort.getSize(), ViewportOperation.CHANGE);
 							}
 						}
 					});
@@ -519,9 +528,14 @@ public class FoundsetTypeChangeMonitor
 		return viewPortDataChangeMonitor.shouldSendWholeViewport();
 	}
 
-	public List<ViewportOperation> getViewPortChanges()
+	public ViewportOperation[] getViewPortChanges()
 	{
 		return viewPortDataChangeMonitor.getViewPortChanges();
+	}
+
+	public boolean hasViewportChanges()
+	{
+		return viewPortDataChangeMonitor.hasViewportChanges();
 	}
 
 	/**
@@ -537,7 +551,7 @@ public class FoundsetTypeChangeMonitor
 	public boolean hasChanges()
 	{
 		return shouldSendAll() || shouldSendFoundsetSize() || shouldSendFoundsetSort() || shouldSendSelectedIndexes() || shouldSendViewPortBounds() ||
-			shouldSendWholeViewPort() || shouldSendColumnFormats() || getHandledRequestIds().size() > 0 || getViewPortChanges().size() > 0;
+			shouldSendWholeViewPort() || shouldSendColumnFormats() || getHandledRequestIds().size() > 0 || hasViewportChanges();
 	}
 
 	public void clearChanges()
@@ -566,23 +580,6 @@ public class FoundsetTypeChangeMonitor
 	{
 		viewPortDataChangeMonitors.remove(viewPortChangeMonitor);
 	}
-
-	/**
-	 * Ignores update record events for the record with given pkHash.
-	 */
-	protected void pauseRowUpdateListener(String pkHash)
-	{
-		viewPortDataChangeMonitor.pauseRowUpdateListener(pkHash);
-	}
-
-	/**
-	 * Resumes listening normally to row updates.
-	 */
-	protected void resumeRowUpdateListener()
-	{
-		viewPortDataChangeMonitor.resumeRowUpdateListener();
-	}
-
 
 	public void columnFormatsUpdated()
 	{

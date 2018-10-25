@@ -40,12 +40,13 @@ public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMon
 	 * @param relativeFirstRow viewPort relative start index for given operation.
 	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
 	 */
-	public boolean queueLinkedPropertyUpdate(int firstRelativeRowIndex, int lastRelativeRowIndex, String columnName)
+	public boolean queueLinkedPropertyUpdate(int firstRelativeRowIndex, int lastRelativeRowIndex, int oldViewportSize, String columnName)
 	{
 		if (!rowDataProvider.isReady()) return false;
 
-		boolean changed = removeIrrelevantOperationsAndAdd(
-			new ViewportOperation(null, firstRelativeRowIndex, lastRelativeRowIndex, ViewportOperation.CHANGE_IN_LINKED_PROPERTY, columnName, false));
+		boolean changed = !viewPortChanges.hasChanges(); // if it doesn't already have changes then it changed
+		processOperation(changed, oldViewportSize,
+			new ViewportOperation(firstRelativeRowIndex, lastRelativeRowIndex, ViewportOperation.CHANGE_IN_LINKED_PROPERTY, columnName));
 
 		if (changed && monitor != null) monitor.valueChanged();
 		return changed;

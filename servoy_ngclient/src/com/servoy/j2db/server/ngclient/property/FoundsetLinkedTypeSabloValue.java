@@ -302,8 +302,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						// here for column name we give the name of the first foundset linked DP that the wrapped sablo val. attached to the dal, or if not the actual prop. name
 						// the idea is that when this will call a queueCellChange on the viewPortChangeMonitor, it should pass the columnName check in there...
 						actualWrappedValueChangeHandlerForFoundsetLinked.valueChangedInFSLinkedUnderlyingValue(
-							foundsetLinkedDPs.size() > 0 ? foundsetLinkedDPs.iterator().next() : wrappedPropertyDescription.getName(), viewPortChangeMonitor,
-							true);
+							foundsetLinkedDPs.size() > 0 ? foundsetLinkedDPs.iterator().next() : wrappedPropertyDescription.getName(), viewPortChangeMonitor);
 					}
 				}
 				else
@@ -564,20 +563,21 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			{
 				writeWholeViewportToJSON(writer);
 			}
-			else if (viewPortChangeMonitor.getViewPortChanges().size() > 0)
+			else if (viewPortChangeMonitor.hasViewportChanges())
 			{
 				DataConversion clientConversionInfo = new DataConversion();
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 				clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
 
-				List<ViewportOperation> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 
 				writer.array();
-				for (int i = 0; i < viewPortChanges.size(); i++)
+				for (int i = 0; i < viewPortChanges.length; i++)
 				{
 					clientConversionInfo.pushNode(String.valueOf(i));
-					viewPortChanges.get(i).writeJSONContent(writer, null, FullValueToJSONConverter.INSTANCE, clientConversionInfo);
+					viewPortChanges[i].writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), getFoundset(),
+						getFoundsetValue().getViewPort().getStartIndex(), writer, null, clientConversionInfo);
 					clientConversionInfo.popNode();
 				}
 				writer.endArray();
@@ -709,7 +709,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			{
 				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
-				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 				try
 				{
 					ValueReference<Boolean> returnValueAdjustedIncommingValueForRow = new ValueReference<Boolean>(Boolean.FALSE);
@@ -737,7 +736,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						if (firstViewPortIndex <= lastViewPortIndex)
 						{
 							viewPortChangeMonitor.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-								firstViewPortIndex, lastViewPortIndex, foundsetPropertyValue.getFoundset(), ViewportOperation.CHANGE);
+								viewPort.getSize(), ViewportOperation.CHANGE);
 						}
 					}
 				}
@@ -748,7 +747,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				}
 				finally
 				{
-					viewPortChangeMonitor.resumeRowUpdateListener();
 					foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 				}
 			}

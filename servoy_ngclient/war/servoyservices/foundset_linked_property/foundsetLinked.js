@@ -16,7 +16,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
 
 	/** Initializes internal state of a new value */
-	function initializeNewValue(newValue) {
+	function initializeNewValue(newValue, oldValue) {
 		$sabloConverters.prepareInternalState(newValue);
 		var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
@@ -33,6 +33,23 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		internalState.singleValueState = undefined;
 		internalState.conversionInfo = [];
 		internalState.requests = []; // see viewport.js for how this will get populated
+		
+		// keep listeners if needed
+		internalState.changeListeners = (oldValue && oldValue[$sabloConverters.INTERNAL_IMPL] ? oldValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
+		newValue.addChangeListener = function(listener) {
+			internalState.changeListeners.push(listener);
+		}
+		newValue.removeChangeListener = function(listener) {
+			var index = internalState.changeListeners.indexOf(listener);
+			if (index > -1) {
+				internalState.changeListeners.splice(index, 1);
+			}
+		}
+		internalState.fireChanges = function(values) {
+			for (var i = 0; i < internalState.changeListeners.length; i++) {
+				internalState.changeListeners[i](values);
+			}
+		}
 	}
 	
 	function getUpdateWholeViewportFunc(propertyContext) {
@@ -45,6 +62,15 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 			propValue.splice(0, propValue.length);
 			var tmp = viewPortHolder["tmp"];
 			for (var tz = 0; tz < tmp.length; tz++) propValue.push(tmp[tz]);
+			
+			if (propValue && internalState && internalState.changeListeners.length > 0) {
+				notificationParamForListeners = {};
+				notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue: propValue, newValue: propValue }; // should we not set oldValue here? old one has changed into new one so basically we do not have old content anymore...
+				
+				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset linked * firing change listener: full viewport changed...");
+				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
+				internalState.fireChanges(notificationParamForListeners);
+			}
 		}
 	}
 
@@ -119,23 +145,8 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				var didSomething = false;
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				if (!angular.isDefined(internalState)) {
-					initializeNewValue(newValue);
+					initializeNewValue(newValue, currentClientValue);
 					internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-					var changeListeners = [];
-					newValue.addChangeListener = function(listener) {
-						changeListeners.push(listener);
-					}
-					newValue.removeChangeListener = function(listener) {
-						var index = changeListeners.indexOf(listener);
-						if (index > -1) {
-							changeListeners.splice(index, 1);
-						}
-					}
-					internalState.fireChanges = function(values) {
-						for (var i = 0; i < changeListeners.length; i++) {
-							changeListeners[i](values);
-						}
-					}
 				}
 
 				if (angular.isDefined(serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])) {
@@ -160,6 +171,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 					$viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[VIEWPORT_VALUE_UPDATE],
 							$sabloUtils.getInDepthProperty(serverJSONValue, $sabloConverters.TYPES_KEY, VIEWPORT_VALUE_UPDATE),
 							componentScope, propertyContext, true);
+					if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset linked * firing change listener: granular updates...");
 					internalState.fireChanges(serverJSONValue[VIEWPORT_VALUE_UPDATE]);
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)

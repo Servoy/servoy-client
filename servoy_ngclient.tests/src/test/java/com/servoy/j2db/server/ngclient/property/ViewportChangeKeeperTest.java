@@ -18,6 +18,8 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +38,8 @@ public class ViewportChangeKeeperTest
 	@Before
 	public void prepareViewportChangeKeeper()
 	{
-		changeKeeper = new ViewportChangeKeeper(0, 5);
+		if (changeKeeper == null) changeKeeper = new ViewportChangeKeeper();
+		changeKeeper.reset(0, 5);
 	}
 
 	private void assertChangeOpEquals(int startIdx, int endIdx, String columnName, int type, ViewportOperation equivalentOps)
@@ -51,26 +54,28 @@ public class ViewportChangeKeeperTest
 	public void updatesAndPartialUpdates()
 	{
 		// one update
-		changeKeeper.processOperation(new ViewportOperation(null, 2, 2, ViewportOperation.CHANGE));
+		assertFalse(changeKeeper.hasChanges());
+		changeKeeper.processOperation(new ViewportOperation(2, 2, ViewportOperation.CHANGE));
+		assertTrue(changeKeeper.hasChanges());
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.CHANGE, equivalentOps[0]);
 
 		// partial update of the same row
-		changeKeeper.processOperation(new ViewportOperation(null, 2, 2, ViewportOperation.CHANGE, "columnA", true));
+		changeKeeper.processOperation(new ViewportOperation(2, 2, ViewportOperation.CHANGE, "columnA"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.CHANGE, equivalentOps[0]);
 
 		// partial update of another row
-		changeKeeper.processOperation(new ViewportOperation(null, 4, 4, ViewportOperation.CHANGE, "columnA", true));
+		changeKeeper.processOperation(new ViewportOperation(4, 4, ViewportOperation.CHANGE, "columnA"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.CHANGE, equivalentOps[0]);
 		assertChangeOpEquals(4, 4, "columnA", ViewportOperation.CHANGE, equivalentOps[1]);
 
 		// another partial update of row 4
-		changeKeeper.processOperation(new ViewportOperation(null, 4, 4, ViewportOperation.CHANGE, "columnB", true));
+		changeKeeper.processOperation(new ViewportOperation(4, 4, ViewportOperation.CHANGE, "columnB"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(3, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -79,7 +84,7 @@ public class ViewportChangeKeeperTest
 		assertEquals(4, changeKeeper.getNumberOfUnchangedRows());
 
 		// duplicate partial update of row 4
-		changeKeeper.processOperation(new ViewportOperation(null, 4, 4, ViewportOperation.CHANGE, "columnA", true));
+		changeKeeper.processOperation(new ViewportOperation(4, 4, ViewportOperation.CHANGE, "columnA"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(3, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -87,7 +92,7 @@ public class ViewportChangeKeeperTest
 		assertChangeOpEquals(4, 4, "columnB", ViewportOperation.CHANGE, equivalentOps[2]);
 
 		// full update that overlaps partial update
-		changeKeeper.processOperation(new ViewportOperation(null, 4, 5, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(4, 5, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -95,7 +100,7 @@ public class ViewportChangeKeeperTest
 		assertEquals(3, changeKeeper.getNumberOfUnchangedRows());
 
 		// full update that overlaps all previous updates
-		changeKeeper.processOperation(new ViewportOperation(null, 2, 5, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(2, 5, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(2, 5, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -105,20 +110,20 @@ public class ViewportChangeKeeperTest
 	public void changesAndPartialChangesAtBeginningOrEndOfUnchangedInterval()
 	{
 		// partial update in the beginning of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 0, 0, ViewportOperation.CHANGE, "columnA", true));
+		changeKeeper.processOperation(new ViewportOperation(0, 0, ViewportOperation.CHANGE, "columnA"));
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(0, 0, "columnA", ViewportOperation.CHANGE, equivalentOps[0]);
 
 		// full update at the end of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 4, 5, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(4, 5, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(0, 0, "columnA", ViewportOperation.CHANGE, equivalentOps[0]);
 		assertChangeOpEquals(4, 5, null, ViewportOperation.CHANGE, equivalentOps[1]);
 
 		// full update at the end of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 3, 3, ViewportOperation.CHANGE, "columnB", true));
+		changeKeeper.processOperation(new ViewportOperation(3, 3, ViewportOperation.CHANGE, "columnB"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(3, equivalentOps.length);
 		assertChangeOpEquals(0, 0, "columnA", ViewportOperation.CHANGE, equivalentOps[0]);
@@ -132,36 +137,53 @@ public class ViewportChangeKeeperTest
 		changeKeeper.reset(100, 1000);
 
 		// partial update in the beginning of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 150, 200, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(150, 200, ViewportOperation.CHANGE));
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(150, 200, null, ViewportOperation.CHANGE, equivalentOps[0]);
 
 		// full update at the end of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 175, 255, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(175, 255, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(150, 255, null, ViewportOperation.CHANGE, equivalentOps[0]);
 
 		// full update at the end of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 107, 165, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(107, 165, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(107, 255, null, ViewportOperation.CHANGE, equivalentOps[0]);
+
+		// end of unchanged interval partial update with larger size
+		changeKeeper.processOperation(new ViewportOperation(106, 106, ViewportOperation.CHANGE, "columnC"));
+		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
+		assertEquals(2, equivalentOps.length);
+		assertChangeOpEquals(106, 106, "columnC", ViewportOperation.CHANGE, equivalentOps[0]);
+		assertChangeOpEquals(107, 255, null, ViewportOperation.CHANGE, equivalentOps[1]);
+
+		// start of unchanged interval partial update with larger size
+		changeKeeper.processOperation(new ViewportOperation(100, 100, ViewportOperation.CHANGE, "columnD"));
+		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
+		assertEquals(3, equivalentOps.length);
+		assertChangeOpEquals(100, 100, "columnD", ViewportOperation.CHANGE, equivalentOps[0]);
+		assertChangeOpEquals(106, 106, "columnC", ViewportOperation.CHANGE, equivalentOps[1]);
+		assertChangeOpEquals(107, 255, null, ViewportOperation.CHANGE, equivalentOps[2]);
 	}
 
 	@Test
 	public void insertsWithALargeNumberOfRows()
 	{
 		// before unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 0, 15, ViewportOperation.INSERT));
+		assertFalse(changeKeeper.hasChanges());
+		changeKeeper.processOperation(new ViewportOperation(0, 15, ViewportOperation.INSERT));
+		assertTrue(changeKeeper.hasChanges());
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(0, 15, null, ViewportOperation.INSERT, equivalentOps[0]);
 		assertEquals(6, changeKeeper.getNumberOfUnchangedRows());
 
 		// after unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 22, 25, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(22, 25, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(0, 15, null, ViewportOperation.INSERT, equivalentOps[0]);
@@ -169,7 +191,7 @@ public class ViewportChangeKeeperTest
 		assertEquals(6, changeKeeper.getNumberOfUnchangedRows());
 
 		// middle of unchanged interval
-		changeKeeper.processOperation(new ViewportOperation(null, 20, 50, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(20, 50, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(3, equivalentOps.length);
 		assertChangeOpEquals(0, 15, null, ViewportOperation.INSERT, equivalentOps[0]);
@@ -181,49 +203,49 @@ public class ViewportChangeKeeperTest
 	@Test
 	public void insertAndChangeBasics()
 	{
-		changeKeeper.processOperation(new ViewportOperation(null, 2, 2, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(2, 2, ViewportOperation.INSERT));
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.INSERT, equivalentOps[0]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 4, 4, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(4, 4, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 2, null, ViewportOperation.INSERT, equivalentOps[0]);
 		assertChangeOpEquals(4, 4, null, ViewportOperation.INSERT, equivalentOps[1]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 2, 4, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(2, 4, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 5, null, ViewportOperation.INSERT, equivalentOps[0]);
 		assertChangeOpEquals(7, 7, null, ViewportOperation.INSERT, equivalentOps[1]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 3, 3, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(3, 3, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 6, null, ViewportOperation.INSERT, equivalentOps[0]);
 		assertChangeOpEquals(8, 8, null, ViewportOperation.INSERT, equivalentOps[1]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 9, 10, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(9, 10, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 6, null, ViewportOperation.INSERT, equivalentOps[0]);
 		assertChangeOpEquals(8, 10, null, ViewportOperation.INSERT, equivalentOps[1]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 7, 8, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(7, 8, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(2, 9, null, ViewportOperation.INSERT, equivalentOps[0]);
 		assertChangeOpEquals(10, 10, null, ViewportOperation.CHANGE, equivalentOps[1]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 0, 0, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(0, 0, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(3, equivalentOps.length);
 		assertChangeOpEquals(0, 0, null, ViewportOperation.CHANGE, equivalentOps[0]);
 		assertChangeOpEquals(2, 9, null, ViewportOperation.INSERT, equivalentOps[1]);
 		assertChangeOpEquals(10, 10, null, ViewportOperation.CHANGE, equivalentOps[2]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 12, 12, ViewportOperation.CHANGE, "columnA", true));
+		changeKeeper.processOperation(new ViewportOperation(12, 12, ViewportOperation.CHANGE, "columnA"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(4, equivalentOps.length);
 		assertChangeOpEquals(0, 0, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -231,8 +253,8 @@ public class ViewportChangeKeeperTest
 		assertChangeOpEquals(10, 10, null, ViewportOperation.CHANGE, equivalentOps[2]);
 		assertChangeOpEquals(12, 12, "columnA", ViewportOperation.CHANGE, equivalentOps[3]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 13, 13, ViewportOperation.INSERT));
-		changeKeeper.processOperation(new ViewportOperation(null, 12, 12, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(13, 13, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(12, 12, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(6, equivalentOps.length);
 		assertChangeOpEquals(0, 0, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -242,7 +264,7 @@ public class ViewportChangeKeeperTest
 		assertChangeOpEquals(13, 13, "columnA", ViewportOperation.CHANGE, equivalentOps[4]);
 		assertChangeOpEquals(14, 14, null, ViewportOperation.INSERT, equivalentOps[5]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 3, 3, ViewportOperation.CHANGE, "columnB", true));
+		changeKeeper.processOperation(new ViewportOperation(3, 3, ViewportOperation.CHANGE, "columnB"));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(6, equivalentOps.length);
 		assertChangeOpEquals(0, 0, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -252,7 +274,7 @@ public class ViewportChangeKeeperTest
 		assertChangeOpEquals(13, 13, "columnA", ViewportOperation.CHANGE, equivalentOps[4]);
 		assertChangeOpEquals(14, 14, null, ViewportOperation.INSERT, equivalentOps[5]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 15, 16, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(15, 16, ViewportOperation.INSERT));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(6, equivalentOps.length);
 		assertChangeOpEquals(0, 0, null, ViewportOperation.CHANGE, equivalentOps[0]);
@@ -268,7 +290,7 @@ public class ViewportChangeKeeperTest
 	public void testException1()
 	{
 		// processing Viewport operations with unsupported type should throw an exception
-		changeKeeper.processOperation(new ViewportOperation(null, 1, 2, 987654)); // bogus type
+		changeKeeper.processOperation(new ViewportOperation(1, 2, 987654)); // bogus type
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -310,35 +332,35 @@ public class ViewportChangeKeeperTest
 	public void testException7()
 	{
 		// try to apply out-of-viewport-bounds operations
-		changeKeeper.processOperation(new ViewportOperation(null, -1, 3, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(-1, 3, ViewportOperation.CHANGE));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testException8()
 	{
 		// try to apply out-of-viewport-bounds operations
-		changeKeeper.processOperation(new ViewportOperation(null, -10, -3, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(-10, -3, ViewportOperation.DELETE));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testException9()
 	{
 		// try to apply out-of-viewport-bounds operations
-		changeKeeper.processOperation(new ViewportOperation(null, 6, 6, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(6, 6, ViewportOperation.CHANGE));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testException10()
 	{
 		// try to apply out-of-viewport-bounds operations
-		changeKeeper.processOperation(new ViewportOperation(null, 3, 8, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(3, 8, ViewportOperation.DELETE));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testException11()
 	{
 		// try to apply out-of-viewport-bounds operations
-		changeKeeper.processOperation(new ViewportOperation(null, 7, 15, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(7, 15, ViewportOperation.INSERT));
 	}
 
 	@Test
@@ -346,25 +368,27 @@ public class ViewportChangeKeeperTest
 	{
 		changeKeeper.reset(5, 30);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 8, 9, ViewportOperation.DELETE));
+		assertFalse(changeKeeper.hasChanges());
+		changeKeeper.processOperation(new ViewportOperation(8, 9, ViewportOperation.DELETE));
+		assertTrue(changeKeeper.hasChanges());
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(1, equivalentOps.length);
 		assertChangeOpEquals(8, 9, null, ViewportOperation.DELETE, equivalentOps[0]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 8, 8, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(8, 8, ViewportOperation.CHANGE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(8, 9, null, ViewportOperation.DELETE, equivalentOps[0]);
 		assertChangeOpEquals(8, 8, null, ViewportOperation.CHANGE, equivalentOps[1]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 5, 5, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(5, 5, ViewportOperation.DELETE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(3, equivalentOps.length);
 		assertChangeOpEquals(5, 5, null, ViewportOperation.DELETE, equivalentOps[0]);
 		assertChangeOpEquals(7, 8, null, ViewportOperation.DELETE, equivalentOps[1]);
 		assertChangeOpEquals(7, 7, null, ViewportOperation.CHANGE, equivalentOps[2]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 26, 27, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(26, 27, ViewportOperation.DELETE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(4, equivalentOps.length);
 		assertChangeOpEquals(5, 5, null, ViewportOperation.DELETE, equivalentOps[0]);
@@ -372,7 +396,7 @@ public class ViewportChangeKeeperTest
 		assertChangeOpEquals(7, 7, null, ViewportOperation.CHANGE, equivalentOps[2]);
 		assertChangeOpEquals(26, 27, null, ViewportOperation.DELETE, equivalentOps[3]);
 
-		changeKeeper.processOperation(new ViewportOperation(null, 5, 10, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(5, 10, ViewportOperation.DELETE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 		assertEquals(2, equivalentOps.length);
 		assertChangeOpEquals(5, 13, null, ViewportOperation.DELETE, equivalentOps[0]);
@@ -382,12 +406,12 @@ public class ViewportChangeKeeperTest
 	@Test
 	public void mixedOperations()
 	{
-		changeKeeper.processOperation(new ViewportOperation(null, 2, 2, ViewportOperation.CHANGE));
-		changeKeeper.processOperation(new ViewportOperation(null, 0, 3, ViewportOperation.INSERT));
-		changeKeeper.processOperation(new ViewportOperation(null, 3, 5, ViewportOperation.DELETE));
-		changeKeeper.processOperation(new ViewportOperation(null, 0, 1, ViewportOperation.INSERT));
-		changeKeeper.processOperation(new ViewportOperation(null, 7, 7, ViewportOperation.INSERT));
-		changeKeeper.processOperation(new ViewportOperation(null, 8, 8, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(2, 2, ViewportOperation.CHANGE));
+		changeKeeper.processOperation(new ViewportOperation(0, 3, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(3, 5, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(0, 1, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(7, 7, ViewportOperation.INSERT));
+		changeKeeper.processOperation(new ViewportOperation(8, 8, ViewportOperation.CHANGE));
 		ViewportOperation[] equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 
 		assertEquals(4, equivalentOps.length);
@@ -397,7 +421,7 @@ public class ViewportChangeKeeperTest
 		assertChangeOpEquals(8, 8, null, ViewportOperation.CHANGE, equivalentOps[3]);
 
 
-		changeKeeper.processOperation(new ViewportOperation(null, 0, 4, ViewportOperation.DELETE));
+		changeKeeper.processOperation(new ViewportOperation(0, 4, ViewportOperation.DELETE));
 		equivalentOps = changeKeeper.getEquivalentSequenceOfOperations();
 
 		assertEquals(4, equivalentOps.length);

@@ -1,12 +1,12 @@
-angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav','ui.grid.edit'])
+angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav','ui.grid.edit'])
 .directive('servoycorePortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
                                    '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
-                                   '$svyProperties', '$window','i18nService', '$foundsetTypeUtils',
+                                   '$svyProperties', '$window','i18nService', '$foundsetTypeUtils', '$webSocket',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants,
                                 		   $timeout, $solutionSettings, $anchorConstants,
                                 		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $apifunctions, $log, $q,
-                                		   $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window, i18nService, $foundsetTypeUtils) {
+                                		   $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $window, i18nService, $foundsetTypeUtils, $webSocket) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -123,21 +123,23 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 			// for triggering any component-registered changeNorifiers when we get viewport updates for a component's model
 			function getComponentChangeListener(elementIndex) {
 				return function(viewportChanges) {
-					if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED]) {
-						// TODO is this case always caught by code in handleModelChangeAsNeeded?
-					} else if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]) {
-						if ($log.debugEnabled) $log.debug("portal ### changeNotifier will be triggered according to granular comp. viewport updates for column: " + elementIndex);
-						var granularUpdates = viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED];
-						var viewportRowsWithChangesAfterAllOps = $foundsetTypeUtils.coalesceGranularRowChanges(granularUpdates.updates, granularUpdates[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]);
-						// TODO inserts/deletes will be handled by code from getMergedCellModel (is there a situation where after delete/insert the same rowid but with different content ends up in the same renderIndex it had before and then that is not handled?)
-						
-						for (var i = 0; i < viewportRowsWithChangesAfterAllOps.length; i++) {
-							var rowChanges = viewportRowsWithChangesAfterAllOps[i]; // contains a set of changes with current indexes in foundset's viewport
-							for (var j = rowChanges.startIndex; j <= rowChanges.endIndex; j++) {
-								handleRecordDependentPropertiesChangedForFSViewportIndex(j, elementIndex);
+					$webSocket.addIncomingMessageHandlingDoneTask(function() {
+						if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED]) {
+							// TODO is this case always caught by code in handleModelChangeAsNeeded?
+						} else if (viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]) {
+							if ($log.debugEnabled) $log.debug("portal ### changeNotifier will be triggered according to granular comp. viewport updates for column: " + elementIndex);
+							var granularUpdates = viewportChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED];
+							var viewportRowsWithChangesAfterAllOps = $foundsetTypeUtils.coalesceGranularRowChanges(granularUpdates.updates, granularUpdates[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]);
+							// TODO inserts/deletes will be handled by code from getMergedCellModel (is there a situation where after delete/insert the same rowid but with different content ends up in the same renderIndex it had before and then that is not handled?)
+							
+							for (var i = 0; i < viewportRowsWithChangesAfterAllOps.length; i++) {
+								var rowChanges = viewportRowsWithChangesAfterAllOps[i]; // contains a set of changes with current indexes in foundset's viewport
+								for (var j = rowChanges.startIndex; j <= rowChanges.endIndex; j++) {
+									handleRecordDependentPropertiesChangedForFSViewportIndex(j, elementIndex);
+								}
 							}
 						}
-					}
+					});
 				}
 			}
 			
@@ -1507,11 +1509,13 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 
 					// size can change server-side if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
 					var foundsetListener = function(foundsetChanges) {
-						var vpSizeChange = foundsetChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_SIZE_CHANGED];
-						if (vpSizeChange) {
-							if (requestViewPortSize != vpSizeChange.newValue) requestViewPortSize = -1;
-							testNumberOfRows();
-						}
+						$webSocket.addIncomingMessageHandlingDoneTask(function() {
+							var vpSizeChange = foundsetChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_SIZE_CHANGED];
+							if (vpSizeChange) {
+								if (requestViewPortSize != vpSizeChange.newValue) requestViewPortSize = -1;
+								testNumberOfRows();
+							}
+						});
 					};
 					$scope.$watch('foundset', function(newVal, oldVal) {
 						if (oldVal && oldVal.removeChangeListener && newVal !== oldVal) oldVal.removeChangeListener(foundsetListener);

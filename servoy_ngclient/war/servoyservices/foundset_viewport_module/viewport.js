@@ -219,19 +219,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					if (rowPrototype) rowUpdate.rows[j] = $sabloUtils.cloneWithDifferentPrototype(rowUpdate.rows[j], rowPrototype);
 					updateRowConversionInfo(rowUpdate.startIndex+j, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
 				}
-				// insert might have made obsolete some records in cache; remove those; for inserts
-				// !!! rowUpdate.endIndex by convention means the new length of the viewport
-				rowUpdate.removedFromVPEnd = viewPort.length - rowUpdate.endIndex; // prepare rowUpdate for listener notifications
-				if (rowUpdate.removedFromVPEnd > 0) {
-					// remove conversion info for these rows as well
-					if (internalState[CONVERSIONS]) {
-						for (j = rowUpdate.endIndex; j < viewPort.length; j++)
-							removeRowConversionInfo(j, internalState);
-					}
-
-					viewPort.splice(rowUpdate.endIndex, rowUpdate.removedFromVPEnd);
-				}
-				rowUpdate.endIndex = rowUpdate.startIndex + rowUpdate.rows.length - 1; // prepare rowUpdate for listener notifications
+				rowUpdate.removedFromVPEnd = 0; // prepare rowUpdate for listener notifications; starting with Servoy 8.4 'removedFromVPEnd' is deprecated and always 0 as server-side code will add a separate delete operation as necessary
+				rowUpdate.endIndex = rowUpdate.startIndex + rowUpdate.rows.length - 1; // prepare rowUpdate.endIndex for listener notifications
 			} else if (rowUpdate.type == DELETE) {
 				if (rowUpdateConversions && rowUpdateConversions[i]) $sabloConverters.convertFromServerToClient(rowUpdate, rowUpdateConversions[i], undefined, componentScope, propertyContext);
 
@@ -251,14 +240,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					}	
 				}
 				viewPort.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
-				for (j = 0; j < rowUpdate.rows.length; j++) {
-					viewPort.push(rowUpdate.rows[j]);
-					if (rowPrototype) rowUpdate.rows[j] = $sabloUtils.cloneWithDifferentPrototype(rowUpdate.rows[j], rowPrototype);
-
-					updateRowConversionInfo(viewPort.length - 1, internalState, (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[j] : undefined);
-				}
 				
-				rowUpdate.appendedToVPEnd = rowUpdate.rows.length;
+				rowUpdate.appendedToVPEnd = 0; // prepare rowUpdate for listener notifications; starting with Servoy 8.4 'appendedToVPEnd' is deprecated and always 0 as server-side code will add a separate insert operation as necessary
 			} else if (rowUpdate.type == CHANGED_IN_LINKED_PROPERTY) {
 				// just prepare it for the foundset change listener; components will want to handle this type of change as well so we should notify them when it happens
 				rowUpdate.type = CHANGE;

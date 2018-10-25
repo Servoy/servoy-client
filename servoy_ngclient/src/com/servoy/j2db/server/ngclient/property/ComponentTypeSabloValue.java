@@ -287,7 +287,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 
 			@Override
-			public void propertyFlaggedAsDirty(String propertyName, boolean dirty, boolean contentChanged)
+			public void propertyFlaggedAsDirty(String propertyName, boolean dirty, boolean granularUpdate)
 			{
 				if (dirty)
 				{
@@ -299,8 +299,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						{
 							// for example valuelist properties can get filtered based on client sent filter in which case the property does change without
 							// any actual change in the record; in this case we need to mark it correctly in viewport as a change
-							foundsetLinkedPropOfComponentValueChangeHandler.valueChangedInFSLinkedUnderlyingValue(propertyName, viewPortChangeMonitor,
-								contentChanged);
+							foundsetLinkedPropOfComponentValueChangeHandler.valueChangedInFSLinkedUnderlyingValue(propertyName, viewPortChangeMonitor);
 						}
 						else
 						{
@@ -532,7 +531,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		boolean modelChanged = (changes.content.size() > 0);
 		boolean viewPortChanged = (forFoundsetTypedPropertyName != null &&
-			(viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+			(viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.hasViewportChanges()));
 
 		destinationJSON.object();
 		if (modelChanged || viewPortChanged)
@@ -564,16 +563,18 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			else
 			// viewPortChanges.size() > 0
 			{
-				List<ViewportOperation> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				DataConversion clientConversionInfo = new DataConversion();
 
 				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);
 				destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY).array();
 
-				for (int i = 0; i < viewPortChanges.size(); i++)
+				FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+				for (int i = 0; i < viewPortChanges.length; i++)
 				{
 					clientConversionInfo.pushNode(String.valueOf(i));
-					viewPortChanges.get(i).writeJSONContent(destinationJSON, null, FullValueToJSONConverter.INSTANCE, clientConversionInfo);
+					viewPortChanges[i].writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), foundsetPropValue.getFoundset(),
+						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, clientConversionInfo);
 					clientConversionInfo.popNode();
 				}
 				clientConversionInfo.popNode();
@@ -962,7 +963,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			{
 				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
-				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 				try
 				{
 					childComponent.putBrowserProperty(propertyName, value);
@@ -971,10 +971,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				{
 					Debug.error(
 						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
-				}
-				finally
-				{
-					viewPortChangeMonitor.resumeRowUpdateListener();
 				}
 			}
 			else

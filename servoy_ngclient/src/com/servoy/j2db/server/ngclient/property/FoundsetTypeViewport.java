@@ -169,13 +169,13 @@ public class FoundsetTypeViewport
 		{
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
 			if (oldStartIndex != startIndex || oldSize != size)
-				changeMonitor.extendClientViewport(this.startIndex + oldSize, this.startIndex + this.size - 1, this);
+				changeMonitor.extendClientViewport(this.startIndex + oldSize, this.startIndex + this.size - 1, oldSize, this);
 		}
 		else
 		{
 			this.startIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
 			this.size += (oldStartIndex - startIndex);
-			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.extendClientViewport(this.startIndex, oldStartIndex - 1, this);
+			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.extendClientViewport(this.startIndex, oldStartIndex - 1, oldSize, this);
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
@@ -207,14 +207,22 @@ public class FoundsetTypeViewport
 		{
 			// remove from the beginning
 			correctAndSetViewportBoundsInternal(oldStartIndex + positiveOrNegativeRecordNo, oldSize - positiveOrNegativeRecordNo);
-			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.shrinkClientViewport(0, startIndex - oldStartIndex - 1); // shrink needs old viewport relative removed interval
+			if (oldStartIndex != startIndex || oldSize != size)
+			{
+				if (size == 0) changeMonitor.viewPortCompletelyChanged();
+				else changeMonitor.shrinkClientViewport(0, startIndex - oldStartIndex - 1, oldSize); // shrink needs old viewport relative removed interval
+			}
 		}
 		else
 		{
 			// remove from the end; it's negative
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
 			// normally start index has not changed
-			if (oldSize != size) changeMonitor.shrinkClientViewport(size, oldSize - 1);
+			if (oldSize != size)
+			{
+				if (size == 0) changeMonitor.viewPortCompletelyChanged();
+				else changeMonitor.shrinkClientViewport(size, oldSize - 1, oldSize);
+			}
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
@@ -304,10 +312,10 @@ public class FoundsetTypeViewport
 								// if the size of the viewport is still smaller then the preferredViewPortSize
 								// and the foundset size allows for bigger viewport then size then update the bounds so that it is
 								// adds the extra wanted records at the end
+								int oldSize = size;
 								if (size < preferredViewPortSize && (foundsetSize - startIndex) > size && (foundsetSize - nrNewRecords) == (startIndex + size))
 								{
 									int oldStartIndex = startIndex;
-									int oldSize = size;
 									int newSize = Math.min(preferredViewPortSize, (foundset.getSize() - startIndex));
 
 									int insertStart = Math.max(startIndex, event.getFirstRow());
@@ -320,7 +328,7 @@ public class FoundsetTypeViewport
 									}
 								}
 
-								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
+								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), oldSize, FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
 							}
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
