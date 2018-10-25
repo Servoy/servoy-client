@@ -344,10 +344,17 @@ public class CSSPosition implements Serializable
 				@Override
 				public Object visit(IPersist o)
 				{
-					if (o instanceof IFormElement)
+					if (useCSSPosition(o))
 					{
-						setLocation((IFormElement)o, ((IFormElement)o).getLocation().x, ((IFormElement)o).getLocation().y);
-						setSize((IFormElement)o, ((IFormElement)o).getSize().width, ((IFormElement)o).getSize().height);
+						BaseComponent element = (BaseComponent)o;
+						int anchors = element.getAnchors();
+						CSSPosition startPosition = new CSSPosition(((anchors & IAnchorConstants.NORTH) != 0) ? "0" : "-1",
+							((anchors & IAnchorConstants.EAST) != 0) ? "0" : "-1", ((anchors & IAnchorConstants.SOUTH) != 0) ? "0" : "-1",
+							((anchors & IAnchorConstants.WEST) != 0) ? "0" : "-1", String.valueOf(element.getSize().width),
+							String.valueOf(element.getSize().height));
+						element.setCssPosition(startPosition);
+						setLocation(element, element.getLocation().x, element.getLocation().y);
+						setSize(element, element.getSize().width, element.getSize().height);
 					}
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}

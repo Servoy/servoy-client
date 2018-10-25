@@ -5,6 +5,7 @@
 /// <reference path="../../typings/sablo/sablo_app.d.ts" />
 /// <reference path="../../typings/servoy/servoy.d.ts" />
 /// <reference path="../../typings/servoy/component.d.ts" />
+/// <reference path="../../typings/servoy/foundset.d.ts" />
 
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','servoyalltemplates','ui.bootstrap'])
 .config(["$provide", function ($provide) {
@@ -808,7 +809,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService) {
+.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket) {
 		return {
 			restrict: 'A',
 			scope: {
@@ -844,21 +845,34 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 				else {
 					let page = 0; // todo should be a model hidden object
+					let numberOfCells = 0;
+					
+					function getFoundset() {
+						return scope.foundset as foundsetType.FoundsetPropertyValue;
+					}
+					
+					scope.firstPage = function() {
+						if (page != 0) {
+							pager.children().css("cursor", "progress");
+							page = 0;
+							createRows();
+						}
+					}
 					scope.moveRight = function() {
-						pager.children().css("cursor","progress");
+						pager.children().css("cursor", "progress");
 						page++;
 						createRows();
 					}
 					scope.moveLeft = function() {
 						if (page > 0) {
-							pager.children().css("cursor","progress");
+							pager.children().css("cursor", "progress");
 							page--;
 							createRows();
 						}
 					}
 					const parent = element.parent();
                     const rowToModel: Array<servoy.IServoyScope> = [];
-					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1'><div style='text-align:center;cursor:pointer;display:none;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:#fff;' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;display:none;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:#fff;' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
+					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1'><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;padding-top:13px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
 
                     let template = null;
 					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
@@ -875,7 +889,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					    array.length = 0;
 					}
 					function createRows() {
-                        let numberOfCells  = scope.responsivePageSize;
+                        numberOfCells = scope.responsivePageSize;
                         if (numberOfCells == 0 ) {
                         	if (scope.svyFormComponent.absoluteLayout) {
 		                        const parentWidth = parent.outerWidth();
@@ -896,93 +910,125 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
                         scope.foundset.setPreferredViewportSize(numberOfCells);
                         
-                        const startIndex = page*numberOfCells;
+                        const startIndex = page * numberOfCells;
                         if (scope.foundset.viewPort.startIndex != startIndex) {
                         	scope.foundset.loadRecordsAsync(startIndex, numberOfCells);
-                        }
-                        else {
+                        } else {
 						    destroyScopes(rowToModel);
 						    parent.children("[svy-form-component]" ).remove();
 	                        const maxRows = Math.min(numberOfCells, scope.foundset.viewPort.rows.length);
 	                        for ( let i = 0; i < maxRows; i++ ) {
-	                        	createRow(i);
+	                        	createRow(i, true);
 	                        }
-	                        if (numberOfCells > scope.foundset.viewPort.rows.length && scope.foundset.viewPort.rows.length != 0) {
-	                        	scope.foundset.loadExtraRecordsAsync(numberOfCells - scope.foundset.viewPort.rows.length);
+	                        if (numberOfCells > scope.foundset.viewPort.rows.length && scope.foundset.viewPort.startIndex + scope.foundset.viewPort.size < scope.foundset.serverSize) {
+	                        	scope.foundset.loadExtraRecordsAsync(Math.min(numberOfCells - scope.foundset.viewPort.rows.length, scope.foundset.serverSize - scope.foundset.viewPort.startIndex - scope.foundset.viewPort.size));
 	                        }
-	                        const pagerChildren = pager.children();
-	                        pagerChildren.css("cursor","pointer");
-	                        pagerChildren.first().css("display", page > 0 ? "inline" : "none");
-	    					const showNext = scope.foundset.hasMoreRows || (scope.foundset.serverSize - (startIndex + maxRows)) > 0;
-	    					pagerChildren.last().css("display", showNext ? "inline" : "none");
+	                        
+	                        updatePagingControls();
                         }
 					}
+					function updatePagingControls() {
+                        const pagerChildren = pager.children();
+                        pagerChildren.css("cursor","pointer");
+    					pagerChildren.first().css("visibility", page > 0 ? "visible" : "hidden");
+                        pagerChildren.eq(1).css("visibility", page > 0 ? "visible" : "hidden");
+    					const showNext = scope.foundset.hasMoreRows || (scope.foundset.serverSize - (page * numberOfCells + Math.min(numberOfCells, scope.foundset.viewPort.rows.length))) > 0;
+    					pagerChildren.last().css("visibility", showNext ? "visible" : "hidden");
+					}
 					
-					function createRow(index) {
+					interface IServoyScopeInternal extends servoy.IServoyScope {
+						createdChildElements?: number;
+					}
+					
+					function createChildElementForRow(index: number, rowId: string, row: IServoyScopeInternal, childElement: componentType.ComponentPropertyValue) {
+						function Model() {
+						}
+						Model.prototype = childElement.model;
+				
+						function ServoyApi( rowModel, rowId ) {
+							this.apply = ( property ) => {
+								ServoyApi.prototype.apply( property, rowModel, rowId );
+							}
+							this.startEdit = ( property ) => {
+								ServoyApi.prototype.startEdit( property, rowId )
+							}
+				
+						}
+						ServoyApi.prototype = childElement.servoyApi;
+				
+						function Handlers( handlers, rowModel, rowId ) {
+							this.svy_servoyApi = new ServoyApi( rowModel, rowId );
+							for (var key in handlers) {
+								this[key] = handlers[key].selectRecordHandler(rowId);
+							}
+						}
+				
+						const rowModel = new Model()
+				
+						const simpleName = childElement["svy_simple_name"];
+				
+						copyRecordProperties( childElement, rowModel, index );
+						row.model[simpleName] = rowModel;
+						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
+						row.api[simpleName] = {};
+						if ( scope.svyFormComponent.absoluteLayout ) {
+							row.layout[simpleName] = {
+								position: "absolute",
+								left: childElement.model.location.x + "px",
+								top: childElement.model.location.y + "px",
+								width: childElement.model.size.width + "px",
+								height: childElement.model.size.height + "px"
+							};
+						}
+						
+						row.createdChildElements++;
+						
+						if (row.createdChildElements == scope.svyFormComponent.childElements.length) {
+							// ok now we have all components prepared for this row; create the directives/DOM
+							delete row.createdChildElements;
+							
+							template(row, function(cloned) {
+								 $(parent.children()[index + 1]).append(cloned); // +1 for pager div
+							});
+						}
+					}
+					
+					function createRow(index, createRecordLinkedComponentsAsWell) {
 						const rowId = scope.foundset.viewPort.rows[index][$foundsetTypeConstants.ROW_ID_COL_KEY]
-						const row = scope.$new( false, scope ) as servoy.IServoyScope;
-						rowToModel[index] =  row;
+						const row = scope.$new( false, scope ) as IServoyScopeInternal;
+						rowToModel[index] = row;
 						row.model = {}
 						row.api = {};
 						row.layout = {};
 						row.handlers = {}
-						for ( var j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
-							const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
-					
-							function Model() {
+						row.createdChildElements = 0;
+						
+						const clone = element.clone();
+						
+						// pager div is the first div in parent; form component divs follow starting at index 1
+						if (rowToModel.length - 1 == index) {
+						    parent.append(clone);
+					    } else if (index == 0) {
+						    clone.insertAfter(pager);
+						} else {
+						    const child = $(parent.children()[index + 1]);
+						    clone.insertBefore(child);
+						}
+						
+						if (createRecordLinkedComponentsAsWell) {
+							for ( var j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
+								createChildElementForRow(index, rowId, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 							}
-							Model.prototype = childElement.model;
-					
-							function ServoyApi( rowModel, rowId ) {
-								this.apply = ( property ) => {
-									ServoyApi.prototype.apply( property, rowModel, rowId );
+						} else {
+							// this is probably a foundset viewport insert; the components that are record linked will themselves populate the child elements in the component listeners code later
+							// so just add the ones that are not record linked here because those do not have viewportChangeListeners added, and insert can add them right away, as they don't have viewport specific data
+							for ( var j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
+								const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
+								if (!childElement.foundsetConfig || !childElement.foundsetConfig.recordBasedProperties || !(childElement.foundsetConfig.recordBasedProperties.length > 0)) {
+									createChildElementForRow(index, rowId, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 								}
-								this.startEdit = ( property ) => {
-									ServoyApi.prototype.startEdit( property, rowId )
-								}
-					
-							}
-							ServoyApi.prototype = childElement.servoyApi;
-					
-							function Handlers( handlers, rowModel, rowId ) {
-								this.svy_servoyApi = new ServoyApi( rowModel, rowId );
-								for (var key in handlers) {
-									this[key] = handlers[key].selectRecordHandler(rowId);
-								}
-							}
-					
-							const rowModel = new Model()
-					
-							const simpleName = childElement["svy_simple_name"];
-					
-							copyRecordProperties( childElement, rowModel, index );
-							row.model[simpleName] = rowModel;
-							row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
-							row.api[simpleName] = {};
-							if ( scope.svyFormComponent.absoluteLayout ) {
-								row.layout[simpleName] = {
-									position: "absolute",
-									left: childElement.model.location.x + "px",
-									top: childElement.model.location.y + "px",
-									width: childElement.model.size.width + "px",
-									height: childElement.model.size.height + "px"
-								};
 							}
 						}
-						const elements = template( row , function(cloned) {
-							const clone = element.clone();
-							clone.append( cloned );
-							if (rowToModel.length -1 == index){
-							    parent.append( clone );
-						    }
-							else if (index == 0) {
-							    parent.prepend( clone );
-							}
-							else {
-							    const child = $(parent.children()[index]);
-							    clone.insertBefore(child);
-							}
-						});
 					}
 				
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
@@ -1001,42 +1047,98 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							element.css( "height", height + "px" )
 							element.css( "width", width + "px" )
 						}
-
-						for ( let  j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
-							const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
-							if (childElement.name.indexOf(propertyInName ) != 0) throw "The child name " + childElement.name + " should start with " +  propertyInName;
-							const simpleName = childElement.name.substring(propertyInName.length );
-							childElement["svy_simple_name"] = simpleName;
-							if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
-								childElement.addViewportChangeListener(( change ) => {
-									if ( change.viewportRowsUpdated ) {
-										const updates = change.viewportRowsUpdated.updates;
-										updates.forEach(( value ) => {
-											if ( value.type == $foundsetTypeConstants.ROWS_CHANGED ) {
-												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-													const row = rowToModel[k] as servoy.IServoyScope;
-													copyRecordProperties( childElement, row.model[simpleName], k );
-												}
-											}
-											else if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
-												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-													rowToModel.splice(k, 0, {} as servoy.IServoyScope);
-													createRow(k);
-													// TODO what if insert automatically deleted some rows from the end of viewport (info that is available in 'change')? handle that as well
-												}
-											}
-											else if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
-												for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
-													destroyScopes(rowToModel.splice(k, 1));
-													parent.children()[k].remove();
-													// TODO what if delete automatically inserted some rows at the end of viewport (info that is available in 'change')? handle that as well
-												}
-											}
-										} )
-									} else if (change.viewportRowsCompletelyChanged) {
-										createRows();
+						
+						// INSERTS and DELETES, full changes in viewport should be handled by foundset listener directly (which is only one, not one per component)
+						getFoundset().addChangeListener(function(changes) {
+						    // check to see what actually changed server-side and update what is needed in browser
+							let shouldUpdatePagingControls = false;
+							if (changes.viewportRowsCompletelyChanged || changes.fullValueChanged) {
+								createRows();
+							} else if (changes.viewportRowsUpdated) {
+								const updates = changes.viewportRowsUpdated.updates;
+								updates.forEach(( value ) => {
+									// we handle here just row deletes and inserts (insert blank row); the data changes will be handles in each component viewport change listener (see code below)
+									if ( value.type == $foundsetTypeConstants.ROWS_INSERTED ) {
+										for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+											rowToModel.splice(k, 0, null);
+											createRow(k, false);
+										}
+										shouldUpdatePagingControls = true;
+									}
+									else if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
+										for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+											destroyScopes(rowToModel.splice(value.startIndex, 1));
+											parent.children()[value.startIndex + 1].remove(); // + 1 is due to pager that is the first div
+										}
+										shouldUpdatePagingControls = true;
 									}
 								} )
+							}
+							
+							if (changes.serverFoundsetSizeChanged) shouldUpdatePagingControls = true;
+							
+							if (shouldUpdatePagingControls) updatePagingControls();
+							
+							if (changes.viewPortSizeChanged && getFoundset().serverSize > 0 && ((page + 1) * numberOfCells - 1 > getFoundset().serverSize) && getFoundset().viewPort.size == 0 && numberOfCells > 0) {
+								// if we were on last page (or some page) and probably due to a delete there are no longer records for that page, adjust page number to show last available page
+		                        page = Math.floor((getFoundset().serverSize - 1) / numberOfCells);
+		                        createRows();
+							} else if (changes.viewPortStartIndexChanged) {
+								// an insert/delete before current page made viewport start index no longer match page start index; adjust
+								const shiftedPageDelta = page * numberOfCells - getFoundset().viewPort.startIndex; // can be negative (insert) or positive(delete)
+								if (shiftedPageDelta != 0) {
+									const wantedVPSize = getFoundset().viewPort.size;
+									const wantedVPStartIndex = page * numberOfCells;
+									const serverSize = getFoundset().serverSize;
+									
+									// when load extra would request more records after, there might not be enough records in the foundset (deleted before)
+									let loadExtraCorrected = shiftedPageDelta;
+									if (loadExtraCorrected > 0 && wantedVPStartIndex + wantedVPSize > serverSize)
+										loadExtraCorrected -= (wantedVPStartIndex + wantedVPSize - serverSize);
+									if (loadExtraCorrected != 0) getFoundset().loadExtraRecordsAsync(loadExtraCorrected, true);
+									
+									// load less if it happens at the end - might need to let more records slide-in the viewport if available (insert before)
+									let loadLessCorrected = shiftedPageDelta;
+									if (loadLessCorrected < 0 && wantedVPSize < numberOfCells && wantedVPStartIndex + wantedVPSize < serverSize)
+										loadLessCorrected += Math.min(serverSize - wantedVPStartIndex - wantedVPSize, numberOfCells - wantedVPSize);
+									if (loadLessCorrected != 0) getFoundset().loadLessRecordsAsync(loadLessCorrected, true);
+									
+									getFoundset().notifyChanged();
+								}
+							}
+							
+							// TODO any other types of changes that need handling here?
+						});
+
+						for ( let j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
+							const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
+							if (childElement.name.indexOf(propertyInName) != 0) throw "The child name " + childElement.name + " should start with " +  propertyInName;
+							const simpleName = childElement.name.substring(propertyInName.length );
+							childElement["svy_simple_name"] = simpleName;
+							if (childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
+								childElement.addViewportChangeListener((change) => {
+									// make sure the child element listeners are executed later, after the foundset change listener had a chance to process inserts and deletes
+									$webSocket.addIncomingMessageHandlingDoneTask(function() {
+										if (change.viewportRowsUpdated) {
+											const updates = change.viewportRowsUpdated.updates;
+											updates.forEach(( value ) => {
+												if (value.type == $foundsetTypeConstants.ROWS_CHANGED) {
+													for (let k = value.startIndex; k <= value.endIndex; k++) {
+														const row = rowToModel[k] as servoy.IServoyScope;
+														copyRecordProperties(childElement, row.model[simpleName], k);
+													}
+												} else if (value.type == $foundsetTypeConstants.ROWS_INSERTED) {
+													// the actual 'row' was created when foundset change listener executed before; we just need to create the child element related stuff
+													for (let k = value.startIndex; k <= value.endIndex; k++) {
+														const rowId = scope.foundset.viewPort.rows[k][$foundsetTypeConstants.ROW_ID_COL_KEY];
+														const row = rowToModel[k];
+														createChildElementForRow(k, rowId, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
+													}
+												}
+											});
+										}
+								    });
+								});
 							}
 							
 							// TODO do we always have to attach this? Because the component maybe doesn't use that modelChangeNotifier

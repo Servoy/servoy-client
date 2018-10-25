@@ -23,7 +23,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	NOTIFY_VIEW_PORT_SIZE_CHANGED: "viewPortSizeChanged",
 	NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED: "viewportRowsCompletelyChanged",
 	NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED: "viewportRowsUpdated",
-	NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: "oldViewportSize",
+	NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: "oldViewportSize", // deprecated since 8.4 where granular updates are pre-processed server side and can be applied directed on client - making this not needed
 	NOTIFY_VIEW_PORT_ROW_UPDATES: "updates",
 	
 	// row update types for listener notifications - in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
@@ -45,6 +45,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	return {
 
 		/**
+		 * NOTE: Starting with Servoy 8.4 you no longer need to use this method; see @deprecated
+		 * comment.
+		 * 
 		 * The purpose of this method is to aggregate after-the-fact granular updates with indexes
 		 * that are relevant only when applying updates 1-by-1 into indexes that are
 		 * related to the new/final state of the viewport. It only calculates new indexes
@@ -58,6 +61,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 		 * @param oldViewportSize what a foundset/component property type (viewport) change listener
 		 * would receive in changeEvent[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED]
 		 * [$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE]
+		 * 
+		 * @deprecated starting with 8.4 this is no longer needed as foundset/component/foundsetlinked
+		 * property change listeners guarantee that the rows in inserts and updates have their indexes
+		 * relative to the already changed viewport (data in the viewport at those indexes at the
+		 * moment these listeners trigger does match correctly). So basically calling this method would
+		 * not alter any update operations - they would remain the same.
 		 * 
 		 * @returns an array of $foundsetTypeConstants.ROWS_CHANGED updates with their indexes corrected
 		 * to reflect the indexes in the final state of the viewport (after all updates were applied).
@@ -301,7 +310,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 						if (hasListeners) {
 							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewPortUpdate[UPDATE_PREFIX + ROWS] }; // viewPortUpdate[UPDATE_PREFIX + ROWS] was already prepared for listeners by $viewportModule.updateViewportGranularly
-							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize; 
+							notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize; // deprecated since 8.4 where granular updates are pre-processed server side and can be applied directed on client - making this not needed
 						}
 					}
 				}
@@ -475,14 +484,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 					}
 					internalState.fireChanges = function(foundsetChanges: foundsetType.ChangeEvent) {
-						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties linked to that foundset.
-						// In order to make sure that foundset notification update code executes after all property changes have been applied (so the dataprovider properties are also up-to-date)
-						// delay change listener calls until all incoming messages are handled
-						$webSocket.addIncomingMessageHandlingDoneTask(function() {
-							for(var i = 0; i < internalState.changeListeners.length; i++) {
-								internalState.changeListeners[i](foundsetChanges);
-							}
-						});
+						for(var i = 0; i < internalState.changeListeners.length; i++) {
+							internalState.changeListeners[i](foundsetChanges);
+						}
 					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup

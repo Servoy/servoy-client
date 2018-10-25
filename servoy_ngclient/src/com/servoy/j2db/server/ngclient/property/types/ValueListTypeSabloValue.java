@@ -404,7 +404,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (getConfig().getMaxCount(dataAdapterListToUse.getApplication()) < valuelistSize && getConfig().shouldLogWhenOverMax() &&
 			Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + //$NON-NLS-1$//$NON-NLS-2$
-				getConfig().getMaxCount(dataAdapterListToUse.getApplication()) + " rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", null);
+				getConfig().getMaxCount(dataAdapterListToUse.getApplication()) +
+				" rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)",
+				null);
 	}
 
 	protected FlattenedSolution getFlattenedSolution()
@@ -531,7 +533,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	public void changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext)
 	{
-		if (changeMonitor.isChanged()) toJSON(writer, key, clientConversion, dataConverterContext);
+		if (changeMonitor.isChanged()) toJSON(writer, key, clientConversion, dataConverterContext); // sends whole value but only if it was actually changed
 	}
 
 	private void revertFilter()
@@ -625,7 +627,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				Object realValue = dataAdapterListToUse.getValueObject(dataAdapterListToUse.getRecord(), dataproviderID);
 
 				// do mark it as changed but don't notify yet (false arg) because fill below will probably trigger listener above and notify anyway; that would mean that although
-				// we do call notify after fill that is likely to end up in a NO_OP changesToJSON in case of foundset-linked valuelist properties - which avoids one unwanted send to client in viewport
+				// we do call notify after fill that is likely to end up in a NO_OP changesToJSON in case of foundset-linked valuelist properties
 				changeMonitor.markFullyChanged(false);
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify

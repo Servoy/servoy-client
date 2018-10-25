@@ -36,16 +36,18 @@ class RowEvent extends EventObject
 	private final int type;
 	private final Object data;
 	private final boolean isAggregateChange;
+	private final String pkHashKey;
 
 	RowEvent(Object source, Row row, int type, Object data)
 	{
-		this(source, row, type, data, false);
+		this(source, row, row.getPKHashKey(), type, data, false);
 	}
 
-	RowEvent(Object source, Row row, int type, Object data, boolean isAggregateChange)
+	RowEvent(Object source, Row row, String pkHashKey, int type, Object data, boolean isAggregateChange)
 	{
 		super(source);
 		this.row = row;
+		this.pkHashKey = pkHashKey;
 		this.type = type;
 		this.data = data;
 		this.isAggregateChange = isAggregateChange;
@@ -69,6 +71,15 @@ class RowEvent extends EventObject
 	public Row getRow()
 	{
 		return row;
+	}
+
+	/**
+	 * @return the pkHashKey
+	 */
+	public String getPkHashKey()
+	{
+		if (pkHashKey == null && row != null) return row.getPKHashKey();
+		return pkHashKey;
 	}
 
 	/**

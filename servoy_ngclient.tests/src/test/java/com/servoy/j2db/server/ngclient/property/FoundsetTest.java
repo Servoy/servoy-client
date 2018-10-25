@@ -451,11 +451,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.getFoundset().getRecord(0).startEditing();
 		rawPropertyValue.getFoundset().getRecord(0).setValue("test1", "not test1 any more");
 		rawPropertyValue.getFoundset().getRecord(0).stopEditing();
-		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 		rawPropertyValue.getFoundset().getRecord(1).startEditing();
 		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more");
 		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
-		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 
 		// now simulate a send to client
 		rawPropertyValue.toJSON(new JSONStringer(), new DataConversion(), new BrowserConverterContext(wc, PushToServerEnum.allow));
@@ -463,11 +463,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.getFoundset().getRecord(0).startEditing();
 		rawPropertyValue.getFoundset().getRecord(0).setValue("test1", "not test1 any more nor not test1 any more");
 		rawPropertyValue.getFoundset().getRecord(0).stopEditing();
-		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 		rawPropertyValue.getFoundset().getRecord(1).startEditing();
 		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more nor not test2 any more");
 		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
-		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 	}
 
 	@Test
@@ -531,7 +531,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.changesToJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
 		JSONAssert.assertEquals(
-			"{\"upd_serverSize\":0,\"upd_selectedRowIndexes\":[],\"upd_viewPort\":{\"startIndex\":0,\"size\":0,\"upd_rows\":[{\"rows\":[],\"startIndex\":0,\"endIndex\":4,\"type\":2}]}}",
+			"{\"upd_serverSize\":0,\"upd_selectedRowIndexes\":[],\"upd_viewPort\":{\"startIndex\":0,\"size\":0,\"upd_rows\":[{\"startIndex\":0,\"endIndex\":4,\"type\":2}]}}",
 			stringWriter.toString(), true);
 	}
 
@@ -799,7 +799,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, new DataConversion(), allowBrowserConverterContext);
 
 		Assert.assertEquals(new JSONObject(
-			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":2,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"}],\"startIndex\":0,\"endIndex\":2,\"type\":1}]}}").toString(),
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":2,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"}],\"startIndex\":0,\"endIndex\":0,\"type\":1}]}}").toString(),
 			new JSONObject(stringWriter3.toString()).toString());
 
 		viewPort.loadExtraRecords(-1);
@@ -817,7 +817,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, new DataConversion(), allowBrowserConverterContext);
 
 		Assert.assertEquals(new JSONObject(
-			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":18,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}],\"startIndex\":2,\"endIndex\":18,\"type\":1}]}}").toString(),
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":18,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}],\"startIndex\":2,\"endIndex\":17,\"type\":1}]}}").toString(),
 			new JSONObject(stringWriter3.toString()).toString());
 
 		viewPort.loadExtraRecords(1);

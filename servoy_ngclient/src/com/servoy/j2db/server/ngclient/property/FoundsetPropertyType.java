@@ -319,6 +319,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		int initialPreferredViewPortSize = FoundsetPropertyTypeConfig.DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE;
 		boolean sendSelectionViewportInitially = FoundsetPropertyTypeConfig.DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY;
 
+		if (rhinoValue instanceof Wrapper) rhinoValue = ((Wrapper)rhinoValue).unwrap();
+
 		// rhinoValue can be:
 		// 1.                {
 		//                       foundset : ...someIFoundSetInternal...,

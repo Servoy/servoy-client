@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.awt.Point;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -344,7 +345,33 @@ public class FormLayoutGenerator
 				}
 				if (CSSPosition.isSet(position.top))
 				{
-					style += "top:" + getCSSValue(position.top) + ";";
+					String top = position.top;
+					if (designId == null)
+					{
+						Point location = CSSPosition.getLocation(bc);
+						Part part = form.getPartAt(location.y);
+						if (part != null)
+						{
+							int topStart = form.getPartStartYPos(part.getID());
+							if (topStart > 0)
+							{
+								if (top.endsWith("px"))
+								{
+									top = top.substring(0, top.length() - 2);
+								}
+								int topInteger = Utils.getAsInteger(top, -1);
+								if (topInteger != -1)
+								{
+									top = String.valueOf(topInteger - topStart);
+								}
+								else
+								{
+									top = "calc(" + top + "-" + topStart + "px)";
+								}
+							}
+						}
+					}
+					style += "top:" + getCSSValue(top) + ";";
 				}
 				if (CSSPosition.isSet(position.bottom))
 				{

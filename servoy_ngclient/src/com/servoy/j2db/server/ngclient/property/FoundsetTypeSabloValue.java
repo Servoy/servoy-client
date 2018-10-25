@@ -713,9 +713,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					addViewPortBounds(destinationJSON);
 					somethingChanged = true;
 				}
-				List<com.servoy.j2db.server.ngclient.property.ViewportOperation> viewPortChanges = changeMonitor.getViewPortChanges();
-				if (viewPortChanges.size() > 0)
+
+				if (changeMonitor.hasViewportChanges())
 				{
+					ViewportOperation[] viewPortChanges = changeMonitor.getViewPortChanges();
 					if (!somethingChanged) destinationJSON.object();
 					if (!viewPortUpdateAdded)
 					{
@@ -727,10 +728,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					clientConversionInfo.pushNode(UPDATE_PREFIX + ROWS);
 					destinationJSON.key(UPDATE_PREFIX + ROWS).array();
 
-					for (int i = 0; i < viewPortChanges.size(); i++)
+					for (int i = 0; i < viewPortChanges.length; i++)
 					{
 						clientConversionInfo.pushNode(String.valueOf(i));
-						viewPortChanges.get(i).writeJSONContent(destinationJSON, null, FullValueToJSONConverter.INSTANCE, clientConversionInfo);
+						viewPortChanges[i].writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, clientConversionInfo);
 						clientConversionInfo.popNode();
 					}
 					clientConversionInfo.popNode();
@@ -1057,7 +1058,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext,
 										returnValueAdjustedIncommingValueForRow);
 
-									changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 									try
 									{
 										if (record.startEditing())
@@ -1078,7 +1078,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 									}
 									finally
 									{
-										changeMonitor.resumeRowUpdateListener();
 										// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value; the same if for example a double was rounded to an int
 										if (!Utils.equalObjects(record.getValue(dataProviderName), value) ||
 											returnValueAdjustedIncommingValueForRow.value.booleanValue())

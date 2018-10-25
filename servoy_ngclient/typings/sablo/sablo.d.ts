@@ -1,12 +1,14 @@
 /// <reference path="../angularjs/angular.d.ts" />
 
-declare namespace sablo { 
+declare namespace sablo {
+
 	interface ILogService extends angular.ILogService {
 		debugEnabled: boolean;
 		debugLevel: number;
 		DEBUG: number;
 		SPAM: number;
 	}
+
 	interface FormState {
 		model:any;
 		api:any;
@@ -21,6 +23,7 @@ declare namespace sablo {
 		getScope?(): angular.IScope;
 		addWatches?():void			
 	}
+
 	interface WSSession {
 		callService<T>(serviceName:string, methodName:string, argsObject, async:boolean):angular.IPromise<T>;
 		sendMessageObject:()=>void;
@@ -29,14 +32,17 @@ declare namespace sablo {
 		onclose:()=>void;
 		onMessageObject(handler:(msg, conversionInfo, scopesToDigest)=>void): void; 
 	}
+
 	interface Locale {
 		language:string;
 		country:string;
 		full: string;
 	}
+
 	interface SabloConstants {
 		modelChangeNotifier:string	
 	}
+
 	interface ISabloApplication {
         connect(context, queryArgs, websocketUri): WSSession;
         contributeFormResolver(contributedFormResolver:{prepareUnresolvedFormForUse(form:string)}): void;
@@ -115,6 +121,7 @@ declare namespace sablo {
         setQueryString(queryString: string): void,
         getQueryString(): string
 	}
+
 	interface ISabloDeferHelper {
 		initInternalStateForDeferring(internalState, timeoutRejectLogPrefix?: string): void
 		initInternalStateForDeferringFromOldInternalState(internalState, oldInternalState): void
@@ -122,4 +129,5 @@ declare namespace sablo {
 		retrieveDeferForHandling(msgId: number, internalState):angular.IDeferred<any>
 		cancelAll(internalState):void
 	}
+
 }

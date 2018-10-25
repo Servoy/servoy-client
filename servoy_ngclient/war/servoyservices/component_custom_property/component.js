@@ -136,7 +136,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 									}, false);
 					if (hasListeners) {
 						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED] = { updates : viewportUpdate }; // viewPortUpdate was already prepared for listeners by $viewportModule.updateViewportGranularly
-						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize;
+						notificationParamForListeners[$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED][$foundsetTypeConstants.NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE] = oldSize; // no longer needed/deprecated starting with Servoy 8.4 where granular update indexes are guaranteed to match final state of viewport data so less processing is needed
 					}
 
 					done = true;
@@ -207,14 +207,9 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						}
 					}
 					internalState.fireChanges = function(viewportChanges) {
-						// A change of a row on server will send changes both to the foundset property and to the dataprovider properties/child component props. linked to that foundset.
-						// In order to make sure that foundset notification update code executes after all property changes have been applied
-						// delay change listener calls until all incoming messages are handled
-						$webSocket.addIncomingMessageHandlingDoneTask(function() {
-							for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
-								internalState.viewportChangeListeners[i](viewportChanges);
-							}
-						});
+						for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
+							internalState.viewportChangeListeners[i](viewportChanges);
+						}
 					}
 
 					internalState.modelUnwatch = null;
@@ -314,7 +309,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			addBackWatches(newValue, componentScope, childChangedNotifierGenerator);
 			
 			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
-				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
+				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy component * firing founset listener notifications: " + JSON.stringify(Object.keys(notificationParamForListeners)));
 				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
 				currentClientValue[$sabloConverters.INTERNAL_IMPL].fireChanges(notificationParamForListeners);
 			}

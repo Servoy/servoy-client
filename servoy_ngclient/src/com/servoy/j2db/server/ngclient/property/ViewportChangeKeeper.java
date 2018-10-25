@@ -81,18 +81,26 @@ public class ViewportChangeKeeper
 	private int viewportStart;
 	private int numberOfUnchangedRows; // number of indexes who's data is not affected by any of the viewport operations; we monitor these because if there are too few of them it is more efficient to send the whole viewport then lots of changes
 
-	public ViewportChangeKeeper(int viewportStart, int viewportEnd)
+	public ViewportChangeKeeper()
 	{
-		reset(viewportStart, viewportEnd);
 	}
 
 	public void reset(int newViewportStart, int newViewportEnd)
 	{
 		unchangedIntervals.clear();
-		unchangedIntervals.add(new UnchangedInterval(newViewportStart, newViewportEnd, newViewportStart, newViewportEnd));
+		UnchangedInterval wholeUnchangedInterval = new UnchangedInterval(newViewportStart, newViewportEnd, newViewportStart, newViewportEnd);
+		unchangedIntervals.add(wholeUnchangedInterval);
+
+		numberOfUnchangedRows = wholeUnchangedInterval.getUnchangedIndexesCount();
+
 		this.viewportStart = newViewportStart;
 		this.initialViewportEnd = this.currentViewportEnd = newViewportEnd;
-		numberOfUnchangedRows = newViewportEnd - newViewportStart + 1;
+	}
+
+	public boolean hasChanges()
+	{
+		// if the number of unchanged rows is not identical to initial viewport size then we have changes
+		return initialViewportEnd != currentViewportEnd || (numberOfUnchangedRows != initialViewportEnd - viewportStart + 1);
 	}
 
 	public void processOperation(ViewportOperation operation)
@@ -154,14 +162,14 @@ public class ViewportChangeKeeper
 		if (changedCountInBetweenDelta > 0)
 		{
 			// new changed rows are less then previous rows => generate a delete OP
-			equivalentSequenceOfOperations.add(new ViewportOperation(null, previousUnchangedInterval.getNewEnd() + 1,
+			equivalentSequenceOfOperations.add(new ViewportOperation(previousUnchangedInterval.getNewEnd() + 1,
 				previousUnchangedInterval.getNewEnd() + changedCountInBetweenDelta, ViewportOperation.DELETE));
 			numberOfRowsToUpdate = currentUnchangedInterval.getNewStart() - previousUnchangedInterval.getNewEnd() - 1;
 		}
 		else if (changedCountInBetweenDelta < 0)
 		{
 			// new changed rows are more then previous rows => generate an insert OP
-			equivalentSequenceOfOperations.add(new ViewportOperation(null, previousUnchangedInterval.getNewEnd() + 1,
+			equivalentSequenceOfOperations.add(new ViewportOperation(previousUnchangedInterval.getNewEnd() + 1,
 				previousUnchangedInterval.getNewEnd() - changedCountInBetweenDelta, ViewportOperation.INSERT));
 			numberOfRowsToUpdate = currentUnchangedInterval.getInitialStart() - previousUnchangedInterval.getInitialEnd() - 1;
 		}
@@ -169,7 +177,7 @@ public class ViewportChangeKeeper
 
 		if (numberOfRowsToUpdate > 0)
 		{
-			equivalentSequenceOfOperations.add(new ViewportOperation(null, currentUnchangedInterval.getNewStart() - numberOfRowsToUpdate,
+			equivalentSequenceOfOperations.add(new ViewportOperation(currentUnchangedInterval.getNewStart() - numberOfRowsToUpdate,
 				currentUnchangedInterval.getNewStart() - 1, ViewportOperation.CHANGE));
 		}
 

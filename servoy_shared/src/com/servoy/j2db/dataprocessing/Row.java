@@ -692,7 +692,7 @@ public class Row
 			{
 				parent.fireDependingCalcs(getPKHashKey(), dataProviderID, null);
 			}
-			parent.fireNotifyChange(null, this, changedColumns.keySet().toArray(), RowEvent.UPDATE);
+			parent.fireNotifyChange(null, this, this.getPKHashKey(), changedColumns.keySet().toArray(), RowEvent.UPDATE);
 			FireCollector collector = FireCollector.getFireCollector();
 			try
 			{

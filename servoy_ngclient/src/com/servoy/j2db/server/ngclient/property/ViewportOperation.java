@@ -19,15 +19,13 @@ package com.servoy.j2db.server.ngclient.property;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
-import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
+
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 @SuppressWarnings("nls")
-public class ViewportOperation implements IToJSONWriter<IBrowserConverterContext>
+public class ViewportOperation
 {
 	public static final int CHANGE = 0;
 	public static final int INSERT = 1;
@@ -37,48 +35,46 @@ public class ViewportOperation implements IToJSONWriter<IBrowserConverterContext
 	public final int startIndex;
 	public final int endIndex;
 	public final int type;
-	public final boolean granularUpdate;
-
-	private final IJSONStringWithConversions rowData;
 
 	/**
 	 * Null if it's a whole row, and non-null of only one column of the row is in this row data.
 	 */
 	public final String columnName;
 
-	public ViewportOperation(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type)
+	public ViewportOperation(int startIndex, int endIndex, int type)
 	{
-		this(rowData, startIndex, endIndex, type, null, false);
+		this(startIndex, endIndex, type, null);
 	}
 
 	/**
 	 * @throws IllegalArgumentException if you specify a column name, start index and end index must be the same (only one row). Partial changes like that are not supported currently
 	 * for multiple rows inside the same operation.
 	 */
-	public ViewportOperation(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type, String columnName, boolean granularUpdate)
+	public ViewportOperation(int startIndex, int endIndex, int type, String columnName)
 	{
-		this.rowData = rowData;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 		this.type = type;
 		this.columnName = columnName;
-		this.granularUpdate = granularUpdate;
 
 		if (columnName != null && startIndex != endIndex) throw new IllegalArgumentException(
 			"Partial row updates are not supported for multiple indexes... Column name: " + columnName + ", [" + startIndex + ", " + endIndex + "].");
 	}
 
-	@Override
-	public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
-		DataConversion clientDataConversions) throws JSONException
+	public boolean writeJSONContent(ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset, int viewportStartIndex, JSONWriter w,
+		String keyInParent, DataConversion clientDataConversions) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(w, keyInParent);
 
 		w.object();
-		if (rowData != null)
+
+		// write actual data if necessary
+		if (type != DELETE && type != CHANGE_IN_LINKED_PROPERTY)
 		{
-			w.key("rows").value(rowData);
-			clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
+			w.key("rows");
+			clientDataConversions.pushNode("rows");
+			rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnName, foundset, w, clientDataConversions);
+			clientDataConversions.popNode();
 		}
 
 		w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(
@@ -87,43 +83,10 @@ public class ViewportOperation implements IToJSONWriter<IBrowserConverterContext
 		return true;
 	}
 
-	/**
-	 * True if the data of this RowData would be completely replaced by another immediately following RowData.
-	 * @param newOperation the following change/update operation.
-	 */
-	public boolean isMadeIrrelevantBySubsequentRowData(ViewportOperation newOperation)
-	{
-		// so a change can be made obsolete by a subsequent full change (so not granular update change) or delete of the same row;
-		// it we're talking about two change operations, it matters as well if one of them is only for a specific column of the row or for the whole row
-
-		// also a change made just for the sake of client-side listeners firing on foundset prop due to changes in foundset-linked prop. content only can be
-		// safely replaced by any similar op., a normal change or a delete on the same row
-		boolean canNewTypeOverrideOldType = (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) &&
-			(newOperation.columnName == null || newOperation.columnName.equals(columnName)) && !newOperation.granularUpdate) ||
-			(type == CHANGE_IN_LINKED_PROPERTY &&
-				(newOperation.type == CHANGE_IN_LINKED_PROPERTY || newOperation.type == CHANGE || newOperation.type == DELETE));
-
-		return canNewTypeOverrideOldType && startIndex >= newOperation.startIndex && endIndex <= newOperation.endIndex;
-	}
-
-	/**
-	 * True if the data of this RowData would be completely redundant taking into consideration the previous RowData that was scheduled - so it should not be added.<br/><br/>
-	 * This only needs to check situations where the previousOperation was not already removed due to {@link #isMadeIrrelevantBySubsequentRowData(ViewportOperation)} returning true on the previous RowData for current RowData as newOperation.
-	 *
-	 * @param previousOperation the previous change/update operation.
-	 */
-	public boolean isMadeIrrelevantByPreviousRowData(ViewportOperation previousOperation)
-	{
-		// so a change can be redundant if it is an CHANGE_IN_LINKED_PROPERTY that happens right after a real CHANGE on the same rows/column
-		boolean canOldTypeOverrideNewType = (type == CHANGE_IN_LINKED_PROPERTY && previousOperation.type == CHANGE);
-
-		return canOldTypeOverrideNewType && startIndex >= previousOperation.startIndex && endIndex <= previousOperation.endIndex;
-	}
-
 	@Override
 	public String toString()
 	{
-		return "RowData [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", rowData=" + rowData + ", columnName=" + columnName + "]";
+		return "ViewportOperation [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", columnName=" + columnName + "]";
 	}
 
 }

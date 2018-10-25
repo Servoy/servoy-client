@@ -671,19 +671,27 @@ public class ResourceProvider implements Filter
 
 	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
 	{
+		return compileSolutionLessFile(media, fs, true);
+	}
+
+	public static String compileSolutionLessFile(Media media, FlattenedSolution fs, boolean includeServoyDefaultLess)
+	{
 		StringBuilder sb = new StringBuilder();
 		Media properties = fs.getMedia(PROPERTIES_LESS);
 		if (properties != null)
 		{
 			//if there is a properties file, then we concatenate the properties, servoy default less and solution less files
 			sb.append(new String(properties.getMediaData()));
-			try (InputStream is = ResourceProvider.class.getResource(SERVOY_LESS_PATH).openStream())
+			if (includeServoyDefaultLess)
 			{
-				sb.append(Utils.getTXTFileContent(is, Charset.forName("UTF8")));
-			}
-			catch (Exception e)
-			{
-				log.error("Cannot find servoy default less file.", e);
+				try (InputStream is = ResourceProvider.class.getResource(SERVOY_LESS_PATH).openStream())
+				{
+					sb.append(Utils.getTXTFileContent(is, Charset.forName("UTF8")));
+				}
+				catch (Exception e)
+				{
+					log.error("Cannot find servoy default less file.", e);
+				}
 			}
 		}
 		sb.append(new String(media.getMediaData()));

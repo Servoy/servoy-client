@@ -25,8 +25,8 @@ public interface IDirtyPropertyListener
 {
 
 	/**
-	 * @param contentsUpdated only matters if dirty is true; this is false if the prop. was changed by ref, true if it's value has changed (the smart value itself called changeMonitor.valueChanged()).
+	 * @param granularUpdate only matters if dirty is true; this is false if the prop. was changed by ref, true if it's value has changed (the smart value itself called changeMonitor.valueChanged()).
 	 */
-	void propertyFlaggedAsDirty(String propertyName, boolean dirty, boolean contentsUpdated);
+	void propertyFlaggedAsDirty(String propertyName, boolean dirty, boolean granularUpdate);
 
 }

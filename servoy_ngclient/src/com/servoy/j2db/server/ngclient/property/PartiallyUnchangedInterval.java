@@ -32,7 +32,7 @@ import com.servoy.j2db.server.ngclient.property.ViewportChangeKeeper.IntervalSeq
 public class PartiallyUnchangedInterval extends UnchangedInterval
 {
 
-	private final List<String> columnNames = new ArrayList<String>();
+	private final List<String> changedColumnNames = new ArrayList<>();
 
 	/**
 	 * See {@link UnchangedInterval} for other params.
@@ -44,7 +44,8 @@ public class PartiallyUnchangedInterval extends UnchangedInterval
 		if (initialStartIndex != initialEndIndex || newStartIndex != newEndIndex || columnName == null)
 			throw new IllegalArgumentException("Partial row changed intervals are not supported for multiple indexes or without column name... Column name: " +
 				columnName + ", [" + initialStartIndex + ", " + initialEndIndex + "].");
-		columnNames.add(columnName);
+
+		changedColumnNames.add(columnName);
 	}
 
 	@Override
@@ -55,7 +56,8 @@ public class PartiallyUnchangedInterval extends UnchangedInterval
 		if (changeOperation.columnName != null && changeOperation.startIndex == getNewStart())
 		{
 			// we can assume that both this and changeOperation have identical end-indexes as partial changes are only allowed for 1 row
-			if (!columnNames.contains(changeOperation.columnName)) columnNames.add(changeOperation.columnName);
+			if (!changedColumnNames.contains(changeOperation.columnName)) changedColumnNames.add(changeOperation.columnName);
+
 			return getUnchangedIndexesCount(); // 0
 		}
 		else return super.applyChange(changeOperation, intervalSequenceModifier);
@@ -67,14 +69,14 @@ public class PartiallyUnchangedInterval extends UnchangedInterval
 	{
 		if (getInitialStart() != getInitialEnd() || getNewStart() != getNewEnd()) throw new RuntimeException(
 			"[appendEquivalentViewportOperations] Partial row changed interval indexes were changed incorrectly to more then one in an interval... Column names: " +
-				Arrays.asList(columnNames) + ", [" + getInitialStart() + ", " + getInitialEnd() + "].");
+				Arrays.asList(changedColumnNames) + ", [" + getInitialStart() + ", " + getInitialEnd() + "].");
 
 		super.appendEquivalentViewportOperations(equivalentSequenceOfOperations);
 
 		// partially changed intervals still need to add changes for each 'column' on that row
-		for (String columnName : columnNames)
+		for (String changedColumn : changedColumnNames)
 		{
-			equivalentSequenceOfOperations.add(new ViewportOperation(null, getNewStart(), getNewEnd(), ViewportOperation.CHANGE, columnName, true));
+			equivalentSequenceOfOperations.add(new ViewportOperation(getNewStart(), getNewEnd(), ViewportOperation.CHANGE, changedColumn));
 		}
 	}
 
@@ -83,7 +85,7 @@ public class PartiallyUnchangedInterval extends UnchangedInterval
 	{
 		if (getInitialStart() != getInitialEnd() || getNewStart() != getNewEnd()) throw new RuntimeException(
 			"[getUnchangedIndexes] Partial row changed interval indexes were changed incorrectly to more then one partial change in an interval... Column names: " +
-				Arrays.asList(columnNames) + ", [" + getInitialStart() + ", " + getInitialEnd() + "].");
+				Arrays.asList(changedColumnNames) + ", [" + getInitialStart() + ", " + getInitialEnd() + "].");
 
 		return 0; // this index is actually partially changed!
 	}
@@ -91,8 +93,7 @@ public class PartiallyUnchangedInterval extends UnchangedInterval
 	@Override
 	public String toString()
 	{
-		return "PartiallyUnchangedInterval [columnNames=" + columnNames + ", " + super.toString() + "]";
+		return "PartiallyUnchangedInterval [changedColumns=" + changedColumnNames + ", " + super.toString() + "]";
 	}
-
 
 }

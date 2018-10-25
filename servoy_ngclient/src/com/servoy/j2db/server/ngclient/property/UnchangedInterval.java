@@ -126,7 +126,7 @@ public class UnchangedInterval
 				if (isPartialChange)
 				{
 					// if it's a partial change add it after current unchanged interval
-					newInterval = new PartiallyUnchangedInterval(initialStartIndex + intersectionSize + 1, oldIinitialEndIndex, intersectionStart,
+					newInterval = new PartiallyUnchangedInterval(oldIinitialEndIndex - intersectionSize + 1, oldIinitialEndIndex, intersectionStart,
 						intersectionEnd, changeOperation.columnName); // intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
 					intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
 					unchangedIndexes += newInterval.getUnchangedIndexesCount();
@@ -170,7 +170,7 @@ public class UnchangedInterval
 	protected int applyInsert(ViewportOperation insertOperation, IntervalSequenceModifier intervalSequenceModifier)
 	{
 		// insert can happen before, in the middle of or at the end of this unchanged interval
-		int unchangedIndexes = 0;
+		int unchangedIndexes;
 
 		if (insertOperation.startIndex <= newStartIndex)
 		{
@@ -212,7 +212,7 @@ public class UnchangedInterval
 		int intersectionStart = Math.max(deleteOperation.startIndex, newStartIndex);
 		int intersectionEnd = Math.min(deleteOperation.endIndex, newEndIndex);
 		int intersectionSize = intersectionEnd - intersectionStart + 1;
-		int unchangedIndexes = 0;
+		int unchangedIndexes;
 
 		if (deleteOperation.endIndex < newStartIndex)
 		{
@@ -232,7 +232,11 @@ public class UnchangedInterval
 				newEndIndex -= intersectionEnd - deleteOperation.startIndex + 1;
 				newStartIndex = deleteOperation.startIndex;
 				initialStartIndex += intersectionSize;
-				if (newEndIndex < newStartIndex) intervalSequenceModifier.discardCurrentInterval();
+				if (newEndIndex < newStartIndex)
+				{
+					intervalSequenceModifier.discardCurrentInterval();
+					unchangedIndexes = 0;
+				}
 				else unchangedIndexes = getUnchangedIndexesCount();
 			}
 			else if (intersectionEnd == newEndIndex)

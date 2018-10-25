@@ -10,6 +10,13 @@ declare namespace componentType {
 		handlers:any;
 		foundsetConfig?:{recordBasedProperties?:Array<string>;apiCallTypes?:Array<any>}
 		servoyApi:{ startEdit:(property:string, rowId:object)=>void;apply:(property:string, modelOfComponent:object, rowId:object)=>void}
+		
+		/**
+		 * Adds a change listener that will get triggered when server sends granular or full modelViewport changes for this component.
+		 * 
+		 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this same foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
+		 * @param viewportChangeListener the listener to register.
+		 */
 		addViewportChangeListener(viewportChangeListener : ViewportChangeListener) : void;
 		removeViewportChangeListener(viewportChangeListener : ViewportChangeListener) : void;
 	}

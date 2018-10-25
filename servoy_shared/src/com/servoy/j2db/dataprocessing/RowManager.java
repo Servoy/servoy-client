@@ -344,7 +344,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 		// else // whoa, row is deleted or pk is updated!
 
-		if (doFires) fireNotifyChange(null, row, null, found ? RowEvent.UPDATE : RowEvent.DELETE);
+		if (doFires) fireNotifyChange(null, row, row.getPKHashKey(), null, found ? RowEvent.UPDATE : RowEvent.DELETE);
 		return found;
 	}
 
@@ -364,7 +364,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			if (action == ISQLActionTypes.DELETE_ACTION)
 			{
-				fireNotifyChange(null, rowData, null, RowEvent.DELETE);
+				fireNotifyChange(null, rowData, pkHashKey, null, RowEvent.DELETE);
 			}
 			if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION)
 			{
@@ -395,7 +395,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 						}
 					}
-					fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
+					fireNotifyChange(null, rowData, pkHashKey, insertColumnDataOrChangedColumns, eventType);
 				}
 				catch (Exception e)
 				{
@@ -421,7 +421,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			if (insertedRow != null)
 			{
-				fireNotifyChange(null, insertedRow, null, RowEvent.INSERT);
+				fireNotifyChange(null, insertedRow, insertedRow.getPKHashKey(), null, RowEvent.INSERT);
 				if (!insertedRow.hasListeners() && canRemove(pkRowMap.get(pkHashKey))) //new row is not in use
 				{
 					removeRowReferences(pkHashKey, null);
@@ -433,7 +433,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			else if (insertColumnDataOrChangedColumns != null && insertColumnDataOrChangedColumns.length == sheet.getColumnNames().length) //last test is just to make sure
 			{
 				rowData = createExistInDBRowObject(insertColumnDataOrChangedColumns);
-				fireNotifyChange(null, rowData, null, RowEvent.INSERT);
+				fireNotifyChange(null, rowData, rowData.getPKHashKey(), null, RowEvent.INSERT);
 				if (rowData.hasListeners())//new row is in use
 				{
 					boolean fireCalcs = false;
@@ -459,7 +459,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		else if (action == ISQLActionTypes.UPDATE_ACTION && insertColumnDataOrChangedColumns != null)
 		{
 			// update of row that is not cached by this client
-			fireNotifyChange(null, null, insertColumnDataOrChangedColumns, RowEvent.UPDATE, true);
+			fireNotifyChange(null, null, pkHashKey, insertColumnDataOrChangedColumns, RowEvent.UPDATE, true);
 		}
 
 		//we did not have row cached in memory no update is need, we will get the change if we query for row when needed
@@ -599,16 +599,16 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return retval;
 	}
 
-	void fireNotifyChange(IRowListener skip, Row r, Object[] changedColumns, int eventType)
+	void fireNotifyChange(IRowListener skip, Row r, String pkHashKey, Object[] changedColumns, int eventType)
 	{
-		fireNotifyChange(skip, r, changedColumns, eventType, false);
+		fireNotifyChange(skip, r, pkHashKey, changedColumns, eventType, false);
 	}
 
-	void fireNotifyChange(IRowListener skip, Row r, Object[] changedColumns, int eventType, boolean isAggregateChange)
+	void fireNotifyChange(IRowListener skip, Row r, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange)
 	{
 		if (listeners.size() > 0)
 		{
-			RowEvent e = new RowEvent(this, r, eventType, changedColumns, isAggregateChange);
+			RowEvent e = new RowEvent(this, r, pkHashKey, eventType, changedColumns, isAggregateChange);
 
 			// First copy it to a array list for concurrent mod...
 			Object[] array = null;
@@ -901,7 +901,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 			public void run()
 			{
-				fireNotifyChange(src, row, null, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
+				fireNotifyChange(src, row, row.getPKHashKey(), null, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
 			}
 
 		});
@@ -1065,7 +1065,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				pkRowMap.remove(r.getPKHashKey());
 			}
 		}
-		fireNotifyChange(src, r, null, RowEvent.DELETE);
+		fireNotifyChange(src, r, r.getPKHashKey(), null, RowEvent.DELETE);
 	}
 
 	void clearRow(Row r)
@@ -1115,7 +1115,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					if (!Utils.equalObjects(data, currentData))
 					{
 						rowData.setRollbackData(data, Row.ROLLBACK_MODE.UPDATE_CHANGES);
-						fireNotifyChange(null, rowData, null, RowEvent.UPDATE);
+						fireNotifyChange(null, rowData, rowData.getPKHashKey(), null, RowEvent.UPDATE);
 					}
 				}
 				return true;
@@ -1365,7 +1365,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						if (fires.size() > 0)
 						{
 							fireRowNotifyChanges(fires);
-							fireNotifyChange(null, null, null, RowEvent.UPDATE);
+							fireNotifyChange(null, null, null, null, RowEvent.UPDATE);
 						}
 					}
 				}
@@ -1393,7 +1393,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				if (fires.size() > 0)
 				{
 					fireRowNotifyChanges(fires);
-					fireNotifyChange(source, null, null, RowEvent.UPDATE);
+					fireNotifyChange(source, null, null, null, RowEvent.UPDATE);
 				}
 			}
 			finally
