@@ -29,7 +29,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return null;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
 		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep);
 		startedTimingUUIDsStack.push(timing.getUuid());
@@ -44,7 +44,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void intervalAction(UUID uuid)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF || uuid == null) return;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 
 		PerformanceTiming timing = startedTimings.get(uuid);
 		if (timing != null) timing.setIntervalTime();
@@ -52,7 +52,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void endAction(UUID uuid)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF || uuid == null) return;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 
 		PerformanceTiming timing = startedTimings.remove(uuid);
 		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());
@@ -62,7 +62,7 @@ public class PerformanceData extends PerformanceAggregator
 	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
 	public synchronized Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return null;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
 		if (startedTimingUUIDsStack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 		UUID lastStartedTimingUUID = startedTimingUUIDsStack.peek();
@@ -78,7 +78,7 @@ public class PerformanceData extends PerformanceAggregator
 
 	public synchronized void endSubAction(Pair<UUID, UUID> subActionUUIDs)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
 		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
 		PerformanceTiming timingWithSubAction = startedTimings.get(subActionUUIDs.getLeft());

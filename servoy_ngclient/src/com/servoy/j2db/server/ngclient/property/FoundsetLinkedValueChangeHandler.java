@@ -97,7 +97,7 @@ public class FoundsetLinkedValueChangeHandler
 				{
 					FoundsetTypeViewport viewPort = foundsetPropValue.getViewPort();
 					int relativeIdx = idx - viewPort.getStartIndex();
-					if (relativeIdx >= 0 && relativeIdx < viewPort.getStartIndex() + viewPort.getSize())
+					if (relativeIdx >= 0 && relativeIdx < viewPort.getSize())
 					{
 						viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset(), granularUpdate);
 					}

@@ -69,7 +69,7 @@ public class PerformanceAggregator
 	 */
 	public synchronized void addTiming(String action, long interval_ms, long total_ms, int type, Map<String, PerformanceTimingAggregate> subActionTimings)
 	{
-		if (maxEntriesToKeep == IPerfomanceRegistry.OFF) return;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
 
 		if (aggregatesByAction == null) aggregatesByAction = new HashMap<String, PerformanceTimingAggregate>(
 			maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
@@ -92,7 +92,7 @@ public class PerformanceAggregator
 		sortedAggregates.add(time);
 
 		// do clean
-		if (maxEntriesToKeep != IPerfomanceRegistry.UNLIMITED_ENTRIES && sortedAggregates.size() > maxEntriesToKeep)
+		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && sortedAggregates.size() > maxEntriesToKeep)
 		{
 			PerformanceTimingAggregate old = sortedAggregates.remove(maxEntriesToKeep);
 			aggregatesByAction.remove(old.getAction());
@@ -118,7 +118,7 @@ public class PerformanceAggregator
 
 	protected int getSubActionMaxEntries()
 	{
-		return maxEntriesToKeep == IPerfomanceRegistry.UNLIMITED_ENTRIES ? IPerfomanceRegistry.UNLIMITED_ENTRIES : Math.max(5, maxEntriesToKeep / 10);
+		return maxEntriesToKeep == IPerformanceRegistry.UNLIMITED_ENTRIES ? IPerformanceRegistry.UNLIMITED_ENTRIES : Math.max(5, maxEntriesToKeep / 10);
 	}
 
 }
