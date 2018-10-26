@@ -87,7 +87,7 @@ import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.IPerformanceRegistry;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
@@ -129,7 +129,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private HashMap<String, String> properties = null;
 
-	private final IPerfomanceRegistry perfRegistry;
+	private final IPerformanceRegistry perfRegistry;
 
 	private boolean registered = false;
 
@@ -149,7 +149,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		applicationSetup();
 		applicationInit();
 		applicationServerInit();
-		IPerfomanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+		IPerformanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 		if (registry == null)
 		{
 			registry = new DummyPerformanceRegistry();
@@ -1582,7 +1582,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	 * @author jcompagner
 	 *
 	 */
-	private static final class DummyPerformanceRegistry implements IPerfomanceRegistry
+	private static final class DummyPerformanceRegistry implements IPerformanceRegistry
 	{
 		@Override
 		public void setMaxNumberOfEntriesPerContext(int maxNumberOfEntriesPerContext)

@@ -22,6 +22,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.application.IClassResolver;
@@ -31,20 +33,24 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class ServoyClassResolver implements IClassResolver
 {
+	private final ConcurrentMap<String, Class> loadedClasses = new ConcurrentHashMap<String, Class>();
 
 	/**
 	 * @see org.apache.wicket.application.IClassResolver#resolveClass(java.lang.String)
 	 */
 	public Class resolveClass(String classname)
 	{
+		Class< ? > cls = loadedClasses.get(classname);
+		if (cls != null) return cls;
+
 		ClassLoader classLoader = ApplicationServerRegistry.get().getBeanManager().getClassLoader();
 		try
 		{
-			return classLoader.loadClass(classname);
+			cls = classLoader.loadClass(classname);
 		}
 		catch (ClassNotFoundException ex)
 		{
@@ -52,15 +58,20 @@ public class ServoyClassResolver implements IClassResolver
 			{
 				try
 				{
-					return ClientState.class.getClassLoader().loadClass(classname);
+					cls = ClientState.class.getClassLoader().loadClass(classname);
 				}
 				catch (ClassNotFoundException e)
 				{
 					// ignore, runtime exception below will be thrown.
 				}
 			}
-			throw new RuntimeException("Class " + classname + " couldn't be loaded through the bean/plugin classloader", ex); //$NON-NLS-1$ //$NON-NLS-2$
+			if (cls == null)
+			{
+				throw new RuntimeException("Class " + classname + " couldn't be loaded through the bean/plugin classloader", ex); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
+		loadedClasses.put(classname, cls);
+		return cls;
 	}
 
 	/**

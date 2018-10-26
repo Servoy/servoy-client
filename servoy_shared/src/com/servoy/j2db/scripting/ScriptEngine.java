@@ -69,7 +69,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
-import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.IPerformanceRegistry;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IScriptAccordionPanelMethods;
@@ -637,7 +637,7 @@ public class ScriptEngine implements IScriptSupport
 					}
 				}
 				String solutionName = application.getSolutionName();
-				IPerfomanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null && !(application instanceof ISmartClientApplication)
+				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null && !(application instanceof ISmartClientApplication)
 					? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
 				//run

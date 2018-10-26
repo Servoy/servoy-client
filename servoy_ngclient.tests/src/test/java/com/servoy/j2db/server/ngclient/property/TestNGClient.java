@@ -67,7 +67,7 @@ import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
-import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.IPerformanceRegistry;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.PerformanceAggregator;
 import com.servoy.j2db.server.shared.PerformanceData;
@@ -637,9 +637,9 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public IPerfomanceRegistry getFunctionPerfomanceRegistry() throws RemoteException
+					public IPerformanceRegistry getFunctionPerfomanceRegistry() throws RemoteException
 					{
-						return new IPerfomanceRegistry()
+						return new IPerformanceRegistry()
 						{
 
 							@Override
