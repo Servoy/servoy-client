@@ -25,7 +25,7 @@ import java.util.Map;
  * @author gganea@servoy.com
  *
  */
-public interface IPerfomanceRegistry
+public interface IPerformanceRegistry
 {
 
 	public static final String MAX_ENTRIES_PER_CONTEXT_PROPERTY_NAME_PREFIX = "servoy.performanceStats.maxEntriesPerContext.";

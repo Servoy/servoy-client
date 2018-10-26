@@ -39,7 +39,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
-import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.IPerformanceRegistry;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -487,7 +487,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					Debug.log(e);
 				}
 
-				IPerfomanceRegistry perfRegistry = null;
+				IPerformanceRegistry perfRegistry = null;
 				try
 				{
 					perfRegistry = (getApplication().getApplicationServerAccess() != null

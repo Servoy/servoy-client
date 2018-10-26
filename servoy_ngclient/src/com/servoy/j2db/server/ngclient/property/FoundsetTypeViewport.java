@@ -209,7 +209,9 @@ public class FoundsetTypeViewport
 			correctAndSetViewportBoundsInternal(oldStartIndex + positiveOrNegativeRecordNo, oldSize - positiveOrNegativeRecordNo);
 			if (oldStartIndex != startIndex || oldSize != size)
 			{
-				if (size == 0) changeMonitor.viewPortCompletelyChanged();
+				if (size == 0) changeMonitor.viewPortCompletelyChanged(); // the correctAndSetViewportBoundsInternal above, in case of a larger-then-viewport shrink
+				// request could reset the viewport bounds to 0, 0 even if previously the viewport had a different start index; so it would actually shrink by less
+				// then what is calculated in the else branch below
 				else changeMonitor.shrinkClientViewport(0, startIndex - oldStartIndex - 1, oldSize); // shrink needs old viewport relative removed interval
 			}
 		}
@@ -218,11 +220,7 @@ public class FoundsetTypeViewport
 			// remove from the end; it's negative
 			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
 			// normally start index has not changed
-			if (oldSize != size)
-			{
-				if (size == 0) changeMonitor.viewPortCompletelyChanged();
-				else changeMonitor.shrinkClientViewport(size, oldSize - 1, oldSize);
-			}
+			if (oldSize != size) changeMonitor.shrinkClientViewport(size, oldSize - 1, oldSize);
 		}
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
