@@ -877,7 +877,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
-	void rowUpdated(final Row row, final String oldKeyHash, final IRowListener src, List<Runnable> runnables)
+	void rowUpdated(final Row row, final String oldKeyHash, final IRowListener src, List<Runnable> runnables, String[] changedColumnNames)
 	{
 		final boolean doesExistInDB = row.existInDB();
 		row.flagExistInDB();//always needed flushes stuff
@@ -901,7 +901,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 			public void run()
 			{
-				fireNotifyChange(src, row, row.getPKHashKey(), null, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
+				fireNotifyChange(src, row, row.getPKHashKey(), changedColumnNames, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
 			}
 
 		});
