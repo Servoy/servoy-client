@@ -199,13 +199,12 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return null;
 	}
 
-	boolean equalsTo(String[] columnNames, Object[] data)
+	void updateValues(String[] columnNames, Object[] data)
 	{
 		for (int i = columnNames.length; --i >= 0;)
 		{
-			if (!Utils.equalObjects(values.get(columnNames[i]), data[i])) return false;
+			setValue(columnNames[i], data[i]);
 		}
-		return true;
 	}
 
 	@Override

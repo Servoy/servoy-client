@@ -30,6 +30,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -53,7 +55,10 @@ import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.querybuilder.impl.QBJoin;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.querybuilder.impl.QBTableClause;
+import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.JSSignature;
@@ -62,14 +67,48 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * @author jcompagner
  * @since 8.4
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
-public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
+public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IConstantsObject
 {
+	/**
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
+	 * Like order_lines.productid that has a join to orders and is displaying the productname.
+	 * If a change in such a join condition (like order_lines.productid in the sample above) is seen then the query will befired again to detect changes.
+	 */
+	public static final int MONITOR_JOIN_CONDITIONS = 1;
+
+	/**
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource that are used in the where statement.
+	 * Like order_lines.unit_price > 100. If a change is seen on that datasource on such a column used in the where a full query will be fired again to detect changes.
+	 */
+	public static final int MONITOR_WHERE_CONDITIONS = 2;
+
+	/**
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for inserts on the given table/datasource.
+	 * This will always result in a full query to detect changes whenever an insert on that table happens.
+	 */
+	public static final int MONITOR_INSERT = 4;
+
+	/**
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource.
+	 * This will always result in a full query to detect changes whenever an insert on that table happens.
+	 */
+	public static final int MONITOR_DELETES = 8;
+
+	/**
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource which should be the primairy/main table of this query.
+	 * If a delete comes in for this table, then we will only remove the records from the ViewFoundSet that do have this primairy key in its value. So no need to do a full query.
+	 * So this will only work if the query shows order_lines for the order_lines table, not for the products table that is joined to get the product_name.
+	 * Only 1 of the 2 monitors for deletes should be registered for a table/datasource.
+	 */
+	public static final int MONITOR_DELETES_FOR_PRIMAIRY_TABLE = 16;
+
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
@@ -102,6 +141,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	// if more then 1 form wishes to pin multiselect at a time, the form with lowest elementid wins
 	private int multiSelectPinnedTo = -1;
 	private int multiSelectPinLevel;
+	private final Map<BaseQueryTable, List<IQuerySelectValue>> pkColumnsForTable;
+	private final Map<BaseQueryTable, List<IQuerySelectValue>> columnsForTable;
 
 	public ViewFoundSet(String datasource, QuerySelect select, IFoundSetManagerInternal manager, int chunkSize)
 	{
@@ -115,8 +156,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		BaseQueryTable baseTable = select.getTable();
 		final Map<String, IQuerySelectValue> nameToSelect = new HashMap<>();
 		final Map<IQuerySelectValue, String> selectToName = new HashMap<>();
-		final Map<BaseQueryTable, List<IQuerySelectValue>> pkColumnsForTable = new IdentityHashMap<>();
-		final Map<BaseQueryTable, List<IQuerySelectValue>> columnsForTable = new IdentityHashMap<>();
+		pkColumnsForTable = new IdentityHashMap<>();
+		columnsForTable = new IdentityHashMap<>();
 		for (IQuerySelectValue selectValue : select.getColumns())
 		{
 			QueryColumn column = selectValue.getColumn();
@@ -173,40 +214,17 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		{
 			columnNames.put(selectValue, selectToName.get(selectValue));
 		}
-		if (!pkColumnsForTable.isEmpty())
+	}
+
+	private void addQuerySelectToMap(final Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, QueryColumn column)
+	{
+		List<QueryColumn> list = columnsInJoinsPerTable.get(column.getTable());
+		if (list == null)
 		{
-			// touch the row manager for all datasources and register our selfs as a IRowListener
-			for (Entry<BaseQueryTable, List<IQuerySelectValue>> entry : pkColumnsForTable.entrySet())
-			{
-				try
-				{
-					RowManager rowManager = manager.getRowManager(entry.getKey().getDataSource());
-					if (rowManager != null)
-					{
-						String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
-						IQuerySelectValue[] queryPks = getOrderedPkColumns(entry.getValue(), realOrderedPks);
-						if (queryPks != null)
-						{
-							RowListener rl = new RowListener(entry.getKey().getDataSource(), queryPks, columnsForTable.get(entry.getKey()));
-							// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
-							rowListeners.add(rl);
-							rowManager.register(rl);
-						}
-						else
-						{
-							manager.getApplication().reportJSWarning("View FoundSets did get pks '" + entry.getValue() + "' for datasource " + entry.getKey() +
-								" but they should be " + Arrays.toString(realOrderedPks));
-						}
-					}
-				}
-				catch (ServoyException e)
-				{
-					Debug.error(e);
-				}
-
-
-			}
+			list = new ArrayList<>();
+			columnsInJoinsPerTable.put(column.getTable(), list);
 		}
+		list.add(column);
 	}
 
 	/**
@@ -358,6 +376,119 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 	}
 
 
+	/**
+	 * Databroadcast can be enabled per select table of a query, the select table can be the main QBSelect or on of it QBJoins
+	 * By default this monitors only the column values that are in the result of the QBSelect, you can only enable databroadcast for a table if for that table also the PK is selected in the results.
+	 *
+	 * you can use {@link #enableDatabroadcastFor(QBTableClause, int)} to specify what should be monitored more besides pure column values per pk.
+	 * Those have impact on performance because for the most part if we see a hit then a full query is done to see if there are changes.
+	 *
+	 * @sample
+	 *  var select = datasources.db.example_data.order_details.createSelect();
+	 *  var join = select.joins.add("db:/example_data/products");
+	 *  join.on.add(select.columns.productid.eq(join.columns.productid));
+	 *  select.result.add(); // add colums of the select or join
+	 *  var vf = databaseManager.getViewFoundSet("myorders",select)
+	 *  vf.enableDatabroadcastFor(select);
+	 *  vf.enableDatabroadcastFor(join);
+	 *
+	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listenn for data changes.
+	 */
+	@JSFunction
+	public void enableDatabroadcastFor(QBTableClause queryTable)
+	{
+		enableDatabroadcastFor(queryTable, 0);
+	}
+
+	/**
+	 * Enable the databroadcast for a specific table of the QBSelect or QBJoin with extra flags for looking for join or where criteria or deletes/inserts.
+	 * These extra flags can be a performance hit because the query needs to be executed again to see if there are changes.
+	 * You need to have pk selected in the results for the table/datasource that you are enabling databroadcast on.
+	 *
+	 * @sample
+	 *  var select = datasources.db.example_data.order_details.createSelect();
+	 *  var join = select.joins.add("db:/example_data/products");
+	 *  join.on.add(select.columns.productid.eq(join.columns.productid));
+	 *  select.result.add(); // add colums of the select or join
+	 *  var vf = databaseManager.getViewFoundSet("myorders",select)
+	 *  // monitor for the main table the join conditions (orders->product, when product id changes in the orders table) and requery the table on insert events, delete directly the record if a pk delete happens.
+	 *  vf.enableDatabroadcastFor(select,,ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMAIRY_TABLE);
+	 *  vf.enableDatabroadcastFor(join);
+	 *
+	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listenn for data changes.
+	 * @param flags One or more of the ViewFoundSet.XXX flags added to each other.
+	 */
+	@JSFunction
+	public void enableDatabroadcastFor(QBTableClause queryTable, int flags)
+	{
+		BaseQueryTable table = null;
+		if (queryTable instanceof QBSelect)
+		{
+			table = ((QBSelect)queryTable).getQuery().getTable();
+		}
+		else if (queryTable instanceof QBJoin)
+		{
+			table = ((QBJoin)queryTable).getQueryTable();
+		}
+		if (table != null)
+		{
+			// touch the row manager for the given table
+			List<IQuerySelectValue> list = pkColumnsForTable.get(table);
+			if (list != null)
+			{
+				try
+				{
+					RowManager rowManager = manager.getRowManager(table.getDataSource());
+					if (rowManager != null)
+					{
+						String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
+						IQuerySelectValue[] queryPks = getOrderedPkColumns(list, realOrderedPks);
+						if (queryPks != null)
+						{
+							final Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
+
+							IVisitor visitor = (object) -> {
+								if (object instanceof QueryColumn)
+								{
+									addQuerySelectToMap(columnsInJoinsPerTable, (QueryColumn)object);
+								}
+								return object;
+							};
+							if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getJoins(), visitor);
+							if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getWhere(), visitor);
+
+							boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
+							boolean monitorIDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
+							boolean monitorIDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
+
+							RowListener rl = new RowListener(table.getDataSource(), queryPks, columnsForTable.get(table), columnsInJoinsPerTable.get(table),
+								monitorInserts, monitorIDeletes, monitorIDeletesForMain);
+							// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
+							rowListeners.add(rl);
+							rowManager.register(rl);
+						}
+						else
+						{
+							throw new RuntimeException(
+								"ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " + Arrays.toString(realOrderedPks));
+						}
+					}
+				}
+				catch (ServoyException e)
+				{
+					Debug.error(e);
+				}
+			}
+			else
+			{
+				throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " + table.getDataSource() +
+					" to enable databroadcast for that datasource");
+			}
+
+		}
+	}
+
+
 	@Override
 	public int getRecordIndex(IRecord record)
 	{
@@ -400,7 +531,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 				manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 			refresh = false;
 			ArrayList<IQuerySelectValue> cols = select.getColumns();
-			int firstChange = -1;
 			int currentSize = records.size();
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
@@ -413,24 +543,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 				Object[] rowData = ds.getRow(i);
 				if (i < currentSize)
 				{
-					if (firstChange == -1)
-					{
-						ViewRecord current = old.get(i);
-						if (current.equalsTo(colNames, rowData))
-						{
-							records.add(current);
-							continue;
-						}
-						firstChange = i;
-					}
+					ViewRecord current = old.get(i);
+					current.updateValues(colNames, rowData);
+					records.add(current);
 				}
-				records.add(new ViewRecord(colNames, rowData, i, this));
+				else
+				{
+					records.add(new ViewRecord(colNames, rowData, i, this));
+				}
 			}
 			hasMore = ds.hadMoreRows();
-			if (firstChange != -1 && currentSize <= records.size())
-			{
-				fireFoundSetEvent(firstChange, currentSize - 1, FoundSetEvent.CHANGE_UPDATE);
-			}
 			fireDifference(currentSize, records.size());
 		}
 		catch (RemoteException e)
@@ -1422,113 +1544,175 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet
 		private final String ds;
 		private final IQuerySelectValue[] pkColumns;
 		private final IQuerySelectValue[] columns;
+		private final Set<String> columnInJoins;
+		private final boolean monitorInserts;
+		private final boolean monitorIDeletes;
+		private final boolean monitorIDeletesForMain;
 
-		public RowListener(String datasource, IQuerySelectValue[] queryPks, List<IQuerySelectValue> list)
+		public RowListener(String datasource, IQuerySelectValue[] queryPks, List<IQuerySelectValue> list, List<QueryColumn> columnInJoins,
+			boolean monitorInserts, boolean monitorIDeletes, boolean monitorIDeletesForMain)
 		{
 			this.ds = datasource;
 			this.pkColumns = queryPks;
+			this.monitorInserts = monitorInserts;
+			this.monitorIDeletes = monitorIDeletes;
+			this.monitorIDeletesForMain = monitorIDeletesForMain;
 			this.columns = list.toArray(new IQuerySelectValue[list.size()]);
+			this.columnInJoins = columnInJoins != null ? columnInJoins.stream().map(QueryColumn::getName).collect(Collectors.toSet()) : Collections.emptySet();
 		}
 
 		@Override
 		public void notifyChange(RowEvent e)
 		{
-			if (e.getPkHashKey() == null) return;
+			if (e.getPkHashKey() == null || refresh) return;
 
+			boolean fullRefresh = false;
 			if (e.getType() == RowEvent.UPDATE)
+			{
+				if (e.getChangedColumnNames() != null & this.columnInJoins.size() > 0)
+				{
+					if (Arrays.asList(e.getChangedColumnNames()).stream().anyMatch(colname -> this.columnInJoins.contains(colname)))
+					{
+						fullRefresh = true;
+						// join or where condition hit, reload the foundset.
+						doRefresh();
+					}
+				}
+				if (!fullRefresh)
+				{
+					Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(pkColumns);
+					List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
+					if (rowIndexes != null)
+					{
+						// get the values directly from the row
+						FireCollector fireCollector = FireCollector.getFireCollector();
+						try
+						{
+							Row row = e.getRow();
+							if (row != null)
+							{
+								for (IQuerySelectValue column : columns)
+								{
+									Object rowValue = row.getValue(column.getColumn().getName());
+									for (Integer rowIndex : rowIndexes)
+									{
+										ViewRecord viewRecord = records.get(rowIndex.intValue());
+										viewRecord.setValue(columnNames.get(column), rowValue);
+									}
+								}
+							}
+							else
+							{
+								// query for the values if needed.
+								IQuerySelectValue[] columnsToQuery = this.columns;
+								if (e.getChangedColumnNames() != null)
+								{
+									List<IQuerySelectValue> changed = new ArrayList<>(e.getChangedColumnNames().length);
+									for (Object changedColumn : e.getChangedColumnNames())
+									{
+										for (IQuerySelectValue selectValue : columns)
+										{
+											if (selectValue.getColumn().getName().equals(changedColumn))
+											{
+												changed.add(selectValue);
+												break;
+											}
+										}
+									}
+									columnsToQuery = new IQuerySelectValue[changed.size()];
+									if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
+								}
+								if (columnsToQuery.length > 0)
+								{
+									try
+									{
+										IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
+										for (IQuerySelectValue column : columnsToQuery)
+										{
+											queryBuilder.result().add(queryBuilder.getColumn(column.getColumn().getName()));
+										}
+										for (IQuerySelectValue pkColumn : pkColumns)
+										{
+											// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
+											queryBuilder.where().add(
+												queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(records.get(0).getValue(columnNames.get(pkColumn))));
+										}
+										ISQLSelect updateSelect = queryBuilder.build();
+										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+										String transaction_id = manager.getTransactionID(serverName);
+										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
+											serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
+											currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+										if (updatedDS.getRowCount() > 0)
+										{
+											// should be just 1 row for a pk query...
+											Object[] updateData = updatedDS.getRow(0);
+											for (int i = columnsToQuery.length; --i >= 0;)
+											{
+												IQuerySelectValue column = columnsToQuery[i];
+												Object rowValue = updateData[i];
+												for (Integer rowIndex : rowIndexes)
+												{
+													ViewRecord viewRecord = records.get(rowIndex.intValue());
+													viewRecord.setValue(columnNames.get(column), rowValue);
+												}
+											}
+										}
+									}
+									catch (Exception e1)
+									{
+										Debug.error(e1);
+									}
+								}
+							}
+						}
+						finally
+						{
+							fireCollector.done();
+						}
+					}
+				}
+			}
+			else if ((e.getType() == RowEvent.DELETE && monitorIDeletes) || (e.getType() == RowEvent.INSERT && monitorInserts))
+			{
+				doRefresh();
+			}
+			else if (e.getType() == RowEvent.DELETE && monitorIDeletesForMain)
 			{
 				Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(pkColumns);
 				List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
 				if (rowIndexes != null)
 				{
-					// get the values directly from the row
-					FireCollector fireCollector = FireCollector.getFireCollector();
-					try
-					{
-						Row row = e.getRow();
-						if (row != null)
-						{
-							for (IQuerySelectValue column : columns)
-							{
-								Object rowValue = row.getValue(column.getColumn().getName());
-								for (Integer rowIndex : rowIndexes)
-								{
-									ViewRecord viewRecord = records.get(rowIndex.intValue());
-									viewRecord.setValue(columnNames.get(column), rowValue);
-								}
-							}
-						}
-						else
-						{
-							// query for the values if needed.
-							IQuerySelectValue[] columnsToQuery = this.columns;
-							if (e.getChangedColumnNames() != null)
-							{
-								List<IQuerySelectValue> changed = new ArrayList<>(e.getChangedColumnNames().length);
-								for (Object changedColumn : e.getChangedColumnNames())
-								{
-									for (IQuerySelectValue selectValue : columns)
-									{
-										if (selectValue.getColumn().getName().equals(changedColumn))
-										{
-											changed.add(selectValue);
-											break;
-										}
-									}
-								}
-								columnsToQuery = new IQuerySelectValue[changed.size()];
-								if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
-							}
-							if (columnsToQuery.length > 0)
-							{
-								try
-								{
-									IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
-									for (IQuerySelectValue column : columnsToQuery)
-									{
-										queryBuilder.result().add(queryBuilder.getColumn(column.getColumn().getName()));
-									}
-									for (IQuerySelectValue pkColumn : pkColumns)
-									{
-										// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
-										queryBuilder.where().add(
-											queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(records.get(0).getValue(columnNames.get(pkColumn))));
-									}
-									ISQLSelect updateSelect = queryBuilder.build();
-									String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
-									String transaction_id = manager.getTransactionID(serverName);
-									IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
-										serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
-										currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
-									if (updatedDS.getRowCount() > 0)
-									{
-										// should be just 1 row for a pk query...
-										Object[] updateData = updatedDS.getRow(0);
-										for (int i = columnsToQuery.length; --i >= 0;)
-										{
-											IQuerySelectValue column = columnsToQuery[i];
-											Object rowValue = updateData[i];
-											for (Integer rowIndex : rowIndexes)
-											{
-												ViewRecord viewRecord = records.get(rowIndex.intValue());
-												viewRecord.setValue(columnNames.get(column), rowValue);
-											}
-										}
-									}
-								}
-								catch (Exception e1)
-								{
-									Debug.error(e1);
-								}
-							}
-						}
-					}
-					finally
-					{
-						fireCollector.done();
-					}
+					rowIndexes.forEach((value) -> {
+						records.remove(value.intValue());
+						// this could be maybe done in 1 accumulated fire, but this should be only 1 (main table delete)
+						fireFoundSetEvent(value.intValue(), value.intValue(), FoundSetEvent.CHANGE_DELETE);
+					});
 				}
+			}
+		}
 
+		private void doRefresh()
+		{
+			if (foundSetEventListeners.size() > 0)
+			{
+				FireCollector fireCollector = FireCollector.getFireCollector();
+				try
+				{
+					loadAllRecords();
+				}
+				catch (ServoyException e1)
+				{
+					Debug.error(e1);
+				}
+				finally
+				{
+					fireCollector.done();
+				}
+			}
+			else
+			{
+				refresh = true;
 			}
 		}
 	}
