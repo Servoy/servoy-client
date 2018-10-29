@@ -538,19 +538,27 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
 
-			for (int i = 0; i < ds.getRowCount(); i++)
+			FireCollector fireCollector = FireCollector.getFireCollector();
+			try
 			{
-				Object[] rowData = ds.getRow(i);
-				if (i < currentSize)
+				for (int i = 0; i < ds.getRowCount(); i++)
 				{
-					ViewRecord current = old.get(i);
-					current.updateValues(colNames, rowData);
-					records.add(current);
+					Object[] rowData = ds.getRow(i);
+					if (i < currentSize)
+					{
+						ViewRecord current = old.get(i);
+						records.add(current);
+						current.updateValues(colNames, rowData);
+					}
+					else
+					{
+						records.add(new ViewRecord(colNames, rowData, i, this));
+					}
 				}
-				else
-				{
-					records.add(new ViewRecord(colNames, rowData, i, this));
-				}
+			}
+			finally
+			{
+				fireCollector.done();
 			}
 			hasMore = ds.hadMoreRows();
 			fireDifference(currentSize, records.size());
