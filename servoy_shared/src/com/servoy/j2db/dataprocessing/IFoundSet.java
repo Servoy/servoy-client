@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.util.ServoyException;
 
@@ -34,9 +33,10 @@ import com.servoy.j2db.util.ServoyException;
  */
 public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Iterable<IRecord>
 {
-	public int COLUMNS = IRepository.COLUMNS;
-	public int AGGREGATEVARIABLES = IRepository.AGGREGATEVARIABLES;
-	public int SCRIPTCALCULATIONS = IRepository.SCRIPTCALCULATIONS;
+	// don't add costants here, so that subclasses can have constants of there own exposed into scripting
+//	public int COLUMNS = IRepository.COLUMNS;
+//	public int AGGREGATEVARIABLES = IRepository.AGGREGATEVARIABLES;
+//	public int SCRIPTCALCULATIONS = IRepository.SCRIPTCALCULATIONS;
 
 	/**
 	 * The dataprovider names
