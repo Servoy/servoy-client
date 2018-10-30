@@ -201,7 +201,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return row.getLastException();
 		}
-
+		FireJSCollector jsFireCollector = null;
 		try
 		{
 			boolean containsCalc = row.containsCalculation(dataProviderID);
@@ -223,7 +223,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 				if (!(value instanceof Undefined))
 				{
 					value = Utils.mapToNullIfUnmanageble(value);
-
+					jsFireCollector = FireJSCollector.createOrGetJSFireCollector();
 					row.setValue(this, dataProviderID, value);
 				}
 
@@ -238,6 +238,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		finally
 		{
 			row.threadCalculationComplete(dataProviderID);
+			if (jsFireCollector != null) jsFireCollector.done();
 		}
 		if (parent.containsDataProvider(dataProviderID)) //as shared (global or aggregate)
 		{
@@ -414,6 +415,19 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	private void fireJSModificationEvent(ModificationEvent me)
+	{
+		FireJSCollector fireJSCollector = FireJSCollector.getJSFireCollector();
+		if (fireJSCollector != null)
+		{
+			fireJSCollector.put(this, me);
+		}
+		else
+		{
+			completeFire(me);
+		}
+	}
+
+	public void completeFire(ModificationEvent me)
 	{
 		// Test if this record is in edit state for stopping it below if necessary
 		boolean isEditting = parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing() : false;
