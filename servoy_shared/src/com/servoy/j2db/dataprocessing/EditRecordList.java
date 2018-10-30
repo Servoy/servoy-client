@@ -758,7 +758,9 @@ public class EditRecordList
 				}
 				try
 				{
-					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires);
+					ISQLStatement statement = rowUpdateInfo.getISQLStatement();
+					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires,
+						statement instanceof ITrackingSQLStatement ? ((ITrackingSQLStatement)statement).getChangedColumns() : null);
 				}
 				catch (Exception e)
 				{

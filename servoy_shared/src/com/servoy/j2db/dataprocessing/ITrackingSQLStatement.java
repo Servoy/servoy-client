@@ -30,6 +30,8 @@ public interface ITrackingSQLStatement extends ISQLStatement
 
 	public String[] getColumnNames();
 
+	public String[] getChangedColumns();
+
 	public Object[][] getOldTrackingData();
 
 	public Object[][] getNewTrackingData();

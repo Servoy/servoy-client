@@ -6640,6 +6640,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
+			resetFiltercondition();
 		}
 		initialized = fs.initialized;
 
@@ -6946,13 +6947,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		switch (type)
 		{
-			case IFoundSet.AGGREGATEVARIABLES :
+			case IRepository.AGGREGATEVARIABLES :
 				return getSQLSheet().getAggregateNames();
 
-			case IFoundSet.SCRIPTCALCULATIONS :
+			case IRepository.SCRIPTCALCULATIONS :
 				return getSQLSheet().getCalculationNames();
 
-			case IFoundSet.COLUMNS :
+			case IRepository.COLUMNS :
 				return getSQLSheet().getColumnNames();
 
 			default :

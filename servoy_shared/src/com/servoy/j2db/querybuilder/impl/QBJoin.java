@@ -43,7 +43,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	}
 
 	@Override
-	BaseQueryTable getQueryTable()
+	public BaseQueryTable getQueryTable()
 	{
 		return join.getForeignTable();
 	}
