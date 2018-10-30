@@ -6640,6 +6640,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
+			resetFiltercondition();
 		}
 		initialized = fs.initialized;
 
