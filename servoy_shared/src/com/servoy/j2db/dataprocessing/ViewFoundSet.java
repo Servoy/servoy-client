@@ -1642,8 +1642,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										for (IQuerySelectValue pkColumn : pkColumns)
 										{
 											// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
-											queryBuilder.where().add(
-												queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(records.get(0).getValue(columnNames.get(pkColumn))));
+											queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(
+												records.get(rowIndexes.get(0).intValue()).getValue(columnNames.get(pkColumn))));
 										}
 										ISQLSelect updateSelect = queryBuilder.build();
 										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
