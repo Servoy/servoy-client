@@ -212,6 +212,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private static boolean containsForm(IWebFormUI parent, IWebFormUI child)
 	{
+		if (parent == child) return true;
 		Object childParentContainer = child.getParentContainer();
 		if (childParentContainer instanceof WebFormComponent)
 		{
@@ -279,6 +280,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addVisibleChildForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController)
 	{
+		if (form == formController)
+		{
+			Debug.error("Form " + form + " is added as a visible child form over relation " + relation + " to itself ",
+				new RuntimeException("Form " + form + " is added as a visible child form over relation " + relation + " to itself "));
+			return;
+		}
+
 		if (shouldUpdateParentFormController)
 		{
 			form.setParentFormController(formController);
