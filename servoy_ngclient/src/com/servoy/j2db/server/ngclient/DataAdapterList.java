@@ -93,6 +93,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private boolean isFormScopeListener;
 	private boolean isGlobalScopeListener;
 
+	private boolean alreadyStoppingUI;
+
 	public DataAdapterList(IWebFormController formController)
 	{
 		this.formController = formController;
@@ -974,9 +976,24 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public boolean stopUIEditing(boolean looseFocus)
 	{
-		for (IWebFormController relatedController : getVisibleChildFormCopy().keySet())
+		if (alreadyStoppingUI)
 		{
-			if (!relatedController.stopUIEditing(looseFocus)) return false;
+			// circular related forms detected.
+			Debug.error("Circular dependency detected between forms when trying to stop edit on " + formController + " stopping related visible forms: " +
+				visibleChildForms);
+			return true;
+		}
+		try
+		{
+			alreadyStoppingUI = true;
+			for (IWebFormController relatedController : getVisibleChildFormCopy().keySet())
+			{
+				if (!relatedController.stopUIEditing(looseFocus)) return false;
+			}
+		}
+		finally
+		{
+			alreadyStoppingUI = false;
 		}
 		return true;
 	}
