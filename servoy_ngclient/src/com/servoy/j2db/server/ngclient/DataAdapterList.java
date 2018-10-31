@@ -214,6 +214,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private static boolean containsForm(IWebFormUI parent, IWebFormUI child)
 	{
+		if (parent == child) return true;
 		Object childParentContainer = child.getParentContainer();
 		if (childParentContainer instanceof WebFormComponent)
 		{
