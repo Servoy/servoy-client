@@ -130,7 +130,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private final Map<IQuerySelectValue, String> columnNames = new LinkedHashMap<>();
 
-	private final List<ViewRecord> edittedRecords = new ArrayList<>();
+	private final List<ViewRecord> editedRecords = new ArrayList<>();
 
 	private final QuerySelect select;
 
@@ -493,9 +493,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 	}
 
-	void addEdittedRecord(ViewRecord record)
+	void addEditedRecord(ViewRecord record)
 	{
-		edittedRecords.add(record);
+		editedRecords.add(record);
 	}
 
 	/**
@@ -522,7 +522,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		List<ViewRecord> toSave = new ArrayList<>();
 		if (record == null)
 		{
-			toSave.addAll(edittedRecords);
+			toSave.addAll(editedRecords);
 		}
 		else
 		{
@@ -544,7 +544,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					Map<String, Object> changes = rec.getChanges();
 					// directly just remove it from the editted records if we try to save it.
 					rec.clearChanges();
-					edittedRecords.remove(rec);
+					editedRecords.remove(rec);
 					if (changes == null) continue;
 					Map<BaseQueryTable, Map<IQuerySelectValue, Object>> tableToChanges = new IdentityHashMap<>();
 					columnNames.forEach((selectValue, name) -> {
@@ -690,14 +690,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			records = new ArrayList<>(ds.getRowCount());
 			pkByDatasourceCache.clear();
 
-			if (edittedRecords.size() > 0)
+			if (editedRecords.size() > 0)
 			{
 				// if there are editing records and load all is called, then just remove all changes
-				for (ViewRecord edit : edittedRecords)
+				for (ViewRecord edit : editedRecords)
 				{
 					edit.clearChanges();
 				}
-				edittedRecords.clear();
+				editedRecords.clear();
 			}
 
 			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
@@ -1252,7 +1252,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private void testForLoadMore(int maxIndex)
 	{
 		// never query for more if there are editted records.
-		boolean queryForMore = hasMore && (maxIndex == records.size() - 1) && edittedRecords.size() == 0;
+		boolean queryForMore = hasMore && (maxIndex == records.size() - 1) && editedRecords.size() == 0;
 		if (shouldRefresh() || queryForMore)
 		{
 			try
@@ -1269,7 +1269,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private boolean shouldRefresh()
 	{
-		return refresh && edittedRecords.size() == 0;
+		return refresh && editedRecords.size() == 0;
 	}
 
 	@Override
@@ -1592,7 +1592,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public String toString()
 	{
-		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ", has editted records:" + edittedRecords.size() + ",hadMoreRows:" +
+		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ", has editted records:" + editedRecords.size() + ",hadMoreRows:" +
 			hasMore + "]";
 	}
 
@@ -1869,7 +1869,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			if (foundSetEventListeners.size() > 0)
 			{
-				if (edittedRecords.size() > 0)
+				if (editedRecords.size() > 0)
 				{
 					// if there are editted records then don't do a loadall but just set the refresh to true.
 					// return false so that it isn't seen as a full refresh and we try to update it otherwise.

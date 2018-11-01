@@ -67,7 +67,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			if (changes == null)
 			{
 				changes = new HashMap<String, Object>(3);
-				foundset.addEdittedRecord(this);
+				foundset.addEditedRecord(this);
 			}
 			if (!changes.containsKey(dataProviderID))
 			{
