@@ -864,7 +864,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-
+	 *
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -2893,15 +2893,21 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * This just creates one without keeping any reference to it, you have to
 	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
 	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
-	 * They are for the most part read-only, but the records can get updated values, but that will only be in memory and the developer is
-	 * responsible for saving it really to a persisted store.
+	 *
+	 * If you query the pk with the columns that you display for the main or join tables. Then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
+	 * If there are changes in ViewRecords of this ViewFoundSet then databroadcast configurations that need to load new data won't do the query right away (only after the save)
+	 * Also loading more (the next chunksize) will not be done. This is because the ViewRecord on an index an be completely changed. We can't track those.
+	 *
+	 * Als databroadcast can be enabled by calling  one of the ViewFoundSet#enableDatabroadcastFor(QBTableClause)} to listen for that specific table (main or joins).
+	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a requiry to see,detect the changes.
 	 *
 	 * @sample
 	 * /** @type {ViewFoundSet<view:myname>} *&#47;
 	 * var vfs = databaseManager.getViewFoundSet('myname', query)
-	 * // register now this view foundset to the system so they can be picked up by forms.
+	 * // register now this view foundset to the system so they can be picked up by forms if a form has the view datasource.
 	 * databaseMananger.registerViewFoundSet(vfs);
 	 *
+	 * @param name The name given to this foundset (will create a datasource url like view:[name])
 	 * @param query The query to get the JSFoundset for.
 	 *
 	 * @return A new JSFoundset for that query.
