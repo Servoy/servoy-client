@@ -19,8 +19,11 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -88,7 +91,21 @@ public class FireJSCollector
 		{
 			lst = new ArrayList<ModificationEvent>();
 			map.put(record, lst);
+			lst.add(me);
 		}
-		lst.add(me);
+		else
+		{
+			Iterator<ModificationEvent> iterator = lst.iterator();
+			while (iterator.hasNext())
+			{
+				// removes the events fo the same name for this record.
+				if (Utils.equalObjects(iterator.next().getName(), me.getName()))
+				{
+					iterator.remove();
+					break;
+				}
+			}
+			lst.add(me);
+		}
 	}
 }

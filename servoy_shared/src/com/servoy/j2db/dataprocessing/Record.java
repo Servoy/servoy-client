@@ -217,13 +217,13 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			}
 			if (containsCalc) //check if calculation
 			{
+				jsFireCollector = FireJSCollector.createOrGetJSFireCollector();
 				UsedDataProviderTracker usedDataProviderTracker = new UsedDataProviderTracker(
 					getParentFoundSet().getFoundSetManager().getApplication().getFlattenedSolution());
 				Object value = parent.getCalculationValue(this, dataProviderID, null, usedDataProviderTracker);//do real calc
 				if (!(value instanceof Undefined))
 				{
 					value = Utils.mapToNullIfUnmanageble(value);
-					jsFireCollector = FireJSCollector.createOrGetJSFireCollector();
 					row.setValue(this, dataProviderID, value);
 				}
 
