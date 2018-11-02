@@ -33,11 +33,13 @@ public interface IClientHost extends Remote
 
 	public void unregister(String client_id) throws RemoteException;
 
+	public boolean isRegistered(String client_id) throws RemoteException;
+
 	/**
 	 * Helper method
-	 * 
+	 *
 	 * @param client_id The clients id
-	 * 
+	 *
 	 * @return server time
 	 * @throws RemoteException
 	 */

@@ -568,28 +568,29 @@ public class TestNGClient extends NGClient
 					@Override
 					public void unregister(String client_id) throws RemoteException
 					{
-						// TODO Auto-generated method stub
-
 					}
 
 					@Override
 					public Object[] register(IUserClient c, ClientInfo clientInfo) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return new Object[] { "uuid", new Integer(IClientManager.REGISTER_OK) };
+					}
+
+					@Override
+					public boolean isRegistered(String client_id) throws RemoteException
+					{
+						return true;
 					}
 
 					@Override
 					public void pushClientInfo(String clientId, ClientInfo clientInfo) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 
 					}
 
 					@Override
 					public Date getServerTime(String client_id) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 				};
@@ -604,35 +605,29 @@ public class TestNGClient extends NGClient
 					@Override
 					public void logout(String clientId) throws RemoteException, RepositoryException
 					{
-						// TODO Auto-generated method stub
-
 					}
 
 					@Override
 					public IUserManager getUserManager(String clientId) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public ITeamRepository getTeamRepository() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public IRemoteRepository getRepository() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public String[] getLicenseNames() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
@@ -645,21 +640,18 @@ public class TestNGClient extends NGClient
 							@Override
 							public String[] getPerformanceTimingContexts()
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
 							@Override
 							public PerformanceTimingAggregate[] getPerformanceTiming(String string)
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
 							@Override
 							public Date getLastCleared(String context)
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
@@ -672,15 +664,12 @@ public class TestNGClient extends NGClient
 							@Override
 							public Map<String, PerformanceTiming[]> getActiveTimings()
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
 							@Override
 							public void clearPerformanceData(String context)
 							{
-								// TODO Auto-generated method stub
-
 							}
 
 							@Override
@@ -706,21 +695,18 @@ public class TestNGClient extends NGClient
 					@Override
 					public IDataServer getDataServer() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public int getClientCountForInfo(String info) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return 0;
 					}
 
 					@Override
 					public int getActiveClientCount(int solution_id) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return 0;
 					}
 				};
@@ -729,7 +715,6 @@ public class TestNGClient extends NGClient
 			@Override
 			public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};
