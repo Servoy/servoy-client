@@ -52,6 +52,9 @@ public final class Settings extends SortedProperties
 	public static final long serialVersionUID = 8213681985670137977L;
 
 	public static final String FILE_NAME;
+
+	public static final String SERVOY_APPLICATION_SERVER_DIR = "servoy.application_server.dir";
+
 	private static final int MAXIMIZED_INVIZIBLE_BORDER_PIXELS = 4;
 	private static final String CLIENT_LOCAL_FILE_NAME = "servoy_client.properties";
 
