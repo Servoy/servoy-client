@@ -404,7 +404,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (getConfig().getMaxCount(dataAdapterListToUse.getApplication()) < valuelistSize && getConfig().shouldLogWhenOverMax() &&
 			Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 			dataAdapterListToUse.getApplication().reportJSError("Valuelist " + valueListName + " is sent to NGClient with " + //$NON-NLS-1$//$NON-NLS-2$
-				getConfig().getMaxCount(dataAdapterListToUse.getApplication()) + " rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)", null);
+				getConfig().getMaxCount(dataAdapterListToUse.getApplication()) +
+				" rows due to spec config property, more rows are discarded!! (you can disable this message from spec config or application server settings)",
+				null);
 	}
 
 	protected FlattenedSolution getFlattenedSolution()
@@ -704,9 +706,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		else
 		{
-			UUID uuid = Utils.getAsUUID(valuelistId, false);
-			if (uuid != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
-			else if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
+			// just try to get the valuelist by name or by uuid string (the FS will cache for both)
+			if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
+			if (valuelistPersist == null)
+			{
+				UUID uuid = Utils.getAsUUID(valuelistId, false);
+				if (uuid != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+			}
 		}
 		return valuelistPersist;
 	}
