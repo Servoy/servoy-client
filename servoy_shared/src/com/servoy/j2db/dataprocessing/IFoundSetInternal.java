@@ -86,18 +86,10 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public int getID();
 
-	/**
-	 * @return
-	 */
 	public boolean isInitialized();
 
-	/**
-	 * @return
-	 */
 	public int getRawSize();
 
-	/**
-	 *
-	 */
 	public void fireFoundSetChanged();
+
 }

@@ -37,25 +37,18 @@ import com.servoy.j2db.util.Utils;
 public final class ViewRecord implements IRecordInternal, Scriptable
 {
 	private final Map<String, Object> values = new HashMap<>();
+	private Map<String, Object> changes;
 	private final List<IModificationListener> modificationListeners;
-	private final IFoundSetInternal foundset;
-	private final int pk;
+	private final ViewFoundSet foundset;
 
-	public ViewRecord(String[] columnNames, Object[] data, int pk, IFoundSetInternal foundset)
+	public ViewRecord(String[] columnNames, Object[] data, ViewFoundSet foundset)
 	{
-		this.pk = pk;
 		this.foundset = foundset;
 		for (int i = 0; i < data.length; i++)
 		{
 			values.put(columnNames[i], data[i]);
 		}
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
-	}
-
-	@Override
-	public boolean startEditing()
-	{
-		return false;
 	}
 
 	@Override
@@ -66,6 +59,25 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 
 	@Override
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing)
+	{
+		Object prevValue = setValueImpl(dataProviderID, value);
+		if (prevValue != value)
+		{
+			// it really did change register this to the changes:
+			if (changes == null)
+			{
+				changes = new HashMap<String, Object>(3);
+				foundset.addEditedRecord(this);
+			}
+			if (!changes.containsKey(dataProviderID))
+			{
+				changes.put(dataProviderID, prevValue);
+			}
+		}
+		return prevValue;
+	}
+
+	private Object setValueImpl(String dataProviderID, Object value)
 	{
 		Object managebleValue = Utils.mapToNullIfUnmanageble(value);
 		Object prevValue = values.get(dataProviderID);
@@ -108,7 +120,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public Object[] getPK()
 	{
-		return new Object[] { Integer.valueOf(pk) };
+		return new Object[] { values.values().toArray() };
 	}
 
 	@Override
@@ -169,22 +181,29 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		collector.put(this.getParentFoundSet(), this, e.getName());
 	}
 
+
+	@Override
+	public boolean startEditing()
+	{
+		return startEditing(false);
+	}
+
 	@Override
 	public boolean startEditing(boolean mustFireEditRecordChange)
 	{
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isEditing()
 	{
-		return false;
+		return changes != null && changes.size() > 0;
 	}
 
 	@Override
 	public int stopEditing()
 	{
-		return ISaveConstants.STOPPED;
+		return foundset.save(this);
 	}
 
 	@Override
@@ -203,7 +222,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	{
 		for (int i = columnNames.length; --i >= 0;)
 		{
-			setValue(columnNames[i], data[i]);
+			setValueImpl(columnNames[i], data[i]);
 		}
 	}
 
@@ -376,5 +395,15 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	public boolean hasInstance(Scriptable instance)
 	{
 		return false;
+	}
+
+	Map<String, Object> getChanges()
+	{
+		return changes;
+	}
+
+	void clearChanges()
+	{
+		changes = null;
 	}
 }

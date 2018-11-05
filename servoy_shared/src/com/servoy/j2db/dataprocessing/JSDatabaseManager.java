@@ -864,7 +864,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param values The values array.
 	 * @param dataproviderNames The property names array.
-	
+	 *
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values, String[] dataproviderNames)
@@ -953,7 +953,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-	
+
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2747,7 +2747,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-	
+
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2774,7 +2774,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-	
+
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2889,19 +2889,25 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns a foundset object for a specified pk query.
-	 * This just creates one without keeping any reference to it,
+	 * Returns a foundset object for a specified query.
+	 * This just creates one without keeping any reference to it, you have to
 	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
-	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work
-	 * They are for the most part readonly, but the records can get updated values, but that will only be in memory and the developer is
-	 * responsible for saving it really to a persisted store.
+	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
+	 *
+	 * If you query the pk with the columns that you display for the main or join tables. Then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
+	 * If there are changes in ViewRecords of this ViewFoundSet then databroadcast configurations that need to load new data won't do the query right away (only after the save)
+	 * Also loading more (the next chunksize) will not be done. This is because the ViewRecord on an index an be completely changed. We can't track those.
+	 *
+	 * Als databroadcast can be enabled by calling  one of the ViewFoundSet#enableDatabroadcastFor(QBTableClause)} to listen for that specific table (main or joins).
+	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a requiry to see,detect the changes.
 	 *
 	 * @sample
 	 * /** @type {ViewFoundSet<view:myname>} *&#47;
 	 * var vfs = databaseManager.getViewFoundSet('myname', query)
-	 * // register now this view foundset to the system so they can be picked up by forms.
+	 * // register now this view foundset to the system so they can be picked up by forms if a form has the view datasource.
 	 * databaseMananger.registerViewFoundSet(vfs);
 	 *
+	 * @param name The name given to this foundset (will create a datasource url like view:[name])
 	 * @param query The query to get the JSFoundset for.
 	 *
 	 * @return A new JSFoundset for that query.
@@ -2913,16 +2919,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Registers the give ViewFoundSet to the system so they are picked up by forms that has this datasource asinged.
-	 * The forms foundset will then have a much more limited api, so a lot of stuff can't be done like newRecord() or deleteRecords()
-	 * Also records can be updated in memory, so they are not full readonly, but the developer is responsible for saving this to a persisted store.
+	 * Registers the given ViewFoundSet to the system so it is picked up by forms that have this datasource assigned.
+	 * The forms foundset will then have a much more limited API, so a lot of stuff can't be done on it like newRecord() or deleteRecords()
+	 * Also records can be updated in memory, so they are not full read-only, but the developer is responsible for saving these changes to a persisted store.
 	 *
-	 * If the solution doesn't need this ViewFoundSet plus use unregisterViewFoundSset(datasource).
-	 * Because this register will hold on to this foundset for that datasource for ever.
+	 * If the solution doesn't need this ViewFoundSet anymore please use unregisterViewFoundSset(datasource), because otherwise this
+	 * register call will keep/hold on to this foundset in memory (for that datasource) forever.
 	 *
 	 * @sampleas getViewFoundSet(String, QBSelect)
 	 *
-	 * @param foundset The ViewFoundSet to regsiter to the system.
+	 * @param foundset The ViewFoundSet to register to the system.
 	 * @throws ServoyException
 	 */
 	public boolean js_registerViewFoundSet(ViewFoundSet foundset) throws ServoyException
@@ -2932,11 +2938,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Unregisters a ViewFoundSet based by the datasource. (ViewFoundSet.getDataSource())
+	 * Unregisters a ViewFoundSet based on the datasource. (ViewFoundSet.getDataSource())
 	 *
 	 * This cleans up the state (the foundset and its loaded records) from the system. So call this when you don't need it anymore
-	 * and for example can be recreated when a user returns to this form.
-	 * If a form is still loaded in memory having this foundset then that foundset wil be kept there. (until the form is also unloaded)
+	 * and - for example - it can be recreated when a user returns to this form.
+	 * If a form is still loaded in memory having this foundset then that foundset will be kept there. (until that form is also unloaded)
 	 *
 	 * @sampleas getViewFoundSet(String, QBSelect)
 	 *
@@ -4004,7 +4010,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
-	
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, String[] names) throws ServoyException

@@ -894,7 +894,25 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	public boolean isValid()
 	{
-		return !isShutDown() && getClientInfo() != null;
+		if (isShutDown() || getClientInfo() == null)
+		{
+			return false;
+		}
+		boolean isRegistered;
+		try
+		{
+			isRegistered = getClientHost().isRegistered(getClientID());
+		}
+		catch (RemoteException e)
+		{
+			Debug.error("Error in isRegistered()", e);
+			isRegistered = false;
+		}
+		if (!isRegistered)
+		{
+			Debug.warn("Client invalid because no longer registered with the server: " + getClientID());
+		}
+		return isRegistered;
 	}
 
 	/*

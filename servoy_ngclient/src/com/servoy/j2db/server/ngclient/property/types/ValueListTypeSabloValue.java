@@ -706,9 +706,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		else
 		{
-			UUID uuid = Utils.getAsUUID(valuelistId, false);
-			if (uuid != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
-			else if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
+			// just try to get the valuelist by name or by uuid string (the FS will cache for both)
+			if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
+			if (valuelistPersist == null)
+			{
+				UUID uuid = Utils.getAsUUID(valuelistId, false);
+				if (uuid != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+			}
 		}
 		return valuelistPersist;
 	}

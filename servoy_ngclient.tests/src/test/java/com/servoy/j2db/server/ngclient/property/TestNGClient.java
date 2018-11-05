@@ -76,7 +76,6 @@ import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -174,31 +173,6 @@ public class TestNGClient extends NGClient
 
 	public static void initSettings()
 	{
-		Settings settings = Settings.getInstance();
-
-		settings.setProperty("log4j.appender.stdout", "org.apache.log4j.ConsoleAppender");
-		settings.setProperty("log4j.appender.stdout.layout", "org.apache.log4j.PatternLayout");
-		settings.setProperty("log4j.appender.stdout.layout.ConversionPattern", "%d %p [%t] %c - %m%n");
-		settings.setProperty("log4j.debug", "false");
-		settings.setProperty("log4j.logger.com.org.sablo.websocket", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.dataprocessing.editedRecords", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.datasource", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.datasource.ClientManager", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.persistence.XMLExporter", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.persistence.XMLInMemoryImportHandlerVersions11AndHigher", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.server", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.server.main.WebServer", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.server.ngclient.property.types", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.server.persistence.Server", "WARN");
-		settings.setProperty("log4j.logger.com.servoy.j2db.util.Debug", "WARN");
-		settings.setProperty("log4j.logger.org.apache.wicket", "WARN");
-		settings.setProperty("log4j.logger.persistence.Server", "WARN");
-		settings.setProperty("log4j.logger.org.apache.wicket.request.target.component.listener.BehaviorRequestTarget", "ERROR");
-		settings.setProperty("log4j.logger.org.sablo", "WARN");
-		settings.setProperty("log4j.logger.org.sablo.specification.property", "WARN");
-		settings.setProperty("log4j.rootCategory", "WARN, stdout");
-
-		//TODO 	PropertyConfigurator.configure(settings);
 		Debug.init();
 	}
 
@@ -213,22 +187,17 @@ public class TestNGClient extends NGClient
 			@Override
 			public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 
 			@Override
 			public void logMessage(String msg) throws RemoteException
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public boolean isInServerMaintenanceMode() throws RemoteException
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
@@ -237,7 +206,6 @@ public class TestNGClient extends NGClient
 			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)
 				throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
@@ -245,21 +213,18 @@ public class TestNGClient extends NGClient
 			public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect,
 				String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return statements;
 			}
 
@@ -380,7 +345,6 @@ public class TestNGClient extends NGClient
 			public boolean notifyDataChange(String client_id, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
 				throws RemoteException
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
@@ -389,7 +353,6 @@ public class TestNGClient extends NGClient
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
 				String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -416,7 +379,6 @@ public class TestNGClient extends NGClient
 			public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
 				boolean forceQualifyColumns) throws RepositoryException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -424,7 +386,6 @@ public class TestNGClient extends NGClient
 			public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
 				throws RepositoryException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -432,29 +393,24 @@ public class TestNGClient extends NGClient
 			public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
 				throws RepositoryException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			@Override
 			public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
 				ArrayList<TableFilter> filters) throws RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -462,22 +418,18 @@ public class TestNGClient extends NGClient
 			public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
 				Object[] questiondata) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
 				throws RepositoryException, RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};
@@ -514,14 +466,12 @@ public class TestNGClient extends NGClient
 			@Override
 			public ClientLogin login(Credentials credentials) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public SolutionMetaData[] getSolutionDefinitions(int solutionTypeFilter) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -534,28 +484,24 @@ public class TestNGClient extends NGClient
 			@Override
 			public Remote getRemoteService(String cid, String rmiLookupName) throws RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public SolutionMetaData[] getLoginSolutionDefinitions(SolutionMetaData solutionMetaData) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public Solution getLoginSolution(SolutionMetaData mainSolution, SolutionMetaData loginSolution) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public String getClientID(String user_uid, String password) throws RemoteException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -568,28 +514,29 @@ public class TestNGClient extends NGClient
 					@Override
 					public void unregister(String client_id) throws RemoteException
 					{
-						// TODO Auto-generated method stub
-
 					}
 
 					@Override
 					public Object[] register(IUserClient c, ClientInfo clientInfo) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return new Object[] { "uuid", new Integer(IClientManager.REGISTER_OK) };
+					}
+
+					@Override
+					public boolean isRegistered(String client_id) throws RemoteException
+					{
+						return true;
 					}
 
 					@Override
 					public void pushClientInfo(String clientId, ClientInfo clientInfo) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 
 					}
 
 					@Override
 					public Date getServerTime(String client_id) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 				};
@@ -604,35 +551,29 @@ public class TestNGClient extends NGClient
 					@Override
 					public void logout(String clientId) throws RemoteException, RepositoryException
 					{
-						// TODO Auto-generated method stub
-
 					}
 
 					@Override
 					public IUserManager getUserManager(String clientId) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public ITeamRepository getTeamRepository() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public IRemoteRepository getRepository() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public String[] getLicenseNames() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
@@ -645,21 +586,18 @@ public class TestNGClient extends NGClient
 							@Override
 							public String[] getPerformanceTimingContexts()
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
 							@Override
 							public PerformanceTimingAggregate[] getPerformanceTiming(String string)
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
 							@Override
 							public Date getLastCleared(String context)
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
@@ -672,15 +610,12 @@ public class TestNGClient extends NGClient
 							@Override
 							public Map<String, PerformanceTiming[]> getActiveTimings()
 							{
-								// TODO Auto-generated method stub
 								return null;
 							}
 
 							@Override
 							public void clearPerformanceData(String context)
 							{
-								// TODO Auto-generated method stub
-
 							}
 
 							@Override
@@ -706,21 +641,18 @@ public class TestNGClient extends NGClient
 					@Override
 					public IDataServer getDataServer() throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return null;
 					}
 
 					@Override
 					public int getClientCountForInfo(String info) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return 0;
 					}
 
 					@Override
 					public int getActiveClientCount(int solution_id) throws RemoteException
 					{
-						// TODO Auto-generated method stub
 						return 0;
 					}
 				};
@@ -729,7 +661,6 @@ public class TestNGClient extends NGClient
 			@Override
 			public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};

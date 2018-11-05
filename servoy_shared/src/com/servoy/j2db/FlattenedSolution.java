@@ -2381,7 +2381,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return AbstractBase.selectById(getValueLists(false), id);
 	}
 
-	public ValueList getValueList(String name)
+	public ValueList getValueList(String nameOrUuid)
 	{
 		Map<String, ValueList> tmp = valuelistCacheByName;
 		if (tmp == null)
@@ -2393,10 +2393,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				ValueList valuelist = valuelists.next();
 				tmp.put(valuelist.getName(), valuelist);
+				tmp.put(valuelist.getUUID().toString(), valuelist);
 			}
 			valuelistCacheByName = tmp;
 		}
-		return tmp.get(name);
+		return tmp.get(nameOrUuid);
 	}
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)

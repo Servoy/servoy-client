@@ -45,15 +45,18 @@ import org.mozilla.javascript.annotations.JSGetter;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
@@ -115,19 +118,21 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final String datasource;
 	private final IFoundSetManagerInternal manager;
 
-	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>(3);
+	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
 	// this is just a list to keep hard references to the RowListeners we give the RowManager (that is kept weak in there)
-	private final List<IRowListener> rowListeners = new ArrayList<IRowListener>(3);
+	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
 	private List<ViewRecord> records = new ArrayList<>();
 
-	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<WeakReference<IRecordInternal>>(6);
+	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<>(6);
 
 	private final Map<IQuerySelectValue[], Map<String, List<Integer>>> pkByDatasourceCache = new HashMap<>();
 
 	private final Map<IQuerySelectValue, String> columnNames = new LinkedHashMap<>();
 
-	private QuerySelect select;
+	private final List<ViewRecord> editedRecords = new ArrayList<>();
+
+	private final QuerySelect select;
 
 	private int foundsetID = 0;
 
@@ -254,7 +259,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public boolean isInitialized()
 	{
-		return !refresh;
+		return !shouldRefresh();
 	}
 
 	@Override
@@ -280,11 +285,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public int getSize()
 	{
-		if (refresh)
+		if (shouldRefresh())
 		{
 			try
 			{
-				loadAllRecords();
+				loadAllRecordsImpl();
 			}
 			catch (ServoyException e)
 			{
@@ -488,6 +493,145 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 	}
 
+	void addEditedRecord(ViewRecord record)
+	{
+		editedRecords.add(record);
+	}
+
+	/**
+	 * Saves all records in the view foundset that have changes,
+	 * You can only save columns from a table if also the pk is selected of that table
+	 */
+	@JSFunction
+	public int save()
+	{
+		return save(null);
+	}
+
+	/**
+	 * Saved a specific record of this foundset.
+	 * You can only save columns from a table if also the pk is selected of that table
+	 *
+	 * @param record
+	 */
+	@JSFunction
+	public int save(ViewRecord record)
+	{
+		if (record != null && record.getParentFoundSet() != this) return ISaveConstants.SAVE_FAILED;
+
+		List<ViewRecord> toSave = new ArrayList<>();
+		if (record == null)
+		{
+			toSave.addAll(editedRecords);
+		}
+		else
+		{
+			if (record.isEditing()) toSave.add(record);
+		}
+
+		if (toSave.size() > 0)
+		{
+			try
+			{
+				boolean previousRefresh = refresh;
+				String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+				String transaction_id = manager.getTransactionID(serverName);
+
+				List<SQLStatement> statements = new ArrayList<>();
+				Map<BaseQueryTable, IDataSet> toFire = new IdentityHashMap<>(3);
+				for (ViewRecord rec : toSave)
+				{
+					Map<String, Object> changes = rec.getChanges();
+					// directly just remove it from the editted records if we try to save it.
+					rec.clearChanges();
+					editedRecords.remove(rec);
+					if (changes == null) continue;
+					Map<BaseQueryTable, Map<IQuerySelectValue, Object>> tableToChanges = new IdentityHashMap<>();
+					columnNames.forEach((selectValue, name) -> {
+						if (changes.containsKey(name))
+						{
+							BaseQueryTable table = selectValue.getColumn().getTable();
+							Map<IQuerySelectValue, Object> map = tableToChanges.get(table);
+							if (map == null)
+							{
+								map = new HashMap<>();
+								tableToChanges.put(table, map);
+							}
+							map.put(selectValue, rec.getValue(name));
+						}
+					});
+					tableToChanges.forEach((table, changesMap) -> {
+						List<IQuerySelectValue> pkColumns = pkColumnsForTable.get(table);
+						if (pkColumns == null) throw new RuntimeException("Can't save " + rec + " for changed values " + changes +
+							" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
+
+
+						int counter = 0;
+						Object[] pk = new Object[pkColumns.size()];
+						QueryUpdate update = new QueryUpdate(table);
+//						IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(table.getDataSource());
+						for (IQuerySelectValue pkColumn : pkColumns)
+						{
+							Object pkValue = record.getValue(columnNames.get(pkColumn));
+//							queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(record.getValue(columnNames.get(pkColumn))));
+							update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkColumn, pkValue));
+							pk[counter++] = pkValue;
+						}
+
+						IDataSet pks = new BufferedDataSet();
+						pks.addRow(pk);
+
+						IDataSet fullPkDS = toFire.get(table);
+						if (fullPkDS == null)
+						{
+							fullPkDS = new BufferedDataSet();
+							toFire.put(table, fullPkDS);
+						}
+						fullPkDS.addRow(pk);
+
+						counter = 0;
+						String[] changedColumns = new String[changes.size()];
+						for (Entry<IQuerySelectValue, Object> entry : changesMap.entrySet())
+						{
+							QueryColumn column = entry.getKey().getColumn();
+							update.addValue(column, entry.getValue());
+							changedColumns[counter++] = column.getName();
+						}
+
+						SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, table.getName(), pks, transaction_id, update,
+							manager.getTableFilterParams(serverName, update));
+						statement.setChangedColumns(changedColumns);
+						statement.setExpectedUpdateCount(1);
+						statements.add(statement);
+					});
+				}
+
+				manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
+					statements.toArray(new SQLStatement[statements.size()]));
+				// TODO what happens if the save failed for some? add the changes back in?
+
+				toFire.forEach((table, pks) -> {
+					// we can't unregister the RowManager here because the row manager for that table needs to get it back
+					// the column that is changed could be in multiply rows. (if it is just a join)
+					manager.notifyDataChange(table.getDataSource(), pks, ISQLActionTypes.UPDATE_ACTION);
+				});
+
+				// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
+				// do a load but only if there are listeners
+				if (previousRefresh && shouldRefresh() && foundSetEventListeners.size() > 0)
+				{
+					loadAllRecordsImpl();
+				}
+			}
+			catch (ServoyException | RemoteException e)
+			{
+				Debug.error(e);
+				return ISaveConstants.SAVE_FAILED;
+			}
+		}
+		return ISaveConstants.STOPPED;
+	}
+
 
 	@Override
 	public int getRecordIndex(IRecord record)
@@ -519,9 +663,19 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return 0;
 	}
 
+	/**
+	 * This will reload the current set of ViewRecords in this foundset, resetting the chunk size back to the start (default 200)
+	 * All editted records will be discarded! So this can be seen as a full clean up of this ViewFoundSet.
+	 */
 	@Override
 	@JSFunction
 	public void loadAllRecords() throws ServoyException
+	{
+		currentChunkSize = chunkSize;
+		loadAllRecordsImpl();
+	}
+
+	private void loadAllRecordsImpl() throws ServoyException
 	{
 		String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
 		String transaction_id = manager.getTransactionID(serverName);
@@ -535,6 +689,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
 			pkByDatasourceCache.clear();
+
+			if (editedRecords.size() > 0)
+			{
+				// if there are editing records and load all is called, then just remove all changes
+				for (ViewRecord edit : editedRecords)
+				{
+					edit.clearChanges();
+				}
+				editedRecords.clear();
+			}
 
 			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
 
@@ -552,7 +716,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					}
 					else
 					{
-						records.add(new ViewRecord(colNames, rowData, i, this));
+						records.add(new ViewRecord(colNames, rowData, this));
 					}
 				}
 			}
@@ -730,15 +894,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Get the query that the foundset is currently using (as a clone; modifying this QBSelect will not automatically change the foundset).
-	 * When the founset is in find mode, the find conditions are included in the resulting query.
-	 * So the query that would be used when just calling search() (or search(true,true)) is returned.
-	 * Note that foundset filters are included and table filters are not included in the query.
+	 * Get the cloned query that created this ViewFoundSset  (modifying this QBSelect will not  change the foundset).
+	 * The ViewFoundSets main query can't be altered after creation, you need to make a new ViewFoundSet for that (can have the same datasource name)
 	 *
 	 * @sample
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.columns.x.eq(100))
-	 * foundset.loadRecords(q);
+	 * var newVF = databaseManager.getViewFoundset("name", q);
 	 *
 	 * @return query.
 	 */
@@ -754,9 +916,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public boolean loadByQuery(IQueryBuilder query) throws ServoyException
 	{
-		this.select = ((QBSelect)query).build(); // makes a clone
-		loadAllRecords();
-		return true;
+		return false;
 	}
 
 	@Override
@@ -1091,19 +1251,25 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private void testForLoadMore(int maxIndex)
 	{
-		boolean queryForMore = hasMore && (maxIndex == records.size() - 1);
-		if (refresh || queryForMore)
+		// never query for more if there are editted records.
+		boolean queryForMore = hasMore && (maxIndex == records.size() - 1) && editedRecords.size() == 0;
+		if (shouldRefresh() || queryForMore)
 		{
 			try
 			{
 				if (queryForMore) currentChunkSize += chunkSize;
-				loadAllRecords();
+				loadAllRecordsImpl();
 			}
 			catch (ServoyException e)
 			{
 				Debug.error(e);
 			}
 		}
+	}
+
+	private boolean shouldRefresh()
+	{
+		return refresh && editedRecords.size() == 0;
 	}
 
 	@Override
@@ -1426,7 +1592,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public String toString()
 	{
-		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ",hadMoreRows:" + hasMore + "]";
+		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ", has editted records:" + editedRecords.size() + ",hadMoreRows:" +
+			hasMore + "]";
 	}
 
 	private class FoundSetIterator implements Iterator<IRecord>
@@ -1581,9 +1748,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				{
 					if (Arrays.asList(e.getChangedColumnNames()).stream().anyMatch(colname -> this.columnInJoins.contains(colname)))
 					{
-						fullRefresh = true;
-						// join or where condition hit, reload the foundset.
-						doRefresh();
+						fullRefresh = doRefresh();
 					}
 				}
 				if (!fullRefresh)
@@ -1642,8 +1807,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										for (IQuerySelectValue pkColumn : pkColumns)
 										{
 											// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
-											queryBuilder.where().add(
-												queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(records.get(0).getValue(columnNames.get(pkColumn))));
+											queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(
+												records.get(rowIndexes.get(0).intValue()).getValue(columnNames.get(pkColumn))));
 										}
 										ISQLSelect updateSelect = queryBuilder.build();
 										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
@@ -1700,14 +1865,21 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 		}
 
-		private void doRefresh()
+		private boolean doRefresh()
 		{
 			if (foundSetEventListeners.size() > 0)
 			{
+				if (editedRecords.size() > 0)
+				{
+					// if there are editted records then don't do a loadall but just set the refresh to true.
+					// return false so that it isn't seen as a full refresh and we try to update it otherwise.
+					refresh = true;
+					return false;
+				}
 				FireCollector fireCollector = FireCollector.getFireCollector();
 				try
 				{
-					loadAllRecords();
+					loadAllRecordsImpl();
 				}
 				catch (ServoyException e1)
 				{
@@ -1722,6 +1894,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			{
 				refresh = true;
 			}
+			return true;
 		}
 	}
 }
