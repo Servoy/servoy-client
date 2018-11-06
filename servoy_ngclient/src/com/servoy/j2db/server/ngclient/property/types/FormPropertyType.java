@@ -109,7 +109,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (sabloValue instanceof String)
 		{
 			formName = (String)sabloValue;
-			if (dataConverterContext.getWebObject() instanceof IContextProvider)
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
 				FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution();
 				Form form = flattenedSolution.getForm(formName);
@@ -153,7 +153,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (CurrentWindow.get() instanceof INGClientWindow)
 		{
 			// if this is a web component that triggered it, register to only allow this form for that component
-			if (dataConverterContext.getWebObject() instanceof WebFormComponent)
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebFormComponent)
 				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement());
 			// else register it for null then this form is allowed globally (a form in dialog of popup)
 			else((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, null);
