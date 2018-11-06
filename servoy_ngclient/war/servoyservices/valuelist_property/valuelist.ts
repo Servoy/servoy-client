@@ -27,6 +27,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 					if (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL]) $sabloDeferHelper.initInternalStateForDeferringFromOldInternalState(internalState, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
 					else $sabloDeferHelper.initInternalStateForDeferring(internalState, "svy valuelist * ");
 
+					internalState.hasRealValues = serverJSONValue.hasRealValues; 
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					Object.defineProperty(newValue, 'filterList', {
 						value: function(filterString) {
@@ -39,6 +40,10 @@ angular.module('valuelist_property', ['webSocketModule'])
 							if (internalState.changeNotifier) internalState.changeNotifier();
 							
 							return promise;
+						}, enumerable: false });
+					Object.defineProperty(newValue, 'hasRealValues', {
+						value: function() {
+							return internalState.hasRealValues;
 						}, enumerable: false });
 					// TODO caching this value means for this specific valuelist instance that the display value will not be updated if that would be changed on the server end..
 					internalState.realToDisplayCache = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL]) ? 
