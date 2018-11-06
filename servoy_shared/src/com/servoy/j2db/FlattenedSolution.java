@@ -2431,9 +2431,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return tmp.get(id);
 	}
 
-	public Form getForm(String name)
+	public Form getForm(String nameOrUUID)
 	{
-		if (name == null) return null;
+		if (nameOrUUID == null) return null;
 
 		Map<String, Form> tmp = formCacheByName;
 		while (tmp == null)
@@ -2443,7 +2443,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			// can become null if a flush did happen in the mean time, then try again
 			tmp = formCacheByName;
 		}
-		return tmp.get(name);
+		return tmp.get(nameOrUUID);
 	}
 
 	/**
@@ -2459,6 +2459,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			Form form = forms.next();
 			tmpByName.put(form.getName(), form);
+			tmpByName.put(form.getUUID().toString(), form);
 			tmpById.put(form.getID(), form);
 		}
 		formCacheByName = tmpByName;
