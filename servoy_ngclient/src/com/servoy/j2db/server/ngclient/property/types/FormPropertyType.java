@@ -109,12 +109,19 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (sabloValue instanceof String)
 		{
 			formName = (String)sabloValue;
-			// form name
-			UUID uuid = Utils.getAsUUID(sabloValue, false);
-			if (uuid != null && dataConverterContext.getWebObject() instanceof IContextProvider)
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
-				Form form = (Form)((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution().searchPersist(
-					uuid);
+				FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution();
+				Form form = flattenedSolution.getForm(formName);
+				// form name
+				if (form == null)
+				{
+					UUID uuid = Utils.getAsUUID(sabloValue, false);
+					if (uuid != null)
+					{
+						form = (Form)flattenedSolution.searchPersist(uuid);
+					}
+				}
 				if (form != null)
 				{
 					formName = form.getName();
@@ -146,7 +153,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (CurrentWindow.get() instanceof INGClientWindow)
 		{
 			// if this is a web component that triggered it, register to only allow this form for that component
-			if (dataConverterContext.getWebObject() instanceof WebFormComponent)
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebFormComponent)
 				((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement());
 			// else register it for null then this form is allowed globally (a form in dialog of popup)
 			else((INGClientWindow)CurrentWindow.get()).registerAllowedForm(formName, null);
@@ -169,11 +176,19 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		}
 		else
 		{
-			// form is stored as uuid on disk
-			UUID uuid = Utils.getAsUUID(webComponentValue, false);
-			if (uuid != null && webObjectContext.getUnderlyingWebObject() instanceof IContextProvider)
+			if (webComponentValue != null && webObjectContext != null && webObjectContext.getUnderlyingWebObject() instanceof IContextProvider)
 			{
-				Form form = (Form)((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getSolution().searchPersist(uuid);
+				// form is stored as uuid on disk
+				FlattenedSolution solution = ((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getSolution();
+				Form form = solution.getForm(webComponentValue.toString());
+				if (form == null)
+				{
+					UUID uuid = Utils.getAsUUID(webComponentValue, false);
+					if (uuid != null)
+					{
+						form = (Form)solution.searchPersist(uuid);
+					}
+				}
 				if (form != null)
 				{
 					return form.getName();
@@ -204,10 +219,12 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		}
 		else if (formElementValue instanceof String || formElementValue instanceof UUID)
 		{
-
-			UUID uuid = Utils.getAsUUID(formElementValue, false);
-			if (uuid != null) form = (Form)fs.searchPersist(uuid);
-			else form = fs.getForm((String)formElementValue);
+			form = fs.getForm(formElementValue.toString());
+			if (form == null)
+			{
+				UUID uuid = Utils.getAsUUID(formElementValue, false);
+				if (uuid != null) form = (Form)fs.searchPersist(uuid);
+			}
 		}
 		if (form != null)
 		{
@@ -240,14 +257,17 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		Form form = null;
-		UUID uuid = Utils.getAsUUID(value, false);
-		if (uuid != null)
+		if (value != null)
 		{
-			form = (Form)application.getFlattenedSolution().searchPersist(uuid);
+			form = application.getFlattenedSolution().getForm(value.toString());
 		}
-		if (value instanceof String && form == null)
+		if (form == null)
 		{
-			form = application.getFlattenedSolution().getForm((String)value);
+			UUID uuid = Utils.getAsUUID(value, false);
+			if (uuid != null)
+			{
+				form = (Form)application.getFlattenedSolution().searchPersist(uuid);
+			}
 		}
 		if (form != null)
 		{

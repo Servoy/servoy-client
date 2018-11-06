@@ -83,15 +83,20 @@ public class ServoyApiObject
 	 * @return true if the form was hidden
 	 */
 	@JSFunction
-	public boolean hideForm(String formName)
+	public boolean hideForm(String nameOrUUID)
 	{
-		UUID uuid = Utils.getAsUUID(formName, false);
-		if (uuid != null)
+		String formName = nameOrUUID;
+		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
+		if (form == null)
 		{
-			Form form = (Form)app.getFlattenedSolution().searchPersist(uuid);
-			if (form != null)
+			UUID uuid = Utils.getAsUUID(nameOrUUID, false);
+			if (uuid != null)
 			{
-				formName = form.getName();
+				form = (Form)app.getFlattenedSolution().searchPersist(uuid);
+				if (form != null)
+				{
+					formName = form.getName();
+				}
 			}
 		}
 		IWebFormController formController = (IWebFormController)app.getFormManager().getForm(formName);

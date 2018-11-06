@@ -222,10 +222,13 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		}
 		else if (formId instanceof String || formId instanceof UUID)
 		{
-
-			UUID uuid = Utils.getAsUUID(formId, false);
-			if (uuid != null) form = (Form)fs.searchPersist(uuid);
-			else form = fs.getForm((String)formId);
+			// try first by name or uuid (FS caches by both)
+			form = fs.getForm(formId.toString());
+			if (form == null)
+			{
+				UUID uuid = Utils.getAsUUID(formId, false);
+				if (uuid != null) form = (Form)fs.searchPersist(uuid);
+			}
 		}
 		else if (formId instanceof JSForm)
 		{
