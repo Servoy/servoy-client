@@ -2664,9 +2664,17 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return AbstractBase.selectById(getMedias(false), id);
 	}
 
-	public Media getMedia(String name)
+	public Media getMedia(String nameOrUUID)
 	{
-		return AbstractBase.selectByName(getMedias(false), name);
+		UUID uuid = Utils.getAsUUID(nameOrUUID, false);
+		Iterator<Media> medias = getMedias(false);
+		while (medias.hasNext())
+		{
+			Media media = medias.next();
+			if (media.getName().equals(nameOrUUID)) return media;
+			if (uuid != null && media.getUUID().equals(uuid)) return media;
+		}
+		return null;
 	}
 
 	/**
