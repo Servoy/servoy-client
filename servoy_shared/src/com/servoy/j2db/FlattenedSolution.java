@@ -141,10 +141,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	// concurrent caches.
 	private volatile Map<String, Relation> relationCacheByName = null;
 	private volatile Map<String, Map<String, ISupportScope>> scopeCacheByName = null;
-	private volatile Map<String, Form> formCacheByName = null;
+	private volatile Map<String, Form> formCacheByNameAndUUID = null;
 	private volatile IntHashMap<Form> formCacheById;
 
-	private volatile Map<String, ValueList> valuelistCacheByName = null;
+	private volatile Map<String, ValueList> valuelistCacheByNameAndUUID = null;
 
 	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
 	private final List<String> deletedStyles = Collections.synchronizedList(new ArrayList<String>(3));
@@ -623,8 +623,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			user_created_styles = null;
 			all_styles = null;
 			mainSolutionMetaData = sol;
-			formCacheByName = null;
+			formCacheByNameAndUUID = null;
 			formCacheById = null;
+			valuelistCacheByNameAndUUID = null;
 
 			if (loadLoginSolution)
 			{
@@ -1567,9 +1568,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		allProvidersForTable = null;
 		relationCacheByName = null;
 		scopeCacheByName = null;
-		formCacheByName = null;
+		formCacheByNameAndUUID = null;
 		formCacheById = null;
-		valuelistCacheByName = null;
+		valuelistCacheByNameAndUUID = null;
 		dataProviderLookups = null;
 		all_styles = null;
 		beanDesignInstances = null;
@@ -1772,12 +1773,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private void flushValuelists()
 	{
-		valuelistCacheByName = null;
+		valuelistCacheByNameAndUUID = null;
 	}
 
 	private void flushForms()
 	{
-		formCacheByName = null;
+		formCacheByNameAndUUID = null;
 		formCacheById = null;
 	}
 
@@ -2383,7 +2384,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public ValueList getValueList(String nameOrUuid)
 	{
-		Map<String, ValueList> tmp = valuelistCacheByName;
+		Map<String, ValueList> tmp = valuelistCacheByNameAndUUID;
 		if (tmp == null)
 		{
 			tmp = new HashMap<String, ValueList>(32, 0.9f);
@@ -2395,7 +2396,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				tmp.put(valuelist.getName(), valuelist);
 				tmp.put(valuelist.getUUID().toString(), valuelist);
 			}
-			valuelistCacheByName = tmp;
+			valuelistCacheByNameAndUUID = tmp;
 		}
 		return tmp.get(nameOrUuid);
 	}
@@ -2435,13 +2436,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (nameOrUUID == null) return null;
 
-		Map<String, Form> tmp = formCacheByName;
+		Map<String, Form> tmp = formCacheByNameAndUUID;
 		while (tmp == null)
 		{
 			// the form cache was null, try to create it
 			fillFormCaches();
 			// can become null if a flush did happen in the mean time, then try again
-			tmp = formCacheByName;
+			tmp = formCacheByNameAndUUID;
 		}
 		return tmp.get(nameOrUUID);
 	}
@@ -2451,18 +2452,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 */
 	protected void fillFormCaches()
 	{
-		Map<String, Form> tmpByName = new HashMap<String, Form>(64, 0.9f);
+		Map<String, Form> tmpByNameAndUUID = new HashMap<String, Form>(64, 0.9f);
 		IntHashMap<Form> tmpById = new IntHashMap<Form>(64, 0.9f);
 
 		Iterator<Form> forms = getForms(false);
 		while (forms.hasNext())
 		{
 			Form form = forms.next();
-			tmpByName.put(form.getName(), form);
-			tmpByName.put(form.getUUID().toString(), form);
+			tmpByNameAndUUID.put(form.getName(), form);
+			tmpByNameAndUUID.put(form.getUUID().toString(), form);
 			tmpById.put(form.getID(), form);
 		}
-		formCacheByName = tmpByName;
+		formCacheByNameAndUUID = tmpByNameAndUUID;
 		formCacheById = tmpById;
 	}
 
