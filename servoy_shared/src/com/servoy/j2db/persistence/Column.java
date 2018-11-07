@@ -663,7 +663,23 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				default :
 					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
 					{
-						return application.getTenantValue();
+						Object tenantValue = application.getTenantValue();
+
+						if (tenantValue != null && tenantValue.getClass().isArray())
+						{
+							Object[] tenantValues = (Object[])tenantValue;
+							tenantValue = null;
+
+							for (Object value : tenantValues)
+							{
+								if (value != null)
+								{
+									return value;
+								}
+							}
+						}
+
+						return tenantValue;
 					}
 					return null;
 			}

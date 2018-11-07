@@ -209,8 +209,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 							{
 								try
 								{
+									int operator = value.getClass().isArray() ? IBaseSQLCondition.IN_OPERATOR : IBaseSQLCondition.EQUALS_OPERATOR;
 									application.getFoundSetManager().addTableFilterParam("_svy_tenant_id_table_filter", server.getName(), table,
-										new DataproviderTableFilterdefinition(column.getDataProviderID(), IBaseSQLCondition.EQUALS_OPERATOR, value));
+										new DataproviderTableFilterdefinition(column.getDataProviderID(), operator, value));
 								}
 								catch (ServoyException e)
 								{
