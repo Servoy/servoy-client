@@ -52,6 +52,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
@@ -1217,6 +1218,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return showOmitted();
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a JSDataSet with the PKs omitted on this foundset
+	 * If no PKs have been omitted, an empty JSDataSet will be returned
+	 *
+	 * @sample %%prefix%%foundset.getOmittedPKs();
+	 *
+	 * @return a JSDataSet
+	 */
+	@JSFunction
+	public IJSDataSet getOmittedPKs()
+	{
+		BufferedDataSet set = omittedPKs != null ? (BufferedDataSet)omittedPKs.clone() : new BufferedDataSet();
+
+		set.setColumnNames(sheet.getPKColumnDataProvidersAsArray());
+
+		return new JSDataSet(set);
 	}
 
 	protected boolean checkLoadRecordsAllowed(boolean allowRelated, boolean allowInFind)
