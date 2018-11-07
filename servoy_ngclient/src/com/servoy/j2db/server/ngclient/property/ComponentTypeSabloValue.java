@@ -169,14 +169,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		Collection<PropertyDescription> dp = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE);
 		if (dp.size() > 0)
 		{
-			// get the first dataprovider property for now
-			PropertyDescription propertyDesc = dp.iterator().next();
-			Object propertyValue = childComponent.getProperty(propertyDesc.getName());
-			if (propertyValue != null)
+			// get the 'main' or first dataprovider property if no 'main' is set
+			String dataprovider = null;
+			for (PropertyDescription propertyDesc : dp)
 			{
-				String dataprovider = ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
-				foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(childComponent.getName(), dataprovider);
+				Object propertyValue = childComponent.getProperty(propertyDesc.getName());
+				if (propertyValue != null && (dataprovider == null || Boolean.TRUE.equals(propertyDesc.getTag("main"))))
+				{
+					dataprovider = ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
+				}
 			}
+			if (dataprovider != null) foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(childComponent.getName(), dataprovider);
 		}
 	}
 
