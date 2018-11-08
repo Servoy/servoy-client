@@ -159,16 +159,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
-	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
-	 * This results in adding a table filter for that table based on that column and the this value.
+	 * Set the tenant value or values for this Client
+	 *
+	 * The value(s) will be used by tableFilters added to any table that has a column flagged as a Tenant column.
 	 *<p>
-	 * This value will be auto filled in for all the columns that are marked as a tenant column.
+	 * The value will also be used as auto-enter value for new records for the columns marked as Tenant column.
+	 * When multiple tenant values are provided, the first non-null value will be used as auto-enter value for new records
 	 *</p>
 	 *<p>
-	 *  When this is set to a value then all databroadcast from other clients will only be recieved by this client when other clients also have
-	 *  this tenant value set or from clients with no tenant value set. So be sure that you don't access or depend on data from tenant based tables which are outside of this tenant value.
+	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or the same tenant value(s) set
+	 *  Be sure to not access or depend on records having different tenant values, as no databroadcasts will be received for those
 	 *</p>
-	 * @param value the tenant value used for all tenant columns.
+	 * @param value a single tenant value or an array of tenant values to filter tables having a column flagged as Tenant column by.
 	 */
 	@JSFunction
 	public void setTenantValue(Object value)
