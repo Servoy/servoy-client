@@ -155,9 +155,12 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		}
 		else
 		{
-			UUID uuid = Utils.getAsUUID(value, false);
-			if (uuid != null) media = (Media)flattenedSolution.searchPersist(uuid);
-			else if (value != null) media = flattenedSolution.getMedia(value.toString());
+			if (value != null) media = flattenedSolution.getMedia(value.toString());
+			if (media == null)
+			{
+				UUID uuid = Utils.getAsUUID(value, false);
+				if (uuid != null) media = (Media)flattenedSolution.searchPersist(uuid);
+			}
 
 		}
 		if (media != null)
@@ -242,14 +245,17 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		Media media = null;
-		UUID uuid = Utils.getAsUUID(value, false);
-		if (uuid != null)
+		if (value != null)
 		{
-			media = (Media)application.getFlattenedSolution().searchPersist(uuid);
+			media = application.getFlattenedSolution().getMedia(value.toString());
 		}
-		if (value instanceof String && media == null)
+		if (media == null)
 		{
-			media = application.getFlattenedSolution().getMedia((String)value);
+			UUID uuid = Utils.getAsUUID(value, false);
+			if (uuid != null)
+			{
+				media = (Media)application.getFlattenedSolution().searchPersist(uuid);
+			}
 		}
 		if (media != null)
 		{
@@ -268,25 +274,33 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	@Override
 	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext, Scriptable startScriptable)
 	{
-		UUID uuid = Utils.getAsUUID(webComponentValue, false);
 		IDataAdapterList dal = NGComponentDALContext.getDataAdapterList(webObjectContext);
-		if (uuid != null && dal != null)
+		if (dal != null)
 		{
-			Media media = (Media)dal.getApplication().getFlattenedSolution().searchPersist(uuid);
-			if (media != null)
+			FlattenedSolution flattenedSolution = dal.getApplication().getFlattenedSolution();
+			if (webComponentValue instanceof Integer)
 			{
-				return media.getName();
+				Media media = flattenedSolution.getMedia(((Integer)webComponentValue).intValue());
+				if (media != null)
+				{
+					return media.getName();
+				}
 			}
-		}
-
-		if (webComponentValue instanceof Integer && dal != null)
-		{
-			Media media = dal.getApplication().getFlattenedSolution().getMedia(((Integer)webComponentValue).intValue());
-			if (media != null)
+			else if (webComponentValue != null)
 			{
-				return media.getName();
+				Media media = flattenedSolution.getMedia(webComponentValue.toString());
+				if (media == null)
+				{
+					UUID uuid = Utils.getAsUUID(webComponentValue, false);
+					media = (Media)flattenedSolution.searchPersist(uuid);
+				}
+				if (media != null)
+				{
+					return media.getName();
+				}
 			}
 		}
 		return webComponentValue;
+
 	}
 }

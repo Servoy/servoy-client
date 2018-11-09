@@ -79,38 +79,54 @@ import com.servoy.j2db.util.visitor.IVisitor;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
 public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IConstantsObject
 {
+
+	/**
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
+	 * This is used by defualt if you just use enableDatabroadcastFor() without flags.  If you use the one with the flags you need to give this one if you just
+	 *  want to listen to column changes that are in the result for a given datasource and pk.
+	 *  This constants needs to have the pk's selected for the given datasource (should be in the results)
+	 */
+	public static final int MONITOR_COLUMNS = 1;
+
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
 	 * Like order_lines.productid that has a join to orders and is displaying the productname.
 	 * If a change in such a join condition (like order_lines.productid in the sample above) is seen then the query will befired again to detect changes.
 	 */
-	public static final int MONITOR_JOIN_CONDITIONS = 1;
+	public static final int MONITOR_JOIN_CONDITIONS = 2;
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource that are used in the where statement.
 	 * Like order_lines.unit_price > 100. If a change is seen on that datasource on such a column used in the where a full query will be fired again to detect changes.
 	 */
-	public static final int MONITOR_WHERE_CONDITIONS = 2;
+	public static final int MONITOR_WHERE_CONDITIONS = 4;
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for inserts on the given table/datasource.
 	 * This will always result in a full query to detect changes whenever an insert on that table happens.
 	 */
-	public static final int MONITOR_INSERT = 4;
+	public static final int MONITOR_INSERT = 8;
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource.
 	 * This will always result in a full query to detect changes whenever an insert on that table happens.
 	 */
-	public static final int MONITOR_DELETES = 8;
+	public static final int MONITOR_DELETES = 16;
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource which should be the primairy/main table of this query.
 	 * If a delete comes in for this table, then we will only remove the records from the ViewFoundSet that do have this primairy key in its value. So no need to do a full query.
 	 * So this will only work if the query shows order_lines for the order_lines table, not for the products table that is joined to get the product_name.
 	 * Only 1 of the 2 monitors for deletes should be registered for a table/datasource.
+	 * This constants needs to have the pk's selected for the given datasource (should be in the results)
 	 */
-	public static final int MONITOR_DELETES_FOR_PRIMAIRY_TABLE = 16;
+	public static final int MONITOR_DELETES_FOR_PRIMAIRY_TABLE = 32;
+
+	/**
+	 *  Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for aggregates that are in the results of the given datasource.
+	 *  This means that when there are updates on that specific column where the aggregate is on  or deletes, inserts on give datasource, a full requery will happen to refresh the aggregate.
+	 */
+	public static final int MONITOR_AGGREGATES = 64;
 
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
@@ -383,7 +399,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	/**
 	 * Databroadcast can be enabled per select table of a query, the select table can be the main QBSelect or on of it QBJoins
-	 * By default this monitors only the column values that are in the result of the QBSelect, you can only enable databroadcast for a table if for that table also the PK is selected in the results.
+	 * By default this monitors only the column values that are in the result of the QBSelect, you can only enable this default monitoring for a table if for that table also the PK is selected in the results.
 	 *
 	 * you can use {@link #enableDatabroadcastFor(QBTableClause, int)} to specify what should be monitored more besides pure column values per pk.
 	 * Those have impact on performance because for the most part if we see a hit then a full query is done to see if there are changes.
@@ -402,13 +418,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public void enableDatabroadcastFor(QBTableClause queryTable)
 	{
-		enableDatabroadcastFor(queryTable, 0);
+		enableDatabroadcastFor(queryTable, MONITOR_COLUMNS);
 	}
 
 	/**
-	 * Enable the databroadcast for a specific table of the QBSelect or QBJoin with extra flags for looking for join or where criteria or deletes/inserts.
-	 * These extra flags can be a performance hit because the query needs to be executed again to see if there are changes.
-	 * You need to have pk selected in the results for the table/datasource that you are enabling databroadcast on.
+	 * Enable the databroadcast for a specific table of the QBSelect or QBJoin with  flags for looking for join or where criteria or deletes/inserts.
+	 * These  flags can be a performance hit because the query needs to be executed again to see if there are any changes.
+	 * For certain flags {@link #MONITOR_COLUMNS} and {@link #MONITOR_DELETES_FOR_PRIMAIRY_TABLE} the pk for that table must be in the results.
 	 *
 	 * @sample
 	 *  var select = datasources.db.example_data.order_details.createSelect();
@@ -426,6 +442,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public void enableDatabroadcastFor(QBTableClause queryTable, int flags)
 	{
+		// dont do anything if there is nothing todo.
+		if (flags < 1) return;
+
 		BaseQueryTable table = null;
 		if (queryTable instanceof QBSelect)
 		{
@@ -438,56 +457,64 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		if (table != null)
 		{
 			// touch the row manager for the given table
-			List<IQuerySelectValue> list = pkColumnsForTable.get(table);
-			if (list != null)
+			try
 			{
-				try
+				RowManager rowManager = manager.getRowManager(table.getDataSource());
+				if (rowManager != null)
 				{
-					RowManager rowManager = manager.getRowManager(table.getDataSource());
-					if (rowManager != null)
-					{
-						String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
-						IQuerySelectValue[] queryPks = getOrderedPkColumns(list, realOrderedPks);
-						if (queryPks != null)
+					final Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
+					IVisitor visitor = (object) -> {
+						if (object instanceof QueryColumn)
 						{
-							final Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
+							addQuerySelectToMap(columnsInJoinsPerTable, (QueryColumn)object);
+						}
+						return object;
+					};
+					if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getJoins(), visitor);
+					if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getWhere(), visitor);
 
-							IVisitor visitor = (object) -> {
-								if (object instanceof QueryColumn)
-								{
-									addQuerySelectToMap(columnsInJoinsPerTable, (QueryColumn)object);
-								}
-								return object;
-							};
-							if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getJoins(), visitor);
-							if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getWhere(), visitor);
+					boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
+					boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
 
-							boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
-							boolean monitorIDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
-							boolean monitorIDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
+					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
+					boolean monitorColumns = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
 
-							RowListener rl = new RowListener(table.getDataSource(), queryPks, columnsForTable.get(table), columnsInJoinsPerTable.get(table),
-								monitorInserts, monitorIDeletes, monitorIDeletesForMain);
-							// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
-							rowListeners.add(rl);
-							rowManager.register(rl);
+					boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
+
+					IQuerySelectValue[] queryPks = null;
+
+					// for normal column watches or deletes of the main table we need to have the pk's in the select for the datasource.
+					if (monitorDeletesForMain || monitorColumns)
+					{
+						List<IQuerySelectValue> list = pkColumnsForTable.get(table);
+						if (list != null)
+						{
+							String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
+							queryPks = getOrderedPkColumns(list, realOrderedPks);
+							if (queryPks == null)
+							{
+								throw new RuntimeException("ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " +
+									Arrays.toString(realOrderedPks));
+							}
 						}
 						else
 						{
-							throw new RuntimeException(
-								"ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " + Arrays.toString(realOrderedPks));
+							throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " +
+								table.getDataSource() + " to enable databroadcast for that datasource");
 						}
 					}
-				}
-				catch (ServoyException e)
-				{
-					Debug.error(e);
+
+					RowListener rl = new RowListener(table.getDataSource(), queryPks, (monitorColumns || monitorAggregates) ? columnsForTable.get(table) : null,
+						columnsInJoinsPerTable.get(table), monitorInserts, monitorDeletes, monitorDeletesForMain, monitorAggregates);
+					// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
+					rowListeners.add(rl);
+					rowManager.register(rl);
+
 				}
 			}
-			else
+			catch (ServoyException e)
 			{
-				throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " + table.getDataSource() +
-					" to enable databroadcast for that datasource");
+				Debug.error(e);
 			}
 
 		}
@@ -1721,18 +1748,20 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		private final IQuerySelectValue[] columns;
 		private final Set<String> columnInJoins;
 		private final boolean monitorInserts;
-		private final boolean monitorIDeletes;
-		private final boolean monitorIDeletesForMain;
+		private final boolean monitorDeletes;
+		private final boolean monitorDeletesForMain;
+		private final boolean monitorAggregates;
 
 		public RowListener(String datasource, IQuerySelectValue[] queryPks, List<IQuerySelectValue> list, List<QueryColumn> columnInJoins,
-			boolean monitorInserts, boolean monitorIDeletes, boolean monitorIDeletesForMain)
+			boolean monitorInserts, boolean monitorDeletes, boolean monitorDeletesForMain, boolean monitorAggregates)
 		{
 			this.ds = datasource;
 			this.pkColumns = queryPks;
 			this.monitorInserts = monitorInserts;
-			this.monitorIDeletes = monitorIDeletes;
-			this.monitorIDeletesForMain = monitorIDeletesForMain;
-			this.columns = list.toArray(new IQuerySelectValue[list.size()]);
+			this.monitorDeletes = monitorDeletes;
+			this.monitorDeletesForMain = monitorDeletesForMain;
+			this.monitorAggregates = monitorAggregates && list != null && list.size() > 0;
+			this.columns = list != null ? list.toArray(new IQuerySelectValue[list.size()]) : null;
 			this.columnInJoins = columnInJoins != null ? columnInJoins.stream().map(QueryColumn::getName).collect(Collectors.toSet()) : Collections.emptySet();
 		}
 
@@ -1744,14 +1773,23 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			boolean fullRefresh = false;
 			if (e.getType() == RowEvent.UPDATE)
 			{
-				if (e.getChangedColumnNames() != null & this.columnInJoins.size() > 0)
+				if (e.getChangedColumnNames() != null)
 				{
-					if (Arrays.asList(e.getChangedColumnNames()).stream().anyMatch(colname -> this.columnInJoins.contains(colname)))
+					if (this.columnInJoins.size() > 0 &&
+						Arrays.asList(e.getChangedColumnNames()).stream().anyMatch(colname -> this.columnInJoins.contains(colname)))
 					{
 						fullRefresh = doRefresh();
 					}
+					if (!fullRefresh && monitorAggregates)
+					{
+						List<Object> names = Arrays.asList(e.getChangedColumnNames());
+						if (Arrays.asList(this.columns).stream().map(value -> value.getColumn().getName()).anyMatch(colname -> names.contains(colname)))
+						{
+							fullRefresh = doRefresh();
+						}
+					}
 				}
-				if (!fullRefresh)
+				if (!fullRefresh && pkColumns != null && columns != null)
 				{
 					Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(pkColumns);
 					List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
@@ -1846,12 +1884,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					}
 				}
 			}
-			else if ((e.getType() == RowEvent.DELETE && monitorIDeletes) || (e.getType() == RowEvent.INSERT && monitorInserts))
+			else if ((e.getType() == RowEvent.DELETE && (monitorDeletes || monitorAggregates)) ||
+				(e.getType() == RowEvent.INSERT && (monitorInserts || monitorAggregates)))
 			{
 				doRefresh();
 			}
-			else if (e.getType() == RowEvent.DELETE && monitorIDeletesForMain)
+			else if (e.getType() == RowEvent.DELETE && monitorDeletesForMain)
 			{
+				// if monitor for deletes is enabled then pkColumns should be there.
 				Map<String, List<Integer>> cacheByRow = getPkCacheByDatasource(pkColumns);
 				List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
 				if (rowIndexes != null)

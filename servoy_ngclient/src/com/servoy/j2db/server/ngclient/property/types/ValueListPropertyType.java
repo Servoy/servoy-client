@@ -393,14 +393,17 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		ValueList list = null;
-		UUID uuid = Utils.getAsUUID(value, false);
-		if (uuid != null)
+		if (value != null)
 		{
-			list = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+			list = application.getFlattenedSolution().getValueList(value.toString());
 		}
-		if (value instanceof String && list == null)
+		if (list == null)
 		{
-			list = application.getFlattenedSolution().getValueList((String)value);
+			UUID uuid = Utils.getAsUUID(value, false);
+			if (uuid != null)
+			{
+				list = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+			}
 		}
 		if (list != null)
 		{

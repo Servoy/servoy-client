@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.util;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -189,6 +190,11 @@ public class DatabaseUtils
 			ci.setAutoEnterType(ColumnInfo.SEQUENCE_AUTO_ENTER);
 			ci.setAutoEnterSubType(ColumnInfo.SERVOY_SEQUENCE);
 			ci.setSequenceStepSize(1);
+		}
+		if (c.getSqlTypeName().equals("uuid") && c.getType() == Types.JAVA_OBJECT && c.getLength() <= 36) //$NON-NLS-1$
+		{
+			c.setFlag(IBaseColumn.UUID_COLUMN, true);
+			if (c.isDatabasePK()) c.setSequenceType(ColumnInfo.UUID_GENERATOR);
 		}
 		ci.setFlags(c.getFlags()); // when column has no columninfo and no flags it will return Column.PK_COLUMN for db pk column.
 		c.setColumnInfo(ci);

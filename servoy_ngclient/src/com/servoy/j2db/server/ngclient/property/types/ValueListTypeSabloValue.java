@@ -524,6 +524,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.key("valuelistid");
 			writer.value(valueList.getValueList().getID());
 		}
+		writer.key("hasRealValues");
+		writer.value(valueList.hasRealValues());
 		writer.key("values");
 		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, dataConverterContext);
 		writer.endObject();
