@@ -1956,6 +1956,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return new SortColumn(c, relations.size() == 0 ? null : relations.toArray(new Relation[relations.size()]));
 		}
+
+		if (logIfCannotBeResolved)
+			Debug.log("Non-existing column " + dataProviderID + " specified in sort, excluding it from the sort", new Exception(dataProviderID));
+
 		return null;
 	}
 

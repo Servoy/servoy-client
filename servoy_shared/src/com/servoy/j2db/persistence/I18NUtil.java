@@ -18,10 +18,12 @@ package com.servoy.j2db.persistence;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -48,6 +50,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class I18NUtil
 {
+	private static String EMPTY = ""; //$NON-NLS-1$
 
 	static public class MessageEntry
 	{
@@ -57,9 +60,9 @@ public class I18NUtil
 
 		public MessageEntry(String language, String key, String value)
 		{
-			this.language = language == null ? "" : language;
-			this.key = key == null ? "" : key;
-			this.value = value == null ? "" : value;
+			this.language = language == null ? EMPTY : language;
+			this.key = key == null ? EMPTY : key;
+			this.value = value == null ? EMPTY : value;
 		}
 
 		public String getLanguageKey()
@@ -97,6 +100,9 @@ public class I18NUtil
 			filterValue, fm);
 	}
 
+	/**
+	 * write i18n keys to the i18n table in a database
+	 */
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
 		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, TreeMap<String, MessageEntry> remoteMessages, String filterName,
 		String[] filterValue, IFoundSetManagerInternal fm) throws Exception
@@ -120,9 +126,9 @@ public class I18NUtil
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength(),
 					pkColumn.getScale(), pkColumn.getFlags());
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
 
 				ArrayList<SQLStatement> updateStatements = new ArrayList<SQLStatement>();
 				// go thorough messages, update exiting, add news to remote
@@ -138,6 +144,9 @@ public class I18NUtil
 						(autoEnterSubType != ColumnInfo.DATABASE_IDENTITY);
 				}
 
+				//Determine tenant column (if any)
+				ArrayList<Column> tenantColumns = getTenantColumns(i18NTable);
+
 				Iterator<Map.Entry<String, MessageEntry>> messagesIte = messages.entrySet().iterator();
 				Map.Entry<String, MessageEntry> messageEntry;
 				while (messagesIte.hasNext())
@@ -146,7 +155,7 @@ public class I18NUtil
 					String key = messageEntry.getKey();
 					String value = messageEntry.getValue().getValue();
 					String lang = messageEntry.getValue().getLanguage();
-					if (lang.equals("")) lang = null;
+					if (lang.equals(EMPTY)) lang = null;
 					String messageKey = messageEntry.getValue().getKey();
 
 					if (!remoteMessages.containsKey(key)) // insert
@@ -182,6 +191,7 @@ public class I18NUtil
 							}
 						}
 
+						//Old deprecated setI18nFilter logic
 						Column filterColumn = i18NTable.getColumn(filterName);
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
@@ -201,6 +211,7 @@ public class I18NUtil
 						update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
 						update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
+						//Old deprecated i18n.setI18nFilter logic
 						if (filterName != null)
 						{
 							Column filterColumn = i18NTable.getColumn(filterName);
@@ -212,6 +223,15 @@ public class I18NUtil
 									new QueryColumnValue(filterValue[0], null));
 								update.addCondition("FILTER", cc); //$NON-NLS-1$
 							}
+						}
+
+						//Add condition to update only records having the default tenant value (null)
+						for (Column column : tenantColumns)
+						{
+							QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+								column.getScale(), column.getFlags());
+							CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+							update.addCondition(cc);
 						}
 
 						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update,
@@ -231,13 +251,14 @@ public class I18NUtil
 						if (!messages.containsKey(key)) // delete
 						{
 							String lang = remoteMessageEntry.getValue().getLanguage();
-							if (lang.equals("")) lang = null;
+							if (lang.equals(EMPTY)) lang = null;
 							String messageKey = remoteMessageEntry.getValue().getKey();
 
 							QueryDelete delete = new QueryDelete(messagesTable);
 							delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
 							delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
+							//old deprecated i18n.setI18NFilter logic
 							if (filterName != null)
 							{
 								Column filterColumn = i18NTable.getColumn(filterName);
@@ -249,6 +270,15 @@ public class I18NUtil
 										new QueryColumnValue(filterValue[0], null));
 									delete.addCondition(cc);
 								}
+							}
+
+							//Add condition to remove only records having the default tenant value (null)
+							for (Column column : tenantColumns)
+							{
+								QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(),
+									column.getLength(), column.getScale(), column.getFlags());
+								CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+								delete.addCondition(cc);
 							}
 
 							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete,
@@ -281,23 +311,27 @@ public class I18NUtil
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QuerySelect sql = new QuerySelect(messagesTable);
 
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
 
 				sql.addColumn(msgLang);
 				sql.addColumn(msgKey);
 				sql.addColumn(msgVal);
 
+				//Filter to only include records with the default (null) value for columns flagged as Tenant column
+				for (Column column : getTenantColumns(i18NTable))
+				{
+					addFilter(sql, messagesTable, column, null, "_svy_tenant_id_table_filter"); //$NON-NLS-1$
+				}
+
+				//old deprecated i18n.setI18NFilter logic
 				if (filterName != null)
 				{
 					Column filterColumn = i18NTable.getColumn(filterName);
 					if (filterColumn != null && filterValue != null && filterValue.length > 0)
 					{
-						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-							filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
-						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
-						sql.addCondition("FILTER", cc); //$NON-NLS-1$
+						addFilter(sql, messagesTable, filterColumn, filterValue[0], "FILTER"); //$NON-NLS-1$
 					}
 				}
 
@@ -320,6 +354,32 @@ public class I18NUtil
 		}
 
 		return sortedMessages;
+	}
+
+	private static ArrayList<Column> getTenantColumns(Table i18NTable)
+	{
+		Collection<Column> columns = i18NTable.getColumns();
+		ArrayList<Column> tenantColumns = new ArrayList<Column>();
+		for (Column column : columns)
+		{
+			if (column.hasFlag(IBaseColumn.TENANT_COLUMN))
+			{
+				tenantColumns.add(column);
+			}
+		}
+
+		return tenantColumns;
+	}
+
+	private static void addFilter(QuerySelect sql, QueryTable table, Column column, Object value, String filterName)
+	{
+		if (column != null)
+		{
+			QueryColumn columnFilter = new QueryColumn(table, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+				column.getFlags());
+			CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(value, null));
+			sql.addCondition(filterName, cc);
+		}
 	}
 
 }

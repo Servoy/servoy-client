@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Locale.Builder;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -80,13 +81,60 @@ public class JSI18N implements IJSI18N
 	 * i18n.setLocale('en','US');
 	 *
 	 * @param language The lowercase 2 letter code
-	 *
-	 * @param country The upper case 2 letter code.
+	 * @param country The upper case 2 letter code
 	 */
 	@JSFunction
 	public void setLocale(String language, String country)
 	{
 		application.setLocale(new Locale(language, country));
+	}
+
+	/**
+	 * Set/Overwrite the locale for this client.
+	 * All forms not yet loaded will change (execute this in solution startup or first form).
+	 *
+	 * The language must be a lowercase 2 letter code defined by ISO-639.
+	 * see ISO 639-1 codes at http://en.wikipedia.org/wiki/List_of_ISO_639-1_code
+	 *
+	 * The country must be an upper case 2 letter code defined by ISO-3166
+	 * see ISO-3166-1 codes at http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+	 *
+	 * The extensions must be an array of strings indicating for example different industries. Each extension string must consist of only letters and digits with a max length of 8 characters
+	 * see private extensions at https://docs.oracle.com/javase/tutorial/i18n/locale/extensions.html
+	 *
+	 * NOTE: For more information on i18n, see the chapter on Internationalization in the Servoy Developer User's Guide, and the chapter on Internationalization-I18N in the Programming Guide.
+	 *
+	 * @sample
+	 * //Warning: already created form elements with i18n text lookup will not change,
+	 * //so call this method in the solution startup method or in methods from first form
+	 *
+	 * i18n.setLocale('en','US');
+	 * @param language The lowercase 2 letter code
+	 * @param country The upper case 2 letter code
+	 * @param extensions array of extensions strings
+	 */
+	@JSFunction
+	public void setLocale(String language, String country, String[] extensions)
+	{
+		Builder b = new Locale.Builder();
+		String extensionTags = ""; //$NON-NLS-1$
+
+		b.setLanguage(language).setRegion(country);
+
+		for (String extension : extensions)
+		{
+			if (extension.matches("[a-zA-Z0-9]{1,8}")) //$NON-NLS-1$
+			{
+				extensionTags = (extensionTags.length() > 0 ? "-" : "") + extension; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+
+		if (extensionTags.length() > 0)
+		{
+			b.setExtension(Locale.PRIVATE_USE_EXTENSION, extensionTags);
+		}
+
+		application.setLocale(b.build());
 	}
 
 	/**
@@ -118,6 +166,22 @@ public class JSI18N implements IJSI18N
 	public String getCurrentCountry()
 	{
 		return application.getLocale().getCountry();
+	}
+
+	/**
+	 * Gets the current extensions; based on the current locale settings in the Servoy Client Locale preferences.
+	 *
+	 * NOTE: For more information on i18n, see the chapter on Internationalization in the Servoy Developer User's Guide, and the chapter on Internationalization-I18N in the Programming Guide.
+	 *
+	 * @sample
+	 * var currExtensions = i18n.getCurrentExtensions();
+	 *
+	 * @return an array of Strings representing the current extensions.
+	 */
+	@JSFunction
+	public String[] getCurrentExtensions()
+	{
+		return application.getLocale().getExtension(Locale.PRIVATE_USE_EXTENSION).split("-"); //$NON-NLS-1$
 	}
 
 	/**
