@@ -19,11 +19,13 @@ package com.servoy.j2db.scripting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
@@ -302,10 +304,9 @@ public class JSI18N implements IJSI18N
 	public String[] getCountries()
 	{
 		Locale[] locales = Locale.getAvailableLocales();
-		ArrayList<String> countries = new ArrayList<String>();
-		for (int i = 0; i < locales.length; i++)
-			if (!locales[i].getCountry().equals("")) countries.add(locales[i].getCountry()); //$NON-NLS-1$
-
+		Set<String> countries = new HashSet<String>();
+		for (Locale locale : locales)
+			if (!locale.getCountry().equals("")) countries.add(locale.getCountry()); //$NON-NLS-1$
 		String[] retList = new String[countries.size()];
 		Iterator<String> it = countries.iterator();
 		for (int i = 0; i < countries.size(); i++)
