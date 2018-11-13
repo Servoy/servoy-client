@@ -105,8 +105,12 @@ public class ComponentFactory
 			Object eventValue = fe.getPropertyValue(eventName);
 			if (eventValue instanceof String)
 			{
-				UUID uuid = UUID.fromString((String)eventValue);
-				IPersist function = application.getFlattenedSolution().searchPersist(uuid);
+				IPersist function = application.getFlattenedSolution().getScriptMethod((String)eventValue);
+				if (function == null)
+				{
+					UUID uuid = UUID.fromString((String)eventValue);
+					function = application.getFlattenedSolution().searchPersist(uuid);
+				}
 				if (function != null)
 				{
 					webComponent.add(eventName, function.getID());

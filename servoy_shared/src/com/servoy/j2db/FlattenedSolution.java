@@ -141,6 +141,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	// concurrent caches.
 	private volatile Map<String, Relation> relationCacheByName = null;
 	private volatile Map<String, Map<String, ISupportScope>> scopeCacheByName = null;
+	private volatile Map<String, ISupportScope> scriptMethodOrVariableByUUID = null;
 	private volatile Map<String, Form> formCacheByNameAndUUID = null;
 	private volatile IntHashMap<Form> formCacheById;
 
@@ -1568,6 +1569,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		allProvidersForTable = null;
 		relationCacheByName = null;
 		scopeCacheByName = null;
+		scriptMethodOrVariableByUUID = null;
 		formCacheByNameAndUUID = null;
 		formCacheById = null;
 		valuelistCacheByNameAndUUID = null;
@@ -1785,6 +1787,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private void flushScopes()
 	{
 		scopeCacheByName = null;
+		scriptMethodOrVariableByUUID = null;
 	}
 
 	private synchronized void flushScriptVariables()
@@ -2207,7 +2210,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public ScriptMethod getScriptMethod(String methodNameOrUUID)
 	{
 		if (methodNameOrUUID == null) return null;
-		if (methodNameOrUUID.indexOf('-') > 0)
+		ISupportScope supportScope = getScriptUUIDCache().get(methodNameOrUUID);
+		if (supportScope instanceof ScriptMethod) return (ScriptMethod)supportScope;
+
+		ScriptMethod scriptMethod = getScriptMethod(null, methodNameOrUUID);
+
+		if (scriptMethod == null && methodNameOrUUID.indexOf('-') > 0)
 		{
 			UUID uuid = null;
 			try
@@ -2227,8 +2235,34 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 			}
 		}
+		return scriptMethod;
+	}
 
-		return getScriptMethod(null, methodNameOrUUID);
+	/**
+	 * @return
+	 */
+	private Map<String, ISupportScope> getScriptUUIDCache()
+	{
+		Map<String, ISupportScope> tmp = scriptMethodOrVariableByUUID;
+		while (tmp == null)
+		{
+			tmp = new HashMap<>();
+			for (ScriptMethod method : Utils.iterate(getScriptMethods(false)))
+			{
+				tmp.put(method.getUUID().toString(), method);
+			}
+
+			for (Form frm : Utils.iterate(getForms(false)))
+			{
+				for (ScriptMethod method : Utils.iterate(frm.getScriptMethods(false)))
+				{
+					tmp.put(method.getUUID().toString(), method);
+				}
+			}
+
+			scriptMethodOrVariableByUUID = tmp;
+		}
+		return tmp;
 	}
 
 	/**

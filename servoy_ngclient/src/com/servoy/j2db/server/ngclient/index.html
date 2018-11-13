@@ -6,11 +6,11 @@
 		<link rel="icon" href="favicon32x32.png" sizes="32x32" type="image/png"/>
 		<link rel="icon" href="favicon192x192.png" sizes="192x192" type="image/png"/>
 		<title ng-bind="solutionSettings.solutionTitle"></title>
-	    <script type="text/javascript">
+		<script type="text/javascript">
 			if (typeof module === 'object') {
-				  // Require Electron, IPC, other modules here
-				  window.module = module;
-				  module = undefined;
+				// Require Electron, IPC, other modules here
+				window.module = module;
+				module = undefined;
 			}
 		</script>	
 		<!-- component_contributions -->
@@ -20,8 +20,8 @@
 				// code from http://www.javascripter.net/faq/browsern.htm
 				var nVer = navigator.appVersion;
 				var nAgt = navigator.userAgent;
-				var browserName  = navigator.appName;
-				var fullVersion  = ''+parseFloat(navigator.appVersion); 
+				var browserName = navigator.appName;
+				var fullVersion = ''+parseFloat(navigator.appVersion); 
 				var majorVersion = parseInt(navigator.appVersion,10);
 				var nameOffset,verOffset,ix;
 		
@@ -77,7 +77,7 @@
 		
 				majorVersion = parseInt(''+fullVersion,10);
 				if (isNaN(majorVersion)) {
-					fullVersion  = ''+parseFloat(navigator.appVersion); 
+					fullVersion = ''+parseFloat(navigator.appVersion); 
 					majorVersion = parseInt(navigator.appVersion,10);
 				}
 				
@@ -134,9 +134,9 @@
 					{
 						$solutionSettings.ltrOrientation = true;
 					}
-	            
-	            // inject default tranlations
-	            $svyI18NService.addDefaultTranslations(JSON.parse(##defaultTranslations##));
+
+				// inject default tranlations
+				$svyI18NService.addDefaultTranslations(JSON.parse(##defaultTranslations##));
 			});
 			window.servoy_remoteaddr = ##ipaddr##
 			window.servoy_remotehost = ##hostaddr##
@@ -145,7 +145,7 @@
 	
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
 	
-	     <div sablo-reconnecting-feedback class="svy-reconnecting ng-cloak" >{{'servoy.ngclient.reconnecting' | translate}}</div>
+		<div sablo-reconnecting-feedback class="svy-reconnecting ng-cloak" >{{'servoy.ngclient.reconnecting' | translate}}</div>
 	
 		<div ng-if='!getSessionProblemView()' id="mainForm" sablo-tabseq='1' sablo-tabseq-config="{container: true}">
 			<div class="svy-main-window-navigator-container" ng-if="solutionSettings.navigatorForm.name" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
@@ -153,7 +153,7 @@
 			<div class="svy-main-window-container" autoscroll="true" svy-autosave ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
 			<div hiddendiv="true" sablo-tabseq='-2' ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
 		</div>
-		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'>		  
-		</div>
+		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'></div>
+		<div ng-if="getMainFormUrl() == ''" class="fill-up-space-initially"></div>
 	</body>
 </html>
