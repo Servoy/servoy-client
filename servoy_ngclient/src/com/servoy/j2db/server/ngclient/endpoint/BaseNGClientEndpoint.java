@@ -57,20 +57,23 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	{
 		try
 		{
-			Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormState", //$NON-NLS-1$
-				new Object[0]);
-			if (formsOnClient instanceof JSONObject)
+			if (getWindow() != null && getWindow().getSession() != null)
 			{
-				JSONObject json = (JSONObject)formsOnClient;
-				for (String formName : json.keySet())
+				Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormState", //$NON-NLS-1$
+					new Object[0]);
+				if (formsOnClient instanceof JSONObject)
 				{
-					JSONObject formData = json.getJSONObject(formName);
-					if (!formsOnClientForThisEndpoint.containsKey(formName))
+					JSONObject json = (JSONObject)formsOnClient;
+					for (String formName : json.keySet())
 					{
-						addFormIfAbsent(formName, formData.getString("url"));
+						JSONObject formData = json.getJSONObject(formName);
+						if (!formsOnClientForThisEndpoint.containsKey(formName))
+						{
+							addFormIfAbsent(formName, formData.getString("url"));
+						}
+						boolean domAttached = formData.optBoolean("attached");
+						setAttachedToDOM(formName, domAttached);
 					}
-					boolean domAttached = formData.optBoolean("attached");
-					setAttachedToDOM(formName, domAttached);
 				}
 			}
 		}
