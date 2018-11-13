@@ -429,6 +429,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return driver.toLowerCase().indexOf("hxtt") != -1; //$NON-NLS-1$
 	}
 
+	public boolean isInMemDriver()
+	{
+		return driver.toLowerCase().indexOf("hsqldb") != -1; //$NON-NLS-1$
+	}
+
 	public static String getConnectionValidationTypeAsString(int connectionValidationType)
 	{
 		switch (connectionValidationType)
