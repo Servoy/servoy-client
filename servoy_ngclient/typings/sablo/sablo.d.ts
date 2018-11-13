@@ -129,5 +129,11 @@ declare namespace sablo {
 		retrieveDeferForHandling(msgId: number, internalState):angular.IDeferred<any>
 		cancelAll(internalState):void
 	}
+	
+	interface ISabloLoadingIndicator {
+		showLoading(): void;
+		hideLoading(): void;
+		isShowing(): boolean;
+	}
 
 }
