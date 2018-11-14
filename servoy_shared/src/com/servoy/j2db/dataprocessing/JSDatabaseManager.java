@@ -953,7 +953,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas js_convertToDataSet(IFoundSetInternal)
 	 *
 	 * @param values The values array.
-
+	 *
 	 * @return JSDataSet with the data.
 	 */
 	public JSDataSet js_convertToDataSet(Object[] values)
@@ -2747,7 +2747,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param foundset The JSFoundset to save.
-
+	 *
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2774,7 +2774,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas saveData()
 	 *
 	 * @param record The JSRecord to save.
-
+	 *
 	 * @return true if the save was done without an error.
 	 */
 	@JSFunction
@@ -2894,12 +2894,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
 	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
 	 *
-	 * If you query the pk with the columns that you display for the main or join tables. Then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
+	 * If you query the pk with the columns that you display for the main or join tables then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
 	 * If there are changes in ViewRecords of this ViewFoundSet then databroadcast configurations that need to load new data won't do the query right away (only after the save)
-	 * Also loading more (the next chunksize) will not be done. This is because the ViewRecord on an index an be completely changed. We can't track those.
+	 * Also loading more (the next chunksize) will not be done. This is because the ViewRecord on an index can be completely changed. We can't track those.
 	 *
-	 * Als databroadcast can be enabled by calling  one of the ViewFoundSet#enableDatabroadcastFor(QBTableClause)} to listen for that specific table (main or joins).
-	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a requiry to see,detect the changes.
+	 * Also databroadcast can be enabled by calling one of the ViewFoundSet#enableDatabroadcastFor(QBTableClause)} to listen for that specific table (main or joins).
+	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a full re-query to see the changes.
 	 *
 	 * @sample
 	 * /** @type {ViewFoundSet<view:myname>} *&#47;
