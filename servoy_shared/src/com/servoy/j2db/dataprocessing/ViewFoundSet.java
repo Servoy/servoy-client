@@ -1896,11 +1896,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				List<Integer> rowIndexes = cacheByRow.get(e.getPkHashKey());
 				if (rowIndexes != null)
 				{
-					rowIndexes.forEach((value) -> {
+					for (int i = rowIndexes.size(); i-- > 0;)
+					{
+						Integer value = rowIndexes.get(i);
 						records.remove(value.intValue());
 						// this could be maybe done in 1 accumulated fire, but this should be only 1 (main table delete)
 						fireFoundSetEvent(value.intValue(), value.intValue(), FoundSetEvent.CHANGE_DELETE);
-					});
+					}
 				}
 			}
 		}
