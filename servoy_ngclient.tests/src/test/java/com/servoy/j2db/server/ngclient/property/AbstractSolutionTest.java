@@ -52,10 +52,18 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.sablo.InMemPackageReader;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -79,6 +87,7 @@ import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -95,6 +104,21 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractSolutionTest
 {
+
+	static
+	{
+		// tell log4j to print to console output
+		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
+
+		AppenderComponentBuilder console = builder.newAppender("stdout", "Console");
+		builder.add(console);
+
+		RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.ERROR);
+		rootLogger.add(builder.newAppenderRef("stdout"));
+		builder.add(rootLogger);
+
+		Configurator.initialize(builder.build());
+	}
 
 	protected static IServer DUMMY_ISERVER = new IServer()
 	{
@@ -399,7 +423,36 @@ public abstract class AbstractSolutionTest
 			solution.setChangeHandler(new ChangeHandler(tr));
 			fillTestSolution();
 
-			client = new TestNGClient(tr)
+			endpoint = new NGClientEndpoint()
+			{
+				// for testing onstart of the BaseNGClientEndpoint should not run
+				@Override
+				public void onStart()
+				{
+				};
+			};
+
+			NGClientWebsocketSession session = new NGClientWebsocketSession("1")
+			{
+				@Override
+				public void init() throws Exception
+				{
+					// override default init, shouldnt make another client.
+				}
+
+				@Override
+				protected IEventDispatcher createEventDispatcher()
+				{
+					return new TestNGEventDispatcher(endpoint);
+				}
+			};
+
+			WebsocketSessionManager.addSession(session);
+
+			NGClientWebsocketSessionWindows windows = new NGClientWebsocketSessionWindows(session);
+			CurrentWindow.set(windows);
+
+			client = new TestNGClient(tr, session)
 			{
 				@Override
 				public boolean loadSolutionsAndModules(SolutionMetaData solutionMetaData)
@@ -419,14 +472,7 @@ public abstract class AbstractSolutionTest
 			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
-			endpoint = new NGClientEndpoint()
-			{
-				// for testing onstart of the BaseNGClientEndpoint should not run
-				@Override
-				public void onStart()
-				{
-				};
-			};
+
 			endpoint.start(new Session()
 			{
 				@Override
@@ -716,7 +762,7 @@ public abstract class AbstractSolutionTest
 			INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(endpoint.getEndpointType(), "1");
 			Assert.assertNotNull("no wsSession", wsSession);
 
-			CurrentWindow.set(new NGClientWebsocketSessionWindows(wsSession));
+			CurrentWindow.set(wsSession.getWindows().iterator().next());
 		}
 		catch (RepositoryException e)
 		{

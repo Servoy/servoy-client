@@ -97,7 +97,6 @@ public class EventCallTest extends AbstractSolutionTest
 
 	}
 
-
 	@Test
 	public void callButtonWithUUIDName()
 	{

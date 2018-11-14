@@ -542,7 +542,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IFormController showFormInCurrentContainer(String formName)
 	{
-		return showFormInContainer(formName, getCurrentContainer(), null, false, getCurrentContainer().getContainerName());
+		IBasicMainContainer currentContainer = getCurrentContainer();
+		return showFormInContainer(formName, currentContainer, null, false, currentContainer.getContainerName());
 	}
 
 	@Override
