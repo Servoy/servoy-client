@@ -27,9 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.sablo.eventthread.IEventDispatcher;
-import org.sablo.websocket.WebsocketSessionManager;
-
 import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.dataprocessing.Blob;
@@ -93,82 +90,11 @@ public class TestNGClient extends NGClient
 	 * @param wsSession
 	 * @param tr
 	 */
-	TestNGClient(TestRepository tr) throws Exception
+	TestNGClient(TestRepository tr, NGClientWebsocketSession session) throws Exception
 	{
-		super(new NGClientWebsocketSession("1")
-		{
-			@Override
-			public void init() throws Exception
-			{
-				// override default init, shouldnt make another client.
-			}
-
-			@Override
-			protected IEventDispatcher createEventDispatcher()
-			{
-				return new IEventDispatcher()
-				{
-
-					@Override
-					public void run()
-					{
-					}
-
-					@Override
-					public void suspend(Object object)
-					{
-					}
-
-					@Override
-					public void resume(Object object)
-					{
-					}
-
-					@Override
-					public boolean isEventDispatchThread()
-					{
-						return true;
-					}
-
-					@Override
-					public void destroy()
-					{
-					}
-
-					@Override
-					public void addEvent(Runnable event)
-					{
-						event.run();
-					}
-
-					@Override
-					public void addEvent(Runnable event, int eventLevel)
-					{
-						event.run();
-					}
-
-					@Override
-					public void suspend(Object suspendID, int minEventLevelToDispatch, long timeout)
-					{
-					}
-
-					@Override
-					public void cancelSuspend(Integer suspendID, String reason)
-					{
-					}
-
-					@Override
-					public void postEvent(Runnable event)
-					{
-						event.run();
-					}
-
-				};
-			}
-		});
+		super(session);
 		this.tr = tr;
 		((NGClientWebsocketSession)getWebsocketSession()).setClient(this);
-		WebsocketSessionManager.addSession(getWebsocketSession());
 	}
 
 	public static void initSettings()
@@ -189,7 +115,6 @@ public class TestNGClient extends NGClient
 			{
 			}
 
-
 			@Override
 			public void logMessage(String msg) throws RemoteException
 			{
@@ -200,7 +125,6 @@ public class TestNGClient extends NGClient
 			{
 				return false;
 			}
-
 
 			@Override
 			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)
