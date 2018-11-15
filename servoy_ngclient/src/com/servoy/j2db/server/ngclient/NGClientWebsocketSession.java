@@ -305,6 +305,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
+	protected IServerService createConsoleLoggerService()
+	{
+		return new NGConsoleLoggerServiceHandler(this);
+	}
+
+	@Override
 	public void solutionLoaded(Solution solution)
 	{
 		sendSolutionCSSURL(solution);
