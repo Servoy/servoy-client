@@ -294,38 +294,10 @@ public class ViewportChangeKeeperTest
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testException2()
-	{
-		// partial interval with unsupported sizes and null column name
-		new PartiallyUnchangedInterval(1, 2, 3, 4, null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testException3()
-	{
-		// interval with unsupported size
-		new PartiallyUnchangedInterval(1, 2, 3, 4, "columnA");
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testException4()
-	{
-		// partial interval without column name
-		new PartiallyUnchangedInterval(1, 1, 3, 3, null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testException5()
-	{
-		// interval with unsupported size and without column name
-		new PartiallyUnchangedInterval(1, 2, 3, 3, null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void testException6()
 	{
-		// interval with unsupported size and without column name
-		new PartiallyUnchangedInterval(1, 1, 3, 4, null);
+		// interval without column name
+		new UnchangedInterval(1, 4, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

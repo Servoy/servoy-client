@@ -17,12 +17,14 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.servoy.j2db.server.ngclient.property.ViewportChangeKeeper.IntervalSequenceModifier;
 
 /**
- * An unchanged or (partially unchanged - see {@link PartiallyUnchangedInterval}) interval. It keeps the new indexes and initial indexes. See {@link ViewportChangeKeeper} for more information.<br/><br/>
+ * An unchanged (or partially unchanged - see {@link #UnchangedInterval(int, int, String)}) interval. It keeps the new indexes and initial indexes. See {@link ViewportChangeKeeper} for more information.<br/><br/>
  *
  * It can correct it's indexes, split into two/three UnchangedIntervals or remove itself from the ViewportChangeKeeper when an insert, delete or update operation
  * are processed.<br/>
@@ -39,12 +41,41 @@ public class UnchangedInterval
 	private int newStartIndex;
 	private int newEndIndex;
 
+	// if it has partial changes/only some columns changed
+	private List<String> changedColumnNames;
+
 	public UnchangedInterval(int initialStartIndex, int initialEndIndex, int newStartIndex, int newEndIndex)
 	{
 		this.initialStartIndex = initialStartIndex;
 		this.initialEndIndex = initialEndIndex;
 		this.newStartIndex = newStartIndex;
 		this.newEndIndex = newEndIndex;
+	}
+
+	/**
+	 * Create a new partially changed interval (some parts of data in that row are changed, some are not).<br/>
+	 * Partially changed intervals are always actually always of size 1.
+	 * Initially "changedColumnName" is the only changed column in that row, but more columns could be added later.<br/><br/>
+	 *
+	 * See {@link #UnchangedInterval(int, int, int, int)} for other params.
+	 * @param columnName the name of a column that actually did change.
+	 */
+	public UnchangedInterval(int initialIndex, int newIndex, String changedColumnName)
+	{
+		this(initialIndex, initialIndex, newIndex, newIndex);
+
+		if (changedColumnName == null)
+			throw new IllegalArgumentException("Partial row changed intervals are not supported without a column name... Column name: " + changedColumnName +
+				", [" + initialIndex + " | " + newIndex + "].");
+
+
+		changedColumnNames = new ArrayList<>();
+		changedColumnNames.add(changedColumnName);
+	}
+
+	public boolean isPartiallyChanged()
+	{
+		return changedColumnNames != null;
 	}
 
 	/**
@@ -80,91 +111,118 @@ public class UnchangedInterval
 
 	protected int applyChange(ViewportOperation changeOperation, IntervalSequenceModifier intervalSequenceModifier)
 	{
-		// if change intersects current interval then we must restrict the unchanged indexes, maybe even split the interval into multiple ones
-		int intersectionStart = Math.max(changeOperation.startIndex, newStartIndex);
-		int intersectionEnd = Math.min(changeOperation.endIndex, newEndIndex);
-		int intersectionSize = intersectionEnd - intersectionStart + 1;
-		int unchangedIndexes = 0;
-
-		if (intersectionSize > 0)
+		// on partially changed intervals, a partial update on the same row will just append to column names;
+		// inserts/deletes/full updates that overlap will behave the same as they do for UnchangedInterval
+		if (isPartiallyChanged() && changeOperation.columnName != null && changeOperation.startIndex == getNewStart())
 		{
-			UnchangedInterval newInterval;
-			boolean isPartialChange = (changeOperation.columnName != null);
+			// we can assume that both this and changeOperation have identical end-indexes as partial changes are only allowed for 1 row
+			if (!changedColumnNames.contains(changeOperation.columnName)) changedColumnNames.add(changeOperation.columnName);
 
-			if (intersectionStart == newStartIndex)
+			return getUnchangedIndexesCount(); // 0
+		}
+		else
+		{
+			// if change intersects current interval then we must restrict the unchanged indexes, maybe even split the interval into multiple ones
+			int intersectionStart = Math.max(changeOperation.startIndex, newStartIndex);
+			int intersectionEnd = Math.min(changeOperation.endIndex, newEndIndex);
+			int intersectionSize = intersectionEnd - intersectionStart + 1;
+			int unchangedIndexes = 0;
+
+			if (intersectionSize > 0)
 			{
-				intervalSequenceModifier.discardCurrentInterval();
-				// first part of this unchanged interval is gone; or whole interval is gone
-				if (isPartialChange)
+				UnchangedInterval newInterval;
+				boolean isPartialChange = (changeOperation.columnName != null);
+
+				if (intersectionStart == newStartIndex)
 				{
-					// if it's a partial change add it before current unchanged interval
-					newInterval = new PartiallyUnchangedInterval(initialStartIndex, initialStartIndex + intersectionSize - 1, newStartIndex, intersectionEnd,
-						changeOperation.columnName); // intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
-					intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
-					unchangedIndexes = newInterval.getUnchangedIndexesCount();
+					intervalSequenceModifier.discardCurrentInterval();
+					// first part of this unchanged interval is gone; or whole interval is gone
+					if (isPartialChange)
+					{
+						// if it's a partial change add it before current unchanged interval
+
+						// intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
+						if (initialStartIndex != initialStartIndex + intersectionSize - 1 || newStartIndex != intersectionEnd)
+							throw new RuntimeException("Partial row changed intervals cannot be created for multiple indexes... Column name: " +
+								changeOperation.columnName + ", [" + initialStartIndex + " | " + newStartIndex + "].");
+
+						newInterval = new UnchangedInterval(initialStartIndex, newStartIndex, changeOperation.columnName);
+						intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
+						unchangedIndexes = newInterval.getUnchangedIndexesCount();
+					}
+
+					// update indexes of this interval and add it if it still exists
+					newStartIndex += intersectionSize;
+					initialStartIndex += intersectionSize;
+					if (newEndIndex >= newStartIndex)
+					{
+						intervalSequenceModifier.addOneMoreIntervalAfter(this);
+						unchangedIndexes += getUnchangedIndexesCount();
+					}
 				}
-
-				// update indexes of this interval and add it if it still exists
-				newStartIndex += intersectionSize;
-				initialStartIndex += intersectionSize;
-				if (newEndIndex >= newStartIndex)
+				else if (intersectionEnd == newEndIndex)
 				{
-					intervalSequenceModifier.addOneMoreIntervalAfter(this);
-					unchangedIndexes += getUnchangedIndexesCount();
+					// last part of this unchanged interval is gone (but first part remains, otherwise it would have entered previous if)
+					int oldIinitialEndIndex = initialEndIndex;
+
+					// update indexes of this interval and remove it if it no longer exists
+					newEndIndex -= intersectionSize;
+					initialEndIndex -= intersectionSize;
+					unchangedIndexes = getUnchangedIndexesCount();
+
+					if (isPartialChange)
+					{
+						// if it's a partial change add it after current unchanged interval
+
+						// intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
+						if (oldIinitialEndIndex - intersectionSize + 1 != oldIinitialEndIndex || intersectionStart != intersectionEnd)
+							throw new RuntimeException("Partial row changed intervals cannot be created for multiple indexes... Column name: " +
+								changeOperation.columnName + ", [" + oldIinitialEndIndex + " | " + intersectionStart + "].");
+
+						newInterval = new UnchangedInterval(oldIinitialEndIndex, intersectionStart, changeOperation.columnName);
+						intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
+						unchangedIndexes += newInterval.getUnchangedIndexesCount();
+					}
 				}
-			}
-			else if (intersectionEnd == newEndIndex)
-			{
-				// last part of this unchanged interval is gone (but first part remains, otherwise it would have entered previous if)
-				int oldIinitialEndIndex = initialEndIndex;
-
-				// update indexes of this interval and remove it if it no longer exists
-				newEndIndex -= intersectionSize;
-				initialEndIndex -= intersectionSize;
-				unchangedIndexes = getUnchangedIndexesCount();
-
-				if (isPartialChange)
+				else
 				{
-					// if it's a partial change add it after current unchanged interval
-					newInterval = new PartiallyUnchangedInterval(oldIinitialEndIndex - intersectionSize + 1, oldIinitialEndIndex, intersectionStart,
-						intersectionEnd, changeOperation.columnName); // intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
+					// update happened in the middle of this interval; we have to split into multiple unchanged intervals
+					int oldInitialEndIndex = initialEndIndex;
+					int oldNewEndIndex = newEndIndex;
+
+					// update indexes of this interval to match the first resulting interval (the one before intersection)
+					initialEndIndex -= newEndIndex - intersectionStart + 1; // for example intersection [5 -> 7], end index = 10, initialEndIndex 8 => initialEndIndex must decrease to 2
+					newEndIndex = intersectionStart - 1;
+					unchangedIndexes = getUnchangedIndexesCount();
+
+					if (isPartialChange)
+					{
+						// if it's a partial change add it after current unchanged interval
+
+						// intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
+						if (initialEndIndex + 1 != initialEndIndex + intersectionSize || intersectionStart != intersectionEnd)
+							throw new RuntimeException("Partial row changed intervals cannot be created for multiple indexes... Column name: " +
+								changeOperation.columnName + ", [" + initialEndIndex + 1 + " | " + intersectionStart + "].");
+
+						newInterval = new UnchangedInterval(initialEndIndex + 1, intersectionStart, changeOperation.columnName);
+						intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
+						unchangedIndexes += newInterval.getUnchangedIndexesCount();
+					}
+
+					// create the new unchanged interval for after the intersection
+					newInterval = new UnchangedInterval(initialEndIndex + intersectionSize + 1, oldInitialEndIndex, intersectionEnd + 1, oldNewEndIndex);
 					intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
 					unchangedIndexes += newInterval.getUnchangedIndexesCount();
 				}
 			}
 			else
 			{
-				// update happened in the middle of this interval; we have to split into multiple unchanged intervals
-				int oldInitialEndIndex = initialEndIndex;
-				int oldNewEndIndex = newEndIndex;
-
-				// update indexes of this interval to match the first resulting interval (the one before intersection)
-				initialEndIndex -= newEndIndex - intersectionStart + 1; // for example intersection [5 -> 7], end index = 10, initialEndIndex 8 => initialEndIndex must decrease to 2
-				newEndIndex = intersectionStart - 1;
+				// else it does not affect at all this unchanged interval
 				unchangedIndexes = getUnchangedIndexesCount();
-
-				if (isPartialChange)
-				{
-					// if it's a partial change add it after current unchanged interval
-					newInterval = new PartiallyUnchangedInterval(initialEndIndex + 1, initialEndIndex + intersectionSize, intersectionStart, intersectionEnd,
-						changeOperation.columnName); // intersectionSize should always be 1 here actually as partial change viewport operations are only supported for 1 row
-					intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
-					unchangedIndexes += newInterval.getUnchangedIndexesCount();
-				}
-
-				// create the new unchanged interval for after the intersection
-				newInterval = new UnchangedInterval(initialEndIndex + intersectionSize + 1, oldInitialEndIndex, intersectionEnd + 1, oldNewEndIndex);
-				intervalSequenceModifier.addOneMoreIntervalAfter(newInterval);
-				unchangedIndexes += newInterval.getUnchangedIndexesCount();
 			}
-		}
-		else
-		{
-			// else it does not affect at all this unchanged interval
-			unchangedIndexes = getUnchangedIndexesCount();
-		}
 
-		return unchangedIndexes;
+			return unchangedIndexes;
+		}
 	}
 
 	protected int applyInsert(ViewportOperation insertOperation, IntervalSequenceModifier intervalSequenceModifier)
@@ -279,7 +337,18 @@ public class UnchangedInterval
 	 */
 	public void appendEquivalentViewportOperations(List<ViewportOperation> equivalentSequenceOfOperations)
 	{
-		// nothing to add here; this is just for partially changed intervals
+		if (isPartiallyChanged())
+		{
+			if (getInitialStart() != getInitialEnd() || getNewStart() != getNewEnd()) throw new RuntimeException(
+				"[appendEquivalentViewportOperations] Partial row changed interval indexes were changed incorrectly to more then one in an interval... Column names: " +
+					Arrays.asList(changedColumnNames) + ", [" + getInitialStart() + ", " + getInitialEnd() + "].");
+
+			// partially changed intervals still need to add changes for each 'column' on that row
+			for (String changedColumn : changedColumnNames)
+			{
+				equivalentSequenceOfOperations.add(new ViewportOperation(getNewStart(), getNewEnd(), ViewportOperation.CHANGE, changedColumn));
+			}
+		} // else nothing to add here; this is just for partially changed intervals; completely unchanged intervals generate no changes of course
 	}
 
 	public int getInitialStart()
@@ -304,13 +373,22 @@ public class UnchangedInterval
 
 	public int getUnchangedIndexesCount()
 	{
-		return initialEndIndex - initialStartIndex + 1;
+		if (isPartiallyChanged())
+		{
+			if (getInitialStart() != getInitialEnd() || getNewStart() != getNewEnd()) throw new RuntimeException(
+				"[getUnchangedIndexes] Partial row changed interval indexes were changed incorrectly to more then one partial change in an interval... Column names: " +
+					Arrays.asList(changedColumnNames) + ", [" + getInitialStart() + ", " + getInitialEnd() + "].");
+
+			return 0; // this index is actually partially changed!
+		}
+		else return initialEndIndex - initialStartIndex + 1;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "UnchangedInterval [initialStartIndex=" + initialStartIndex + ", initialEndIndex=" + initialEndIndex + ", newStartIndex=" + newStartIndex +
+		return (isPartiallyChanged() ? "Partially-UnchangedInterval [changedColumnNames=" + changedColumnNames + ", " + " initialStartIndex= "
+			: "UnchangedInterval [initialStartIndex=") + initialStartIndex + ", initialEndIndex=" + initialEndIndex + ", newStartIndex=" + newStartIndex +
 			", newEndIndex=" + newEndIndex + "]";
 	}
 
