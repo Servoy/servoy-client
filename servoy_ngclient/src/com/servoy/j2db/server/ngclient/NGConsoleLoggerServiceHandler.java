@@ -34,10 +34,11 @@ public class NGConsoleLoggerServiceHandler extends ConsoleLoggerServiceHandler
 
 
 	@Override
-	protected String getClientInformationMessage()
+	protected String getInformationMessage(String message)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.getClientInformationMessage());
+		sb.append(getSession().getUuid());
+		sb.append('|');
 		INGApplication client = getSession().getClient();
 		if (client != null)
 		{
@@ -58,6 +59,7 @@ public class NGConsoleLoggerServiceHandler extends ConsoleLoggerServiceHandler
 			sb.append("<no-client>|<no-user>");
 		}
 		sb.append('|');
+		sb.append(message);
 		return sb.toString();
 	}
 
