@@ -191,7 +191,7 @@ public class DatabaseUtils
 			ci.setAutoEnterSubType(ColumnInfo.SERVOY_SEQUENCE);
 			ci.setSequenceStepSize(1);
 		}
-		if ("uuid".equals(c.getSqlTypeName()) && c.getType() == Types.JAVA_OBJECT && c.getLength() <= 36) //$NON-NLS-1$
+		if (Utils.equalObjects(c.getSqlTypeName(), "uuid") && c.getType() == Types.JAVA_OBJECT && c.getLength() <= 36) //$NON-NLS-1$
 		{
 			c.setFlag(IBaseColumn.UUID_COLUMN, true);
 			if (c.isDatabasePK()) c.setSequenceType(ColumnInfo.UUID_GENERATOR);
