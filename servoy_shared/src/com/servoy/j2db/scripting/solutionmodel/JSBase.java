@@ -124,12 +124,22 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 
 					//first check if the override persist already exists, and return it in that case
 					List<IPersist> children = PersistHelper.getHierarchyChildren((AbstractBase)parent.getSupportChild());
-					for (IPersist p : children)
+					IPersist form = parent.getSupportChild() instanceof Form ? parent.getSupportChild()
+						: parent.getSupportChild().getAncestor(IRepository.FORMS);
+					if (form != null)
 					{
-						if (parentPersist.getID() == ((ISupportExtendsID)p).getExtendsID())
+						for (IPersist p : children)
 						{
-							return (AbstractBase)p;
+							if (parentPersist.getID() == ((ISupportExtendsID)p).getExtendsID() && form.equals(p.getAncestor(IRepository.FORMS)))
+							{
+								return (AbstractBase)p;
+							}
 						}
+					}
+					else
+					{
+						//should not happen
+						Debug.error("Cannot find form of persist " + parent.getSupportChild());
 					}
 
 					baseComponent = (AbstractBase)persist.cloneObj(parent.getSupportChild(), false, null, false, false, false);
