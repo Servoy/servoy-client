@@ -46,6 +46,7 @@ import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.TypedData;
@@ -640,30 +641,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	protected void runWhileShowingLoadingIndicator(Runnable r)
 	{
-		boolean indicatorShown = false;
-		try
-		{
-			try
-			{
-				getWebsocketSession().getClientService("$sabloLoadingIndicator").executeServiceCall("showLoading", null);
-				indicatorShown = true;
-			}
-			catch (IOException e)
-			{
-			}
-			r.run();
-		}
-		finally
-		{
-			try
-			{
-				if (indicatorShown) getWebsocketSession().getClientService("$sabloLoadingIndicator").executeServiceCall("hideLoading", null);
-			}
-			catch (IOException e)
-			{
-				Debug.error("Loading indicator was shown but hiding it failed", e);
-			}
-		}
+		IClientService s = getWebsocketSession().getClientService("$sabloLoadingIndicator");
+		s.executeAsyncNowServiceCall("showLoading", null);
+		r.run();
+		s.executeAsyncNowServiceCall("hideLoading", null);
 	}
 
 	@Override

@@ -62,12 +62,22 @@ public class WebServiceFunction extends WebBaseFunction
 		try
 		{
 			PropertyDescription retPD = definition != null ? definition.getReturnType() : null;
-			if (retPD == null && definition != null && definition.isAsync())
+			boolean isSyncCall = true;
+			if (retPD == null && definition != null)
 			{
-				session.getClientService(serviceName).executeAsyncServiceCall(definition.getName(), args);
-				return null;
+				if (definition.isAsync())
+				{
+					isSyncCall = false;
+					session.getClientService(serviceName).executeAsyncServiceCall(definition.getName(), args);
+				}
+				else if (definition.isAsyncNow())
+				{
+					isSyncCall = false;
+					session.getClientService(serviceName).executeAsyncNowServiceCall(definition.getName(), args);
+				}
 			}
-			else
+
+			if (isSyncCall)
 			{
 				return cx.getWrapFactory().wrap(cx, scope,
 					NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
@@ -75,6 +85,7 @@ public class WebServiceFunction extends WebBaseFunction
 						(IWebObjectContext)session.getClientService(serviceName), thisObj),
 					null);
 			}
+			else return null;
 		}
 		catch (IOException e)
 		{

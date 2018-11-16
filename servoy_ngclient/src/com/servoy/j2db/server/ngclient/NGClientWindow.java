@@ -148,7 +148,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
 		IWebFormController form = getSession().getClient().getFormManager().getForm(formUI.getName());
 
-		if (!isDelayedApiCall(receiver, apiFunction))
+		if (!isDelayedApiCall(apiFunction))
 		{
 			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
