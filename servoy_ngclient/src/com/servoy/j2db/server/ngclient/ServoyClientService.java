@@ -33,6 +33,7 @@ import com.servoy.j2db.util.Debug;
  * @author jcompagner
  *
  */
+@SuppressWarnings("nls")
 public class ServoyClientService extends ClientService implements IContextProvider
 {
 	private final INGClientWebsocketSession session;
@@ -124,6 +125,12 @@ public class ServoyClientService extends ClientService implements IContextProvid
 	public Object getDefaultFromPD(PropertyDescription propertyDesc)
 	{
 		return WebFormComponent.getDefaultFromPropertyDescription(propertyDesc);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ServoyClientService [name=" + name + "]";
 	}
 
 }

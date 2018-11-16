@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient;
 
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -514,28 +513,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	private void wrapInShowLoadingIndicator(List<Runnable> invokeLaterRunnables)
 	{
-		final boolean[] indicatorWasShown = new boolean[] { false };
-
 		invokeLaterRunnables.add(0, () -> {
-			try
-			{
-				getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeServiceCall("showLoading", null);
-				indicatorWasShown[0] = true;
-			}
-			catch (IOException e)
-			{
-			}
+			getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
 		});
 		invokeLaterRunnables.add(() -> {
-			try
-			{
-				if (indicatorWasShown[0])
-					getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeServiceCall("hideLoading", null);
-			}
-			catch (IOException e)
-			{
-				Debug.error("Loading indicator was shown but it could not be hidden", e);
-			}
+			getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("hideLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
 		});
 	}
 
