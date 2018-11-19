@@ -1387,14 +1387,14 @@ public abstract class BasicFormController
 	{
 		if (formModel == newModel) return;
 		boolean isInFind = false;
-		FoundSet mustUnpinSelectionMode = null;
+		ISwingFoundSet mustUnpinSelectionMode = null;
 		if (formModel != null)
 		{
 			formModel.removeFoundSetEventListener(this);
 			isInFind = formModel.isInFindMode();
-			if (formModel instanceof FoundSet)
+			if (formModel instanceof ISwingFoundSet)
 			{
-				mustUnpinSelectionMode = (FoundSet)formModel;
+				mustUnpinSelectionMode = (ISwingFoundSet)formModel;
 			}
 		}
 		formModel = newModel;

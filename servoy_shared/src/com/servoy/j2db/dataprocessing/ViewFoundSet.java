@@ -869,6 +869,15 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 	}
 
+	public void unpinMultiSelectIfNeeded(int pinId)
+	{
+		if (multiSelectPinnedTo == pinId)
+		{
+			multiSelectPinnedTo = -1;
+			fireSelectionModeChange(); // this allows any other forms that might be currently using this foundset to apply their own selectionMode to it
+		}
+	}
+
 	@Override
 	@JSGetter
 	public void setMultiSelect(boolean multiSelect)
