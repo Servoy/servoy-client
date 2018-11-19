@@ -467,14 +467,35 @@ public class String
 	/**
 	 * returns an array of objects whose elements are segments of the current string.
 	 *
-	 * @sample string.split(delimiter,limitInteger);
-	 * 
-	 * @param separator 
-	 * @param limit 
-	 * 
+	 * @sample
+	 * var myString = 'Hello 1 word. Sentence number 2.';
+	 * var splits = myString.split(' ');
+	 * application.output(splits);
+	 *
+	 * @param separator Specifies the string which denotes the points at which each split should occur. If separator is an empty string, str is converted to an array of characters.
+	 * @param limit Optional integer specifying a limit on the number of splits to be found.
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/split
 	 */
 	public String js_split(String separator, Number limit)
+	{
+		return null;
+	}
+
+	/**
+	 * returns an array of objects whose elements are segments of the current string.
+	 *
+	 * @sample
+	 * var myString = 'Hello 1 word. Sentence number 2.';
+	 * var splits = myString.split(new RegExp(/(\d)/), 2);
+	 * application.output(splits); //prints [Hello , 1]
+	 *
+	 * @param separator Specifies the string which denotes the points at which each split should occur. If separator is an empty string, str is converted to an array of characters.
+	 * @param limit Optional integer specifying a limit on the number of splits to be found.
+	 *
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/split
+	 */
+	public String js_split(RegExp separator, Number limit)
 	{
 		return null;
 	}
