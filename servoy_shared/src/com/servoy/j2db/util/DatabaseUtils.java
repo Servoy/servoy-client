@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.util;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -191,7 +190,7 @@ public class DatabaseUtils
 			ci.setAutoEnterSubType(ColumnInfo.SERVOY_SEQUENCE);
 			ci.setSequenceStepSize(1);
 		}
-		if (Utils.equalObjects(c.getSqlTypeName(), "uuid") && c.getType() == Types.JAVA_OBJECT && c.getLength() <= 36) //$NON-NLS-1$
+		if (c.isUUID())
 		{
 			c.setFlag(IBaseColumn.UUID_COLUMN, true);
 			if (c.isDatabasePK()) c.setSequenceType(ColumnInfo.UUID_GENERATOR);

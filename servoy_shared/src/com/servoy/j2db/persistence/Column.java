@@ -75,6 +75,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
 	private String sqlTypeName;
+	private boolean isUUID = false;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -1135,6 +1136,26 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void setAllowNull(boolean allowNull)
 	{
 		this.allowNull = allowNull;
+	}
+
+	/**
+	 * Returns the isUUID.
+	 *
+	 * @return boolean
+	 */
+	public boolean isUUID()
+	{
+		return isUUID;
+	}
+
+	/**
+	 * Sets the isUUID.
+	 *
+	 * @param isUUID The isUUID to set
+	 */
+	public void setUUIDFlag(boolean isUUID)
+	{
+		this.isUUID = isUUID;
 	}
 
 	private transient String note;//used to show temp tooltip text when hovering over
