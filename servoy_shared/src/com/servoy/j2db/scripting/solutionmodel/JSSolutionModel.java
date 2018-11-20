@@ -536,7 +536,6 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		Form form = parent.getSupportChild();
 		FlattenedSolution fs = application.getFlattenedSolution();
 		fs.clonePersist(((JSBase)component).getBaseComponent(false), newName, form);
-		parent.checkModification();//temp fix for 8.3.3 to flush the flattened form cache
 		return parent.getComponent(newName);
 	}
 
