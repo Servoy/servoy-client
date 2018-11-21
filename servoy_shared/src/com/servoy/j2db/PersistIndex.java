@@ -155,7 +155,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 					scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
 
 				}
-				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
 		}
 		return scopeCacheByName;
