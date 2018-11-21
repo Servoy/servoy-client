@@ -36,7 +36,6 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -89,14 +88,10 @@ public class ServoyApiObject
 		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
 		if (form == null)
 		{
-			UUID uuid = Utils.getAsUUID(nameOrUUID, false);
-			if (uuid != null)
+			form = (Form)app.getFlattenedSolution().searchPersist(nameOrUUID);
+			if (form != null)
 			{
-				form = (Form)app.getFlattenedSolution().searchPersist(uuid);
-				if (form != null)
-				{
-					formName = form.getName();
-				}
+				formName = form.getName();
 			}
 		}
 		IWebFormController formController = (IWebFormController)app.getFormManager().getForm(formName);

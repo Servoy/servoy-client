@@ -107,7 +107,6 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
@@ -138,15 +137,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private volatile ConcurrentMap<ITable, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
 	private final ConcurrentMap<String, IDataProvider> globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16); //global -> dp ,runtime var
 
-	// concurrent caches.
-	private volatile Map<String, Relation> relationCacheByName = null;
-	private volatile Map<String, Map<String, ISupportScope>> scopeCacheByName = null;
-	private volatile Map<String, ISupportScope> scriptMethodOrVariableByUUID = null;
-	private volatile Map<String, Form> formCacheByNameAndUUID = null;
-	private volatile IntHashMap<Form> formCacheById;
-
-	private volatile Map<String, ValueList> valuelistCacheByNameAndUUID = null;
-
 	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
 	private final List<String> deletedStyles = Collections.synchronizedList(new ArrayList<String>(3));
 
@@ -163,18 +153,27 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
 	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
 
+	protected final PersistIndex index;
+
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
 	 */
 	public FlattenedSolution(boolean cacheFlattenedForms)
 	{
-		flattenedFormCache = cacheFlattenedForms ? new ConcurrentHashMap<Form, FlattenedForm[]>() : null;
+		this(cacheFlattenedForms, new PersistIndex());
 	}
 
 	public FlattenedSolution()
 	{
 		this(true);
 	}
+
+	protected FlattenedSolution(boolean cacheFlattenedForms, PersistIndex index)
+	{
+		flattenedFormCache = cacheFlattenedForms ? new ConcurrentHashMap<Form, FlattenedForm[]>() : null;
+		this.index = index;
+	}
+
 
 	/**
 	 * @param solution
@@ -474,6 +473,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			copySolution = SimplePersistFactory.createDummyCopy(mainSolution);
 			copySolution.setChangeHandler(new ChangeHandler(factory));
 			copySolution.getChangeHandler().addIPersistListener(this);
+			index.addSolution(copySolution);
 		}
 		catch (Exception e)
 		{
@@ -623,10 +623,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			mainSolution = null;
 			user_created_styles = null;
 			all_styles = null;
+			index.destroy();
 			mainSolutionMetaData = sol;
-			formCacheByNameAndUUID = null;
-			formCacheById = null;
-			valuelistCacheByNameAndUUID = null;
 
 			if (loadLoginSolution)
 			{
@@ -738,6 +736,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				s.getChangeHandler().addIPersistListener(this);
 			}
 		}
+		// everything loaded, let the index be created.
+		index.load(this);
+
 		// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
 		Iterator<Form> it = getForms(false);
 		while (it.hasNext())
@@ -1567,17 +1568,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		globalProviders.clear();
 		allProvidersForTable = null;
-		relationCacheByName = null;
-		scopeCacheByName = null;
-		scriptMethodOrVariableByUUID = null;
-		formCacheByNameAndUUID = null;
-		formCacheById = null;
-		valuelistCacheByNameAndUUID = null;
 		dataProviderLookups = null;
 		all_styles = null;
 		beanDesignInstances = null;
-
 		allObjectscache = null;
+		index.destroy();
 		flushFlattenedFormCache();
 	}
 
@@ -1699,7 +1694,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return false;
 	}
 
-	public synchronized Relation getRelation(String name)
+	public Relation getRelation(String name)
 	{
 		if (name == null)
 		{
@@ -1713,29 +1708,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			Debug.log("Unexpected relation name lookup", new Exception(name)); //$NON-NLS-1$
 			return null;
 		}
-		Map<String, Relation> tmp = relationCacheByName;
-		if (tmp == null)
-		{
-			try
-			{
-				tmp = new HashMap<String, Relation>(32, 0.9f);
-				Iterator<Relation> it = getRelations(false);
-				while (it.hasNext())
-				{
-					Relation r = it.next();
-					if (r != null)
-					{
-						tmp.put(r.getName(), r);
-					}
-				}
-				relationCacheByName = tmp;
-			}
-			catch (RepositoryException ex)
-			{
-				Debug.error(ex);
-			}
-		}
-		return tmp.get(name);
+		return index.getPersistByName(name, Relation.class);
 	}
 
 	/**
@@ -1767,38 +1740,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return seq;
 	}
 
-
-	private void flushRelations()
-	{
-		relationCacheByName = null;
-	}
-
-	private void flushValuelists()
-	{
-		valuelistCacheByNameAndUUID = null;
-	}
-
-	private void flushForms()
-	{
-		formCacheByNameAndUUID = null;
-		formCacheById = null;
-	}
-
-	private void flushScopes()
-	{
-		scopeCacheByName = null;
-		scriptMethodOrVariableByUUID = null;
-	}
-
-	private synchronized void flushScriptVariables()
-	{
-		scopeCacheByName = null;
-		flushGlobalProviders();
-	}
-
 	private synchronized void flushGlobalProviders()
 	{
 		globalProviders.clear();
+	}
+
+	public IPersist searchPersist(UUID uuid)
+	{
+		if (uuid == null) return null;
+		return searchPersist(uuid.toString());
 	}
 
 	/**
@@ -1807,37 +1757,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 * @param uuid
 	 * @return
 	 */
-	public IPersist searchPersist(UUID uuid)
+	public IPersist searchPersist(String uuid)
 	{
-		if (mainSolution != null)
-		{
-			if (copySolution != null)
-			{
-				IPersist persist = AbstractRepository.searchPersist(copySolution, uuid);
-				if (persist != null) return persist;
-			}
-			IPersist persist = AbstractRepository.searchPersist(mainSolution, uuid);
-			if (persist != null)
-			{
-				return persist;
-			}
-			if (modules != null)
-			{
-				for (Solution module : modules)
-				{
-					persist = AbstractRepository.searchPersist(module, uuid);
-					if (persist != null)
-					{
-						return persist;
-					}
-				}
-			}
-		}
-		if (loginFlattenedSolution != null)
+		if (uuid == null) return null;
+		IPersist persist = index.getPersistByUUID(uuid);
+		if (persist == null && loginFlattenedSolution != null)
 		{
 			return loginFlattenedSolution.searchPersist(uuid);
 		}
-		return null;
+		return persist;
 	}
 
 	/**
@@ -1936,16 +1864,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public void flush(IPersist persist, boolean flushParent)
 	{
-		if (persist instanceof Relation) flushRelations();
-		if (persist instanceof ValueList) flushValuelists();
 		if (persist instanceof Form)
 		{
-			flushForms();
 			flushFlattendFormCache((Form)persist);
 		}
-		if (persist instanceof ScriptMethod) flushScopes();
-		if (persist instanceof ScriptVariable) flushScriptVariables();
-		if (persist instanceof ScriptCalculation || persist instanceof AggregateVariable) flushGlobalProviders();
+		if (persist instanceof ScriptVariable || persist instanceof ScriptCalculation || persist instanceof AggregateVariable) flushGlobalProviders();
 		flushDataProvidersForPersist(persist);
 		flushDataProviderLookups(persist);
 
@@ -2204,65 +2127,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public ScriptMethod getScriptMethod(int methodId)
 	{
 		if (methodId <= 0) return null;
-		return AbstractBase.selectById(getScriptMethods(null, false), methodId);
+		return index.getPersistByID(methodId, ScriptMethod.class);
 	}
 
 	public ScriptMethod getScriptMethod(String methodNameOrUUID)
 	{
 		if (methodNameOrUUID == null) return null;
-		ISupportScope supportScope = getScriptUUIDCache().get(methodNameOrUUID);
+		IPersist supportScope = index.getPersistByUUID(methodNameOrUUID, ScriptMethod.class);
 		if (supportScope instanceof ScriptMethod) return (ScriptMethod)supportScope;
 
-		ScriptMethod scriptMethod = getScriptMethod(null, methodNameOrUUID);
-
-		if (scriptMethod == null && methodNameOrUUID.indexOf('-') > 0)
-		{
-			UUID uuid = null;
-			try
-			{
-				uuid = UUID.fromString(methodNameOrUUID);
-			}
-			catch (IllegalArgumentException e)
-			{
-				// not a uuid
-			}
-			if (uuid != null)
-			{
-				IPersist method = searchPersist(uuid);
-				if (method instanceof ScriptMethod)
-				{
-					return (ScriptMethod)method;
-				}
-			}
-		}
-		return scriptMethod;
-	}
-
-	/**
-	 * @return
-	 */
-	private Map<String, ISupportScope> getScriptUUIDCache()
-	{
-		Map<String, ISupportScope> tmp = scriptMethodOrVariableByUUID;
-		while (tmp == null)
-		{
-			tmp = new HashMap<>();
-			for (ScriptMethod method : Utils.iterate(getScriptMethods(false)))
-			{
-				tmp.put(method.getUUID().toString(), method);
-			}
-
-			for (Form frm : Utils.iterate(getForms(false)))
-			{
-				for (ScriptMethod method : Utils.iterate(frm.getScriptMethods(false)))
-				{
-					tmp.put(method.getUUID().toString(), method);
-				}
-			}
-
-			scriptMethodOrVariableByUUID = tmp;
-		}
-		return tmp;
+		return getScriptMethod(null, methodNameOrUUID);
 	}
 
 	/**
@@ -2301,43 +2175,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			baseName = ScopesUtils.getVariableScope(elementName).getRight();
 		}
-
-		Map<String, ISupportScope> scopeMap = getGlobalScopeCache().get(scopeName);
-		if (scopeMap == null)
-		{
-			return null;
-		}
-
-		return scopeMap.get(baseName);
-	}
-
-	private Map<String, Map<String, ISupportScope>> getGlobalScopeCache()
-	{
-		Map<String, Map<String, ISupportScope>> tmp = scopeCacheByName;
-		if (tmp == null)
-		{
-			tmp = new HashMap<String, Map<String, ISupportScope>>();
-			for (IPersist persist : getAllObjectsAsList())
-			{
-				if (persist instanceof ISupportScope)
-				{
-					String scopeName = ((ISupportScope)persist).getScopeName();
-					if (scopeName == null)
-					{
-						scopeName = ScriptVariable.GLOBAL_SCOPE;
-					}
-					Map<String, ISupportScope> scopeMap = tmp.get(scopeName);
-					if (scopeMap == null)
-					{
-						tmp.put(scopeName, scopeMap = new HashMap<String, ISupportScope>());
-					}
-					scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
-				}
-			}
-			scopeCacheByName = tmp;
-		}
-
-		return tmp;
+		return index.getSupportScope(scopeName, baseName);
 	}
 
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
@@ -2416,23 +2254,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return AbstractBase.selectById(getValueLists(false), id);
 	}
 
-	public ValueList getValueList(String nameOrUuid)
+	public ValueList getValueList(String nameOrUUID)
 	{
-		Map<String, ValueList> tmp = valuelistCacheByNameAndUUID;
-		if (tmp == null)
-		{
-			tmp = new HashMap<String, ValueList>(32, 0.9f);
+		if (nameOrUUID == null) return null;
 
-			Iterator<ValueList> valuelists = getValueLists(false);
-			while (valuelists.hasNext())
-			{
-				ValueList valuelist = valuelists.next();
-				tmp.put(valuelist.getName(), valuelist);
-				tmp.put(valuelist.getUUID().toString(), valuelist);
-			}
-			valuelistCacheByNameAndUUID = tmp;
-		}
-		return tmp.get(nameOrUuid);
+		ValueList vl = index.getPersistByUUID(nameOrUUID, ValueList.class);
+		if (vl != null) return vl;
+		return index.getPersistByName(nameOrUUID, ValueList.class);
 	}
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
@@ -2454,51 +2282,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public Form getForm(int id)
 	{
 		if (id <= 0) return null;
-
-		IntHashMap<Form> tmp = formCacheById;
-		while (tmp == null)
-		{
-			// the form cache was null, try to create it
-			fillFormCaches();
-			// can become null if a flush did happen in the mean time, then try again
-			tmp = formCacheById;
-		}
-		return tmp.get(id);
+		return index.getPersistByID(id, Form.class);
 	}
 
 	public Form getForm(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
 
-		Map<String, Form> tmp = formCacheByNameAndUUID;
-		while (tmp == null)
-		{
-			// the form cache was null, try to create it
-			fillFormCaches();
-			// can become null if a flush did happen in the mean time, then try again
-			tmp = formCacheByNameAndUUID;
-		}
-		return tmp.get(nameOrUUID);
-	}
-
-	/**
-	 * @return
-	 */
-	protected void fillFormCaches()
-	{
-		Map<String, Form> tmpByNameAndUUID = new HashMap<String, Form>(64, 0.9f);
-		IntHashMap<Form> tmpById = new IntHashMap<Form>(64, 0.9f);
-
-		Iterator<Form> forms = getForms(false);
-		while (forms.hasNext())
-		{
-			Form form = forms.next();
-			tmpByNameAndUUID.put(form.getName(), form);
-			tmpByNameAndUUID.put(form.getUUID().toString(), form);
-			tmpById.put(form.getID(), form);
-		}
-		formCacheByNameAndUUID = tmpByNameAndUUID;
-		formCacheById = tmpById;
+		Form frm = index.getPersistByUUID(nameOrUUID, Form.class);
+		if (frm != null) return frm;
+		return index.getPersistByName(nameOrUUID, Form.class);
 	}
 
 	/**
@@ -2701,15 +2494,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Media getMedia(String nameOrUUID)
 	{
-		UUID uuid = Utils.getAsUUID(nameOrUUID, false);
-		Iterator<Media> medias = getMedias(false);
-		while (medias.hasNext())
-		{
-			Media media = medias.next();
-			if (media.getName().equals(nameOrUUID)) return media;
-			if (uuid != null && media.getUUID().equals(uuid)) return media;
-		}
-		return null;
+		if (nameOrUUID == null) return null;
+
+		Media media = index.getPersistByUUID(nameOrUUID, Media.class);
+		if (media != null) return media;
+		return index.getPersistByName(nameOrUUID, Media.class);
 	}
 
 	/**

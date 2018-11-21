@@ -29,7 +29,6 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 
@@ -108,8 +107,7 @@ public class ComponentFactory
 				IPersist function = application.getFlattenedSolution().getScriptMethod((String)eventValue);
 				if (function == null)
 				{
-					UUID uuid = UUID.fromString((String)eventValue);
-					function = application.getFlattenedSolution().searchPersist(uuid);
+					function = application.getFlattenedSolution().searchPersist((String)eventValue);
 				}
 				if (function != null)
 				{

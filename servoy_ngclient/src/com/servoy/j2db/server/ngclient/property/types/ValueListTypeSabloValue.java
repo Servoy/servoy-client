@@ -73,7 +73,6 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.Valu
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -712,8 +711,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
 			if (valuelistPersist == null)
 			{
-				UUID uuid = Utils.getAsUUID(valuelistId, false);
-				if (uuid != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+				if (valuelistId != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(valuelistId.toString());
 			}
 		}
 		return valuelistPersist;

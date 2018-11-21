@@ -75,7 +75,6 @@ import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -341,8 +340,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			Object value = childComponent.getFormElement().getPropertyValue(handler);
 			if (value instanceof String)
 			{
-				UUID uuid = UUID.fromString((String)value);
-				IPersist function = formUI.getController().getApplication().getFlattenedSolution().searchPersist(uuid);
+				IPersist function = formUI.getController().getApplication().getFlattenedSolution().searchPersist((String)value);
 				if (function != null)
 				{
 					childComponent.add(handler, function.getID());

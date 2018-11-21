@@ -46,7 +46,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -116,11 +115,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 				// form name
 				if (form == null)
 				{
-					UUID uuid = Utils.getAsUUID(sabloValue, false);
-					if (uuid != null)
-					{
-						form = (Form)flattenedSolution.searchPersist(uuid);
-					}
+					form = (Form)flattenedSolution.searchPersist((String)sabloValue);
 				}
 				if (form != null)
 				{
@@ -183,11 +178,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 				Form form = solution.getForm(webComponentValue.toString());
 				if (form == null)
 				{
-					UUID uuid = Utils.getAsUUID(webComponentValue, false);
-					if (uuid != null)
-					{
-						form = (Form)solution.searchPersist(uuid);
-					}
+					form = (Form)solution.searchPersist(webComponentValue.toString());
 				}
 				if (form != null)
 				{
@@ -222,8 +213,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 			form = fs.getForm(formElementValue.toString());
 			if (form == null)
 			{
-				UUID uuid = Utils.getAsUUID(formElementValue, false);
-				if (uuid != null) form = (Form)fs.searchPersist(uuid);
+				form = (Form)fs.searchPersist(formElementValue.toString());
 			}
 		}
 		if (form != null)
@@ -260,14 +250,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		if (value != null)
 		{
 			form = application.getFlattenedSolution().getForm(value.toString());
-		}
-		if (form == null)
-		{
-			UUID uuid = Utils.getAsUUID(value, false);
-			if (uuid != null)
-			{
-				form = (Form)application.getFlattenedSolution().searchPersist(uuid);
-			}
+			if (form == null) form = (Form)application.getFlattenedSolution().searchPersist(value.toString());
 		}
 		if (form != null)
 		{

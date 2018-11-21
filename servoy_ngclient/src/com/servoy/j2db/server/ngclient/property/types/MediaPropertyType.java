@@ -52,7 +52,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -158,8 +157,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 			if (value != null) media = flattenedSolution.getMedia(value.toString());
 			if (media == null)
 			{
-				UUID uuid = Utils.getAsUUID(value, false);
-				if (uuid != null) media = (Media)flattenedSolution.searchPersist(uuid);
+				media = (Media)flattenedSolution.searchPersist(value.toString());
 			}
 
 		}
@@ -248,13 +246,9 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		if (value != null)
 		{
 			media = application.getFlattenedSolution().getMedia(value.toString());
-		}
-		if (media == null)
-		{
-			UUID uuid = Utils.getAsUUID(value, false);
-			if (uuid != null)
+			if (media == null)
 			{
-				media = (Media)application.getFlattenedSolution().searchPersist(uuid);
+				media = (Media)application.getFlattenedSolution().searchPersist(value.toString());
 			}
 		}
 		if (media != null)
@@ -291,8 +285,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 				Media media = flattenedSolution.getMedia(webComponentValue.toString());
 				if (media == null)
 				{
-					UUID uuid = Utils.getAsUUID(webComponentValue, false);
-					media = (Media)flattenedSolution.searchPersist(uuid);
+					media = (Media)flattenedSolution.searchPersist(webComponentValue.toString());
 				}
 				if (media != null)
 				{

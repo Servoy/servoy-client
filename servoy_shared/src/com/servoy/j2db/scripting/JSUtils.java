@@ -361,7 +361,8 @@ public class JSUtils implements IJSUtils
 		{
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, application.getLocale());
 			simpleDateFormat.setTimeZone(timezone == null ? application.getTimeZone() : TimeZone.getTimeZone(timezone));
-			return simpleDateFormat.format(date);
+			String format2 = simpleDateFormat.format(date);
+			return format2;
 		}
 		return ""; //$NON-NLS-1$
 	}
