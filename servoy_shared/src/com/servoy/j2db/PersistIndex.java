@@ -18,9 +18,11 @@
 package com.servoy.j2db;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -50,9 +52,9 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 
 	private final CopyOnWriteArrayList<Solution> solutions = new CopyOnWriteArrayList<>();
 
-	public PersistIndex()
-	{
-	}
+	private final ConcurrentMap<IPersist, Boolean> removedPersist = new ConcurrentHashMap<>();
+
+	private CopySolutionPersistListener copyPersistListener;
 
 	/**
 	 * @param uuid
@@ -60,6 +62,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	 */
 	public IPersist getPersistByUUID(String uuid)
 	{
+		if (uuidToPersist.isEmpty()) createIndex();
 		return uuidToPersist.get(uuid);
 	}
 
@@ -70,6 +73,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByUUID(String uuid, Class<T> clz)
 	{
+		if (uuidToPersist.isEmpty()) createIndex();
 		IPersist persist = uuidToPersist.get(uuid);
 		if (persist != null && clz.isInstance(persist)) return (T)persist;
 		return null;
@@ -91,7 +95,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 			if (ISupportName.class.isAssignableFrom(persistClass))
 			{
 				visit((persist) -> {
-					if (persist.getClass() == persistClass)
+					if (persist.getClass() == persistClass && !isRemoved(persist))
 					{
 						tmp.put(((ISupportName)persist).getName(), (T)persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -113,6 +117,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
 	{
+		if (uuidToPersist.isEmpty()) createIndex();
 		synchronized (idToPersist)
 		{
 			IPersist persist = idToPersist.get(id);
@@ -138,9 +143,8 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		if (scopeCacheByName.isEmpty())
 		{
 			visit((persist) -> {
-				if (persist instanceof ISupportScope)
+				if (persist instanceof ISupportScope && !isRemoved(persist))
 				{
-
 					String scopeName = ((ISupportScope)persist).getScopeName();
 					if (scopeName == null)
 					{
@@ -166,13 +170,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		Solution solution = fs.getSolution();
 		if (solution != null)
 		{
-			IPersistVisitor visitor = (persist) -> {
-				uuidToPersist.put(persist.getUUID().toString(), persist);
-				idToPersist.put(persist.getID(), persist);
-				return IPersistVisitor.CONTINUE_TRAVERSAL;
-			};
-			solution.acceptVisitor(visitor);
-			solution.getChangeHandler().addIPersistListener(this);
+			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
 			solutions.add(solution);
 
 			Solution[] modules = fs.getModules();
@@ -180,12 +178,23 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 			{
 				for (Solution module : modules)
 				{
-					module.acceptVisitor(visitor);
-					module.getChangeHandler().addIPersistListener(this);
-					solutions.add(solution);
+					if (module.getChangeHandler() != null) module.getChangeHandler().addIPersistListener(this);
+					solutions.add(module);
 				}
 			}
 		}
+	}
+
+	private void createIndex()
+	{
+		visit((persist) -> {
+			if (!isRemoved(persist))
+			{
+				uuidToPersist.put(persist.getUUID().toString(), persist);
+				idToPersist.put(persist.getID(), persist);
+			}
+			return IPersistVisitor.CONTINUE_TRAVERSAL;
+		});
 	}
 
 	protected void visit(IPersistVisitor visitor)
@@ -196,14 +205,23 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		}
 	}
 
-	protected void destroy()
+	protected void flush()
 	{
 		Solution[] sols = solutions.toArray(new Solution[solutions.size()]);
 		solutions.clear();
 		for (Solution solution : sols)
 		{
 			solution.getChangeHandler().removeIPersistListener(this);
+			if (copyPersistListener != null) solution.getChangeHandler().removeIPersistListener(copyPersistListener);
 		}
+		flushIndex();
+		removedPersist.clear();
+
+		copyPersistListener = null;
+	}
+
+	private void flushIndex()
+	{
 		uuidToPersist.clear();
 		idToPersist.clear();
 		nameToPersist.clear();
@@ -213,6 +231,38 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	boolean isLoaded()
 	{
 		return solutions.size() > 0;
+	}
+
+	boolean isRemoved(IPersist persist)
+	{
+		return removedPersist.containsKey(persist);
+	}
+
+	void addRemoved(IPersist persist)
+	{
+		uuidToPersist.remove(persist.getUUID().toString());
+		synchronized (idToPersist)
+		{
+			idToPersist.remove(persist.getID());
+		}
+		nameToPersist.remove(persist.getClass());
+		removedPersist.put(persist, Boolean.TRUE);
+	}
+
+	void removeRemoved(IPersist persist)
+	{
+		uuidToPersist.put(persist.getUUID().toString(), persist);
+		synchronized (idToPersist)
+		{
+			idToPersist.put(persist.getID(), persist);
+		}
+		nameToPersist.remove(persist.getClass());
+		removedPersist.remove(persist);
+	}
+
+	Set<IPersist> getRemoved()
+	{
+		return Collections.unmodifiableSet(removedPersist.keySet());
 	}
 
 	@Override
@@ -282,10 +332,39 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	/**
 	 * @param solution
 	 */
-	void addSolution(Solution solution)
+	void setCopySolution(Solution solution)
 	{
 		solutions.add(solution);
-		solution.getChangeHandler().addIPersistListener(this);
+		// should always be null... should only be called once
+		if (copyPersistListener == null) copyPersistListener = new CopySolutionPersistListener();
+		solution.getChangeHandler().addIPersistListener(copyPersistListener);
 	}
 
+	private class CopySolutionPersistListener implements IItemChangeListener<IPersist>
+	{
+
+		@Override
+		public void itemCreated(IPersist item)
+		{
+			flushIndex();
+		}
+
+		@Override
+		public void itemRemoved(IPersist item)
+		{
+			flushIndex();
+		}
+
+		@Override
+		public void itemChanged(IPersist item)
+		{
+			PersistIndex.this.itemChanged(item);
+		}
+
+		@Override
+		public void itemChanged(Collection<IPersist> items)
+		{
+			PersistIndex.this.itemChanged(items);
+		}
+	}
 }
