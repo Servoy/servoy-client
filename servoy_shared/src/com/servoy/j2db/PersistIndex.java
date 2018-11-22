@@ -50,9 +50,8 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 
 	private final CopyOnWriteArrayList<Solution> solutions = new CopyOnWriteArrayList<>();
 
-	public PersistIndex()
-	{
-	}
+	private final ConcurrentMap<IPersist, Boolean> removedPersist = new ConcurrentHashMap<>();
+
 
 	/**
 	 * @param uuid
@@ -91,7 +90,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 			if (ISupportName.class.isAssignableFrom(persistClass))
 			{
 				visit((persist) -> {
-					if (persist.getClass() == persistClass)
+					if (persist.getClass() == persistClass && !isRemoved(persist))
 					{
 						tmp.put(((ISupportName)persist).getName(), (T)persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -138,9 +137,8 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		if (scopeCacheByName.isEmpty())
 		{
 			visit((persist) -> {
-				if (persist instanceof ISupportScope)
+				if (persist instanceof ISupportScope && !isRemoved(persist))
 				{
-
 					String scopeName = ((ISupportScope)persist).getScopeName();
 					if (scopeName == null)
 					{
@@ -208,11 +206,44 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		idToPersist.clear();
 		nameToPersist.clear();
 		scopeCacheByName.clear();
+		removedPersist.clear();
 	}
 
 	boolean isLoaded()
 	{
 		return solutions.size() > 0;
+	}
+
+	boolean isRemoved(IPersist persist)
+	{
+		return removedPersist.containsKey(persist);
+	}
+
+	void addRemoved(IPersist persist)
+	{
+		uuidToPersist.remove(persist.getUUID().toString());
+		synchronized (idToPersist)
+		{
+			idToPersist.remove(persist.getID());
+		}
+		nameToPersist.remove(persist.getClass());
+		removedPersist.put(persist, Boolean.TRUE);
+	}
+
+	void removeRemoved(IPersist persist)
+	{
+		uuidToPersist.put(persist.getUUID().toString(), persist);
+		synchronized (idToPersist)
+		{
+			idToPersist.put(persist.getID(), persist);
+		}
+		nameToPersist.remove(persist.getClass());
+		removedPersist.remove(persist);
+	}
+
+	Set<IPersist> getRemoved()
+	{
+		return Collections.unmodifiableSet(removedPersist.keySet());
 	}
 
 	@Override

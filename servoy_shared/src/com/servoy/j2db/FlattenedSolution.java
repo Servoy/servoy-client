@@ -137,7 +137,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private volatile ConcurrentMap<ITable, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
 	private final ConcurrentMap<String, IDataProvider> globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16); //global -> dp ,runtime var
 
-	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
 	private final List<String> deletedStyles = Collections.synchronizedList(new ArrayList<String>(3));
 
 	// 2 synchronized on liveForms object.
@@ -344,12 +343,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			if (realPersist != null)
 			{
-				removedPersist.add(realPersist);
+				index.addRemoved(realPersist);
 				flush(realPersist);
 			}
 			else
 			{
-				removedPersist.add(persist);
+				index.addRemoved(persist);
 			}
 			flush(persist);
 		}
@@ -360,11 +359,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		AbstractBase realPersist = persist.getRuntimeProperty(CLONE_PROPERTY);
 		if (realPersist != null)
 		{
-			removedPersist.add(realPersist);
+			index.addRemoved(realPersist);
 		}
 		else
 		{
-			removedPersist.add(persist);
+			index.addRemoved(persist);
 		}
 	}
 
@@ -1065,7 +1064,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 			}
 			allObjectsSize = retval.size();
-			retval.removeAll(removedPersist);
+			retval.removeAll(index.getRemoved());
 			allObjectscache = retval;
 		}
 		return allObjectscache;
@@ -1302,7 +1301,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		copySolution = null;
 		persistFactory = null;
-		removedPersist.clear();
 
 		allObjectsSize = 256;
 
@@ -2388,7 +2386,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 
 		//remove the deleted calculation from the deletedPersists
-		scriptCalculations.removeAll(removedPersist);
+		scriptCalculations.removeAll(index.getRemoved());
 
 
 		return scriptCalculations.iterator();
@@ -2434,7 +2432,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		//remove the deleted methods from the deletedPersists
 		for (ScriptMethod method : foundsetMethods)
 		{
-			if (removedPersist.contains(method))
+			if (index.isRemoved(method))
 			{
 				foundsetMethods.remove(method);
 			}
@@ -2473,7 +2471,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		//remove the deleted calculation from the deletedPersists
 		for (ScriptMethod method : foundsetMethods)
 		{
-			if (removedPersist.contains(method))
+			if (index.isRemoved(method))
 			{
 				foundsetMethods.remove(method);
 			}
@@ -2960,11 +2958,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			// if this form is not found, then it could be in the removedPersist
 			// then revert the remove/delete
-			for (IPersist persist : removedPersist)
+			for (IPersist persist : index.getRemoved())
 			{
 				if (persist instanceof Form && name.equals(((Form)persist).getName()))
 				{
-					removedPersist.remove(persist);
+					index.removeRemoved(persist);
 					flush(persist);
 					form = getForm(name);
 					break;
