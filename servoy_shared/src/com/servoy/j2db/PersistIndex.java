@@ -170,8 +170,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		Solution solution = fs.getSolution();
 		if (solution != null)
 		{
-
-			solution.getChangeHandler().addIPersistListener(this);
+			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
 			solutions.add(solution);
 
 			Solution[] modules = fs.getModules();
@@ -179,7 +178,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 			{
 				for (Solution module : modules)
 				{
-					module.getChangeHandler().addIPersistListener(this);
+					if (module.getChangeHandler() != null) module.getChangeHandler().addIPersistListener(this);
 					solutions.add(module);
 				}
 			}
