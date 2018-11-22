@@ -44,7 +44,7 @@ import com.servoy.j2db.util.IntHashMap;
 public class PersistIndex implements IItemChangeListener<IPersist>
 {
 	private final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>();
-	private final IntHashMap<IPersist> idToPersist = new IntHashMap<>();
+	private final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
 	// caches per persist class a map of Name->Persist (we assume that is unique!)
 	private final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, ? extends IPersist>> nameToPersist = new ConcurrentHashMap<>();
 
@@ -118,12 +118,23 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
 	{
 		if (uuidToPersist.isEmpty()) createIndex();
-		synchronized (idToPersist)
+		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
+		synchronized (cacheById)
 		{
-			IPersist persist = idToPersist.get(id);
-			if (persist != null && clz.isInstance(persist)) return (T)persist;
+			return (T)cacheById.get(id);
 		}
-		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends IPersist> Collection<T> getList(Class<T> clz)
+	{
+		if (uuidToPersist.isEmpty()) createIndex();
+		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
+		if (cacheById != null)
+		{
+			return (Collection<T>)Collections.unmodifiableCollection(cacheById.values());
+		}
+		return Collections.emptyList();
 	}
 
 
@@ -191,7 +202,17 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 			if (!isRemoved(persist))
 			{
 				uuidToPersist.put(persist.getUUID().toString(), persist);
-				idToPersist.put(persist.getID(), persist);
+				IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
+				if (cacheById == null)
+				{
+					cacheById = new IntHashMap<>();
+					IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
+					if (currentValue != null) cacheById = currentValue;
+				}
+				synchronized (cacheById)
+				{
+					cacheById.put(persist.getID(), persist);
+				}
 			}
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		});
@@ -240,24 +261,34 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 
 	void addRemoved(IPersist persist)
 	{
+		removedPersist.put(persist, Boolean.TRUE);
+		if (uuidToPersist.isEmpty()) return;
 		uuidToPersist.remove(persist.getUUID().toString());
-		synchronized (idToPersist)
+		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
+		synchronized (cacheById)
 		{
-			idToPersist.remove(persist.getID());
+			cacheById.remove(persist.getID());
 		}
 		nameToPersist.remove(persist.getClass());
-		removedPersist.put(persist, Boolean.TRUE);
 	}
 
 	void removeRemoved(IPersist persist)
 	{
+		removedPersist.remove(persist);
+		if (uuidToPersist.isEmpty()) return;
 		uuidToPersist.put(persist.getUUID().toString(), persist);
-		synchronized (idToPersist)
+		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
+		if (cacheById == null)
 		{
-			idToPersist.put(persist.getID(), persist);
+			cacheById = new IntHashMap<>();
+			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
+			if (currentValue != null) cacheById = currentValue;
+		}
+		synchronized (cacheById)
+		{
+			cacheById.put(persist.getID(), persist);
 		}
 		nameToPersist.remove(persist.getClass());
-		removedPersist.remove(persist);
 	}
 
 	Set<IPersist> getRemoved()
@@ -268,10 +299,18 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	@Override
 	public void itemCreated(IPersist item)
 	{
+		if (uuidToPersist.isEmpty()) return;
 		uuidToPersist.put(item.getUUID().toString(), item);
-		synchronized (idToPersist)
+		IntHashMap<IPersist> cacheById = idToPersist.get(item.getClass());
+		if (cacheById == null)
 		{
-			idToPersist.put(item.getID(), item);
+			cacheById = new IntHashMap<>();
+			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(item.getClass(), cacheById);
+			if (currentValue != null) cacheById = currentValue;
+		}
+		synchronized (cacheById)
+		{
+			cacheById.put(item.getID(), item);
 		}
 		nameToPersist.remove(item.getClass());
 		if (item instanceof ISupportScope)
@@ -283,10 +322,15 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	@Override
 	public void itemRemoved(IPersist item)
 	{
+		if (uuidToPersist.isEmpty()) return;
 		uuidToPersist.remove(item.getUUID().toString());
-		synchronized (idToPersist)
+		IntHashMap<IPersist> idCache = idToPersist.get(item.getClass());
+		if (idCache != null)
 		{
-			idToPersist.remove(item.getID());
+			synchronized (idCache)
+			{
+				idCache.remove(item.getID());
+			}
 		}
 		nameToPersist.remove(item.getClass());
 		if (item instanceof ISupportChilds)
@@ -307,11 +351,14 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	@Override
 	public void itemChanged(IPersist item)
 	{
+		if (uuidToPersist.isEmpty()) return;
 		// just update the persist by the same uuid in the cache, uuid or id should not change.
 		uuidToPersist.put(item.getUUID().toString(), item);
-		synchronized (idToPersist)
+		IntHashMap<IPersist> cacheById = idToPersist.get(item.getClass());
+		// changed item should be in the cache..
+		synchronized (cacheById)
 		{
-			idToPersist.put(item.getID(), item);
+			cacheById.put(item.getID(), item);
 		}
 		nameToPersist.remove(item.getClass());
 		if (item instanceof ISupportScope)

@@ -2112,22 +2112,26 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return beanDesignInstances == null ? null : beanDesignInstances.get(b);
 	}
 
+	// return only the global script methods. still using getAllObjectAsList
 	public Iterator<ScriptMethod> getScriptMethods(String scopeName, boolean sort)
 	{
 		return Solution.getScriptMethods(getAllObjectsAsList(), scopeName, sort);
 	}
 
+	// return only the global script methods. still using getAllObjectAsList
 	public Iterator<ScriptMethod> getScriptMethods(boolean sort)
 	{
 		return Solution.getScriptMethods(getAllObjectsAsList(), null, sort);
 	}
 
+	// will return now all script methods through the whole solution
 	public ScriptMethod getScriptMethod(int methodId)
 	{
 		if (methodId <= 0) return null;
 		return index.getPersistByID(methodId, ScriptMethod.class);
 	}
 
+	// will return now all script methods through the whole solution
 	public ScriptMethod getScriptMethod(String methodNameOrUUID)
 	{
 		if (methodNameOrUUID == null) return null;
@@ -2176,11 +2180,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return index.getSupportScope(scopeName, baseName);
 	}
 
+	// return only the global script variables. still using getAllObjectAsList
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
 	{
 		return Solution.getScriptVariables(getAllObjectsAsList(), null, sort);
 	}
 
+	// return only the global script variables. still using getAllObjectAsList
 	public Iterator<ScriptVariable> getScriptVariables(String scopeName, boolean sort)
 	{
 		return Solution.getScriptVariables(getAllObjectsAsList(), scopeName, sort);
@@ -2226,30 +2232,30 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Relation> getRelations(boolean sort) throws RepositoryException
 	{
-		return Solution.getRelations(getAllObjectsAsList(), sort);
+		return Solution.getRelations(index.getList(Relation.class), sort);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
 		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary, onlyGlobalsWhenForeign,
-			onlyLiteralsWhenForeign);
+		return Solution.getRelations(getRepository(), index.getList(Relation.class), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
+			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort);
+		return Solution.getRelations(getRepository(), index.getList(Relation.class), filterOnTable, isPrimaryTable, sort, true, false, false);
 	}
 
 	public Iterator<ValueList> getValueLists(boolean sort)
 	{
-		return Solution.getValueLists(getAllObjectsAsList(), sort);
+		return Solution.getValueLists(index.getList(ValueList.class), sort);
 	}
 
 	public ValueList getValueList(int id)
 	{
 		if (id <= 0) return null;
-		return AbstractBase.selectById(getValueLists(false), id);
+		return index.getPersistByID(id, ValueList.class);
 	}
 
 	public ValueList getValueList(String nameOrUUID)
@@ -2263,18 +2269,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(),
+		return Solution.getForms(index.getList(Form.class),
 			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(), datasource, sort);
+		return Solution.getForms(index.getList(Form.class), datasource, sort);
 	}
 
 	public Iterator<Form> getForms(boolean sort)
 	{
-		return Solution.getForms(getAllObjectsAsList(), null, sort);
+		return Solution.getForms(index.getList(Form.class), null, sort);
 	}
 
 	public Form getForm(int id)
@@ -2481,13 +2487,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Media> getMedias(boolean sort)
 	{
-		return Solution.getMedias(getAllObjectsAsList(), sort);
+		return Solution.getMedias(index.getList(Media.class), sort);
 	}
 
 	public Media getMedia(int id)
 	{
 		if (id <= 0) return null;
-		return AbstractBase.selectById(getMedias(false), id);
+		return index.getPersistByID(id, Media.class);
 	}
 
 	public Media getMedia(String nameOrUUID)

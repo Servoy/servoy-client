@@ -107,6 +107,27 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
+	public static Iterator<Form> getForms(Collection<Form> childs, final String datasource, boolean sort)
+	{
+		Iterator<Form> retval = childs.iterator();
+		if (datasource != null)
+		{
+			retval = new FilteredIterator<>(retval, new IFilter<Form>()
+			{
+				public boolean match(Object f)
+				{
+					return datasource == null || (f instanceof Form &&
+						(datasource.equals(Form.DATASOURCE_NONE) && ((Form)f).getDataSource() == null || datasource.equals(((Form)f).getDataSource())));
+				}
+			});
+		}
+		if (sort)
+		{
+			return Utils.asSortedIterator(retval, NameComparator.INSTANCE);
+		}
+		return retval;
+	}
+
 	public static Iterator<Form> getForms(List<IPersist> childs, final String datasource, boolean sort)
 	{
 		Iterator<Form> retval = new TypeIterator<Form>(childs, IRepository.FORMS, new IFilter<Form>()
@@ -216,6 +237,22 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
+	 * Get all relations.
+	 *
+	 * @param childs
+	 * @param sort
+	 */
+	public static Iterator<Relation> getRelations(Collection<Relation> childs, boolean sort)
+	{
+		Iterator<Relation> rels = childs.iterator();
+		if (sort)
+		{
+			return Utils.asSortedIterator(rels, NameComparator.INSTANCE);
+		}
+		return rels;
+	}
+
+	/**
 	 * Get all datasources for the table that are valid references to this table in all duplicate servers
 	 * @throws RepositoryException
 	 */
@@ -301,6 +338,35 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		Iterator<Relation> retval = getRelations(childs, false);
 
+		return filterRelations(repository, basedOnTable, isPrimaryTable, sort, addGlobalsAsWellWhenPrimary, onlyGlobalsWhenForeign, onlyLiteralsWhenForeign,
+			retval);
+	}
+
+	/**
+	 * Get relations based on the table. When basedOnTable is null and isPrimaryTable is true only global relations are returned.
+	 *
+	 * @param childs
+	 * @param basedOnTable
+	 * @param isPrimaryTable
+	 * @param addGlobalsAsWellWhenPrimary when isPrimaryTable == true, it will return global relations as well.
+	 * @param onlyGlobalsWhenForeign when isPrimaryTable == false, it will return only global relations that match basedOnTable.
+	 * @param onlyLiteralsWhenForeign when isPrimaryTable == false, it will return only literal relations that match basedOnTable.
+	 * @param sort
+	 * @throws RepositoryException
+	 */
+	public static Iterator<Relation> getRelations(IRepository repository, Collection<Relation> childs, ITable basedOnTable, boolean isPrimaryTable,
+		boolean sort, boolean addGlobalsAsWellWhenPrimary, boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
+	{
+		Iterator<Relation> retval = childs.iterator();
+
+		return filterRelations(repository, basedOnTable, isPrimaryTable, sort, addGlobalsAsWellWhenPrimary, onlyGlobalsWhenForeign, onlyLiteralsWhenForeign,
+			retval);
+	}
+
+	private static Iterator<Relation> filterRelations(IRepository repository, ITable basedOnTable, boolean isPrimaryTable, boolean sort,
+		boolean addGlobalsAsWellWhenPrimary, boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign, Iterator<Relation> retval)
+		throws RepositoryException
+	{
 		List<Relation> filtered = new ArrayList<Relation>();
 
 		List<String> dataSources = getTableDataSources(repository, basedOnTable); // null when table is null
@@ -385,6 +451,16 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public static Iterator<ValueList> getValueLists(List<IPersist> childs, boolean sort)
 	{
 		Iterator<ValueList> vls = new TypeIterator<ValueList>(childs, IRepository.VALUELISTS);
+		if (sort)
+		{
+			return Utils.asSortedIterator(vls, NameComparator.INSTANCE);
+		}
+		return vls;
+	}
+
+	public static Iterator<ValueList> getValueLists(Collection<ValueList> childs, boolean sort)
+	{
+		Iterator<ValueList> vls = childs.iterator();
 		if (sort)
 		{
 			return Utils.asSortedIterator(vls, NameComparator.INSTANCE);
@@ -771,7 +847,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -822,6 +898,16 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public static Iterator<Media> getMedias(List<IPersist> childs, boolean sort)
 	{
 		Iterator<Media> medias = new TypeIterator<Media>(childs, IRepository.MEDIA);
+		if (sort)
+		{
+			return Utils.asSortedIterator(medias, NameComparator.INSTANCE);
+		}
+		return medias;
+	}
+
+	public static Iterator<Media> getMedias(Collection<Media> childs, boolean sort)
+	{
+		Iterator<Media> medias = childs.iterator();
 		if (sort)
 		{
 			return Utils.asSortedIterator(medias, NameComparator.INSTANCE);
