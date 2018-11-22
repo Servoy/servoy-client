@@ -383,7 +383,12 @@ public class NGClientEntryFilter extends WebEntry
 
 								variableSubstitution.put("contextPath", request.getContextPath() + '/');
 								variableSubstitution.put("pathname", uri);
-								variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap()));
+								String encoding = "ISO-8859-1";
+								if (request.getCharacterEncoding() != null)
+								{
+									encoding = request.getCharacterEncoding();
+								}
+								variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), encoding));
 
 								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 
