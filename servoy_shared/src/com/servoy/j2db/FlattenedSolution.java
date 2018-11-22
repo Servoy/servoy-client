@@ -472,7 +472,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			copySolution = SimplePersistFactory.createDummyCopy(mainSolution);
 			copySolution.setChangeHandler(new ChangeHandler(factory));
 			copySolution.getChangeHandler().addIPersistListener(this);
-			index.addSolution(copySolution);
+			index.setCopySolution(copySolution);
 		}
 		catch (Exception e)
 		{
@@ -622,7 +622,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			mainSolution = null;
 			user_created_styles = null;
 			all_styles = null;
-			index.destroy();
+			index.flush();
 			mainSolutionMetaData = sol;
 
 			if (loadLoginSolution)
@@ -1570,7 +1570,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		all_styles = null;
 		beanDesignInstances = null;
 		allObjectscache = null;
-		index.destroy();
+		index.flush();
 		flushFlattenedFormCache();
 	}
 
