@@ -180,7 +180,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 				for (Solution module : modules)
 				{
 					module.getChangeHandler().addIPersistListener(this);
-					solutions.add(solution);
+					solutions.add(module);
 				}
 			}
 		}
