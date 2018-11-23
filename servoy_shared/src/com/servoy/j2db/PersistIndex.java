@@ -119,10 +119,14 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	{
 		if (uuidToPersist.isEmpty()) createIndex();
 		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
-		synchronized (cacheById)
+		if (cacheById != null)
 		{
-			return (T)cacheById.get(id);
+			synchronized (cacheById)
+			{
+				return (T)cacheById.get(id);
+			}
 		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
