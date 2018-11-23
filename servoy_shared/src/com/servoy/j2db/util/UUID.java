@@ -46,6 +46,9 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 
 	private boolean lowerCase = false;
 
+	// cached version if the toString is called once, this way uuid string caching is shared over clients.
+	private String stringRep;
+
 	/*
 	 * The random number generator used by this class to create random based UUIDs.
 	 */
@@ -328,17 +331,21 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	@Override
 	public String toString()
 	{
-		StringBuilder sb = new StringBuilder(36);
-		sb.append(digits(mostSignificantBits >> 32, 8));
-		sb.append('-');
-		sb.append(digits(mostSignificantBits >> 16, 4));
-		sb.append('-');
-		sb.append(digits(mostSignificantBits, 4));
-		sb.append('-');
-		sb.append(digits(leastSignificantBits >> 48, 4));
-		sb.append('-');
-		sb.append(digits(leastSignificantBits, 12));
-		return lowerCase ? sb.toString() : sb.toString().toUpperCase();
+		if (stringRep == null)
+		{
+			StringBuilder sb = new StringBuilder(36);
+			sb.append(digits(mostSignificantBits >> 32, 8));
+			sb.append('-');
+			sb.append(digits(mostSignificantBits >> 16, 4));
+			sb.append('-');
+			sb.append(digits(mostSignificantBits, 4));
+			sb.append('-');
+			sb.append(digits(leastSignificantBits >> 48, 4));
+			sb.append('-');
+			sb.append(digits(leastSignificantBits, 12));
+			stringRep = lowerCase ? sb.toString() : sb.toString().toUpperCase();
+		}
+		return stringRep;
 	}
 
 	/** Returns val represented by the specified number of hex digits. */

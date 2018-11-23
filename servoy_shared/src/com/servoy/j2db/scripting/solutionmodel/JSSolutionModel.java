@@ -79,7 +79,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
@@ -2141,10 +2140,9 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public Object getObjectByUUID(Object uuid)
 	{
-		UUID parsedUUID = Utils.getAsUUID(uuid, false);
-		if (parsedUUID != null)
+		if (uuid != null)
 		{
-			IPersist persist = application.getFlattenedSolution().searchPersist(parsedUUID);
+			IPersist persist = application.getFlattenedSolution().searchPersist(uuid.toString());
 			if (persist instanceof ValueList)
 			{
 				return new JSValueList((ValueList)persist, application, false);

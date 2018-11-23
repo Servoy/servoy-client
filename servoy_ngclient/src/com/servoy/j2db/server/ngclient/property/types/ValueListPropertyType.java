@@ -61,8 +61,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.IRhinoDesignConverter;
-import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Property type that handles valuelist typed properties.
@@ -396,13 +394,9 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		if (value != null)
 		{
 			list = application.getFlattenedSolution().getValueList(value.toString());
-		}
-		if (list == null)
-		{
-			UUID uuid = Utils.getAsUUID(value, false);
-			if (uuid != null)
+			if (list == null)
 			{
-				list = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+				list = (ValueList)application.getFlattenedSolution().searchPersist(value.toString());
 			}
 		}
 		if (list != null)

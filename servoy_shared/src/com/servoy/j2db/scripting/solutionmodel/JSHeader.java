@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Solution model header object on form.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -53,8 +53,8 @@ public class JSHeader extends JSPart implements ISMHeader
 
 	/**
 	 * Flag to set a set the header sticky so it will not scroll out of view.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource);
 	 * var header = form.newHeader()
 	 * header.sticky = false // default: true
@@ -76,7 +76,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Creates a new left-button on the form header.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource);
 	 * var header = form.newHeader()
 	 * var button = header.newLeftButton('back', form.getMethod('goBack'))
@@ -84,7 +84,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	 * @param text the text on the button
 	 *
 	 * @param jsmethod the method assigned to handle an onAction event
-	 * 
+	 *
 	 * @return a new JSButton object
 	 */
 	@JSFunction
@@ -97,7 +97,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Returns the left-button on the form header if present.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * var header = form.getHeader()
 	 * var button = header.getLeftButton()
@@ -115,7 +115,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Remove the left-button on the form header if present.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * var header = form.getHeader()
 	 * var removed = header.removeLeftButton()
@@ -132,7 +132,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Creates a new right-button on the form header.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource);
 	 * var header = form.newHeader()
 	 * var button = header.newRightButton('save', form.getMethod('doSave'))
@@ -140,7 +140,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	 * @param text the text on the button
 	 *
 	 * @param jsmethod the method assigned to handle an onAction event
-	 * 
+	 *
 	 * @return a new JSButton object
 	 */
 	@JSFunction
@@ -153,7 +153,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Returns the right-button on the form header if present.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * var header = form.getHeader()
 	 * var button = header.getRightButton()
@@ -171,7 +171,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Remove the right-button on the form header if present.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * var header = form.getHeader()
 	 * var removed = header.removeRightButton()
@@ -188,13 +188,13 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Creates a new header text label on the form header.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource);
 	 * var header = form.newHeader()
 	 * var title = header.newHeaderText('Contacts')
 	 *
 	 * @param text the text on the header
-	 * 
+	 *
 	 * @return a new JSTitle object
 	 */
 	@JSFunction
@@ -210,7 +210,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Returns the header text label on the form header if present.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * var header = form.getHeader()
 	 * var title = header.getHeaderText()
@@ -223,7 +223,8 @@ public class JSHeader extends JSPart implements ISMHeader
 	public JSTitle getHeaderText()
 	{
 		JSForm form = getJSParent();
-		for (GraphicalComponent label : Utils.iterate(form.getApplication().getFlattenedSolution().getFlattenedForm(form.getSupportChild()).getGraphicalComponents()))
+		for (GraphicalComponent label : Utils.iterate(
+			form.getApplication().getFlattenedSolution().getFlattenedForm(form.getSupportChild(), false).getGraphicalComponents()))
 		{
 			if (Boolean.TRUE.equals(label.getCustomMobileProperty(IMobileProperties.HEADER_TEXT.propertyName)))
 			{
@@ -236,7 +237,7 @@ public class JSHeader extends JSPart implements ISMHeader
 	/**
 	 * Remove the header text label on the form header if present.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform');
 	 * var header = form.getHeader()
 	 * var removed = header.removeHeaderText()
@@ -262,10 +263,11 @@ public class JSHeader extends JSPart implements ISMHeader
 	private JSButton getButtonImpl(boolean left)
 	{
 		JSForm form = getJSParent();
-		for (GraphicalComponent button : Utils.iterate(form.getApplication().getFlattenedSolution().getFlattenedForm(form.getSupportChild()).getGraphicalComponents()))
+		for (GraphicalComponent button : Utils.iterate(
+			form.getApplication().getFlattenedSolution().getFlattenedForm(form.getSupportChild(), false).getGraphicalComponents()))
 		{
-			if (Boolean.TRUE.equals(button.getCustomMobileProperty(left ? IMobileProperties.HEADER_LEFT_BUTTON.propertyName
-				: IMobileProperties.HEADER_RIGHT_BUTTON.propertyName)))
+			if (Boolean.TRUE.equals(
+				button.getCustomMobileProperty(left ? IMobileProperties.HEADER_LEFT_BUTTON.propertyName : IMobileProperties.HEADER_RIGHT_BUTTON.propertyName)))
 			{
 				return new JSButton(form, button, form.getApplication(), false);
 			}

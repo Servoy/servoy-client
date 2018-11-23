@@ -526,8 +526,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Saves all records in the view foundset that have changes,
-	 * You can only save columns from a table if also the pk is selected of that table
+	 * Saves all records in the view foundset that have changes.
+	 * You can only save columns from a table if the pks of that table are also selected by the view foundset's query.
 	 */
 	@JSFunction
 	public int save()
@@ -691,8 +691,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * This will reload the current set of ViewRecords in this foundset, resetting the chunk size back to the start (default 200)
-	 * All editted records will be discarded! So this can be seen as a full clean up of this ViewFoundSet.
+	 * This will reload the current set of ViewRecords in this foundset, resetting the chunk size back to the start (default 200).
+	 * All edited records will be discarded! So this can be seen as a full clean up of this ViewFoundSet.
 	 */
 	@Override
 	@JSFunction
@@ -930,8 +930,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Get the cloned query that created this ViewFoundSset  (modifying this QBSelect will not  change the foundset).
-	 * The ViewFoundSets main query can't be altered after creation, you need to make a new ViewFoundSet for that (can have the same datasource name)
+	 * Get the cloned query that created this ViewFoundSset (modifying this QBSelect will not change the foundset).
+	 * The ViewFoundSets main query can't be altered after creation; you need to make a new ViewFoundSet for that (it can have the same datasource name).
 	 *
 	 * @sample
 	 * var q = foundset.getQuery()
@@ -1287,7 +1287,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private void testForLoadMore(int maxIndex)
 	{
-		// never query for more if there are editted records.
+		// never query for more if there are edited records.
 		boolean queryForMore = hasMore && (maxIndex == records.size() - 1) && editedRecords.size() == 0;
 		if (shouldRefresh() || queryForMore)
 		{
@@ -1628,7 +1628,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public String toString()
 	{
-		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ", has editted records:" + editedRecords.size() + ",hadMoreRows:" +
+		return "ViewFoundset[size:" + records.size() + ", must refresh:" + refresh + ", has editted records:" + editedRecords.size() + ", hadMoreRows:" +
 			hasMore + "]";
 	}
 
@@ -1922,7 +1922,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			{
 				if (editedRecords.size() > 0)
 				{
-					// if there are editted records then don't do a loadall but just set the refresh to true.
+					// if there are edited records then don't do a load-all but just set the refresh to true.
 					// return false so that it isn't seen as a full refresh and we try to update it otherwise.
 					refresh = true;
 					return false;

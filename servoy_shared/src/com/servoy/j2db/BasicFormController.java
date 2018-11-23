@@ -63,7 +63,6 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -767,20 +766,14 @@ public abstract class BasicFormController
 								function = globalScope.getFunctionByName(sName);
 							}
 						}
+						if (allowFoundsetMethods && !(function instanceof Function) && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
+						{
+							scope = (FoundSet)formModel;
+							function = scope.getPrototype().get(scriptMethod.getName(), scope);
+						}
 					}
 				}
 
-				if (allowFoundsetMethods && !(function instanceof Function) && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
-				{
-					// try foundset method
-					ScriptMethod scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(),
-						id.intValue());
-					if (scriptMethod != null)
-					{
-						scope = (FoundSet)formModel;
-						function = scope.getPrototype().get(scriptMethod.getName(), scope);
-					}
-				}
 
 				if (function instanceof Function)
 				{
@@ -879,14 +872,10 @@ public abstract class BasicFormController
 		if (allowFoundsetMethods && !global && function == null && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
 		{
 			// try foundset method
-			ScriptMethod scriptMethod;
-			if (id > 0)
+			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+			if (scriptMethod != null)
 			{
-				scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(), id);
-				if (scriptMethod != null)
-				{
-					name = scriptMethod.getName();
-				}
+				name = scriptMethod.getName();
 			}
 			if (name != null)
 			{

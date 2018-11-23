@@ -22,6 +22,14 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						$scope.editor = editor;
 						editor.on('init', function() {
 							$scope.init = true;
+							if($scope.model.editable){
+								editor.setMode('design');
+								editor.settings.readonly = 0;				
+							}
+							else{
+								editor.setMode('readonly');
+								editor.settings.readonly = 1;
+							}							
 							ed.getBody().setAttribute('contenteditable', $scope.model.editable);
 							
 							if (!$scope.svyServoyapi.isInDesigner())
@@ -34,6 +42,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						$scope.$watch('model.editable',function (newVal,oldVal){
 							if (!$scope.init) return;
 							if(oldVal != newVal){
+								newVal ? editor.setMode('design') : editor.setMode('readonly')
 								ed.getBody().setAttribute('contenteditable', newVal);
 							}    			   		
 						})
@@ -313,6 +322,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 	var ServoyTinyMCESettings = {
 			menubar : false,
 			statusbar : false,
+			readonly: 0,
 			plugins: 'tabindex resizetocontainer',
 			tabindex: 'element',
 			toolbar: 'fontselect fontsizeselect | bold italic underline | superscript subscript | undo redo |alignleft aligncenter alignright alignjustify | styleselect | outdent indent bullist numlist'

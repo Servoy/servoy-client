@@ -295,10 +295,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								else
 								{
 									// will not fit, very likely a uuid that should be an int.
-									UUID uuid = Utils.getAsUUID(val, false);
-									if (uuid != null)
+									if (val != null)
 									{
-										IPersist found = fs.searchPersist(uuid);
+										IPersist found = fs.searchPersist(val.toString());
 										if (found != null) val = Integer.valueOf(found.getID());
 									}
 								}

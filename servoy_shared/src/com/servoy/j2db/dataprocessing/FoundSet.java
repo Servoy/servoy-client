@@ -75,6 +75,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
@@ -1217,6 +1218,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return showOmitted();
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a JSDataSet with the PKs omitted on this foundset
+	 * If no PKs have been omitted, an empty JSDataSet will be returned
+	 *
+	 * @sample %%prefix%%foundset.getOmittedPKs();
+	 *
+	 * @return a JSDataSet
+	 */
+	@JSFunction
+	public JSDataSet getOmittedPKs()
+	{
+		BufferedDataSet set = omittedPKs != null ? (BufferedDataSet)omittedPKs.clone() : new BufferedDataSet();
+		set.setColumnNames(sheet.getPKColumnDataProvidersAsArray());
+		return new JSDataSet(set);
 	}
 
 	protected boolean checkLoadRecordsAllowed(boolean allowRelated, boolean allowInFind)
@@ -4466,18 +4483,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				ScriptMethod scriptMethod = solutionRoot.getScriptMethod(methodId);
 				if (scriptMethod != null)
 				{
-					// global method
-					GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
-					if (gs != null)
+					if (scriptMethod.getParent() instanceof Solution)
 					{
-						scope = gs;
-						function = gs.get(scriptMethod.getName());
+						// global method
+						GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+						if (gs != null)
+						{
+							scope = gs;
+							function = gs.get(scriptMethod.getName());
+						}
 					}
-				}
-				else
-				{
-					scriptMethod = AbstractBase.selectById(solutionRoot.getFoundsetMethods(getTable(), false).iterator(), methodId);
-					if (scriptMethod != null)
+					else
 					{
 						// foundset method
 						scope = this;

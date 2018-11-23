@@ -226,8 +226,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 			form = fs.getForm(formId.toString());
 			if (form == null)
 			{
-				UUID uuid = Utils.getAsUUID(formId, false);
-				if (uuid != null) form = (Form)fs.searchPersist(uuid);
+				form = (Form)fs.searchPersist(formId.toString());
 			}
 		}
 		else if (formId instanceof JSForm)

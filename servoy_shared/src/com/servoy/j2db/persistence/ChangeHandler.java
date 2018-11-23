@@ -86,7 +86,7 @@ public class ChangeHandler
 
 	public void removeIPersistListener(IItemChangeListener<IPersist> listener)
 	{
-		PersistChangeHandler.getInstance().add(this, listener);
+		PersistChangeHandler.getInstance().remove(this, listener);
 	}
 
 	protected void fireIPersistCreated(IPersist persist)

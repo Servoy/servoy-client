@@ -40,10 +40,12 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -78,49 +80,34 @@ public class EventExecutor
 
 		if (eventId > 0)
 		{
-			FormScope formScope = formController.getFormScope();
-			String name = formScope.getFunctionName(new Integer(eventId));
-			if (name != null)
+			ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventId);
+			if (scriptMethod != null)
 			{
-				f = formScope.getFunctionByName(name);
-				if (f != null && f != Scriptable.NOT_FOUND)
+				if (scriptMethod.getParent() instanceof Form)
 				{
-					scope = formScope;
-				}
-			}
-
-			if (scope == null)
-			{
-				ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventId);
-				if (scriptMethod != null)
-				{
-					scope = formController.getApplication().getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
-				}
-				if (scope != null)
-				{
-					name = ((GlobalScope)scope).getFunctionName(new Integer(eventId));
-					f = ((GlobalScope)scope).getFunctionByName(name);
-				}
-			}
-			if (name == null && scope == null && formController.getFormModel() != null)
-			{
-				try
-				{
-					ScriptMethod method = AbstractBase.selectById(
-						formController.getApplication().getFlattenedSolution().getFoundsetMethods(formController.getTable(), false).iterator(), eventId);
-					if (method != null)
+					FormScope formScope = formController.getFormScope();
+					f = formScope.getFunctionByName(scriptMethod.getName());
+					if (f != null && f != Scriptable.NOT_FOUND)
 					{
-						name = method.getName();
-						scope = (Scriptable)formController.getFormModel(); // TODO ViewFoundSets should be come a scriptable if they have foundset methods..
-						f = (Function)scope.getPrototype().get(name, scope);
+						scope = formScope;
 					}
 				}
-				catch (Exception ex)
+				// is it a global method
+				else if (scriptMethod.getParent() instanceof Solution)
 				{
-					Debug.error(ex);
+					scope = formController.getApplication().getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					if (scope != null)
+					{
+						f = ((GlobalScope)scope).getFunctionByName(scriptMethod.getName());
+					}
+				}
+				// very like a foundset/entity method
+				else if (formController.getFormModel() != null)
+				{
+					scope = (Scriptable)formController.getFormModel(); // TODO ViewFoundSets should be come a scriptable if they have foundset methods..
+					f = (Function)scope.getPrototype().get(scriptMethod.getName(), scope);
 				}
 			}
-
 		}
 		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null;
 

@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
@@ -51,7 +52,7 @@ import com.servoy.j2db.util.keyword.Ident;
 import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
- * A database column , this information is not stored inside the repository but recreated each time<br>
+ * A database column, this information is not stored inside the repository but recreated each time<br>
  * Only the ColumnInfo is stored in the database
  *
  * @author jblok
@@ -74,7 +75,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private String databaseDefaultValue = null;
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
-	private String sqlTypeName;
+	private boolean isUUID = false;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -664,7 +665,12 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				default :
 					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
 					{
-						return application.getTenantValue();
+						Object tenantValue = application.getTenantValue();
+						if (tenantValue != null && tenantValue.getClass().isArray() && Array.getLength(tenantValue) > 0)
+						{
+							tenantValue = Array.get(tenantValue, 0);
+						}
+						return tenantValue;
 					}
 					return null;
 			}
@@ -1137,6 +1143,26 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		this.allowNull = allowNull;
 	}
 
+	/**
+	 * Returns the isUUID.
+	 *
+	 * @return boolean
+	 */
+	public boolean isUUID()
+	{
+		return isUUID;
+	}
+
+	/**
+	 * Sets the isUUID.
+	 *
+	 * @param isUUID The isUUID to set
+	 */
+	public void setUUIDFlag(boolean isUUID)
+	{
+		this.isUUID = isUUID;
+	}
+
 	private transient String note;//used to show temp tooltip text when hovering over
 
 	public String getNote()
@@ -1343,13 +1369,4 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return false;
 	}
 
-	public void setSqlTypeName(String typeName)
-	{
-		sqlTypeName = typeName;
-	}
-
-	public String getSqlTypeName()
-	{
-		return sqlTypeName;
-	}
 }
