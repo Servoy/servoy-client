@@ -154,10 +154,13 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		}
 		else
 		{
-			if (value != null) media = flattenedSolution.getMedia(value.toString());
-			if (media == null)
+			if (value != null)
 			{
-				media = (Media)flattenedSolution.searchPersist(value.toString());
+				media = flattenedSolution.getMedia(value.toString());
+				if (media == null)
+				{
+					media = (Media)flattenedSolution.searchPersist(value.toString());
+				}
 			}
 
 		}
