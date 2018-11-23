@@ -52,7 +52,7 @@ import com.servoy.j2db.util.keyword.Ident;
 import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
- * A database column , this information is not stored inside the repository but recreated each time<br>
+ * A database column, this information is not stored inside the repository but recreated each time<br>
  * Only the ColumnInfo is stored in the database
  *
  * @author jblok
