@@ -75,7 +75,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private String databaseDefaultValue = null;
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
-	private String sqlTypeName;
 	private boolean isUUID = false;
 
 /*
@@ -1370,13 +1369,4 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return false;
 	}
 
-	public void setSqlTypeName(String typeName)
-	{
-		sqlTypeName = typeName;
-	}
-
-	public String getSqlTypeName()
-	{
-		return sqlTypeName;
-	}
 }
