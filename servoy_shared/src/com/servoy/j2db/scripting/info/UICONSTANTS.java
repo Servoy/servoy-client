@@ -314,7 +314,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false
 	 *
 	 * @sample
-	 * element.putClientProperty(APP_UI_PROPERTY.TRUST_AS_HTML, true)
+	 * element.putClientProperty(APP_UI_PROPERTY.TRUST_DATA_AS_HTML, true)
 	 */
 	public static final String TRUST_DATA_AS_HTML = IApplication.TRUST_DATA_AS_HTML;
 
