@@ -1306,11 +1306,18 @@ uis.directive('uiSelect',
 
         // Support for appending the select field to the body when its open
         var appendToBody = scope.$eval(attrs.appendToBody);
+        var bodyElements = document.querySelectorAll('.svy-body,.ui-grid-viewport');
         if (appendToBody !== undefined ? appendToBody : uiSelectConfig.appendToBody) {
           scope.$watch('$select.open', function(isOpen) {
             if (isOpen) {
               positionDropdown();
+      		  for(var i = 0; i < bodyElements.length ; i++){
+      			bodyElements[i].addEventListener('scroll',resetDropdown);
+      		  }
             } else {
+            	for(var i = 0; i < bodyElements.length ; i++){
+            		bodyElements[i].removeEventListener('scroll',resetDropdown);
+              }
               resetDropdown();
             }
           });
