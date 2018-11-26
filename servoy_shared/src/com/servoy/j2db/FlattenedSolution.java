@@ -152,27 +152,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
 	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
 
-	protected final PersistIndex index;
+	protected volatile ISolutionModelPersistIndex index;
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
 	 */
 	public FlattenedSolution(boolean cacheFlattenedForms)
 	{
-		this(cacheFlattenedForms, new PersistIndex());
+		flattenedFormCache = cacheFlattenedForms ? new ConcurrentHashMap<Form, FlattenedForm[]>() : null;
 	}
 
 	public FlattenedSolution()
 	{
 		this(true);
 	}
-
-	protected FlattenedSolution(boolean cacheFlattenedForms, PersistIndex index)
-	{
-		flattenedFormCache = cacheFlattenedForms ? new ConcurrentHashMap<Form, FlattenedForm[]>() : null;
-		this.index = index;
-	}
-
 
 	/**
 	 * @param solution
@@ -472,7 +465,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			copySolution = SimplePersistFactory.createDummyCopy(mainSolution);
 			copySolution.setChangeHandler(new ChangeHandler(factory));
 			copySolution.getChangeHandler().addIPersistListener(this);
-			index.setCopySolution(copySolution);
+			index.setSolutionModelSolution(copySolution);
 		}
 		catch (Exception e)
 		{
@@ -622,7 +615,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			mainSolution = null;
 			user_created_styles = null;
 			all_styles = null;
-			index.flush();
+			if (index != null)
+			{
+				index.destroy();
+				index = null;
+			}
 			mainSolutionMetaData = sol;
 
 			if (loadLoginSolution)
@@ -736,7 +733,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 		// everything loaded, let the index be created.
-		index.load(this);
+		if (index != null) index.destroy();
+		index = createPersistIndex();
 
 		// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
 		Iterator<Form> it = getForms(false);
@@ -748,6 +746,24 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
 			}
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	protected ISolutionModelPersistIndex createPersistIndex()
+	{
+		List<Solution> solutions = new ArrayList<>();
+		solutions.add(getSolution());
+		Solution[] mods = getModules();
+		if (mods != null)
+		{
+			for (Solution mod : mods)
+			{
+				solutions.add(mod);
+			}
+		}
+		return new SolutionModelPersistIndex(new PersistIndex(solutions));
 	}
 
 	/**
@@ -1570,7 +1586,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		all_styles = null;
 		beanDesignInstances = null;
 		allObjectscache = null;
-		index.flush();
+		if (index != null)
+		{
+			index.destroy();
+			index = null;
+		}
 		flushFlattenedFormCache();
 	}
 
@@ -2232,24 +2252,24 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Relation> getRelations(boolean sort) throws RepositoryException
 	{
-		return Solution.getRelations(index.getList(Relation.class), sort);
+		return Solution.getRelations(index.getIterableFor(Relation.class), sort);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
 		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), index.getList(Relation.class), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
+		return Solution.getRelations(getRepository(), index.getIterableFor(Relation.class), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
 			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), index.getList(Relation.class), filterOnTable, isPrimaryTable, sort, true, false, false);
+		return Solution.getRelations(getRepository(), index.getIterableFor(Relation.class), filterOnTable, isPrimaryTable, sort, true, false, false);
 	}
 
 	public Iterator<ValueList> getValueLists(boolean sort)
 	{
-		return Solution.getValueLists(index.getList(ValueList.class), sort);
+		return Solution.getValueLists(index.getIterableFor(ValueList.class), sort);
 	}
 
 	public ValueList getValueList(int id)
@@ -2269,18 +2289,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(index.getList(Form.class),
+		return Solution.getForms(index.getIterableFor(Form.class),
 			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
 	{
-		return Solution.getForms(index.getList(Form.class), datasource, sort);
+		return Solution.getForms(index.getIterableFor(Form.class), datasource, sort);
 	}
 
 	public Iterator<Form> getForms(boolean sort)
 	{
-		return Solution.getForms(index.getList(Form.class), null, sort);
+		return Solution.getForms(index.getIterableFor(Form.class), null, sort);
 	}
 
 	public Form getForm(int id)
@@ -2487,7 +2507,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Media> getMedias(boolean sort)
 	{
-		return Solution.getMedias(index.getList(Media.class), sort);
+		return Solution.getMedias(index.getIterableFor(Media.class), sort);
 	}
 
 	public Media getMedia(int id)
