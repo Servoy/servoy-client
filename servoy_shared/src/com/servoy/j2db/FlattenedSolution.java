@@ -336,15 +336,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			if (realPersist != null)
 			{
-				index.addRemoved(realPersist);
+				getIndex().addRemoved(realPersist);
 				flush(realPersist);
 			}
 			else
 			{
-				index.addRemoved(persist);
+				getIndex().addRemoved(persist);
 			}
 			flush(persist);
 		}
+	}
+
+	private ISolutionModelPersistIndex getIndex()
+	{
+		return index != null ? index : loginFlattenedSolution != null ? loginFlattenedSolution.index : null;
 	}
 
 	public void addToRemovedPersists(AbstractBase persist)
@@ -352,11 +357,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		AbstractBase realPersist = persist.getRuntimeProperty(CLONE_PROPERTY);
 		if (realPersist != null)
 		{
-			index.addRemoved(realPersist);
+			getIndex().addRemoved(realPersist);
 		}
 		else
 		{
-			index.addRemoved(persist);
+			getIndex().addRemoved(persist);
 		}
 	}
 
@@ -465,7 +470,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			copySolution = SimplePersistFactory.createDummyCopy(mainSolution);
 			copySolution.setChangeHandler(new ChangeHandler(factory));
 			copySolution.getChangeHandler().addIPersistListener(this);
-			index.setSolutionModelSolution(copySolution);
+			getIndex().setSolutionModelSolution(copySolution);
 		}
 		catch (Exception e)
 		{
@@ -733,7 +738,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 		// everything loaded, let the index be created.
-		if (index != null) index.destroy();
+		if (getIndex() != null) getIndex().destroy();
 		index = createPersistIndex();
 
 		// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
@@ -1080,7 +1085,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 			}
 			allObjectsSize = retval.size();
-			retval.removeAll(index.getRemoved());
+			retval.removeAll(getIndex().getRemoved());
 			allObjectscache = retval;
 		}
 		return allObjectscache;
@@ -1726,7 +1731,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			Debug.log("Unexpected relation name lookup", new Exception(name)); //$NON-NLS-1$
 			return null;
 		}
-		return index.getPersistByName(name, Relation.class);
+		return getIndex().getPersistByName(name, Relation.class);
 	}
 
 	/**
@@ -1778,7 +1783,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public IPersist searchPersist(String uuid)
 	{
 		if (uuid == null) return null;
-		IPersist persist = index.getPersistByUUID(uuid);
+		IPersist persist = getIndex().getPersistByUUID(uuid);
 		if (persist == null && loginFlattenedSolution != null)
 		{
 			return loginFlattenedSolution.searchPersist(uuid);
@@ -2148,14 +2153,14 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public ScriptMethod getScriptMethod(int methodId)
 	{
 		if (methodId <= 0) return null;
-		return index.getPersistByID(methodId, ScriptMethod.class);
+		return getIndex().getPersistByID(methodId, ScriptMethod.class);
 	}
 
 	// will return now all script methods through the whole solution
 	public ScriptMethod getScriptMethod(String methodNameOrUUID)
 	{
 		if (methodNameOrUUID == null) return null;
-		IPersist supportScope = index.getPersistByUUID(methodNameOrUUID, ScriptMethod.class);
+		IPersist supportScope = getIndex().getPersistByUUID(methodNameOrUUID, ScriptMethod.class);
 		if (supportScope instanceof ScriptMethod) return (ScriptMethod)supportScope;
 
 		return getScriptMethod(null, methodNameOrUUID);
@@ -2197,7 +2202,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			baseName = ScopesUtils.getVariableScope(elementName).getRight();
 		}
-		return index.getSupportScope(scopeName, baseName);
+		return getIndex().getSupportScope(scopeName, baseName);
 	}
 
 	// return only the global script variables. still using getAllObjectAsList
@@ -2252,70 +2257,70 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Relation> getRelations(boolean sort) throws RepositoryException
 	{
-		return Solution.getRelations(index.getIterableFor(Relation.class), sort);
+		return Solution.getRelations(getIndex().getIterableFor(Relation.class), sort);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
 		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), index.getIterableFor(Relation.class), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
+		return Solution.getRelations(getRepository(), getIndex().getIterableFor(Relation.class), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
 			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), index.getIterableFor(Relation.class), filterOnTable, isPrimaryTable, sort, true, false, false);
+		return Solution.getRelations(getRepository(), getIndex().getIterableFor(Relation.class), filterOnTable, isPrimaryTable, sort, true, false, false);
 	}
 
 	public Iterator<ValueList> getValueLists(boolean sort)
 	{
-		return Solution.getValueLists(index.getIterableFor(ValueList.class), sort);
+		return Solution.getValueLists(getIndex().getIterableFor(ValueList.class), sort);
 	}
 
 	public ValueList getValueList(int id)
 	{
 		if (id <= 0) return null;
-		return index.getPersistByID(id, ValueList.class);
+		return getIndex().getPersistByID(id, ValueList.class);
 	}
 
 	public ValueList getValueList(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
 
-		ValueList vl = index.getPersistByUUID(nameOrUUID, ValueList.class);
+		ValueList vl = getIndex().getPersistByUUID(nameOrUUID, ValueList.class);
 		if (vl != null) return vl;
-		return index.getPersistByName(nameOrUUID, ValueList.class);
+		return getIndex().getPersistByName(nameOrUUID, ValueList.class);
 	}
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getForms(index.getIterableFor(Form.class),
+		return Solution.getForms(getIndex().getIterableFor(Form.class),
 			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
 	{
-		return Solution.getForms(index.getIterableFor(Form.class), datasource, sort);
+		return Solution.getForms(getIndex().getIterableFor(Form.class), datasource, sort);
 	}
 
 	public Iterator<Form> getForms(boolean sort)
 	{
-		return Solution.getForms(index.getIterableFor(Form.class), null, sort);
+		return Solution.getForms(getIndex().getIterableFor(Form.class), null, sort);
 	}
 
 	public Form getForm(int id)
 	{
 		if (id <= 0) return null;
-		return index.getPersistByID(id, Form.class);
+		return getIndex().getPersistByID(id, Form.class);
 	}
 
 	public Form getForm(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
 
-		Form frm = index.getPersistByUUID(nameOrUUID, Form.class);
+		Form frm = getIndex().getPersistByUUID(nameOrUUID, Form.class);
 		if (frm != null) return frm;
-		return index.getPersistByName(nameOrUUID, Form.class);
+		return getIndex().getPersistByName(nameOrUUID, Form.class);
 	}
 
 	/**
@@ -2412,7 +2417,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 
 		//remove the deleted calculation from the deletedPersists
-		scriptCalculations.removeAll(index.getRemoved());
+		scriptCalculations.removeAll(getIndex().getRemoved());
 
 
 		return scriptCalculations.iterator();
@@ -2458,7 +2463,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		//remove the deleted methods from the deletedPersists
 		for (ScriptMethod method : foundsetMethods)
 		{
-			if (index.isRemoved(method))
+			if (getIndex().isRemoved(method))
 			{
 				foundsetMethods.remove(method);
 			}
@@ -2497,7 +2502,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		//remove the deleted calculation from the deletedPersists
 		for (ScriptMethod method : foundsetMethods)
 		{
-			if (index.isRemoved(method))
+			if (getIndex().isRemoved(method))
 			{
 				foundsetMethods.remove(method);
 			}
@@ -2507,22 +2512,22 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<Media> getMedias(boolean sort)
 	{
-		return Solution.getMedias(index.getIterableFor(Media.class), sort);
+		return Solution.getMedias(getIndex().getIterableFor(Media.class), sort);
 	}
 
 	public Media getMedia(int id)
 	{
 		if (id <= 0) return null;
-		return index.getPersistByID(id, Media.class);
+		return getIndex().getPersistByID(id, Media.class);
 	}
 
 	public Media getMedia(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
 
-		Media media = index.getPersistByUUID(nameOrUUID, Media.class);
+		Media media = getIndex().getPersistByUUID(nameOrUUID, Media.class);
 		if (media != null) return media;
-		return index.getPersistByName(nameOrUUID, Media.class);
+		return getIndex().getPersistByName(nameOrUUID, Media.class);
 	}
 
 	/**
@@ -2984,11 +2989,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			// if this form is not found, then it could be in the removedPersist
 			// then revert the remove/delete
-			for (IPersist persist : index.getRemoved())
+			for (IPersist persist : getIndex().getRemoved())
 			{
 				if (persist instanceof Form && name.equals(((Form)persist).getName()))
 				{
-					index.removeRemoved(persist);
+					getIndex().removeRemoved(persist);
 					flush(persist);
 					form = getForm(name);
 					break;
