@@ -1,1 +1,0 @@
-karma.conf=${karma_run_on_file_change.conf}

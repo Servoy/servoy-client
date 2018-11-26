@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.util.SortedList;
 
 /**
@@ -75,23 +76,24 @@ public class RootObjectCache
 		}
 	}
 
-	RootObjectCache(AbstractRepository repository, Collection metaDatas)
+	RootObjectCache(AbstractRepository repository, Collection<RootObjectMetaData> metaDatas)
 	{
 		this.repository = repository;
 		rootObjectsById = new HashMap<Integer, CacheRecord>();
-		rootObjectsByName = new HashMap();
+		rootObjectsByName = new HashMap<>();
 
 		// Initialize the cache.
-		Iterator iterator = metaDatas.iterator();
+		Iterator<RootObjectMetaData> iterator = metaDatas.iterator();
 		while (iterator.hasNext())
 		{
-			add((RootObjectMetaData)iterator.next(), false);
+			add(iterator.next(), false);
 		}
 	}
 
 	void add(RootObjectMetaData metaData, boolean allowUpdate)
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			Integer intId = new Integer(metaData.getRootObjectId());
@@ -120,10 +122,10 @@ public class RootObjectCache
 		}
 	}
 
-
 	public void cacheRootObject(IRootObject rootObject) throws RepositoryException
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getID());
@@ -145,6 +147,7 @@ public class RootObjectCache
 	public void renameRootObject(int rootObjectId, String name) throws RepositoryException
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			RootObjectMetaData metaData = getRootObjectMetaData(rootObjectId);
@@ -365,6 +368,7 @@ public class RootObjectCache
 	void removeRootObject(int rootObjectId) throws RepositoryException
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			Integer key = new Integer(rootObjectId);
@@ -385,6 +389,7 @@ public class RootObjectCache
 	void flushRootObject(int rootObjectId) throws RepositoryException
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			Integer key = new Integer(rootObjectId);
@@ -403,6 +408,7 @@ public class RootObjectCache
 	void flushRootObjectRelease(int rootObjectId, int release)
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			CacheRecord cacheRecord = rootObjectsById.get(new Integer(rootObjectId));
@@ -434,6 +440,7 @@ public class RootObjectCache
 	void flush() throws RepositoryException
 	{
 		AbstractRepository.lock();
+		PersistIndexCache.flush();
 		try
 		{
 			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();

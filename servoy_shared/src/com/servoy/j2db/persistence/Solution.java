@@ -107,9 +107,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
-	public static Iterator<Form> getForms(Collection<Form> childs, final String datasource, boolean sort)
+	public static Iterator<Form> getForms(Iterator<Form> childs, final String datasource, boolean sort)
 	{
-		Iterator<Form> retval = childs.iterator();
+		Iterator<Form> retval = childs;
 		if (datasource != null)
 		{
 			retval = new FilteredIterator<>(retval, new IFilter<Form>()
@@ -242,9 +242,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @param childs
 	 * @param sort
 	 */
-	public static Iterator<Relation> getRelations(Collection<Relation> childs, boolean sort)
+	public static Iterator<Relation> getRelations(Iterator<Relation> childs, boolean sort)
 	{
-		Iterator<Relation> rels = childs.iterator();
+		Iterator<Relation> rels = childs;
 		if (sort)
 		{
 			return Utils.asSortedIterator(rels, NameComparator.INSTANCE);
@@ -354,10 +354,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @param sort
 	 * @throws RepositoryException
 	 */
-	public static Iterator<Relation> getRelations(IRepository repository, Collection<Relation> childs, ITable basedOnTable, boolean isPrimaryTable,
-		boolean sort, boolean addGlobalsAsWellWhenPrimary, boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
+	public static Iterator<Relation> getRelations(IRepository repository, Iterator<Relation> childs, ITable basedOnTable, boolean isPrimaryTable, boolean sort,
+		boolean addGlobalsAsWellWhenPrimary, boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		Iterator<Relation> retval = childs.iterator();
+		Iterator<Relation> retval = childs;
 
 		return filterRelations(repository, basedOnTable, isPrimaryTable, sort, addGlobalsAsWellWhenPrimary, onlyGlobalsWhenForeign, onlyLiteralsWhenForeign,
 			retval);
@@ -458,9 +458,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return vls;
 	}
 
-	public static Iterator<ValueList> getValueLists(Collection<ValueList> childs, boolean sort)
+	public static Iterator<ValueList> getValueLists(Iterator<ValueList> childs, boolean sort)
 	{
-		Iterator<ValueList> vls = childs.iterator();
+		Iterator<ValueList> vls = childs;
 		if (sort)
 		{
 			return Utils.asSortedIterator(vls, NameComparator.INSTANCE);
@@ -847,7 +847,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -905,9 +905,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return medias;
 	}
 
-	public static Iterator<Media> getMedias(Collection<Media> childs, boolean sort)
+	public static Iterator<Media> getMedias(Iterator<Media> childs, boolean sort)
 	{
-		Iterator<Media> medias = childs.iterator();
+		Iterator<Media> medias = childs;
 		if (sort)
 		{
 			return Utils.asSortedIterator(medias, NameComparator.INSTANCE);

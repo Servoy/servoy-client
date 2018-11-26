@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,50 +41,47 @@ import com.servoy.j2db.util.IntHashMap;
  * @author jcompagner
  * @since 8.4
  */
-public class PersistIndex implements IItemChangeListener<IPersist>
+public class PersistIndex implements IItemChangeListener<IPersist>, IPersistIndex
 {
-	private final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>();
-	private final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
 	// caches per persist class a map of Name->Persist (we assume that is unique!)
-	private final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, ? extends IPersist>> nameToPersist = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, ? extends IPersist>> nameToPersist = new ConcurrentHashMap<>();
 
-	private final ConcurrentMap<String, Map<String, ISupportScope>> scopeCacheByName = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, Map<String, ISupportScope>> scopeCacheByName = new ConcurrentHashMap<>();
 
-	private final CopyOnWriteArrayList<Solution> solutions = new CopyOnWriteArrayList<>();
+	protected final CopyOnWriteArrayList<Solution> solutions = new CopyOnWriteArrayList<>();
 
-	private final ConcurrentMap<IPersist, Boolean> removedPersist = new ConcurrentHashMap<>();
+	protected PersistIndex()
+	{
+	}
 
-	private CopySolutionPersistListener copyPersistListener;
+	public PersistIndex(List<Solution> solutions)
+	{
+		this.solutions.addAll(solutions);
+		for (Solution solution : solutions)
+		{
+			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
+		}
+		createIndex();
+	}
 
-	/**
-	 * @param uuid
-	 * @return the perist found i the index.
-	 */
+	@Override
 	public IPersist getPersistByUUID(String uuid)
 	{
-		if (uuidToPersist.isEmpty()) createIndex();
 		return uuidToPersist.get(uuid);
 	}
 
-	/**
-	 * @param uuid
-	 * @return the perist found i the index.
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByUUID(String uuid, Class<T> clz)
 	{
-		if (uuidToPersist.isEmpty()) createIndex();
 		IPersist persist = uuidToPersist.get(uuid);
 		if (persist != null && clz.isInstance(persist)) return (T)persist;
 		return null;
 	}
 
-	/**
-	 * This cache assumes that for the given persist class the persist that are in the cache have unique names.
-	 * So Forms/ValueList/Relations. But this won't work for Fields or WebComponents because those are only unique by there container Form.
-	 * @param name
-	 *  @return the perist found having that name
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByName(String name, Class<T> persistClass)
 	{
@@ -95,7 +92,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 			if (ISupportName.class.isAssignableFrom(persistClass))
 			{
 				visit((persist) -> {
-					if (persist.getClass() == persistClass && !isRemoved(persist))
+					if (persist.getClass() == persistClass)
 					{
 						tmp.put(((ISupportName)persist).getName(), (T)persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -110,14 +107,10 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		return persist;
 	}
 
-	/**
-	 * @param id
-	 * @return the perist found i the index.
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
 	{
-		if (uuidToPersist.isEmpty()) createIndex();
 		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
 		if (cacheById != null)
 		{
@@ -130,23 +123,18 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends IPersist> Collection<T> getList(Class<T> clz)
+	public <T extends IPersist> Iterator<T> getIterableFor(Class<T> clz)
 	{
-		if (uuidToPersist.isEmpty()) createIndex();
 		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
 		if (cacheById != null)
 		{
-			return (Collection<T>)Collections.unmodifiableCollection(cacheById.values());
+			Collection<IPersist> collection = Collections.unmodifiableCollection(cacheById.values());
+			return (Iterator<T>)collection.iterator();
 		}
-		return Collections.emptyList();
+		return (Iterator<T>)Collections.emptyList().iterator();
 	}
 
-
-	/**
-	 * @param scopeName
-	 * @param baseName
-	 * @return
-	 */
+	@Override
 	public ISupportScope getSupportScope(String scopeName, String baseName)
 	{
 		Map<String, ISupportScope> map = getGlobalScopeCache().get(scopeName);
@@ -158,7 +146,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		if (scopeCacheByName.isEmpty())
 		{
 			visit((persist) -> {
-				if (persist instanceof ISupportScope && !isRemoved(persist))
+				if (persist instanceof ISupportScope)
 				{
 					String scopeName = ((ISupportScope)persist).getScopeName();
 					if (scopeName == null)
@@ -180,49 +168,26 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		return scopeCacheByName;
 	}
 
-	protected void load(FlattenedSolution fs)
-	{
-		Solution solution = fs.getSolution();
-		if (solution != null)
-		{
-			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
-			solutions.add(solution);
-
-			Solution[] modules = fs.getModules();
-			if (modules != null)
-			{
-				for (Solution module : modules)
-				{
-					if (module.getChangeHandler() != null) module.getChangeHandler().addIPersistListener(this);
-					solutions.add(module);
-				}
-			}
-		}
-	}
-
-	private void createIndex()
+	protected final void createIndex()
 	{
 		visit((persist) -> {
-			if (!isRemoved(persist))
+			uuidToPersist.put(persist.getUUID().toString(), persist);
+			IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
+			if (cacheById == null)
 			{
-				uuidToPersist.put(persist.getUUID().toString(), persist);
-				IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
-				if (cacheById == null)
-				{
-					cacheById = new IntHashMap<>();
-					IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
-					if (currentValue != null) cacheById = currentValue;
-				}
-				synchronized (cacheById)
-				{
-					cacheById.put(persist.getID(), persist);
-				}
+				cacheById = new IntHashMap<>();
+				IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
+				if (currentValue != null) cacheById = currentValue;
+			}
+			synchronized (cacheById)
+			{
+				cacheById.put(persist.getID(), persist);
 			}
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		});
 	}
 
-	protected void visit(IPersistVisitor visitor)
+	protected final void visit(IPersistVisitor visitor)
 	{
 		for (Solution solution : solutions)
 		{
@@ -230,74 +195,18 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		}
 	}
 
-	protected void flush()
+	public void destroy()
 	{
 		Solution[] sols = solutions.toArray(new Solution[solutions.size()]);
 		solutions.clear();
 		for (Solution solution : sols)
 		{
 			solution.getChangeHandler().removeIPersistListener(this);
-			if (copyPersistListener != null) solution.getChangeHandler().removeIPersistListener(copyPersistListener);
 		}
-		flushIndex();
-		removedPersist.clear();
-
-		copyPersistListener = null;
-	}
-
-	private void flushIndex()
-	{
 		uuidToPersist.clear();
 		idToPersist.clear();
 		nameToPersist.clear();
 		scopeCacheByName.clear();
-	}
-
-	boolean isLoaded()
-	{
-		return solutions.size() > 0;
-	}
-
-	boolean isRemoved(IPersist persist)
-	{
-		return removedPersist.containsKey(persist);
-	}
-
-	void addRemoved(IPersist persist)
-	{
-		removedPersist.put(persist, Boolean.TRUE);
-		if (uuidToPersist.isEmpty()) return;
-		uuidToPersist.remove(persist.getUUID().toString());
-		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
-		synchronized (cacheById)
-		{
-			cacheById.remove(persist.getID());
-		}
-		nameToPersist.remove(persist.getClass());
-	}
-
-	void removeRemoved(IPersist persist)
-	{
-		removedPersist.remove(persist);
-		if (uuidToPersist.isEmpty()) return;
-		uuidToPersist.put(persist.getUUID().toString(), persist);
-		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
-		if (cacheById == null)
-		{
-			cacheById = new IntHashMap<>();
-			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
-			if (currentValue != null) cacheById = currentValue;
-		}
-		synchronized (cacheById)
-		{
-			cacheById.put(persist.getID(), persist);
-		}
-		nameToPersist.remove(persist.getClass());
-	}
-
-	Set<IPersist> getRemoved()
-	{
-		return Collections.unmodifiableSet(removedPersist.keySet());
 	}
 
 	@Override
@@ -377,45 +286,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>
 		for (IPersist persist : items)
 		{
 			itemChanged(persist);
-		}
-	}
-
-	/**
-	 * @param solution
-	 */
-	void setCopySolution(Solution solution)
-	{
-		solutions.add(solution);
-		// should always be null... should only be called once
-		if (copyPersistListener == null) copyPersistListener = new CopySolutionPersistListener();
-		solution.getChangeHandler().addIPersistListener(copyPersistListener);
-	}
-
-	private class CopySolutionPersistListener implements IItemChangeListener<IPersist>
-	{
-
-		@Override
-		public void itemCreated(IPersist item)
-		{
-			flushIndex();
-		}
-
-		@Override
-		public void itemRemoved(IPersist item)
-		{
-			flushIndex();
-		}
-
-		@Override
-		public void itemChanged(IPersist item)
-		{
-			PersistIndex.this.itemChanged(item);
-		}
-
-		@Override
-		public void itemChanged(Collection<IPersist> items)
-		{
-			PersistIndex.this.itemChanged(items);
 		}
 	}
 }

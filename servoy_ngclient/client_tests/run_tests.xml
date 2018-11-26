@@ -3,32 +3,30 @@
 	<property name="basedir" value="."/>
 	<property name="tsc" value="tsc"/>
 	
-	<property name="karma_run_once.conf" value="./karma.conf.js"/>
-	<property name="karma_run_on_file_change.conf" value="./karma_run_on_file_change.conf.js"/>
-	
-	<property file="./development_mode.properties" /> <!-- if the file is present karma will run in continuous mode for development when run_tests is ran -->
-	<property name="karma.conf" value="${karma_run_once.conf}"/>
+	<property name="karma.conf" value="./karma_run_on_file_change.conf.js"/>
 	<property file="run_tests_personal.properties"/>
-	<property name="sablo_location" value="../../sablo"/>
+	<property name="sablo_location" value="../../../sablo/sablo"/>
 
 	<target name="typescript_transpiling">
 		<echo message="Transpiling ${project}"/>
-		<exec executable="${tsc}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="unix">
-		   <arg line="-p ${project}" />
-		</exec>		
-		<exec executable="${tsc}.cmd" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="windows">
-		   <arg line="-p ${project}" />
+		<exec executable="bash" dir="${project}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="unix">
+			<arg value="-c"/>
+			<arg value="npm run build"/>
+		</exec>
+		
+		<exec executable="cmd" dir="${project}" failonerror="true" searchpath="true" resolveexecutable="true" osfamily="windows">
+			<arg line="/c npm run build" />
 		</exec>		
 	</target>
 	
 	<!-- checks if used dependencies from package.json are outdated should be used manualy from time to time--> 
 	<target name="check_outdated">
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 					failonerror="true">
 					<arg value="-c"/>
 					<arg value="npm outdated"/>
 		</exec>
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 					failonerror="true">
 					<arg value="/c" />
 					<arg value="npm"/>
@@ -36,10 +34,24 @@
 		</exec>
 	</target>
 	
+	<target name="update outdated">
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
+					failonerror="true">
+					<arg value="-c"/>
+					<arg value="npm update"/>
+		</exec>
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
+					failonerror="true">
+					<arg value="/c" />
+					<arg value="npm"/>
+					<arg value="update"/>
+		</exec>
+	</target>
+	
 	 <!-- used to run install karma only once -->
 	 <target name="karma_installed_check" >
 	    <condition property="karma.installed">
-	      <available file="./node_modules" type="dir"/>
+	      <available file="./../node_modules" type="dir"/>
 	    </condition>
 	 </target>
 	
@@ -50,21 +62,21 @@
 	
 	<!-- installs karma with it's dependencies  based on package.json file  run only once-->
 	<target name="install_karma">
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 			failonerror="true">
 			<arg line="/c npm config set color false" />
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 			failonerror="true">
 			<arg value="-c" />
 			<arg value="npm config set color false"/>
 		</exec>
 
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 			failonerror="true">
 			<arg line="/c npm install" />
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 			failonerror="true">
 			<arg line="-c" />
 			<arg value="npm install"/>
@@ -76,21 +88,24 @@
 		<antcall target="typescript_transpiling">
 			<param name="project" value="${sablo_location}"/>
 		</antcall>
+		
 		<!-- do TypeScript transpiling of servoy_ngclient -->
 		<antcall target="typescript_transpiling">
 			<param name="project" value=".."/>
 		</antcall>
 		
-		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+		<echo message="Done transpiling."/>
+		
+		<exec executable="cmd" dir="${basedir}/.." osfamily="windows"
 					failonerror="true">
 					<arg value="/c"/>
 					<arg value="node"/>
 					<arg value="./node_modules/karma/bin/karma"/>
 					<arg value="start"/>
-					<arg value="${karma.conf}"/>
+					<arg value="./client_tests/${karma.conf}"/>
 		</exec>
-		<property name="temp1" value="node ./node_modules/karma/bin/karma start ${karma.conf}"/>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<property name="temp1" value="node ./node_modules/karma/bin/karma start ./client_tests/${karma.conf}"/>
+		<exec executable="bash" dir="${basedir}/.." osfamily="unix"
 							failonerror="true">
 			                <arg value="-c"/>
 							<arg value="${temp1}"/>

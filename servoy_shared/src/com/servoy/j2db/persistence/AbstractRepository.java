@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
@@ -368,6 +369,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		// will force a reload of RootObjectMetaDatas as well (not just caches for existing RootObjectMetaDatas)
 		synchronized (ROOT_OBJECT_SYNC)
 		{
+			PersistIndexCache.flush();
 			rootObjectCache = null;
 		}
 	}
