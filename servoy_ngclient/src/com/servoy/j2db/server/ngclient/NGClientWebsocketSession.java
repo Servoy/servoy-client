@@ -19,8 +19,6 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -161,28 +159,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			CurrentWindow.get().cancelSession("Solution name is required");
 			return;
 		}
-		Map<String, List<String>> decodedRequestParams = new HashMap<String, List<String>>();
-		for (Map.Entry<String, List<String>> entry : requestParams.entrySet())
-		{
-			try
-			{
-				String newKey = URLEncoder.encode(entry.getKey(), "ISO-8859-1");
-				List<String> newList = new ArrayList<String>();
-				if (entry.getValue() != null)
-				{
-					for (String value : entry.getValue())
-					{
-						newList.add(URLDecoder.decode(URLEncoder.encode(value, "ISO-8859-1"), "UTF-8"));
-					}
-				}
-				decodedRequestParams.put(newKey, newList);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-		final StartupArguments args = new StartupArguments(decodedRequestParams);
+		final StartupArguments args = new StartupArguments(requestParams);
 		final String solutionName = args.getSolutionName();
 
 		if (Utils.stringIsEmpty(solutionName))
