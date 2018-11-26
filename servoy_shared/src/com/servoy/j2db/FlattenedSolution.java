@@ -758,17 +758,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 */
 	protected ISolutionModelPersistIndex createPersistIndex()
 	{
-		List<Solution> solutions = new ArrayList<>();
-		solutions.add(getSolution());
-		Solution[] mods = getModules();
-		if (mods != null)
-		{
-			for (Solution mod : mods)
-			{
-				solutions.add(mod);
-			}
-		}
-		return new SolutionModelPersistIndex(new PersistIndex(solutions));
+		return new SolutionModelPersistIndex(PersistIndexCache.getPersistIndex(getSolution(), getModules()));
 	}
 
 	/**
