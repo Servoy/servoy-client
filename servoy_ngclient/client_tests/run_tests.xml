@@ -3,13 +3,9 @@
 	<property name="basedir" value="."/>
 	<property name="tsc" value="tsc"/>
 	
-	<property name="karma_run_once.conf" value="./karma.conf.js"/>
-	<property name="karma_run_on_file_change.conf" value="./karma_run_on_file_change.conf.js"/>
-	
-	<property file="./development_mode.properties" /> <!-- if the file is present karma will run in continuous mode for development when run_tests is ran -->
-	<property name="karma.conf" value="${karma_run_once.conf}"/>
+	<property name="karma.conf" value="./karma_run_on_file_change.conf.js"/>
 	<property file="run_tests_personal.properties"/>
-	<property name="sablo_location" value="../../sablo"/>
+	<property name="sablo_location" value="../../../sablo/sablo"/>
 
 	<target name="typescript_transpiling">
 		<echo message="Transpiling ${project}"/>
@@ -92,6 +88,7 @@
 		<antcall target="typescript_transpiling">
 			<param name="project" value="${sablo_location}"/>
 		</antcall>
+		
 		<!-- do TypeScript transpiling of servoy_ngclient -->
 		<antcall target="typescript_transpiling">
 			<param name="project" value=".."/>

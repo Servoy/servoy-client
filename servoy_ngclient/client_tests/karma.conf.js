@@ -15,9 +15,11 @@ module.exports = function(config) {
 			'../war/js/angular_1.*.js',
 			'lib/angular-mocks*.js',
 
-			// sablo and ngclient scripts
+			// sablo scripts
 			'sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
 			'sablo/META-INF/resources/sablo/*.js', /* use this when running from Git */
+
+			// ngclient scripts
 			'../war/js/numeral.js',
 			'../war/js/**/*.js',
 
