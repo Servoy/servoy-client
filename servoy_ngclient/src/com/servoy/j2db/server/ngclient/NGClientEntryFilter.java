@@ -236,6 +236,7 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
+			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 			String uri = request.getRequestURI();
 			if (isShortSolutionRequest(request))
 			{
@@ -383,12 +384,8 @@ public class NGClientEntryFilter extends WebEntry
 
 								variableSubstitution.put("contextPath", request.getContextPath() + '/');
 								variableSubstitution.put("pathname", uri);
-								String encoding = "ISO-8859-1";
-								if (request.getCharacterEncoding() != null)
-								{
-									encoding = request.getCharacterEncoding();
-								}
-								variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), encoding));
+								variableSubstitution.put("querystring",
+									HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
 
 								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 

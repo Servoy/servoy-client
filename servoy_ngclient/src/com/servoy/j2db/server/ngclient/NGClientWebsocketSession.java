@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -171,7 +172,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					for (String value : entry.getValue())
 					{
-						newList.add(URLEncoder.encode(value, "ISO-8859-1"));
+						newList.add(URLDecoder.decode(URLEncoder.encode(value, "ISO-8859-1"), "UTF-8"));
 					}
 				}
 				decodedRequestParams.put(newKey, newList);
