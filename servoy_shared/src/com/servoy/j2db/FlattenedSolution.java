@@ -738,7 +738,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 		// everything loaded, let the index be created.
-		if (getIndex() != null) getIndex().destroy();
+		if (index != null) index.destroy();
 		index = createPersistIndex();
 
 		// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.

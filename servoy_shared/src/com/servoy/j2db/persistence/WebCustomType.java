@@ -88,6 +88,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		if (fullJSONInFrmFile == null) fullJSONInFrmFile = new ServoyJSONObject();
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
+		if (isNew) parentWebObject.addChild(this);
 	}
 
 	public PropertyDescription getPropertyDescription()
