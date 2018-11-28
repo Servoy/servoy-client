@@ -548,6 +548,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 							{
 								childWebObject = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
 								persistMappedProperties.put(beanJSONKey, childWebObject);
+								fireChildCreated(childWebObject);
 								persistMappedPropetiesByUUID = null;
 							}
 							else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
@@ -555,6 +556,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 								childWebObject = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
 								childWebObject.setTypeName(simpleTypeName);
 								persistMappedProperties.put(beanJSONKey, childWebObject);
+								fireChildCreated(childWebObject);
 								persistMappedPropetiesByUUID = null;
 							}
 						}
@@ -621,12 +623,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 													childChildWebObjectUUID);
 												webCustomType.setTypeName(simpleTypeName);
 												persistMappedPropertyArray.add(webCustomType);
+												fireChildCreated(webCustomType);
 											}
 											else if (isComponent(propertyType))
 											{
 												ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD, beanJSONKey, i,
 													false, childChildWebObjectUUID);
 												persistMappedPropertyArray.add(childComponent);
+												fireChildCreated(childComponent);
 											}
 										}
 									}
@@ -648,6 +652,18 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		else
 		{
 			if (persistMappedProperties.remove(beanJSONKey) != null) persistMappedPropetiesByUUID = null;
+		}
+	}
+
+	/**
+	 * @param childWebObject
+	 */
+	private void fireChildCreated(IChildWebObject childWebObject)
+	{
+		ChangeHandler changeHandler = webObject.getRootObject().getChangeHandler();
+		if (changeHandler != null)
+		{
+			changeHandler.fireIPersistCreated(childWebObject);
 		}
 	}
 

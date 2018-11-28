@@ -93,6 +93,7 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 
 		this.pdAsChildComponent = pdAsChildComponent;
+		if (isNew) parent.addChild(this);
 	}
 
 	@Override
