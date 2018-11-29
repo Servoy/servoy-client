@@ -37,4 +37,8 @@ public interface INGFormManager extends IBasicFormManager
 	void setCurrentControllerJS(IWebFormController currentController);
 
 	IWebFormController getFormAndSetCurrentWindow(String formName);
+
+	void setFormReadOnlyScriptingState(String formName, boolean readOnly);
+
+	boolean getChildReadonlyStateWhenShowingInHierarchy(IWebFormController childController, IWebFormController parentController);
 }
