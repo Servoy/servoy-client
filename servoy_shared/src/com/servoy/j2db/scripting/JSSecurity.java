@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,7 +163,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
 	 * This results in adding a table filter for that table based on that column and the this value.
 	 *<p>
-	 * This value will be auto filled in for all the columns that are marked as a tenant column.
+	 * This value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
 	 *</p>
 	 *<p>
 	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set
@@ -207,7 +208,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 						{
 							if (column.hasFlag(IBaseColumn.TENANT_COLUMN))
 							{
-								int operator = value.getClass().isArray() ? IBaseSQLCondition.IN_OPERATOR : IBaseSQLCondition.EQUALS_OPERATOR;
+								int operator = IBaseSQLCondition.EQUALS_OPERATOR;
+								if (value.getClass().isArray())
+								{
+									operator = IBaseSQLCondition.IN_OPERATOR;
+									int length = Array.getLength(value);
+									Object newArray = Array.newInstance(value.getClass().getComponentType(), length);
+									System.arraycopy(value, 0, newArray, 0, length);
+									value = newArray;
+								}
 								try
 								{
 									application.getFoundSetManager().addTableFilterParam("_svy_tenant_id_table_filter", server.getName(), table,
