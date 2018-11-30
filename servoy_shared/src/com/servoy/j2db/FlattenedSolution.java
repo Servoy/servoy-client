@@ -1316,6 +1316,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		allObjectsSize = 256;
 
 		parentFlattenedSolution = null;
+
+		if (index != null)
+		{
+			index.destroy();
+			index = null;
+		}
+
 	}
 
 	private static final IDataProvider NULL = new IDataProvider()
@@ -1581,11 +1588,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		all_styles = null;
 		beanDesignInstances = null;
 		allObjectscache = null;
-		if (index != null)
-		{
-			index.destroy();
-			index = null;
-		}
 		flushFlattenedFormCache();
 	}
 

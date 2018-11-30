@@ -76,18 +76,13 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	private final class ReadOnlyPropertyChangeListener implements PropertyChangeListener
 	{
-		private boolean parentForcedReadOnly;
-
-		public ReadOnlyPropertyChangeListener(boolean parentForcedReadOnly)
+		public ReadOnlyPropertyChangeListener()
 		{
-			this.parentForcedReadOnly = parentForcedReadOnly;
 		}
 
 		@Override
 		public void propertyChange(PropertyChangeEvent evt)
 		{
-			// this is a parent forced readonly (if it is true), remember this so that we can force the readonly back to false
-			parentForcedReadOnly = (boolean)evt.getNewValue();
 			getController().pushParentReadOnly((boolean)evt.getNewValue());
 		}
 	}
@@ -540,14 +535,12 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		this.parentContainerOrWindowName = parentContainer;
 		if (parentContainer != null)
 		{
-			boolean parentReadOnly = parentContainer.dataAdapterList.getForm().isReadOnly();
 			// remember that this is a readonly set, dictated by the parent and not the form itself.
 			// so that we can set it back when the form is removed from this parent.
-			parentReadOnlyListener = new ReadOnlyPropertyChangeListener(parentReadOnly);
+			parentReadOnlyListener = new ReadOnlyPropertyChangeListener();
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
-			// set readonly state from form manager, just like in wc/sc, but take into account here the parent because
-			// unlike wc/sc we can't walk over all the tabs when the parent gets a setReadOnly(true)
-			getController().pushParentReadOnly(parentReadOnly);
+			getController().pushParentReadOnly(
+				getApplication().getFormManager().getChildReadonlyStateWhenShowingInHierarchy(getController(), parentContainer.dataAdapterList.getForm()));
 		}
 		NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED);
 		ngSabloValue.flagChanged(this, ENABLED);
@@ -560,8 +553,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		if (parentContainerOrWindowName instanceof WebFormComponent && parentReadOnlyListener != null)
 		{
-			// if it was a pure parent force readonly set then set the readonly back to false.
-			if (parentReadOnlyListener.parentForcedReadOnly) getController().pushParentReadOnly(false);
 			WebFormComponent parent = (WebFormComponent)parentContainerOrWindowName;
 			parent.removePropertyChangeListener(READONLY, parentReadOnlyListener);
 		}

@@ -273,7 +273,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	private boolean destroyOnHide;
-	private boolean readOnly = false;
 
 	@Override
 	public void destroy()
@@ -379,14 +378,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			application.getFoundSetManager().getEditRecordList().prepareForSave(true);
 		}
-		if (isReadOnly())
-		{
-			// TODO should something happen here, should edit state be pushed or is that just handled in the find mode call?
-//			if (view != null)
-//			{
-//				view.setEditable(findMode);
-//			}
-		}
 		IDataAdapterList dal = getFormUI().getDataAdapterList();
 		dal.setFindMode(findMode); // disables related data en does getText instead if getValue on fields
 	}
@@ -394,7 +385,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void setReadOnly(boolean b)
 	{
-		readOnly = b;
+		getApplication().getFormManager().setFormReadOnlyScriptingState(getName(), b);
 		applyReadOnly(b);
 	}
 
@@ -877,12 +868,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void pushParentReadOnly(boolean b)
 	{
-		applyReadOnly(readOnly || b);
-	}
-
-	@Override
-	public boolean isReadOnly()
-	{
-		return super.isReadOnly() || readOnly;
+		applyReadOnly(b);
 	}
 }

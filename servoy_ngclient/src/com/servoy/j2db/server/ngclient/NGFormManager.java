@@ -20,8 +20,10 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -67,6 +69,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 
 	protected final ConcurrentMap<String, IWebFormController> createdFormControllers; // formName -> FormController
+	private final Map<String, Pair<Boolean, Long>> scriptingReadonlyStates = new HashMap<String, Pair<Boolean, Long>>();
 
 	private Form loginForm;
 
@@ -246,6 +249,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	{
 		removeFromLeaseHistory(fp);
 		createdFormControllers.remove(fp.getName());
+		scriptingReadonlyStates.remove(fp.getName());
 	}
 
 	@Override
@@ -392,7 +396,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		clearLeaseHistory();
 
 		possibleForms.clear();
-
+		scriptingReadonlyStates.clear();
 		// cleanup windows (containers)
 		NGRuntimeWindowManager wm = ((INGApplication)application).getRuntimeWindowManager();
 		wm.destroy(reload);
@@ -649,5 +653,49 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	protected int getMaxFormsLoaded()
 	{
 		return maxForms;
+	}
+
+	@Override
+	public void setFormReadOnlyScriptingState(String formName, boolean readOnly)
+	{
+		scriptingReadonlyStates.put(formName, new Pair(readOnly, System.nanoTime()));
+	}
+
+	@Override
+	public boolean getChildReadonlyStateWhenShowingInHierarchy(IWebFormController childController, IWebFormController parentController)
+	{
+		// this method determines the readonly state of a form when showing in a hierarchy based on all scripting readonly states
+		if (scriptingReadonlyStates.containsKey(childController.getName()) && scriptingReadonlyStates.get(childController.getName()).getLeft().booleanValue())
+		{
+			return true;
+		}
+		else
+		{
+			long lastTimeStamp = -1;
+			boolean readonly = false;
+			Pair<Boolean, Long> pair = null;
+			if (scriptingReadonlyStates.containsKey(childController.getName()))
+			{
+				pair = scriptingReadonlyStates.get(childController.getName());
+				lastTimeStamp = pair.getRight();
+				readonly = pair.getLeft();
+			}
+			while (parentController != null)
+			{
+				if (scriptingReadonlyStates.containsKey(parentController.getName()))
+				{
+					pair = scriptingReadonlyStates.get(parentController.getName());
+					if (pair.getRight() > lastTimeStamp)
+					{
+						lastTimeStamp = pair.getRight();
+						readonly = pair.getLeft();
+					}
+				}
+				parentController = ((WebFormController)parentController).getParentFormController();
+			}
+
+			return readonly;
+
+		}
 	}
 }
