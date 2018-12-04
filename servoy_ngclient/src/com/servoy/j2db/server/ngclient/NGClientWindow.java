@@ -153,7 +153,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (!isDelayedApiCall(apiFunction))
 		{
-			if (!isAsyncApiCall(receiver, apiFunction) && !getEndpoint().isFormAttachedToDOM(form.getName()))
+			if (!isAsyncApiCall(apiFunction) && !getEndpoint().isFormAttachedToDOM(form.getName()))
 			{
 				log.warn("You are doing a sync api call in form '" + form.getName() + "' before form is loaded, this should be avoided (Component : " +
 					receiver.getName() + " , api: " + apiFunction.getName() + " )");
