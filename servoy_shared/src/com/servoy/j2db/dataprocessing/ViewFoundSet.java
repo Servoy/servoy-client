@@ -82,16 +82,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
-	 * This is used by defualt if you just use enableDatabroadcastFor() without flags.  If you use the one with the flags you need to give this one if you just
+	 * This is used by default  if you just use enableDatabroadcastFor() without flags.  If you use the one with the flags you need to give this one if you just
 	 *  want to listen to column changes that are in the result for a given datasource and pk.
 	 *  This constants needs to have the pk's selected for the given datasource (should be in the results)
 	 */
 	public static final int MONITOR_COLUMNS = 1;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource in the join statement
 	 * Like order_lines.productid that has a join to orders and is displaying the productname.
-	 * If a change in such a join condition (like order_lines.productid in the sample above) is seen then the query will befired again to detect changes.
+	 * If a change in such a join condition (like order_lines.productid in the sample above) is seen then the query will be fired again to detect changes.
 	 */
 	public static final int MONITOR_JOIN_CONDITIONS = 2;
 
@@ -109,13 +109,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource.
-	 * This will always result in a full query to detect changes whenever an insert on that table happens.
+	 * This will always result in a full query to detect changes whenever an delete  on that table happens.
 	 */
 	public static final int MONITOR_DELETES = 16;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource which should be the primairy/main table of this query.
-	 * If a delete comes in for this table, then we will only remove the records from the ViewFoundSet that do have this primairy key in its value. So no need to do a full query.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource which should be the primary/main table of this query.
+	 * If a delete comes in for this table, then we will only remove the records from the ViewFoundSet that do have this primary key in its value. So no need to do a full query.
 	 * So this will only work if the query shows order_lines for the order_lines table, not for the products table that is joined to get the product_name.
 	 * Only 1 of the 2 monitors for deletes should be registered for a table/datasource.
 	 * This constants needs to have the pk's selected for the given datasource (should be in the results)
