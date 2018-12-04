@@ -48,7 +48,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.SOLUTIONS)
-public class Solution extends AbstractRootObject implements ISupportChilds, ICloneable, ISupportUpdateableName, IMediaProvider, Comparable<Solution>
+public class Solution extends AbstractRootObject implements ISupportChilds, ICloneable, ISupportUpdateableName, IMediaProvider
 {
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would
 	// be using the ConcurrentHashMap as before, but a bug in Terracotta does not allow ConcurrentHashMaps to be serialized/deserialized); when the bug is solved
@@ -1413,9 +1413,4 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
 	}
 
-	@Override
-	public int compareTo(Solution o)
-	{
-		return getName().compareTo(o.getName());
-	}
 }
