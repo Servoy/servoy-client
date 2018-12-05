@@ -55,6 +55,7 @@ import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.DBValueList;
+import com.servoy.j2db.dataprocessing.FindState;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -291,6 +292,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml(),
 				fieldFormat.parsedFormat.useLocalDateTime());
+			if (record instanceof FindState)
+			{
+				((FindState)record).setFormat(dataProviderID, fieldFormat.parsedFormat);
+			}
 		}
 		else
 		{
