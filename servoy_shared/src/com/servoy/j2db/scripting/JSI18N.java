@@ -185,7 +185,7 @@ public class JSI18N implements IJSI18N
 			return ((SimpleDateFormat)dateFormat).toLocalizedPattern();
 		}
 		Debug.error("Cannot get date format, wrong format instance:" + dateFormat);
-		return null;
+		return getDefaultDateFormat();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class JSI18N implements IJSI18N
 			return ((DecimalFormat)numberFormat).toLocalizedPattern();
 		}
 		Debug.error("Cannot get number format, wrong format instance:" + numberFormat);
-		return null;
+		return getDefaultNumberFormat();
 	}
 
 	/**
