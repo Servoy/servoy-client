@@ -22,9 +22,11 @@ import java.awt.Point;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
@@ -42,6 +44,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -52,6 +55,7 @@ import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -317,6 +321,24 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				else
 				{
 					fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe));
+				}
+				if (o instanceof BaseComponent)
+				{
+					writer.key("attributes");
+					writer.array();
+					Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+					attributes.forEach((key, value) -> {
+						writer.object();
+						writer.key("key");
+						writer.value(StringEscapeUtils.escapeEcmaScript(key));
+						if (value != null && value.length() > 0)
+						{
+							writer.key("value");
+							writer.value(HtmlUtils.escapeMarkup(value, false, false));
+						}
+						writer.endObject();
+					});
+					writer.endArray();
 				}
 				writer.endObject();
 				Collection<String> handlers = fe.getHandlers();
