@@ -16,6 +16,10 @@
  */
 package com.servoy.j2db.scripting;
 
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,6 +41,7 @@ import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.StringComparator;
 
 /**
@@ -136,7 +141,7 @@ public class JSI18N implements IJSI18N
 	}
 
 	/**
-	 * Gets the current default date format; based on the current locale settings in the Servoy Client Locale preferences.
+	 * Gets the current default date format from server; based on the current admin settings.
 	 *
 	 * @sample
 	 * var defaultDateFormat = i18n.getDefaultDateFormat();
@@ -150,7 +155,7 @@ public class JSI18N implements IJSI18N
 	}
 
 	/**
-	 * Gets the current default number format; based on the current locale settings in the Servoy Client Locale preferences.
+	 * Gets the current default number format from server; based on the current admin settings.
 	 *
 	 * @sample
 	 * var defaultNumberFormat = i18n.getDefaultNumberFormat();
@@ -161,6 +166,46 @@ public class JSI18N implements IJSI18N
 	public String getDefaultNumberFormat()
 	{
 		return TagResolver.getFormatString(Number.class, application);
+	}
+
+	/**
+	 * Gets the date format from client (using client's locale).
+	 *
+	 * @sample
+	 * var dateFormat = i18n.getDateFormat();
+	 *
+	 * @return a String representing the date format.
+	 */
+	@JSFunction
+	public String getDateFormat()
+	{
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, application.getLocale());
+		if (dateFormat instanceof SimpleDateFormat)
+		{
+			return ((SimpleDateFormat)dateFormat).toLocalizedPattern();
+		}
+		Debug.error("Cannot get date format, wrong format instance:" + dateFormat);
+		return null;
+	}
+
+	/**
+	 * Gets the number format from client (using client's locale).
+	 *
+	 * @sample
+	 * var numberFormat = i18n.getNumberFormat();
+	 *
+	 * @return a String representing the number format.
+	 */
+	@JSFunction
+	public String getNumberFormat()
+	{
+		NumberFormat numberFormat = NumberFormat.getInstance(application.getLocale());
+		if (numberFormat instanceof DecimalFormat)
+		{
+			return ((DecimalFormat)numberFormat).toLocalizedPattern();
+		}
+		Debug.error("Cannot get number format, wrong format instance:" + numberFormat);
+		return null;
 	}
 
 	/**
