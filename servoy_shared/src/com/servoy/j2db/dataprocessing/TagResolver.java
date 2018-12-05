@@ -226,20 +226,23 @@ public class TagResolver
 		{
 			String pattern = application.getI18NMessageIfPrefixed(settings.getProperty("locale.dateformat")); //$NON-NLS-1$
 			// Note: new SimpleDateFormat() uses Locale.getDefault()
-			formatString = (pattern == null || pattern.trim().length() == 0) ? new SimpleDateFormat().toPattern() : pattern;
+			formatString = (pattern == null || pattern.trim().length() == 0 || (pattern.startsWith("!") && pattern.endsWith("!")))
+				? new SimpleDateFormat().toPattern() : pattern;
 		}
 		// Note that Integer extends Number, so first check for Integer, then for Number
 		else if (Integer.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz))
 		{
 			String pattern = application.getI18NMessageIfPrefixed(settings.getProperty("locale.integerformat")); //$NON-NLS-1$
 			// Note: new DecimalFormat() uses Locale.getDefault()
-			formatString = (pattern == null || pattern.trim().length() == 0) ? new DecimalFormat().toPattern() : pattern;
+			formatString = (pattern == null || pattern.trim().length() == 0 || (pattern.startsWith("!") && pattern.endsWith("!")))
+				? new DecimalFormat().toPattern() : pattern;
 		}
 		else if (Number.class.isAssignableFrom(clazz))
 		{
 			String pattern = application.getI18NMessageIfPrefixed(settings.getProperty("locale.numberformat")); //$NON-NLS-1$
 			// Note: new DecimalFormat() uses Locale.getDefault()
-			formatString = (pattern == null || pattern.trim().length() == 0) ? new DecimalFormat().toPattern() : pattern;
+			formatString = (pattern == null || pattern.trim().length() == 0 || (pattern.startsWith("!") && pattern.endsWith("!")))
+				? new DecimalFormat().toPattern() : pattern;
 		}
 
 		return formatString;
