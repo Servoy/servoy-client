@@ -816,10 +816,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return orderedSolutions;
 	}
 
-	public void clearLoginSolution(IActiveSolutionHandler handler)
+	public void clearLoginSolution(IActiveSolutionHandler handler, IServiceProvider app)
 	{
 		if (loginFlattenedSolution != null)
 		{
+			J2DBGlobals.firePropertyChange(app, "solution", getSolution(), null); //$NON-NLS-1$
 			loginFlattenedSolution.close(handler);
 			loginFlattenedSolution = null;
 			flushAllCachedData();
