@@ -74,6 +74,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	private Form form;
 	private final IApplication application;
 	private boolean isCopy;
+	private boolean useFormCache = true;
 
 	public JSForm(IApplication application, Form form, boolean isNew)
 	{
@@ -133,6 +134,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		getForm().setLastModified(System.currentTimeMillis());
 
 		application.getFlattenedSolution().registerChangedForm(getForm());
+		useFormCache = false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -272,7 +274,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSFunction
 	public JSVariable getVariable(String name)
 	{
-		ScriptVariable variable = application.getFlattenedSolution().getFlattenedForm(getForm(), false).getScriptVariable(name);
+		ScriptVariable variable = getFlattenedContainer().getScriptVariable(name);
 		if (variable != null)
 		{
 			return new JSVariable(application, this, variable, false);
@@ -297,7 +299,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public JSVariable[] getVariables(boolean returnInheritedElements)
 	{
 		List<JSVariable> variables = new ArrayList<JSVariable>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm(), false) : getForm();
+		Form form2use = returnInheritedElements ? getFlattenedContainer() : getForm();
 		Iterator<ScriptVariable> scriptVariables = form2use.getScriptVariables(true);
 		while (scriptVariables.hasNext())
 		{
@@ -445,7 +447,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSFunction
 	public JSMethod getMethod(String name)
 	{
-		ScriptMethod sm = application.getFlattenedSolution().getFlattenedForm(getForm(), false).getScriptMethod(name);
+		ScriptMethod sm = getFlattenedContainer().getScriptMethod(name);
 		if (sm != null)
 		{
 			return new JSMethod(this, sm, application, false);
@@ -480,7 +482,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public JSMethod[] getMethods(boolean returnInheritedElements)
 	{
 		List<JSMethod> methods = new ArrayList<JSMethod>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm(), false) : getForm();
+		Form form2use = returnInheritedElements ? getFlattenedContainer() : getForm();
 		Iterator<ScriptMethod> scriptMethods = form2use.getScriptMethods(true);
 		while (scriptMethods.hasNext())
 		{
@@ -548,7 +550,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	private JSPart getPartInternal(int partType, int height)
 	{
-		Iterator<Part> parts = application.getFlattenedSolution().getFlattenedForm(getForm(), false).getParts();
+		Iterator<Part> parts = getFlattenedContainer().getParts();
 		while (parts.hasNext())
 		{
 			Part part = parts.next();
@@ -885,7 +887,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public JSPart[] getParts(boolean returnInheritedElements)
 	{
 		List<JSPart> lst = new ArrayList<JSPart>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getForm(), false) : getForm();
+		Form form2use = returnInheritedElements ? getFlattenedContainer() : getForm();
 		Iterator<Part> parts = form2use.getParts();
 		while (parts.hasNext())
 		{
@@ -991,7 +993,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSFunction
 	public int getPartYOffset(int type, int height)
 	{
-		Form ff = application.getFlattenedSolution().getFlattenedForm(getForm(),false);
+		Form ff = application.getFlattenedSolution().getFlattenedForm(getForm(), false);
 
 		Iterator<Part> parts = ff.getParts();
 		while (parts.hasNext())
@@ -3990,14 +3992,11 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSBaseContainer#getFlattenedContainer()
-	 */
 	@Override
-	public AbstractContainer getFlattenedContainer()
+	public Form getFlattenedContainer()
 	{
-		return application.getFlattenedSolution().getFlattenedForm(getForm(), false);
+		boolean useCache = useFormCache;
+		useFormCache = true;
+		return application.getFlattenedSolution().getFlattenedForm(getForm(), useCache);
 	}
 }
