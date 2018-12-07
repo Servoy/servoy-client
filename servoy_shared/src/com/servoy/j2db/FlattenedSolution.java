@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -152,7 +154,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
 	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
 
-	protected volatile ISolutionModelPersistIndex index;
+	private volatile ISolutionModelPersistIndex index;
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
@@ -347,9 +349,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	private ISolutionModelPersistIndex getIndex()
+	protected ISolutionModelPersistIndex getIndex()
 	{
-		return index != null ? index : loginFlattenedSolution != null ? loginFlattenedSolution.index : null;
+		return index != null ? index : loginFlattenedSolution != null ? loginFlattenedSolution.getIndex() : new EmptyPersistIndex();
 	}
 
 	public void addToRemovedPersists(AbstractBase persist)
@@ -814,10 +816,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return orderedSolutions;
 	}
 
-	public void clearLoginSolution(IActiveSolutionHandler handler)
+	public void clearLoginSolution(IActiveSolutionHandler handler, IServiceProvider app)
 	{
 		if (loginFlattenedSolution != null)
 		{
+			J2DBGlobals.firePropertyChange(app, "solution", getSolution(), null); //$NON-NLS-1$
 			loginFlattenedSolution.close(handler);
 			loginFlattenedSolution = null;
 			flushAllCachedData();
@@ -3054,5 +3057,84 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	private class EmptyPersistIndex implements ISolutionModelPersistIndex
+	{
+		private EmptyPersistIndex()
+		{
+			StringWriter out = new StringWriter();
+			new RuntimeException().printStackTrace(new PrintWriter(out));
+			Debug.log("FlattendSolution " + FlattenedSolution.this + " index not there: " + out.toString());
+		}
+
+		@Override
+		public IPersist getPersistByUUID(String uuid)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends IPersist> T getPersistByUUID(String uuid, Class<T> clz)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends IPersist> T getPersistByName(String name, Class<T> persistClass)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
+		{
+			return null;
+		}
+
+		@Override
+		public ISupportScope getSupportScope(String scopeName, String baseName)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends IPersist> Iterator<T> getIterableFor(Class<T> clz)
+		{
+			Set<T> set = Collections.emptySet();
+			return set.iterator();
+		}
+
+		@Override
+		public void destroy()
+		{
+		}
+
+		@Override
+		public void setSolutionModelSolution(Solution solution)
+		{
+		}
+
+		@Override
+		public void addRemoved(IPersist persist)
+		{
+		}
+
+		@Override
+		public Set<IPersist> getRemoved()
+		{
+			return Collections.emptySet();
+		}
+
+		@Override
+		public void removeRemoved(IPersist persist)
+		{
+		}
+
+		@Override
+		public boolean isRemoved(IPersist persist)
+		{
+			return false;
+		}
 	}
 }

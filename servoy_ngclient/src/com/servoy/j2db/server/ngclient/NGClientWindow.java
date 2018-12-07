@@ -37,6 +37,8 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.IWebsocketEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
@@ -56,6 +58,7 @@ import com.servoy.j2db.util.WeakHashSet;
  */
 public class NGClientWindow extends BaseWindow implements INGClientWindow
 {
+	protected static final Logger log = LoggerFactory.getLogger("com.servoy.j2db.server.ngclient.api");
 
 	private final WeakHashSet<IWebFormUI> pendingApiCallFormsOnNextResponse = new WeakHashSet<>();
 
@@ -150,6 +153,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (!isDelayedApiCall(apiFunction))
 		{
+			if (!isAsyncApiCall(apiFunction) && !getEndpoint().isFormAttachedToDOM(form.getName()))
+			{
+				log.warn("You are doing a sync api call in form '" + form.getName() + "' before form is loaded, this should be avoided (Component : " +
+					receiver.getName() + " , api: " + apiFunction.getName() + " )");
+			}
 			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
 		}

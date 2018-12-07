@@ -406,7 +406,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		else if (!userUidAfter.equals(userUidBefore))
 		{
 			// user logged in or switched user
-			solutionRoot.clearLoginSolution(getActiveSolutionHandler());
+			solutionRoot.clearLoginSolution(getActiveSolutionHandler(), this);
 			if (foundSetManager != null)
 			{
 				foundSetManager.handleUserLoggedin();

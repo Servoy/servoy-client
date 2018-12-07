@@ -891,18 +891,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if (!blocked && formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
 					if ($log.debugEnabled) $log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
+					var destroyFormScope = false;
 					// someone already loaded or is loading this form....
 					if ($rootScope.updatingFormName === formName) {
 						// updatingFormUrl (hidden div) must be cleared as this form will show or is already showing elsewhere
 						$rootScope.updatingFormUrl = '';
 						delete $rootScope.updatingFormName;
 						
-						// call scope destroy right away on the scope in hidden div to avoid new location link methods being called before the hidden div scope destroy;
-						// because that could lead to $modelChangeNotifier being set by new location before old location clears it in scope on destroy... see SVY-12816
-						let formScopeToDisposeFromHiddenDiv = (formState.getScope ? formState.getScope() : undefined);
-						if (formScopeToDisposeFromHiddenDiv) {
-							formScopeToDisposeFromHiddenDiv.$destroy();
-						}
+						destroyFormScope = true;
 					} 
 					else {
 						// make sure the resolving state is deleted then so it corrects itself.
@@ -920,6 +916,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
 						else formState.blockPostLinkInHidden = true;
 					}
+					if (destroyFormScope)
+					{
+						// call scope destroy right away on the scope in hidden div to avoid new location link methods being called before the hidden div scope destroy;
+						// because that could lead to $modelChangeNotifier being set by new location before old location clears it in scope on destroy... see SVY-12816
+						let formScopeToDisposeFromHiddenDiv = (formState.getScope ? formState.getScope() : undefined);
+						if (formScopeToDisposeFromHiddenDiv) {
+							formScopeToDisposeFromHiddenDiv.$destroy();
+						}
+					}	
 				}
 			} else {
 				tElem.empty(); // don't allow loading stuff further in this directive - it's probably being loaded in a floating DOM - not linked to page document // TODO how can we detect invalid case but still allow intentional loading of forms in floating DOM? we cant access nicely ancestor $scope.$$destroyed property from here
