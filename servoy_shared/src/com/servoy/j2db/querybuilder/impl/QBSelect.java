@@ -103,7 +103,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@Override
 	public QuerySelect build()
 	{
-		return AbstractBaseQuery.deepClone(getQuery());
+		return AbstractBaseQuery.deepClone(getQuery(), true);
 	}
 
 	/**
