@@ -45,11 +45,13 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.LayoutContainer;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
@@ -284,21 +286,92 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
 					writer.value(mapOnDefaultForDebug(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o))));
 				}
-				Point location = ((IFormElement)o).getLocation();
-				Dimension size = ((IFormElement)o).getSize();
-				if (location != null && size != null)
+				if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
 				{
+					CSSPosition position = ((BaseComponent)o).getCssPosition();
 					writer.key("position");
 					writer.object();
-					writer.key("left");
-					writer.value(location.x + "px");
-					writer.key("top");
-					writer.value(location.y + "px");
-					writer.key("width");
-					writer.value(size.width + "px");
-					writer.key("height");
-					writer.value(size.height + "px");
+					if (CSSPosition.isSet(position.left))
+					{
+						writer.key("left").value(CSSPosition.getCSSValue(position.left));
+					}
+					if (CSSPosition.isSet(position.top))
+					{
+						String top = position.top;
+						Point location = CSSPosition.getLocation((BaseComponent)o);
+						Part part = form.getPartAt(location.y);
+						if (part != null)
+						{
+							int topStart = form.getPartStartYPos(part.getID());
+							if (topStart > 0)
+							{
+								if (top.endsWith("px"))
+								{
+									top = top.substring(0, top.length() - 2);
+								}
+								int topInteger = Utils.getAsInteger(top, -1);
+								if (topInteger != -1)
+								{
+									top = String.valueOf(topInteger - topStart);
+								}
+								else
+								{
+									top = "calc(" + top + "-" + topStart + "px)";
+								}
+							}
+						}
+						writer.key("top").value(CSSPosition.getCSSValue(top));
+					}
+					if (CSSPosition.isSet(position.bottom))
+					{
+						writer.key("bottom").value(CSSPosition.getCSSValue(position.bottom));
+					}
+					if (CSSPosition.isSet(position.right))
+					{
+						writer.key("right").value(CSSPosition.getCSSValue(position.right));
+					}
+					if (CSSPosition.isSet(position.width))
+					{
+						if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
+						{
+							writer.key("min-width").value(CSSPosition.getCSSValue(position.width));
+						}
+						else
+						{
+							writer.key("width").value(CSSPosition.getCSSValue(position.width));
+						}
+					}
+					if (CSSPosition.isSet(position.height))
+					{
+						if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
+						{
+							writer.key("min-height").value(CSSPosition.getCSSValue(position.height));
+						}
+						else
+						{
+							writer.key("height").value(CSSPosition.getCSSValue(position.height));
+						}
+					}
 					writer.endObject();
+				}
+				else
+				{
+					Point location = ((IFormElement)o).getLocation();
+					Dimension size = ((IFormElement)o).getSize();
+					if (location != null && size != null)
+					{
+						writer.key("position");
+						writer.object();
+						writer.key("left");
+						writer.value(location.x + "px");
+						writer.key("top");
+						writer.value(location.y + "px");
+						writer.key("width");
+						writer.value(size.width + "px");
+						writer.key("height");
+						writer.value(size.height + "px");
+						writer.endObject();
+					}
 				}
 				writer.key("model");
 				writer.object();

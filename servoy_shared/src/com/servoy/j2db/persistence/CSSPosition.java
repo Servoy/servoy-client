@@ -217,6 +217,20 @@ public class CSSPosition implements Serializable
 		return !"-1".equals(value);
 	}
 
+	public static String getCSSValue(String value)
+	{
+		try
+		{
+			Utils.getAsInteger(value, true);
+			return value + "px";
+		}
+		catch (Exception ex)
+		{
+
+		}
+		return value;
+	}
+
 	private static int percentageToPixels(String value, int size)
 	{
 		int pixels = 0;

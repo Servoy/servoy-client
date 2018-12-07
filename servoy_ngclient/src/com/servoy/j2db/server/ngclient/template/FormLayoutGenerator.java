@@ -341,7 +341,7 @@ public class FormLayoutGenerator
 				CSSPosition position = bc.getCssPosition();
 				if (CSSPosition.isSet(position.left))
 				{
-					style += "left:" + getCSSValue(position.left) + ";";
+					style += "left:" + CSSPosition.getCSSValue(position.left) + ";";
 				}
 				if (CSSPosition.isSet(position.top))
 				{
@@ -371,36 +371,36 @@ public class FormLayoutGenerator
 							}
 						}
 					}
-					style += "top:" + getCSSValue(top) + ";";
+					style += "top:" + CSSPosition.getCSSValue(top) + ";";
 				}
 				if (CSSPosition.isSet(position.bottom))
 				{
-					style += "bottom:" + getCSSValue(position.bottom) + ";";
+					style += "bottom:" + CSSPosition.getCSSValue(position.bottom) + ";";
 				}
 				if (CSSPosition.isSet(position.right))
 				{
-					style += "right:" + getCSSValue(position.right) + ";";
+					style += "right:" + CSSPosition.getCSSValue(position.right) + ";";
 				}
 				if (CSSPosition.isSet(position.width))
 				{
 					if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
 					{
-						style += "min-width:" + getCSSValue(position.width) + ";";
+						style += "min-width:" + CSSPosition.getCSSValue(position.width) + ";";
 					}
 					else
 					{
-						style += "width:" + getCSSValue(position.width) + ";";
+						style += "width:" + CSSPosition.getCSSValue(position.width) + ";";
 					}
 				}
 				if (CSSPosition.isSet(position.height))
 				{
 					if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
 					{
-						style += "min-height:" + getCSSValue(position.height + ";");
+						style += "min-height:" + CSSPosition.getCSSValue(position.height + ";");
 					}
 					else
 					{
-						style += "height:" + getCSSValue(position.height) + ";";
+						style += "height:" + CSSPosition.getCSSValue(position.height) + ";";
 					}
 				}
 			}
@@ -466,20 +466,6 @@ public class FormLayoutGenerator
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 		}
 		writer.print(">");
-	}
-
-	public static String getCSSValue(String value)
-	{
-		try
-		{
-			Utils.getAsInteger(value, true);
-			return value + "px";
-		}
-		catch (Exception ex)
-		{
-
-		}
-		return value;
 	}
 
 //	private static boolean canContainComponents(WebComponentSpecification spec)
