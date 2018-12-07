@@ -299,7 +299,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 		ITable table = foundSetManager.getTable(query.getDataSource());
 
-		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table, new QueryTableFilterdefinition(query.build() /* makes a clone */));
+		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table,
+			// make a deep clone and clone Table as well in case the same table is used in a new query.
+			new QueryTableFilterdefinition(AbstractBaseQuery.deepClone(query.build(), true)));
 	}
 
 	/**
