@@ -234,7 +234,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
 		for (IFormElement formElement : persistElements)
 		{
-			elements.add(new FormElement(formElement, fs, new PropertyPath(), parent.getDesignId() != null));
+			elements.add(new FormElement(formElement, getSharedFlattenedSolution(fs), new PropertyPath(), parent.getDesignId() != null));
 		}
 		return elements;
 	}
