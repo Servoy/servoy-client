@@ -477,7 +477,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
 
 					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
-					boolean monitorColumns = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
+					boolean monitorColumns = (flags & MONITOR_COLUMNS) == MONITOR_COLUMNS;
 
 					boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
 
