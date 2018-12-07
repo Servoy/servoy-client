@@ -83,8 +83,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
 	 * This is used by default  if you just use enableDatabroadcastFor() without flags.  If you use the one with the flags you need to give this one if you just
-	 *  want to listen to column changes that are in the result for a given datasource and pk.
-	 *  This constants needs to have the pk's selected for the given datasource (should be in the results)
+	 * want to listen to column changes that are in the result for a given datasource and pk.
+	 * This constants needs to have the pk's selected for the given datasource (should be in the results)
 	 */
 	public static final int MONITOR_COLUMNS = 1;
 
@@ -123,8 +123,21 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public static final int MONITOR_DELETES_FOR_PRIMAIRY_TABLE = 32;
 
 	/**
-	 *  Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for aggregates that are in the results of the given datasource.
-	 *  This means that when there are updates on that specific column where the aggregate is on  or deletes, inserts on give datasource, a full requery will happen to refresh the aggregate.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for changes in columns (selected) of the given datasource in the query that can affect aggregates.
+	 * This means that when there are deletes, inserts or updates on columns selected from that datasource, a full re-query will happen - to refresh the aggregates.
+	 *
+	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that have group by on their columns or that have the actual aggregates on their
+	 * columns (because all those could influence the value of aggregates). For example (ignoring the fact that in a real-life situation these fields might not change), a view foundset based on
+	 * this query:
+	 *
+	 * SELECT orders.customerid, orders.orderdate, SUM(order_details.unitprice) FROM orders
+	 *    LEFT OUTER JOIN order_details ON orders.orderid = order_details.orderid
+	 *    GROUP BY orders.customerid, orders.orderdate
+	 *	  ORDER BY orders.customerid asc, orders.orderdate desc
+	 *
+	 * will want to enable databroadcast flag MONITOR_AGGREGATES on both "orders" (because if "orderdate" or "customerid" - that are used in GROUP BY - change/are corrected on a row, that row
+	 * could move from one group to the other, affecting the SUM(order_details.unitprice) for the groups involved) and "order_details" (because if "unitprice" changes/is corrected, the
+	 * aggregate will be affected).
 	 */
 	public static final int MONITOR_AGGREGATES = 64;
 
@@ -516,7 +529,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			{
 				Debug.error(e);
 			}
-
 		}
 	}
 
