@@ -124,20 +124,22 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for changes in columns (selected) of the given datasource in the query that can affect aggregates.
-	 * This means that when there are deletes, inserts or updates on columns selected from that datasource, a full re-query will happen - to refresh the aggregates.
-	 *
-	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that have group by on their columns or that have the actual aggregates on their
-	 * columns (because all those could influence the value of aggregates). For example (ignoring the fact that in a real-life situation these fields might not change), a view foundset based on
-	 * this query:
-	 *
-	 * SELECT orders.customerid, orders.orderdate, SUM(order_details.unitprice) FROM orders
-	 *    LEFT OUTER JOIN order_details ON orders.orderid = order_details.orderid
-	 *    GROUP BY orders.customerid, orders.orderdate
-	 *	  ORDER BY orders.customerid asc, orders.orderdate desc
-	 *
+	 * This means that when there are deletes, inserts or updates on columns selected from that datasource, a full re-query will happen - to refresh the aggregates.<br/>
+	 *<br/>
+	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that have group by on their columns, and the colums don't contain the pk, or that have
+	 * the actual aggregates on their columns (because all those could influence the value of aggregates). For example (ignoring the fact that in a real-life situation these fields might not change),
+	 * a view foundset based on this query:<br/>
+	 *<br/>
+	 * SELECT orders.customerid, orders.orderdate, SUM(order_details.unitprice) FROM orders<br/>
+	 *    LEFT OUTER JOIN order_details ON orders.orderid = order_details.orderid<br/>
+	 *    GROUP BY orders.customerid, orders.orderdate<br/>
+	 *	  ORDER BY orders.customerid asc, orders.orderdate desc<br/>
+	 *<br/>
 	 * will want to enable databroadcast flag MONITOR_AGGREGATES on both "orders" (because if "orderdate" or "customerid" - that are used in GROUP BY - change/are corrected on a row, that row
 	 * could move from one group to the other, affecting the SUM(order_details.unitprice) for the groups involved) and "order_details" (because if "unitprice" changes/is corrected, the
-	 * aggregate will be affected).
+	 * aggregate will be affected).<br/>
+	 * But if the above query would also select the orders.odersid (and also group by that) then the orders row that you select for that sum will always be unique and only {@link #MONITOR_COLUMNS}
+	 * has to be done for those if needed.
 	 */
 	public static final int MONITOR_AGGREGATES = 64;
 
@@ -297,6 +299,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return null;
 	}
 
+	/**
+	 * Returns the datasource (view:name) for this ViewFoundSet.
+	 *
+	 * @sample
+	 * solutionModel.getForm("x").dataSource  = viewFoundSet.getDataSource();
+	 */
 	@Override
 	@JSFunction
 	public String getDataSource()
@@ -310,6 +318,22 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return null;
 	}
 
+	/**
+	 * Get the number of records in this viewfoundset.
+	 * This is the number of records loaded, note that when looping over a foundset, size() may
+	 * increase as more records are loaded.
+	 *
+	 * @sample
+	 * var nrRecords = %%prefix%%vfs.getSize()
+	 *
+	 * // to loop over foundset, recalculate size for each record
+	 * for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
+	 * {
+	 * 	var rec = %%prefix%%vfs.getRecord(i);
+	 * }
+	 *
+	 * @return int current size.
+	 */
 	@Override
 	@JSFunction
 	public int getSize()
@@ -1284,6 +1308,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
 	}
 
+	/**
+	 * Get the ViewRecord object at the given index.
+	 * Argument "index" is 1 based (so first record is 1).
+	 *
+	 * @sample var record = %%prefix%%vfs.getRecord(index);
+	 *
+	 * @param index int record index (1 based).
+	 *
+	 * @return ViewRecord record.
+	 */
 	public ViewRecord js_getRecord(int row)
 	{
 		return getRecord(row - 1);
