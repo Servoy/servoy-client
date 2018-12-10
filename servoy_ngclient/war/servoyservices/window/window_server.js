@@ -295,6 +295,64 @@ var Menu = {
 		this.foregroundColor = color;
 	}
 }
+
+$scope.api.createFormPopup = function (form) {
+	return {
+        _width:undefined,
+        _height: undefined,
+        _x: undefined,
+        _y: undefined,
+        _showBackdrop: undefined,
+        _component: undefined,
+        _scope: undefined,
+        _dataprovider: undefined,
+        
+        width:function(val) {
+            if (val == undefined) return this._width;
+            this._width = val;
+            return this;
+        },
+        height:function(val) {
+            if (val == undefined) return this._height;
+            this._height = val;
+            return this;
+        },
+        x:function(val) {
+            if (val == undefined) return this._x;
+            this._x = val;
+            return this;
+        },
+        y:function(val) {
+            if (val == undefined) return this._y;
+            this._y = val;
+            return this;
+        },
+        showBackdrop:function(val) {
+            if (val == undefined) return this._showBackdrop;
+            this._showBackdrop = val;
+            return this;
+        },
+        scope:function(val) {
+            if (val == undefined) return this._scope;
+            this._scope = val;
+            return this;
+        },
+        dataprovider:function(val) {
+            if (val == undefined) return this._dataprovider;
+            this._dataprovider = val;
+            return this;
+        },
+        component:function(val) {
+            if (val == undefined) return this._component;
+            this._component = val;
+            return this;
+        },
+        show: function() {
+            $scope.api.showFormPopup(this._component,form,this._scope,this._dataprovider,this._width,this._height,this._x,this._y,this._showBackdrop);
+        }
+    }
+}
+
 $scope.api.createPopupMenu = function() {
 	var popupName = 'popupmenu'+index;
 	index++;
@@ -312,7 +370,10 @@ $scope.api.closeFormPopup = function(retval)
 {
 	if ($scope.model.popupform)
 	{
-		$scope.scope[$scope.dataProviderID] = retval;
+		if ( $scope.scope && $scope.dataProviderID)
+		{
+			$scope.scope[$scope.dataProviderID] = retval;
+		}	
 		$scope.api.cancelFormPopup();
 	}
 }

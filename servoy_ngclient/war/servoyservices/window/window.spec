@@ -8,7 +8,7 @@
 	"model":
 	{
 	 	"shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
-	 	"popupform": {"type": "popupform", "pushToServer": "shallow", "tags": { "scope" :"private" }},
+	 	"popupform": {"type": "popupform", "pushToServer": "shallow"},
 	 	"popupMenus" : {"type": "popup[]", "tags": { "scope" :"private" }},
 	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }} 
 	},
@@ -108,6 +108,19 @@
 	     	},
 	     "cancelFormPopup": {
 	     	},
+	     "createFormPopup": {
+	     	 "parameters":[
+	            {
+		            "name":"component",
+		            "type":"runtimecomponent"
+	            },
+	            {
+		            "name":"form",
+		            "type":"form"
+	            }
+	           ],
+	          "returns": "FormPopup"
+	      },
 	     "createPopupMenu": {
 	            "returns": "popup"
 	        },
@@ -127,6 +140,18 @@
 	  	"model": {
 	  		"component": "runtimecomponent",
 	  		"form": "form",
+	  		"width": "int",
+	  		"height": "int",
+	  		"x": "int",
+	  		"y": "int",
+			"showBackdrop": "boolean" 
+	  	}
+	  },
+	  "FormPopup": {
+	  	"model": {
+	  	    "component": "runtimecomponent",
+	  	    "dataprovider" : "string",
+	  	    "scope": "scope",
 	  		"width": "int",
 	  		"height": "int",
 	  		"x": "int",
