@@ -6960,13 +6960,6 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
     // bind events only if appendToBody params exist - performance feature
     if (appendToBody) {
       angular.element($window).on('resize', fireRecalculating);
-      
-      var bodyElements = document.querySelectorAll('.svy-body,.ui-grid-viewport');
-      for(var i = 0; i < bodyElements.length; i++){
-           bodyElements[i].addEventListener('scroll',fireRecalculating)
-      }
-      
-      $document.find('body').on('scroll', fireRecalculating);
     }
 
     // Declare the debounced function outside recalculating for
