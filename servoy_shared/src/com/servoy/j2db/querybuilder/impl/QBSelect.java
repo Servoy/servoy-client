@@ -103,7 +103,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@Override
 	public QuerySelect build()
 	{
-		return AbstractBaseQuery.deepClone(getQuery());
+		// do not clone immutables because QueryTable is marked as immutable and a new instance of QueryTable is seen as a
+		// different table when this query is used in another query (like with subcondition)
+		return AbstractBaseQuery.deepClone(getQuery(), false);
 	}
 
 	/**

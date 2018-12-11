@@ -376,7 +376,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, null, 0, 1, false);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false);
 			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 		}
 	}
@@ -444,7 +444,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 			QuerySet set;
 			try
 			{
-				set = getSQLQuerySet(server_name, sqlUpdate, null, -1, -1, false);
+				set = getSQLQuerySet(server_name, sqlUpdate, filters, -1, -1, false);
 				informListeners("Query", server_name, set.getUpdate().getSql(), tid, startTime, set.getUpdate().getParameters());
 			}
 			catch (RepositoryException e)

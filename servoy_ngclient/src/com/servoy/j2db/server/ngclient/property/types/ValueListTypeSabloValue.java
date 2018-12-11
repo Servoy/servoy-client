@@ -19,8 +19,8 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -360,12 +361,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
 			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i);
-			map.put("realValue", realValue);
+			map.put("realValue", convertDate(realValue));
 			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
 			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : valueList.getElementAt(i);
-			if (displayValue instanceof Timestamp)
+			if (displayValue instanceof Date)
 			{
-				map.put("displayValue", displayValue);
+				map.put("displayValue", convertDate(displayValue));
 			}
 			else
 			{
@@ -376,10 +377,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (!containsDpValue && dpRealValue != null)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("realValue", dpRealValue);
-			if (dpDisplayValue instanceof Timestamp)
+			map.put("realValue", convertDate(dpRealValue));
+			if (dpDisplayValue instanceof Date)
 			{
-				map.put("displayValue", dpDisplayValue);
+				map.put("displayValue", convertDate(dpDisplayValue));
 			}
 			else
 			{
@@ -396,6 +397,21 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			valueList.addListDataListener(this);
 		}
 		return jsonValue;
+	}
+
+	// valuelist should parse the same way as the dataprovider, so if use local date is set also send the valuelist stuff over as local times without the timezone
+	private Object convertDate(Object o)
+	{
+		if (o instanceof Date)
+		{
+			DateTime dt = new DateTime(o);
+			if (format != null && format.parsedFormat.useLocalDateTime())
+			{
+				return dt.toLocalDateTime().toString();
+			}
+			return dt.toString();
+		}
+		return o;
 	}
 
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
