@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.swing.ListSelectionModel;
@@ -473,7 +473,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *  vf.enableDatabroadcastFor(select,,ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMARY_TABLE);
 	 *  vf.enableDatabroadcastFor(join);
 	 *
-	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listenn for data changes.
+	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listen for data changes.
 	 * @param flags One or more of the ViewFoundSet.XXX flags added to each other.
 	 */
 	@JSFunction
