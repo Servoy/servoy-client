@@ -120,13 +120,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * Only 1 of the 2 monitors for deletes should be registered for a table/datasource.
 	 * This constants needs to have the pk's selected for the given datasource (should be in the results)
 	 */
-	public static final int MONITOR_DELETES_FOR_PRIMAIRY_TABLE = 32;
+	public static final int MONITOR_DELETES_FOR_PRIMARY_TABLE = 32;
 
 	/**
 	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for changes in columns (selected) of the given datasource in the query that can affect aggregates.
 	 * This means that when there are deletes, inserts or updates on columns selected from that datasource, a full re-query will happen - to refresh the aggregates.
 	 *
-	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that have group by on their columns, and the colums don't contain the pk, or that have
+	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that have group by on their columns, and the columns don't contain the pk, or that have
 	 * the actual aggregates on their columns (because all those could influence the value of aggregates). For example (ignoring the fact that in a real-life situation these fields might not change),
 	 * a view foundset based on this query:
 	 *
@@ -445,12 +445,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *  var select = datasources.db.example_data.order_details.createSelect();
 	 *  var join = select.joins.add("db:/example_data/products");
 	 *  join.on.add(select.columns.productid.eq(join.columns.productid));
-	 *  select.result.add(); // add colums of the select or join
+	 *  select.result.add(); // add columns of the select or join
 	 *  var vf = databaseManager.getViewFoundSet("myorders",select)
 	 *  vf.enableDatabroadcastFor(select);
 	 *  vf.enableDatabroadcastFor(join);
 	 *
-	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listenn for data changes.
+	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listen for data changes.
 	 */
 	@JSFunction
 	public void enableDatabroadcastFor(QBTableClause queryTable)
@@ -461,16 +461,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * Enable the databroadcast for a specific table of the QBSelect or QBJoin with  flags for looking for join or where criteria or deletes/inserts.
 	 * These  flags can be a performance hit because the query needs to be executed again to see if there are any changes.
-	 * For certain flags {@link #MONITOR_COLUMNS} and {@link #MONITOR_DELETES_FOR_PRIMAIRY_TABLE} the pk for that table must be in the results.
+	 * For certain flags {@link #MONITOR_COLUMNS} and {@link #MONITOR_DELETES_FOR_PRIMARY_TABLE} the pk for that table must be in the results.
 	 *
 	 * @sample
 	 *  var select = datasources.db.example_data.order_details.createSelect();
 	 *  var join = select.joins.add("db:/example_data/products");
 	 *  join.on.add(select.columns.productid.eq(join.columns.productid));
-	 *  select.result.add(); // add colums of the select or join
+	 *  select.result.add(); // add columns of the select or join
 	 *  var vf = databaseManager.getViewFoundSet("myorders",select)
 	 *  // monitor for the main table the join conditions (orders->product, when product id changes in the orders table) and requery the table on insert events, delete directly the record if a pk delete happens.
-	 *  vf.enableDatabroadcastFor(select,,ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMAIRY_TABLE);
+	 *  vf.enableDatabroadcastFor(select,,ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMARY_TABLE);
 	 *  vf.enableDatabroadcastFor(join);
 	 *
 	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listenn for data changes.
@@ -513,7 +513,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
 					boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
 
-					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMAIRY_TABLE) == MONITOR_DELETES_FOR_PRIMAIRY_TABLE;
+					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMARY_TABLE) == MONITOR_DELETES_FOR_PRIMARY_TABLE;
 					boolean monitorColumns = (flags & MONITOR_COLUMNS) == MONITOR_COLUMNS;
 
 					boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
