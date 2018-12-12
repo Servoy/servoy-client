@@ -159,7 +159,7 @@ public class ServoyApiObject
 				Object[] ids = ((RhinoMapOrArrayWrapper)value).getIds();
 				for (Object id : ids)
 				{
-					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(id.toString(), null);
+					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(id.toString(), (RhinoMapOrArrayWrapper)value);
 					if (objectValue instanceof RhinoMapOrArrayWrapper || objectValue instanceof NativeObject || objectValue instanceof NativeArray)
 					{
 						objectValue = copyObject(objectValue);
@@ -174,7 +174,7 @@ public class ServoyApiObject
 				Object[] values = new Object[ids.length];
 				for (int i = 0; i < ids.length; i++)
 				{
-					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(i, null);
+					Object objectValue = ((RhinoMapOrArrayWrapper)value).get(i, (RhinoMapOrArrayWrapper)value);
 					if (objectValue instanceof RhinoMapOrArrayWrapper || objectValue instanceof NativeObject || objectValue instanceof NativeArray)
 					{
 						objectValue = copyObject(objectValue);
