@@ -6991,6 +6991,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       scope.position = appendToBody ? $position.offset(element) : $position.position(element);
       scope.position.top += element.prop('offsetHeight');
     }
+    originalScope.fireRecalculating = fireRecalculating;
 
     //we need to propagate user's query so we can higlight matches
     scope.query = undefined;
