@@ -151,7 +151,7 @@
 	  	"model": {
 	  	    "component": "runtimecomponent",
 	  	    "dataprovider" : "string",
-	  	    "scope": "scope",
+	  	    "scope": "object",
 	  		"width": "int",
 	  		"height": "int",
 	  		"x": "int",
