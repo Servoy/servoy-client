@@ -74,11 +74,14 @@ import org.xhtmlrenderer.css.constants.CSSName;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormExecutionState;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.ISupportFormExecutionState;
 import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.component.ComponentFactory;
@@ -157,7 +160,8 @@ import com.servoy.j2db.util.gui.RoundedBorder;
  * @author jcompagner
  *
  */
-public class WebForm extends Panel implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges, ISupportSimulateBounds
+public class WebForm extends Panel
+	implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges, ISupportSimulateBounds, ISupportFormExecutionState
 {
 	private static final long serialVersionUID = 1L;
 
@@ -210,7 +214,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			public boolean isEnabled(Component component)
 			{
 				// jquery accordion will handle the layout styling, cannot set our style
-				return ((component.findParent(IWebFormContainer.class) != null) && !(component.findParent(IWebFormContainer.class) instanceof WebAccordionPanel));
+				return ((component.findParent(IWebFormContainer.class) != null) &&
+					!(component.findParent(IWebFormContainer.class) instanceof WebAccordionPanel));
 			}
 		});
 
@@ -361,7 +366,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.MarkupContainer#hasAssociatedMarkup()
 	 */
 	@Override
@@ -377,7 +382,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		String currentBeanName = null;
 		WebSplitPane currentSplitPane = null;
 		IDataSet set = new BufferedDataSet(
-			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$
+			new ArrayList<Object[]>());
 		set.addRow(new Object[] { null, current.formController.getName(), null, null, null, null });
 		MarkupContainer parent = getParent();
 		while (parent != null)
@@ -425,9 +431,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					int idx = currentSplitPane.getLeftForm() != null && current.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm()) ? 0 : 1;
 					current = (WebForm)parent;
-					set.addRow(0,
-						new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(idx), new Integer(
-							idx + 1), new Integer(idx + 1) });
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(
+						idx), new Integer(idx + 1), new Integer(idx + 1) });
 				}
 				current = (WebForm)parent;
 				currentTabPanel = null;
@@ -890,7 +895,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormUIInternal#isReadOnly()
 	 */
 	@Override
@@ -935,7 +940,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormUIInternal#touch()
 	 */
 	@Override
@@ -1329,8 +1334,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 							Object group = es.get(groupName, fs);
 							if (group == Scriptable.NOT_FOUND)
 							{
-								group = new NativeJavaObject(fs, new RuntimeGroup(groupName), ScriptObjectRegistry.getJavaMembers(RuntimeGroup.class,
-									ScriptableObject.getTopLevelScope(fs)));
+								group = new NativeJavaObject(fs, new RuntimeGroup(groupName),
+									ScriptObjectRegistry.getJavaMembers(RuntimeGroup.class, ScriptableObject.getTopLevelScope(fs)));
 								es.put(groupName, fs, group);
 								es.put(counter++, fs, group);
 							}
@@ -1958,7 +1963,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
 	 */
 	@Override
@@ -2256,5 +2261,37 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public void changeFocusIfInvalid(List<Runnable> invokeLaterRunnables)
 	{
 		// not used
+	}
+
+	/*
+	 * @see com.servoy.j2db.ISupportFormExecutionState#formMethodExecution()
+	 */
+	@Override
+	public FormExecutionState formMethodExecution()
+	{
+		IBasicMainContainer currentContainer = getController().getBasicFormManager().getCurrentContainer();
+		MainPage formPage = getMainPage();
+		if (currentContainer != formPage)
+		{
+			FormExecutionState formExecutionState = new FormExecutionState();
+			formExecutionState.mainContainer = currentContainer;
+			formExecutionState.mainContainerName = currentContainer.getContainerName();
+			((WebFormManager)getController().getBasicFormManager()).setCurrentContainer(formPage, getContainerName());
+			return formExecutionState;
+		}
+		else return null;
+	}
+
+	/*
+	 * @see com.servoy.j2db.ISupportFormExecutionState#formMethodExecuted(com.servoy.j2db.FormExecutionState)
+	 */
+	@Override
+	public void formMethodExecuted(FormExecutionState formExecutionState)
+	{
+		if (formExecutionState != null)
+		{
+			((WebFormManager)getController().getBasicFormManager()).setCurrentContainer((IMainContainer)formExecutionState.mainContainer,
+				formExecutionState.mainContainerName);
+		}
 	}
 }
