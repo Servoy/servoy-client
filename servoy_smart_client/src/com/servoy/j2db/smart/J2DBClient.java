@@ -1114,7 +1114,7 @@ public class J2DBClient extends ClientState
 		{
 			public void run()
 			{
-				if (!Settings.getInstance().loadBounds(frame))
+				if (frame != null && !Settings.getInstance().loadBounds(frame))
 				{
 					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 					frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
@@ -1183,6 +1183,8 @@ public class J2DBClient extends ClientState
 		{
 			public void run()
 			{
+				if (isShutDown()) return;
+
 				getPluginManager().init();
 				((PluginManager)getPluginManager()).initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
 				((FoundSetManager)getFoundSetManager()).setColumnManangers(getPluginManager().getColumnValidatorManager(),

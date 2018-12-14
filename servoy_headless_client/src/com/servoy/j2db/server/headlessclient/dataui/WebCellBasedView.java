@@ -1857,7 +1857,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		tableContainerBody.add(table);
 
-		if (!isKeepLoadedRowsInScrollMode) tableContainerBody.add(new StyleAppendingModifier(new Model<String>()
+		tableContainerBody.add(new StyleAppendingModifier(new Model<String>()
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -3234,7 +3234,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					return true;
 				}
-			}, true);
+			});
 		}
 	}
 
@@ -5455,14 +5455,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				return false;
 			}
-		}, false);
+		});
 	}
 
-	private void scrollViewPort(JSAppendTarget target, boolean initialShow)
+	private void scrollViewPort(JSAppendTarget target)
 	{
 		if (selectionChanged && !isScrollFirstShow)
 		{
-			scrollBehavior.scrollViewPortToSelection(target, initialShow);
+			scrollBehavior.scrollViewPortToSelection(target);
 			selectionChanged = false;
 			nrUpdatedListItems = 0;
 		}
@@ -5607,15 +5607,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
 		 * @param initialShow if this method is called as a result of the first render of this list/table view
 		 */
-		public void scrollViewPortToSelection(JSAppendTarget target, boolean initialShow)
+		public void scrollViewPortToSelection(JSAppendTarget target)
 		{
 			if (currentData == null) return;
 			Collection<ListItem< ? >> newRows = null;
-			StringBuilder[] rowsBuffer = null;
-			int newRowsCount = 0, rowsToRemove = 0;
 			int viewSize = table.getViewSize();
-			int pageViewSize = 3 * maxRowsPerPage;
-			int tableSize = table.getList().size();
+			int tableFoundsetSize = table.getList().size();
 
 			Integer selectedIndex = null;
 			int[] newSelectedIndexes = WebCellBasedView.this.getSelectedIndexes();
@@ -5640,12 +5637,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return;
 			}
 
-			if (table.size() > 0)
+			int currentTableListItems = table.size(); // table.size() is the number of actual child rows (WebCellBasedViewListItems)
+			if (currentTableListItems > 0)
 			{
 				// if we don't have selection (should never happen as size > 0)
-				// or if selection > current table size and we are keeping all rows from client loaded (isKeepLoadedRowsInScrollMode == true) from index 0, then avoid
-				// scrolling to not generate performance issues
-				if (selectedIndex != null && (selectedIndex < tableSize || !isKeepLoadedRowsInScrollMode))
+				// or if selection > current table foundset size (invalid?) then we can't scroll
+				if (selectedIndex != null && selectedIndex.intValue() < tableFoundsetSize)
 				{
 					// we need to check the loaded view - that might not start from index 0 if isKeepLoadedRowsInScrollMode is false
 					int selectedIdx = selectedIndex.intValue();
@@ -5654,7 +5651,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					if (firstRenderedRowIndex <= selectedIdx && selectedIdx <= lastRenderedRowIndex)
 					{
-						// double-ckeck (I think) using scroll positions instead of indexes...
+						// double-check (I think) using scroll positions instead of indexes...
 						boolean needToRenderRows = true;
 
 						if (needToRenderRows)
@@ -5666,14 +5663,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							int cellScrollBottom = cellScrollTop + cellHeight;
 							if (cellScrollTop > currentScrollTop && (cellScrollBottom < currentScrollTop + bodyHeightHint))
 							{
-								if (!isKeepLoadedRowsInScrollMode) target.appendJavascript("Servoy.TableView.clearDisplayNone(null, '" + tableMarkupId + "');");
+								// it should be already in visible area; just show it
+								target.appendJavascript("Servoy.TableView.clearDisplayNone(null, '" + tableMarkupId + "');");
 								needToRenderRows = false;
 							}
 							else if (isKeepLoadedRowsInScrollMode && (cellScrollBottom < viewSize * cellHeight))
 							{
-								// selection was in the loaded rows but not visible in the viewport, scroll without loading records
+								// selection was in the loaded rows but not visible in the viewport; scroll without loading records
 								target.appendJavascript(
-									"Servoy.TableView.scrollRowIntoView('" + tableMarkupId + "',0," + cellScrollTop + "," + cellHeight + ",false);");
+									"Servoy.TableView.scrollRowIntoView('" + tableMarkupId + "',0," + cellScrollTop + "," + cellHeight + ",true);");
 								needToRenderRows = false;
 							}
 							else if (!isKeepLoadedRowsInScrollMode &&
@@ -5694,83 +5692,74 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					// it should never happen that size > 0 and selectedIndex = null but
-					// it could happen that isKeepLoadedRowsInScrollMode = true and selectedIndex > table.size() in which case we avoid jumping to that if it would mean loading too many rows...
-					// (at least that is what I think previous code was trying to do with if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false; on a branch that was only
-					// entered when startIndex was 0...
+					// it should never happen I think (no selection or selection > foundset size!?)
 					target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
 					return;
 				}
 			}
 
 			// ok so we probably need to send some rows over to the client as well, not just scroll to selection
-			boolean skipAppendRows = false;
+			StringBuilder[] rowsBuffer = null;
+			int newRowsCount = 0, rowsToRemove = 0;
+			int pageViewSize = 3 * maxRowsPerPage;
+			boolean initialShow = target.isBeforeRender();
+
 			if (isKeepLoadedRowsInScrollMode)
 			{
-				int remainingPageViewSize = tableSize - selectedIndex < pageViewSize ? tableSize - selectedIndex : pageViewSize;
-				newRowsCount = selectedIndex - viewSize + remainingPageViewSize;
+				int remainingPageViewSize = tableFoundsetSize - selectedIndex.intValue() < pageViewSize ? tableFoundsetSize - selectedIndex.intValue()
+					: pageViewSize;
+				newRowsCount = selectedIndex.intValue() - viewSize + remainingPageViewSize;
 				table.setStartIndex(0);
 				table.setViewSize(viewSize + newRowsCount);
 				isGettingRows = true;
-				newRows = getRows(table, viewSize, newRowsCount);
-				rowsBuffer = renderRows(getResponse(), newRows);
+				newRows = getRows(table, viewSize, newRowsCount); // initial render will refresh & send appropriate rows anyway so we only create the ones starting after current viewSize
+				rowsBuffer = initialShow ? null : renderRows(getResponse(), newRows); // initial show will render them anyway
 				isGettingRows = false;
-				skipAppendRows = target.isBeforeRender();
 			}
 			else
 			{
-				int viewStartIndex = selectedIndex - 1 - maxRowsPerPage > 0 ? selectedIndex - 1 - maxRowsPerPage : 0;
-				newRowsCount = Math.min(tableSize - viewStartIndex, pageViewSize);
-				rowsToRemove = initialShow ? 0 : viewStartIndex; // initial render will send appropriate rows anyway no need to remove anything
+				int viewStartIndex = selectedIndex.intValue() - 1 - maxRowsPerPage > 0 ? selectedIndex.intValue() - 1 - maxRowsPerPage : 0;
+				newRowsCount = Math.min(tableFoundsetSize - viewStartIndex, pageViewSize);
+				rowsToRemove = initialShow ? 0 : viewStartIndex; // initial render will refresh & send appropriate rows anyway so no need to remove anything
 				table.setStartIndex(viewStartIndex);
 				table.setViewSize(newRowsCount);
 				isGettingRows = true;
 				table.removeAll();
 				// get the actual 3 * pageSize rows
-				newRows = getRows(table, viewStartIndex, newRowsCount); // initial render will send appropriate rows anyway
+				newRows = getRows(table, viewStartIndex, newRowsCount); // initial render will refresh & send appropriate rows anyway so we only create the ones starting after current viewSize
 				rowsBuffer = initialShow ? null : renderRows(getResponse(), newRows); // initial show will render them anyway
 				isGettingRows = false;
 				selectedIndex = new Integer(selectedIndex.intValue() - viewStartIndex);
 			}
 
-			int cellHeight = 0;
+			int cellHeight = getCellHeight();
+			StringBuffer sb = new StringBuffer();
 
-			if (rowsBuffer != null)
+			if (rowsBuffer != null/* && !initialShow */)
 			{
-				StringBuffer sb = new StringBuffer();
-				if (!skipAppendRows)
+				hasTopBuffer = table.getStartIndex() > 0;
+				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+
+				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+				sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
+				sb.append(newRowsCount).append(","); //$NON-NLS-1$
+				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+				sb.append(1).append(", "); //$NON-NLS-1$
+				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+				sb.append(hasBottomBuffer).append(",");
+				sb.append(!isKeepLoadedRowsInScrollMode).append(");");
+
+				if (rowsBuffer[0].length() > 0)
 				{
-					hasTopBuffer = table.getStartIndex() > 0;
-					hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
-
-					sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
-					sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
-					sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
-					sb.append(newRowsCount).append(","); //$NON-NLS-1$
-					sb.append(rowsToRemove).append(","); //$NON-NLS-1$
-					sb.append(1).append(", "); //$NON-NLS-1$
-					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
-					sb.append(hasBottomBuffer).append(",");
-					sb.append(!isKeepLoadedRowsInScrollMode).append(");");
-
-					if (rowsBuffer[0].length() > 0)
-					{
-						sb.append('\n').append(rowsBuffer[0]);
-					}
+					sb.append('\n').append(rowsBuffer[0]);
 				}
-
-				cellHeight = getCellHeight();
-
-				int cellScrollTop = cellHeight * (table.getStartIndex() + selectedIndex.intValue());
-				sb.append("Servoy.TableView.scrollRowIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScrollTop + "," + //$NON-NLS-3$
-					cellHeight + ",false);");
-				target.appendJavascript(sb.toString());
 			}
-			else if (initialShow) // && !isKeepLoadedRowsInScrollMode - because you would not hit this else otherwise
+
+			if (initialShow)
 			{
 				// initial show will render the rows in the viewport anyway so they will be inserted there automatically
-				// we don't need to send them again via append rows, but we do need to handle top/buttom empty spaces as needed
-				StringBuffer sb = new StringBuffer();
+				// we don't need to send them again via append rows, but we do need to handle top/bottom empty spaces as needed
 				hasTopBuffer = table.getStartIndex() > 0;
 				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
 				cellHeight = getCellHeight();
@@ -5780,9 +5769,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				sb.append(hasTopBuffer ? table.getStartIndex() * cellHeight : 0).append(","); //$NON-NLS-1$
 				sb.append(hasBottomBuffer).append(",").append(cellHeight * (table.getStartIndex() + selectedIndex.intValue())).append( //$NON-NLS-1$
 					");");
-
-				target.appendJavascript(sb.toString());
 			}
+			else
+			{
+				int cellScrollTop = cellHeight * (table.getStartIndex() + selectedIndex.intValue());
+				sb.append("Servoy.TableView.scrollRowIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScrollTop + "," + //$NON-NLS-3$
+					cellHeight + ",false);");
+			}
+
+			target.appendJavascript(sb.toString());
 		}
 
 		/**
