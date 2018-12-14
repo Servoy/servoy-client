@@ -77,6 +77,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormExecutionState;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormUIInternal;
@@ -2269,17 +2270,22 @@ public class WebForm extends Panel
 	@Override
 	public FormExecutionState formMethodExecution()
 	{
-		IBasicMainContainer currentContainer = getController().getBasicFormManager().getCurrentContainer();
-		MainPage formPage = getMainPage();
-		if (currentContainer != formPage)
+		FormController fc = getController();
+		IBasicFormManager formManager = fc.getBasicFormManager();
+		if (formManager != null)
 		{
-			FormExecutionState formExecutionState = new FormExecutionState();
-			formExecutionState.mainContainer = currentContainer;
-			formExecutionState.mainContainerName = currentContainer.getContainerName();
-			((WebFormManager)getController().getBasicFormManager()).setCurrentContainer(formPage, getContainerName());
-			return formExecutionState;
+			IBasicMainContainer currentContainer = formManager.getCurrentContainer();
+			MainPage formPage = getMainPage();
+			if (currentContainer != formPage)
+			{
+				FormExecutionState formExecutionState = new FormExecutionState();
+				formExecutionState.mainContainer = currentContainer;
+				formExecutionState.mainContainerName = currentContainer.getContainerName();
+				((WebFormManager)formManager).setCurrentContainer(formPage, getContainerName());
+				return formExecutionState;
+			}
 		}
-		else return null;
+		return null;
 	}
 
 	/*
