@@ -81,65 +81,83 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 {
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource.
-	 * This is used by default  if you just use enableDatabroadcastFor() without flags.  If you use the one with the flags you need to give this one if you just
-	 * want to listen to column changes that are in the result for a given datasource and pk.
-	 * This constants needs to have the pk's selected for the given datasource (should be in the results)
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column
+	 * changes of the given table/datasource. This is used by default if you just use enableDatabroadcastFor()
+	 * without flags. If you use the one with the flags you need to give this one if you just want to listen to
+	 * column changes that are in the result for a given datasource and pk.
+	 *
+	 * This constants needs to have the pk's selected for the given datasource (should be in the results).
 	 */
 	public static final int MONITOR_COLUMNS = 1;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource in the join statement
-	 * Like order_lines.productid that has a join to orders and is displaying the productname.
-	 * If a change in such a join condition (like order_lines.productid in the sample above) is seen then the query will be fired again to detect changes.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column
+	 * changes of the given table/datasource in the join statement - like order_lines.productid that has a join
+	 * to orders and is displaying the productname. If a change in such a join condition (like
+	 * order_lines.productid in the sample above) is seen then the query will be fired again to detect changes.
 	 */
 	public static final int MONITOR_JOIN_CONDITIONS = 2;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column changes of the given table/datasource that are used in the where statement.
-	 * Like order_lines.unit_price > 100. If a change is seen on that datasource on such a column used in the where a full query will be fired again to detect changes.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen also for column
+	 * changes of the given table/datasource that are used in the where statement - like
+	 * order_lines.unit_price > 100. If a change is seen on that datasource on such a column used in the where
+	 * a full query will be fired again to detect changes.
 	 */
 	public static final int MONITOR_WHERE_CONDITIONS = 4;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for inserts on the given table/datasource.
-	 * This will always result in a full query to detect changes whenever an insert on that table happens.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for inserts on the
+	 * given table/datasource. This will always result in a full query to detect changes whenever an insert on
+	 * that table happens.
 	 */
 	public static final int MONITOR_INSERT = 8;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource.
-	 * This will always result in a full query to detect changes whenever an delete  on that table happens.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the
+	 * given table/datasource. This will always result in a full query to detect changes whenever an delete on
+	 * that table happens.
 	 */
 	public static final int MONITOR_DELETES = 16;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the given table/datasource which should be the primary/main table of this query.
-	 * If a delete comes in for this table, then we will only remove the records from the ViewFoundSet that do have this primary key in its value. So no need to do a full query.
-	 * So this will only work if the query shows order_lines for the order_lines table, not for the products table that is joined to get the product_name.
-	 * Only 1 of the 2 monitors for deletes should be registered for a table/datasource.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for deletes on the
+	 * given table/datasource which should be the primary/main table of this query. If a delete comes in for this
+	 * table, then we will only remove the records from the ViewFoundSet that do have this primary key in its
+	 * value. So no need to do a full query. So this will only work if the query shows order_lines for the
+	 * order_lines table, not for the products table that is joined to get the product_name. Only 1 of the 2
+	 * monitors for deletes should be registered for a table/datasource.
+	 *
 	 * This constants needs to have the pk's selected for the given datasource (should be in the results)
 	 */
 	public static final int MONITOR_DELETES_FOR_PRIMARY_TABLE = 32;
 
 	/**
-	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for changes in columns (selected) of the given datasource in the query that can affect aggregates.
-	 * This means that when there are deletes, inserts or updates on columns selected from that datasource, a full re-query will happen - to refresh the aggregates.
+	 * Constant for the flags in {@link #enableDatabroadcastFor(QBTableClause, int)} to listen for changes in
+	 * columns (selected) of the given datasource in the query that can affect aggregates. This means that when
+	 * there are deletes, inserts or updates on columns selected from that datasource, a full re-query will
+	 * happen to refresh the aggregates.
 	 *
-	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that have group by on their columns, and the columns don't contain the pk, or that have
-	 * the actual aggregates on their columns (because all those could influence the value of aggregates). For example (ignoring the fact that in a real-life situation these fields might not change),
-	 * a view foundset based on this query:
+	 * IMPORTANT: in general, this flag should be set on (possible multiple) datasources from the query that
+	 * have group by on their columns, and the columns don't contain the pk, or that have the actual aggregates
+	 * on their columns (because all those could influence the value of aggregates).
+	 *
+	 * For example (ignoring the fact that in a real-life situation these fields might not change), a view
+	 * foundset based on this query:
 	 *
 	 * SELECT orders.customerid, orders.orderdate, SUM(order_details.unitprice) FROM orders
 	 *    LEFT OUTER JOIN order_details ON orders.orderid = order_details.orderid
 	 *    GROUP BY orders.customerid, orders.orderdate
 	 *	  ORDER BY orders.customerid asc, orders.orderdate desc
 	 *
-	 * will want to enable databroadcast flag MONITOR_AGGREGATES on both "orders" (because if "orderdate" or "customerid" - that are used in GROUP BY - change/are corrected on a row, that row
-	 * could move from one group to the other, affecting the SUM(order_details.unitprice) for the groups involved) and "order_details" (because if "unitprice" changes/is corrected, the
-	 * aggregate will be affected).
-	 * But if the above query would also select the orders.odersid (and also group by that) then the orders row that you select for that sum will always be unique and only {@link #MONITOR_COLUMNS}
-	 * has to be done for those if needed.
+	 * will want to enable databroadcast flag MONITOR_AGGREGATES on both "orders" (because if "orderdate" or
+	 * "customerid" - that are used in GROUP BY - change/are corrected on a row, that row could move from one
+	 * group to the other, affecting the SUM(order_details.unitprice) for the groups involved) and "order_details"
+	 * (because if "unitprice" changes/is corrected, the aggregate will be affected).
+	 *
+	 * But if the above query would also select the orders.odersid (and also group by that) then the orders row
+	 * that you select for that sum will always be unique and only {@link #MONITOR_COLUMNS} has to be used for
+	 * those - if needed.
 	 */
 	public static final int MONITOR_AGGREGATES = 64;
 
@@ -473,7 +491,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *  vf.enableDatabroadcastFor(select,,ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMARY_TABLE);
 	 *  vf.enableDatabroadcastFor(join);
 	 *
-	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listenn for data changes.
+	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listen for data changes.
 	 * @param flags One or more of the ViewFoundSet.XXX flags added to each other.
 	 */
 	@JSFunction

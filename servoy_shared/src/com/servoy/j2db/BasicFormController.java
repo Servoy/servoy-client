@@ -737,6 +737,12 @@ public abstract class BasicFormController
 		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
 		if (id.intValue() > 0 && formScope != null)
 		{
+			FormExecutionState formExecutionState = null;
+			if (getFormUI() instanceof ISupportFormExecutionState)
+			{
+				formExecutionState = ((ISupportFormExecutionState)getFormUI()).formMethodExecution();
+			}
+
 			String sName = null;
 			try
 			{
@@ -789,6 +795,13 @@ public abstract class BasicFormController
 			catch (Exception ex)
 			{
 				application.reportError(application.getI18NMessage("servoy.formPanel.error.executeMethod", new Object[] { sName }), ex); //$NON-NLS-1$
+			}
+			finally
+			{
+				if (formExecutionState != null && getFormUI() instanceof ISupportFormExecutionState)
+				{
+					((ISupportFormExecutionState)getFormUI()).formMethodExecuted(formExecutionState);
+				}
 			}
 		}
 		return ret;
