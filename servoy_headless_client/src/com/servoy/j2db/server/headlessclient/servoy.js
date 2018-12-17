@@ -465,6 +465,61 @@ function rearrageTabsInTabPanel(tabPanelId)
 	}
 }
 
+// need to override Wicket.replaceOuterHtmlSafari, because it fires a 'blur' event, when
+// setting element.outerHTML, that we need to skip in postEventCallback
+var wicketReplacedElementInSafari = null;
+
+Wicket.replaceOuterHtmlSafari = function(element, text) {
+	// if we are replacing a single <script> element
+	if (element.tagName == "SCRIPT") {
+		// create temporal div and add script as inner HTML		
+		var tempDiv = document.createElement("div");
+		tempDiv.innerHTML = text;
+
+		// try to get script content
+		var script = tempDiv.childNodes[0].innerHTML;
+		if (typeof(script) != "string") {
+			script = tempDiv.childNodes[0].text;
+		}
+		
+		element.outerHTML = text;
+		try {
+			eval(script);
+		} catch (e) {
+			Wicket.Log.error("Wicket.replaceOuterHtmlSafari: " + e + ": eval -> " + script);
+		}
+		return;
+	}
+	var parent = element.parentNode;
+	var next = element.nextSibling;
+	
+	while (next !== null && next.nodeType == 3) {
+		// ignore text nodes
+		next = next.nextSibling;
+	}
+	
+	var index = 0;
+	while (parent.childNodes[index] != element) {
+		++index;
+	}
+	
+	wicketReplacedElementInSafari = element;
+	element.outerHTML = text;
+	wicketReplacedElementInSafari = null;
+		
+	element = parent.childNodes[index];	
+	
+	// go through newly added elements and try to find javascripts that 
+	// need to be executed	
+	while (element != next) {
+		try {
+			Wicket.Head.addJavascripts(element);
+		} catch (ignore) {
+		}
+		element = element.nextSibling;
+	}	
+}
+
 var onFocusModifiers = 0;
 var radioCheckInputMouseDown;
 
@@ -538,7 +593,11 @@ function eventCallback(el, strEvent, callbackUrl, event)
 function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 {	
 	if(strEvent == "blur")
-	{	
+	{
+		if(el === wicketReplacedElementInSafari) // element was replaced by wicket
+		{
+			return true;
+		}	
 		ignoreFocusGained = null;
 	}
 	if(strEvent != "focus" && strEvent != "blur" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
