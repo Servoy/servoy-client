@@ -416,7 +416,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			PropertyDescription customPd = ((CustomJSONObjectType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 			for (String prop : property.keySet())
 			{
-				if (customPd.getProperty(prop).getType() instanceof II18NPropertyType)
+				if (customPd != null && customPd.getProperty(prop) != null && customPd.getProperty(prop).getType() instanceof II18NPropertyType)
 				{
 					property.put(prop, (SabloT)((II18NPropertyType)customPd.getProperty(prop).getType()).resetI18nValue(property.get(prop),
 						customPd.getProperty(prop), component));

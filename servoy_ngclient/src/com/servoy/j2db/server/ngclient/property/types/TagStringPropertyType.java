@@ -128,6 +128,12 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	public BasicTagStringTypeSabloValue fromJSON(Object newValue, BasicTagStringTypeSabloValue previousValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
+		// do not allow changing of i18n strings from client
+		if (previousValue instanceof II18NValue)
+		{
+			return previousValue;
+		}
+
 		BaseWebObject webObject = dataConverterContext.getWebObject();
 		return createNewTagStringTypeSabloValue((String)newValue, (previousValue != null ? previousValue.getDataAdapterList() : null), false, false, pd,
 			webObject instanceof WebFormComponent ? ((WebFormComponent)webObject) : null,

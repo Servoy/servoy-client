@@ -232,9 +232,20 @@ public interface IServerAccess extends IPluginAccess
 	 * instance.
 	 *
 	 * @param clientId The ID of the client that will be disconnected.
-	 * @param forceUnregister force the unregister of client 
 	 *
 	 * @since 5.0
+	 */
+	public void shutDownClient(String clientId);
+
+	/**
+	 * Disconnects a specific client that is currently connected to this server.
+	 * The client is identified through its client ID, which can be retrieved from an IClientInformation
+	 * instance.
+	 *
+	 * @param clientId The ID of the client that will be disconnected.
+	 * @param forceUnregister force the unregister of client
+	 *
+	 * @since 8.4
 	 */
 	public void shutDownClient(String clientId, boolean forceUnregister);
 
