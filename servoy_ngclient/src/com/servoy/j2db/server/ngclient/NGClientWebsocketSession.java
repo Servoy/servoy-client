@@ -187,7 +187,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						//this is needed for the situation when the solution is already loaded and the deeplink url was changed (different arg values for instance)
 						String method = args.getMethodName();
 						String firstArgument = args.getFirstArgument();
-						if (method ! = null)
+						if (method != null)
 						{
 							try
 							{
