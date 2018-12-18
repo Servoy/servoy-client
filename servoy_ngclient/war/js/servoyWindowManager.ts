@@ -70,7 +70,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 
 						//resolve initial bounds
 						var location = null;
-						var size = null;
+						var size = windowInstance.form.size;
 						if ( windowInstance.initialBounds ) {
 							var bounds = windowInstance.initialBounds;
 							location = {
@@ -609,7 +609,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			DIALOG: 0,
 			MODAL_DIALOG: 1,
 			WINDOW: 2
-		} ).controller( "DialogInstanceCtrl", function( $scope: angular.IScope & { win: servoy.WindowInstance, getFormUrl(): string, getNavigatorFormUrl(): string, isUndecorated(): boolean, getBodySize(): { width: string, height: string }, cancel(): void },
+		} ).controller( "DialogInstanceCtrl", function( $scope: angular.IScope & { win: servoy.WindowInstance, getFormUrl(): string, getNavigatorFormUrl(): string, isUndecorated(): boolean, cancel(): void },
 			windowInstance: servoy.WindowInstance, $timeout: angular.ITimeoutService, $windowService: servoy.IWindowService, $servoyInternal, $sabloApplication: sablo.ISabloApplication, $formService, $sabloTestability ) {
 
 			var block = true;
@@ -637,16 +637,6 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 
 			$scope.isUndecorated = function() {
 				return $scope.win.undecorated || ( $scope.win.opacity < 1 )
-			}
-
-			$scope.getBodySize = function() {
-				var win = $scope.win;
-				var width = win.size ? win.size.width : win.form.size.width;
-				var height = win.form.size.height;
-				if ( !win.size && win.navigatorForm.size ) {
-					width += win.navigatorForm.size.width;
-				}
-				return { 'width': width + 'px', 'height': height + 'px' }
 			}
 
 			$formService.formWillShow( windowInstance.form.name, false );

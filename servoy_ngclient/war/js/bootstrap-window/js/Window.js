@@ -116,14 +116,13 @@ var Window = null;
     };
 
     Window.prototype.show = function () {
-        this.$el.css('visibility', 'visible');
-        this.$el.fadeIn(0);
+    	this.$el.css('visibility', 'visible');
+    	this.$el.fadeIn(0);
     };
     
     Window.prototype.setSize = function(size){
     	 var winBody = this.$el.find(this.options.selectors.body);
          winBody.css('width', size.width - parseInt(this.$el.css("marginRight")) - parseInt(this.$el.css("marginLeft")) );
-         // see getBodySize 
          winBody.css('height', size.height);    	
     };
 
