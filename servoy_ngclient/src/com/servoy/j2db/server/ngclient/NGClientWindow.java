@@ -95,7 +95,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public Container getForm(String formName)
 	{
-		if (getClient() == null) return null;
+		if (getClient() == null || getClient().getFormManager() == null || getClient().getFormManager().getForm(formName) == null) return null;
 		return (Container)getClient().getFormManager().getForm(formName).getFormUI();
 	}
 
