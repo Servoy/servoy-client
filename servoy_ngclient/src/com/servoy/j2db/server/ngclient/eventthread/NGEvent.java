@@ -83,7 +83,7 @@ public class NGEvent extends Event
 	{
 		super.willResume();
 		previous = client.getRuntimeWindowManager().getCurrentWindowName();
-		if (client.getRuntimeWindowManager().getWindow(suspendedWindowName) != null)
+		if (client.getRuntimeWindowManager().getWindow(suspendedWindowName) ! = null)
 		{
 			client.getRuntimeWindowManager().setCurrentWindowName(suspendedWindowName);
 		}
