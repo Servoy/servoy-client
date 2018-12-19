@@ -248,6 +248,43 @@ public class NGClientEntryFilter extends WebEntry
 				response.sendRedirect(url.toString());
 				return;
 			}
+			else if (uri != null && uri.startsWith(request.getContextPath() + SOLUTIONS_PATH) && !request.getRequestURI().contains("index.html"))
+			{
+				StringBuffer url = request.getRequestURL();
+				String ctx = request.getContextPath();
+				String base = url.substring(0, url.length() - uri.length() + ctx.length());
+				String contextPathWithSolutionPath = request.getContextPath() + SOLUTIONS_PATH;
+				String solutionName = uri.substring(contextPathWithSolutionPath.length());
+				if (solutionName.length() > 0)
+				{
+					StringBuffer redirectUrl = new StringBuffer(base);
+					String queryString = request.getQueryString();
+					redirectUrl.append(contextPathWithSolutionPath);
+					redirectUrl.append(solutionName.split("/")[0]);
+
+					String[] args = url.toString().replace(redirectUrl.toString() + "/", "").split("/");
+					redirectUrl.append("/index.html");
+
+					if (args.length != 0 || queryString != null)
+					{
+						redirectUrl.append("?");
+						if (queryString != null) redirectUrl.append(queryString);
+
+						if (args.length % 2 == 0)
+						{
+							int i = 0;
+							while (i < args.length - 1)
+							{
+								if (redirectUrl.indexOf("=") > 0) redirectUrl.append("&");
+								redirectUrl.append(args[i] + "=" + args[i + 1]);
+								i += 2;
+							}
+						}
+						response.sendRedirect(redirectUrl.toString());
+						return;
+					}
+				}
+			}
 			else if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
 				String solutionName = getSolutionNameFromURI(uri);
