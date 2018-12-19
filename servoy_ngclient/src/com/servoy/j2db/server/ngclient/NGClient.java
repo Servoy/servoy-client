@@ -64,6 +64,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IUserClient;
@@ -330,98 +331,60 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Debug.warn(e);
 			return;
 		}
-		if (retValue instanceof JSONObject)
+		ClientInfo clientInfo = getClientInfo();
+		if (clientInfo != null)
 		{
-			JSONObject jsonObject = (JSONObject)retValue;
-			String url = jsonObject.optString("serverURL");
-			if (url != null)
+			if (retValue instanceof JSONObject)
 			{
-				try
+				JSONObject jsonObject = (JSONObject)retValue;
+				String url = jsonObject.optString("serverURL");
+				if (url != null)
 				{
-					serverURL = new URL(url);
-				}
-				catch (MalformedURLException e)
-				{
-					Debug.error(e);
-				}
-			}
-			String userAgent = jsonObject.optString("userAgent");
-			if (userAgent != null)
-			{
-				getClientInfo().addInfo("useragent:" + userAgent);
-			}
-			String platform = jsonObject.optString("platform");
-			if (platform != null)
-			{
-				getClientInfo().addInfo("platform:" + platform);
-			}
-			String remote_ipaddress = jsonObject.optString("remote_ipaddress");
-			if (remote_ipaddress != null)
-			{
-				getClientInfo().setHostAddress(remote_ipaddress);
-			}
-			String remote_host = jsonObject.optString("remote_host");
-			if (remote_host != null)
-			{
-				getClientInfo().setHostName(remote_host);
-			}
-			if (timeZone == null)
-			{
-				String utc = jsonObject.optString("utcOffset");
-				if (utc != null)
-				{
-					// apparently it is platform dependent on whether you get the
-					// offset in a decimal form or not. This parses the decimal
-					// form of the UTC offset, taking into account several
-					// possibilities
-					// such as getting the format in +2.5 or -1.2
-
-					int dotPos = utc.indexOf('.');
-					if (dotPos >= 0)
+					try
 					{
-						String hours = utc.substring(0, dotPos);
-						String hourPart = utc.substring(dotPos + 1);
-
-						if (hours.startsWith("+"))
-						{
-							hours = hours.substring(1);
-						}
-						int offsetHours = Integer.parseInt(hours);
-						int offsetMins = (int)(Double.parseDouble(hourPart) * 6);
-
-						// construct a GMT timezone offset string from the retrieved
-						// offset which can be parsed by the TimeZone class.
-
-						AppendingStringBuffer sb = new AppendingStringBuffer("GMT");
-						sb.append(offsetHours > 0 ? "+" : "-");
-						sb.append(Math.abs(offsetHours));
-						sb.append(":");
-						if (offsetMins < 10)
-						{
-							sb.append("0");
-						}
-						sb.append(offsetMins);
-						timeZone = TimeZone.getTimeZone(sb.toString());
+						serverURL = new URL(url);
 					}
-					else
+					catch (MalformedURLException e)
 					{
-						int offset = Integer.parseInt(utc);
-						if (offset < 0)
-						{
-							utc = utc.substring(1);
-						}
-						timeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + utc);
+						Debug.error(e);
 					}
-
-					String dstOffset = jsonObject.optString("utcDstOffset");
-					if (timeZone != null && dstOffset != null)
+				}
+				String userAgent = jsonObject.optString("userAgent");
+				if (userAgent != null)
+				{
+					clientInfo.addInfo("useragent:" + userAgent);
+				}
+				String platform = jsonObject.optString("platform");
+				if (platform != null)
+				{
+					clientInfo.addInfo("platform:" + platform);
+				}
+				String remote_ipaddress = jsonObject.optString("remote_ipaddress");
+				if (remote_ipaddress != null)
+				{
+					clientInfo.setHostAddress(remote_ipaddress);
+				}
+				String remote_host = jsonObject.optString("remote_host");
+				if (remote_host != null)
+				{
+					clientInfo.setHostName(remote_host);
+				}
+				if (timeZone == null)
+				{
+					String utc = jsonObject.optString("utcOffset");
+					if (utc != null)
 					{
-						TimeZone dstTimeZone = null;
-						dotPos = dstOffset.indexOf('.');
+						// apparently it is platform dependent on whether you get the
+						// offset in a decimal form or not. This parses the decimal
+						// form of the UTC offset, taking into account several
+						// possibilities
+						// such as getting the format in +2.5 or -1.2
+
+						int dotPos = utc.indexOf('.');
 						if (dotPos >= 0)
 						{
-							String hours = dstOffset.substring(0, dotPos);
-							String hourPart = dstOffset.substring(dotPos + 1);
+							String hours = utc.substring(0, dotPos);
+							String hourPart = utc.substring(dotPos + 1);
 
 							if (hours.startsWith("+"))
 							{
@@ -430,8 +393,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 							int offsetHours = Integer.parseInt(hours);
 							int offsetMins = (int)(Double.parseDouble(hourPart) * 6);
 
-							// construct a GMT timezone offset string from the
-							// retrieved
+							// construct a GMT timezone offset string from the retrieved
 							// offset which can be parsed by the TimeZone class.
 
 							AppendingStringBuffer sb = new AppendingStringBuffer("GMT");
@@ -443,78 +405,121 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 								sb.append("0");
 							}
 							sb.append(offsetMins);
-							dstTimeZone = TimeZone.getTimeZone(sb.toString());
+							timeZone = TimeZone.getTimeZone(sb.toString());
 						}
 						else
 						{
-							int offset = Integer.parseInt(dstOffset);
+							int offset = Integer.parseInt(utc);
 							if (offset < 0)
 							{
-								dstOffset = dstOffset.substring(1);
+								utc = utc.substring(1);
 							}
-							dstTimeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + dstOffset);
+							timeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + utc);
 						}
-						// if the dstTimezone (1 July) has a different offset then
-						// the real time zone (1 January) try to combine the 2.
-						if (dstTimeZone != null && dstTimeZone.getRawOffset() != timeZone.getRawOffset())
+
+						String dstOffset = jsonObject.optString("utcDstOffset");
+						if (timeZone != null && dstOffset != null)
 						{
-							int dstSaving = dstTimeZone.getRawOffset() - timeZone.getRawOffset();
-							String[] availableIDs = TimeZone.getAvailableIDs(timeZone.getRawOffset());
-							for (String availableID : availableIDs)
+							TimeZone dstTimeZone = null;
+							dotPos = dstOffset.indexOf('.');
+							if (dotPos >= 0)
 							{
-								TimeZone zone = TimeZone.getTimeZone(availableID);
-								if (zone.getDSTSavings() == dstSaving)
+								String hours = dstOffset.substring(0, dotPos);
+								String hourPart = dstOffset.substring(dotPos + 1);
+
+								if (hours.startsWith("+"))
 								{
-									// this is a best guess... still the start and end of the DST should
-									// be needed to know to be completely correct, or better yet
-									// not just the GMT offset but the TimeZone ID should be transfered
-									// from the browser.
-									timeZone = zone;
-									break;
+									hours = hours.substring(1);
+								}
+								int offsetHours = Integer.parseInt(hours);
+								int offsetMins = (int)(Double.parseDouble(hourPart) * 6);
+
+								// construct a GMT timezone offset string from the
+								// retrieved
+								// offset which can be parsed by the TimeZone class.
+
+								AppendingStringBuffer sb = new AppendingStringBuffer("GMT");
+								sb.append(offsetHours > 0 ? "+" : "-");
+								sb.append(Math.abs(offsetHours));
+								sb.append(":");
+								if (offsetMins < 10)
+								{
+									sb.append("0");
+								}
+								sb.append(offsetMins);
+								dstTimeZone = TimeZone.getTimeZone(sb.toString());
+							}
+							else
+							{
+								int offset = Integer.parseInt(dstOffset);
+								if (offset < 0)
+								{
+									dstOffset = dstOffset.substring(1);
+								}
+								dstTimeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + dstOffset);
+							}
+							// if the dstTimezone (1 July) has a different offset then
+							// the real time zone (1 January) try to combine the 2.
+							if (dstTimeZone != null && dstTimeZone.getRawOffset() != timeZone.getRawOffset())
+							{
+								int dstSaving = dstTimeZone.getRawOffset() - timeZone.getRawOffset();
+								String[] availableIDs = TimeZone.getAvailableIDs(timeZone.getRawOffset());
+								for (String availableID : availableIDs)
+								{
+									TimeZone zone = TimeZone.getTimeZone(availableID);
+									if (zone.getDSTSavings() == dstSaving)
+									{
+										// this is a best guess... still the start and end of the DST should
+										// be needed to know to be completely correct, or better yet
+										// not just the GMT offset but the TimeZone ID should be transfered
+										// from the browser.
+										timeZone = zone;
+										break;
+									}
 								}
 							}
-						}
-						// if the timezone is really just the default of the server just use that one.
-						TimeZone dftZone = TimeZone.getDefault();
-						if (timeZone.getRawOffset() == dftZone.getRawOffset() && timeZone.getDSTSavings() == dftZone.getDSTSavings())
-						{
-							timeZone = dftZone;
+							// if the timezone is really just the default of the server just use that one.
+							TimeZone dftZone = TimeZone.getDefault();
+							if (timeZone.getRawOffset() == dftZone.getRawOffset() && timeZone.getDSTSavings() == dftZone.getDSTSavings())
+							{
+								timeZone = dftZone;
+							}
 						}
 					}
 				}
-			}
-			if (locale == null)
-			{
-				String browserLocale = jsonObject.optString("locale");
-				if (browserLocale != null)
+				if (locale == null)
 				{
-					String[] languageAndCountry = browserLocale.split("-");
-					if (languageAndCountry.length == 1)
+					String browserLocale = jsonObject.optString("locale");
+					if (browserLocale != null)
 					{
-						locale = new Locale(languageAndCountry[0]);
+						String[] languageAndCountry = browserLocale.split("-");
+						if (languageAndCountry.length == 1)
+						{
+							locale = new Locale(languageAndCountry[0]);
+						}
+						else if (languageAndCountry.length == 2)
+						{
+							locale = new Locale(languageAndCountry[0], languageAndCountry[1]);
+						}
+						clientInfo.addInfo("locale:" + locale);
 					}
-					else if (languageAndCountry.length == 2)
-					{
-						locale = new Locale(languageAndCountry[0], languageAndCountry[1]);
-					}
-					getClientInfo().addInfo("locale:" + locale);
 				}
 			}
-		}
-		if (timeZone != null)
-		{
-			getClientInfo().setTimeZone(timeZone);
-		}
+			if (timeZone != null)
+			{
+				clientInfo.setTimeZone(timeZone);
+			}
 
-		getClientInfo().addInfo("session uuid: " + getWebsocketSession().getUuid());
+			clientInfo.addInfo("session uuid: " + getWebsocketSession().getUuid());
 
-		try
-		{
-			getClientHost().pushClientInfo(getClientInfo().getClientId(), getClientInfo());
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
+			try
+			{
+				getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+			}
+			catch (RemoteException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
