@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -30,6 +31,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -40,8 +42,8 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  *
  */
-public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
-	implements IClassPropertyType<CSSPosition>, IFormElementToTemplateJSON<CSSPosition, CSSPosition>, IDesignToFormElement<Object, CSSPosition, CSSPosition>
+public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition> implements IClassPropertyType<CSSPosition>,
+	IFormElementToTemplateJSON<CSSPosition, CSSPosition>, IDesignToFormElement<Object, CSSPosition, CSSPosition>, IDesignValueConverter<CSSPosition>
 {
 	public static final CSSPositionPropertyType INSTANCE = new CSSPositionPropertyType();
 	public static final String TYPE_NAME = "cssPosition";
@@ -117,5 +119,42 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	public Class<CSSPosition> getTypeClass()
 	{
 		return CSSPosition.class;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public CSSPosition fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	{
+		try
+		{
+			return fromJSON((designValue instanceof String && ((String)designValue).startsWith("{")) ? new JSONObject((String)designValue) : designValue, null,
+				propertyDescription, null, null);
+		}
+		catch (Exception e)
+		{
+			Debug.error("can't parse '" + designValue + "' to the real type for property converter: " + propertyDescription.getType(), e);
+			return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public Object toDesignValue(Object javaValue, PropertyDescription pd)
+	{
+		if (javaValue instanceof CSSPosition)
+		{
+			JSONStringer writer = new JSONStringer();
+			toJSON(writer, null, (CSSPosition)javaValue, pd, null, null);
+			return new JSONObject(writer.toString());
+		}
+		return javaValue;
 	}
 }
