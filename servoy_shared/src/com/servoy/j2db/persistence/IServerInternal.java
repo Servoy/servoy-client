@@ -161,6 +161,15 @@ public interface IServerInternal
 	 */
 	boolean isTableMarkedAsHiddenInDeveloper(String tableName);
 
+	/**
+	 * Tells if a table is marked as 'metadata' in developer.
+	 * If the table's structure has not yet been read from DB this will not need to load it.
+	 *
+	 * @param tableName the name of the table
+	 * @return if it is a metadata table or not.
+	 */
+	boolean isTableMarkedAsMetaData(String tableName);
+
 	List<String> getTableAndViewNames(boolean hideTempTables, boolean hideHiddenInDeveloper) throws RepositoryException;
 
 	Table getLogTable() throws RepositoryException;
