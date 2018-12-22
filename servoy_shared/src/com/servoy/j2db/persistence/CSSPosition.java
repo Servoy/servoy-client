@@ -62,87 +62,144 @@ public class CSSPosition implements Serializable
 
 	public static void setLocation(ISupportBounds persist, int x, int y)
 	{
-		if (useCSSPosition(persist))
+		AbstractContainer container = getParentContainer((BaseComponent)persist);
+		setLocationEx((BaseComponent)persist, (BaseComponent)persist, x, y, container.getSize());
+	}
+
+	public static void setLocationEx(BaseComponent baseComponent, AbstractBase persist, int x, int y, Dimension containerSize)
+	{
+		if (useCSSPosition(baseComponent))
 		{
-			CSSPosition position = ((BaseComponent)persist).getCssPosition();
+			CSSPosition position;
+			if (persist instanceof BaseComponent)
+			{
+				position = ((BaseComponent)persist).getCssPosition();
+			}
+			else
+			{
+				position = (CSSPosition)persist.getProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName());
+			}
 			if (position == null)
 			{
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
-			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			if (!isSet(position.right))
 			{
-				position.left = pixelsToPercentage(x, container.getSize().width, position.left);
+				position.left = pixelsToPercentage(x, containerSize.width, position.left);
 			}
 			else if (!isSet(position.left))
 			{
-				position.right = pixelsToPercentage(container.getSize().width - x - percentageToPixels(position.width, container.getSize().width),
-					container.getSize().width, position.right);
+				position.right = pixelsToPercentage(containerSize.width - x - percentageToPixels(position.width, containerSize.width), containerSize.width,
+					position.right);
 			}
 			else
 			{
 				position.right = pixelsToPercentage(
-					percentageToPixels(position.right, container.getSize().width) + percentageToPixels(position.left, container.getSize().width) - x,
-					container.getSize().width, position.right);
-				position.left = pixelsToPercentage(x, container.getSize().width, position.left);
+					percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x, containerSize.width,
+					position.right);
+				position.left = pixelsToPercentage(x, containerSize.width, position.left);
 			}
 			if (!isSet(position.bottom))
 			{
-				position.top = pixelsToPercentage(y, container.getSize().height, position.top);
+				position.top = pixelsToPercentage(y, containerSize.height, position.top);
 			}
 			else if (!isSet(position.top))
 			{
-				position.bottom = pixelsToPercentage(container.getSize().height - y - percentageToPixels(position.height, container.getSize().height),
-					container.getSize().height, position.bottom);
+				position.bottom = pixelsToPercentage(containerSize.height - y - percentageToPixels(position.height, containerSize.height), containerSize.height,
+					position.bottom);
 			}
 			else
 			{
 				position.bottom = pixelsToPercentage(
-					percentageToPixels(position.bottom, container.getSize().height) + percentageToPixels(position.top, container.getSize().height) - y,
-					container.getSize().height, position.bottom);
-				position.top = pixelsToPercentage(y, container.getSize().height, position.top);
+					percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y,
+					containerSize.height, position.bottom);
+				position.top = pixelsToPercentage(y, containerSize.height, position.top);
 			}
-			((BaseComponent)persist).setCssPosition(position);
+			if (persist instanceof BaseComponent)
+			{
+				((BaseComponent)persist).setCssPosition(position);
+			}
+			else
+			{
+				persist.setProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName(), position);
+			}
 		}
 		else
 		{
-			persist.setLocation(new Point(x, y));
+			Point p = new Point(x, y);
+			if (persist instanceof ISupportBounds)
+			{
+				((ISupportBounds)persist).setLocation(p);
+			}
+			else
+			{
+				persist.setProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), p);
+			}
 		}
 	}
 
 	public static void setSize(ISupportBounds persist, int width, int height)
 	{
-		if (useCSSPosition(persist))
+		AbstractContainer container = getParentContainer((BaseComponent)persist);
+		setSizeEx((BaseComponent)persist, (BaseComponent)persist, width, height, container.getSize());
+	}
+
+	public static void setSizeEx(BaseComponent baseComponent, AbstractBase persist, int width, int height, Dimension containerSize)
+	{
+		if (useCSSPosition(baseComponent))
 		{
-			CSSPosition position = ((BaseComponent)persist).getCssPosition();
+			CSSPosition position;
+			if (persist instanceof BaseComponent)
+			{
+				position = ((BaseComponent)persist).getCssPosition();
+			}
+			else
+			{
+				position = (CSSPosition)persist.getProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName());
+			}
 			if (position == null)
 			{
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
-			AbstractContainer container = getParentContainer((BaseComponent)persist);
+
 			if (isSet(position.left) && isSet(position.right))
 			{
-				position.right = pixelsToPercentage(container.getSize().width - percentageToPixels(position.left, container.getSize().width) - width,
-					container.getSize().width, position.right);
+				position.right = pixelsToPercentage(containerSize.width - percentageToPixels(position.left, containerSize.width) - width, containerSize.width,
+					position.right);
 			}
 			else
 			{
-				position.width = pixelsToPercentage(width, container.getSize().width, position.width);
+				position.width = pixelsToPercentage(width, containerSize.width, position.width);
 			}
 			if (isSet(position.top) && isSet(position.bottom))
 			{
-				position.bottom = pixelsToPercentage(container.getSize().height - percentageToPixels(position.top, container.getSize().height) - height,
-					container.getSize().height, position.bottom);
+				position.bottom = pixelsToPercentage(containerSize.height - percentageToPixels(position.top, containerSize.height) - height,
+					containerSize.height, position.bottom);
 			}
 			else
 			{
-				position.height = pixelsToPercentage(height, container.getSize().height, position.height);
+				position.height = pixelsToPercentage(height, containerSize.height, position.height);
 			}
-			((BaseComponent)persist).setCssPosition(position);
+			if (persist instanceof BaseComponent)
+			{
+				((BaseComponent)persist).setCssPosition(position);
+			}
+			else
+			{
+				persist.setProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName(), position);
+			}
 		}
 		else
 		{
-			persist.setSize(new Dimension(width, height));
+			Dimension d = new Dimension(width, height);
+			if (persist instanceof ISupportBounds)
+			{
+				((ISupportBounds)persist).setSize(d);
+			}
+			else
+			{
+				persist.setProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), d);
+			}
 		}
 	}
 

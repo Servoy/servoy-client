@@ -585,6 +585,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	{
 		checkModification();
 		JSPart part;
+		boolean partCreated = false;
 		if (partType == Part.LEADING_SUBSUMMARY || partType == Part.TRAILING_SUBSUMMARY)
 		{
 			part = getPartInternal(partType, height);
@@ -602,6 +603,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			try
 			{
 				part = JSPart.createPart(this, getForm().createNewPart(partType, height), false);
+				partCreated = true;
 				int testHeight = 0;
 				Iterator<Part> parts = getForm().getParts();
 				while (parts.hasNext())
@@ -625,6 +627,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		{
 			part.setHeight(height);
 		}
+		if (partCreated) useFormCache = false;
 		return part;
 	}
 

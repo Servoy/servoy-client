@@ -172,7 +172,7 @@ public class DatabaseUtils
 //		}
 //		else s.setTableMarkedAsHiddenInDeveloper(t.getName(), tableInfo.hiddenInDeveloper);
 
-		t.setMarkedAsMetaData(tableInfo.isMetaData);
+		t.setMarkedAsMetaData(Boolean.TRUE.equals(tableInfo.isMetaData));
 
 		// let table editors and so on now that a columns are loaded
 		t.fireIColumnsChanged(changedColumns);
