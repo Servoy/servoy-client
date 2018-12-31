@@ -569,6 +569,10 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 					// count may depend on related records
 					continue;
 				}
+				if (!(((ISQLTableJoin)join).getForeignTableReference() instanceof TableExpression))
+				{
+					continue; // derived table
+				}
 
 				BaseQueryTable joinTable = ((ISQLTableJoin)join).getForeignTable();
 				ObjectCountVisitor selectCounter = new ObjectCountVisitor(joinTable, true);
@@ -591,7 +595,6 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			}
 		}
 	}
-
 
 	static HashMap<String, AndCondition> setInConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
 	{
