@@ -488,29 +488,36 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *  select.result.add(); // add columns of the select or join
 	 *  var vf = databaseManager.getViewFoundSet("myorders",select)
 	 *  // monitor for the main table the join conditions (orders->product, when product id changes in the orders table) and requery the table on insert events, delete directly the record if a pk delete happens.
-	 *  vf.enableDatabroadcastFor(select,,ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMARY_TABLE);
+	 *  vf.enableDatabroadcastFor(select, ViewFoundSet.MONITOR_JOIN_CONDITIONS | ViewFoundSet.MONITOR_INSERT | ViewFoundSet.MONITOR_DELETES_FOR_PRIMARY_TABLE);
 	 *  vf.enableDatabroadcastFor(join);
 	 *
-	 * @param queryTable The QBSelect or QBJoin of a full query where this foundset should listen for data changes.
+	 * @param queryTableclause The QBSelect or QBJoin of a full query where this foundset should listen for data changes.
 	 * @param flags One or more of the ViewFoundSet.XXX flags added to each other.
 	 */
 	@JSFunction
-	public void enableDatabroadcastFor(QBTableClause queryTable, int flags)
+	public void enableDatabroadcastFor(QBTableClause queryTableclause, int flags)
 	{
 		// dont do anything if there is nothing todo.
-		if (flags < 1) return;
+		if (flags == 0) return;
 
 		BaseQueryTable table = null;
-		if (queryTable instanceof QBSelect)
+		if (queryTableclause instanceof QBSelect)
 		{
-			table = ((QBSelect)queryTable).getQuery().getTable();
+			table = ((QBSelect)queryTableclause).getQuery().getTable();
 		}
-		else if (queryTable instanceof QBJoin)
+		else if (queryTableclause instanceof QBJoin)
 		{
-			table = ((QBJoin)queryTable).getQueryTable();
+			table = ((QBJoin)queryTableclause).getQueryTable();
 		}
 		if (table != null)
 		{
+			if (table.getDataSource() == null)
+			{
+				Debug.warn(
+					"enableDatabroadcastFor for join on derived table is not possible, instead, enable databroadcast for the actual table in the join clause");
+				return;
+			}
+
 			// touch the row manager for the given table
 			try
 			{
