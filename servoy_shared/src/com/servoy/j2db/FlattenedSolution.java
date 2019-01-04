@@ -820,7 +820,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (loginFlattenedSolution != null)
 		{
-			J2DBGlobals.firePropertyChange(app, "solution", getSolution(), null); //$NON-NLS-1$
+			if (app instanceof IApplication)
+			{
+				// destroy all forms of the login solution before closing it
+				List<IFormController> cachedFormControllers = ((IApplication)app).getFormManager().getCachedFormControllers();
+				for (IFormController fc : cachedFormControllers)
+				{
+					fc.notifyVisible(false, new ArrayList<>());
+					fc.destroy();
+				}
+			}
 			loginFlattenedSolution.close(handler);
 			loginFlattenedSolution = null;
 			flushAllCachedData();

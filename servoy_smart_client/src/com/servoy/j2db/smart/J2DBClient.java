@@ -152,6 +152,7 @@ import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.MessagesResourceBundle;
+import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.SwingModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
@@ -2213,6 +2214,8 @@ public class J2DBClient extends ClientState
 				}
 			});
 
+			// SmartClient needs to flush the Perist cache because reloading them does create a new instance of the solution
+			PersistIndexCache.flush();
 			return true;
 		}
 		catch (Exception ex)

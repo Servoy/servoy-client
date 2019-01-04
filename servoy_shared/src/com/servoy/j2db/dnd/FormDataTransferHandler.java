@@ -21,7 +21,6 @@ import java.awt.Container;
 import java.awt.Point;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.event.ActionEvent;
 
@@ -43,7 +42,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Class used for handling drag and drop operations in smart client on forms
- * 
+ *
  * @author gboros
  */
 public class FormDataTransferHandler extends CompositeTransferHandler
@@ -130,12 +129,7 @@ public class FormDataTransferHandler extends CompositeTransferHandler
 			}
 			else
 			{
-				Object s = e.getSource();
-				if (s instanceof DropTarget)
-				{
-					Component dtc = ((DropTarget)s).getComponent();
-					if (dtc instanceof IFormDataDragNDrop) return ((IFormDataDragNDrop)dtc).isGridView();
-				}
+				return true;
 			}
 		}
 
