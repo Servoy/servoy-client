@@ -619,7 +619,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				String transaction_id = manager.getTransactionID(serverName);
 
 				List<SQLStatement> statements = new ArrayList<>();
-				Map<BaseQueryTable, IDataSet> toFire = new IdentityHashMap<>(3);
 				for (ViewRecord rec : toSave)
 				{
 					Map<String, Object> changes = rec.getChanges();
@@ -662,14 +661,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						IDataSet pks = new BufferedDataSet();
 						pks.addRow(pk);
 
-						IDataSet fullPkDS = toFire.get(table);
-						if (fullPkDS == null)
-						{
-							fullPkDS = new BufferedDataSet();
-							toFire.put(table, fullPkDS);
-						}
-						fullPkDS.addRow(pk);
-
 						counter = 0;
 						String[] changedColumns = new String[changes.size()];
 						for (Entry<IQuerySelectValue, Object> entry : changesMap.entrySet())
@@ -691,11 +682,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					statements.toArray(new SQLStatement[statements.size()]));
 				// TODO what happens if the save failed for some? add the changes back in?
 
-				toFire.forEach((table, pks) -> {
-					// we can't unregister the RowManager here because the row manager for that table needs to get it back
-					// the column that is changed could be in multiply rows. (if it is just a join)
-					manager.notifyDataChange(table.getDataSource(), pks, ISQLActionTypes.UPDATE_ACTION);
-				});
+				for (SQLStatement statement : statements)
+				{
+					manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()), statement.getPKs(),
+						ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
+				}
 
 				// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
 				// do a load but only if there are listeners
