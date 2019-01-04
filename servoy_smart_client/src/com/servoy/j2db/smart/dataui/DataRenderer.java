@@ -179,7 +179,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 							child.addMouseListener(dragTester);
 							if (child instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)child).clearTransferHandler();
 							else if (child instanceof DataComboBox) ((DataComboBox)child).disableEditorTransferHandler();
-							else ((JComponent)child).setTransferHandler(null);
+							else((JComponent)child).setTransferHandler(null);
 						}
 					}
 
@@ -200,14 +200,14 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 	public void setShowSelection(boolean b)
 	{
 		showSelection = b;
-//		noFocusBorder = BorderFactory.createEmptyBorder(insets.top,insets.left,insets.bottom,insets.right); 
+//		noFocusBorder = BorderFactory.createEmptyBorder(insets.top,insets.left,insets.bottom,insets.right);
 //		if (insets.top == 0 && insets.left == 0 && insets.bottom == 0 && insets.right == 0)
 //		{
 //			focusBorder = noFocusBorder;
 //		}
 //		else
 //		{
-//			focusBorder = BorderFactory.createMatteBorder(insets.top,insets.left,insets.bottom,insets.right, Color.black); 
+//			focusBorder = BorderFactory.createMatteBorder(insets.top,insets.left,insets.bottom,insets.right, Color.black);
 //		}
 //		setBorder(noFocusBorder);
 	}
@@ -448,7 +448,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 //			setOpaque(true);
 			if (index != -1)
 			{
-				boolean specialStateCase = (val instanceof PrototypeState || val instanceof FindState);
+				boolean specialStateCase = (val instanceof PrototypeState || val instanceof FindState || val.getRawData() == null);
 				if (strRowBGColorProvider == null && !specialStateCase)
 				{
 					if (rendererParentCanBeNull instanceof ISupportRowBGColorScript)
@@ -561,7 +561,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#isOpaque()
 	 */
 	@Override
@@ -576,7 +576,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#setOpaque(boolean)
 	 */
 	@Override
@@ -706,7 +706,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 	/**
 	 * Sets the width of the space to keep empty between the right-most component and the right edge of the renderer. This info is only used for growing fields
 	 * that can be limited to fit on the page and setting it will not affect the existing spring layout.
-	 * 
+	 *
 	 * @param spaceToRightMargin the empty space that should be kept by any child to the right margin of the renderer; it is calculated when springs are added
 	 *            for printing...
 	 */
@@ -717,7 +717,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 
 	/**
 	 * Returns the empty space that should be kept by any child to the right margin of the renderer; it is set when springs are added for printing...
-	 * 
+	 *
 	 * @return the empty space that should be kept by any child to the right margin of the renderer; it is set when springs are added for printing...
 	 */
 	public int getSpaceToRightMargin()
