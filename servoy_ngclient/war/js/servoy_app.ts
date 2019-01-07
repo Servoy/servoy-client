@@ -521,7 +521,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (!formname && !formnameThatWillBeShown) {
 				throw new Error("formname is undefined");
 			}
-			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex,show:{formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown}});
+			var formDetails = {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex};
+			
+			if(formnameThatWillBeShown){
+				formDetails.show = {formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown};
+			}
+			
+			return $sabloApplication.callService('formService', 'formvisibility', formDetails);
 		},
 		/**
 		 * Use for going back and forward in history.
