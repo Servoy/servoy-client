@@ -300,7 +300,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					if (foundsetValue != null && !foundsetValue.getDataAdapterList().isQuietRecordChangeInProgress())
 					{
 						// here for column name we give the name of the first foundset linked DP that the wrapped sablo val. attached to the dal, or if not the actual prop. name
-						// the idea is that when this will call a queueCellChange on the viewPortChangeMonitor, it should pass the columnName check in there...
+						// the idea is that when this will call a queueCellChange on the viewPortChangeMonitor, it should pass the columnName check (from #usesFoundsetLinkedDataprovider() that gets
+						// called from FoundsetLinkedViewportRowDataProvider.containsColumn(String))
 						actualWrappedValueChangeHandlerForFoundsetLinked.valueChangedInFSLinkedUnderlyingValue(
 							foundsetLinkedDPs.size() > 0 ? foundsetLinkedDPs.iterator().next() : wrappedPropertyDescription.getName(), viewPortChangeMonitor);
 					}
@@ -801,7 +802,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 	protected boolean usesFoundsetLinkedDataprovider(String dataProviderID)
 	{
-		return foundsetLinkedDPs.contains(dataProviderID);
+		// see #getWrappedPropChangeMonitor() impl. to understand why the wrappedPropertyDescription.getName() is also considered a "used dataprovider"
+		return foundsetLinkedDPs.contains(dataProviderID) || Utils.stringSafeEquals(wrappedPropertyDescription.getName(), dataProviderID);
 	}
 
 	public void setApplyingDPValueFromClient(boolean applyInProgress)
