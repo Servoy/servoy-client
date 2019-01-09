@@ -521,7 +521,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (!formname && !formnameThatWillBeShown) {
 				throw new Error("formname is undefined");
 			}
-			var formDetails = {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex};
+			var formDetails :any = {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex};
 			
 			if(formnameThatWillBeShown){
 				formDetails.show = {formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown};
