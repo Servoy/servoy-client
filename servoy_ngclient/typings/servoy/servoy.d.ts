@@ -102,7 +102,8 @@ declare namespace servoy {
 		getNavigatorFormUrl():string,
 		getSessionProblemView():string,
 		getNavigatorStyle(ltrOrientation:string):any,
-		getFormStyle(ltrOrientation):any
+		getFormStyle(ltrOrientation):any,
+		shouldShowDefaultLoadingIndicator():boolean
 	}
 	
 	interface IServoyI18NService {

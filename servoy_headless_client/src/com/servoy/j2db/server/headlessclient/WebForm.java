@@ -231,6 +231,19 @@ public class WebForm extends Panel
 				if (container != null && !(container instanceof WebAccordionPanel) && container.getBorder() instanceof TitledBorder)
 				{
 					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
+					if (container instanceof WebTabPanel)
+					{
+						Iterator< ? extends Component> it = ((WebTabPanel)container).iterator();
+						while (it.hasNext())
+						{
+							Component comp = it.next();
+							if ("tablinks".equals(comp.getId()))
+							{
+								offset += 24; // this is a tabbed tabpanel, must add space for tabs
+								break;
+							}
+						}
+					}
 					return "top: " + offset + "px;";
 				}
 

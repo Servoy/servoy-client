@@ -21,3 +21,6 @@ Web-Component: True
 
 Name: formcomponent/formcomponent.spec
 Web-Component: True
+
+Name: defaultloadingindicator/defaultloadingindicator.spec
+Web-Component: True

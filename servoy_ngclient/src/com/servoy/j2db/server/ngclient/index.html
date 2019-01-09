@@ -154,6 +154,8 @@
 			<div hiddendiv="true" sablo-tabseq='-2' ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
 		</div>
 		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'></div>
+
 		<div ng-if="getMainFormUrl() == ''" class="fill-up-space-initially"></div>
+		<servoycore-default-loading-indicator ng-if="shouldShowDefaultLoadingIndicator()"></servoycore-default-loading-indicator>
 	</body>
 </html>

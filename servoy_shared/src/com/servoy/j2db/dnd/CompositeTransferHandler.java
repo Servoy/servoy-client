@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Class used for handling drag and drop operations in smart client.
- * 
+ *
  * @author gboros
  */
 public class CompositeTransferHandler extends TransferHandler implements DropTargetListener
@@ -122,7 +122,8 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 				if (transferableFlavors.length > 0)
 				{
 					onDragEndEvent.setDataMimeType(transferableFlavors[0].getMimeType());
-					if (transferableFlavors[0].isRepresentationClassInputStream() || transferableFlavors[0].isRepresentationClassReader()) onDragEndEvent.setData(null);
+					if (transferableFlavors[0].isRepresentationClassInputStream() || transferableFlavors[0].isRepresentationClassReader())
+						onDragEndEvent.setData(null);
 					else onDragEndEvent.setData(data.getTransferData(transferableFlavors[0]));
 				}
 			}
@@ -169,9 +170,9 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 
 	/**
 	 * Gets the drag component from the component parameter.
-	 * 
+	 *
 	 * @param comp to check for drag
-	 * 
+	 *
 	 * @return the drag component
 	 */
 	public JComponent getDragComponent(JComponent comp)
@@ -476,7 +477,7 @@ public class CompositeTransferHandler extends TransferHandler implements DropTar
 
 	/**
 	 *  Called during dragStart to check if the current drag source can be replaced by the new one
-	 * 
+	 *
 	 * @param currentDragSource the current drag source
 	 * @param newDragSource the new drag source
 	 * @param e the drag event
