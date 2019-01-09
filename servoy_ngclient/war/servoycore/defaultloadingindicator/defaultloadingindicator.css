@@ -1,0 +1,94 @@
+.loading-i-holder {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  bottom: 10px;
+  left: 0px;
+  align-items: center;
+  justify-content: center;
+}
+
+.lii-shape {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  margin: 0 2px;
+  
+  background-color: #ef7a23;
+  animation: 2.5s ease-in infinite;
+  opacity : 0;
+}
+
+.lii-1 {
+  animation-name: zoom-in-and-out-1;
+}
+
+.lii-2 {
+  animation-delay: 0.1s;
+  animation-name: zoom-in-and-out-2;
+}
+
+.lii-3 {
+  animation-delay: 0.2s;
+  animation-name: zoom-in-and-out-3;
+}
+
+.lii-4 {
+  animation-delay: 0.3s;
+  animation-name: zoom-in-and-out-4;
+}
+
+.lii-5 {
+  animation-delay: 0.4s;
+  animation-name: zoom-in-and-out-5;
+}
+
+@keyframes zoom-in-and-out-1 {
+      0% { transform: translateX(190px); }
+     25% { transform: translateX(190px); opacity : 0; }
+     35% { opacity : 1; }
+     40% { transform: translateX(0px); }
+     60% { transform: translateX(0px); }
+     65% { opacity : 1; }
+     75% { transform: translateX(-110px); opacity: 0; }
+}
+
+@keyframes zoom-in-and-out-2 {
+      0% { transform: translateX(170px); }
+     25% { transform: translateX(170px); opacity : 0; }
+     35% { opacity : 1; }
+     40% { transform: translateX(0px); }
+     60% { transform: translateX(0px); }
+     65% { opacity : 1; }
+     75% { transform: translateX(-130px); opacity: 0; }
+}
+
+@keyframes zoom-in-and-out-3 {
+      0% { transform: translateX(150px); }
+     25% { transform: translateX(150px); opacity : 0; }
+     35% { opacity : 1; }
+     40% { transform: translateX(0px); }
+     60% { transform: translateX(0px); }
+     65% { opacity : 1; }
+     75% { transform: translateX(-150px); opacity: 0; }
+}
+
+@keyframes zoom-in-and-out-4 {
+      0% { transform: translateX(130px); }
+     25% { transform: translateX(130px); opacity : 0; }
+     35% { opacity : 1; }
+     40% { transform: translateX(0px); }
+     60% { transform: translateX(0px); }
+     65% { opacity : 1; }
+     75% { transform: translateX(-170px); opacity: 0; }
+}
+
+@keyframes zoom-in-and-out-5 {
+      0% { transform: translateX(110px); }
+     25% { transform: translateX(110px); opacity : 0; }
+     35% { opacity : 1; }
+     40% { transform: translateX(0px); }
+     60% { transform: translateX(0px); }
+     65% { opacity : 1; }
+     75% { transform: translateX(-190px); opacity: 0; }
+}

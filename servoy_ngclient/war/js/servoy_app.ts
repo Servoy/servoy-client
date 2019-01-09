@@ -1008,7 +1008,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	styleSheetPaths: [],
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService) {
+}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService, $sabloLoadingIndicator:sablo.ISabloLoadingIndicator) {
 	$servoyInternal.connect();
 	// initialize locale client side
 	var locale = webStorage.session.get("locale");
@@ -1056,6 +1056,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return style;
 	}
 
+	$scope.shouldShowDefaultLoadingIndicator = function() {
+		return $sabloLoadingIndicator.isDefaultShowing();
+	}
 }).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings:servoy.SolutionSettings,$timeout:angular.ITimeoutService,$window:angular.IWindowService) {
 
 	$scope.redirectUrl = $solutionSettings.noLicense.redirectUrl;
