@@ -783,6 +783,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				Debug.trace(e);
 				getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
 				setValueException = e;
+				webComponent.setInvalidState(true);
 			}
 			Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
 			if (config instanceof FoundsetLinkedConfig)
@@ -816,6 +817,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					exception = setValueException;
 					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
 						beanProperty).getConfig()).getOnDataChangeCallback();
+				}
+				else if (webComponent.isInvalidState() && exception == null)
+				{
+					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
+						beanProperty).getConfig()).getOnDataChangeCallback();
+					webComponent.setInvalidState(false);
 				}
 				if (onDataChangeCallback != null)
 				{

@@ -141,6 +141,17 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	public boolean notifyDataChange(String dataSource, IDataSet pks, int action);
 
 	/**
+	 * Notify the current client of data changes.
+	 * @see ISQLActionTypes for action.
+	 *
+	 * @param dataSource
+	 * @param pks when null, whole table is flushed
+	 * @param action
+	 * @param insertOrUpdateColumnData
+	 */
+	public void notifyDataChange(final String dataSource, IDataSet pks, final int action, Object[] insertOrUpdateColumnData);
+
+	/**
 	 * Get a query factory for building queries.
 	 *
 	 * @return a query factory

@@ -331,6 +331,10 @@ angular.module('window',['servoy'])
 				scope.popupElement.remove();
 				scope.popupElement = null;
 			}
+			var backdrop = angular.element(".formpopup-backdrop");
+			if (backdrop && backdrop.length) {
+				backdrop.remove();
+			}
 		},
 		generateMenu: function(items,oMenu)
 		{

@@ -521,7 +521,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (!formname && !formnameThatWillBeShown) {
 				throw new Error("formname is undefined");
 			}
-			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex,show:{formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown}});
+			var formDetails :any = {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex};
+			
+			if(formnameThatWillBeShown){
+				formDetails.show = {formname:formnameThatWillBeShown,relation:relationnameThatWillBeShown,formIndex:formIndexThatWillBeShown};
+			}
+			
+			return $sabloApplication.callService('formService', 'formvisibility', formDetails);
 		},
 		/**
 		 * Use for going back and forward in history.
@@ -1002,7 +1008,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	styleSheetPaths: [],
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService) {
+}).controller("MainController", function($scope:servoy.IMainControllerScope, $solutionSettings:servoy.SolutionSettings, $servoyInternal, $windowService:servoy.IWindowService, $rootScope:angular.IRootScopeService, webStorage, $sabloApplication:sablo.ISabloApplication, $applicationService, $sabloLoadingIndicator:sablo.ISabloLoadingIndicator) {
 	$servoyInternal.connect();
 	// initialize locale client side
 	var locale = webStorage.session.get("locale");
@@ -1050,6 +1056,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return style;
 	}
 
+	$scope.shouldShowDefaultLoadingIndicator = function() {
+		return $sabloLoadingIndicator.isDefaultShowing();
+	}
 }).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings:servoy.SolutionSettings,$timeout:angular.ITimeoutService,$window:angular.IWindowService) {
 
 	$scope.redirectUrl = $solutionSettings.noLicense.redirectUrl;

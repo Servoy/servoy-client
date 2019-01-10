@@ -134,6 +134,7 @@ declare namespace sablo {
 		showLoading(): void;
 		hideLoading(): void;
 		isShowing(): boolean;
+		isDefaultShowing(): boolean;
 	}
 
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 
@@ -84,7 +85,7 @@ public final class ProfileData
 			this.args = new String[args.length];
 			for (int i = 0; i < args.length; i++)
 			{
-				if (args[i] instanceof Wrapper)
+				if (args[i] instanceof Wrapper && !(args[i] instanceof NativeArray))
 				{
 					args[i] = ((Wrapper)args[i]).unwrap();
 				}

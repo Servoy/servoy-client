@@ -43,6 +43,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	protected ComponentContext componentContext;
 	private IDirtyPropertyListener dirtyPropertyListener;
 
+	private boolean isInvalidState;
+
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
 		super(name, WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(fe.getTypeName()), true);
@@ -284,6 +286,16 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean isWritingComponentProperties()
 	{
 		return isWritingComponentProperties;
+	}
+
+	public void setInvalidState(boolean state)
+	{
+		isInvalidState = state;
+	}
+
+	public boolean isInvalidState()
+	{
+		return isInvalidState;
 	}
 
 	@Override
