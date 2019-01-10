@@ -299,9 +299,13 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
 					if (foundsetValue != null && !foundsetValue.getDataAdapterList().isQuietRecordChangeInProgress())
 					{
-						// here for column name we give the name of the first foundset linked DP that the wrapped sablo val. attached to the dal, or if not the actual prop. name
+						// here for column name we give the name of the first foundset linked DP that the wrapped sablo val. attached to the dal, or if not available then the actual prop. name;
 						// the idea is that when this will call a queueCellChange on the viewPortChangeMonitor, it should pass the columnName check (from #usesFoundsetLinkedDataprovider() that gets
 						// called from FoundsetLinkedViewportRowDataProvider.containsColumn(String))
+						// TODO maybe we should give a generated UUID or something instead of wrappedPropertyDescription.getName() if there are no foundsetLinkedDPs (linked-to-all) and add the same
+						// UUID to foundsetLinkedDPs to avoid overlaps between wrapped PD and foundset given column names that could be checked in usesFoundsetLinkedDataprovider; but it's not a big
+						// deal as worst it could happen I think is sending the foundset linked value to client a bit more often then needed in case of such an overlap and changes happening in
+						// foundset on the column with the same name;
 						actualWrappedValueChangeHandlerForFoundsetLinked.valueChangedInFSLinkedUnderlyingValue(
 							foundsetLinkedDPs.size() > 0 ? foundsetLinkedDPs.iterator().next() : wrappedPropertyDescription.getName(), viewPortChangeMonitor);
 					}
@@ -375,7 +379,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (old != null) viewPortChangeMonitor.viewPortCompletelyChanged = old.viewPortCompletelyChanged;
 
-					if (targetDataLinks.dataProviderIDs != null && targetDataLinks.dataProviderIDs.length > 0) /* this condition should always be true */
+					if (targetDataLinks.dataProviderIDs != null &&
+						targetDataLinks.dataProviderIDs.length > 0) /* this condition should always be true, except when it's TargetDataLinks.LINKED_TO_ALL */
 					{
 						if (idForFoundset == null)
 						{
