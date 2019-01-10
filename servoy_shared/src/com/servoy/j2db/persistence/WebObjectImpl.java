@@ -962,6 +962,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 						nextArrayObjIdx = i;
 						return true;
 					}
+					i++;
 				}
 				return false;
 			}
