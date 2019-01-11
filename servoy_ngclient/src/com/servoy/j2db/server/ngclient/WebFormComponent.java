@@ -16,6 +16,7 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -276,6 +277,11 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public boolean markPropertyContentsUpdated(String key)
 	{
+		if (key.equals(IContentSpecConstantsBase.PROPERTY_DATAPROVIDERID) && isInvalidState())
+		{
+			setInvalidState(false);
+		}
+
 		boolean modified = super.markPropertyContentsUpdated(key);
 		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, true);
 		return modified;
