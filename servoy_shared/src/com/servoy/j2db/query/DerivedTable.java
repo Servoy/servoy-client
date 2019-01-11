@@ -18,10 +18,6 @@
 package com.servoy.j2db.query;
 
 import com.servoy.base.query.BaseQueryTable;
-import com.servoy.j2db.query.AbstractBaseQuery;
-import com.servoy.j2db.query.ITableReference;
-import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 

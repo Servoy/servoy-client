@@ -259,7 +259,16 @@ public final class QueryJoin implements ISQLTableJoin
 		int i = 0;
 		name = (String)members[i++];
 		primaryTable = (QueryTable)members[i++];
-		foreignTableReference = (ITableReference)members[i++];
+		Object foreignTableOrReference = members[i++];
+		if (foreignTableOrReference instanceof QueryTable)
+		{
+			// legacy
+			foreignTableReference = new TableExpression((QueryTable)foreignTableOrReference);
+		}
+		else
+		{
+			foreignTableReference = (ITableReference)foreignTableOrReference;
+		}
 		condition = (AndCondition)members[i++];
 		joinType = ((Integer)members[i++]).intValue();
 	}
