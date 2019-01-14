@@ -62,8 +62,11 @@ public class CSSPosition implements Serializable
 
 	public static void setLocation(ISupportBounds persist, int x, int y)
 	{
-		AbstractContainer container = getParentContainer((BaseComponent)persist);
-		setLocationEx((BaseComponent)persist, (BaseComponent)persist, x, y, container.getSize());
+		if (persist instanceof BaseComponent)
+		{
+			AbstractContainer container = getParentContainer((BaseComponent)persist);
+			setLocationEx((BaseComponent)persist, (BaseComponent)persist, x, y, container.getSize());
+		}
 	}
 
 	public static void setLocationEx(BaseComponent baseComponent, AbstractBase persist, int x, int y, Dimension containerSize)
