@@ -257,6 +257,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		try
 		{
 			if (wc != null) prev = wc.blockEventExecution(true);
+			// if marked as deleted don't allow getting older versions
+			if (isDeleted) return super.getVersion(LATEST_VERSION);
 			// don't let the page version number go past the minimum that is set.
 			if (versionNumber != -1 && minimumVersionNumber != -1 && versionNumber < minimumVersionNumber)
 			{
@@ -274,6 +276,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	private boolean storeMinVersion;
 
+	private boolean isDeleted;
 
 	/**
 	 *
@@ -1749,6 +1752,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	@Override
 	public void onNewBrowserWindow()
 	{
+		isDeleted = true;
 		final IPageMap map = getSession().createAutoPageMap();
 		FormManager fm = (FormManager)client.getFormManager();
 		MainPage page = (MainPage)fm.getOrCreateMainContainer(map.getName());
