@@ -24,7 +24,7 @@ Require-Bundle: servoy_shared,
  org.apache.commons.io,
  org.jsoup,
  org.freemarker.freemarker,
- commons-lang3
+ org.apache.commons.lang3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
