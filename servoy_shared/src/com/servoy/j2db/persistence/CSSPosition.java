@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.Serializable;
+import java.util.List;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.util.PersistHelper;
@@ -219,31 +220,36 @@ public class CSSPosition implements Serializable
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
-			int top = percentageToPixels(position.top, container.getSize().height);
-			int left = percentageToPixels(position.left, container.getSize().width);
-			if (left == -1)
-			{
-				// not set, we should calculate it then
-				int right = percentageToPixels(position.right, container.getSize().width);
-				int width = percentageToPixels(position.width, container.getSize().width);
-				if (right >= 0 && width >= 0)
-				{
-					left = container.getSize().width - right - width;
-				}
-			}
-			if (top == -1)
-			{
-				// not set, we should calculate it then
-				int height = percentageToPixels(position.height, container.getSize().height);
-				int bottom = percentageToPixels(position.bottom, container.getSize().height);
-				if (height >= 0 && bottom >= 0)
-				{
-					top = container.getSize().height - height - bottom;
-				}
-			}
-			return new Point(left, top);
+			return getLocation(position, container.getSize());
 		}
 		return persist.getLocation();
+	}
+
+	public static Point getLocation(CSSPosition position, Dimension parentSize)
+	{
+		int top = percentageToPixels(position.top, parentSize.height);
+		int left = percentageToPixels(position.left, parentSize.width);
+		if (left == -1)
+		{
+			// not set, we should calculate it then
+			int right = percentageToPixels(position.right, parentSize.width);
+			int width = percentageToPixels(position.width, parentSize.width);
+			if (right >= 0 && width >= 0)
+			{
+				left = parentSize.width - right - width;
+			}
+		}
+		if (top == -1)
+		{
+			// not set, we should calculate it then
+			int height = percentageToPixels(position.height, parentSize.height);
+			int bottom = percentageToPixels(position.bottom, parentSize.height);
+			if (height >= 0 && bottom >= 0)
+			{
+				top = parentSize.height - height - bottom;
+			}
+		}
+		return new Point(left, top);
 	}
 
 	public static Dimension getSize(ISupportSize persist)
@@ -256,23 +262,28 @@ public class CSSPosition implements Serializable
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
-			int width = percentageToPixels(position.width, container.getSize().width);
-			int height = percentageToPixels(position.height, container.getSize().height);
-			int left = percentageToPixels(position.left, container.getSize().width);
-			int right = percentageToPixels(position.right, container.getSize().width);
-			int top = percentageToPixels(position.top, container.getSize().height);
-			int bottom = percentageToPixels(position.bottom, container.getSize().height);
-			if (left >= 0 && right >= 0)
-			{
-				width = container.getSize().width - right - left;
-			}
-			if (top >= 0 && bottom >= 0)
-			{
-				height = container.getSize().height - top - bottom;
-			}
-			return new Dimension(width, height);
+			return getSize(position, container.getSize());
 		}
 		return persist.getSize();
+	}
+
+	public static Dimension getSize(CSSPosition position, Dimension parentSize)
+	{
+		int width = percentageToPixels(position.width, parentSize.width);
+		int height = percentageToPixels(position.height, parentSize.height);
+		int left = percentageToPixels(position.left, parentSize.width);
+		int right = percentageToPixels(position.right, parentSize.width);
+		int top = percentageToPixels(position.top, parentSize.height);
+		int bottom = percentageToPixels(position.bottom, parentSize.height);
+		if (left >= 0 && right >= 0)
+		{
+			width = parentSize.width - right - left;
+		}
+		if (top >= 0 && bottom >= 0)
+		{
+			height = parentSize.height - top - bottom;
+		}
+		return new Dimension(width, height);
 	}
 
 	public static boolean isSet(String value)
@@ -323,6 +334,49 @@ public class CSSPosition implements Serializable
 			pixels = Utils.getAsInteger(value);
 		}
 		return pixels;
+	}
+
+	public static int getPixelsValue(String value)
+	{
+		int valueInteger = -1;
+		if (value != null)
+		{
+			if (value.endsWith("px"))
+			{
+				value = value.substring(0, value.length() - 2);
+			}
+			valueInteger = Utils.getAsInteger(value, -1);
+		}
+		return valueInteger;
+	}
+
+	public static Point getLocationFromPixels(List<IPersist> persists)
+	{
+		int x = -1;
+		int y = -1;
+		if (persists != null)
+		{
+			for (IPersist persist : persists)
+			{
+				if (persist instanceof BaseComponent)
+				{
+					CSSPosition cssPosition = ((BaseComponent)persist).getCssPosition();
+					int position = getPixelsValue(cssPosition.left);
+					if (position >= 0 && (x == -1 || position < x))
+					{
+						x = position;
+					}
+					position = getPixelsValue(cssPosition.top);
+					if (position >= 0 && (y == -1 || position < y))
+					{
+						y = position;
+					}
+				}
+			}
+		}
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		return new Point(x, y);
 	}
 
 	private static String pixelsToPercentage(int value, int size, String oldValue)
