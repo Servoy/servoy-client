@@ -276,6 +276,15 @@ public class Debug
 	private static String getScriptStackTrace(String message, Throwable s)
 	{
 		String scriptStackTrace = "";
+		if (s == null)
+		{
+			boolean printJSStacktrace = Settings.getInstance().getProperty("servoy.print.js.stacktrace") != null
+				? Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.print.js.stacktrace")) : true;
+			if (!printJSStacktrace)
+			{
+				return scriptStackTrace;
+			}
+		}
 		if (s instanceof RhinoException)
 		{
 			scriptStackTrace = ((RhinoException)s).getScriptStackTrace();

@@ -16,6 +16,7 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -42,6 +43,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 
 	protected ComponentContext componentContext;
 	private IDirtyPropertyListener dirtyPropertyListener;
+
+	private boolean isInvalidState;
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
@@ -274,6 +277,11 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public boolean markPropertyContentsUpdated(String key)
 	{
+		if (key.equals(IContentSpecConstantsBase.PROPERTY_DATAPROVIDERID) && isInvalidState())
+		{
+			setInvalidState(false);
+		}
+
 		boolean modified = super.markPropertyContentsUpdated(key);
 		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, true);
 		return modified;
@@ -284,6 +292,16 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean isWritingComponentProperties()
 	{
 		return isWritingComponentProperties;
+	}
+
+	public void setInvalidState(boolean state)
+	{
+		isInvalidState = state;
+	}
+
+	public boolean isInvalidState()
+	{
+		return isInvalidState;
 	}
 
 	@Override
