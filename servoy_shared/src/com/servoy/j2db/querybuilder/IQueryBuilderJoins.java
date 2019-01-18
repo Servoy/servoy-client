@@ -31,8 +31,6 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 {
 	/**
 	 * Add a join clause from the parent query builder part to the specified data source.
-	 * <br>
-	 * Joins added via this call are marked permanent by default.
 	 *
 	 * @param dataSource data source
 	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
@@ -46,8 +44,6 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 
 	/**
 	 * Add a join with no alias for the joining table.
-	 * <br>
-	 * Joins added via this call are marked permanent by default.
 	 *
 	 * @see #add(String, int, String)
 	 */
@@ -66,8 +62,6 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 
 	/**
 	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN} and no alias for the joining table.
-	 * <br>
-	 * Joins added via this call are marked non-permanent by default.
 	 *
 	 * @see #add(String, int, String)
 	 */

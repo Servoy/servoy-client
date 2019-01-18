@@ -60,19 +60,6 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	}
 
 	/**
-	 * Set the permanent flag on the join.
-	 * <p>
-	 * When this flag is set, the join will always be kept in the query, even if no columns are used from the join.<br>
-	 * When the flag is not set, in some places, like foundset sorting, the join may be removed when no columns of it are used.
-	 */
-	@JSFunction
-	public QBJoin setPermanent(boolean permanent)
-	{
-		join.setPermanent(permanent);
-		return this;
-	}
-
-	/**
 	 * Get the on clause for the join.
 	 * @sample
 	 * var query = datasources.db.example_data.person.createSelect();

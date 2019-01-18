@@ -696,7 +696,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 						if (existingJoin == null)
 						{
 							sqlSelect.addJoin(SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
-								selectTable, foreignQTable, provider));
+								selectTable, foreignQTable, true, provider));
 						}
 					}
 				}

@@ -1841,7 +1841,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			// query does not define sort, use last sorts
 			fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns == null ? defaultSort : lastSortColumns,
-				true);
+				true, false);
 		}
 		else
 		{
@@ -2422,7 +2422,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), set));
 
 		//not possible to keep related, can limit the just supplied pkset, which would awkward
-		fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false);
+		fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false, false);
 		clearOmit(sqlSelect);
 		int sizeAfter = set.getRowCount();
 		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
