@@ -22,7 +22,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  * Joins section in a Servoy Query Objects builder.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -31,6 +31,9 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 {
 	/**
 	 * Add a join clause from the parent query builder part to the specified data source.
+	 * <br>
+	 * Joins added via this call are marked permanent by default.
+	 *
 	 * @param dataSource data source
 	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 * @param alias alias for joining table
@@ -43,7 +46,9 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 
 	/**
 	 * Add a join with no alias for the joining table.
-	 * 
+	 * <br>
+	 * Joins added via this call are marked permanent by default.
+	 *
 	 * @see #add(String, int, String)
 	 */
 	IQueryBuilderJoin add(String dataSource, int joinType) throws RepositoryException;
@@ -54,14 +59,16 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	 * When dataSourceOrRelation is a data source, an empty join will be added with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
 	 * @param dataSourceOrRelation add join based on relation or data source
 	 * @param alias alias, when null default is used
-	 * 
+	 *
 	 * @see #add(String, int, String)
 	 */
 	IQueryBuilderJoin add(String dataSourceOrRelation, String alias) throws RepositoryException;
 
 	/**
 	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN} and no alias for the joining table.
-	 * 
+	 * <br>
+	 * Joins added via this call are marked non-permanent by default.
+	 *
 	 * @see #add(String, int, String)
 	 */
 	IQueryBuilderJoin add(String dataSource) throws RepositoryException;

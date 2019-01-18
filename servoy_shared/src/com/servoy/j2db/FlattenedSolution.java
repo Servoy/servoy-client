@@ -2657,7 +2657,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				if (relationSequence == null)
 				{
 					// table values
-					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), ISQLJoin.LEFT_OUTER_JOIN));
+					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), ISQLJoin.LEFT_OUTER_JOIN, false));
 
 					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name
 					{

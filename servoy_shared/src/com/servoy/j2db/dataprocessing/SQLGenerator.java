@@ -538,7 +538,7 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType());
+		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), false);
 	}
 
 	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)

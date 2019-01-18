@@ -142,8 +142,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 			}
 			else
 			{
-				Debug.log("relation '" + relationName + "' does not match parent data source: " + parent.getDataSource() + '/' +
-					relation.getPrimaryDataSource());
+				Debug.log(
+					"relation '" + relationName + "' does not match parent data source: " + parent.getDataSource() + '/' + relation.getPrimaryDataSource());
 			}
 			return null;
 		}
@@ -267,14 +267,14 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		if (join == null)
 		{
 			Table foreignTable = root.getTable(dataSource);
-			join = addJoin(
-				new QueryJoin(name, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-					foreignTable.getSchema(), alias), new AndCondition(), joinType), dataSource, name);
+			join = addJoin(new QueryJoin(name, parent.getQueryTable(),
+				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias),
+				new AndCondition(), joinType, true), dataSource, name);
 		}
 		return join;
 	}
 
-	private QBJoin addJoin(ISQLTableJoin queryJoin, String dataSource, String name) throws RepositoryException
+	private QBJoin addJoin(ISQLTableJoin queryJoin, String dataSource, String name)
 	{
 		QBJoin join = new QBJoin(root, parent, dataSource, queryJoin, name);
 		root.getQuery().addJoin(queryJoin);
