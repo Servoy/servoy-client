@@ -43,7 +43,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 public class QBColumn extends QBPart implements IQueryBuilderColumn
 {
 	private final IQuerySelectValue queryColumn;
-	private final boolean negate;
+	protected final boolean negate;
 
 	QBColumn(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn)
 	{
@@ -723,14 +723,9 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		return getQuerySelectValue().getColumn().getFlags();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
-		return negate ? "!" : "" + queryColumn.toString();
+		return (negate ? "!" : "") + queryColumn.toString();
 	}
 }
