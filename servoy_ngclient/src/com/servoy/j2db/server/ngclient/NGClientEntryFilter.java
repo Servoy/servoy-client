@@ -312,8 +312,11 @@ public class NGClientEntryFilter extends WebEntry
 
 							if (as == null)
 							{
-								response.sendRedirect(
-									request.getRequestURL().substring(0, request.getRequestURL().indexOf(uri)) + "/" + solutionName + WAR_SERVOY_ADMIN_PATH);
+								response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+								Writer w = response.getWriter();
+								w.write(
+									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:20px;color:#fd7100'><div class=\"bs-callout bs-callout-danger\"><p>System is inaccessible. Please contact your system administrator.</p></div></div></body></html>");
+								w.close();
 								return;
 							}
 
