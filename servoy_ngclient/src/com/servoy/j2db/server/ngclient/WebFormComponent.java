@@ -42,7 +42,6 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	protected IDataAdapterList dataAdapterList;
 
 	protected ComponentContext componentContext;
-	private IDirtyPropertyListener dirtyPropertyListener;
 
 	private boolean isInvalidState;
 
@@ -250,19 +249,10 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		}
 	}
 
-	/**
-	 * @param dirtyPropertyListener set the listeners that is called when {@link WebFormComponent#flagPropertyAsDirty(String) is called
-	 */
-	public void setDirtyPropertyListener(IDirtyPropertyListener dirtyPropertyListener)
-	{
-		this.dirtyPropertyListener = dirtyPropertyListener;
-	}
-
 	@Override
 	public boolean markPropertyAsChangedByRef(String key)
 	{
 		boolean modified = super.markPropertyAsChangedByRef(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, false);
 		return modified;
 	}
 
@@ -270,12 +260,11 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean clearChangedStatusForProperty(String key)
 	{
 		boolean modified = super.clearChangedStatusForProperty(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, false, false);
 		return modified;
 	}
 
 	@Override
-	public boolean markPropertyContentsUpdated(String key)
+	protected boolean markPropertyContentsUpdated(String key)
 	{
 		if (key.equals(IContentSpecConstantsBase.PROPERTY_DATAPROVIDERID) && isInvalidState())
 		{
@@ -283,7 +272,6 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		}
 
 		boolean modified = super.markPropertyContentsUpdated(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, true);
 		return modified;
 	}
 

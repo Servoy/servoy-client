@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
+import org.sablo.IDirtyPropertyListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
@@ -56,7 +57,6 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
-import com.servoy.j2db.server.ngclient.IDirtyPropertyListener;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -367,7 +367,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		addPropagatingPropertyChangeListener(WebFormUI.READONLY, webObjectContext.getProperty(WebFormUI.READONLY));
 
-
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
@@ -559,12 +558,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			// something in the viewport containing per-record component property values changed - send updates
 			if (viewPortChangeMonitor.shouldSendWholeViewport())
 			{
+				viewPortChangeMonitor.clearChanges();
 				writeWholeViewportToJSON(destinationJSON);
 			}
 			else
 			// viewPortChanges.size() > 0
 			{
 				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				viewPortChangeMonitor.clearChanges();
 				DataConversion clientConversionInfo = new DataConversion();
 
 				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);
@@ -585,7 +586,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 
 			}
-			viewPortChangeMonitor.clearChanges();
+			viewPortChangeMonitor.doneWritingChanges();
 		}
 
 		if (modelChanged || viewPortChanged)
@@ -610,6 +611,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 			DataConversion clientConversionInfo = new DataConversion();
 
+			viewPortChangeMonitor.clearChanges();
+
 			destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_KEY);
 			clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_KEY);
 			viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
@@ -617,10 +620,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				clientConversionInfo);
 			clientConversionInfo.popNode();
 
-			viewPortChangeMonitor.clearChanges();
-
 			// conversion info for websocket traffic (for example Date objects will turn into long)
 			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+			viewPortChangeMonitor.doneWritingChanges();
 		}
 	}
 
@@ -645,7 +647,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		final TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
 		childComponent.getAndClearChanges(); // just for clear
 
-		// add to useful properties only those formElement properties that didn't get overriden at runtime (so form element value is still used)
+		// add to useful properties only those formElement properties that didn't get overridden at runtime (so form element value is still used)
 		boolean templateValuesRemoved = false;
 		Iterator<Entry<String, Object>> formElementPropertyIterator = formElementProperties.content.entrySet().iterator();
 		while (formElementPropertyIterator.hasNext())
@@ -687,7 +689,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
-		if (viewPortChangeMonitor != null) viewPortChangeMonitor.clearChanges();
 
 		writer.endObject();
 
