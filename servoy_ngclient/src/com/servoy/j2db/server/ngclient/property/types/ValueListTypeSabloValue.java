@@ -333,7 +333,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		// dataprovider will resolve this, do not send anything client side
-		if (propertyDependencies.dataproviderResolveValuelist && !valuesRequested) return new ArrayList<Map<String, Object>>();
+		if (isItemSendBlockedByAssociatedDataproviderResolve()) return new ArrayList<Map<String, Object>>();
 
 		valuesRequested = false;
 
@@ -397,6 +397,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			valueList.addListDataListener(this);
 		}
 		return jsonValue;
+	}
+
+	private boolean isItemSendBlockedByAssociatedDataproviderResolve()
+	{
+		return propertyDependencies.dataproviderResolveValuelist && !valuesRequested;
 	}
 
 	// valuelist should parse the same way as the dataprovider, so if use local date is set also send the valuelist stuff over as local times without the timezone
@@ -663,7 +668,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void intervalAdded(ListDataEvent e)
 	{
 		filteredValuelist = null;
-		changeMonitor.markFullyChanged(true);
+		// only mark as changed if this vl. is not for a DP that auto-resolves real-to-display values;
+		// in such cases the DP property will ask for items when it renders to JSON possibly generating a change in valuelist items (initial load of global method valuelist)
+		// which should not mark the valuelist property in the same column as dirty (it is not going to send any items anyway) because we are already writing column JSON contents (if both DP and valuelist
+		// properties are foundset linked and under a column custom object in an array of columns) so it is possible that the valuelist property was already written; that can lead to weird situations
+		// where it has to be written again - or (this happened before all fixes for SVY-13186) even worse it will mark the foundset linked property's ViewportChangeKeeper as dirty even though the column
+		// custom object property is about to clear all it's internal dirty property flags - because it is right now writing them all; that can lead in future requests for this valuelist property that is in this case
+		// wrapped in a foundset linked property to not notify the monitor of new changes, as it thinks it is already changed in this request and the monitor has been notified already in this request
+		if (!isItemSendBlockedByAssociatedDataproviderResolve()) changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
 
@@ -671,7 +683,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void intervalRemoved(ListDataEvent e)
 	{
 		filteredValuelist = null;
-		changeMonitor.markFullyChanged(true);
+		// see comment above from intervalAdded(ListDataEvent e)
+		if (!isItemSendBlockedByAssociatedDataproviderResolve()) changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
 
@@ -679,10 +692,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void contentsChanged(ListDataEvent e)
 	{
 		filteredValuelist = null;
-		changeMonitor.markFullyChanged(true);
+		// see comment above from intervalAdded(ListDataEvent e)
+		if (!isItemSendBlockedByAssociatedDataproviderResolve()) changeMonitor.markFullyChanged(true);
 		fireUnderlyingPropertyChangeListeners();
 	}
-
 
 	private void initializeValuelistAndFormat()
 	{

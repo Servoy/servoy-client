@@ -31,11 +31,14 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public final class QueryJoin implements ISQLTableJoin
 {
+	private static final int PERMANENT_MASK = 1 << 16;
+
 	private String name;
 	private BaseQueryTable primaryTable;
 	private ITableReference foreignTableReference;
 	private AndCondition condition;
 	private int joinType;
+	private boolean permanent;
 
 
 	/**
@@ -46,9 +49,9 @@ public final class QueryJoin implements ISQLTableJoin
 	 * @param leftOuterJoin
 	 */
 	@Deprecated // RAGTEST
-	public QueryJoin(String name, BaseQueryTable primaryTable, BaseQueryTable foreignTable, ISQLCondition condition, int joinType)
+	public QueryJoin(String name, BaseQueryTable primaryTable, BaseQueryTable foreignTable, ISQLCondition condition, int joinType, boolean permanent)
 	{
-		this(name, primaryTable, new TableExpression(foreignTable), condition, joinType);
+		this(name, primaryTable, new TableExpression(foreignTable), condition, joinType, permanent);
 	}
 
 
@@ -65,12 +68,13 @@ public final class QueryJoin implements ISQLTableJoin
 	 * @param condition
 	 * @param joinType
 	 */
-	public QueryJoin(String name, BaseQueryTable primaryTable, ITableReference tableReference, ISQLCondition condition, int joinType)
+	public QueryJoin(String name, BaseQueryTable primaryTable, ITableReference tableReference, ISQLCondition condition, int joinType, boolean permanent)
 	{
 		this.name = name;
 		this.primaryTable = primaryTable;
 		this.foreignTableReference = tableReference;
 		this.joinType = joinType;
+		this.permanent = permanent;
 		setCondition(condition);
 	}
 
@@ -126,6 +130,18 @@ public final class QueryJoin implements ISQLTableJoin
 	public boolean hasInnerJoin()
 	{
 		return joinType == INNER_JOIN;
+	}
+
+	@Override
+	public boolean isPermanent()
+	{
+		return permanent;
+	}
+
+	@Override
+	public void setPermanent(boolean permanent)
+	{
+		this.permanent = permanent;
 	}
 
 	public BaseQueryTable getPrimaryTable()
@@ -234,6 +250,10 @@ public final class QueryJoin implements ISQLTableJoin
 	{
 		StringBuffer sb = new StringBuffer(JOIN_TYPES_NAMES[joinType].toUpperCase());
 		sb.append(' ').append(name);
+		if (permanent)
+		{
+			sb.append('!');
+		}
 		sb.append(" FROM ").append(primaryTable.toString()); //$NON-NLS-1$
 		sb.append(" TO ").append(foreignTableReference.toString()); //$NON-NLS-1$
 		if (condition != null)
@@ -248,6 +268,7 @@ public final class QueryJoin implements ISQLTableJoin
 
 	public Object writeReplace()
 	{
+		int joinTypeAndPermant = joinType | (permanent ? PERMANENT_MASK : 0);
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
 			new Object[] { name, primaryTable, foreignTableReference, condition, Integer.valueOf(joinType) });
@@ -270,6 +291,8 @@ public final class QueryJoin implements ISQLTableJoin
 			foreignTableReference = (ITableReference)foreignTableOrReference;
 		}
 		condition = (AndCondition)members[i++];
-		joinType = ((Integer)members[i++]).intValue();
+		int joinTypeAndPermant = ((Integer)members[i++]).intValue();
+		joinType = joinTypeAndPermant & ~PERMANENT_MASK;
+		permanent = (joinTypeAndPermant & PERMANENT_MASK) != 0;
 	}
 }

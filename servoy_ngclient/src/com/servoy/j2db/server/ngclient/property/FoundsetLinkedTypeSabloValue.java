@@ -506,10 +506,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		else
 		{
 			viewPortChangeMonitor.getRowDataProvider().initializeIfNeeded(dataConverterContext);
-
+			viewPortChangeMonitor.clearChanges();
 			// record dependent; viewport value
 			writeWholeViewportToJSON(writer);
-			viewPortChangeMonitor.clearChanges();
+			viewPortChangeMonitor.doneWritingChanges();
 		}
 		writer.endObject();
 
@@ -567,6 +567,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (viewPortChangeMonitor.shouldSendWholeViewport())
 			{
+				viewPortChangeMonitor.clearChanges();
 				writeWholeViewportToJSON(writer);
 			}
 			else if (viewPortChangeMonitor.hasViewportChanges())
@@ -575,8 +576,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 				clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
-
 				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				viewPortChangeMonitor.clearChanges();
 
 				writer.array();
 				for (int i = 0; i < viewPortChanges.length; i++)
@@ -591,9 +592,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 				// conversion info for websocket traffic (for example Date objects will turn into long)
 				JSONUtils.writeClientConversions(writer, clientConversionInfo);
-			} // else there is no change to send!
+			}
+			else viewPortChangeMonitor.clearChanges(); // else there is no change to send but clear it anyway!
 
-			viewPortChangeMonitor.clearChanges();
+			viewPortChangeMonitor.doneWritingChanges();
 		}
 		writer.endObject();
 

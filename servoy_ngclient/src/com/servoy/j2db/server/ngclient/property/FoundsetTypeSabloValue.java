@@ -547,11 +547,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
+		changeMonitor.clearChanges();
 		addViewPort(destinationJSON);
 		// end viewPort
 
 		destinationJSON.endObject();
-		changeMonitor.clearChanges();
 		return destinationJSON;
 	}
 
@@ -697,6 +697,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			}
 			if (changeMonitor.shouldSendWholeViewPort())
 			{
+				changeMonitor.clearChanges();
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT);
 				addViewPort(destinationJSON);
@@ -717,6 +718,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (changeMonitor.hasViewportChanges())
 				{
 					ViewportOperation[] viewPortChanges = changeMonitor.getViewPortChanges();
+					changeMonitor.clearChanges();
 					if (!somethingChanged) destinationJSON.object();
 					if (!viewPortUpdateAdded)
 					{
@@ -741,6 +743,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 					somethingChanged = true;
 				}
+				else changeMonitor.clearChanges(); // changes have to be cleared anyway
+
 				if (viewPortUpdateAdded) destinationJSON.endObject();
 			}
 
@@ -751,7 +755,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				destinationJSON.object().key(NO_OP).value(true).endObject();
 			}
 
-			changeMonitor.clearChanges();
 			return destinationJSON;
 		}
 	}

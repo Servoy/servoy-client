@@ -42,4 +42,8 @@ public interface ISQLTableJoin extends ISQLJoin
 	boolean hasInnerJoin();
 
 	int getJoinType();
+
+	boolean isPermanent();
+
+	void setPermanent(boolean permanent);
 }

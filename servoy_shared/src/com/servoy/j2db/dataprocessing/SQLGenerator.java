@@ -281,7 +281,7 @@ public class SQLGenerator
 				}
 			}
 
-			addSorts(retval, retval.getTable(), provider, table, orderBy, true);
+			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting ans not permanent */);
 		} // else use ordering defined in query
 
 		if (removeUnusedJoins)
@@ -310,7 +310,7 @@ public class SQLGenerator
 	}
 
 	public void addSorts(QuerySelect sqlSelect, BaseQueryTable selectTable, IGlobalValueEntry provider, ITable table, List<SortColumn> orderByFields,
-		boolean includeRelated) throws RepositoryException
+		boolean includeRelated, boolean permanentJoins) throws RepositoryException
 	{
 		List<Column> unusedRowidentColumns = new ArrayList<Column>(table.getRowIdentColumns());
 		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
@@ -358,7 +358,7 @@ public class SQLGenerator
 						foreignQtable = join.getForeignTable();
 					}
 
-					sqlSelect.addJoin(createJoin(application.getFlattenedSolution(), relation, primaryQtable, foreignQtable, provider));
+					sqlSelect.addJoin(createJoin(application.getFlattenedSolution(), relation, primaryQtable, foreignQtable, permanentJoins, provider));
 					primaryQtable = foreignQtable;
 				}
 				IQuerySelectValue queryColumn;
@@ -433,7 +433,7 @@ public class SQLGenerator
 	 * Join clause for this relation.
 	 */
 	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
-		final IGlobalValueEntry provider) throws RepositoryException
+		boolean permanentJoin, final IGlobalValueEntry provider) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -538,7 +538,7 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType());
+		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
 	}
 
 	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
@@ -909,7 +909,7 @@ public class SQLGenerator
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 				foreignTable.getSchema());
-			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider));
+			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider));
 
 			prevTable = foreignQtable;
 		}

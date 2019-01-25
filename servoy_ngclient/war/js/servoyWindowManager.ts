@@ -73,11 +73,15 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						var size = windowInstance.form.size;
 						if ( windowInstance.initialBounds ) {
 							var bounds = windowInstance.initialBounds;
-							location = {
-								x: bounds.x,
-								y: bounds.y
-							};
-							size = { width: bounds.width, height: bounds.height }
+							if (bounds.x > -1 && bounds.y > -1) {
+								location = {
+									x: bounds.x,
+									y: bounds.y
+								};
+							}
+							if  (bounds.width > 0 && bounds.height > 0) {
+								size = { width: bounds.width, height: bounds.height }
+							}
 						}
 						if ( windowInstance.location ) {
 							location = windowInstance.location;

@@ -46,4 +46,9 @@ public class QBFunction extends QBColumn implements IQueryBuilderFunction
 		return new QueryFunction(functionType, functionArgs, null);
 	}
 
+	@Override
+	public String toString()
+	{
+		return (negate ? "!" : "") + functionType.name() + "(<args>)";
+	}
 }

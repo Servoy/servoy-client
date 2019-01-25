@@ -165,7 +165,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 					return null;
 				}
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
-					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias),
+					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), true,
 					root.getGlobalScopeProvider()), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
@@ -263,7 +263,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		QBJoin join = joins.get(alias);
 		if (join == null)
 		{
-			join = addJoin(new QueryJoin(alias, parent.getQueryTable(), new DerivedTable(subquery, alias), new AndCondition(), joinType),
+			join = addJoin(new QueryJoin(alias, parent.getQueryTable(), new DerivedTable(subquery, alias), new AndCondition(), joinType, true),
 				subqueryBuilder.getDataSource(), alias);
 		}
 		return join;
@@ -299,7 +299,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 			join = addJoin(new QueryJoin(name, parent.getQueryTable(),
 				new TableExpression(
 					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias)),
-				new AndCondition(), joinType), dataSource, name);
+				new AndCondition(), joinType, true), dataSource, name);
 		}
 		return join;
 	}

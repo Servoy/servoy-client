@@ -41,6 +41,7 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
+import org.sablo.specification.property.ChangeAwareMap.Changes;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.CustomJSONPropertyType;
@@ -114,11 +115,13 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals("Just some text", cal.get(0).get("text"));
 			assertTrue(cal.get(0) instanceof ChangeAwareMap< ? , ? >);
 			ChangeAwareMap cam = ((ChangeAwareMap< ? , ? >)cal.get(0));
+			Changes chMap = cam.getChanges();
+			ChangeAwareList<Map<String, Object>, Map<String, Object>>.Changes chList = cal.getChanges();
 
 			// TODO I guess this kind of reference changes should be treated in the BaseWebObject directly when we have separate methods for changesToJSON and fullToJSON
 			// so for now the change aware things do not report as being changed...
-			assertTrue(!cal.mustSendAll());
-			assertTrue(!cam.mustSendAll());
+			assertTrue(!chList.mustSendAll());
+			assertTrue(!chMap.mustSendAll());
 
 			// still the component has to see them as changed!
 			TypedData<Map<String, Object>> changes = component.getAndClearChanges();
@@ -134,13 +137,14 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 			JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			// ok now that we called component.getChanges() no changes should be present any more
-			assertTrue(!cal.mustSendAll());
-			assertTrue(!cam.mustSendAll());
+
+			assertTrue(!chList.mustSendAll());
+			assertTrue(!chMap.mustSendAll());
 			assertEquals(0, component.getAndClearChanges().content.size());
-			assertEquals(0, cal.getIndexesChangedByRef().size());
-			assertEquals(0, cal.getIndexesWithContentUpdates().size());
-			assertEquals(0, cam.getKeysChangedByRef().size());
-			assertEquals(0, cam.getKeysWithUpdates().size());
+			assertEquals(0, chList.getIndexesChangedByRef().size());
+			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			assertEquals(0, chMap.getKeysChangedByRef().size());
+			assertEquals(0, chMap.getKeysWithUpdates().size());
 
 			// check changing java => change reflected in Rhino
 			ScriptableObject topLevel = new ScriptableObject()
@@ -156,38 +160,38 @@ public class CustomArrayAndObjectPropertyRhinoTest
 				topLevel);
 			assertEquals("Just some text", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
 			cam.put("text", "Just some text 2");
-			assertEquals(1, cam.getKeysChangedByRef().size());
-			assertEquals("text", cam.getKeysChangedByRef().iterator().next());
-			assertEquals(1, cal.getIndexesWithContentUpdates().size());
-			assertEquals(Integer.valueOf(0), cal.getIndexesWithContentUpdates().iterator().next());
-			assertTrue(!cal.mustSendAll());
-			assertTrue(!cam.mustSendAll());
+			assertEquals(1, chMap.getKeysChangedByRef().size());
+			assertEquals("text", chMap.getKeysChangedByRef().iterator().next());
+			assertEquals(1, chList.getIndexesWithContentUpdates().size());
+			assertEquals(Integer.valueOf(0), chList.getIndexesWithContentUpdates().iterator().next());
+			assertTrue(!chList.mustSendAll());
+			assertTrue(!chMap.mustSendAll());
 			assertEquals("Just some text 2", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
 			cam.put("active", new ArrayList());
-			assertTrue(!cal.mustSendAll());
-			assertTrue(!cam.mustSendAll());
-			assertEquals(2, cam.getKeysChangedByRef().size());
-			assertTrue(cam.getKeysChangedByRef().contains("text"));
-			assertTrue(cam.getKeysChangedByRef().contains("active"));
+			assertTrue(!chList.mustSendAll());
+			assertTrue(!chMap.mustSendAll());
+			assertEquals(2, chMap.getKeysChangedByRef().size());
+			assertTrue(chMap.getKeysChangedByRef().contains("text"));
+			assertTrue(chMap.getKeysChangedByRef().contains("active"));
 			cam.remove("active");
-			assertTrue(!cal.mustSendAll());
-			assertTrue(cam.mustSendAll());
+			assertTrue(!chList.mustSendAll());
+			assertTrue(chMap.mustSendAll());
 			cal.add(new HashMap<String, Object>());
 			ChangeAwareMap cam1 = ((ChangeAwareMap< ? , ? >)cal.get(1));
-			assertTrue(cal.mustSendAll());
-			assertTrue(cam.mustSendAll());
+			assertTrue(chList.mustSendAll());
+			assertTrue(chMap.mustSendAll());
 
 			// ok clear changes
 			changes = component.getAndClearChanges();
 			JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			assertEquals(1, changes.content.size());
 			assertEquals(0, component.getAndClearChanges().content.size());
-			assertTrue(!cal.mustSendAll());
-			assertTrue(!cam.mustSendAll());
-			assertEquals(0, cal.getIndexesChangedByRef().size());
-			assertEquals(0, cal.getIndexesWithContentUpdates().size());
-			assertEquals(0, cam.getKeysChangedByRef().size());
-			assertEquals(0, cam.getKeysWithUpdates().size());
+			assertTrue(!chList.mustSendAll());
+			assertTrue(!chMap.mustSendAll());
+			assertEquals(0, chList.getIndexesChangedByRef().size());
+			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			assertEquals(0, chMap.getKeysChangedByRef().size());
+			assertEquals(0, chMap.getKeysWithUpdates().size());
 
 			// assign some native values
 			Scriptable oneO = Context.getCurrentContext().newObject(topLevel);
@@ -195,22 +199,23 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			Scriptable activeA1Obj = Context.getCurrentContext().newObject(topLevel);
 			rhinoVal.put(0, rhinoVal, oneO);
 			Scriptable oneOScriptable = (Scriptable)rhinoVal.get(0, rhinoVal); // same as 'cam' but in it's Rhino representation
-			assertTrue(!cal.mustSendAll());
-			assertEquals(1, cal.getIndexesChangedByRef().size());
-			assertEquals(0, cal.getIndexesWithContentUpdates().size());
+			assertTrue(!chList.mustSendAll());
+			assertEquals(1, chList.getIndexesChangedByRef().size());
+			assertEquals(0, chList.getIndexesWithContentUpdates().size());
 			cam = ((ChangeAwareMap< ? , ? >)cal.get(0));
+			chMap = cam.getChanges();
 			activeA1Obj.put("field", activeA1Obj, 11);
 			activeA1.put(0, activeA1, activeA1Obj);
 			oneOScriptable.put("active", oneOScriptable, activeA1);
 			assertEquals(11, ((Map)((List)((Map)cal.get(0)).get("active")).get(0)).get("field"));
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.22);
 
-			assertEquals(1, cam.getKeysChangedByRef().size());
-			assertEquals(0, cam.getKeysWithUpdates().size());
-			assertTrue(cam.getKeysChangedByRef().contains("active"));
-			assertTrue(!cal.mustSendAll());
-			assertEquals(1, cal.getIndexesChangedByRef().size()); // we havent cleared changes yet; so initial assignment still needs tosend full value
-			assertEquals(0, cal.getIndexesWithContentUpdates().size());
+			assertEquals(1, chMap.getKeysChangedByRef().size());
+			assertEquals(0, chMap.getKeysWithUpdates().size());
+			assertTrue(chMap.getKeysChangedByRef().contains("active"));
+			assertTrue(!chList.mustSendAll());
+			assertEquals(1, chList.getIndexesChangedByRef().size()); // we havent cleared changes yet; so initial assignment still needs tosend full value
+			assertEquals(0, chList.getIndexesWithContentUpdates().size());
 
 			// now change the native values using initial ref to see if it changed in java; this is no longer supported after case SVY-11027
 //		activeA1Obj.put("field", activeA1Obj, 98);
@@ -226,8 +231,8 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
 
-			assertEquals(0, cam.getKeysChangedByRef().size());
-			assertEquals(1, cam.getKeysWithUpdates().size());
+			assertEquals(0, chMap.getKeysChangedByRef().size());
+			assertEquals(1, chMap.getKeysWithUpdates().size());
 
 			changes = component.getAndClearChanges();
 			JSONAssert.assertEquals(
@@ -245,12 +250,12 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals(0.99, v.get("percent", v));
 			v.put("percent", v, 0.56);
 			assertEquals(0.56, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("percent"));
-			assertTrue(!cam.mustSendAll());
-			assertTrue(!cal.mustSendAll());
-			assertEquals(1, cal.getIndexesWithContentUpdates().size());
-			assertEquals(0, cal.getIndexesChangedByRef().size());
-			assertEquals(1, cam.getKeysWithUpdates().size());
-			assertEquals("active", cam.getKeysWithUpdates().iterator().next());
+			assertTrue(!chMap.mustSendAll());
+			assertTrue(!chList.mustSendAll());
+			assertEquals(1, chList.getIndexesWithContentUpdates().size());
+			assertEquals(0, chList.getIndexesChangedByRef().size());
+			assertEquals(1, chMap.getKeysWithUpdates().size());
+			assertEquals("active", chMap.getKeysWithUpdates().iterator().next());
 		}
 		finally
 		{

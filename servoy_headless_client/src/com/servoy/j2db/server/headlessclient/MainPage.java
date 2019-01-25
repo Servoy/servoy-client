@@ -274,7 +274,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	private boolean storeMinVersion;
 
-
 	/**
 	 *
 	 */
@@ -1749,6 +1748,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	@Override
 	public void onNewBrowserWindow()
 	{
+		minimumVersionNumber = getCurrentVersionNumber() + 1;
+		storeMinVersion();
 		final IPageMap map = getSession().createAutoPageMap();
 		FormManager fm = (FormManager)client.getFormManager();
 		MainPage page = (MainPage)fm.getOrCreateMainContainer(map.getName());
