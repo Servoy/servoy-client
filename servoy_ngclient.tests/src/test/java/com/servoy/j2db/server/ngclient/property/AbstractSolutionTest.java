@@ -435,7 +435,7 @@ public abstract class AbstractSolutionTest
 			NGClientWebsocketSession session = new NGClientWebsocketSession("1")
 			{
 				@Override
-				public void init() throws Exception
+				public void init(Map<String, List<String>> requestParams) throws Exception
 				{
 					// override default init, shouldnt make another client.
 				}
