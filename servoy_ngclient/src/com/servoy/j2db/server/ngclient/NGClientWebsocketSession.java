@@ -104,7 +104,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void init() throws Exception
+	public void init(Map<String, List<String>> requestParams) throws Exception
 	{
 		if (client == null)
 		{
