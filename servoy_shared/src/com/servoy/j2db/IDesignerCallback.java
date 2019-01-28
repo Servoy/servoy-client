@@ -25,7 +25,7 @@ public interface IDesignerCallback
 {
 	public void showFormInDesigner(Form form);
 
-	public void addScriptObjects(IDebugClient client, Scriptable scope);
+	public void addScriptObjects(IApplication client, Scriptable scope);
 
 	public void testAndStartDebugger();
 

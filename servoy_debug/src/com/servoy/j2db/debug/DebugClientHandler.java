@@ -16,6 +16,10 @@
  */
 package com.servoy.j2db.debug;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -44,13 +49,18 @@ import org.eclipse.core.runtime.Platform;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.DebugClientType;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.ISolutionModelPersistIndex;
+import com.servoy.j2db.PersistIndex;
+import com.servoy.j2db.SolutionModelPersistIndex;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.extensions.IDebugClientPovider;
@@ -63,6 +73,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
@@ -70,6 +81,8 @@ import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGFormManager;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.shared.WebCredentials;
@@ -96,6 +109,9 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	private volatile DebugNGClient debugNGClient;
 	private volatile DebugJ2DBClient debugJ2DBClient;
 	private volatile Solution currentSolution;
+
+	private volatile NGClient designClient;
+	private Solution designSolution;
 
 	private IDesignerCallback designerCallback;
 	private final Map<DebugClientType< ? >, IDebugClient> customDebugClients = new HashMap<DebugClientType< ? >, IDebugClient>(); // for example JSUnit smart debug client
@@ -126,6 +142,12 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			SolutionScope solutionScope = debugHeadlessClient.getScriptEngine().getSolutionScope();
 			designerCallback.addScriptObjects(debugHeadlessClient, solutionScope);
 		}
+
+		if (designClient != null && designClient.getSolution() != null)
+		{
+			SolutionScope solutionScope = designClient.getScriptEngine().getSolutionScope();
+			designerCallback.addScriptObjects(designClient, solutionScope);
+		}
 		for (IDebugClient c : customDebugClients.values())
 		{
 			if (c.getSolution() != null)
@@ -136,7 +158,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		}
 	}
 
-	public void addScriptObjects(IDebugClient client, Scriptable scope)
+	public void addScriptObjects(IApplication client, Scriptable scope)
 	{
 		if (designerCallback != null) designerCallback.addScriptObjects(client, scope);
 
@@ -822,10 +844,144 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			debugHeadlessClient.shutDown(true);
 			debugHeadlessClient = null;
 		}
+		if (designClient != null)
+		{
+			designClient.shutDown(true);
+			designClient = null;
+		}
 		for (IDebugClient c : customDebugClients.values())
 		{
 			c.shutDown(true);
 		}
 		customDebugClients.clear();
+	}
+
+	@Override
+	public IApplication getDesignNGClient(Object wsSession)
+	{
+		if (designClient != null && designClient.getWebsocketSession() != wsSession)
+		{
+			designClient.shutDown(true);
+			designClient = null;
+		}
+
+		if (designClient == null)
+		{
+			try
+			{
+				designClient = new NGClient((INGClientWebsocketSession)wsSession)
+				{
+					@Override
+					protected IBasicFormManager createFormManager()
+					{
+						return new NGFormManager(this)
+						{
+							@Override
+							public void makeSolutionSettings(Solution s)
+							{
+								super.makeSolutionSettings(designSolution != null ? designSolution : s);
+							}
+						};
+					}
+
+					@Override
+					protected IExecutingEnviroment createScriptEngine()
+					{
+						IExecutingEnviroment scriptEngine = super.createScriptEngine();
+						if (designerCallback != null)
+						{
+							designerCallback.addScriptObjects(this, scriptEngine.getSolutionScope());
+						}
+						return scriptEngine;
+					}
+
+					@Override
+					protected FlattenedSolution createFlattenedSolution()
+					{
+						return new FlattenedSolution()
+						{
+							@Override
+							protected void setSolutionAndModules(String mainSolutionName, Solution[] mods) throws RemoteException
+							{
+								if (designSolution == null)
+								{
+									InputStream solutionRuntimeInputStream = DebugClientHandler.class.getResourceAsStream(
+										"design_solutions/svy_wizard.runtime");
+									try (
+										ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new BufferedInputStream(solutionRuntimeInputStream))))
+									{
+										designSolution = (Solution)ois.readObject();
+									}
+									catch (Exception e)
+									{
+										Debug.error("Couldn't read svy wizard runtime solution", e);
+									}
+								}
+								Solution[] modules = mods;
+								if (designSolution != null)
+								{
+									designSolution.setRepository(designClient.getRepository());
+									if (mods != null)
+									{
+										Solution[] tmp = new Solution[modules.length + 1];
+										System.arraycopy(modules, 0, tmp, 0, modules.length);
+										tmp[mods.length] = designSolution;
+										modules = tmp;
+									}
+									else
+									{
+										modules = new Solution[] { designSolution };
+									}
+								}
+								super.setSolutionAndModules(mainSolutionName, modules);
+							}
+
+							@Override
+							protected ISolutionModelPersistIndex createPersistIndex()
+							{
+								List<Solution> solutions = new ArrayList<>();
+								solutions.add(getSolution());
+								Solution[] modules = getModules();
+								if (modules != null)
+								{
+									for (Solution mod : modules)
+									{
+										solutions.add(mod);
+									}
+								}
+								return new SolutionModelPersistIndex(new PersistIndex(solutions));
+							}
+						};
+
+					}
+
+					@Override
+					protected void showInfoPanel()
+					{
+						//ignore
+					}
+
+					@Override
+					public boolean loadSolutionsAndModules(SolutionMetaData solutionMetaData)
+					{
+						try
+						{
+							solutionRoot.setSolution(solutionMetaData, false, true, getActiveSolutionHandler());
+							solutionLoaded(getSolution());
+						}
+						catch (Exception e)
+						{
+							Debug.error("can't load solution into the Designer Client", e);
+						}
+						return true;
+					}
+				};
+			}
+			catch (Exception e)
+			{
+				Debug.error("Can't create a design client to run design solutions", e);
+			}
+		}
+		return designClient;
 	}
 }

@@ -390,6 +390,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 	private FlattenedSolution getSharedFlattenedSolution(FlattenedSolution fs)
 	{
+		// if this is a special FS class then we can't use a cache, could be a special designer/developer FS.
+		if (fs.getClass() != FlattenedSolution.class) return fs;
 		FlattenedSolution flattenedSolution = globalFlattendSolutions.get(fs.getName());
 		if (flattenedSolution == null)
 		{

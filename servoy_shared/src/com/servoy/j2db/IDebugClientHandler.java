@@ -90,4 +90,6 @@ public interface IDebugClientHandler
 	void flushValueList(ValueList valueList);
 
 	void setSolution(Solution solution);
+
+	IApplication getDesignNGClient(Object websocketSession);
 }

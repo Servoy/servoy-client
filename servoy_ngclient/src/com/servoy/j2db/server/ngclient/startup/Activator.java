@@ -75,10 +75,17 @@ public class Activator implements BundleActivator
 									final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
 									if (service != null)
 									{
-										NGClient debugNGClient = (NGClient)service.getDebugNGClient();
-										if (debugNGClient != null && !debugNGClient.isShutDown() &&
-											debugNGClient.getWebsocketSession().getUuid().equals(getUuid())) setClient(debugNGClient);
-										else setClient((NGClient)service.createDebugNGClient(this));
+										if (requestParams.containsKey("svy_design"))
+										{
+											setClient((NGClient)service.getDesignNGClient(this));
+										}
+										else
+										{
+											NGClient debugNGClient = (NGClient)service.getDebugNGClient();
+											if (debugNGClient != null && !debugNGClient.isShutDown() &&
+												debugNGClient.getWebsocketSession().getUuid().equals(getUuid())) setClient(debugNGClient);
+											else setClient((NGClient)service.createDebugNGClient(this));
+										}
 									}
 									else
 									{

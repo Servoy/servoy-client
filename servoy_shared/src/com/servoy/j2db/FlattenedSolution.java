@@ -788,6 +788,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			Collections.reverse(orderedSolutions);
 		}
+		// check if there are special solutions that are not in the ordered list (design time solutions)
+		if (modules.size() > orderedSolutions.size())
+		{
+			ArrayList<Solution> al = new ArrayList<>(modules);
+			al.removeAll(orderedSolutions);
+			orderedSolutions.addAll(al);
+		}
 		return orderedSolutions.toArray(new Solution[orderedSolutions.size()]);
 	}
 

@@ -112,7 +112,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected Object[] preferredSolutionMethodArguments = null;
 
 	//the main solution, also called root
-	protected final FlattenedSolution solutionRoot = new FlattenedSolution();
+	protected final FlattenedSolution solutionRoot;
 
 	/**
 	 * Managers
@@ -147,9 +147,19 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected ClientState()
 	{
 		clientInfo = new ClientInfo();
+		solutionRoot = createFlattenedSolution();
 
 		// firing some form events needs to know the position of JSEvent argument
 		ClientMethodTemplatesLoader.loadClientMethodTemplatesIfNeeded();
+	}
+
+	/**
+	 *  Classes that override this should not access anything of the super class, this is called by the constructor.
+	 * @return
+	 */
+	protected FlattenedSolution createFlattenedSolution()
+	{
+		return new FlattenedSolution();
 	}
 
 	protected void logStartUp()

@@ -177,7 +177,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 			if (application != null)
 			{
 				Solution sc = flattenedSolution.getSolutionCopy(false);
-				if (sc != null && sc.getMedia(media.getName()) != null)
+				if (sc != null && sc.getMedia(media.getName()) != null || (flattenedSolution.getClass() != FlattenedSolution.class)) // if class is not the default FS class it could be a developer FS then always append the uuid
 				{
 					if (paramsAdded) url += "&";
 					else url += "?";
