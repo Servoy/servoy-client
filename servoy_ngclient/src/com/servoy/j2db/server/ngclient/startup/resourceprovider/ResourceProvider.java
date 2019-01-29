@@ -95,6 +95,7 @@ public class ResourceProvider implements Filter
 	private static final Map<String, List<IPackageReader>> componentReaders = new ConcurrentHashMap<>();
 	private static final Map<String, List<IPackageReader>> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
+	private static Invocable invocable;
 
 	private final File templatesDir = new File(ApplicationServerRegistry.get().getServoyApplicationServerDirectory(), "server/webapps/ROOT/templates");
 
@@ -403,7 +404,7 @@ public class ResourceProvider implements Filter
 	{
 		try
 		{
-			return compileLessWithNashorn(getText(is));
+			return compileLessWithNashorn(getText(is), null, null);
 		}
 		catch (IOException e)
 		{
@@ -412,35 +413,48 @@ public class ResourceProvider implements Filter
 		return null;
 	}
 
-	public static String compileLessWithNashorn(String text)
+	public static String compileLessWithNashorn(String text, FlattenedSolution fs, String name)
 	{
-		//we have to pass in null as classloader if we want to acess the java 8 nashorn
-		ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
-		if (engine != null)
+
+		try
 		{
-			try
+			Invocable engine = getInvocable();
+			synchronized (engine)
 			{
-				Invocable invocable = (Invocable)engine;
+				Object result = engine.invokeFunction("convert", text, new LessFileManager(fs, name));
+				return result.toString();
+			}
+		}
+		catch (ScriptException e)
+		{
+			Debug.log(e);
+		}
+		catch (NoSuchMethodException e)
+		{
+			Debug.log(e);
+		}
+		catch (Exception e)
+		{
+			Debug.log(e);
+		}
+		return "";
+	}
+
+	private static Invocable getInvocable() throws NoSuchMethodException, ScriptException
+	{
+		if (invocable == null)
+		{
+			//we have to pass in null as classloader if we want to acess the java 8 nashorn
+			ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
+			if (engine != null)
+			{
+				invocable = (Invocable)engine;
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-2.5.1.js"));
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-env-2.5.1.js"));
 				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/lessrunner.js"));
-				Object result = invocable.invokeFunction("convert", text);
-				return result.toString();
-			}
-			catch (ScriptException e)
-			{
-				Debug.log(e);
-			}
-			catch (NoSuchMethodException e)
-			{
-				Debug.log(e);
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
 			}
 		}
-		return null;
+		return invocable;
 	}
 
 	public synchronized static URL computeURL(String pathInfo, Bundle bundle) throws UnsupportedEncodingException, MalformedURLException
@@ -695,6 +709,6 @@ public class ResourceProvider implements Filter
 			}
 		}
 		sb.append(new String(media.getMediaData()));
-		return ResourceProvider.compileLessWithNashorn(sb.toString());
+		return ResourceProvider.compileLessWithNashorn(sb.toString(), fs, media.getName());
 	}
 }
