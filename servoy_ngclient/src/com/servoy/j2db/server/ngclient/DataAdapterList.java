@@ -785,12 +785,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				setValueException = e;
 				webComponent.setInvalidState(true);
 			}
-			Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
-			if (config instanceof FoundsetLinkedConfig)
-			{
-				config = ((FoundsetLinkedConfig)config).getWrappedPropertyDescription().getConfig();
-			}
-			String onDataChange = ((DataproviderConfig)config).getOnDataChange();
+			DataproviderConfig dataproviderConfig = getDataproviderConfig(webComponent, beanProperty);
+			String onDataChange = dataproviderConfig.getOnDataChange();
+
 			if (onDataChange != null)
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
@@ -808,32 +805,57 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						Debug.error("Error during onDataChange webComponent=" + webComponent, e);
 						exception = e;
 					}
-					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
-						beanProperty).getConfig()).getOnDataChangeCallback();
+					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
+
 				}
 				else if (setValueException != null)
 				{
 					returnValue = setValueException.getMessage();
 					exception = setValueException;
-					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
-						beanProperty).getConfig()).getOnDataChangeCallback();
+					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
+
 				}
 				else if (webComponent.isInvalidState() && exception == null)
 				{
-					onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
-						beanProperty).getConfig()).getOnDataChangeCallback();
+					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
 					webComponent.setInvalidState(false);
+
 				}
 				if (onDataChangeCallback != null)
 				{
-					WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
-					call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
-					call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
-					call.addParameter(new PropertyDescription("exception", TypesRegistry.getType("object")));
+					WebObjectFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
 					webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param webComponent
+	 * @param beanProperty
+	 * @return
+	 */
+	static DataproviderConfig getDataproviderConfig(WebFormComponent webComponent, String beanProperty)
+	{
+		Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
+		if (config instanceof FoundsetLinkedConfig)
+		{
+			config = ((FoundsetLinkedConfig)config).getWrappedPropertyDescription().getConfig();
+		}
+		return config instanceof DataproviderConfig ? (DataproviderConfig)config : null;
+	}
+
+	/**
+	 * @param onDataChangeCallback
+	 * @return
+	 */
+	static WebObjectFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
+	{
+		WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
+		call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
+		call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
+		call.addParameter(new PropertyDescription("exception", TypesRegistry.getType("object")));
+		return call;
 	}
 
 	private IRecordInternal getFoundsetLinkedRecord(FoundsetLinkedTypeSabloValue< ? , ? > foundsetLinkedValue, String foundsetLinkedRowID)
