@@ -38,24 +38,10 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 {
 	@Override
-	protected boolean findAndSendMediaData(HttpServletRequest request, HttpServletResponse response, String mediaName, FlattenedSolution fs) throws IOException
-	{
-		Media media = fs.getMedia(mediaName);
-		if (media == null)
-		{
-			media = fs.getMedia(mediaName.replace(".css", ".less"));
-		}
-		if (media != null)
-		{
-			return sendData(request, response, fs, media);
-		}
-		return false;
-	}
-
-	@Override
 	protected boolean sendMediaData(HttpServletResponse response, Media media, FlattenedSolution fs) throws IOException
 	{
-		return sendData(response, media.getName().endsWith(".less") ? ResourceProvider.compileSolutionLessFile(media, fs).getBytes() : media.getMediaData(),
+		return sendData(response,
+			media.getName().endsWith(".less") ? ResourceProvider.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
 			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 

@@ -21,6 +21,8 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.file.FileCleaner;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.upload.DiskFileItem;
@@ -88,6 +91,11 @@ import com.servoy.j2db.util.Utils;
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
+	/**
+	 * the folder that contains the compiled less files
+	 */
+	public static final String SERVOY_SOLUTION_CSS = "servoy_solution_css/";
+
 	public static final String FLATTENED_SOLUTION_ACCESS = "fs";
 	public static final String DYNAMIC_DATA_ACCESS = "dynamic";
 
@@ -274,6 +282,32 @@ public class MediaResourcesServlet extends HttpServlet
 	protected boolean findAndSendMediaData(HttpServletRequest request, HttpServletResponse response, String mediaName, FlattenedSolution fs) throws IOException
 	{
 		Media media = fs.getMedia(mediaName);
+		if (media == null && mediaName.endsWith(".css"))
+		{
+			media = fs.getMedia(mediaName.replace(".css", ".less"));
+			if (media != null)
+			{
+				// is a less file, try to load the compiled version
+				URL url = getServletConfig().getServletContext().getResource('/' + SERVOY_SOLUTION_CSS + '/' + mediaName);
+				if (url != null)
+				{
+					setHeaders(request, response);
+					// cache resources on client until changed
+					if (HTTPUtils.checkAndSetUnmodified(request, response,
+						media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime())) return true;
+
+					response.setContentType("text/css");
+					URLConnection con = url.openConnection();
+					long lenght = con.getContentLengthLong();
+					if (lenght > 0) response.setContentLengthLong(lenght);
+					try (InputStream is = con.getInputStream())
+					{
+						IOUtils.copy(is, response.getOutputStream());
+					}
+					return true;
+				}
+			}
+		}
 		if (media != null)
 		{
 			return sendData(request, response, fs, media);
