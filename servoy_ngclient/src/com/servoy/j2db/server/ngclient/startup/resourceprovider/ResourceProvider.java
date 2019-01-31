@@ -709,6 +709,9 @@ public class ResourceProvider implements Filter
 			}
 		}
 		sb.append(new String(media.getMediaData()));
-		return ResourceProvider.compileLessWithNashorn(sb.toString(), fs, media.getName());
+		String cssAsString = ResourceProvider.compileLessWithNashorn(sb.toString(), fs, media.getName());
+		cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
+			Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getSolution().getLastModifiedTime()));
+		return cssAsString;
 	}
 }
