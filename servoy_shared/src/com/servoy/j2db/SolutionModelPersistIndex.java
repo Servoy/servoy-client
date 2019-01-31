@@ -40,6 +40,8 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	private final ConcurrentMap<IPersist, Boolean> removedPersist = new ConcurrentHashMap<>();
 	private final IPersistIndex index;
 
+	private boolean flush = false;
+
 	public SolutionModelPersistIndex(IPersistIndex index)
 	{
 		this.index = index;
@@ -158,8 +160,9 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 
 	private boolean testIndex()
 	{
-		if (uuidToPersist.isEmpty() && !solutions.isEmpty())
+		while (flush)
 		{
+			flush = false;
 			createIndex();
 		}
 		return !uuidToPersist.isEmpty();
@@ -175,6 +178,7 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 
 	private void flushIndex()
 	{
+		flush = true;
 		uuidToPersist.clear();
 		idToPersist.clear();
 		nameToPersist.clear();

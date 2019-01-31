@@ -733,9 +733,21 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
                         currentValue = getNumbersFromString(e,currentValue, oldInputValue);
                     }
                     
-                    element.val(currentValue);
-                    ngModelController.$setViewValue(currentValue);
-                    ngModelController.$render();
+                    if (currentValue != element.val())
+                    {
+                    	element.val(currentValue);
+                        ngModelController.$setViewValue(currentValue);
+                        ngModelController.$render();
+                        
+                        // detect IE8 and above, and Edge; call on change manually because of https://bugs.jquery.com/ticket/10818
+                        if (/MSIE/.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent) || /Edge/.test(navigator.userAgent)) {
+                        	var changeOnBlurForIE = function() {
+     							element.change();
+     							element.off("blur", callChangeOnBlur);
+     						}
+     						element.on("blur", changeOnBlurForIE);
+                        }
+                    }	
                     
 	                oldInputValue = currentValue; 
 				    isKeyPressEventFired = false;

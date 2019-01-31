@@ -842,7 +842,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			throw new RepositoryException("cannot clone/copy without change handler"); //$NON-NLS-1$
 		}
-		AbstractBase clone = (AbstractBase)changeHandler.cloneObj(this, newParent, flattenOverrides);
+		AbstractBase clone = (AbstractBase)changeHandler.cloneObj(this, newParent, flattenOverrides, !deep);
 		if (changeName && clone instanceof ISupportUpdateableName && ((ISupportUpdateableName)clone).getName() != null)
 		{
 			int random = new Random().nextInt(1024);
@@ -869,6 +869,10 @@ public abstract class AbstractBase implements IPersist
 			{
 				clone.allobjects = null;//clear so they are not shared due to native clone !
 			}
+		}
+		if (deep)
+		{
+			newParent.addChild(clone);
 		}
 		return clone;
 	}
