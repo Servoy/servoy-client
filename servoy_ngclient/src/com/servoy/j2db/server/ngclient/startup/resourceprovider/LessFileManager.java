@@ -48,15 +48,22 @@ public class LessFileManager
 	{
 		if (fs != null)
 		{
+			String filename = path;
+			// test for arguments (like last modified)
+			int questionMark = filename.lastIndexOf('?');
+			if (questionMark > 0)
+			{
+				filename = filename.substring(0, questionMark);
+			}
 			Media media = null;
 			try
 			{
-				URI uri = new URI(startFolder + path);
+				URI uri = new URI(startFolder + filename);
 				media = fs.getMedia(uri.normalize().toString());
 			}
 			catch (URISyntaxException e1)
 			{
-				media = fs.getMedia(startFolder + path);
+				media = fs.getMedia(startFolder + filename);
 			}
 			if (media != null)
 			{
