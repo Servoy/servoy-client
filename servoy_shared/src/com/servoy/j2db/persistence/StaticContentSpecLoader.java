@@ -912,6 +912,11 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(445, IRepository.VALUELISTS, PROPERTY_VALUELIST_REALVALUE_TYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(446, IRepository.VALUELISTS, PROPERTY_VALUELIST_DISPLAYVALUE_TYPE.getPropertyName(), IRepository.INTEGER);
 		}
+		if (old_repository_version < 51)
+		{
+			//2019.3 properties here
+			cs.new Element(447, IRepository.WEBCOMPONENTS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
+		}
 		//##add property adds here
 		return cs;
 	}
