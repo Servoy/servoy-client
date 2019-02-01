@@ -78,6 +78,7 @@ import com.servoy.j2db.util.Utils;
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
 	private int clientType = 1;
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
@@ -102,7 +103,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void init() throws Exception
+	public void init(Map<String, List<String>> requestParams) throws Exception
 	{
 		if (client == null)
 		{
