@@ -88,7 +88,10 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		if (fullJSONInFrmFile == null) fullJSONInFrmFile = new ServoyJSONObject();
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
-		if (isNew) parentWebObject.addChild(this);
+
+		// add this as child to it's parent so that persist listeners get triggered; there is one exception though:
+		// jsonKey == null && index == -1 can be set - if they are not known - from CustomObjectTypePropertyController.toggleValue(Object); see comment over there for more info (they will be set later on and addChild will be called then)
+		if (isNew && (jsonKey != null || index != -1)) parentWebObject.addChild(this);
 	}
 
 	public PropertyDescription getPropertyDescription()

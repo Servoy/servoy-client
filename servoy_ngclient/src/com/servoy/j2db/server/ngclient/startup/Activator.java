@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.server.ngclient.startup;
 
+import java.util.List;
+import java.util.Map;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.sablo.eventthread.IEventDispatcher;
@@ -59,21 +62,28 @@ public class Activator implements BundleActivator
 					NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid)
 					{
 						@Override
-						public void init() throws Exception
+						public void init(Map<String, List<String>> requestParams) throws Exception
 						{
 							if (getClient() == null)
 							{
-								final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
-								if (service != null)
+								if (requestParams.containsKey("nodebug"))
 								{
-									NGClient debugNGClient = (NGClient)service.getDebugNGClient();
-									if (debugNGClient != null && !debugNGClient.isShutDown() && debugNGClient.getWebsocketSession().getUuid().equals(getUuid()))
-										setClient(debugNGClient);
-									else setClient((NGClient)service.createDebugNGClient(this));
+									setClient(new NGClient(this));
 								}
 								else
 								{
-									setClient(new NGClient(this));
+									final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
+									if (service != null)
+									{
+										NGClient debugNGClient = (NGClient)service.getDebugNGClient();
+										if (debugNGClient != null && !debugNGClient.isShutDown() &&
+											debugNGClient.getWebsocketSession().getUuid().equals(getUuid())) setClient(debugNGClient);
+										else setClient((NGClient)service.createDebugNGClient(this));
+									}
+									else
+									{
+										setClient(new NGClient(this));
+									}
 								}
 							}
 						}

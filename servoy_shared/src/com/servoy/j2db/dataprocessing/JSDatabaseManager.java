@@ -599,7 +599,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (join == null)
 					{
 						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable,
-							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
+							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), true, fs_old);
 						sql.addJoin(join);
 					}
 

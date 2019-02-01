@@ -6,20 +6,23 @@ import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
-import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.component.EventExecutor;
+import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -42,7 +45,6 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	protected IDataAdapterList dataAdapterList;
 
 	protected ComponentContext componentContext;
-	private IDirtyPropertyListener dirtyPropertyListener;
 
 	private boolean isInvalidState;
 
@@ -250,19 +252,10 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		}
 	}
 
-	/**
-	 * @param dirtyPropertyListener set the listeners that is called when {@link WebFormComponent#flagPropertyAsDirty(String) is called
-	 */
-	public void setDirtyPropertyListener(IDirtyPropertyListener dirtyPropertyListener)
-	{
-		this.dirtyPropertyListener = dirtyPropertyListener;
-	}
-
 	@Override
 	public boolean markPropertyAsChangedByRef(String key)
 	{
 		boolean modified = super.markPropertyAsChangedByRef(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, false);
 		return modified;
 	}
 
@@ -270,20 +263,26 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	public boolean clearChangedStatusForProperty(String key)
 	{
 		boolean modified = super.clearChangedStatusForProperty(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, false, false);
 		return modified;
 	}
 
 	@Override
-	public boolean markPropertyContentsUpdated(String key)
+	protected boolean markPropertyContentsUpdated(String key)
 	{
-		if (key.equals(IContentSpecConstantsBase.PROPERTY_DATAPROVIDERID) && isInvalidState())
+		if (isInvalidState())
 		{
-			setInvalidState(false);
+			DataproviderConfig dataproviderConfig = DataAdapterList.getDataproviderConfig(this, key);
+			if (dataproviderConfig != null && dataproviderConfig.getOnDataChangeCallback() != null)
+			{
+				WebObjectFunctionDefinition function = DataAdapterList.createWebObjectFunction(dataproviderConfig.getOnDataChangeCallback());
+				JSONObject event = EventExecutor.createEvent(dataproviderConfig.getOnDataChangeCallback(),
+					dataAdapterList.getForm().getFormModel().getSelectedIndex());
+				invokeApi(function, new Object[] { event, null, null });
+				setInvalidState(false);
+			}
 		}
 
 		boolean modified = super.markPropertyContentsUpdated(key);
-		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, true, true);
 		return modified;
 	}
 
@@ -308,7 +307,6 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter, String nodeName,
 		DataConversion clientDataConversions) throws JSONException
 	{
-
 		try
 		{
 			isWritingComponentProperties = true;

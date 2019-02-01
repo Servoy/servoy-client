@@ -65,6 +65,8 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
@@ -312,6 +314,24 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				typeOfDP = new PropertyDescription("Spec type hint", specType);
 			}
 		}
+
+		String dpID = dataProviderID;
+		IDataProvider dp = null;
+		if (dpLookup != null)
+		{
+			try
+			{
+				dp = dpLookup.getDataProvider(dataProviderID);
+				if (dp != null)
+				{
+					dpID = dp.getDataProviderID();
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		}
 		if (globalRelationName != null)
 		{
 			try
@@ -356,6 +376,17 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 				if (!newRelatedFoundsets.equals(relatedFoundsets))
 				{
+					IDataProvider column = dp;
+					if (column instanceof ColumnWrapper)
+					{
+						column = ((ColumnWrapper)column).getColumn();
+					}
+					boolean isAggregate = (column instanceof IColumn) ? ((IColumn)column).isAggregate() : false;
+
+					if (isAggregate && relatedFoundsets.size() > 0)
+					{
+						relatedFoundsets.get(relatedFoundsets.size() - 1).removeAggregateModificationListener(relatedRecordModificationListener);
+					}
 					for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 					{
 						((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
@@ -366,6 +397,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 					{
 						((ISwingFoundSet)relatedFoundset).getSelectionModel().addListSelectionListener(relatedFoundsetSelectionListener);
+					}
+
+					if (isAggregate && relatedFoundsets.size() > 0)
+					{
+						relatedFoundsets.get(relatedFoundsets.size() - 1).addAggregateModificationListener(relatedRecordModificationListener);
 					}
 				}
 			}
@@ -402,23 +438,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 
 
-		String dpID = dataProviderID;
-		if (dpLookup != null)
-		{
-			IDataProvider dp;
-			try
-			{
-				dp = dpLookup.getDataProvider(dataProviderID);
-				if (dp != null)
-				{
-					dpID = dp.getDataProviderID();
-				}
-			}
-			catch (RepositoryException e)
-			{
-				Debug.error(e);
-			}
-		}
 		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dpID);
 		if (v == Scriptable.NOT_FOUND) v = null;
 

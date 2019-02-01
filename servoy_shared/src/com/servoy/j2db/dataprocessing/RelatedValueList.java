@@ -473,14 +473,14 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			foreignTable = fs.getTable(relations[i].getForeignDataSource());
 			ISQLTableJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable,
-				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()),
+				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()), true,
 				scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}
 
 		List<SortColumn> defaultSort = foundSetManager.getSortColumns(relations[relations.length - 1].getForeignDataSource(), valueList.getSortOptions());
-		foundSetManager.getSQLGenerator().addSorts(select, lastTable, scopesScopeProvider, foreignTable, defaultSort, true);
+		foundSetManager.getSQLGenerator().addSorts(select, lastTable, scopesScopeProvider, foreignTable, defaultSort, true, true);
 
 		int showValues = valueList.getShowDataProviders();
 		int returnValues = valueList.getReturnDataProviders();

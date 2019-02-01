@@ -87,8 +87,11 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	public void clearChanges()
 	{
 		viewPortCompletelyChanged = false;
-
 		viewPortChanges.reset(-1, -1);
+	}
+
+	public void doneWritingChanges()
+	{
 		FoundsetDataAdapterList fsDAL = rowDataProvider.getDataAdapterList();
 		if (fsDAL != null) fsDAL.resetDALToSelectedIndexQuietly();
 	}

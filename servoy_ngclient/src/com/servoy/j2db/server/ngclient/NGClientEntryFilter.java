@@ -78,6 +78,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SERVOY_CSS_THIRDPARTY_SVYGRP = "servoy_css_thirdparty_svygrp";
 	public static final String SOLUTIONS_PATH = "/solutions/";
 	public static final String FORMS_PATH = "/forms/";
+	public static final String WAR_SERVOY_ADMIN_PATH = "/servoy-admin/";
 
 	public static final String ANGULAR_JS = "js/angular_1.7.3.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
@@ -308,6 +309,17 @@ public class NGClientEntryFilter extends WebEntry
 						{
 							closeFS = true;
 							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+
+							if (as == null)
+							{
+								response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+								Writer w = response.getWriter();
+								w.write(
+									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:20px;color:#fd7100'><div class=\"bs-callout bs-callout-danger\"><p>System is inaccessible. Please contact your system administrator.</p></div></div></body></html>");
+								w.close();
+								return;
+							}
+
 							SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
 								solutionName, IRepository.SOLUTIONS);
 							if (solutionMetaData == null)

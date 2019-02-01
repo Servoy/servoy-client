@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -130,27 +131,28 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 	@Override
 	public int getJoinType()
 	{
-		for (int i = 0; i < joins.size(); i++)
-		{
-			ISQLJoin join = joins.get(i);
-			if (join instanceof ISQLTableJoin)
-			{
-				return ((ISQLTableJoin)join).getJoinType();
-			}
-		}
-		return ISQLJoin.INNER_JOIN;
+		return tableJoins().findAny() //
+			.map(ISQLTableJoin::getJoinType) //
+			.orElse(Integer.valueOf(ISQLJoin.INNER_JOIN)) //
+			.intValue();
 	}
 
 	public void setJoinType(int joinType)
 	{
-		for (int i = 0; i < joins.size(); i++)
-		{
-			ISQLJoin join = joins.get(i);
-			if (join instanceof ISQLTableJoin)
-			{
-				((ISQLTableJoin)join).setJoinType(joinType);
-			}
-		}
+		tableJoins().forEach(join -> join.setJoinType(joinType));
+	}
+
+	@Override
+	public boolean isPermanent()
+	{
+		return tableJoins().anyMatch(ISQLTableJoin::isPermanent);
+	}
+
+
+	@Override
+	public void setPermanent(boolean permanent)
+	{
+		tableJoins().forEach(join -> join.setPermanent(permanent));
 	}
 
 	@Override
@@ -169,6 +171,13 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 	{
 		// flatten the list of joins, add all QueryCompositeJoin joins to the main list
 		return flatten(joins, 0);
+	}
+
+	private Stream<ISQLTableJoin> tableJoins()
+	{
+		return joins.stream() //
+			.filter(ISQLTableJoin.class::isInstance) //
+			.map(ISQLTableJoin.class::cast);
 	}
 
 	private static List<ISQLJoin> flatten(List<ISQLJoin> joins, int start)

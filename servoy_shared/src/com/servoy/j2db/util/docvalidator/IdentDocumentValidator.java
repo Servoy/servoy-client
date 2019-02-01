@@ -65,7 +65,8 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 		}
 		if (offset == 0 && document.getLength() > 0)
 		{
-			validString = validateIdentifier((text + document.getText(length, document.getLength() - length)), type, true);
+			if (text.length() != 0) validString = validateIdentifier(text, type, true);
+			else validString = validateIdentifier((text + document.getText(length, document.getLength() - length)), type, true);
 			// delete of start of string
 			if ((text.length() == 0 && length == document.getLength()) /* allow make empty */
 				|| validString != null)

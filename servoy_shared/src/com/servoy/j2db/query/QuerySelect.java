@@ -564,9 +564,9 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			for (int i = 0; i < njoins && !updated; i++)
 			{
 				ISQLJoin join = joins.get(i);
-				if (!(join instanceof ISQLTableJoin) || (keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()))
+				if (!(join instanceof ISQLTableJoin) || (keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()) || ((ISQLTableJoin)join).isPermanent())
 				{
-					// count may depend on related records
+					// count may depend on related records or is marked as permanent
 					continue;
 				}
 

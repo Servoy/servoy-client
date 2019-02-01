@@ -395,14 +395,14 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	@Override
-	public boolean writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
+	public void writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
 		DataConversion clientDataConversions) throws JSONException
 	{
 		try
 		{
 			getController().setRendering(true);
 			// converter here is always ChangesToJSONConverter except for some unit tests
-			return super.writeAllComponentsChanges(w, keyInParent, converter, clientDataConversions);
+			super.writeAllComponentsChanges(w, keyInParent, converter, clientDataConversions);
 		}
 		finally
 		{
