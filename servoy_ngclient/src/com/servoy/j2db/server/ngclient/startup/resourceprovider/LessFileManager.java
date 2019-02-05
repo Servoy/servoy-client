@@ -20,6 +20,8 @@ package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
@@ -36,6 +38,7 @@ public class LessFileManager
 	private final FlattenedSolution fs;
 	private final String startFolder;
 	private final String lessFile;
+	private final List<Media> imports = new ArrayList<>();
 
 	public LessFileManager(FlattenedSolution fs, String lessFile)
 	{
@@ -43,6 +46,13 @@ public class LessFileManager
 		this.lessFile = lessFile;
 		int index = lessFile.lastIndexOf('/') + 1;
 		this.startFolder = index > 0 ? lessFile.substring(0, index) : "";
+
+		Media parent = fs.getMedia(lessFile);
+		if (parent != null)
+		{
+			parent.setRuntimeProperty(Media.REFERENCES, imports);
+		}
+
 	}
 
 	public String load(String path, @SuppressWarnings("unused") String directory)
@@ -81,6 +91,7 @@ public class LessFileManager
 			}
 			if (media != null)
 			{
+				imports.add(media);
 				try
 				{
 					return new String(media.getMediaData(), "UTF-8");
