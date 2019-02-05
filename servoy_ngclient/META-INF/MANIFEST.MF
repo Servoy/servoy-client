@@ -12,6 +12,7 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.scripting,
  com.servoy.j2db.server.ngclient.startup,
  com.servoy.j2db.server.ngclient.startup.resourceprovider,
+ com.servoy.j2db.server.ngclient.startup.resourceprovider.resources,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
