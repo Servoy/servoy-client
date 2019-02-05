@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.server.ngclient.startup.resourceprovider.resources.ThemeResourceLoader;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -64,6 +65,19 @@ public class LessFileManager
 			catch (URISyntaxException e1)
 			{
 				media = fs.getMedia(startFolder + filename);
+			}
+			if (media == null && path.startsWith(ThemeResourceLoader.THEME_LESS))
+			{
+				int index = path.indexOf("version=");
+				if (index == -1)
+				{
+					return ThemeResourceLoader.getLatestTheme();
+				}
+				else
+				{
+					String version = path.substring(index + "version=".length());
+					return ThemeResourceLoader.getTheme(version);
+				}
 			}
 			if (media != null)
 			{
