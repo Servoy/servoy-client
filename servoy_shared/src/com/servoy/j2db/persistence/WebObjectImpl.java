@@ -154,14 +154,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 						{
 							if (wo1 != null)
 							{
-								// make sure index and jsonKey are correct; (for example we don't have
-								// enough info when creating a new custom object in an array element in properties view)
-								// and in that case we create a WebCustomType with incorrect index/jsonkey; see CustomObjectTypePropertyController.toggleValue
-								boolean wasNotYetAddedAsChild = (wo1.getIndex() == -1 && wo1.getJsonKey() == null);
-
 								wo1.setIndex(i);
 								wo1.setJsonKey(wo.getKey());
-								if (wasNotYetAddedAsChild) wo1.getParent().addChild(wo1);
 							}
 							i++;
 							jsonArray.put(wo1 != null ? wo1.getFullJsonInFrmFile() : JSONObject.NULL);
@@ -803,7 +797,18 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	}
 
 	@Override
-	public void internalAddChild(IPersist obj)
+	public void insertChild(IPersist obj)
+	{
+		registerChild(obj, false);
+	}
+
+	@Override
+	public void setChild(IPersist obj)
+	{
+		registerChild(obj, true);
+	}
+
+	private void registerChild(IPersist obj, boolean set)
 	{
 		if (obj instanceof IChildWebObject)
 		{
@@ -817,25 +822,32 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				{
 					Object children = getPersistMappedProperties().get(persistMappedPropertyValue.getJsonKey());
 					if (children == null) children = new IChildWebObject[0];
-					int insertIndex = persistMappedPropertyValue.getIndex();
+					int childIndex = persistMappedPropertyValue.getIndex();
 
 					if (children instanceof IChildWebObject[])
 					{
-						// it is possible that it is already there if this is an insert from
-						// properties view CustomObjectTypePropertyController.toggleValue(Object) and addChild was called later(now) - only to trigger persist listeners - when
-						// index and key were known, after the new custom object was already added to the array; do nothing here in this case
-						if (!(insertIndex >= 0 && insertIndex < ((IChildWebObject[])children).length &&
-							((IChildWebObject[])children)[insertIndex] == persistMappedPropertyValue))
+						IChildWebObject[] chWO = ((IChildWebObject[])children);
+						if (set)
 						{
-							List<IChildWebObject> t = new ArrayList<IChildWebObject>(Arrays.asList((IChildWebObject[])children));
-							t.add(insertIndex, persistMappedPropertyValue);
-							for (int i = insertIndex + 1; i < t.size(); i++)
+							if (chWO.length == childIndex)
+							{
+								// replace is actually more a non-insert (so children are not meant to shift indexes), so it allows adding at the end
+								chWO = Arrays.copyOf(chWO, chWO.length + 1);
+							}
+							chWO[childIndex] = persistMappedPropertyValue;
+						}
+						else
+						{
+							List<IChildWebObject> t = new ArrayList<IChildWebObject>(Arrays.asList(chWO));
+							t.add(childIndex, persistMappedPropertyValue);
+							for (int i = childIndex + 1; i < t.size(); i++)
 							{
 								IChildWebObject ct = t.get(i);
-								ct.setIndex(i);
+								if (ct != null) ct.setIndex(i);
 							}
-							setProperty(persistMappedPropertyValue.getJsonKey(), t.toArray(new IChildWebObject[t.size()]));
-						} // else nothing to do; it's already there at the correct index
+							chWO = t.toArray(new IChildWebObject[t.size()]);
+						}
+						setProperty(persistMappedPropertyValue.getJsonKey(), chWO);
 					}
 					else
 					{

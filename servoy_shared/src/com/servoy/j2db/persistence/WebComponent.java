@@ -270,7 +270,21 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void internalAddChild(IPersist obj)
 	{
-		webObjectImpl.internalAddChild(obj);
+		webObjectImpl.setChild(obj);
+	}
+
+	@Override
+	public void setChild(IChildWebObject child)
+	{
+		webObjectImpl.setChild(child);
+		afterChildWasAdded(child);
+	}
+
+	@Override
+	public void insertChild(IChildWebObject child)
+	{
+		webObjectImpl.insertChild(child);
+		afterChildWasAdded(child);
 	}
 
 	@Override

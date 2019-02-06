@@ -615,6 +615,11 @@ public abstract class AbstractBase implements IPersist
 	public void addChild(IPersist obj)
 	{
 		internalAddChild(obj);
+		afterChildWasAdded(obj);
+	}
+
+	protected void afterChildWasAdded(IPersist obj)
+	{
 		if (getRootObject().getChangeHandler() != null)
 		{
 			getRootObject().getChangeHandler().fireIPersistCreated(obj);

@@ -67,9 +67,9 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 
 	private final PropertyDescription pdAsChildComponent;
 
-	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew)
+	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index)
 	{
-		return createNewInstance(webObject, childPd, jsonKey, index, isNew, null);
+		return createNewInstance(webObject, childPd, jsonKey, index, true, null);
 	}
 
 	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew,
@@ -93,7 +93,6 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 
 		this.pdAsChildComponent = pdAsChildComponent;
-		if (isNew) parent.addChild(this);
 	}
 
 	@Override
