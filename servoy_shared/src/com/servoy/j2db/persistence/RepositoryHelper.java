@@ -453,13 +453,13 @@ public class RepositoryHelper
 			StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name))
 		{
 			if ((persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition())) ||
-				PersistHelper.isInAbsoluteLayoutMode(persist))
+				CSSPosition.isInAbsoluteLayoutMode(persist))
 			{
 				return true;
 			}
 		}
 		if (StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName().equals(name) && persist.getParent() instanceof Form &&
-			!Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition()) && !PersistHelper.isInAbsoluteLayoutMode(persist))
+			!Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition()) && !CSSPosition.isInAbsoluteLayoutMode(persist))
 		{
 			return true;
 		}

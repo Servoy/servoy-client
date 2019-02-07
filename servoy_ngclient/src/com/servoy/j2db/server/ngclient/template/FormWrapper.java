@@ -61,7 +61,6 @@ import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -386,7 +385,7 @@ public class FormWrapper
 		{
 			for (IFormElement component : components)
 			{
-				if (PersistHelper.isInAbsoluteLayoutMode(component))
+				if (CSSPosition.isInAbsoluteLayoutMode(component))
 				{
 					elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
 				}
@@ -402,7 +401,7 @@ public class FormWrapper
 		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
-			if (form.getUseCssPosition() || PersistHelper.isInAbsoluteLayoutMode(persist))
+			if (form.getUseCssPosition() || CSSPosition.isInAbsoluteLayoutMode(persist))
 			{
 				String name = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design).getName();
 				if (!names.containsKey(name)) names.put(name, Boolean.TRUE);

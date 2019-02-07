@@ -32,6 +32,7 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -42,7 +43,6 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PersistHelper;
 
 /**
  * Generates HTML for a flow layout form
@@ -95,7 +95,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
-		boolean isCSSPositionContainer = PersistHelper.isCSSPositionContainer(spec);
+		boolean isCSSPositionContainer = CSSPosition.isCSSPositionContainer(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		if (design)

@@ -22,8 +22,11 @@ import java.awt.Point;
 import java.io.Serializable;
 import java.util.List;
 
+import org.sablo.specification.PackageSpecification;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
+
 import com.servoy.base.persistence.constants.IFormConstants;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -432,7 +435,7 @@ public class CSSPosition implements Serializable
 		{
 			return true;
 		}
-		if (persist instanceof BaseComponent && PersistHelper.isInAbsoluteLayoutMode((IPersist)persist))
+		if (persist instanceof BaseComponent && CSSPosition.isInAbsoluteLayoutMode((IPersist)persist))
 		{
 			return true;
 		}
@@ -503,5 +506,36 @@ public class CSSPosition implements Serializable
 		buffer.append(this.height);
 		buffer.append("}");
 		return buffer.toString();
+	}
+
+	public static boolean isInAbsoluteLayoutMode(IPersist persist)
+	{
+		while (persist != null)
+		{
+			persist = persist.getParent();
+			if (persist instanceof LayoutContainer) return isCSSPositionContainer((LayoutContainer)persist);
+			if (persist instanceof Form) break;
+		}
+		return false;
+	}
+
+	public static boolean isCSSPositionContainer(WebLayoutSpecification spec)
+	{
+		return spec != null && spec.isCSSPosition();
+	}
+
+	public static boolean isCSSPositionContainer(LayoutContainer container)
+	{
+		if (container != null)
+		{
+			WebComponentSpecProvider.getInstance();
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+				container.getPackageName());
+			if (pkg != null)
+			{
+				return CSSPosition.isCSSPositionContainer(pkg.getSpecification(container.getSpecName()));
+			}
+		}
+		return false;
 	}
 }
