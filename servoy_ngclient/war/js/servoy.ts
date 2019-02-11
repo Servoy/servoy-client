@@ -883,11 +883,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					};
 					
-					
 					function destroyScopes(array: Array<servoy.IServoyScope>) {
 					    array.forEach(scope => scope.$destroy());
 					    array.length = 0;
 					}
+
 					function createRows() {
                         numberOfCells = scope.responsivePageSize;
                         if (numberOfCells == 0 ) {
@@ -1048,11 +1048,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							element.css( "width", width + "px" )
 						}
 						
-						// INSERTS and DELETES, full changes in viewport should be handled by foundset listener directly (which is only one, not one per component)
+						// this listener works in tandem with childElement.addViewportChangeListener(...) listeners 
 						getFoundset().addChangeListener(function(changes) {
 						    // check to see what actually changed server-side and update what is needed in browser
 							let shouldUpdatePagingControls = false;
-							if (changes.viewportRowsCompletelyChanged || changes.fullValueChanged) {
+							if (changes.viewportRowsCompletelyChanged) {
+								createRows();
+							} else if (changes.fullValueChanged) {
+								scope.foundset = changes.fullValueChanged.newValue; // the new value by ref would be updated in scope automatically only later otherwise and we use that in code
 								createRows();
 							} else if (changes.viewportRowsUpdated) {
 								const updates = changes.viewportRowsUpdated.updates;
