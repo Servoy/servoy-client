@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1058,7 +1059,8 @@ public abstract class AbstractBase implements IPersist
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);
+			Debug.error("Cannot read JSON formatted property '" + Arrays.toString(path) + "' of component with UUID '" + getUUID() + "' in form '" +
+				getAncestor(IRepository.FORMS) + "'. Invalid JSON: " + customProperties, ex);
 		}
 		return null;
 	}
