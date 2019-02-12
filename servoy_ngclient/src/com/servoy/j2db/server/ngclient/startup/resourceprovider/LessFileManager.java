@@ -89,6 +89,19 @@ public class LessFileManager
 					return ThemeResourceLoader.getTheme(version);
 				}
 			}
+			if (media == null && path.startsWith(ThemeResourceLoader.PROPERTIES_LESS))
+			{
+				int index = path.indexOf("version=");
+				if (index == -1)
+				{
+					return ThemeResourceLoader.getLatestThemeProperties();
+				}
+				else
+				{
+					String version = path.substring(index + "version=".length());
+					return ThemeResourceLoader.getThemeProperties(version);
+				}
+			}
 			if (media != null)
 			{
 				imports.add(media);

@@ -35,15 +35,17 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class ThemeResourceLoader
 {
+	public static final String CUSTOM_PROPERTIES_LESS = "custom_servoy_theme_properties.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
+	public static final String[] VERSIONS = new String[] { "latest", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
 	private static SortedMap<Version, String> themeResource = new TreeMap<>();
 	static
 	{
-		themeResource.put(new Version("8.4.0"), "servoy_8.4.0.less");
-		themeResource.put(new Version("2019.3.0"), "servoy_2019.3.0.less");
+		themeResource.put(new Version("8.4.0"), "servoy_theme_8.4.0.less");
+		themeResource.put(new Version("2019.3.0"), "servoy_theme_2019.3.0.less");
 
 		themePropertyResource.put(new Version("8.4.0"), "servoy_theme_properties_8.4.0.less");
 		themePropertyResource.put(new Version("2019.3.0"), "servoy_theme_properties_2019.3.0.less");
@@ -51,12 +53,17 @@ public class ThemeResourceLoader
 
 	public static byte[] getDefaultSolutionLess()
 	{
-		return load("default-solution.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+		return load("default_solution.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
-	public static byte[] getLatestThemeProperties()
+	public static byte[] getCustomProperties()
 	{
-		return load(themePropertyResource.get(themePropertyResource.lastKey()), ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+		return load("custom_servoy_theme_properties.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+	}
+
+	public static String getLatestThemeProperties()
+	{
+		return load(themePropertyResource.get(themePropertyResource.lastKey()), ClientVersion.getPureVersion());
 	}
 
 	public static String getLatestTheme()
@@ -65,11 +72,11 @@ public class ThemeResourceLoader
 	}
 
 
-	public static byte[] getThemeProperties(String maxVersion)
+	public static String getThemeProperties(String maxVersion)
 	{
 		String resource = getResource(maxVersion, themePropertyResource);
 
-		return load(resource, maxVersion).getBytes(Charset.forName("UTF-8"));
+		return load(resource, maxVersion);
 	}
 
 	public static String getTheme(String maxVersion)
