@@ -809,13 +809,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket) {
+.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $anchorConstants) {
 		return {
 			restrict: 'A',
 			scope: {
 				svyFormComponent: "=svyFormComponent",
 				foundset: "=foundset",
-				responsivePageSize: "=responsivePageSize"
+				responsivePageSize: "=responsivePageSize",
+				pageLayout: "=pageLayout"
 			},
 			link: function( scope: any, element, attrs ) {
 				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
@@ -896,7 +897,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        const parentHeight = parent.outerHeight();
 		                        const height = scope.svyFormComponent.formHeight;
 		                        const width = scope.svyFormComponent.formWidth;
-		                        const numberOfColumns = Math.floor(parentWidth/width);
+		                        const numberOfColumns =  (scope.pageLayout == 'listview') ? 1 : Math.floor(parentWidth/width);
 		                        const numberOfRows = Math.floor(parentHeight/height);
 		                        numberOfCells  = numberOfRows * numberOfColumns;
 		                        // always just render 1
@@ -972,13 +973,84 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
 						row.api[simpleName] = {};
 						if ( scope.svyFormComponent.absoluteLayout ) {
-							row.layout[simpleName] = {
-								position: "absolute",
-								left: childElement.model.location.x + "px",
-								top: childElement.model.location.y + "px",
-								width: childElement.model.size.width + "px",
-								height: childElement.model.size.height + "px"
-							};
+							
+							var elementLayout = {position: "absolute"};
+							if (scope.svyFormComponent.useCssPosition)
+							{
+								if (childElement.model.cssPosition.left != "-1")
+								{
+									elementLayout['left'] = childElement.model.cssPosition.left;
+								}
+								if (childElement.model.cssPosition.right != "-1")
+								{
+									elementLayout['right'] = childElement.model.cssPosition.right;
+								}
+								if (childElement.model.cssPosition.top != "-1")
+								{
+									elementLayout['top'] = childElement.model.cssPosition.top;
+								}
+								if (childElement.model.cssPosition.bottom != "-1")
+								{
+									elementLayout['bottom'] = childElement.model.cssPosition.bottom;
+								}
+								if (childElement.model.cssPosition.width != "-1")
+								{
+									if (childElement.model.cssPosition.left != "-1" && childElement.model.cssPosition.right != "-1")
+									{
+										elementLayout['min-width'] = childElement.model.cssPosition.width;
+									}
+									else
+									{
+										elementLayout['width'] = childElement.model.cssPosition.width;
+									}	
+								}
+								if (childElement.model.cssPosition.height != "-1")
+								{
+									if (childElement.model.cssPosition.top != "-1" && childElement.model.cssPosition.bottom != "-1")
+									{
+										elementLayout['min-height'] = childElement.model.cssPosition.height;
+									}
+									else
+									{
+										elementLayout['min-height'] = childElement.model.cssPosition.height;
+									}	
+								}
+							}
+							else
+							{
+								var anchoredTop = (childElement.model.anchors & $anchorConstants.NORTH) != 0; // north
+								var anchoredRight = (childElement.model.anchors & $anchorConstants.EAST) != 0; // east
+								var anchoredBottom = (childElement.model.anchors & $anchorConstants.SOUTH) != 0; // south
+								var anchoredLeft = (childElement.model.anchors & $anchorConstants.WEST) != 0; //west
+
+								if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
+								if (!anchoredTop && !anchoredBottom) anchoredTop = true;
+								if (anchoredLeft)
+								{
+									elementLayout['left'] = childElement.model.location.x + "px";
+								}
+								if (anchoredRight)
+								{
+									elementLayout['right'] = (scope.svyFormComponent.formWidth - childElement.model.location.x - childElement.model.size.width) + "px";
+								}
+								else
+								{
+									elementLayout['width'] = childElement.model.size.width + "px";
+								}	
+								if (anchoredTop)
+								{
+									elementLayout['top'] = childElement.model.location.y + "px";
+								}
+								if (anchoredBottom)
+								{
+									elementLayout['bottom'] = (scope.svyFormComponent.formHeight - childElement.model.location.y - childElement.model.size.height) + "px"
+								}
+								else
+								{
+									elementLayout['height'] = childElement.model.size.height + "px";
+								}
+							}	
+							row.layout[simpleName] = elementLayout;
 						}
 						
 						row.createdChildElements++;
@@ -1042,10 +1114,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						const height = scope.svyFormComponent.formHeight;
 						const  width = scope.svyFormComponent.formWidth;
 
+						if (scope.pageLayout == 'listview')
+						{
+							element.css( "width", "100%" );
+						}
 						if ( scope.svyFormComponent.absoluteLayout ) {
 							element.css( "position", "relative" )
 							element.css( "height", height + "px" )
-							element.css( "width", width + "px" )
+							if (scope.pageLayout != 'listview')
+							{
+								element.css( "width", width + "px" );
+							}	
 						}
 						
 						// this listener works in tandem with childElement.addViewportChangeListener(...) listeners 
