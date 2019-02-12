@@ -66,11 +66,16 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	public Date fromJSON(Object newValue, Date previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
+		return fromJSON(newValue, hasNoDateConversion(pd));
+	}
+
+	public Date fromJSON(Object newValue, boolean hasNoDateConversion)
+	{
 		if (newValue instanceof String)
 		{
 			String sDate = (String)newValue;
 			// if no date conversion replace client time zone with server time zone
-			if (hasNoDateConversion(pd))
+			if (hasNoDateConversion)
 			{
 				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(sDate);
 				LocalDateTime clientLocalDateTime = clientDateTime.toLocalDateTime();
@@ -108,7 +113,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		return writer.value(sDate);
 	}
 
-	private static boolean hasNoDateConversion(PropertyDescription pd)
+	public static boolean hasNoDateConversion(PropertyDescription pd)
 	{
 		boolean hasNoDateConversion = false;
 		Object pdConfig = pd.getConfig();

@@ -41,6 +41,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -682,7 +683,35 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
-			if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
+			if (typeOfDP.getType() instanceof DatePropertyType && fieldFormat != null && fieldFormat.parsedFormat != null &&
+				fieldFormat.parsedFormat.getDisplayFormat() != null && oldValue instanceof Date)
+			{
+				// if we have format with no hour, skip converting the date from the client and merge it with the old date
+				String displayFormat = fieldFormat.parsedFormat.getDisplayFormat();
+				boolean displayWithNoHour = displayFormat.indexOf('h') == -1 && displayFormat.indexOf('H') == -1;
+				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP));
+
+				if (displayWithNoHour)
+				{
+					try
+					{
+						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
+							dataAdapterList.getApplication().getLocale(), true);
+						formatter.setOriginal((Date)oldValue);
+						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(newValue));
+						value = formatter.getMergedDate();
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+				}
+				else
+				{
+					value = newValue;
+				}
+			}
+			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
 				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
 					serverSideValueIsNotTheSameAsClient);
@@ -690,22 +719,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			else
 			{
 				value = newJSONValue;
-			}
-			if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getDisplayFormat() != null && oldValue instanceof Date &&
-				value instanceof Date)
-			{
-				try
-				{
-					StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
-						dataAdapterList.getApplication().getLocale(), true);
-					formatter.setOriginal((Date)oldValue);
-					formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(value));
-					value = formatter.getMergedDate();
-				}
-				catch (Exception ex)
-				{
-					Debug.error(ex);
-				}
 			}
 		}
 		else value = newJSONValue;
