@@ -71,6 +71,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSLabel;
+import com.servoy.j2db.scripting.solutionmodel.JSMedia;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.scripting.solutionmodel.JSPart;
 import com.servoy.j2db.scripting.solutionmodel.JSVariable;
@@ -79,6 +80,7 @@ import com.servoy.j2db.solutionmodel.ISMComponent;
 import com.servoy.j2db.solutionmodel.ISMField;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMLabel;
+import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.solutionmodel.ISMPart;
 import com.servoy.j2db.solutionmodel.ISMVariable;
@@ -174,6 +176,8 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IComponent.class, IRuntimeComponent.class);
 
+		javaClassToDocumentedJavaClass.put(ISMMedia.class, JSMedia.class);
+
 		javaClassToDocumentedJavaClass.put(ISMField.class, JSFieldWithConstants.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMField.class, JSFieldWithConstants.class);
 		javaClassToDocumentedJavaClass.put(JSField.class, JSFieldWithConstants.class);
@@ -217,9 +221,9 @@ public class JavaToDocumentedJSTypeTranslator
 		// but we still want them to appear in JS with their original name
 		javaClassToDocumentedJavaClass.put(PrinterJob.class, com.servoy.j2db.documentation.scripting.docs.PrinterJob.class);
 
-		// (plugin) workarounds - ideally this map should tend to become empty in the future instead of growing 
-		javaClassToDocumentedJavaClassWorkarounds.put(
-			"com.servoy.extensions.plugins.window.menu.AbstractMenuItem", "com.servoy.extensions.plugins.window.menu.MenuItem"); //$NON-NLS-1$ //$NON-NLS-2$
+		// (plugin) workarounds - ideally this map should tend to become empty in the future instead of growing
+		javaClassToDocumentedJavaClassWorkarounds.put("com.servoy.extensions.plugins.window.menu.AbstractMenuItem", //$NON-NLS-1$
+			"com.servoy.extensions.plugins.window.menu.MenuItem"); //$NON-NLS-1$
 	}
 
 	/**
@@ -388,7 +392,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 	/**
 	 * If the class was an array that was split, merge it's "name" back based on element type and dimensions.
-	 * @return the string representation of 
+	 * @return the string representation of
 	 */
 	private String mergeBackArrayTypeIfNeeded(String javaClassName, int dimensions)
 	{
