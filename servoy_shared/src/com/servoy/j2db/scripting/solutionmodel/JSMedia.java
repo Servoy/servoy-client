@@ -58,14 +58,14 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	/**
 	 * @return the media
 	 */
-	Media getMedia()
+	public Media getMedia()
 	{
 		return media;
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Media#getMimeType()
-	 * 
+	 *
 	 * @sampleas getBytes()
 	 */
 	@JSGetter
@@ -83,9 +83,9 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Media#getName()
-	 * 
+	 *
 	 * @sampleas getBytes()
-	 * 
+	 *
 	 * @return A String holding the name of this Media object.
 	 */
 	@JSFunction
@@ -96,7 +96,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/**
 	 * A byte array holding the content of the Media object.
-	 * 
+	 *
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
 	 * var mapBytes = plugins.file.readFile('d:/map.png');
@@ -128,7 +128,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/**
 	 * Returns the UUID of this media
-	 * 
+	 *
 	 * @sample
 	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
 	 * application.output(ballImg.getUUID().toString());
@@ -152,7 +152,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -166,7 +166,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

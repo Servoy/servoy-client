@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -28,15 +29,27 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.scripting.solutionmodel.JSMedia;
 import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
  * @since 2019.3
  */
+@SuppressWarnings("nls")
 public class LessCompiler
 {
 	private static Invocable invocable;
+
+	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
+	{
+		String cssAsString = compileLessWithNashorn(new String(media.getMediaData(), Charset.forName("UTF-8")),
+			(name) -> fs.getMedia(name) != null ? new JSMedia(fs.getMedia(name), fs, false) : null, media.getName());
+		cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
+			Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getSolution().getLastModifiedTime()));
+		return cssAsString;
+	}
 
 	public static String compileLessWithNashorn(InputStream is)
 	{
@@ -51,7 +64,7 @@ public class LessCompiler
 		return null;
 	}
 
-	public static String compileLessWithNashorn(String text, FlattenedSolution fs, String name)
+	public static String compileLessWithNashorn(String text, IMediaProvider mediaProvider, String name)
 	{
 
 		try
@@ -59,7 +72,7 @@ public class LessCompiler
 			Invocable engine = getInvocable();
 			synchronized (engine)
 			{
-				Object result = engine.invokeFunction("convert", text, new LessFileManager(fs, name));
+				Object result = engine.invokeFunction("convert", text, new LessFileManager(mediaProvider, name));
 				return result.toString();
 			}
 		}
