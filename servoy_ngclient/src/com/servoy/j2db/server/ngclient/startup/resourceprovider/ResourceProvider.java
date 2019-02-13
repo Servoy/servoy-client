@@ -60,8 +60,6 @@ import org.sablo.websocket.WebsocketSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.WebObjectRegistry;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.less.LessCompiler;
@@ -604,13 +602,5 @@ public class ResourceProvider implements Filter
 			}
 		}
 		return null;
-	}
-
-	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
-	{
-		String cssAsString = LessCompiler.compileLessWithNashorn(new String(media.getMediaData()), fs, media.getName());
-		cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
-			Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getSolution().getLastModifiedTime()));
-		return cssAsString;
 	}
 }
