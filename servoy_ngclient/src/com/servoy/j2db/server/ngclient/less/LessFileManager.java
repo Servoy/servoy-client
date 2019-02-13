@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.server.ngclient.startup.resourceprovider;
+package com.servoy.j2db.server.ngclient.less;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -25,7 +25,7 @@ import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.server.ngclient.startup.resourceprovider.resources.ThemeResourceLoader;
+import com.servoy.j2db.server.ngclient.less.resources.ThemeResourceLoader;
 import com.servoy.j2db.util.Debug;
 
 /**
