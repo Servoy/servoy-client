@@ -691,24 +691,17 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				boolean displayWithNoHour = displayFormat.indexOf('h') == -1 && displayFormat.indexOf('H') == -1;
 				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP));
 
-				if (displayWithNoHour)
+				try
 				{
-					try
-					{
-						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
-							dataAdapterList.getApplication().getLocale(), true);
-						formatter.setOriginal((Date)oldValue);
-						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(newValue));
-						value = formatter.getMergedDate();
-					}
-					catch (Exception ex)
-					{
-						Debug.error(ex);
-					}
+					StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
+						dataAdapterList.getApplication().getLocale(), true);
+					formatter.setOriginal((Date)oldValue);
+					formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(newValue));
+					value = formatter.getMergedDate();
 				}
-				else
+				catch (Exception ex)
 				{
-					value = newValue;
+					Debug.error(ex);
 				}
 			}
 			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
