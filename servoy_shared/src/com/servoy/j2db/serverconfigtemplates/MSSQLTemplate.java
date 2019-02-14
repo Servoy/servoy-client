@@ -57,6 +57,11 @@ public class MSSQLTemplate extends ServerTemplateDefinition
 			if (url.startsWith("jdbc:sqlserver://") && url.length() > startIdx)
 			{
 				int endIdx = url.indexOf(":", startIdx);
+				if (endIdx < 0)
+				{
+					//no port
+					endIdx = url.indexOf(";", startIdx);
+				}
 				if (endIdx > 0)
 				{
 					server = url.substring(startIdx, endIdx);

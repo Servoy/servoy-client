@@ -28,6 +28,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.less.LessCompiler;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
@@ -40,8 +41,7 @@ public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 	@Override
 	protected boolean sendMediaData(HttpServletResponse response, Media media, FlattenedSolution fs) throws IOException
 	{
-		return sendData(response,
-			media.getName().endsWith(".less") ? ResourceProvider.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
+		return sendData(response, media.getName().endsWith(".less") ? LessCompiler.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
 			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 

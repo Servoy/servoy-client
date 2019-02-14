@@ -15,14 +15,18 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.server.ngclient.startup.resourceprovider;
+package com.servoy.j2db.server.ngclient.less;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.scripting.solutionmodel.JSMedia;
+import com.servoy.j2db.server.ngclient.less.resources.ThemeResourceLoader;
+import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -32,21 +36,29 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class LessFileManager
 {
-	private final FlattenedSolution fs;
+	private final IMediaProvider mediaProvider;
 	private final String startFolder;
 	private final String lessFile;
+	private final List<Media> imports = new ArrayList<>();
 
-	public LessFileManager(FlattenedSolution fs, String lessFile)
+	public LessFileManager(IMediaProvider mediaProvider, String lessFile)
 	{
-		this.fs = fs;
+		this.mediaProvider = mediaProvider;
 		this.lessFile = lessFile;
 		int index = lessFile.lastIndexOf('/') + 1;
 		this.startFolder = index > 0 ? lessFile.substring(0, index) : "";
+
+		ISMMedia parent = mediaProvider.getMedia(lessFile);
+		if (parent instanceof JSMedia)
+		{
+			((JSMedia)parent).getMedia().setRuntimeProperty(Media.REFERENCES, imports);
+		}
+
 	}
 
 	public String load(String path, @SuppressWarnings("unused") String directory)
 	{
-		if (fs != null)
+		if (mediaProvider != null)
 		{
 			String filename = path;
 			// test for arguments (like last modified)
@@ -55,25 +67,52 @@ public class LessFileManager
 			{
 				filename = filename.substring(0, questionMark);
 			}
-			Media media = null;
+			ISMMedia media = null;
 			try
 			{
 				URI uri = new URI(startFolder + filename);
-				media = fs.getMedia(uri.normalize().toString());
+				media = mediaProvider.getMedia(uri.normalize().toString());
 			}
 			catch (URISyntaxException e1)
 			{
-				media = fs.getMedia(startFolder + filename);
+				media = mediaProvider.getMedia(startFolder + filename);
+			}
+			if (media == null && path.startsWith(ThemeResourceLoader.THEME_LESS))
+			{
+				int index = path.indexOf("version=");
+				if (index == -1)
+				{
+					return ThemeResourceLoader.getLatestTheme();
+				}
+				else
+				{
+					String version = path.substring(index + "version=".length());
+					return ThemeResourceLoader.getTheme(version);
+				}
+			}
+			if (media == null && path.startsWith(ThemeResourceLoader.PROPERTIES_LESS))
+			{
+				int index = path.indexOf("version=");
+				if (index == -1)
+				{
+					return ThemeResourceLoader.getLatestThemeProperties();
+				}
+				else
+				{
+					String version = path.substring(index + "version=".length());
+					return ThemeResourceLoader.getThemeProperties(version);
+				}
 			}
 			if (media != null)
 			{
+				if (media instanceof JSMedia) imports.add(((JSMedia)media).getMedia());
 				try
 				{
-					return new String(media.getMediaData(), "UTF-8");
+					return new String(media.getBytes(), "UTF-8");
 				}
 				catch (UnsupportedEncodingException e)
 				{
-					return new String(media.getMediaData());
+					return new String(media.getBytes());
 				}
 			}
 		}

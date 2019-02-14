@@ -317,15 +317,15 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && !serverJSONValue[NO_OP]) {
-					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : serverJSONValue };
-					
 					// not updates - so whole thing received
 					var proto = { };
 					// conversion to server in case it is sent to handler or server side internalAPI calls as argument of type "foundsetRef"
 					proto[$sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC] = function() {
 						return this[FOUNDSET_ID];
 					};
+					
 					newValue = $sabloUtils.cloneWithDifferentPrototype(serverJSONValue, proto);
+					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : newValue };
 						
 					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface

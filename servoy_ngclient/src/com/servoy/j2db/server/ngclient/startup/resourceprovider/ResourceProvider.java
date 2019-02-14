@@ -17,11 +17,9 @@
 
 package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -42,10 +40,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -66,10 +60,9 @@ import org.sablo.websocket.WebsocketSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.WebObjectRegistry;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
+import com.servoy.j2db.server.ngclient.less.LessCompiler;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -86,16 +79,12 @@ import com.servoy.j2db.util.Utils;
 @WebFilter(urlPatterns = { "/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 public class ResourceProvider implements Filter
 {
-	private static final String SERVOY_LESS_PATH = "resources/servoy.less";
-	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
-
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
 
 	// TODO add comment; what is the key? resource name, package name, ...?
 	private static final Map<String, List<IPackageReader>> componentReaders = new ConcurrentHashMap<>();
 	private static final Map<String, List<IPackageReader>> serviceReaders = new ConcurrentHashMap<>();
 	private static final List<String> removePackageNames = new ArrayList<String>();
-	private static Invocable invocable;
 
 	private final File templatesDir = new File(ApplicationServerRegistry.get().getServoyApplicationServerDirectory(), "server/webapps/ROOT/templates");
 
@@ -376,7 +365,7 @@ public class ResourceProvider implements Filter
 	private void streamContent(ServletResponse response, String file, InputStream is) throws IOException
 	{
 		String compileLessWithNashorn = null;
-		if (file.toLowerCase().endsWith(".less") && (compileLessWithNashorn = compileLessWithNashorn(is)) != null)
+		if (file.toLowerCase().endsWith(".less") && (compileLessWithNashorn = LessCompiler.compileLessWithNashorn(is)) != null)
 		{
 			response.setContentType("text/css");
 			response.setContentLength(compileLessWithNashorn.length());
@@ -388,74 +377,6 @@ public class ResourceProvider implements Filter
 		}
 	}
 
-	private static String getText(InputStream is) throws IOException
-	{
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-		StringBuilder result = new StringBuilder();
-		String inputLine;
-		while ((inputLine = bufferedReader.readLine()) != null)
-			result.append(inputLine);
-		bufferedReader.close();
-		return result.toString();
-	}
-
-
-	public static String compileLessWithNashorn(InputStream is)
-	{
-		try
-		{
-			return compileLessWithNashorn(getText(is), null, null);
-		}
-		catch (IOException e)
-		{
-			Debug.log(e);
-		}
-		return null;
-	}
-
-	public static String compileLessWithNashorn(String text, FlattenedSolution fs, String name)
-	{
-
-		try
-		{
-			Invocable engine = getInvocable();
-			synchronized (engine)
-			{
-				Object result = engine.invokeFunction("convert", text, new LessFileManager(fs, name));
-				return result.toString();
-			}
-		}
-		catch (ScriptException e)
-		{
-			Debug.log(e);
-		}
-		catch (NoSuchMethodException e)
-		{
-			Debug.log(e);
-		}
-		catch (Exception e)
-		{
-			Debug.log(e);
-		}
-		return "";
-	}
-
-	private static Invocable getInvocable() throws NoSuchMethodException, ScriptException
-	{
-		if (invocable == null)
-		{
-			//we have to pass in null as classloader if we want to acess the java 8 nashorn
-			ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
-			if (engine != null)
-			{
-				invocable = (Invocable)engine;
-				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-2.5.1.js"));
-				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/less-env-2.5.1.js"));
-				invocable.invokeFunction("load", ResourceProvider.class.getResource("js/lessrunner.js"));
-			}
-		}
-		return invocable;
-	}
 
 	public synchronized static URL computeURL(String pathInfo, Bundle bundle) throws UnsupportedEncodingException, MalformedURLException
 	{
@@ -681,37 +602,5 @@ public class ResourceProvider implements Filter
 			}
 		}
 		return null;
-	}
-
-	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
-	{
-		return compileSolutionLessFile(media, fs, true);
-	}
-
-	public static String compileSolutionLessFile(Media media, FlattenedSolution fs, boolean includeServoyDefaultLess)
-	{
-		StringBuilder sb = new StringBuilder();
-		Media properties = fs.getMedia(PROPERTIES_LESS);
-		if (properties != null)
-		{
-			//if there is a properties file, then we concatenate the properties, servoy default less and solution less files
-			sb.append(new String(properties.getMediaData()));
-			if (includeServoyDefaultLess)
-			{
-				try (InputStream is = ResourceProvider.class.getResource(SERVOY_LESS_PATH).openStream())
-				{
-					sb.append(Utils.getTXTFileContent(is, Charset.forName("UTF8")));
-				}
-				catch (Exception e)
-				{
-					log.error("Cannot find servoy default less file.", e);
-				}
-			}
-		}
-		sb.append(new String(media.getMediaData()));
-		String cssAsString = ResourceProvider.compileLessWithNashorn(sb.toString(), fs, media.getName());
-		cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
-			Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getSolution().getLastModifiedTime()));
-		return cssAsString;
 	}
 }

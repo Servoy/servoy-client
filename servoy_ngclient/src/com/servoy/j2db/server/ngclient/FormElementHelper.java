@@ -735,6 +735,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			if (mainFormName != null)
 			{
 				flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
+				if (flattenedForm == null)
+				{
+					// this can happen if main form is solution model and flattened solution is global shared solution
+					// template generation will use the right flattened solution and fill in the right values
+					return Integer.valueOf(-2);
+				}
 			}
 		}
 		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);

@@ -125,8 +125,14 @@ public class WebObjectBasicImpl
 		return new TypeIterator<T>(getAllObjects(), tp);
 	}
 
-	public void internalAddChild(IPersist obj)
+	public void insertChild(IPersist obj)
 	{
+
+	}
+
+	public void setChild(IPersist obj)
+	{
+
 	}
 
 	public void internalRemoveChild(IPersist obj)

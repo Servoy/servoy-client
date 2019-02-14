@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -321,6 +322,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				if (media != null && media.getLastModifiedTime() > 0)
 				{
 					timestamp = media.getLastModifiedTime();
+					List<Media> references = media.getRuntimeProperty(Media.REFERENCES);
+					if (references != null)
+					{
+						Long refLM = references.stream().collect(Collectors.summingLong(Media::getLastModifiedTime));
+						timestamp += refLM.longValue();
+					}
 				}
 				styleSheets.set(i,
 					"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +

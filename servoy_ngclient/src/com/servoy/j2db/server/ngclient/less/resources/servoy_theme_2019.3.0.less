@@ -1,0 +1,2318 @@
+/* VERSION: 2019.3.0 */
+@import 'servoy_theme_properties.less?version=2019.3.0';
+
+/* 12 Grid margin reset */
+div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]) > .row {
+	margin-right: 0;
+	margin-left: 0;
+}
+
+/* General Style */
+*, body {
+	font-size: @text-font-size;
+}
+
+:focus {
+	outline: none;
+}
+
+.full-size {
+	width: 100%;
+	height: 100%;
+}
+
+.full-width {
+	width: 100%;
+}
+
+.full-height {
+	height: 100%;
+}
+
+.width-auto {
+	width: auto;
+}
+
+.width-auto-important {
+	width: auto !important;
+}
+
+.no-border {
+	border-style: none;
+	border-width: 0;
+}
+
+.border-default {
+	border-color: @border-color;
+	border-width: @border-width;
+	border-style: @border-style;
+	border-radius: @border-radius;
+}
+
+.no-padding {
+	padding: 0;
+}
+
+.no-margin {
+	margin: 0;
+}
+
+/* Reset Header Margins */
+h1, .h1, h2, .h2, h3, .h3,
+h4, .h4, h5, .h5, h6, .h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h1, .h1 {
+  font-size: @font-size-h1;
+}
+
+h2, .h2 {
+  font-size: @font-size-h2;
+}
+
+h3, .h3 {
+  font-size: @font-size-h3;
+}
+
+h4, .h4 {
+  font-size: @font-size-h4;
+}
+
+h5, .h5 {
+  font-size: @font-size-h5;
+}
+
+h6, .h6 {
+  font-size: @font-size-h6;
+}
+
+/* To be used on a tab/tabless panel when nesting responsive form. Is used to indent the nested form with the container form */
+.margin-reset {
+	margin-left: -15px;
+	margin-right: -15px;
+}
+
+/* Margins, to be used on rows to separate lines */
+.margin-10 {
+	margin: @box-size-10;
+}
+
+.margin-20 {
+	margin: @box-size-20;
+}
+
+.margin-30 {
+	margin: @box-size-30;
+}
+
+.margin-top-10 {
+	margin-top: @box-size-10;
+}
+
+.margin-top-20 {
+	margin-top: @box-size-20;
+}
+
+.margin-top-30 {
+	margin-top: @box-size-30;
+}
+
+.margin-bottom-10 {
+	margin-bottom: @box-size-10;
+}
+
+.margin-bottom-20 {
+	margin-bottom: @box-size-20;
+}
+
+.margin-bottom-30 {
+	margin-bottom: @box-size-30;
+}
+
+.margin-right-10 {
+	margin-right: @box-size-10;
+}
+
+.margin-right-20 {
+	margin-right: @box-size-20;
+}
+
+.margin-right-30 {
+	margin-right: @box-size-30;
+}
+
+.margin-left-10 {
+	margin-left: @box-size-10;
+}
+
+.margin-left-20 {
+	margin-left: @box-size-20;
+}
+
+.margin-left-30 {
+	margin-left: @box-size-30;
+}
+
+/* paddings, to be used on rows to separate lines */
+.padding-10 {
+	padding: @box-size-10;
+}
+
+.padding-20 {
+	padding: @box-size-20;
+}
+
+.padding-30 {
+	padding: @box-size-30;
+}
+
+.padding-top-10 {
+	padding-top: @box-size-10;
+}
+
+.padding-top-20 {
+	padding-top: @box-size-20;
+}
+
+.padding-top-30 {
+	padding-top: @box-size-30;
+}
+
+.padding-bottom-10 {
+	padding-bottom: @box-size-10;
+}
+
+.padding-bottom-20 {
+	padding-bottom: @box-size-20;
+}
+
+.padding-bottom-30 {
+	padding-bottom: @box-size-30;
+}
+
+.padding-right-10 {
+	padding-right: @box-size-10;
+}
+
+.padding-right-20 {
+	padding-right: @box-size-20;
+}
+
+.padding-right-30 {
+	padding-right: @box-size-30;
+}
+
+.padding-left-10 {
+	padding-left: @box-size-10;
+}
+
+.padding-left-20 {
+	padding-left: @box-size-20;
+}
+
+.padding-left-30 {
+	padding-left: @box-size-30;
+}
+
+.border-class {
+	border-style: @border-style;
+	border-color: @border-color;
+}
+
+.border {
+	.border-class();
+	border-width: @border-width;
+}
+
+.border-top {
+	.border-class();
+	border-top-width: @border-width;
+}
+
+.border-bottom {
+	.border-class();
+	border-bottom-width: @border-width;
+}
+
+.border-left {
+	.border-class();
+	border-left-width: @border-width;
+}
+
+.border-right {
+	.border-class();
+	border-right-width: @border-width;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.clickable-hover {
+	cursor: pointer;
+	transition:border-color 0.4s ease 0s, background-color 0.4s ease 0s;
+}
+
+.clickable-hover:hover {
+	background: fade(@main-color, 20%);
+	border-radius: 4px;
+}
+
+.clickable[disabled],
+.clickable-hover[disabled] {
+	cursor: not-allowed;
+}
+
+/* TODO does make sense ? */
+.border-radius {
+	border-radius: @border-radius;
+}
+
+/* Forms */
+/* TODO enable form bgs !?
+.svy-form {
+	background-color: @body-bg;
+}
+.svy-form-inverse {
+	background-color: @body-bg-inverse;
+}
+*/
+
+/* Dialogs */
+.svy-dialog .svy-header {
+	background: @window-header-bg;
+	color: @window-header-color;
+}
+
+.svy-dialog .svy-body {
+	background: @window-body-bg;
+}
+
+.svy-dialog .svy-footer {
+	background: @window-footer-bg;
+}
+
+/* Button */
+.svy-button,
+.bts-button,
+.btn {
+	border-radius: @border-radius;
+}
+
+.btn:focus, .btn:active:focus, 
+.btn.active:focus, .btn.focus, 
+.btn:active.focus, .btn.active.focus {
+	outline-color: @main-color-light;
+	border-color: @main-color-light;
+}
+
+/* Label */
+.svy-label,
+.bts-label {
+	color: @text-color;
+	font-weight: 100;
+	/* font-size: 12px; */
+}
+
+.svy-label[disabled],
+.bts-label[disabled],
+.svy-fa[disabled]  {
+	opacity: 0.6;
+}
+
+.svy-label.full-size,
+.bts-label.full-size,
+.svy-label.full-width,
+.bts-label.full-width {
+	display: block;
+}
+
+/* Fields */
+.form-control {
+	box-shadow: none;
+	border-radius: @border-radius;
+	background-color: @field-bg;
+}
+
+.form-control:focus {
+	outline: 1px;
+	outline-color: @main-color-light;
+	border-color: @main-color-light;
+	box-shadow: none;
+}
+
+.svy-field, .svy-password,
+.svy-textarea, .bts-textarea,
+.svy-textfield, .bts-textbox,
+.svy-typeahead, .bts-typeahead,
+.svy-combobox, .svy-combobox ~ .input-group-addon,
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
+.bts-calendar input, .bts-calendar input ~ .input-group-addon {
+	box-shadow: none;
+	color: @field-color;
+	font-size: @field-font-size;
+	-webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	   -moz-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	    -ms-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	     -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  	        transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+
+
+.svy-field, .svy-password,
+.svy-textarea, .bts-textarea,
+.svy-textfield, .bts-textbox,
+.svy-typeahead, .bts-typeahead,
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
+.bts-calendar input, .bts-calendar input ~ .input-group-addon {
+	border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+	border-radius: 0;
+}
+
+.input-group-addon:last-child,
+.svy-calendar ~ .input-group-addon,
+.bts-calendar input ~ .input-group-addon {
+	border-left: 0;
+}
+
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
+.bts-calendar input, .bts-calendar input ~ .input-group-addon  {
+	background-color: @field-addon-bg;
+}
+
+
+/*
+.input-group.date .input-group-addon {
+	background-color: @field-addon-bg;
+} */
+
+.svy-field:focus, .svy-password:focus,
+.svy-textarea:focus, .bts-textarea:focus,
+.svy-textfield:focus, .bts-textbox:focus,
+.svy-typeahead:focus, .bts-typeahead:focus,
+.svy-combobox:focus, .svy-combobox:focus ~ .input-group-addon,
+.bts-select:focus, .bts-select:focus ~ .input-group-addon,
+.svy-calendar:focus, .svy-calendar:focus ~ .input-group-addon,
+.bts-calendar input:focus, .bts-calendar input:focus ~ .input-group-addon  {
+	border-color: @main-color;
+}
+
+.form-control[disabled], 
+.form-control[readonly], 
+fieldset[disabled] .form-control {
+	background-color: @field-disabled-bg;
+	opacity: 0.6;
+	border-color: @border-color;
+}
+
+/* Checkbox */
+/*** custom checkboxes ***/
+.svy-check label,
+.svy-checkgroup label,
+.svy-radiogroup label,
+.bts-check label,
+.bts-radiogroup label {
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+
+.svy-check input[type=checkbox],
+.svy-check input[type=radio],
+.svy-checkgroup input[type=checkbox],
+.svy-radiogroup input[type=radio],
+.bts-check input[type=checkbox],
+.bts-radiogroup input[type=checkbox],
+.bts-radiogroup input[type=radio] { 
+	display:none; /* to hide the checkbox itself */
+} 
+
+.svy-check input[type=checkbox] + span:before,
+.svy-check input[type=radio] + span:before,
+.svy-checkgroup input[type=checkbox] + span:before,
+.svy-radiogroup input[type=radio] + span:before,
+.bts-check input[type=checkbox] + span:before,
+.bts-radiogroup input[type=checkbox] + span:before,
+.bts-radiogroup input[type=radio] + span:before {
+  	display: inline-block;
+  	font-family: 'Glyphicons Halflings';
+  	letter-spacing: 5px;
+  	color: @field-check-color;
+}
+
+input[type="radio"][disabled] + span, 
+input[type="checkbox"][disabled] + span, 
+input[type="radio"].disabled + span, 
+input[type="checkbox"].disabled + span, 
+fieldset[disabled] input[type="radio"] + span, 
+fieldset[disabled] input[type="checkbox"] + span {
+    cursor: not-allowed;
+}
+
+input[type="radio"][disabled] + span:before, 
+input[type="checkbox"][disabled] + span:before, 
+input[type="radio"].disabled + span:before, 
+input[type="checkbox"].disabled + span:before, 
+fieldset[disabled] input[type="radio"] + span:before, 
+fieldset[disabled] input[type="checkbox"] + span:before {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.svy-check input[type=checkbox] + span:before,
+.bts-check input[type=checkbox] + span:before,
+.svy-checkgroup input[type=checkbox] + span:before,
+.bts-radiogroup input[type=checkbox] + span:before { 
+	content: "\e157";
+}
+
+.svy-check input[type=checkbox]:checked + span:before,
+.bts-check input[type=checkbox]:checked + span:before,
+.svy-checkgroup input[type=checkbox]:checked + span:before,
+.bts-radiogroup input[type=checkbox]:checked + span:before {
+	content: "\e067";
+}
+
+.svy-radiogroup input[type=radio] + span:before,
+.bts-radiogroup input[type=radio] + span:before { 
+	content: "\e157";
+}
+
+.svy-radiogroup input[type=radio]:checked + span:before,
+.bts-radiogroup input[type=radio]:checked + span:before {
+	content: "\e165";
+}
+
+/* Calendar Field */
+
+/*
+.bts-calendar input {
+	border: 0;
+}
+/* Input Groups *
+.input-group .input-group-addon {
+	background-color: @field-addon-bg;
+	border-radius: 0;
+	border-width: 0;
+	border-color: @border-color;
+	border-bottom-width: 1px;
+	-webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	   -moz-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	    -ms-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	     -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  	        transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+.svy-field:focus ~ .input-group-addon,
+.svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
+.svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
+.svy-typeahead:focus ~ .input-group-addon, .bts-typeahead:focus ~ .input-group-addon,
+.svy-combobox:focus ~ .input-group-addon, .bts-select:focus ~ .input-group-addon,
+.svy-calendar:focus ~ .input-group-addon, .bts-calendar:focus ~ .input-group-addon, 
+.bts-calendar input:focus ~ .input-group-addon  {
+	border-color: @main-color;
+}
+.svy-field:focus ~ .input-group-addon,
+.svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
+.svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
+.svy-typeahead:focus ~ .input-group-addon, .bts-typeahead:focus ~ .input-group-addon,
+.svy-combobox:focus ~ .input-group-addon, .bts-select:focus ~ .input-group-addon,
+.svy-calendar:focus ~ .input-group-addon, .bts-calendar:focus ~ .input-group-addon, 
+.bts-calendar input:focus ~ .input-group-addon  {
+	border-color: @main-color;
+}
+.svy-calendar input,
+.bts-calendar input,
+.table .input-group .input-group-addon {
+	background-color: @field-addon-bg;
+}
+*/
+
+/* Calendar Picker */
+.bootstrap-datetimepicker-widget a {
+	color: @main-color-light;
+}
+
+.bootstrap-datetimepicker-widget table td.today {
+	color: @main-color;
+}
+
+.bootstrap-datetimepicker-widget table td.active, 
+.bootstrap-datetimepicker-widget table td.active:hover {
+	background-color: @main-color;
+	color: @main-color-inverse;
+}
+
+/* Combobox */
+.svy-combobox .ui-select-toggle {
+    border: 0;
+    border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.svy-combobox .ui-select-toggle:hover {
+    background-color: @field-addon-bg;
+    border-color: @main-color;
+}
+
+.svy-combobox input {
+	border: @field-border-width;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.svy-combobox input:focus {
+	-webkit-box-shadow: none;
+    box-shadow: none;
+    border-style: @border-style;
+	border-color: @main-color-light;
+	border-width: @field-border-width;
+}
+
+.svy-combobox.ui-select-bootstrap .ui-select-choices-row.active>span {
+	background-color: @main-color;
+}
+
+
+/* Dropdown field */
+.dropdown-menu > li > a {
+	color: @text-color;
+}
+
+.dropdown-menu > .active > a, 
+.dropdown-menu > .active > a:hover, 
+.dropdown-menu > .active > a:focus {
+	background-color: @main-color;
+}
+
+/* Bootstrap Select  
+.bts-select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	-webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+} */
+
+.bts-select option {
+	
+}
+
+.bts-select option:checked,
+.bts-select option:focus,
+.bts-select option:hover,
+.bts-select option:active {
+	background-color: @main-color !important;
+	background: @main-color !important;
+	outline: none;
+}
+
+/* Select2Tokenizer Servoy Extra */
+.svy-select2-autotokenizer-dropdown .select2-results__option.select2-results__option--highlighted {
+	background-color: @main-color;
+}
+
+.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple {
+   	background-color: @field-bg;
+   	color: @field-color;
+    border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+	border-radius: 0;
+    cursor: text;
+}
+
+.svy-select2-autotokenizer .select2-container--default.select2-container--focus .select2-selection--multiple {
+	outline: 1px;
+	outline-color: @main-color-light;
+	border-color: @main-color-light;
+	box-shadow: none;
+}
+
+.svy-select2-autotokenizer .select2-container .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2px 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-selection__choice, .svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-search--inline .select2-search__field {
+    margin-bottom: 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #76BB29;
+    border: 0px solid #d8d8d8;
+    border-radius: 30px;
+    cursor: default;
+    margin-right: 10px;
+    margin-top: 5px;
+    padding: 1px 15px 1px 10px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #4A4A4A;
+    cursor: pointer;
+    font-weight: normal;
+    margin-right: 5px;
+    font-size: 0px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:before {
+	font-family: "FontAwesome";
+	content: "\F15A";
+	color: #ffffff;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover:before {
+	font-family: "FontAwesome";
+	content: "\F159";
+	/* color: #ffffff; */
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true] {
+	background-color: @main-color;
+	color: @main-color-inverse;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected]:before {
+	font-family: "FontAwesome";
+	content: "\f096";
+	margin-right: 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true]:before {
+	content: "\f14a";
+}
+
+
+/* Badge */
+.btn-filter .badge {
+    background-color: @main-color;
+}
+
+/* TabPanel */
+.svy-tabpanel > .nav-tabs,
+.bts-tabpanel > .nav-tabs {
+	border: 0;
+	background-color: @tab-bg;
+}
+
+.svy-tabpanel > .nav-tabs > li,
+.bts-tabpanel > .nav-tabs > li {
+	margin-bottom: 0;
+}
+
+.svy-tabpanel > .nav-tabs > li > a,
+.bts-tabpanel > .nav-tabs > li > a {
+	background-color: @tab-bg;
+	color: @tab-text-color;
+	text-transform: @tab-text-transform;
+	padding: 8px 15px;
+	border-style: solid;
+	border-color: @tab-border-color;
+	border-width: @tab-border-width;
+	border-radius: @tab-border-radius;
+}
+
+.svy-tabpanel > .nav-tabs > li.active > a, 
+.svy-tabpanel > .nav-tabs > li.active > a:hover, 
+.svy-tabpanel > .nav-tabs > li.active > a:focus,
+.bts-tabpanel > .nav-tabs > li.active > a, 
+.bts-tabpanel > .nav-tabs > li.active > a:hover, 
+.bts-tabpanel > .nav-tabs > li.active > a:focus {
+	/* border: @tab-border;
+	border-radius: @tab-border-radius; */
+	background-color: @tab-active-bg;
+	color: @tab-active-text-color;
+	border-style: solid;
+	border-color: @tab-active-border-color;
+	border-width: @tab-active-border-width;
+}
+
+/* Tab Tertiary */
+.svy-tabpanel.bg-tertiary > .nav-tabs,
+.bts-tabpanel.bg-tertiary > .nav-tabs {
+	background-color: @brand-tertiary;
+	background-color: @brand-tertiary-inverse;
+}
+
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > a,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > a {
+	background-color: @brand-tertiary;
+	background-color: @brand-tertiary-inverse;
+}
+
+.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a, 
+.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a:hover, 
+.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a:focus,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a, 
+.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a:hover, 
+.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a:focus {
+	background-color: @brand-tertiary;
+	background-color: @brand-tertiary-inverse;
+	border-color: @main-color;
+}
+
+/* Font Awesome *
+data-servoyextra-fontawesome > div {
+	display: inline;
+	float: left;
+	font-size: 18px;
+	margin : 0 15px;
+}
+*/
+
+/* Sidenav Servoy Extra */
+.svy-sidenav {
+	background-color: @sidenav-color;
+	color: @sidenav-text-color;
+	border: 0;
+}
+
+.svy-sidenav-menu,
+.svy-sidenav-collapse-icon {
+	font-size: 12px;
+	line-height: 36px;
+	color: @sidenav-text-color;
+}
+
+.svy-sidenav-divider {
+	line-height: 0px;
+	padding: 0;
+}
+
+.svy-sidenav-item {
+	font-size: @sidenav-text-font-size;
+}
+
+.svy-sidenav-dropdown {
+	background-color: @sidenav-color;
+	color: @sidenav-text-color;
+}
+
+.svy-sidenav-dropdown {
+	font-weight: initial;
+}
+
+/* Override padding to obtain hover effect */
+.svy-sidenav-menu ul {
+    padding-left: 0px;
+}
+
+.svy-sidenav-item {
+	padding-left: 20px;
+}
+
+.svy-sidenav-item.sn-level-2 {
+	padding-left: 40px;
+}
+
+.svy-sidenav-item.sn-level-3 {
+	padding-left: 60px;
+}
+
+.svy-sidenav-item.sn-level-4 {
+	padding-left: 80px;
+}
+
+/*
+.svy-sidenav-dropdown.sn-level-2 {
+	margin-left: -20px;
+	padding-left: 20px;
+}
+.svy-sidenav-item.sn-level-2 {
+	margin-right: 0;
+}
+.svy-sidenav-dropdown.sn-level-3 {
+	margin-left: -40px;
+	padding-left: 40px;
+}
+.svy-sidenav-dropdown.sn-level-4 {
+	margin-left: -60px;
+	padding-left: 60px;
+}*/
+
+.svy-navitem-selected {
+	/* TODO inverse the column when selected */
+	color: @sidenav-selected-text-color;
+	background-color: @sidenav-selected-color;
+}
+
+.svy-navitem-selected.sn-level-1 {
+	border-style: solid;
+	border-color: @sidenav-selected-border-color;
+	border-width: @sidenav-selected-border-width;
+}
+
+/* When sidenav selected item has border, compensate non-selected items with paddings. */
+.svy-sidenav-dropdown.sn-level-1:not(.svy-navitem-selected) when not(@sidenav-selected-border-width = 0) {
+	padding: @sidenav-selected-border-width; /* align non selected items with the selected item */
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.svy-sidenav-item:hover,
+.svy-sidenav-item:hover > .svy-sidenav-collapse-icon,
+.svy-sidenav-dropdown.sn-level-2:hover,
+.svy-sidenav-dropdown.sn-level-3:hover,
+.svy-sidenav-dropdown.sn-level-4:hover {
+	/* TODO inverse the column when selected ! */
+	color: @sidenav-selected-text-color;
+	background-color: @sidenav-selected-color;
+}
+
+/* Navbar Bootstrap Extra */
+.navbar {
+	border-radius: 0;
+}
+
+.bts-extra-navbar.navbar-default {
+	background-color: @navbar-bg;
+	color: @navbar-text-color;
+	margin-bottom: 0;
+	border: 0;
+}
+
+.bts-extra-navbar.navbar-default .navbar-brand {
+	color: @navbar-text-color;
+}
+
+.bts-extra-navbar.navbar-default .navbar-nav > li > a,
+.bts-extra-navbar.navbar-default .navbar-nav > .active > a, 
+.bts-extra-navbar.navbar-default .navbar-default .navbar-nav > .active > a:hover, 
+.bts-extra-navbar.navbar-default .navbar-default .navbar-nav > .active > a:focus,
+.bts-extra-navbar.navbar-default .navbar-nav > .open > a, 
+.bts-extra-navbar.navbar-default .navbar-nav > .open > a:hover, 
+.bts-extra-navbar.navbar-default .navbar-nav > .open > a:focus
+ {
+	background-color: @navbar-bg;
+	color: @navbar-text-color;
+}
+
+.bts-extra-navbar.navbar-default .navbar-nav > .active > a, 
+.bts-extra-navbar.navbar-default .navbar-default .navbar-nav > .active > a:hover, 
+.bts-extra-navbar.navbar-default .navbar-default .navbar-nav > .active > a:focus,
+.bts-extra-navbar.navbar-default .navbar-nav > .active.open > a, 
+.bts-extra-navbar.navbar-default .navbar-nav > .active.open > a:hover, 
+.bts-extra-navbar.navbar-default .navbar-nav > .active.open > a:focus {
+	background-color: @navbar-active-bg;
+	color: @navbar-active-text-color;
+	border-color: @navbar-active-border-color;
+	border-width: @navbar-active-border-width;
+	border-style: solid;
+}
+
+.bts-extra-navbar.navbar-default .dropdown-menu,
+.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+	background-color: @navbar-bg;
+	color: @navbar-text-color;
+}
+
+.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, 
+.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+	background-color: @navbar-bg-highlighted;
+}
+
+.bts-extra-navbar.navbar-default .navbar-toggle {
+	background-color: @navbar-bg;
+	color: @navbar-text-color;
+}
+
+.bts-extra-navbar.navbar-default .navbar-toggle:hover, 
+.bts-extra-navbar.navbar-default .navbar-toggle:focus {
+	background-color: @navbar-bg-highlighted;
+}
+
+.bts-extra-navbar.navbar-default .navbar-toggle .icon-bar {
+	background-color: @navbar-text-color;
+}
+
+/* Navbar static */
+/* TODO should be moved into the Navbar itself */
+@media (max-width: 768px) {
+	.bts-extra-navbar.navbar-fixed .navbar-header {
+		float: left;
+	}
+
+	.bts-extra-navbar.navbar-fixed .navbar-nav {
+	    float: left;
+   		margin: 0;
+	}
+
+	.bts-extra-navbar.navbar-fixed .navbar-right {
+    	float: right !important;
+   		margin-right: -15px;
+	}
+	
+	.bts-extra-navbar.navbar-fixed .navbar-nav > li {
+    	float: left;
+	}
+	
+	.bts-extra-navbar.navbar-fixed .navbar-nav > li > a {
+    	padding-top: 15px;
+   		padding-bottom: 15px;
+	}
+}
+
+   
+
+/* Input Group Bootstrap Extra */
+.bts-extra-navbar .form-control,
+.bts-extra-input-group .form-control {
+	border: 1px solid @border-color;
+}
+
+.bts-extra-navbar .form-control:focus,
+.bts-extra-input-group .form-control:focus {
+    outline: 1px;
+    outline-color: @main-color-light;
+    border-color: @main-color-light;
+}
+
+.bts-extra-input-group .form-control:first-child {
+   border-top-left-radius: 2px;
+   border-bottom-left-radius: 2px;
+}
+
+.bts-extra-input-group .form-control:last-child {
+   border-top-right-radius: 2px;
+   border-bottom-right-radius: 2px;
+}
+
+/* Default Table */
+.ui-grid {
+	/*border: 0; TODO fix this*/
+	/*border: @table-border-width @border-style @border-color;*/
+}
+
+.ui-grid-header-cell {
+	text-transform: @table-header-text-transform;
+	border-width: @table-border-width;
+	font-style: @table-header-font-style;
+/*	font-size: 12px; */
+}
+
+.ui-grid-header,
+.ui-grid-top-panel,
+.ui-grid-header-cell,
+.ui-grid-row:nth-child(even) .ui-grid-cell,
+.ui-grid-row:nth-child(odd) .ui-grid-cell {
+	background: @body-bg; /* TODO should be inherit !? */
+	color: @text-color;
+}
+
+.ui-grid-row:nth-child(even) .ui-grid-cell {
+	background: @table-row-even-bg-color;
+	color: @table-row-even-text-color;
+}
+
+.ui-grid-row:nth-child(odd) .ui-grid-cell {
+	background: @table-row-odd-bg-color;
+	color: @table-row-odd-text-color;
+}
+
+.ui-grid-row .ui-grid-cell {
+	border-bottom: @table-row-border-width @border-style @border-color;
+	border-color: @border-color;
+}
+
+.ui-grid-row div.ui-grid-cell > * {
+	border-width: 0;
+	box-shadow: none;
+}
+
+/* Selected Row */
+.ui-grid-row.ui-grid-row-selected div.ui-grid-cell {
+	background-color: @table-row-selected-bg-color !important;
+	color: @table-row-selected-text-color;
+}
+
+.ui-grid-cell .svy-field, 
+.ui-grid-cell .svy-password, 
+.ui-grid-cell .svy-textarea, 
+.ui-grid-cell .bts-textarea, 
+.ui-grid-cell .svy-textfield, 
+.ui-grid-cell .bts-textbox, 
+.ui-grid-cell .svy-typeahead, 
+.ui-grid-cell .bts-typeahead, 
+.ui-grid-cell .svy-combobox, .ui-grid-cell .svy-combobox .ui-select-toggle, .ui-grid-cell .svy-combobox input,
+.ui-grid-cell .bts-select, 
+.ui-grid-cell .svy-calendar, 
+.ui-grid-cell .svy-calendar ~ .input-group-addon, 
+.ui-grid-cell .bts-calendar input, 
+.ui-grid-cell .bts-calendar input ~ .input-group-addon{
+	border: 0;
+}
+
+.ui-grid-cell .svy-label,
+.ui-grid-cell .bts-label {
+	font-size: @text-font-size;
+}
+
+.ui-grid-row-selected div.ui-grid-cell .svy-label,
+.ui-grid-row-selected div.ui-grid-cell .bts-label {
+	color: @table-row-selected-text-color;
+}
+
+.ui-grid-row-selected .ui-grid-cell .svy-field,
+.ui-grid-row-selected .ui-grid-cell .svy-password,  
+.ui-grid-row-selected .ui-grid-cell .svy-textarea, 
+.ui-grid-row-selected .ui-grid-cell .bts-textarea, 
+.ui-grid-row-selected .ui-grid-cell .svy-textfield, 
+.ui-grid-row-selected .ui-grid-cell .bts-textbox, 
+.ui-grid-row-selected .ui-grid-cell .svy-typeahead, 
+.ui-grid-row-selected .ui-grid-cell .bts-typeahead, 
+.ui-grid-row-selected .ui-grid-cell .svy-combobox, 
+.ui-grid-row-selected .ui-grid-cell .svy-combobox .ui-select-toggle, .ui-grid-row-selected .ui-grid-cell .svy-combobox input,
+.ui-grid-row-selected .ui-grid-cell .bts-select, 
+.ui-grid-row-selected .ui-grid-cell .svy-calendar, 
+.ui-grid-row-selected .ui-grid-cell .bts-calendar, 
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input {
+	outline: @main-color;
+	background-color: inherit;
+	color: @table-row-selected-text-color;
+}
+
+.ui-grid-row-selected .ui-grid-cell .bts-select, .ui-grid-row-selected .ui-grid-cell .bts-select ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .svy-calendar, .ui-grid-row-selected .ui-grid-cell .svy-calendar ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input, .ui-grid-row-selected .ui-grid-cell .bts-calendar input ~ .input-group-addon  {
+	background-color: inherit;
+}
+
+.ui-grid-row-selected .ui-grid-cell .svy-field:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-password:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-textarea:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-textarea:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-textfield:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-textbox:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-typeahead:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-typeahead:focus,
+.ui-grid-row-selected .ui-grid-cell .svy-combobox:focus, 
+.ui-grid-row-selected .ui-grid-cell .svy-combobox:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-select:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-select:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .svy-calendar:focus, 
+.ui-grid-row-selected .ui-grid-cell .svy-calendar:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input:focus, 
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input:focus ~ .input-group-addon  {
+	/* background-color: @field-bg;
+	color: @field-color;
+	border-radius: 0;*/
+}
+
+.ui-grid-row-selected .ui-grid-cell .svy-combobox:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-select:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .svy-calendar:focus ~ .input-group-addon,
+.ui-grid-row-selected .ui-grid-cell .bts-calendar input:focus ~ .input-group-addon  {
+	/* background-color: @field-addon-bg;
+	color: @field-color; */
+}
+
+/* Servoy Bootstrap/Extra Table */
+.svy-table,
+.bts-table {
+	border: @table-border-width @border-style @border-color;
+}
+
+data-servoyextra-table thead {
+	background-color: @table-header-bg;					/* Table header bg */
+	font-style: @table-header-font-style;				/* Table header font style */
+	text-transform: @table-header-text-transform;		/* Table header text transform */
+}
+
+data-servoyextra-table tbody tr:nth-child(even):not(.table-servoyextra-selected) {
+	background: @table-row-even-bg-color;
+	color: @table-row-even-text-color;
+}
+
+data-servoyextra-table tbody tr:nth-child(odd):not(.table-servoyextra-selected) {
+	background: @table-row-odd-bg-color;
+	color: @table-row-odd-text-color;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, 
+.table > tfoot > tr > th, .table > thead > tr > td, 
+.table > tbody > tr > td, .table > tfoot > tr > td {
+	border-color: @border-color;
+	border-top-width: @table-row-border-width;
+}
+
+.table-bootstrapcomponent-selected,
+.table-servoyextra-selected {
+	background-color: @table-row-selected-bg-color;
+	color: @table-row-selected-text-color;
+}
+
+.svy-table  th,
+.svy-table  td,
+.bts-table  th,
+.bts-table  td {
+	border-color: @border-color;
+}
+
+.svy-table thead,
+.bts-table thead,
+.ui-grid-header-cell {
+	background-color: @table-header-bg;
+	border-style: @border-style;
+	border-color: @border-color;
+	border-width: @table-border-width;
+}
+
+.ui-grid-header-cell,
+.svy-table th,
+.bts-table th,
+.table > thead > tr > th {
+	border-width: @table-border-width;
+	text-transform: @table-header-text-transform;
+	font-weight: @table-header-font-style;
+/*	font-size: 12px; */
+}
+
+/* AG Grid Table */
+.ag-table {
+	color: @text-color;
+}
+
+.ag-table .ag-header {
+	color: @text-color;
+	text-transform: @table-header-text-transform;
+	font-weight: @table-header-font-style;
+}
+
+.ag-table .ag-row {
+	border-bottom-width: @table-row-border-width;
+	border-color: @border-color;
+}
+
+.ag-table .ag-row-odd {
+	background-color: @table-row-odd-bg-color;
+	color: @table-row-odd-text-color;
+}
+
+.ag-table .ag-row-even {
+	background-color: @table-row-even-bg-color;
+	color: @table-row-even-text-color;
+}
+
+.ag-table .ag-row-selected {
+	background-color: @table-row-selected-bg-color;
+	color: @table-row-selected-text-color;
+}
+
+.ag-table .ag-cell-inline-editing input {
+	color: @field-color;
+}
+
+.ag-table .ag-cell.font-icon {
+    padding: 0 8px;
+}
+
+/* AG Theme Servoy */
+.ag-table.ag-theme-servoy .ag-body .ag-cell-value {
+	line-height: @ngtable-cell-value-line-height;
+}
+
+/* Grouped rows */
+.ag-table.ag-theme-servoy .ag-row-group{
+    color: @ngtable-row-group-color;
+    background-color: @ngtable-row-group-bg;
+}
+
+.ag-table.ag-theme-servoy .ag-row-group.ag-row-level-0 {
+    color: @ngtable-row-group-color-level-0;
+    background-color: @ngtable-row-group-bg-level-0;
+}
+
+.ag-table.ag-theme-servoy .ag-row-group > .ag-cell {
+	font-weight: @ngtable-row-group-cell-font-weight;
+}
+
+/* AG Grid Tool Panel */
+
+.ag-theme-servoy {
+	
+}
+
+/* AG Grid side panel Button */
+.ag-table .ag-tool-panel > .ag-side-buttons > button {
+	webkit-appearance:none;
+	-webkit-appearance: none;
+    background: none;
+    border: none;
+}
+
+.ag-table .ag-tool-panel > .ag-side-buttons > button:before {
+    content: "\f0c9";
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+}
+
+.ag-table .ag-side-bar .ag-side-buttons .ag-side-button button {
+	background: transparent;
+    border: 0;
+    padding: 8px 0 8px 0;
+}
+
+.ag-table .ag-side-bar .ag-side-buttons .ag-selected button { 
+	background-color: #f6f6f6; /* TODO parametrize color */
+}
+
+/* AG Grid Side Tool panel */
+.ag-table.ag-theme-servoy .ag-column-panel .ag-pivot-mode-panel,
+.ag-table.ag-theme-servoy .ag-column-panel .ag-primary-cols-header-panel,
+.ag-table.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-list {
+	margin: 0 12px 8px 16px;
+	padding-bottom: 8px;
+	border-width: 0;
+	border-bottom-width: 1px;
+	border-color: @border-color;
+	border-style: solid;
+}
+
+.ag-table.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-icon {
+	margin-left: 16px;
+}
+
+.ag-table.ag-theme-servoy .ag-column-panel .ag-primary-cols-header-panel {
+	align-items: center;
+}
+
+.ag-table.ag-theme-servoy .ag-primary-cols-header-panel a {
+    margin-right: 4px;
+}
+
+.ag-table.ag-theme-servoy .ag-primary-cols-header-panel .ag-primary-cols-filter-wrapper .ag-primary-cols-filter {
+	width: 100%;
+	color: @field-color;
+	font-size: @field-font-size;
+	border-style: @border-style;
+	border-color: @border-color;
+	border-width: @field-border-width;
+}
+
+.ag-table.ag-theme-servoy .ag-primary-cols-header-panel .ag-primary-cols-filter-wrapper .ag-primary-cols-filter:focus {
+	border-color: @main-color;
+	outline: 1px;
+	outline-color: @main-color-light;
+	box-shadow: none;
+}
+
+.ag-table.ag-theme-servoy .ag-column-panel .ag-primary-cols-filter {
+
+}
+
+/*
+.ag-table.ag-theme-servoy .ag-table.ag-theme-servoy .ag-tool-panel .ag-column-drop {
+    clear: both;
+    overflow: auto;
+    padding: 4px 0;
+    padding-bottom: 4px;
+} */
+
+/* Ag Group Horizontal Panel Column Drop */
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal > div:first-child {
+    float: left;
+    height: 100%;
+    line-height:32px;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-right-arrow {
+	padding: 0 4px;
+	display: none;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell .ag-column-drop-cell-button:after {
+    font-family: FontAwesome;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    content: "\f054";
+    vertical-align: middle;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal  .ag-column-drag {
+    border: 1px @border-style @border-color;
+    padding: 4px 6px 4px 16px;
+    border-radius: @border-radius 0 0 @border-radius;
+    border-right: 0;
+    background-repeat: no-repeat;
+    background-position: 4px 6px !important;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal  .ag-column-drop-cell-text {
+    border: 1px @border-style @border-color;
+    border-left: 0;
+    padding: 4px 16px;
+    padding-left: 0;
+    border-radius: 0 @border-radius @border-radius 0;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-group, 
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-pivot {
+	margin-right: 12px;
+}
+
+/*
+.ag-table.ag-theme-servoy .ag-tool-panel-wrapper .ag-column-drop .ag-column-drop-cell {
+    padding-left: 10px;
+    /*line-height: 32px;*
+    display: block;
+} */
+
+/* Ag-Grid Side Panel Column Drops */
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-cell {
+	margin-top: 4px;
+	border: 1px @border-style @border-color;
+    padding: 4px 16px;
+    padding-left: 0;
+    border-radius: @border-radius;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-drag {
+	background-repeat: no-repeat;
+	background-position: 4px 6px !important;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-cell .ag-column-drop-cell-button {
+	margin-top: 2px;
+}
+
+/*
+.ag-table.ag-theme-servoy .ag-tool-panel .ag-column-drop .ag-column-drop-cell .ag-column-drop-cell-button {
+    float: initial;
+} */
+
+.ag-table.ag-theme-servoy .ag-column-drop-empty-message, 
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell:last-child:after,
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-list:after {
+    content: "Drop a column";
+    border: 1px dashed @border-color;
+    color: @text-color;
+    border-radius: @border-radius;
+    padding: 4px 16px;
+    display: inline-block;
+	line-height: 20px;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-list:after {
+	width: 100%;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-empty-message {
+	margin: 0 12px 0 16px;
+	display: none; /* There is a bug in ag-grid not properly clean empty message when clearing groups */
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-list:after {
+	margin-top: 4px;
+}
+
+/* Popup */
+.yuimenu {
+	padding: 0;
+	background: #FFF;
+    border-radius: @border-radius;
+}
+
+.yuimenuitemlabel {
+	color: @text-color;
+}
+
+.yuimenuitemlabel a:hover, .yuimenuitemlabel a:focus {
+	color: @text-color;
+}
+
+.yuimenuitemlabel:hover,
+.yuimenuitemlabel-selected,
+.yuimenuitemlabel-selected:hover {
+	background-color: @main-color;
+}
+
+.yuimenubaritemlabel:focus,
+.yuimenubaritemlabel:hover,
+.yuimenuitemlabel:hover,
+.yuimenuitemlabel:focus {
+	outline: none;
+	text-decoration: initial;
+	color: inherit;
+}
+
+.yuimenubaritemlabel-selected, 
+.yuimenubaritemlabel-selected:hover, 
+.yuimenubaritemlabel-selected:focus, 
+.yuimenubaritemlabel-selected:visited, 
+.yuimenuitemlabel-selected, 
+.yuimenuitemlabel-selected:hover,
+.yuimenuitemlabel-selected:focus,  
+.yuimenuitemlabel-selected:visited {
+	background-color: @main-color;
+    color: @main-color-inverse;
+    text-decoration: inherit;
+}
+
+.yuimenubaritemlabel-disabled:focus,
+.yuimenubaritemlabel-disabled:hover,
+.yuimenuitemlabel-disabled:hover,
+.yuimenuitemlabel-disabled:focus {
+	color: @border-color;
+}
+
+/* Scrollbar Style */
+::-webkit-scrollbar {
+	width: 12px;
+	height: 12px;
+	padding: 0 5px;
+}
+
+::-webkit-scrollbar-track {
+	border-radius: 0px;
+	background: #FFF;
+	border: @table-border-width @border-style @border-color;
+	border-top: 0;
+	border-bottom: 0;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background: @border-color;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: #F8F8F8;
+}
+
+/************************************************************************************
+ Style Layout Containers
+ *************************************************************************************/
+
+/* Simple Collapsible */
+.simple-collapsible {
+	margin-bottom: 15px;
+}
+
+.simple-collapsible-toggle {
+	color: @main-color;
+	border-bottom: 1px solid @main-color;
+}
+
+.simple-collapsible-content > *:first-child {
+	margin-top: 15px;
+}
+
+.simple-collapsible-content > *:last-child {
+	margin-bottom: 15px;
+}
+
+.simple-collapsible-content {
+	border-bottom: 1px solid @main-color;
+}
+
+.simple-collapsible-toggle .svy-label,
+.simple-collapsible-toggle .bts-label {
+	color: @main-color;
+	font-size: 18px;
+}
+
+/* Inline Groups */
+.inline-group.input-group-xs > .inline-group-left,
+.inline-group.input-group-xs > .inline-group-right  {
+	min-height: 22px;
+}
+
+.inline-group.input-group-sm > .inline-group-left,
+.inline-group.input-group-sm > .inline-group-right  {
+	min-height: 30px;
+}
+
+.inline-group.input-group-md > .inline-group-left,
+.inline-group.input-group-md > .inline-group-right  {
+	min-height: 34px;
+}
+
+.inline-group.input-group-lg > .inline-group-left,
+.inline-group.input-group-lg > .inline-group-right  {
+	min-height: 44px;
+}
+
+/* Style the flex footer if used on a form with theme servoy */
+> .flexlayout > .flex-footer {
+	background-color: @main-color;
+	color: @main-color-inverse;
+	height: 80px;
+}
+
+> .flexlayout > .flex-footer .svy-label,
+> .flexlayout > .flex-footer .bts-label {
+	color: @main-color-inverse;
+}
+
+/* Background colors */
+.bg {
+	background-color: @body-bg;
+	color: @text-color-default;
+}
+
+.bg-inverse {
+	background-color: @body-bg-inverse;
+	color: @text-color-default-inverse;
+}
+
+.bg-main {
+	background-color: @main-color;
+	color: @main-color-inverse;
+}
+
+.bg-primary {
+	background-color: @brand-primary;
+	color: @brand-primary-inverse;
+}
+
+.bg-tertiary {
+	background-color: @brand-tertiary;
+	color: @brand-tertiary-inverse;
+}
+
+.bg-success {
+	background-color: @brand-success;
+	color: @brand-success-inverse;
+}
+
+.bg-info {
+	background-color: @brand-info;
+	color: @brand-info-inverse;
+}
+
+.bg-warning {
+	background-color: @brand-warning;
+	color: @brand-warning-inverse;
+}
+
+.bg-danger {
+	background-color: @brand-danger;
+	color: @brand-danger-inverse;
+}
+
+
+/* Overrule background-variant */
+a.bg-primary:hover {
+	background-color: @brand-primary-highlighted;
+	color: @brand-primary-highlighted-inverse;
+}
+
+a.bg-tertiary:hover {
+	background-color: @brand-tertiary-highlighted;
+	color: @brand-tertiary-highlighted-inverse;
+}
+
+a.bg-success:hover {
+	background-color: @brand-success-highlighted;
+	color: @brand-success-highlighted-inverse;
+}
+
+a.bg-info:hover {
+	background-color: @brand-info-highlighted;
+	color: @brand-info-highlighted-inverse;
+}
+
+a.bg-warning:hover {
+	background-color: @brand-warning-highlighted;
+	color: @brand-warning-highlighted-inverse;
+}
+
+a.bg-danger:hover {
+	background-color: @brand-danger-highlighted;
+	color: @brand-danger-highlighted-inverse;
+}
+
+/* Fonts */
+.font-weight-bold {
+	font-weight: bold;
+}
+
+/************************************************************************************
+* Default styles
+************************************************************************************/
+
+/* Title Labels, can i deprecate these classes ? */
+.label_header_0 {
+	background: #F8F8F8;
+	color: @main-color;
+	font-size: 24px;
+	padding-left: 30px;
+	text-transform: uppercase;
+}
+
+.label_header_1 {
+	color: @main-color-light;
+	background: @main-color-inverse;
+	border-bottom: 1px solid @main-color-light;
+	font-size: 24px;
+	font-weight: 100;
+}
+
+.label_header_2,
+.label_header_3 {
+	padding-left: 6px;
+	background: @main-color;
+	color: white;
+	font-weight: 100;
+	border-radius: 25px;
+}
+
+.label_header_0,
+.label_header_1,
+.label_header_2,
+.label_header_3 {
+	display: inline-block;
+	width: 100%;
+}
+
+.svy-layoutcontainer > * > .label_header_1,
+.svy-layoutcontainer > * > .label_header_2 {
+	margin: 15px 0;
+}
+
+.svy-layoutcontainer > * > .label_header_2 {
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+.svy-layoutcontainer > * > .label_header_0,
+.svy-layoutcontainer > * > .label_header_3 {
+	display: inline-block;
+	width: 100%;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.label_header_3 {
+	text-align: center;
+}
+
+.label_subheader_0 {
+	position: absolute;
+    top: 25px;
+    left: 160px;
+}
+
+/************************************************************************************
+* Typography
+*
+* text-center, text-uppercase, text-center, text-underline, label-underline
+* label-primary|tertiary|success|info|warning|danger  
+* text-primary|tertiary|success|info|warning|danger	  
+************************************************************************************/
+.text-center {
+	text-align: center;
+}
+
+.bts-label.text-center,
+.bts-datalabel.text-center {
+	display: block; 		/* To center text on a responsive label i should show the label as block */
+	white-space: initial;
+}
+
+.text-uppercase {
+	text-transform: uppercase;
+}
+
+.text-underline,
+.label-underline {
+	text-decoration: underline;
+}
+
+/* TODO where is this used ? can i remove it ? */
+.label-primary,
+.label-tertiary,
+.label-success,
+.label-info, 
+.label-warning,
+.label-danger {
+	color: #FFF; /* TODO remove icon */
+	text-align: center;
+	border-radius: @border-radius;
+}
+
+/* Label Colors */
+.text-primary,
+.label-primary, 
+.btn.text-primary {
+	color: @brand-primary;	
+}
+
+.text-tertiary,
+.label-tertiary, 
+.btn.text-tertiary {
+	color: @text-tertiary;	
+}
+
+.text-success,
+.label-success, 
+.btn.text-success {
+	color: @brand-success;	
+}
+
+.text-info,
+.label-info, 
+.btn.text-info {
+	color: @brand-info;	
+}
+
+.text-warning,
+.label-warning, 
+.btn.text-warning {
+	color: @brand-warning;	
+}
+
+.text-danger,
+.label-danger, 
+.btn.text-danger {
+	color: @brand-danger;	
+}
+
+/************************************************************************************
+* Buttons Style Classes
+*
+* btn-primary|tertiary|success|warning|danger|info|default
+************************************************************************************/
+.btn-primary {
+	background-color: @brand-primary;
+	color: @brand-primary-inverse;
+	border-color: @brand-primary;
+}
+
+/* TODO this is strange, do we really need a no-focus class ? */
+/* TODO this is strange, shall i replicate for all other brand colors ? */
+.btn-primary.no-focus:focus, .btn-primary.no-focus.focus {
+	background-color: @brand-primary;
+	color: @brand-primary-inverse;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary.focus, 
+.btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary,
+.btn-primary.no-focus:hover, .btn-primary.no-focus.focus:hover {
+	background-color: @brand-primary-highlighted;
+	color: @brand-primary-highlighted-inverse;
+	outline-color: @brand-primary;
+}
+
+.btn-primary.disabled, .btn-primary[disabled], 
+fieldset[disabled] .btn-primary, .btn-primary.disabled:hover,
+.btn-primary[disabled]:hover, fieldset[disabled] .btn-primary:hover, 
+.btn-primary.disabled:focus, .btn-primary[disabled]:focus, 
+fieldset[disabled] .btn-primary:focus, .btn-primary.disabled.focus, 
+.btn-primary[disabled].focus, fieldset[disabled] .btn-primary.focus, 
+.btn-primary.disabled:active, .btn-primary[disabled]:active, fieldset[disabled] 
+.btn-primary:active, .btn-primary.disabled.active, 
+.btn-primary[disabled].active, fieldset[disabled] .btn-primary.active {
+	background-color: @brand-primary;
+	border-color: @brand-primary;
+}
+
+.btn-tertiary {
+	background-color: @brand-tertiary;
+	color: @brand-tertiary-inverse;
+	border-color: @brand-tertiary;
+}
+
+.btn-tertiary:hover, .btn-tertiary:focus, .btn-tertiary.focus, 
+.btn-tertiary:active, .btn-tertiary.active, .open > .dropdown-toggle.btn-tertiary {
+	background-color: @brand-tertiary-highlighted;
+	color: @brand-tertiary-highlighted-inverse;
+	outline-color: @brand-tertiary;
+}
+
+.btn-tertiary.disabled, .btn-tertiary[disabled], 
+fieldset[disabled] .btn-tertiary, .btn-tertiary.disabled:hover,
+.btn-tertiary[disabled]:hover, fieldset[disabled] .btn-tertiary:hover, 
+.btn-tertiary.disabled:focus, .btn-tertiary[disabled]:focus, 
+fieldset[disabled] .btn-tertiary:focus, .btn-tertiary.disabled.focus, 
+.btn-tertiary[disabled].focus, fieldset[disabled] .btn-tertiary.focus, 
+.btn-tertiary.disabled:active, .btn-tertiary[disabled]:active, fieldset[disabled] 
+.btn-tertiary:active, .btn-tertiary.disabled.active, 
+.btn-tertiary[disabled].active, fieldset[disabled] .btn-tertiary.active {
+	background-color: @brand-tertiary;
+	border-color: @brand-tertiary;
+}
+
+.btn-success {
+	background-color: @brand-success;
+	color: @brand-success-inverse;
+	border-color: @brand-success;
+}
+
+.btn-success:hover, .btn-success:focus, .btn-success.focus, 
+.btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success {
+	background-color: @brand-success-highlighted;
+	color: @brand-success-highlighted-inverse;
+	outline-color: @brand-success;
+}
+
+.btn-success.disabled, .btn-success[disabled], 
+fieldset[disabled] .btn-success, .btn-success.disabled:hover,
+.btn-success[disabled]:hover, fieldset[disabled] .btn-success:hover, 
+.btn-success.disabled:focus, .btn-success[disabled]:focus, 
+fieldset[disabled] .btn-success:focus, .btn-success.disabled.focus, 
+.btn-success[disabled].focus, fieldset[disabled] .btn-success.focus, 
+.btn-success.disabled:active, .btn-success[disabled]:active, fieldset[disabled] 
+.btn-success:active, .btn-success.disabled.active, 
+.btn-success[disabled].active, fieldset[disabled] .btn-success.active {
+	background-color: @brand-success;
+	border-color: @brand-success;
+}
+
+.btn-info {
+	background-color: @brand-info;
+	color: @brand-info-inverse;
+	border-color: @brand-info;
+}
+
+.btn-info:hover, .btn-info:focus, .btn-info.focus, 
+.btn-info:active, .btn-info.active, .open > .dropdown-toggle.btn-info {
+	background-color: @brand-info-highlighted;
+	color: @brand-info-highlighted-inverse;
+	outline-color: @brand-info;
+}
+
+.btn-info.disabled, .btn-info[disabled], 
+fieldset[disabled] .btn-info, .btn-info.disabled:hover,
+.btn-info[disabled]:hover, fieldset[disabled] .btn-info:hover, 
+.btn-info.disabled:focus, .btn-info[disabled]:focus, 
+fieldset[disabled] .btn-info:focus, .btn-info.disabled.focus, 
+.btn-info[disabled].focus, fieldset[disabled] .btn-info.focus, 
+.btn-info.disabled:active, .btn-info[disabled]:active, fieldset[disabled] 
+.btn-info:active, .btn-info.disabled.active, 
+.btn-info[disabled].active, fieldset[disabled] .btn-info.active {
+	background-color: @brand-info;
+	border-color: @brand-info;
+}
+
+.btn-warning {
+	background-color: @brand-warning;
+	color: @brand-warning-inverse;
+	border-color: @brand-warning;
+}
+
+.btn-warning:hover, .btn-warning:focus, .btn-warning.focus, 
+.btn-warning:active, .btn-warning.active, .open > .dropdown-toggle.btn-warning {
+	background-color: @brand-warning-highlighted;
+	color: @brand-warning-highlighted-inverse;
+	outline-color: @brand-warning;
+}
+
+.btn-warning.disabled, .btn-warning[disabled], 
+fieldset[disabled] .btn-warning, .btn-warning.disabled:hover,
+.btn-warning[disabled]:hover, fieldset[disabled] .btn-warning:hover, 
+.btn-warning.disabled:focus, .btn-warning[disabled]:focus, 
+fieldset[disabled] .btn-warning:focus, .btn-warning.disabled.focus, 
+.btn-warning[disabled].focus, fieldset[disabled] .btn-warning.focus, 
+.btn-warning.disabled:active, .btn-warning[disabled]:active, fieldset[disabled] 
+.btn-warning:active, .btn-warning.disabled.active, 
+.btn-warning[disabled].active, fieldset[disabled] .btn-warning.active {
+	background-color: @brand-warning;
+	border-color: @brand-warning;
+}
+
+.btn-danger {
+	background-color: @brand-danger;
+	color: @brand-danger-inverse;
+	border-color: @brand-danger;
+}
+
+.btn-danger:hover, .btn-danger:focus, .btn-danger.focus, 
+.btn-danger:active, .btn-danger.active, .open > .dropdown-toggle.btn-danger {
+	background-color: @brand-danger-highlighted;
+	color: @brand-danger-highlighted-inverse;
+	outline-color: @brand-danger;
+}
+
+.btn-danger.disabled, .btn-danger[disabled], 
+fieldset[disabled] .btn-danger, .btn-danger.disabled:hover,
+.btn-danger[disabled]:hover, fieldset[disabled] .btn-danger:hover, 
+.btn-danger.disabled:focus, .btn-danger[disabled]:focus, 
+fieldset[disabled] .btn-danger:focus, .btn-danger.disabled.focus, 
+.btn-danger[disabled].focus, fieldset[disabled] .btn-danger.focus, 
+.btn-danger.disabled:active, .btn-danger[disabled]:active, fieldset[disabled] 
+.btn-danger:active, .btn-danger.disabled.active, 
+.btn-danger[disabled].active, fieldset[disabled] .btn-danger.active {
+	background-color: @brand-danger;
+	border-color: @brand-danger;
+}
+
+/************************************************************************************
+* Button Outline Style Classes
+*
+* btn-outline-primary|tertiary|success|warning|danger|info|default
+************************************************************************************/
+.btn-outline-primary {
+	background-color: @brand-primary-inverse;
+	color: @brand-primary;
+	border-color: @brand-primary;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary.focus, 
+.btn-outline-primary:active, .btn-outline-primary.active, .open > .dropdown-toggle.btn-outline-primary,
+.btn-outline-primary.no-focus:hover, .btn-outline-primary.no-focus.focus:hover {
+	background-color: @brand-primary-highlighted;
+	color: @brand-primary-highlighted-inverse;
+	outline-color: @brand-primary;
+}
+
+.btn-outline-primary.disabled, .btn-outline-primary[disabled], 
+fieldset[disabled] .btn-outline-primary, .btn-outline-primary.disabled:hover,
+.btn-outline-primary[disabled]:hover, fieldset[disabled] .btn-outline-primary:hover, 
+.btn-outline-primary.disabled:focus, .btn-outline-primary[disabled]:focus, 
+fieldset[disabled] .btn-outline-primary:focus, .btn-outline-primary.disabled.focus, 
+.btn-outline-primary[disabled].focus, fieldset[disabled] .btn-outline-primary.focus, 
+.btn-outline-primary.disabled:active, .btn-outline-primary[disabled]:active, fieldset[disabled] 
+.btn-outline-primary:active, .btn-outline-primary.disabled.active, 
+.btn-outline-primary[disabled].active, fieldset[disabled] .btn-outline-primary.active {
+	background-color: @brand-primary-inverse;
+	border-color: @brand-primary;
+}
+
+.btn-outline-tertiary {
+	background-color: @brand-tertiary-inverse;
+	color: @brand-tertiary;
+	border-color: @brand-tertiary;
+}
+
+.btn-outline-tertiary:hover, .btn-outline-tertiary:focus, .btn-outline-tertiary.focus, 
+.btn-outline-tertiary:active, .btn-outline-tertiary.active, .open > .dropdown-toggle.btn-outline-tertiary {
+	background-color: @brand-tertiary-highlighted;
+	color: @brand-tertiary-highlighted-inverse;
+	outline-color: @brand-tertiary;
+}
+
+.btn-outline-tertiary.disabled, .btn-outline-tertiary[disabled], 
+fieldset[disabled] .btn-outline-tertiary, .btn-outline-tertiary.disabled:hover,
+.btn-outline-tertiary[disabled]:hover, fieldset[disabled] .btn-outline-tertiary:hover, 
+.btn-outline-tertiary.disabled:focus, .btn-outline-tertiary[disabled]:focus, 
+fieldset[disabled] .btn-outline-tertiary:focus, .btn-outline-tertiary.disabled.focus, 
+.btn-outline-tertiary[disabled].focus, fieldset[disabled] .btn-outline-tertiary.focus, 
+.btn-outline-tertiary.disabled:active, .btn-outline-tertiary[disabled]:active, fieldset[disabled] 
+.btn-outline-tertiary:active, .btn-outline-tertiary.disabled.active, 
+.btn-outline-tertiary[disabled].active, fieldset[disabled] .btn-outline-tertiary.active {
+	background-color: @brand-tertiary-inverse;
+	border-color: @brand-tertiary;
+}
+
+.btn-outline-success {
+	background-color: @brand-success-inverse;
+	color: @brand-success;
+	border-color: @brand-success;
+}
+
+.btn-outline-success:hover, .btn-outline-success:focus, .btn-outline-success.focus, 
+.btn-outline-success:active, .btn-outline-success.active, .open > .dropdown-toggle.btn-outline-success {
+	background-color: @brand-success-highlighted;
+	color: @brand-success-highlighted-inverse;
+	outline-color: @brand-success;
+}
+
+.btn-outline-success.disabled, .btn-outline-success[disabled], 
+fieldset[disabled] .btn-outline-success, .btn-outline-success.disabled:hover,
+.btn-outline-success[disabled]:hover, fieldset[disabled] .btn-outline-success:hover, 
+.btn-outline-success.disabled:focus, .btn-outline-success[disabled]:focus, 
+fieldset[disabled] .btn-outline-success:focus, .btn-outline-success.disabled.focus, 
+.btn-outline-success[disabled].focus, fieldset[disabled] .btn-outline-success.focus, 
+.btn-outline-success.disabled:active, .btn-outline-success[disabled]:active, fieldset[disabled] 
+.btn-outline-success:active, .btn-outline-success.disabled.active, 
+.btn-outline-success[disabled].active, fieldset[disabled] .btn-outline-success.active {
+	background-color: @brand-success-inverse;
+	border-color: @brand-success;
+}
+
+.btn-outline-info {
+	background-color: @brand-info-inverse;
+	color: @brand-info;
+	border-color: @brand-info;
+}
+
+.btn-outline-info:hover, .btn-outline-info:focus, .btn-outline-info.focus, 
+.btn-outline-info:active, .btn-outline-info.active, .open > .dropdown-toggle.btn-outline-info {
+	background-color: @brand-info-highlighted;
+	color: @brand-info-highlighted-inverse;
+	outline-color: @brand-info;
+}
+
+.btn-outline-info.disabled, .btn-outline-info[disabled], 
+fieldset[disabled] .btn-outline-info, .btn-outline-info.disabled:hover,
+.btn-outline-info[disabled]:hover, fieldset[disabled] .btn-outline-info:hover, 
+.btn-outline-info.disabled:focus, .btn-outline-info[disabled]:focus, 
+fieldset[disabled] .btn-outline-info:focus, .btn-outline-info.disabled.focus, 
+.btn-outline-info[disabled].focus, fieldset[disabled] .btn-outline-info.focus, 
+.btn-outline-info.disabled:active, .btn-outline-info[disabled]:active, fieldset[disabled] 
+.btn-outline-info:active, .btn-outline-info.disabled.active, 
+.btn-outline-info[disabled].active, fieldset[disabled] .btn-outline-info.active {
+	background-color: @brand-info-inverse;
+	border-color: @brand-info;
+}
+
+.btn-outline-warning {
+	background-color: @brand-warning-inverse;
+	color: @brand-warning;
+	border-color: @brand-warning;
+}
+
+.btn-outline-warning:hover, .btn-outline-warning:focus, .btn-outline-warning.focus, 
+.btn-outline-warning:active, .btn-outline-warning.active, .open > .dropdown-toggle.btn-outline-warning {
+	background-color: @brand-warning-highlighted;
+	color: @brand-warning-highlighted-inverse;
+	outline-color: @brand-warning;
+}
+
+.btn-outline-warning.disabled, .btn-outline-warning[disabled], 
+fieldset[disabled] .btn-outline-warning, .btn-outline-warning.disabled:hover,
+.btn-outline-warning[disabled]:hover, fieldset[disabled] .btn-outline-warning:hover, 
+.btn-outline-warning.disabled:focus, .btn-outline-warning[disabled]:focus, 
+fieldset[disabled] .btn-outline-warning:focus, .btn-outline-warning.disabled.focus, 
+.btn-outline-warning[disabled].focus, fieldset[disabled] .btn-outline-warning.focus, 
+.btn-outline-warning.disabled:active, .btn-outline-warning[disabled]:active, fieldset[disabled] 
+.btn-outline-warning:active, .btn-outline-warning.disabled.active, 
+.btn-outline-warning[disabled].active, fieldset[disabled] .btn-outline-warning.active {
+	background-color: @brand-warning-inverse;
+	border-color: @brand-warning;
+}
+
+.btn-outline-danger {
+	background-color: @brand-danger-inverse;
+	color: @brand-danger;
+	border-color: @brand-danger;
+}
+
+.btn-outline-danger:hover, .btn-outline-danger:focus, .btn-outline-danger.focus, 
+.btn-outline-danger:active, .btn-outline-danger.active, .open > .dropdown-toggle.btn-outline-danger {
+	background-color: @brand-danger-highlighted;
+	color: @brand-danger-highlighted-inverse;
+	outline-color: @brand-danger;
+}
+
+.btn-outline-danger.disabled, .btn-outline-danger[disabled], 
+fieldset[disabled] .btn-outline-danger, .btn-outline-danger.disabled:hover,
+.btn-outline-danger[disabled]:hover, fieldset[disabled] .btn-outline-danger:hover, 
+.btn-outline-danger.disabled:focus, .btn-outline-danger[disabled]:focus, 
+fieldset[disabled] .btn-outline-danger:focus, .btn-outline-danger.disabled.focus, 
+.btn-outline-danger[disabled].focus, fieldset[disabled] .btn-outline-danger.focus, 
+.btn-outline-danger.disabled:active, .btn-outline-danger[disabled]:active, fieldset[disabled] 
+.btn-outline-danger:active, .btn-outline-danger.disabled.active, 
+.btn-outline-danger[disabled].active, fieldset[disabled] .btn-outline-danger.active {
+	background-color: @brand-danger-inverse;
+	border-color: @brand-danger;
+}
+
+.btn-outline-default {
+	background-color: transparent;
+	color: inherit;
+}
+
+.btn-outline-default:hover, .btn-outline-default:focus, .btn-outline-default.focus, 
+.btn-outline-default:active, .btn-outline-default.active, .open > .dropdown-toggle.btn-outline-default {
+	background-color: transparent;
+	color: inherit;
+	opacity: 0.8;
+}
+
+.btn-outline-default.disabled, .btn-outline-default[disabled], 
+fieldset[disabled] .btn-outline-default, .btn-outline-default.disabled:hover,
+.btn-outline-default[disabled]:hover, fieldset[disabled] .btn-outline-default:hover, 
+.btn-outline-default.disabled:focus, .btn-outline-default[disabled]:focus, 
+fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.focus, 
+.btn-outline-default[disabled].focus, fieldset[disabled] .btn-outline-default.focus, 
+.btn-outline-default.disabled:active, .btn-outline-default[disabled]:active, fieldset[disabled] 
+.btn-outline-default:active, .btn-outline-default.disabled.active, 
+.btn-outline-default[disabled].active, fieldset[disabled] .btn-outline-default.active {
+	background-color: transparent;
+	opacity: 0.6;
+}
+
+/* Special Buttons */
+.btn-round {
+	border-radius: 50px;
+}
+
+/* Fields */
+.form-default {
+	background-color: #FFF; /* TODO setting for default color does make sense !? */
+}
+
+.form-primary {
+	background-color: @brand-primary;
+}
+
+.form-tertiary {
+	background-color: @brand-tertiary;
+}
+
+.form-success {
+	background-color: @brand-success;
+}
+
+.form-info {
+	background-color: @brand-info;
+}
+
+.form-warning {
+	background-color: @brand-warning;
+}
+
+.form-danger {
+	background-color: @brand-danger;
+}
+/************************************************************************************
+* Component Style Classes
+************************************************************************************/
+
+
+.svy-checkgroup.check-horizontal label,
+.svy-radiogroup.check-horizontal label,
+.bts-radiogroup.check-horizontal label,
+.svy-checkgroup.radio-horizontal label,
+.svy-radiogroup.radio-horizontal label,
+.bts-radiogroup.radio-horizontal label {
+	display: inline;
+}
+
+.svy-checkgroup.radio-horizontal.check-spacing-10 label,
+.svy-radiogroup.radio-horizontal.check-spacing-10 label,
+.bts-radiogroup.radio-horizontal.check-spacing-10 label,
+.svy-checkgroup.radio-horizontal.radio-spacing-10 label,
+.svy-radiogroup.radio-horizontal.radio-spacing-10 label,
+.bts-radiogroup.radio-horizontal.radio-spacing-10 label {
+	margin-right: @box-size-10;
+}
+
+.svy-checkgroup.radio-horizontal.check-spacing-20 label,
+.svy-radiogroup.radio-horizontal.check-spacing-20 label,
+.bts-radiogroup.radio-horizontal.check-spacing-20 label,
+.svy-checkgroup.radio-horizontal.radio-spacing-20 label,
+.svy-radiogroup.radio-horizontal.radio-spacing-20 label,
+.bts-radiogroup.radio-horizontal.radio-spacing-20 label {
+	margin-right: @box-size-20;
+}
+
+.svy-checkgroup.radio-horizontal.check-spacing-30 label,
+.svy-radiogroup.radio-horizontal.check-spacing-30 label,
+.bts-radiogroup.radio-horizontal.check-spacing-30 label,
+.svy-checkgroup.radio-horizontal.radio-spacing-30 label,
+.svy-radiogroup.radio-horizontal.radio-spacing-30 label,
+.bts-radiogroup.radio-horizontal.radio-spacing-30 label {
+	margin-right: @box-size-30;
+}
+
+.svy-checkgroup.radio-horizontal.check-spacing-10 label:last-child,
+.svy-radiogroup.radio-horizontal.check-spacing-10 label:last-child,
+.bts-radiogroup.radio-horizontal.check-spacing-10 label:last-child,
+.svy-checkgroup.radio-horizontal.radio-spacing-10 label:last-child,
+.svy-radiogroup.radio-horizontal.radio-spacing-10 label:last-child,
+.bts-radiogroup.radio-horizontal.radio-spacing-10 label:last-child,
+.svy-checkgroup.radio-horizontal.check-spacing-20 label:last-child,
+.svy-radiogroup.radio-horizontal.check-spacing-20 label:last-child,
+.bts-radiogroup.radio-horizontal.check-spacing-20 label:last-child,
+.svy-checkgroup.radio-horizontal.radio-spacing-20 label:last-child,
+.svy-radiogroup.radio-horizontal.radio-spacing-20 label:last-child,
+.bts-radiogroup.radio-horizontal.radio-spacing-20 label:last-child,
+.svy-checkgroup.radio-horizontal.check-spacing-30 label:last-child,
+.svy-radiogroup.radio-horizontal.check-spacing-30 label:last-child,
+.bts-radiogroup.radio-horizontal.check-spacing-30 label:last-child,
+.svy-checkgroup.radio-horizontal.radio-spacing-30 label:last-child,
+.svy-radiogroup.radio-horizontal.radio-spacing-30 label:last-child,
+.bts-radiogroup.radio-horizontal.radio-spacing-30 label:last-child {
+	margin-right: 0;
+}
+
+/************************************************************************************
+ Validations
+ *************************************************************************************/
+
+.form-required {
+	
+}
+
+.svy-label.form-required:after,
+.bts-label.form-required:after,
+.form-required .svy-label:after,
+.form-required .bts-label:after {
+	content: @form-required-label-suffix;
+	margin-left: 2px;
+}
+
+.svy-field.form-invalid, .svy-password.form-invalid, 
+.svy-textarea.form-invalid, .bts-textarea.form-invalid, 
+.svy-textfield.form-invalid, .bts-textbox.form-invalid, 
+.svy-typeahead.form-invalid, .bts-typeahead.form-invalid, 
+.bts-select.form-invalid, .bts-select.form-invalid ~ .input-group-addon, 
+.svy-calendar.form-invalid, .svy-calendar.form-invalid ~ .input-group-addon, 
+.bts-calendar input.form-invalid, .bts-calendar input.form-invalid ~ .input-group-addon {
+	border: 1px solid @brand-danger;
+	outline-color: @brand-danger;
+}
+
+.svy-check.form-invalid input[type=checkbox] + span:before, 
+.bts-check.form-invalid input[type=checkbox] + span:before, 
+.svy-checkgroup.form-invalid input[type=checkbox] + span:before, 
+.bts-radiogroup.form-invalid input[type=checkbox] + span:before {
+	color: @brand-danger
+}
+
+.inactive {
+	opacity: 0.6;
+}
+
+/************************************************************************************
+ Class Templates Top Bar 
+ *************************************************************************************/
+.header-bar {
+	border-top: 12px solid @main-color-light;
+	background-color: @main-color;
+	color: white;
+	padding: 30px 0;
+	font-size: 24px;
+	text-transform: uppercase;
+}
+
+.header-bar {
+	/* height: initial !important; TODO what is this for, to center the text of a navbar ? */
+	
+}
+
+.header-bar .bts-label,
+.header-bar .svy-label {
+	color: #FFF;
+}
+
+.header-title {
+    text-align: center;
+    float: left;
+    width: calc(100% - 98px);
+    font-size: 24px;
+}
+
+/* Container styles */
+.content-panel {
+	border-radius: 4px;
+	border: 2px solid @main-color;
+	padding: 30px 15px;
+	border-bottom-width: 30px;
+	min-width: 640px;
+}
+
+/* Shapes */
+.hr {
+	border : 0 solid @border-color;
+	border-bottom-width: 1px;
+}

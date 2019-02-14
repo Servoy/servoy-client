@@ -37,7 +37,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author gboros
  */
-public class WebCustomType extends AbstractBase implements IChildWebObject
+public class WebCustomType extends AbstractBase implements IChildWebObject, ISupportsIndexedChildren
 {
 
 //	private static final long serialVersionUID = 1L; // this shouldn't get serialized anyway for now; parent WebComponent just serializes it's json
@@ -60,7 +60,6 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	private transient String jsonKey;
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
-
 
 	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew)
 	{
@@ -88,10 +87,6 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		if (fullJSONInFrmFile == null) fullJSONInFrmFile = new ServoyJSONObject();
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
-
-		// add this as child to it's parent so that persist listeners get triggered; there is one exception though:
-		// jsonKey == null && index == -1 can be set - if they are not known - from CustomObjectTypePropertyController.toggleValue(Object); see comment over there for more info (they will be set later on and addChild will be called then)
-		if (isNew && (jsonKey != null || index != -1)) parentWebObject.addChild(this);
 	}
 
 	public PropertyDescription getPropertyDescription()
@@ -329,7 +324,21 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public void internalAddChild(IPersist obj)
 	{
-		webObjectImpl.internalAddChild(obj);
+		webObjectImpl.setChild(obj);
+	}
+
+	@Override
+	public void setChild(IChildWebObject child)
+	{
+		webObjectImpl.setChild(child);
+		afterChildWasAdded(child);
+	}
+
+	@Override
+	public void insertChild(IChildWebObject child)
+	{
+		webObjectImpl.insertChild(child);
+		afterChildWasAdded(child);
 	}
 
 	@Override

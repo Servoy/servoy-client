@@ -56,14 +56,14 @@ public class PersistIndexCache
 			index = new PersistIndex(solutions);
 			IPersistIndex alreadyCreated = persistIndexCache.putIfAbsent(solution.getUUID(), index);
 			if (alreadyCreated != null) index = alreadyCreated;
-			LOG.info("Persist Index Cache entry created for " + solution + " with modules " + Arrays.asList(modules));
+			LOG.debug("Persist Index Cache entry created for " + solution + " with modules " + Arrays.asList(modules));
 		}
 		return index;
 	}
 
 	public static void flush()
 	{
-		LOG.info("Persist Index Cache cleared");
+		LOG.debug("Persist Index Cache cleared");
 		persistIndexCache.clear();
 	}
 

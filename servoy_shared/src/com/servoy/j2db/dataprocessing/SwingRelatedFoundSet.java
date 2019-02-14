@@ -282,6 +282,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 		if (isMultiSelect != isMultiSelect())
 		{
 			selectionModel.setSelectionMode(isMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
+			fireSelectionModeChange();
 		}
 	}
 

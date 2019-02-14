@@ -40,10 +40,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.sablo.specification.PackageSpecification;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebLayoutSpecification;
-
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -1219,36 +1215,5 @@ public class PersistHelper
 				}
 			}
 		}
-	}
-
-	public static boolean isCSSPositionContainer(WebLayoutSpecification spec)
-	{
-		return spec != null && spec.isCSSPosition();
-	}
-
-	public static boolean isCSSPositionContainer(LayoutContainer container)
-	{
-		if (container != null)
-		{
-			WebComponentSpecProvider.getInstance();
-			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
-				container.getPackageName());
-			if (pkg != null)
-			{
-				return isCSSPositionContainer(pkg.getSpecification(container.getSpecName()));
-			}
-		}
-		return false;
-	}
-
-	public static boolean isInAbsoluteLayoutMode(IPersist persist)
-	{
-		while (persist != null)
-		{
-			persist = persist.getParent();
-			if (persist instanceof LayoutContainer) return isCSSPositionContainer((LayoutContainer)persist);
-			if (persist instanceof Form) break;
-		}
-		return false;
 	}
 }

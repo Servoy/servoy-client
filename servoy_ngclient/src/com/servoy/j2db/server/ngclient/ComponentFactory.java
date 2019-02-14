@@ -23,6 +23,7 @@ import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
@@ -75,7 +76,23 @@ public class ComponentFactory
 		if (persist != null)
 		{
 			int elementSecurity;
-			if (persist.getParent() instanceof Portal)
+			// FormComponent's child security is the security of the FormComponent
+			if (fe.isFormComponentChild())
+			{
+				// default security is that of the child component for the unlikely case the form component is not found
+				elementSecurity = access;
+				String feName = fe.getName();
+				String formComponentName = feName.substring(0, feName.indexOf('$'));
+				for (IPersist p : form.getAllObjectsAsList())
+				{
+					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+					{
+						elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID());
+						break;
+					}
+				}
+			}
+			else if (persist.getParent() instanceof Portal)
 			{
 				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID());
 			}

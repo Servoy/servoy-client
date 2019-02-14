@@ -31,6 +31,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
@@ -119,6 +120,8 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.value(form.getSize().width);
 		writer.key("absoluteLayout");
 		writer.value(!form.isResponsiveLayout());
+		writer.key(IContentSpecConstants.PROPERTY_USE_CSS_POSITION);
+		writer.value(form.getUseCssPosition());
 		writer.key("startName");
 		writer.value(elementStartName);
 		writer.key("childElements");
