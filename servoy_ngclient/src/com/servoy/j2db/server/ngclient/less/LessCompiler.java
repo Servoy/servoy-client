@@ -91,7 +91,7 @@ public class LessCompiler
 		return "";
 	}
 
-	private static Invocable getInvocable() throws NoSuchMethodException, ScriptException
+	private static synchronized Invocable getInvocable() throws NoSuchMethodException, ScriptException
 	{
 		if (invocable == null)
 		{
