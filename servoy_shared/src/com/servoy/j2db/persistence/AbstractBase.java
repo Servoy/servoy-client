@@ -753,6 +753,9 @@ public abstract class AbstractBase implements IPersist
 	{
 	};
 
+	public static final RuntimeProperty<Boolean> Cloned = new RuntimeProperty<Boolean>()
+	{
+	};
 
 	public static final SerializableRuntimeProperty<HashMap<UUID, Integer>> UUIDToIDMapProperty = new SerializableRuntimeProperty<HashMap<UUID, Integer>>()
 	{
@@ -799,6 +802,7 @@ public abstract class AbstractBase implements IPersist
 		}
 
 		fillClone(cloned);
+		setRuntimeProperty(Cloned, Boolean.TRUE);
 		return cloned;
 	}
 
