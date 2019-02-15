@@ -332,7 +332,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				styleSheets.set(i,
 					"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
 						styleSheets.get(i).replace(".less", ".css") + "?t=" +
-						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&uuid=" + getUuid());
 			}
 			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}
