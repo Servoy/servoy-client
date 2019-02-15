@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.UUID;
 
@@ -41,7 +42,8 @@ public class PersistIndexCache
 
 	public static IPersistIndex getPersistIndex(Solution solution, Solution[] modules)
 	{
-		IPersistIndex index = persistIndexCache.get(solution.getUUID());
+		boolean isCloned = solution.getRuntimeProperty(AbstractBase.Cloned) != null && solution.getRuntimeProperty(AbstractBase.Cloned).booleanValue();
+		IPersistIndex index = isCloned ? null : persistIndexCache.get(solution.getUUID());
 		if (index == null)
 		{
 			List<Solution> solutions = new ArrayList<>();
@@ -54,9 +56,12 @@ public class PersistIndexCache
 				}
 			}
 			index = new PersistIndex(solutions);
-			IPersistIndex alreadyCreated = persistIndexCache.putIfAbsent(solution.getUUID(), index);
-			if (alreadyCreated != null) index = alreadyCreated;
-			LOG.info("Persist Index Cache entry created for " + solution + " with modules " + Arrays.asList(modules));
+			if (!isCloned)
+			{
+				IPersistIndex alreadyCreated = persistIndexCache.putIfAbsent(solution.getUUID(), index);
+				if (alreadyCreated != null) index = alreadyCreated;
+				LOG.info("Persist Index Cache entry created for " + solution + " with modules " + Arrays.asList(modules));
+			}
 		}
 		return index;
 	}
