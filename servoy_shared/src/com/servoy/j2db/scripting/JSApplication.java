@@ -589,6 +589,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * //NGClient usage
 	 * application.overrideStyle('oldstylesheet.css','mystylesheets/newstylesheet.css');
+	 * //Also less is supported also with compiling it at runtime
+	 * applicaiton.overrideStyle('solution.less', 'tenant.less'); // tenant.less can be a solution model changed or generated file, then it will be recompiled at runtime.
 	 *
 	 * @param originalStyleName Name of the style to override
 	 * @param newStyleName Name of the new style
