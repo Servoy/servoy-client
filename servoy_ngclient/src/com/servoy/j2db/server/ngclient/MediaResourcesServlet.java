@@ -285,7 +285,8 @@ public class MediaResourcesServlet extends HttpServlet
 		if (media == null && mediaName.endsWith(".css"))
 		{
 			media = fs.getMedia(mediaName.replace(".css", ".less"));
-			if (media != null)
+			Solution sc = fs.getSolutionCopy(false);
+			if (media != null && media.getParent() != sc)
 			{
 				// is a less file, try to load the compiled version
 				URL url = getServletConfig().getServletContext().getResource('/' + SERVOY_SOLUTION_CSS + '/' + mediaName);
