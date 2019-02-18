@@ -23,10 +23,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.scripting.solutionmodel.JSMedia;
 import com.servoy.j2db.server.ngclient.less.resources.ThemeResourceLoader;
-import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -36,29 +35,28 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class LessFileManager
 {
-	private final IMediaProvider mediaProvider;
+	private final FlattenedSolution fs;
 	private final String startFolder;
 	private final String lessFile;
 	private final List<Media> imports = new ArrayList<>();
 
-	public LessFileManager(IMediaProvider mediaProvider, String lessFile)
+	public LessFileManager(FlattenedSolution fs, String lessFile)
 	{
-		this.mediaProvider = mediaProvider;
+		this.fs = fs;
 		this.lessFile = lessFile;
 		int index = lessFile.lastIndexOf('/') + 1;
 		this.startFolder = index > 0 ? lessFile.substring(0, index) : "";
 
-		ISMMedia parent = mediaProvider.getMedia(lessFile);
-		if (parent instanceof JSMedia)
+		Media parent = fs.getMedia(lessFile);
+		if (parent != null)
 		{
-			((JSMedia)parent).getMedia().setRuntimeProperty(Media.REFERENCES, imports);
+			parent.setRuntimeProperty(Media.REFERENCES, imports);
 		}
-
 	}
 
 	public String load(String path, @SuppressWarnings("unused") String directory)
 	{
-		if (mediaProvider != null)
+		if (fs != null)
 		{
 			String filename = path;
 			// test for arguments (like last modified)
@@ -67,15 +65,15 @@ public class LessFileManager
 			{
 				filename = filename.substring(0, questionMark);
 			}
-			ISMMedia media = null;
+			Media media = null;
 			try
 			{
 				URI uri = new URI(startFolder + filename);
-				media = mediaProvider.getMedia(uri.normalize().toString());
+				media = fs.getMedia(uri.normalize().toString());
 			}
 			catch (URISyntaxException e1)
 			{
-				media = mediaProvider.getMedia(startFolder + filename);
+				media = fs.getMedia(startFolder + filename);
 			}
 			if (media == null && path.startsWith(ThemeResourceLoader.THEME_LESS))
 			{
@@ -105,14 +103,14 @@ public class LessFileManager
 			}
 			if (media != null)
 			{
-				if (media instanceof JSMedia) imports.add(((JSMedia)media).getMedia());
+				imports.add(media);
 				try
 				{
-					return new String(media.getBytes(), "UTF-8");
+					return new String(media.getMediaData(), "UTF-8");
 				}
 				catch (UnsupportedEncodingException e)
 				{
-					return new String(media.getBytes());
+					return new String(media.getMediaData());
 				}
 			}
 		}

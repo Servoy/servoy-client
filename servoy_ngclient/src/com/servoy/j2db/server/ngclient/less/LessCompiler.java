@@ -30,7 +30,6 @@ import javax.script.ScriptException;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.scripting.solutionmodel.JSMedia;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -44,8 +43,7 @@ public class LessCompiler
 
 	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
 	{
-		String cssAsString = compileLessWithNashorn(new String(media.getMediaData(), Charset.forName("UTF-8")),
-			(name) -> fs.getMedia(name) != null ? new JSMedia(fs.getMedia(name), fs, false) : null, media.getName());
+		String cssAsString = compileLessWithNashorn(new String(media.getMediaData(), Charset.forName("UTF-8")), fs, media.getName());
 		cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
 			Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getSolution().getLastModifiedTime()));
 		return cssAsString;
@@ -64,7 +62,7 @@ public class LessCompiler
 		return null;
 	}
 
-	public static String compileLessWithNashorn(String text, IMediaProvider mediaProvider, String name)
+	public static String compileLessWithNashorn(String text, FlattenedSolution fs, String name)
 	{
 
 		try
