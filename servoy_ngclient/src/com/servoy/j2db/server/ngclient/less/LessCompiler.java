@@ -70,7 +70,7 @@ public class LessCompiler
 			Invocable engine = getInvocable();
 			synchronized (engine)
 			{
-				Object result = engine.invokeFunction("convert", text, new LessFileManager(mediaProvider, name));
+				Object result = engine.invokeFunction("convert", text, fs != null ? new LessFileManager(fs, name) : null);
 				return result.toString();
 			}
 		}
