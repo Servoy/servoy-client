@@ -56,9 +56,11 @@ import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.server.ngclient.less.LessCompiler;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.IMediaFieldConstants;
@@ -311,7 +313,7 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 		if (media != null)
 		{
-			return sendData(request, response, fs, media);
+			return sendMediaData(request, response, fs, media);
 		}
 		return false;
 	}
@@ -332,18 +334,14 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 	}
 
-	protected boolean sendData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
+	private boolean sendMediaData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
 	{
 		setHeaders(request, response);
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-		return sendMediaData(response, media, fs);
-	}
-
-	protected boolean sendMediaData(HttpServletResponse response, Media media, FlattenedSolution fs) throws IOException
-	{
-		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
+		return sendData(response, media.getName().endsWith(".less") ? LessCompiler.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
+			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
@@ -374,7 +372,7 @@ public class MediaResourcesServlet extends HttpServlet
 		return wsSession != null ? wsSession.getClient() : null;
 	}
 
-	protected boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
+	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
 	{
 		boolean dataWasSent = false;
 		if (mediaData != null && mediaData.length > 0)
