@@ -1247,7 +1247,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        const parentHeight = parent.outerHeight();
 				                        const height = scope.svyFormComponent.formHeight;
 				                        const width = scope.svyFormComponent.formWidth;
-				                        const numberOfColumns = Math.floor(parentWidth/width);
+				                        const numberOfColumns = (scope.pageLayout == 'listview') ? 1 : Math.floor(parentWidth/width);
 				                        const numberOfRows = Math.floor(parentHeight/height);
 				                        const numberOfCells = numberOfRows * numberOfColumns;
 				                        let currentTime;
