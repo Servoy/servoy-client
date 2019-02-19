@@ -54,27 +54,11 @@ public class LessFileManager
 		}
 	}
 
-	public String load(String path, @SuppressWarnings("unused") String directory)
+	public String load(String path)
 	{
 		if (fs != null)
 		{
-			String filename = path;
-			// test for arguments (like last modified)
-			int questionMark = filename.lastIndexOf('?');
-			if (questionMark > 0)
-			{
-				filename = filename.substring(0, questionMark);
-			}
-			Media media = null;
-			try
-			{
-				URI uri = new URI(startFolder + filename);
-				media = fs.getMedia(uri.normalize().toString());
-			}
-			catch (URISyntaxException e1)
-			{
-				media = fs.getMedia(startFolder + filename);
-			}
+			Media media = getMedia(path);
 			if (media == null && path.startsWith(ThemeResourceLoader.THEME_LESS))
 			{
 				int index = path.indexOf("version=");
@@ -116,5 +100,38 @@ public class LessFileManager
 		}
 		Debug.error("Couldn't resolve the media for " + startFolder + path + " when parsing the @import statement of the less file: " + lessFile);
 		return "";
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	private Media getMedia(String path)
+	{
+		String filename = path;
+		// test for arguments (like last modified)
+		int questionMark = filename.lastIndexOf('?');
+		if (questionMark > 0)
+		{
+			filename = filename.substring(0, questionMark);
+		}
+		Media media = null;
+		try
+		{
+			URI uri = new URI(startFolder + filename);
+			media = fs.getMedia(uri.normalize().toString());
+		}
+		catch (URISyntaxException e1)
+		{
+			media = fs.getMedia(startFolder + filename);
+		}
+		return media;
+	}
+
+	public byte[] loadBytes(String path)
+	{
+		Media media = getMedia(path);
+		if (media != null) return media.getMediaData();
+		return null;
 	}
 }

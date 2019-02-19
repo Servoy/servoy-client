@@ -17,9 +17,14 @@ FileManager.prototype.supports = function() {
 };
 
 FileManager.prototype.loadFile = function(path, currentDirectory, context, environment, func) {
-	var contents = this.fm.load(path, currentDirectory);
+	var contents = this.fm.load(path);
 	func(null, {filename:path, contents:contents});
     return;
+};
+
+FileManager.prototype.loadFileSync = function(path, currentDirectory, context, environment) {
+	var contents = this.fm.loadBytes(path);
+	return  {filename:path, contents:contents};
 };
 
 var convert = function (lessfilecontents, fm) {    
