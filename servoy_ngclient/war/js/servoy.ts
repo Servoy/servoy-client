@@ -1012,7 +1012,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 									}
 									else
 									{
-										elementLayout['min-height'] = childElement.model.cssPosition.height;
+										elementLayout['height'] = childElement.model.cssPosition.height;
 									}	
 								}
 							}
