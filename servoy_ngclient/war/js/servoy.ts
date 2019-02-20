@@ -948,14 +948,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				
 						function ServoyApi( rowModel, rowId ) {
 							this.apply = ( property ) => {
-								ServoyApi.prototype.apply( property, rowModel, rowId );
+								childElement.servoyApi.apply( property, rowModel, rowId );
 							}
 							this.startEdit = ( property ) => {
-								ServoyApi.prototype.startEdit( property, rowId )
+								childElement.servoyApi.startEdit( property, rowId )
 							}
-				
 						}
-						ServoyApi.prototype = childElement.servoyApi;
+						ServoyApi.prototype = svyServoyApi;
 				
 						function Handlers( handlers, rowModel, rowId ) {
 							this.svy_servoyApi = new ServoyApi( rowModel, rowId );
