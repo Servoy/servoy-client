@@ -431,7 +431,8 @@ public class NGClientEntryFilter extends WebEntry
 								// prepare for possible index.html lookup
 								Map<String, Object> variableSubstitution = new HashMap<>();
 
-								variableSubstitution.put("contextPath", request.getContextPath() + '/');
+								variableSubstitution.put("contextPath",
+									Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/'));
 								variableSubstitution.put("pathname", uri);
 								variableSubstitution.put("querystring",
 									HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
