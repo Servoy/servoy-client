@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
@@ -436,6 +437,12 @@ public class NGClientEntryFilter extends WebEntry
 								variableSubstitution.put("pathname", uri);
 								variableSubstitution.put("querystring",
 									HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
+								String titleText = fs.getSolution().getTitleText();
+								if (StringUtils.isBlank(titleText))
+								{
+									titleText = fs.getSolution().getName();
+								}
+								variableSubstitution.put("solutionTitle", titleText);
 
 								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
 
