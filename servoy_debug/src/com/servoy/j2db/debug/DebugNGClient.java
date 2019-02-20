@@ -66,7 +66,6 @@ import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindo
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
-import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
@@ -401,11 +400,14 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 			{
 				// is the solution has a css, reload for any css change, not only the one set on the solution, because
 				// that one, can also have other css included, using the 'import' statement
-				if (persist instanceof Media && MimeTypes.CSS.equals(((Media)persist).getMimeType()) &&
-					!PersistHelper.getOrderedStyleSheets(getFlattenedSolution()).isEmpty())
+				if (persist instanceof Media && !PersistHelper.getOrderedStyleSheets(getFlattenedSolution()).isEmpty())
 				{
-					forcePageReload = true;
-					break;
+					String name = ((Media)persist).getName().toLowerCase();
+					if (name.endsWith(".less") || name.endsWith(".css"))
+					{
+						forcePageReload = true;
+						break;
+					}
 				}
 			}
 		}

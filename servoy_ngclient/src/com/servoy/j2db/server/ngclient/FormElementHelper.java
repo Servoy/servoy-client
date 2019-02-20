@@ -148,7 +148,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			return generateFormComponentCacheObject(formElement, pd, form, fs, noneCacheableElements);
 		}
 
-		return getFormComponentFromCache(formElement, pd, formElementValue, form, fs);
+		return getFormComponentFromCache(formElement, pd, formElementValue, form, getSharedFlattenedSolution(fs));
 	}
 
 
@@ -237,7 +237,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
 		for (IFormElement formElement : persistElements)
 		{
-			elements.add(new FormElement(formElement, getSharedFlattenedSolution(fs), new PropertyPath(), parent.getDesignId() != null));
+			elements.add(new FormElement(formElement, fs, new PropertyPath(), parent.getDesignId() != null));
 		}
 		return elements;
 	}

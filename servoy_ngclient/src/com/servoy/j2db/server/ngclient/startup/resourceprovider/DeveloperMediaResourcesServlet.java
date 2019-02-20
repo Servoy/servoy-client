@@ -17,16 +17,10 @@
 
 package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 
-import java.io.IOException;
-
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
@@ -37,20 +31,6 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 @WebServlet("/resources/*")
 public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 {
-	@Override
-	protected boolean sendMediaData(HttpServletResponse response, Media media, FlattenedSolution fs) throws IOException
-	{
-		return sendData(response,
-			media.getName().endsWith(".less") ? ResourceProvider.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
-			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
-	}
-
-	@Override
-	protected void setHeaders(HttpServletRequest request, HttpServletResponse response)
-	{
-		response.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate");
-	}
-
 	@Override
 	protected IApplication getClient(String clientUUID)
 	{

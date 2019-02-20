@@ -17,6 +17,8 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.List;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -29,6 +31,10 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.MEDIA)
 public class Media extends AbstractBase implements ISupportName, ISupportEncapsulation, ICloneable, ISupportDeprecated
 {
+	public static final RuntimeProperty<List<Media>> REFERENCES = new RuntimeProperty<List<Media>>()
+	{
+	};
+
 	public static final long serialVersionUID = 468097341226347599L;
 
 	private transient byte[] media_data;

@@ -226,6 +226,15 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 			cacheById.put(item.getID(), item);
 		}
 		nameToPersist.remove(item.getClass());
+		if (item instanceof ISupportChilds)
+		{
+			// If a form (or any isupport childs is added, also add all children); this is in mirror with remove
+			Iterator<IPersist> allObjects = ((ISupportChilds)item).getAllObjects();
+			while (allObjects.hasNext())
+			{
+				itemCreated(allObjects.next());
+			}
+		}
 		if (item instanceof ISupportScope)
 		{
 			scopeCacheByName.clear();

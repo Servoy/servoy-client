@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.nio.charset.Charset;
+
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -58,14 +60,14 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	/**
 	 * @return the media
 	 */
-	Media getMedia()
+	public Media getMedia()
 	{
 		return media;
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Media#getMimeType()
-	 * 
+	 *
 	 * @sampleas getBytes()
 	 */
 	@JSGetter
@@ -83,9 +85,9 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Media#getName()
-	 * 
+	 *
 	 * @sampleas getBytes()
-	 * 
+	 *
 	 * @return A String holding the name of this Media object.
 	 */
 	@JSFunction
@@ -96,7 +98,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/**
 	 * A byte array holding the content of the Media object.
-	 * 
+	 *
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
 	 * var mapBytes = plugins.file.readFile('d:/map.png');
@@ -127,8 +129,31 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	}
 
 	/**
+	 * Returns this media's bytes a a String converting it with the UTF-8 Charset.
+	 * Returns null if it couldn't convert it or the bytes where null.
+	 * @return
+	 */
+	@JSFunction
+	public String getAsString()
+	{
+		if (media.getMediaData() != null) return new String(media.getMediaData(), Charset.forName("UTF-8")); //$NON-NLS-1$
+		return null;
+	}
+
+	/**
+	 * Sets the bytes of this media to the give String that is converted to bytes using the UTF-8 Charset.
+	 *
+	 * @param string
+	 */
+	@JSFunction
+	public void setAsString(String string)
+	{
+		setBytes(string.getBytes(Charset.forName("UTF-8"))); //$NON-NLS-1$
+	}
+
+	/**
 	 * Returns the UUID of this media
-	 * 
+	 *
 	 * @sample
 	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
 	 * application.output(ballImg.getUUID().toString());
@@ -152,7 +177,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -166,7 +191,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

@@ -470,7 +470,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			SimplePersistFactory factory = getPersistFactory();
 
 			copySolution = SimplePersistFactory.createDummyCopy(mainSolution);
-			copySolution.setChangeHandler(new ChangeHandler(factory));
+			copySolution.setChangeHandler(new ChangeHandler(factory)
+			{
+				// overwrite this new Object to skip the call to rootObject.registerNewObject(object); which shouldn't be needed for solution model solutions.
+				@Override
+				public IPersist createNewObject(ISupportChilds parent, int object_type_id, int element_id, UUID uuid) throws RepositoryException
+				{
+					return factory.createObject(parent, object_type_id, element_id, uuid);
+				}
+			});
 			copySolution.getChangeHandler().addIPersistListener(this);
 			getIndex().setSolutionModelSolution(copySolution);
 		}

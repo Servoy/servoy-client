@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -615,6 +616,11 @@ public abstract class AbstractBase implements IPersist
 	public void addChild(IPersist obj)
 	{
 		internalAddChild(obj);
+		afterChildWasAdded(obj);
+	}
+
+	protected void afterChildWasAdded(IPersist obj)
+	{
 		if (getRootObject().getChangeHandler() != null)
 		{
 			getRootObject().getChangeHandler().fireIPersistCreated(obj);
@@ -747,6 +753,9 @@ public abstract class AbstractBase implements IPersist
 	{
 	};
 
+	public static final RuntimeProperty<Boolean> Cloned = new RuntimeProperty<Boolean>()
+	{
+	};
 
 	public static final SerializableRuntimeProperty<HashMap<UUID, Integer>> UUIDToIDMapProperty = new SerializableRuntimeProperty<HashMap<UUID, Integer>>()
 	{
@@ -793,6 +802,7 @@ public abstract class AbstractBase implements IPersist
 		}
 
 		fillClone(cloned);
+		setRuntimeProperty(Cloned, Boolean.TRUE);
 		return cloned;
 	}
 
@@ -1053,7 +1063,8 @@ public abstract class AbstractBase implements IPersist
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);
+			Debug.error("Cannot read JSON formatted property '" + Arrays.toString(path) + "' of component with UUID '" + getUUID() + "' in form '" +
+				getAncestor(IRepository.FORMS) + "'. Invalid JSON: " + customProperties, ex);
 		}
 		return null;
 	}
