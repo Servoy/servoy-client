@@ -148,7 +148,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			return generateFormComponentCacheObject(formElement, pd, form, fs, noneCacheableElements);
 		}
 
-		return getFormComponentFromCache(formElement, pd, formElementValue, form, fs);
+		return getFormComponentFromCache(formElement, pd, formElementValue, form, getSharedFlattenedSolution(fs));
 	}
 
 
@@ -237,7 +237,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
 		for (IFormElement formElement : persistElements)
 		{
-			elements.add(new FormElement(formElement, getSharedFlattenedSolution(fs), new PropertyPath(), parent.getDesignId() != null));
+			elements.add(new FormElement(formElement, fs, new PropertyPath(), parent.getDesignId() != null));
 		}
 		return elements;
 	}
@@ -735,12 +735,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			if (mainFormName != null)
 			{
 				flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
-				if (flattenedForm == null)
-				{
-					// this can happen if main form is solution model and flattened solution is global shared solution
-					// template generation will use the right flattened solution and fill in the right values
-					return Integer.valueOf(-2);
-				}
 			}
 		}
 		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
