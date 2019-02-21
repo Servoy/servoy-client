@@ -2921,18 +2921,53 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Registers the given ViewFoundSet to the system so it is picked up by forms that have this datasource (see viewFoundset.getDatasource() for the actual datasource string) assigned.
+	 * Returns a foundset object for a specified query.
+	 * This just creates one without keeping any reference to it, you have to
+	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
+	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
+	 *
+	 * If you query the pk with the columns that you display for the main or join tables then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
+	 * If there are changes in ViewRecords of this ViewFoundSet then databroadcast configurations that need to load new data won't do the query right away (only after the save)
+	 * Also loading more (the next chunksize) will not be done. This is because the ViewRecord on an index can be completely changed. We can't track those.
+	 *
+	 * Also databroadcast can be enabled by calling one of the ViewFoundSet#enableDatabroadcastFor(QBTableClause)} to listen for that specific table (main or joins).
+	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a full re-query to see the changes.
+	 *
+	 * if the register boolean is true, then the given ViewFoundSet is registered to the system so it is picked up by forms that have this datasource (see viewFoundset.getDatasource() for the actual datasource string) assigned.
 	 * The form's foundset will then have a much more limited API, so a lot of things can't be done with it - e.g. newRecord() or deleteRecords().
 	 * Also records can be updated in memory, so they are not fully read-only, but the developer is responsible for saving these changes to a persisted store. See also viewFoundset.save(...).
 	 *
 	 * If the solution doesn't need this ViewFoundSet anymore please use unregisterViewFoundSset(datasource), because otherwise this
 	 * register call will keep/hold this foundset in memory (for that datasource string to work) forever.
 	 *
+	 * @sample
+	 * /** @type {ViewFoundSet<view:myname>} *&#47;
+	 * var vfs = databaseManager.getViewFoundSet('myname', query)
+	 * // register now this view foundset to the system so they can be picked up by forms if a form has the view datasource.
+	 * databaseMananger.registerViewFoundSet(vfs);
+	 *
+	 * @param name The name given to this foundset (will create a datasource url like view:[name])
+	 * @param query The query to get the ViewFoundSet for.
+	 * @param register Register the created ViewFoundSet to the system so it can be used by forms.
+	 *
+	 * @return A new JSFoundset for that query.
+	 */
+	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query, boolean register) throws ServoyException
+	{
+		checkAuthorized();
+		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query);
+		if (register) application.getFoundSetManager().registerViewFoundSet(viewFoundSet);
+		return viewFoundSet;
+	}
+
+	/**
 	 * @sampleas getViewFoundSet(String, QBSelect)
 	 *
 	 * @param viewFoundset The ViewFoundSet to register to the system.
 	 * @throws ServoyException
+	 * @deprecated Use getViewFoundSet(String,QBSelect,register);
 	 */
+	@Deprecated
 	public boolean js_registerViewFoundSet(ViewFoundSet viewFoundset) throws ServoyException
 	{
 		checkAuthorized();
