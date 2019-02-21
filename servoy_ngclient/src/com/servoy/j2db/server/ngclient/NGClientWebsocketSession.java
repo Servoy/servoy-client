@@ -312,8 +312,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 				}
 			}
-			if (compareList(lastSentStyleSheets, styleSheets)) return;
-			lastSentStyleSheets = new ArrayList<String>(styleSheets);
 			Collections.reverse(styleSheets);
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
@@ -332,8 +330,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				styleSheets.set(i,
 					"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
 						styleSheets.get(i).replace(".less", ".css") + "?t=" +
-						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp));
+						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&uuid=" + getUuid());
 			}
+			if (compareList(lastSentStyleSheets, styleSheets)) return;
+			lastSentStyleSheets = new ArrayList<String>(styleSheets);
 			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
 		}
 		else

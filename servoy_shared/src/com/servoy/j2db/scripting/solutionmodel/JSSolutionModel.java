@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.print.PageFormat;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -1067,6 +1068,30 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		{
 			throw new RuntimeException("error createing new media with name " + name, e);
 		}
+	}
+
+	/**
+	 * Creates a new media object for things like a CSS or LESS file that can be set as the clients solution style.
+	 * The stringContents is converted to bytes through the UTF-8 charset.
+	 *
+	 * @sample
+	 * var myMedia = solutionModel.newMedia('button01.gif',stringContent)
+	 * //now set the imageMedia property of your label or button
+	 * //myButton.imageMedia = myMedia
+	 * // OR
+	 * //myLabel.imageMedia = myMedia
+	 *
+	 * @param name The name of the new media
+	 *
+	 * @param bytes The content
+	 *
+	 * @return a JSMedia object
+	 *
+	 */
+	@JSFunction
+	public JSMedia newMedia(String name, String content)
+	{
+		return newMedia(name, content.getBytes(Charset.forName("UTF-8")));
 	}
 
 	/**

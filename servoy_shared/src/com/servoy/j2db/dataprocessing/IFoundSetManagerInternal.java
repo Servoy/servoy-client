@@ -201,4 +201,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public boolean unregisterViewFoundSet(String datasource);
 
 	public RowManager getRowManager(String dataSource) throws ServoyException;
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public ViewFoundSet getRegisteredViewFoundSet(String name);
 }

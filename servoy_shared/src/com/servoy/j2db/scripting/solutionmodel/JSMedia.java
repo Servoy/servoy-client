@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.nio.charset.Charset;
+
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -124,6 +126,29 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 		{
 			media.setMimeType(MimeTypes.getContentType(bytes));
 		}
+	}
+
+	/**
+	 * Returns this media's bytes a a String converting it with the UTF-8 Charset.
+	 * Returns null if it couldn't convert it or the bytes where null.
+	 * @return
+	 */
+	@JSFunction
+	public String getAsString()
+	{
+		if (media.getMediaData() != null) return new String(media.getMediaData(), Charset.forName("UTF-8")); //$NON-NLS-1$
+		return null;
+	}
+
+	/**
+	 * Sets the bytes of this media to the give String that is converted to bytes using the UTF-8 Charset.
+	 *
+	 * @param string
+	 */
+	@JSFunction
+	public void setAsString(String string)
+	{
+		setBytes(string.getBytes(Charset.forName("UTF-8"))); //$NON-NLS-1$
 	}
 
 	/**

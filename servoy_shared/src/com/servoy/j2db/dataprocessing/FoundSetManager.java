@@ -3096,6 +3096,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return viewFoundSets.remove(datasource) != null;
 	}
 
+	@Override
+	public ViewFoundSet getRegisteredViewFoundSet(String name)
+	{
+		if (name == null) return null;
+		if (name.startsWith(DataSourceUtils.VIEW_DATASOURCE_SCHEME_COLON))
+		{
+			return viewFoundSets.get(name);
+		}
+		return viewFoundSets.get(DataSourceUtils.createViewDataSource(name));
+	}
+
 
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException
 	{

@@ -898,17 +898,13 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		}
 		if (old_repository_version < 50)
 		{
-			// 8.3 properties here
+			// 8.4 properties here
 			cs.new Element(439, IRepository.GRAPHICALCOMPONENTS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
 			cs.new Element(440, IRepository.PORTALS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
 			cs.new Element(441, IRepository.FIELDS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
 			cs.new Element(442, IRepository.WEBCOMPONENTS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
 			cs.new Element(443, IRepository.RECTSHAPES, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
 			cs.new Element(444, IRepository.TABPANELS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
-		}
-		if (old_repository_version < 51)
-		{
-			// 8.4 properties here
 			cs.new Element(445, IRepository.VALUELISTS, PROPERTY_VALUELIST_REALVALUE_TYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(446, IRepository.VALUELISTS, PROPERTY_VALUELIST_DISPLAYVALUE_TYPE.getPropertyName(), IRepository.INTEGER);
 		}

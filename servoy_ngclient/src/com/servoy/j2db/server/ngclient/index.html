@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html ng-app="servoyApp" ng-controller="MainController">
 	<head>
-		<base href=##contextPath##>
+		<base href="##contextPath##">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
 		<link rel="icon" href="favicon32x32.png" sizes="32x32" type="image/png"/>
 		<link rel="icon" href="favicon192x192.png" sizes="192x192" type="image/png"/>
-		<title ng-bind="solutionSettings.solutionTitle"></title>
+		<title ng-bind="solutionSettings.solutionTitle">##solutionTitle##</title>
 		<script type="text/javascript">
 			if (typeof module === 'object') {
 				// Require Electron, IPC, other modules here
@@ -109,10 +109,10 @@
 			}	
 			angular.module('servoyApp').run(function($solutionSettings, $svyI18NService, $webSocket){
 					// set pathname as received by the client, may be different from browser in case of url rewrite
-					$webSocket.setPathname(##pathname##);
-					$webSocket.setQueryString(##querystring##);
+					$webSocket.setPathname("##pathname##");
+					$webSocket.setQueryString("##querystring##");
 				
-					var orientation = ##orientation##;
+					var orientation = "##orientation##";
 					if (orientation == 2)
 					{
 						$solutionSettings.ltrOrientation = false;
@@ -136,10 +136,10 @@
 					}
 
 				// inject default tranlations
-				$svyI18NService.addDefaultTranslations(JSON.parse(##defaultTranslations##));
+				$svyI18NService.addDefaultTranslations(JSON.parse("##defaultTranslations##"));
 			});
-			window.servoy_remoteaddr = ##ipaddr##
-			window.servoy_remotehost = ##hostaddr##
+			window.servoy_remoteaddr = "##ipaddr##"
+			window.servoy_remotehost = "##hostaddr##"
 		</script>
 	</head>
 	

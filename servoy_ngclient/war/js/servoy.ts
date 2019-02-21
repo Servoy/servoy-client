@@ -948,14 +948,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				
 						function ServoyApi( rowModel, rowId ) {
 							this.apply = ( property ) => {
-								ServoyApi.prototype.apply( property, rowModel, rowId );
+								childElement.servoyApi.apply( property, rowModel, rowId );
 							}
 							this.startEdit = ( property ) => {
-								ServoyApi.prototype.startEdit( property, rowId )
+								childElement.servoyApi.startEdit( property, rowId )
 							}
-				
 						}
-						ServoyApi.prototype = childElement.servoyApi;
+						ServoyApi.prototype = svyServoyApi;
 				
 						function Handlers( handlers, rowModel, rowId ) {
 							this.svy_servoyApi = new ServoyApi( rowModel, rowId );
@@ -1012,7 +1011,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 									}
 									else
 									{
-										elementLayout['min-height'] = childElement.model.cssPosition.height;
+										elementLayout['height'] = childElement.model.cssPosition.height;
 									}	
 								}
 							}
@@ -1247,7 +1246,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        const parentHeight = parent.outerHeight();
 				                        const height = scope.svyFormComponent.formHeight;
 				                        const width = scope.svyFormComponent.formWidth;
-				                        const numberOfColumns = Math.floor(parentWidth/width);
+				                        const numberOfColumns = (scope.pageLayout == 'listview') ? 1 : Math.floor(parentWidth/width);
 				                        const numberOfRows = Math.floor(parentHeight/height);
 				                        const numberOfCells = numberOfRows * numberOfColumns;
 				                        let currentTime;
