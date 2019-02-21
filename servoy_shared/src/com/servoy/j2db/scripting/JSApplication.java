@@ -2341,7 +2341,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample
 	 * // create and show a window, with specified title, initial location and size
-	 * // type of the window can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW
+	 * // type of the window can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW (WINDOW does not work for NGClient)
 	 * // If parentWindow is not specified, the current window will be used as parent; parentWindow parameter is only used by dialogs
 	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
 	 * win.setInitialBounds(10, 10, 300, 300);
@@ -2352,7 +2352,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
 	 *
 	 * @param windowName the name of the window. Should not be null.
-	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
+	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW. (WINDOW does not work for NGClient)
 	 * @return the newly created window.
 	 */
 	public JSWindow js_createWindow(String windowName, int type)
@@ -2366,7 +2366,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Use the form controller show() and showRecords() methods in order to show a form in this window.
 	 *
 	 * @sample
-	 * // create and show a window, with specified title, initial location and size
+	 * // create and show a window, with specified title, initial location and size (WINDOW does not work for NGClient)
 	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
@@ -2376,7 +2376,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
 	 *
 	 * @param windowName the name of the window. Should not be null.
-	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
+	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW (WINDOW  doesn't work in NGClient).
 	 * @param parentWindow the parent JSWindow object. If it is not specified, the current window will be used as parent. This parameter is only used by dialogs.
 	 * @return the newly created window.
 	 */
