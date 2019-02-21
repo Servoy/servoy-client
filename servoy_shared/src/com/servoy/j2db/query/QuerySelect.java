@@ -22,9 +22,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
+import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.ObjectCountVisitor;
@@ -594,6 +597,31 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 				}
 			}
 		}
+	}
+
+	public Optional<QueryColumn> getRealColumn(IQuerySelectValue column)
+	{
+		QueryColumn qColumn = column.getColumn();
+		if (qColumn == null)
+		{
+			return Optional.empty();
+		}
+		BaseQueryTable qTable = qColumn.getTable();
+		if (qTable.getDataSource() != null)
+		{
+			return Optional.of(qColumn);
+		}
+		// find real column in derived table
+		return AbstractBaseQuery.<DerivedTable> searchOne(this, new TypePredicate<>(DerivedTable.class, derivedTable -> derivedTable.getTable() == qTable)) //
+			.map(DerivedTable::getQuery) //
+			.map(QuerySelect::getColumns) //
+			.flatMap(derivedColumns -> derivedColumns.stream() //
+				.filter(Objects::nonNull) //
+				.filter(
+					dtcol -> qColumn.getName().equals(dtcol.getAlias()) || (dtcol.getColumn() != null && qColumn.getName().equals(dtcol.getColumn().getName()))) //
+				.map(IQuerySelectValue::getColumn) //
+				.findAny()) //
+			.flatMap(this::getRealColumn); // recursive for nested derived tables
 	}
 
 	static HashMap<String, AndCondition> setInConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)

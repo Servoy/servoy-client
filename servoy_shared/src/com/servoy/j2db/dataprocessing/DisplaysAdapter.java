@@ -316,8 +316,8 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 					if (currState == null) return;
 				}
 
-				isColumn = currState.getParentFoundSet().getSQLSheet().getColumnIndex(parts[parts.length - 1]) != -1 ||
-					currState.getParentFoundSet().getSQLSheet().containsCalculation(dataProviderID);
+				isColumn = currState.getParentFoundSet().getColumnIndex(parts[parts.length - 1]) != -1 ||
+					currState.getParentFoundSet().containsCalculation(dataProviderID);
 			}
 		}
 		if (isGlobal || !isColumn || state.startEditing()) //globals are always allowed to set in datarenderers
@@ -383,7 +383,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			prevValue = dal.getFormScope().get(dataProviderID);
 			dal.getFormScope().put(dataProviderID, obj);
 		}
-		else if (record != null && (record.isEditing() || record.getParentFoundSet().getSQLSheet().getColumnIndex(dataProviderID) == -1))
+		else if (record != null && (record.isEditing() || record.getParentFoundSet().getColumnIndex(dataProviderID) == -1))
 		{
 			// If object == "" and previous == null don't update value
 			if (obj != null && obj.equals("")) //$NON-NLS-1$

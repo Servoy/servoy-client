@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -153,6 +154,39 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	public SQLSheet getSQLSheet()
 	{
 		return sheet;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#containsAggregate(java.lang.String)
+	 */
+	@Override
+	public boolean containsAggregate(String name)
+	{
+		return sheet.containsAggregate(name);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#containsCalculation(java.lang.String)
+	 */
+	@Override
+	public boolean containsCalculation(String dataProviderID)
+	{
+		return sheet.containsCalculation(dataProviderID);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#getColumnIndex(java.lang.String)
+	 */
+	@Override
+	public int getColumnIndex(String dataProviderID)
+	{
+		return sheet.getColumnIndex(dataProviderID);
 	}
 
 	public void loadAllRecords() throws ServoyException
@@ -648,5 +682,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	@Override
 	public void fireFoundSetChanged()
 	{
+	}
+
+	@Override
+	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
+	{
+		return null;
 	}
 }

@@ -104,7 +104,6 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FindState;
-import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetListWrapper;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
@@ -641,15 +640,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		private boolean isRecordSelected(IRecordInternal rec)
 		{
-			if (rec == null) return false;
-			IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
-			if (parentFoundSet instanceof FoundSet)
+			if (rec == null)
 			{
-				FoundSet fs = (FoundSet)parentFoundSet;
-				return Arrays.binarySearch(fs.getSelectedIndexes(), fs.getRecordIndex(rec)) >= 0;
+				return false;
 			}
-
-			return parentFoundSet.getRecordIndex(rec) == parentFoundSet.getSelectedIndex();
+			IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
+			return Arrays.binarySearch(parentFoundSet.getSelectedIndexes(), parentFoundSet.getRecordIndex(rec)) >= 0;
 		}
 
 		private void setUpItem(final ListItem<IRecordInternal> listItem, boolean createComponents)
@@ -3351,7 +3347,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			// int selected = currentData.getSelectedIndex();
 			// table.setSelectionModel(lsm);
 			// table.setModel((TableModel)currentData);
-			data.setObject(new FoundSetListWrapper((FoundSet)currentData));
+			data.setObject(new FoundSetListWrapper(currentData));
 			// currentData.setSelectedIndex(selected);
 
 			if (currentData instanceof ISwingFoundSet)
@@ -5135,8 +5131,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private int[] getSelectedIndexes()
 	{
-		if (currentData instanceof FoundSet) return ((FoundSet)currentData).getSelectedIndexes();
-		else return new int[] { currentData.getSelectedIndex() };
+		return currentData.getSelectedIndexes();
 	}
 
 	/**

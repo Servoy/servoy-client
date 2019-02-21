@@ -28,6 +28,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -127,9 +128,22 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 		{
 			for (Method method : clazz.getMethods())
 			{
-				if (AnnotationManagerReflection.getInstance().isAnnotationPresent(method, clazz, JSFunction.class))
+				String name = null;
+				if (method.getName().startsWith("js_")) //$NON-NLS-1$
 				{
-					String name = method.getName();
+					name = method.getName().substring(3);
+				}
+				else if (method.getName().startsWith("jsFunction_")) //$NON-NLS-1$
+				{
+					name = method.getName().substring(11);
+				}
+				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(method, clazz, JSFunction.class) ||
+					AnnotationManagerReflection.getInstance().isAnnotationPresent(method, clazz, JSReadonlyProperty.class))
+				{
+					name = method.getName();
+				}
+				if (name != null)
+				{
 					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
 					if (nativeJavaMethod == null)
 					{
@@ -141,6 +155,7 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 					}
 					jsFunctions.put(name, nativeJavaMethod);
 				}
+
 			}
 		}
 		catch (Exception e)

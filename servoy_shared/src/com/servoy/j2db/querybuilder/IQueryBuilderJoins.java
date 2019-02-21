@@ -67,4 +67,10 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	 */
 	IQueryBuilderJoin add(String dataSource) throws RepositoryException;
 
+	// RAGTEST doc
+	IQueryBuilderJoin add(IQueryBuilder subqueryBuilder, int joinType);
+
+	IQueryBuilderJoin add(IQueryBuilder subqueryBuilder, int joinType, String alias);
+
+
 }

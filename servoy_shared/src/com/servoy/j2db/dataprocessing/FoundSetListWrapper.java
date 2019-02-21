@@ -33,9 +33,9 @@ public class FoundSetListWrapper implements List<IRecordInternal>, Serializable
 {
 	public static final FoundSetListWrapper EMPTY = new FoundSetListWrapper(null);
 
-	private final FoundSet fs;
+	private final IFoundSetInternal fs;
 
-	public FoundSetListWrapper(FoundSet fs)
+	public FoundSetListWrapper(IFoundSetInternal fs)
 	{
 		this.fs = fs;
 	}
@@ -62,7 +62,7 @@ public class FoundSetListWrapper implements List<IRecordInternal>, Serializable
 
 	public void clear()
 	{
-		if (fs != null) fs.js_clear();
+		if (fs != null) fs.clear();
 	}
 
 	public boolean contains(Object o)
@@ -112,15 +112,39 @@ public class FoundSetListWrapper implements List<IRecordInternal>, Serializable
 
 	public IRecordInternal remove(int index)
 	{
-		if (fs != null) fs.delete(index);
-		return null;
+		IRecordInternal record = null;
+		if (fs != null)
+		{
+			record = fs.getRecord(index);
+			if (record != null)
+			{
+				try
+				{
+					fs.deleteRecord(record);
+				}
+				catch (ServoyException e)
+				{
+					Debug.error(e);
+					return null;
+				}
+			}
+		}
+		return record;
 	}
 
 	public boolean remove(Object o)
 	{
 		if (fs != null && o instanceof IRecordInternal)
 		{
-			fs.delete(fs.getRecordIndex((IRecordInternal)o));
+			try
+			{
+				fs.deleteRecord((IRecordInternal)o);
+				return true;
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
+			}
 		}
 		return false;
 	}
@@ -173,7 +197,7 @@ public class FoundSetListWrapper implements List<IRecordInternal>, Serializable
 		return fs == null ? null : fs.getRecord(pk);
 	}
 
-	public FoundSet getFoundSet()
+	public IFoundSetInternal getFoundSet()
 	{
 		return fs;
 	}

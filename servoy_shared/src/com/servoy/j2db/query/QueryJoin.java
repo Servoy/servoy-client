@@ -271,7 +271,7 @@ public final class QueryJoin implements ISQLTableJoin
 		int joinTypeAndPermant = joinType | (permanent ? PERMANENT_MASK : 0);
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, primaryTable, foreignTableReference, condition, Integer.valueOf(joinType) });
+			new Object[] { name, primaryTable, foreignTableReference, condition, Integer.valueOf(joinTypeAndPermant) });
 	}
 
 	public QueryJoin(ReplacedObject s)

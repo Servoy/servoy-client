@@ -1968,7 +1968,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (fs instanceof IFoundSetInternal)
 		{
 			IFoundSetInternal foundSet = (IFoundSetInternal)fs;
-			if (foundSet.getSQLSheet().getTable() == null)
+			if (foundSet.getSQLSheet() == null || foundSet.getSQLSheet().getTable() == null)
 			{
 				return false;
 			}

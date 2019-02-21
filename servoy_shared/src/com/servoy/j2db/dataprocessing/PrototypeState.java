@@ -26,7 +26,7 @@ import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Dummy state to prevent the J(Edit)List to retrieve all the rows in the formmodel(=foundset)
- * 
+ *
  * @author jblok
  */
 public class PrototypeState extends Record
@@ -111,16 +111,15 @@ public class PrototypeState extends Record
 		}
 		else
 		{
-			SQLSheet sheet = parent.getSQLSheet();
-			if (sheet.getColumnIndex(dataProviderID) != -1)
+			if (parent.getColumnIndex(dataProviderID) != -1)
 			{
 				return null;
 			}
-			if (sheet.containsCalculation(dataProviderID))
+			if (parent.containsCalculation(dataProviderID))
 			{
 				return null;
 			}
-			if (sheet.containsAggregate(dataProviderID))
+			if (parent.containsAggregate(dataProviderID))
 			{
 				return null;//parent.getDataProviderValue(dataProviderID);
 			}

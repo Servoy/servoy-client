@@ -20,7 +20,6 @@ package com.servoy.j2db.dataprocessing;
 import static com.servoy.j2db.util.Utils.iterate;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
-import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
@@ -104,12 +102,12 @@ import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
-import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.Debug;
@@ -144,47 +142,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (jsFunctions == null)
 		{
-			jsFunctions = new HashMap<String, NativeJavaMethod>();
-			try
+			jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
+			if (serviceProvider != null)
 			{
-				Method[] methods = FoundSet.class.getMethods();
-				for (Method m : methods)
-				{
-					String name = null;
-					if (m.getName().startsWith("js_")) //$NON-NLS-1$
-					{
-						name = m.getName().substring(3);
-					}
-					else if (m.getName().startsWith("jsFunction_")) //$NON-NLS-1$
-					{
-						name = m.getName().substring(11);
-					}
-					else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, FoundSet.class, JSFunction.class))
-					{
-						name = m.getName();
-					}
-					if (name != null)
-					{
-						NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
-						if (nativeJavaMethod == null)
-						{
-							nativeJavaMethod = new NativeJavaMethod(m, name);
-						}
-						else
-						{
-							nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
-						}
-						jsFunctions.put(name, nativeJavaMethod);
-					}
-				}
-				if (serviceProvider != null)
-				{
-					serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, jsFunctions);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
+				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, jsFunctions);
 			}
 		}
 	}
@@ -286,6 +247,39 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public SQLSheet getSQLSheet()
 	{
 		return sheet;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#containsAggregate(java.lang.String)
+	 */
+	@Override
+	public boolean containsAggregate(String name)
+	{
+		return sheet.containsAggregate(name);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#containsCalculation(java.lang.String)
+	 */
+	@Override
+	public boolean containsCalculation(String dataProviderID)
+	{
+		return sheet.containsCalculation(dataProviderID);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#getColumnIndex(java.lang.String)
+	 */
+	@Override
+	public int getColumnIndex(String dataProviderID)
+	{
+		return sheet.getColumnIndex(dataProviderID);
 	}
 
 	/**

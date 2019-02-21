@@ -18,7 +18,6 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +30,6 @@ import java.util.Set;
 
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
@@ -47,11 +45,11 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
-import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
@@ -83,44 +81,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		}
 		if (jsFunctions == null)
 		{
-			jsFunctions = new HashMap<String, NativeJavaMethod>();
-			try
+			jsFunctions = DefaultJavaScope.getJsFunctions(Record.class);
+			if (serviceProvider != null)
 			{
-				Method[] methods = Record.class.getMethods();
-				for (Method m : methods)
-				{
-					String name = null;
-					if (m.getName().startsWith("js_")) //$NON-NLS-1$
-					{
-						name = m.getName().substring(3);
-					}
-					else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSFunction.class) ||
-						AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSReadonlyProperty.class))
-					{
-						name = m.getName();
-					}
-					if (name != null)
-					{
-						NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
-						if (nativeJavaMethod == null)
-						{
-							nativeJavaMethod = new NativeJavaMethod(m, name);
-						}
-						else
-						{
-							nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(m), true), name);
-						}
-						jsFunctions.put(name, nativeJavaMethod);
-					}
-				}
-				if (serviceProvider != null)
-				{
-					serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, jsFunctions);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
+				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, jsFunctions);
 			}
 		}
 	}

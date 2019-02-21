@@ -17,10 +17,14 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
+import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
+
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,8 +34,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -52,8 +58,10 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
+import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.ITableReference;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
@@ -68,9 +76,10 @@ import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
-import com.servoy.j2db.util.visitor.IVisitor;
+import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
  * @author jcompagner
@@ -241,44 +250,46 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				nameToSelect.put(name, selectValue);
 				selectToName.put(selectValue, name);
 			}
-			BaseQueryTable table = column.getTable();
-			if ((column.getFlags() & IBaseColumn.IDENT_COLUMNS) != 0)
-			{
-				List<IQuerySelectValue> list = pkColumnsForTable.get(table);
+
+			select.getRealColumn(column).ifPresent(realColumn -> {
+				Map<BaseQueryTable, List<IQuerySelectValue>> columnsMap;
+				if ((realColumn.getFlags() & IBaseColumn.IDENT_COLUMNS) != 0)
+				{
+					columnsMap = pkColumnsForTable;
+				}
+				else
+				{
+					columnsMap = columnsForTable;
+				}
+				BaseQueryTable table = realColumn.getTable();
+				List<IQuerySelectValue> list = columnsMap.get(table);
 				if (list == null)
 				{
 					list = new ArrayList<>();
-					pkColumnsForTable.put(table, list);
+					columnsMap.put(table, list);
 				}
-				list.add(column);
-			}
-			else
-			{
-				List<IQuerySelectValue> list = columnsForTable.get(table);
-				if (list == null)
-				{
-					list = new ArrayList<>();
-					columnsForTable.put(table, list);
-				}
-				list.add(column);
-			}
+				list.add(realColumn);
+			});
 		}
 
 		for (IQuerySelectValue selectValue : select.getColumns())
 		{
-			columnNames.put(selectValue, selectToName.get(selectValue));
+			select.getRealColumn(selectValue).ifPresent(realColumn -> columnNames.put(realColumn, selectToName.get(selectValue)));
 		}
 	}
 
-	private void addQuerySelectToMap(final Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, QueryColumn column)
+	private void addRealColumnToTableMap(Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, QueryColumn column)
 	{
-		List<QueryColumn> list = columnsInJoinsPerTable.get(column.getTable());
-		if (list == null)
-		{
-			list = new ArrayList<>();
-			columnsInJoinsPerTable.put(column.getTable(), list);
-		}
-		list.add(column);
+		select.getRealColumn(column).ifPresent(realColumn -> {
+			BaseQueryTable table = realColumn.getTable();
+			List<QueryColumn> list = columnsInJoinsPerTable.get(table);
+			if (list == null)
+			{
+				list = new ArrayList<>();
+				columnsInJoinsPerTable.put(table, list);
+			}
+			list.add(realColumn);
+		});
 	}
 
 	/**
@@ -500,84 +511,183 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		// dont do anything if there is nothing todo.
 		if (flags == 0) return;
 
-		BaseQueryTable table = null;
+
+		SearchVisitor<QueryColumn> searchColumns = new SearchVisitor<>(new TypePredicate<>(QueryColumn.class));
+		if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) acceptVisitor(select.getJoins(), searchColumns);
+		if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) acceptVisitor(select.getWhere(), searchColumns);
+//		if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) acceptVisitor(select.getJoins(), searchColumns);
+//		if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) acceptVisitor(select.getWhere(), searchColumns);
+
+		// RAGTEST columns uit conditie van derived join moeten ook in columnsInJoinsPerTable komen
+		Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
+		searchColumns.getFound().forEach(column -> addRealColumnToTableMap(columnsInJoinsPerTable, column));
+
+		boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
+		boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
+
+		boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMARY_TABLE) == MONITOR_DELETES_FOR_PRIMARY_TABLE;
+		boolean monitorColumns = (flags & MONITOR_COLUMNS) == MONITOR_COLUMNS;
+
+		boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
+
+
+		Collection<BaseQueryTable> tables = new ArrayList<>();
+
 		if (queryTableclause instanceof QBSelect)
 		{
-			table = ((QBSelect)queryTableclause).getQuery().getTable();
+			tables = Arrays.asList(((QBSelect)queryTableclause).getQuery().getTable());
 		}
 		else if (queryTableclause instanceof QBJoin)
 		{
-			table = ((QBJoin)queryTableclause).getQueryTable();
-		}
-		if (table != null)
-		{
+			BaseQueryTable table = ((QBJoin)queryTableclause).getQueryTable();
 			if (table.getDataSource() == null)
 			{
-				Debug.warn(
-					"enableDatabroadcastFor for join on derived table is not possible, instead, enable databroadcast for the actual table in the join clause");
-				return;
+				// derived table
+				ITableReference ftr = ((QBJoin)queryTableclause).getJoin().getForeignTableReference();
+				DerivedTable dt = (DerivedTable)ftr;
+				//	  dt.getQuery().getColumns().stream().map(col -> select.getRealColumn(col)).filter(o -> o.isPresent()).map;//.filter(Optional::isPresent));
+				Stream<Optional<QueryColumn>> x = dt.getQuery().getColumns().stream().map(col -> select.getRealColumn(col));
+//			java.util.function.Function<> qdd;
+				Stream<QueryColumn> y = x.filter(Optional::isPresent).map(Optional::get);
+				tables = y.map(QueryColumn::getTable).reduce(new IdentityHashMap<BaseQueryTable, BaseQueryTable>(), (map, col) -> {
+					map.put(col, col);
+					return map;
+				}, (d, e) -> {
+					e.putAll(d);
+					return e;
+				}).values();
 			}
+			else
+			{
+				tables = Arrays.asList(table);
+			}
+		}
 
-			// touch the row manager for the given table
+		tables.forEach(table -> {
 			try
 			{
-				RowManager rowManager = manager.getRowManager(table.getDataSource());
-				if (rowManager != null)
-				{
-					final Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
-					IVisitor visitor = (object) -> {
-						if (object instanceof QueryColumn)
-						{
-							addQuerySelectToMap(columnsInJoinsPerTable, (QueryColumn)object);
-						}
-						return object;
-					};
-					if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getJoins(), visitor);
-					if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) AbstractBaseQuery.acceptVisitor(select.getWhere(), visitor);
-
-					boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
-					boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
-
-					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMARY_TABLE) == MONITOR_DELETES_FOR_PRIMARY_TABLE;
-					boolean monitorColumns = (flags & MONITOR_COLUMNS) == MONITOR_COLUMNS;
-
-					boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
-
-					IQuerySelectValue[] queryPks = null;
-
-					// for normal column watches or deletes of the main table we need to have the pk's in the select for the datasource.
-					if (monitorDeletesForMain || monitorColumns)
-					{
-						List<IQuerySelectValue> list = pkColumnsForTable.get(table);
-						if (list != null)
-						{
-							String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
-							queryPks = getOrderedPkColumns(list, realOrderedPks);
-							if (queryPks == null)
-							{
-								throw new RuntimeException("ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " +
-									Arrays.toString(realOrderedPks));
-							}
-						}
-						else
-						{
-							throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " +
-								table.getDataSource() + " to enable databroadcast for that datasource");
-						}
-					}
-
-					RowListener rl = new RowListener(table.getDataSource(), queryPks, (monitorColumns || monitorAggregates) ? columnsForTable.get(table) : null,
-						columnsInJoinsPerTable.get(table), monitorInserts, monitorDeletes, monitorDeletesForMain, monitorAggregates);
-					// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
-					rowListeners.add(rl);
-					rowManager.register(rl);
-
-				}
+				xx(table, columnsInJoinsPerTable, monitorDeletesForMain, monitorColumns, monitorAggregates, monitorInserts, monitorDeletes);
 			}
 			catch (ServoyException e)
 			{
 				Debug.error(e);
 			}
+		});
+
+
+//		BaseQueryTable table = null;
+//		if (queryTableclause instanceof QBSelect)
+//		{
+//			table = ((QBSelect)queryTableclause).getQuery().getTable();
+//		}
+//		else if (queryTableclause instanceof QBJoin)
+//		{
+//			table = ((QBJoin)queryTableclause).getQueryTable();
+//		}
+//		if (table != null)
+//		{
+//			if (table.getDataSource() == null)
+//			{
+//				Debug.warn(
+//					"enableDatabroadcastFor for join on derived table is not possible, instead, enable databroadcast for the actual table in the join clause");
+//				return;
+//			}
+
+		// touch the row manager for the given table
+//			try
+//			{
+//				RowManager rowManager = manager.getRowManager(table.getDataSource());
+//				if (rowManager != null)
+//				{
+//					SearchVisitor<QueryColumn> searchColumns = new SearchVisitor<>(new TypePredicate<>(QueryColumn.class));
+//					if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) acceptVisitor(select.getJoins(), searchColumns);
+//					if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) acceptVisitor(select.getWhere(), searchColumns);
+//
+//					Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
+//					searchColumns.getFound().forEach(column -> addRealColumnToTableMap(columnsInJoinsPerTable, column));
+//
+//					boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
+//					boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
+//
+//					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMARY_TABLE) == MONITOR_DELETES_FOR_PRIMARY_TABLE;
+//					boolean monitorColumns = (flags & MONITOR_COLUMNS) == MONITOR_COLUMNS;
+//
+//					boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
+//
+//					IQuerySelectValue[] queryPks = null;
+//
+//					// for normal column watches or deletes of the main table we need to have the pk's in the select for the datasource.
+//					if (monitorDeletesForMain || monitorColumns)
+//					{
+//						List<IQuerySelectValue> list = pkColumnsForTable.get(table);
+//						if (list != null)
+//						{
+//							String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
+//							queryPks = getOrderedPkColumns(list, realOrderedPks);
+//							if (queryPks == null)
+//							{
+//								throw new RuntimeException("ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " +
+//									Arrays.toString(realOrderedPks));
+//							}
+//						}
+//						else
+//						{
+//							throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " +
+//								table.getDataSource() + " to enable databroadcast for that datasource");
+//						}
+//					}
+//
+//					RowListener rl = new RowListener(table.getDataSource(), queryPks, (monitorColumns || monitorAggregates) ? columnsForTable.get(table) : null,
+//						columnsInJoinsPerTable.get(table), monitorInserts, monitorDeletes, monitorDeletesForMain, monitorAggregates);
+//					// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
+//					rowListeners.add(rl);
+//					rowManager.register(rl);
+//
+//				}
+//			}
+//			catch (ServoyException e)
+//			{
+//				Debug.error(e);
+//			}
+//		}
+	}
+
+	private void xx(BaseQueryTable table, Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, boolean monitorDeletesForMain, boolean monitorColumns,
+		boolean monitorAggregates, boolean monitorInserts, boolean monitorDeletes) throws ServoyException
+	{
+
+		RowManager rowManager = manager.getRowManager(table.getDataSource());
+		if (rowManager != null)
+		{
+			IQuerySelectValue[] queryPks = null;
+
+			// for normal column watches or deletes of the main table we need to have the pk's in the select for the datasource.
+			if (monitorDeletesForMain || monitorColumns)
+			{
+				List<IQuerySelectValue> list = pkColumnsForTable.get(table);
+				if (list != null)
+				{
+					String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
+					queryPks = getOrderedPkColumns(list, realOrderedPks);
+					if (queryPks == null)
+					{
+						throw new RuntimeException(
+							"ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " + Arrays.toString(realOrderedPks));
+					}
+				}
+				else
+				{
+					throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " + table.getDataSource() +
+						" to enable databroadcast for that datasource");
+				}
+			}
+
+			RowListener rl = new RowListener(table.getDataSource(), queryPks, (monitorColumns || monitorAggregates) ? columnsForTable.get(table) : null,
+				columnsInJoinsPerTable.get(table), monitorInserts, monitorDeletes, monitorDeletesForMain, monitorAggregates);
+			// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
+			rowListeners.add(rl);
+			rowManager.register(rl);
+
 		}
 	}
 
@@ -633,18 +743,20 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					rec.clearChanges();
 					editedRecords.remove(rec);
 					if (changes == null) continue;
-					Map<BaseQueryTable, Map<IQuerySelectValue, Object>> tableToChanges = new IdentityHashMap<>();
+					Map<BaseQueryTable, Map<QueryColumn, Object>> tableToChanges = new IdentityHashMap<>();
 					columnNames.forEach((selectValue, name) -> {
 						if (changes.containsKey(name))
 						{
-							BaseQueryTable table = selectValue.getColumn().getTable();
-							Map<IQuerySelectValue, Object> map = tableToChanges.get(table);
+							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> new RuntimeException(
+								"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found"));
+							BaseQueryTable table = realColumn.getTable();
+							Map<QueryColumn, Object> map = tableToChanges.get(table);
 							if (map == null)
 							{
 								map = new HashMap<>();
 								tableToChanges.put(table, map);
 							}
-							map.put(selectValue, rec.getValue(name));
+							map.put(realColumn, rec.getValue(name));
 						}
 					});
 					tableToChanges.forEach((table, changesMap) -> {
@@ -652,15 +764,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (pkColumns == null) throw new RuntimeException("Can't save " + rec + " for changed values " + changes +
 							" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
 
-
 						int counter = 0;
 						Object[] pk = new Object[pkColumns.size()];
 						QueryUpdate update = new QueryUpdate(table);
-//						IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(table.getDataSource());
 						for (IQuerySelectValue pkColumn : pkColumns)
 						{
-							Object pkValue = record.getValue(columnNames.get(pkColumn));
-//							queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(record.getValue(columnNames.get(pkColumn))));
+							Object pkValue = rec.getValue(columnNames.get(pkColumn));
 							update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkColumn, pkValue));
 							pk[counter++] = pkValue;
 						}
@@ -670,9 +779,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 						counter = 0;
 						String[] changedColumns = new String[changes.size()];
-						for (Entry<IQuerySelectValue, Object> entry : changesMap.entrySet())
+						for (Entry<QueryColumn, Object> entry : changesMap.entrySet())
 						{
-							QueryColumn column = entry.getKey().getColumn();
+							QueryColumn column = entry.getKey();
 							update.addValue(column, entry.getValue());
 							changedColumns[counter++] = column.getName();
 						}
@@ -685,8 +794,17 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					});
 				}
 
-				manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
+				Object[] updateResult = manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
 					statements.toArray(new SQLStatement[statements.size()]));
+				for (Object o : updateResult)
+				{
+					if (o instanceof Exception)
+					{
+						// something went wrong
+						throw new RuntimeException((Exception)o);
+					}
+				}
+
 				// TODO what happens if the save failed for some? add the changes back in?
 
 				for (SQLStatement statement : statements)
@@ -781,7 +899,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
 
-			FireCollector fireCollector = FireCollector.getFireCollector();
+			FireCollector fireCollector = getFireCollector();
 			try
 			{
 				for (int i = 0; i < ds.getRowCount(); i++)
@@ -1002,6 +1120,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
+	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
+	{
+		return clone ? AbstractBaseQuery.deepClone(this.select, true) : this.select;
+	}
+
+	@Override
 	public boolean loadByQuery(IQueryBuilder query) throws ServoyException
 	{
 		return false;
@@ -1124,6 +1248,50 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		return null;
 	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#containsAggregate(java.lang.String)
+	 */
+	@Override
+	public boolean containsAggregate(String name)
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#containsCalculation(java.lang.String)
+	 */
+	@Override
+	public boolean containsCalculation(String dataProviderID)
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#getColumnIndex(java.lang.String)
+	 */
+	@Override
+	public int getColumnIndex(String dataProviderID)
+	{
+		int index = 0;
+		for (String columnName : columnNames.values())
+		{
+			if (columnName.equals(dataProviderID))
+			{
+				return index;
+			}
+			index++;
+		}
+		return -1;
+	}
+
 
 	@Override
 	public PrototypeState getPrototypeState()
@@ -1598,6 +1766,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex)
+	{
+		return isRecordEditable(rowIndex);
+	}
+
+	@Override
 	public boolean isCellEditable(int rowIndex)
 	{
 		return isRecordEditable(rowIndex);
@@ -1867,8 +2041,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					if (rowIndexes != null)
 					{
 						// get the values directly from the row
-						FireCollector fireCollector = FireCollector.getFireCollector();
-						try
+						try (FireCollector fireCollector = getFireCollector())
 						{
 							Row row = e.getRow();
 							if (row != null)
@@ -1948,10 +2121,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 								}
 							}
 						}
-						finally
-						{
-							fireCollector.done();
-						}
 					}
 				}
 			}
@@ -1989,7 +2158,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					refresh = true;
 					return false;
 				}
-				FireCollector fireCollector = FireCollector.getFireCollector();
+				FireCollector fireCollector = getFireCollector();
 				try
 				{
 					loadAllRecordsImpl();

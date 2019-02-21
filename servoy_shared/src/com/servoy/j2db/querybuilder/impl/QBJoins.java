@@ -42,6 +42,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
@@ -247,18 +248,39 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	/**
 	 * RAGTEST doc
 	 */
-	@JSFunction
-	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType)
+	public QBJoin js_add(QBSelect subqueryBuilder, int joinType)
 	{
-		return add(subqueryBuilder, joinType, null);
+		return add(subqueryBuilder, joinType);
 	}
 
 	/**
 	 * RAGTEST doc
 	 */
-	@JSFunction
+	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType)
+	{
+		return add(subqueryBuilder, joinType, null);
+	}
+
+
+	/**
+	 * RAGTEST doc
+	 */
+	public QBJoin js_add(QBSelect subqueryBuilder, int joinType, String alias)
+	{
+		return add(subqueryBuilder, joinType, alias);
+	}
+
+	/**
+	 * RAGTEST doc
+	 */
 	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType, String alias)
 	{
+		if (!DataSourceUtils.isSameServer(getRoot().getDataSource(), subqueryBuilder.getDataSource()))
+		{
+			throw new RuntimeException(
+				"Cannot add derived table join from different server: " + getRoot().getDataSource() + " vs " + subqueryBuilder.getDataSource());
+		}
+
 		QuerySelect subquery = ((QBSelect)subqueryBuilder).getQuery();
 		QBJoin join = joins.get(alias);
 		if (join == null)

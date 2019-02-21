@@ -55,6 +55,14 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 		this.join = join;
 	}
 
+	/**
+	 * @return the join
+	 */
+	public ISQLTableJoin getJoin()
+	{
+		return join;
+	}
+
 	@Override
 	public BaseQueryTable getQueryTable()
 	{

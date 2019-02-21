@@ -275,4 +275,5 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Itera
 	 * @since 6.1
 	 */
 	public boolean loadByQuery(IQueryBuilder query) throws ServoyException;
+
 }
