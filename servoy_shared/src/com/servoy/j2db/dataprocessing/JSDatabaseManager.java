@@ -2891,6 +2891,21 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Returns a ViewFoundSet that was created by getViewFoundSet(name,query,register) with the registerd boolean "true".
+	 * So it is registered and remembered by the system to use in Forms.
+	 * You can't get ViewFounSet back that are not registered to the system, those are not remembered.
+	 *
+	 * @param name The name to lookup a ViewFoundSet for
+	 *
+	 * @return A new ViewFoundSet for that query.
+	 */
+	public ViewFoundSet js_getViewFoundSet(String name) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().getRegisteredViewFoundSet(name);
+	}
+
+	/**
 	 * Returns a foundset object for a specified query.
 	 * This just creates one without keeping any reference to it, you have to
 	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
@@ -2910,9 +2925,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * databaseMananger.registerViewFoundSet(vfs);
 	 *
 	 * @param name The name given to this foundset (will create a datasource url like view:[name])
-	 * @param query The query to get the JSFoundset for.
+	 * @param query The query to get the ViewFoundSet for.
 	 *
-	 * @return A new JSFoundset for that query.
+	 * @return A new ViewFoundSet for that query.
 	 */
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
