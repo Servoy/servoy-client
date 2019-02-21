@@ -21,9 +21,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * RAGTEST doc
+ * Visitor class for searching elements that match a given filter.
  *
- * Visitor class to for replacing all occurrences of one object with another one in a IVisitable object.
  * @see IVisitable
  * @author rgansevles
  *

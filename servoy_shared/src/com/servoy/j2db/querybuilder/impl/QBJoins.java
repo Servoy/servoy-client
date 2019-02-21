@@ -246,33 +246,46 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	}
 
 	/**
-	 * RAGTEST doc
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(IQueryBuilder, int, String)
+	 * @sampleas add(QBSelect, int, String)
+	 *
+	 * @param subqueryBuilder
+	 * @param joinType
 	 */
 	public QBJoin js_add(QBSelect subqueryBuilder, int joinType)
 	{
 		return add(subqueryBuilder, joinType);
 	}
 
-	/**
-	 * RAGTEST doc
-	 */
 	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType)
 	{
 		return add(subqueryBuilder, joinType, null);
 	}
 
-
 	/**
-	 * RAGTEST doc
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(IQueryBuilder, int, String)
+	 * @sample
+	 * 	var subquery = datasources.db.example_data.products.createSelect();
+	 *  subquery.where.add(subquery.columns.supplierid.eq(99));
+	 *  subquery.result.add(subquery.columns.categoryid, 'subcat')
+	 *  subquery.result.add(subquery.columns.productid, 'subprod')
+	 *
+	 *  var query = datasources.db.example_data.order_details.createSelect();
+	 *  // add a join on a derived table using a subquery
+	 *  var join = query.joins.add(subquery, JSRelation.INNER_JOIN, 'subprods');
+	 *  join.on.add(query.columns.productid.eq(join.columns['subprod']));
+	 *  query.result.add(query.columns.quantity);
+	 *  query.result.add(join.columns['subcat']);
+	 *
+	 * @param subqueryBuilder
+	 * @param joinType
+	 * @param alias
 	 */
 	public QBJoin js_add(QBSelect subqueryBuilder, int joinType, String alias)
 	{
 		return add(subqueryBuilder, joinType, alias);
 	}
 
-	/**
-	 * RAGTEST doc
-	 */
 	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType, String alias)
 	{
 		if (!DataSourceUtils.isSameServer(getRoot().getDataSource(), subqueryBuilder.getDataSource()))

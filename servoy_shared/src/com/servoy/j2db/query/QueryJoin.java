@@ -40,22 +40,7 @@ public final class QueryJoin implements ISQLTableJoin
 	private int joinType;
 	private boolean permanent;
 
-
 	/**
-	 * @param name2
-	 * @param qMainTable
-	 * @param qDetailTable
-	 * @param joinCondition
-	 * @param leftOuterJoin
-	 */
-	@Deprecated // RAGTEST
-	public QueryJoin(String name, BaseQueryTable primaryTable, BaseQueryTable foreignTable, ISQLCondition condition, int joinType, boolean permanent)
-	{
-		this(name, primaryTable, new TableExpression(foreignTable), condition, joinType, permanent);
-	}
-
-
-	/** RAGTEST doc
 	 * Constructor for join clause. The condition must meet the following criteria:
 	 * <ul>
 	 * <li>operator type = 'and' of at least 1 subcondition
@@ -63,10 +48,30 @@ public final class QueryJoin implements ISQLTableJoin
 	 * </ul>
 	 *
 	 * @param name
-	 * @param columns
-	 * @param table
+	 * @param primaryTable
+	 * @param foreignTable
 	 * @param condition
 	 * @param joinType
+	 * @param permanent
+	 */
+	public QueryJoin(String name, BaseQueryTable primaryTable, BaseQueryTable foreignTable, ISQLCondition condition, int joinType, boolean permanent)
+	{
+		this(name, primaryTable, new TableExpression(foreignTable), condition, joinType, permanent);
+	}
+
+	/**
+	 * Constructor for join clause. The condition must meet the following criteria:
+	 * <ul>
+	 * <li>operator type = 'and' of at least 1 subcondition
+	 * <li>all subconditions are of type 'compare'
+	 * </ul>
+	 *
+	 * @param name
+	 * @param primaryTable
+	 * @param tableReference
+	 * @param condition
+	 * @param joinType
+	 * @param permanent
 	 */
 	public QueryJoin(String name, BaseQueryTable primaryTable, ITableReference tableReference, ISQLCondition condition, int joinType, boolean permanent)
 	{
