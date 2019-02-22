@@ -174,11 +174,9 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		supportLibExtensions.clear();
 		if (_pluginsClassLoader != null)
 		{
-			//present in java 7
 			try
 			{
-				Method closeMethod = URLClassLoader.class.getMethod("close", null);
-				closeMethod.invoke(_pluginsClassLoader, null);
+				_pluginsClassLoader.close();
 			}
 			catch (Exception ex)
 			{
