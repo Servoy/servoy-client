@@ -83,6 +83,10 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 
 	public QBGroupBy add(IQueryBuilderColumn column) throws RepositoryException
 	{
+		if (column == null)
+		{
+			throw new RuntimeException("Cannot add null or undefined column to a group-by clause");
+		}
 		getParent().getQuery().addGroupBy(((QBColumn)column).getQuerySelectValue());
 		return this;
 	}

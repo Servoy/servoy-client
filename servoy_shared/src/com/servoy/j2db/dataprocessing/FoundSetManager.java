@@ -1388,7 +1388,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			public Object visit(Object o)
 			{
-				if (o instanceof QueryTable && tableSqlNames.add(((QueryTable)o).getName()))
+				if (o instanceof QueryTable && ((QueryTable)o).getName() != null && tableSqlNames.add(((QueryTable)o).getName()))
 				{
 					QueryTable qTable = (QueryTable)o;
 					for (TableFilter filter : serverFilters)
@@ -1472,7 +1472,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			public Object visit(Object o)
 			{
-				if (o instanceof QueryTable && tableSqlNames.add(((QueryTable)o).getName()))
+				if (o instanceof QueryTable && ((QueryTable)o).getName() != null && tableSqlNames.add(((QueryTable)o).getName()))
 				{
 					QueryTable qTable = (QueryTable)o;
 					for (TableFilter filter : serverFilters)
@@ -1968,7 +1968,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (fs instanceof IFoundSetInternal)
 		{
 			IFoundSetInternal foundSet = (IFoundSetInternal)fs;
-			if (foundSet.getSQLSheet().getTable() == null)
+			if (foundSet.getSQLSheet() == null || foundSet.getSQLSheet().getTable() == null)
 			{
 				return false;
 			}

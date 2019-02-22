@@ -1165,7 +1165,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	private boolean testCalc(final String possibleCalcDataprovider, final IRecordInternal state, final int row, final int column, final ISwingFoundSet foundset)
 	{
-		if (state != null && !(state instanceof PrototypeState || state instanceof FindState) &&
+		if (state != null && state.getRawData() != null && !(state instanceof PrototypeState || state instanceof FindState) &&
 			state.getRawData().containsCalculation(possibleCalcDataprovider) && state.getRawData().mustRecalculate(possibleCalcDataprovider, true))
 		{
 			IApplication app = dal.getApplication();

@@ -35,7 +35,7 @@ public final class QueryJoin implements ISQLTableJoin
 
 	private String name;
 	private BaseQueryTable primaryTable;
-	private BaseQueryTable foreignTable;
+	private ITableReference foreignTableReference;
 	private AndCondition condition;
 	private int joinType;
 	private boolean permanent;
@@ -48,21 +48,42 @@ public final class QueryJoin implements ISQLTableJoin
 	 * </ul>
 	 *
 	 * @param name
-	 * @param table
+	 * @param primaryTable
+	 * @param foreignTable
 	 * @param condition
 	 * @param joinType
+	 * @param permanent
 	 */
 	public QueryJoin(String name, BaseQueryTable primaryTable, BaseQueryTable foreignTable, ISQLCondition condition, int joinType, boolean permanent)
 	{
+		this(name, primaryTable, new TableExpression(foreignTable), condition, joinType, permanent);
+	}
+
+	/**
+	 * Constructor for join clause. The condition must meet the following criteria:
+	 * <ul>
+	 * <li>operator type = 'and' of at least 1 subcondition
+	 * <li>all subconditions are of type 'compare'
+	 * </ul>
+	 *
+	 * @param name
+	 * @param primaryTable
+	 * @param tableReference
+	 * @param condition
+	 * @param joinType
+	 * @param permanent
+	 */
+	public QueryJoin(String name, BaseQueryTable primaryTable, ITableReference tableReference, ISQLCondition condition, int joinType, boolean permanent)
+	{
 		this.name = name;
 		this.primaryTable = primaryTable;
-		this.foreignTable = foreignTable;
+		this.foreignTableReference = tableReference;
 		this.joinType = joinType;
 		this.permanent = permanent;
 		setCondition(condition);
 	}
 
-	public void setCondition(ISQLCondition c)
+	private final void setCondition(ISQLCondition c)
 	{
 		if (c instanceof CompareCondition)
 		{
@@ -78,7 +99,7 @@ public final class QueryJoin implements ISQLTableJoin
 				if (!(conditions.get(i) instanceof CompareCondition))
 				{
 					throw new IllegalArgumentException(
-						"Expecting compare-condition in join on table " + foreignTable.getName() + ", receiving " + conditions.get(i).getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+						"Expecting compare-condition in join on table " + foreignTableReference + ", receiving " + conditions.get(i).getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			condition = (AndCondition)c;
@@ -86,7 +107,7 @@ public final class QueryJoin implements ISQLTableJoin
 		else
 		{
 			throw new IllegalArgumentException(
-				"Expecting compare-condition in join on table " + foreignTable.getName() + ", receiving " + c.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+				"Expecting compare-condition in join on table " + foreignTableReference + ", receiving " + c.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 	}
@@ -133,9 +154,10 @@ public final class QueryJoin implements ISQLTableJoin
 		return primaryTable;
 	}
 
-	public BaseQueryTable getForeignTable()
+	@Override
+	public ITableReference getForeignTableReference()
 	{
-		return foreignTable;
+		return foreignTableReference;
 	}
 
 	/**
@@ -145,8 +167,8 @@ public final class QueryJoin implements ISQLTableJoin
 	{
 		// switch the tables
 		BaseQueryTable tmp = primaryTable;
-		primaryTable = foreignTable;
-		foreignTable = tmp;
+		primaryTable = ((TableExpression)foreignTableReference).getTable();
+		foreignTableReference = new TableExpression(tmp);
 
 		// the primary keys must be swapped around
 		if (condition != null)
@@ -180,7 +202,7 @@ public final class QueryJoin implements ISQLTableJoin
 	public void acceptVisitor(IVisitor visitor)
 	{
 		primaryTable = AbstractBaseQuery.acceptVisitor(primaryTable, visitor);
-		foreignTable = AbstractBaseQuery.acceptVisitor(foreignTable, visitor);
+		foreignTableReference = AbstractBaseQuery.acceptVisitor(foreignTableReference, visitor);
 		condition = AbstractBaseQuery.acceptVisitor(condition, visitor);
 	}
 
@@ -190,7 +212,7 @@ public final class QueryJoin implements ISQLTableJoin
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((this.condition == null) ? 0 : this.condition.hashCode());
-		result = PRIME * result + ((this.foreignTable == null) ? 0 : this.foreignTable.hashCode());
+		result = PRIME * result + ((this.foreignTableReference == null) ? 0 : this.foreignTableReference.hashCode());
 		result = PRIME * result + this.joinType;
 		result = PRIME * result + ((this.name == null) ? 0 : this.name.hashCode());
 		result = PRIME * result + ((this.primaryTable == null) ? 0 : this.primaryTable.hashCode());
@@ -209,11 +231,11 @@ public final class QueryJoin implements ISQLTableJoin
 			if (other.condition != null) return false;
 		}
 		else if (!this.condition.equals(other.condition)) return false;
-		if (this.foreignTable == null)
+		if (this.foreignTableReference == null)
 		{
-			if (other.foreignTable != null) return false;
+			if (other.foreignTableReference != null) return false;
 		}
-		else if (!this.foreignTable.equals(other.foreignTable)) return false;
+		else if (!this.foreignTableReference.equals(other.foreignTableReference)) return false;
 		if (this.joinType != other.joinType) return false;
 		if (this.name == null)
 		{
@@ -238,7 +260,7 @@ public final class QueryJoin implements ISQLTableJoin
 			sb.append('!');
 		}
 		sb.append(" FROM ").append(primaryTable.toString()); //$NON-NLS-1$
-		sb.append(" TO ").append(foreignTable.toString()); //$NON-NLS-1$
+		sb.append(" TO ").append(foreignTableReference.toString()); //$NON-NLS-1$
 		if (condition != null)
 		{
 			sb.append(" ON ").append(condition.toString()); //$NON-NLS-1$
@@ -254,7 +276,7 @@ public final class QueryJoin implements ISQLTableJoin
 		int joinTypeAndPermant = joinType | (permanent ? PERMANENT_MASK : 0);
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, primaryTable, foreignTable, condition, Integer.valueOf(joinTypeAndPermant) });
+			new Object[] { name, primaryTable, foreignTableReference, condition, Integer.valueOf(joinTypeAndPermant) });
 	}
 
 	public QueryJoin(ReplacedObject s)
@@ -263,12 +285,19 @@ public final class QueryJoin implements ISQLTableJoin
 		int i = 0;
 		name = (String)members[i++];
 		primaryTable = (QueryTable)members[i++];
-		foreignTable = (QueryTable)members[i++];
+		Object foreignTableOrReference = members[i++];
+		if (foreignTableOrReference instanceof QueryTable)
+		{
+			// legacy
+			foreignTableReference = new TableExpression((QueryTable)foreignTableOrReference);
+		}
+		else
+		{
+			foreignTableReference = (ITableReference)foreignTableOrReference;
+		}
 		condition = (AndCondition)members[i++];
 		int joinTypeAndPermant = ((Integer)members[i++]).intValue();
 		joinType = joinTypeAndPermant & ~PERMANENT_MASK;
 		permanent = (joinTypeAndPermant & PERMANENT_MASK) != 0;
 	}
-
-
 }

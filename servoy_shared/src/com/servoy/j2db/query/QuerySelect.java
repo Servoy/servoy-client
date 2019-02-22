@@ -22,9 +22,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
+import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.ObjectCountVisitor;
@@ -569,6 +572,10 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 					// count may depend on related records or is marked as permanent
 					continue;
 				}
+				if (!(((ISQLTableJoin)join).getForeignTableReference() instanceof TableExpression))
+				{
+					continue; // derived table
+				}
 
 				BaseQueryTable joinTable = ((ISQLTableJoin)join).getForeignTable();
 				ObjectCountVisitor selectCounter = new ObjectCountVisitor(joinTable, true);
@@ -592,6 +599,47 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 	}
 
+	/**
+	 * Get the real QueryColumn for a column in the query.
+	 * <p>
+	 * For a column from a table it is the column itself
+	 * <br>
+	 * For a column that refers to a derived table this function returns the actual column from the derived table.
+	 * For example, <code>table_1.fld</code> is returned as real column for <code>col</code> in
+	 * <pre>
+	 * SELECT col
+	   FROM
+	      (SELECT fld
+	       FROM table_1) derived_table_name;
+	 * </pre>
+	 *
+	 * @param column
+	 */
+	public Optional<QueryColumn> getRealColumn(IQuerySelectValue column)
+	{
+		QueryColumn qColumn = column.getColumn();
+		if (qColumn == null)
+		{
+			return Optional.empty();
+		}
+		BaseQueryTable qTable = qColumn.getTable();
+		if (qTable.getDataSource() != null)
+		{
+			// column on regular table
+			return Optional.of(qColumn);
+		}
+		// find real column in derived table
+		return AbstractBaseQuery.<DerivedTable> searchOne(this, new TypePredicate<>(DerivedTable.class, derivedTable -> derivedTable.getTable() == qTable)) //
+			.map(DerivedTable::getQuery) //
+			.map(QuerySelect::getColumns) //
+			.flatMap(derivedColumns -> derivedColumns.stream() //
+				.filter(Objects::nonNull) //
+				.filter(
+					dtcol -> qColumn.getName().equals(dtcol.getAlias()) || (dtcol.getColumn() != null && qColumn.getName().equals(dtcol.getColumn().getName()))) //
+				.map(IQuerySelectValue::getColumn) //
+				.findAny()) //
+			.flatMap(this::getRealColumn); // recursive for nested derived tables
+	}
 
 	static HashMap<String, AndCondition> setInConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
 	{

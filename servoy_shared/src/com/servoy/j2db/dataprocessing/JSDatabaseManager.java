@@ -1620,8 +1620,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			IRecordInternal record = (IRecordInternal)foundsetOrRecord;
 			SQLSheet sheet = record.getParentFoundSet().getSQLSheet();
-			recalculateRecord(record, sheet.getStoredCalculationNames());
-			((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
+			if (sheet != null)
+			{
+				recalculateRecord(record, sheet.getStoredCalculationNames());
+				((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
+			}
 		}
 		else if (foundsetOrRecord instanceof FoundSet)
 		{
@@ -1841,7 +1844,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (r instanceof IRecordInternal)
 		{
 			IRecordInternal rec = ((IRecordInternal)r);
-			if (rec.getParentFoundSet() != null && rec.getRawData() != null)
+			if (rec.getParentFoundSet() != null && rec.getRawData() != null && rec.getParentFoundSet().getSQLSheet() != null)
 			{
 				String[] cnames = rec.getParentFoundSet().getSQLSheet().getColumnNames();
 				Object[] oldd = rec.getRawData().getRawOldColumnData();
@@ -1877,11 +1880,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public String js_getSQL(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
-		if (foundsetOrQBSelect instanceof FoundSet && ((FoundSet)foundsetOrQBSelect).getTable() != null)
+		if (foundsetOrQBSelect instanceof IFoundSetInternal && ((IFoundSetInternal)foundsetOrQBSelect).getTable() != null)
 		{
 			try
 			{
-				QuerySet querySet = getQuerySet(((FoundSet)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
+				QuerySet querySet = getQuerySet(((IFoundSetInternal)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
 				StringBuilder sql = new StringBuilder();
 				QueryString[] prepares = querySet.getPrepares();
 				for (int i = 0; prepares != null && i < prepares.length; i++)
@@ -1969,12 +1972,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public Object[] js_getSQLParameters(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
-		if (foundsetOrQBSelect instanceof FoundSet && ((FoundSet)foundsetOrQBSelect).getTable() != null)
+		if (foundsetOrQBSelect instanceof IFoundSetInternal && ((IFoundSetInternal)foundsetOrQBSelect).getTable() != null)
 		{
 			try
 			{
 				// TODO parameters from updates and cleanups
-				QuerySet querySet = getQuerySet(((FoundSet)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
+				QuerySet querySet = getQuerySet(((IFoundSetInternal)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
 				Object[][] qsParams = querySet.getSelect().getParameters();
 				if (qsParams == null || qsParams.length == 0)
 				{
@@ -2558,7 +2561,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						for (String element : columnNames)
 						{
 							if (element == null) continue;
-							if (sfs.getSQLSheet().getColumnIndex(element) >= 0)
+							if (sfs.getColumnIndex(element) >= 0)
 							{
 								combinedDestinationRecord.setValue(element, sourceRecord.getValue(element));
 							}
@@ -3908,6 +3911,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean copyMatchingFields(Object src, IRecordInternal dest, boolean overwrite, Object[] names) throws ServoyException
 	{
 		checkAuthorized();
+		if (dest.getParentFoundSet().getSQLSheet() == null)
+		{
+			return false;
+		}
+
 		List<Object> al = new ArrayList<Object>();
 		if (names != null)
 		{
@@ -3944,7 +3952,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						if (src instanceof IRecordInternal)
 						{
 							IRecordInternal src_rec = (IRecordInternal)src;
-							int index = src_rec.getParentFoundSet().getSQLSheet().getColumnIndex(c.getDataProviderID());
+							int index = src_rec.getParentFoundSet().getColumnIndex(c.getDataProviderID());
 							if (index != -1)
 							{
 								Object sval = src_rec.getValue(c.getDataProviderID());

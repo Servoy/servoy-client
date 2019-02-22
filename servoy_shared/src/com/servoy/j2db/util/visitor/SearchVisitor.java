@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2019 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,37 +13,41 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
-package com.servoy.j2db.query;
+*/
+package com.servoy.j2db.util.visitor;
 
-import com.servoy.base.query.BaseQueryTable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * Interface for joins in queries, for all non-custom joins.
+ * Visitor class for searching elements that match a given filter.
  *
+ * @see IVisitable
  * @author rgansevles
  *
  */
-public interface ISQLTableJoin extends ISQLJoin
+public class SearchVisitor<T> implements IVisitor
 {
-	ITableReference getForeignTableReference();
+	private final Predicate<Object> filter;
+	private final List<T> found = new ArrayList<>();
 
-	default BaseQueryTable getForeignTable()
+	public SearchVisitor(Predicate<Object> filter)
 	{
-		return getForeignTableReference().getTable();
+		this.filter = filter;
 	}
 
-	void invert(String newName);
+	public Object visit(Object o)
+	{
+		if (filter.test(o))
+		{
+			found.add((T)o);
+		}
+		return o;
+	}
 
-	void setJoinType(int leftOuterJoin);
-
-	AndCondition getCondition();
-
-	boolean hasInnerJoin();
-
-	int getJoinType();
-
-	boolean isPermanent();
-
-	void setPermanent(boolean permanent);
+	public List<T> getFound()
+	{
+		return found;
+	}
 }

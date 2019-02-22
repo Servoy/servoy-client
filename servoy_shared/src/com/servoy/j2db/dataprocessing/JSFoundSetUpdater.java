@@ -85,7 +85,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	public boolean js_setColumn(String name, Object value)
 	{
 		Object val = value;
-		if (foundset.getSQLSheet().getColumnIndex(name) >= 0)//only allow columns
+		if (foundset.getColumnIndex(name) >= 0)//only allow columns
 		{
 			if (currentRecord == null)
 			{

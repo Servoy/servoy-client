@@ -34,9 +34,9 @@ import org.apache.wicket.model.Model;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
-import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetListWrapper;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
@@ -122,7 +122,7 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 				{
 					if (name.equals(ComponentFactory.getWebID(form, element)))
 					{
-						FoundSet fs = ((FoundSetListWrapper)listView.getList()).getFoundSet();
+						IFoundSetInternal fs = ((FoundSetListWrapper)listView.getList()).getFoundSet();
 						if (fs != null)
 						{
 							WebForm wf = listView.findParent(WebForm.class);
