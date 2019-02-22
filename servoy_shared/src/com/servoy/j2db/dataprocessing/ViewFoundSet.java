@@ -37,7 +37,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -61,7 +60,6 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
-import com.servoy.j2db.query.ITableReference;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
@@ -515,10 +513,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		SearchVisitor<QueryColumn> searchColumns = new SearchVisitor<>(new TypePredicate<>(QueryColumn.class));
 		if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) acceptVisitor(select.getJoins(), searchColumns);
 		if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) acceptVisitor(select.getWhere(), searchColumns);
-//		if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) acceptVisitor(select.getJoins(), searchColumns);
-//		if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) acceptVisitor(select.getWhere(), searchColumns);
 
-		// RAGTEST columns uit conditie van derived join moeten ook in columnsInJoinsPerTable komen
 		Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
 		searchColumns.getFound().forEach(column -> addRealColumnToTableMap(columnsInJoinsPerTable, column));
 
@@ -530,9 +525,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
 
-
 		Collection<BaseQueryTable> tables = new ArrayList<>();
-
 		if (queryTableclause instanceof QBSelect)
 		{
 			tables = Arrays.asList(((QBSelect)queryTableclause).getQuery().getTable());
@@ -542,20 +535,20 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			BaseQueryTable table = ((QBJoin)queryTableclause).getQueryTable();
 			if (table.getDataSource() == null)
 			{
-				// derived table
-				ITableReference ftr = ((QBJoin)queryTableclause).getJoin().getForeignTableReference();
-				DerivedTable dt = (DerivedTable)ftr;
-				//	  dt.getQuery().getColumns().stream().map(col -> select.getRealColumn(col)).filter(o -> o.isPresent()).map;//.filter(Optional::isPresent));
-				Stream<Optional<QueryColumn>> x = dt.getQuery().getColumns().stream().map(col -> select.getRealColumn(col));
-//			java.util.function.Function<> qdd;
-				Stream<QueryColumn> y = x.filter(Optional::isPresent).map(Optional::get);
-				tables = y.map(QueryColumn::getTable).reduce(new IdentityHashMap<BaseQueryTable, BaseQueryTable>(), (map, col) -> {
-					map.put(col, col);
-					return map;
-				}, (d, e) -> {
-					e.putAll(d);
-					return e;
-				}).values();
+				// derived table, get all tables used
+				DerivedTable dt = (DerivedTable)((QBJoin)queryTableclause).getJoin().getForeignTableReference();
+				tables = dt.getQuery().getColumns().stream() //
+					.map(select::getRealColumn) //
+					.filter(Optional::isPresent).map(Optional::get) //
+					.map(QueryColumn::getTable)
+					// reduce to unique identity hashmap
+					.reduce(new IdentityHashMap<BaseQueryTable, BaseQueryTable>(), (map, col) -> {
+						map.put(col, col);
+						return map;
+					}, (d, e) -> {
+						e.putAll(d);
+						return e;
+					}).values();
 			}
 			else
 			{
@@ -566,7 +559,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		tables.forEach(table -> {
 			try
 			{
-				xx(table, columnsInJoinsPerTable, monitorDeletesForMain, monitorColumns, monitorAggregates, monitorInserts, monitorDeletes);
+				enableDatabroadcastFor(table, columnsInJoinsPerTable, monitorDeletesForMain, monitorColumns, monitorAggregates, monitorInserts, monitorDeletes);
 			}
 			catch (ServoyException e)
 			{
@@ -574,88 +567,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 		});
 
-
-//		BaseQueryTable table = null;
-//		if (queryTableclause instanceof QBSelect)
-//		{
-//			table = ((QBSelect)queryTableclause).getQuery().getTable();
-//		}
-//		else if (queryTableclause instanceof QBJoin)
-//		{
-//			table = ((QBJoin)queryTableclause).getQueryTable();
-//		}
-//		if (table != null)
-//		{
-//			if (table.getDataSource() == null)
-//			{
-//				Debug.warn(
-//					"enableDatabroadcastFor for join on derived table is not possible, instead, enable databroadcast for the actual table in the join clause");
-//				return;
-//			}
-
-		// touch the row manager for the given table
-//			try
-//			{
-//				RowManager rowManager = manager.getRowManager(table.getDataSource());
-//				if (rowManager != null)
-//				{
-//					SearchVisitor<QueryColumn> searchColumns = new SearchVisitor<>(new TypePredicate<>(QueryColumn.class));
-//					if ((flags & MONITOR_JOIN_CONDITIONS) == MONITOR_JOIN_CONDITIONS) acceptVisitor(select.getJoins(), searchColumns);
-//					if ((flags & MONITOR_WHERE_CONDITIONS) == MONITOR_WHERE_CONDITIONS) acceptVisitor(select.getWhere(), searchColumns);
-//
-//					Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable = new IdentityHashMap<>();
-//					searchColumns.getFound().forEach(column -> addRealColumnToTableMap(columnsInJoinsPerTable, column));
-//
-//					boolean monitorInserts = (flags & MONITOR_INSERT) == MONITOR_INSERT;
-//					boolean monitorDeletes = (flags & MONITOR_DELETES) == MONITOR_DELETES;
-//
-//					boolean monitorDeletesForMain = (flags & MONITOR_DELETES_FOR_PRIMARY_TABLE) == MONITOR_DELETES_FOR_PRIMARY_TABLE;
-//					boolean monitorColumns = (flags & MONITOR_COLUMNS) == MONITOR_COLUMNS;
-//
-//					boolean monitorAggregates = (flags & MONITOR_AGGREGATES) == MONITOR_AGGREGATES;
-//
-//					IQuerySelectValue[] queryPks = null;
-//
-//					// for normal column watches or deletes of the main table we need to have the pk's in the select for the datasource.
-//					if (monitorDeletesForMain || monitorColumns)
-//					{
-//						List<IQuerySelectValue> list = pkColumnsForTable.get(table);
-//						if (list != null)
-//						{
-//							String[] realOrderedPks = rowManager.getSQLSheet().getPKColumnDataProvidersAsArray();
-//							queryPks = getOrderedPkColumns(list, realOrderedPks);
-//							if (queryPks == null)
-//							{
-//								throw new RuntimeException("ViewFoundSets did get pks '" + list + "' for datasource " + table + " but they should be " +
-//									Arrays.toString(realOrderedPks));
-//							}
-//						}
-//						else
-//						{
-//							throw new RuntimeException("ViewFoundSet based on select: " + this.select + " does not have pk's selected from " +
-//								table.getDataSource() + " to enable databroadcast for that datasource");
-//						}
-//					}
-//
-//					RowListener rl = new RowListener(table.getDataSource(), queryPks, (monitorColumns || monitorAggregates) ? columnsForTable.get(table) : null,
-//						columnsInJoinsPerTable.get(table), monitorInserts, monitorDeletes, monitorDeletesForMain, monitorAggregates);
-//					// keep a hard reference so as long as this ViewFoundSet lives the listener is kept in RowManager
-//					rowListeners.add(rl);
-//					rowManager.register(rl);
-//
-//				}
-//			}
-//			catch (ServoyException e)
-//			{
-//				Debug.error(e);
-//			}
-//		}
 	}
 
-	private void xx(BaseQueryTable table, Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, boolean monitorDeletesForMain, boolean monitorColumns,
-		boolean monitorAggregates, boolean monitorInserts, boolean monitorDeletes) throws ServoyException
+	private void enableDatabroadcastFor(BaseQueryTable table, Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, boolean monitorDeletesForMain,
+		boolean monitorColumns, boolean monitorAggregates, boolean monitorInserts, boolean monitorDeletes) throws ServoyException
 	{
-
 		RowManager rowManager = manager.getRowManager(table.getDataSource());
 		if (rowManager != null)
 		{
