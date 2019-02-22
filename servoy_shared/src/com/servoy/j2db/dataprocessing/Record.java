@@ -202,12 +202,14 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			return row.getLastException();
 		}
 		FireJSCollector jsFireCollector = null;
+		boolean threadExecutionRegistered = false;
 		try
 		{
 			boolean containsCalc = row.containsCalculation(dataProviderID);
 			boolean mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
 			if (mustRecalc)
 			{
+				threadExecutionRegistered = true;
 				row.threadWillExecuteCalculation(dataProviderID);
 			}
 			mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
@@ -237,7 +239,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		}
 		finally
 		{
-			row.threadCalculationComplete(dataProviderID);
+			if (threadExecutionRegistered) row.threadCalculationComplete(dataProviderID);
 			if (jsFireCollector != null) jsFireCollector.done();
 		}
 		if (parent.containsDataProvider(dataProviderID)) //as shared (global or aggregate)
