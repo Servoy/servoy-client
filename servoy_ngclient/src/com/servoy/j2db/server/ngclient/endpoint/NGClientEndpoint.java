@@ -21,7 +21,6 @@ package com.servoy.j2db.server.ngclient.endpoint;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
@@ -33,10 +32,10 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.GetHttpSessionConfigurator;
 import org.sablo.websocket.IWebsocketSession;
 
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.server.ngclient.GetHttpSessionConfigurator;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
@@ -66,11 +65,6 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 		@PathParam("windowid") String windowid, EndpointConfig config) throws Exception
 	{
 		super.start(newSession, sessionid, windowname, windowid);
-		HttpSession httpSession = (HttpSession)config.getUserProperties().get(HttpSession.class.getName());
-		if (httpSession != null)
-		{
-			newSession.getUserProperties().put(HttpSession.class.getName(), httpSession);
-		}
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpSession;
 
@@ -116,7 +115,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
-	public static final String HTTP_SESSION_COUNTER = "httpSessionCounter";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -1173,22 +1171,23 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				scheduledExecutorService = null;
 
 			}
-			if (httpSession != null)
-			{
-				try
-				{
-					AtomicInteger sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-					if (sessionCounter.decrementAndGet() == 0)
-					{
-						httpSession.invalidate();
-					}
-				}
-				catch (Exception ignore)
-				{
-					// http session can already be invalid..
-				}
-				httpSession = null;
-			}
+			// RAGTEST naar websocketmanager, invalideer de sessie als de laatste ngclient weg is
+//			if (httpSession != null)
+//			{
+//				try
+//				{
+//					AtomicInteger sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
+//					if (sessionCounter.decrementAndGet() == 0)
+//					{
+//						httpSession.invalidate();
+//					}
+//				}
+//				catch (Exception ignore)
+//				{
+//					// http session can already be invalid..
+//				}
+//				httpSession = null;
+//			}
 			if (showUrl == null) getWebsocketSession().sendRedirect(null);
 			WebsocketSessionManager.removeSession(getWebsocketSession().getUuid());
 		}
@@ -1657,27 +1656,28 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		Debug.warn("Setting TimeZone on NG client is not allowed");
 	}
 
-	/**
-	 * @param httpSession
-	 */
-	public void setHttpSession(HttpSession httpSession)
-	{
-		if (this.httpSession == null && httpSession != null)
-		{
-			this.httpSession = httpSession;
-			httpSession.setMaxInactiveInterval(0);
-			AtomicInteger sessionCounter;
-			synchronized (httpSession)
-			{
-				sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-				if (sessionCounter == null)
-				{
-					sessionCounter = new AtomicInteger();
-					httpSession.setAttribute(HTTP_SESSION_COUNTER, sessionCounter);
-				}
-			}
-			getClientInfo().addInfo("httpsession:" + httpSession.getId());
-			sessionCounter.incrementAndGet();
-		}
-	}
+	// RAGTEST naar websocketmanager, invalideer de sessie als de laatste ngclient weg is
+//	/**
+//	 * @param httpSession
+//	 */
+//	public void setHttpSession(HttpSession httpSession)
+//	{
+//		if (this.httpSession == null && httpSession != null)
+//		{
+//			this.httpSession = httpSession;
+//
+//			AtomicInteger sessionCounter;
+//			synchronized (httpSession)
+//			{
+//				sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
+//				if (sessionCounter == null)
+//				{
+//					sessionCounter = new AtomicInteger();
+//					httpSession.setAttribute(HTTP_SESSION_COUNTER, sessionCounter);
+//				}
+//			}
+//			getClientInfo().addInfo("httpsession:" + httpSession.getId());
+//			sessionCounter.incrementAndGet();
+//		}
+//	}
 }

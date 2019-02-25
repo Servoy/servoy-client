@@ -30,8 +30,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpSession;
-
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
@@ -217,11 +215,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 			}
 
-			if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
-			{
-				HttpSession httpSession = (HttpSession)CurrentWindow.get().getEndpoint().getSession().getUserProperties().get(HttpSession.class.getName());
-				client.setHttpSession(httpSession);
-			}
+//			HttpSession httpSession = (HttpSession)CurrentWindow.get().getEndpoint().getSession().getUserProperties().get(HttpSession.class.getName());
+//			client.setHttpSession(httpSession);
 
 			getEventDispatcher().addEvent(new Runnable()
 			{
