@@ -74,12 +74,15 @@ public class BaseQueryTable implements IBaseQueryElement
 	{
 		// Skip anything but letters and digits
 		StringBuilder aliasBuf = new StringBuilder();
-		char[] chars = name.toCharArray();
-		for (char element : chars)
+		if (name != null)
 		{
-			if (Character.isLetterOrDigit(element))
+			char[] chars = name.toCharArray();
+			for (char element : chars)
 			{
-				aliasBuf.append(element);
+				if (Character.isLetterOrDigit(element))
+				{
+					aliasBuf.append(element);
+				}
 			}
 		}
 

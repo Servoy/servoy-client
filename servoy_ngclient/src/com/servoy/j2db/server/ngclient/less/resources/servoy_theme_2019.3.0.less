@@ -37,55 +37,41 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
 	width: auto !important;
 }
 
-.no-border {
-	border-style: none;
-	border-width: 0;
-}
-
-.border-default {
-	border-color: @border-color;
-	border-width: @border-width;
-	border-style: @border-style;
-	border-radius: @border-radius;
-}
-
-.no-padding {
-	padding: 0;
-}
-
-.no-margin {
-	margin: 0;
-}
-
 /* Reset Header Margins */
 h1, .h1, h2, .h2, h3, .h3,
 h4, .h4, h5, .h5, h6, .h6 {
     margin-top: 0;
-    margin-bottom: 0;
+    margin-bottom: 0;	
 }
 
 h1, .h1 {
   font-size: @font-size-h1;
+  line-height: if((isunit(@font-size-h1, rem)), unit(ceil(@font-size-h1 * @rem-to-px * 1.1), px), ceil(@font-size-h1 * 1.1));
 }
 
 h2, .h2 {
   font-size: @font-size-h2;
+  line-height: if((isunit(@font-size-h2, rem)), unit(ceil(@font-size-h2 * @rem-to-px * 1.1), px), ceil(@font-size-h2 * 1.1));
 }
 
 h3, .h3 {
   font-size: @font-size-h3;
+  line-height: if((isunit(@font-size-h3, rem)), unit(ceil(@font-size-h3 * @rem-to-px * 1.1), px), ceil(@font-size-h3 * 1.1));
 }
 
 h4, .h4 {
   font-size: @font-size-h4;
+  line-height: if((isunit(@font-size-h4, rem)), unit(ceil(@font-size-h4 * @rem-to-px * 1.1), px), ceil(@font-size-h4 * 1.1));
 }
 
 h5, .h5 {
   font-size: @font-size-h5;
+  line-height: if((isunit(@font-size-h5, rem)), unit(ceil(@font-size-h5 * @rem-to-px * 1.1), px), ceil(@font-size-h5 * 1.1));
 }
 
 h6, .h6 {
   font-size: @font-size-h6;
+  line-height: if((isunit(@font-size-h6, rem)), unit(ceil(@font-size-h6 * @rem-to-px * 1.1), px), ceil(@font-size-h6 * 1.1));
 }
 
 /* To be used on a tab/tabless panel when nesting responsive form. Is used to indent the nested form with the container form */
@@ -95,6 +81,10 @@ h6, .h6 {
 }
 
 /* Margins, to be used on rows to separate lines */
+.no-margin {
+	margin: 0;
+}
+
 .margin-10 {
 	margin: @box-size-10;
 }
@@ -156,6 +146,10 @@ h6, .h6 {
 }
 
 /* paddings, to be used on rows to separate lines */
+.no-padding {
+	padding: 0;
+}
+
 .padding-10 {
 	padding: @box-size-10;
 }
@@ -221,9 +215,28 @@ h6, .h6 {
 	border-color: @border-color;
 }
 
+/* Border classes */
+
+/* TODO does it make sense to call a class border ? shall i use border-default instead ? */
 .border {
 	.border-class();
 	border-width: @border-width;
+}
+
+/* TODO does make sense ? */
+.border-radius {
+	border-radius: @border-radius;
+}
+
+.border-default {
+	.border-class();
+	border-width: @border-width;
+	border-radius: @border-radius; /* TODO does it make sense to use border radius in border-default ? shall i create a separate class border-radius instead ? */
+}
+
+.no-border {
+	border-style: none;
+	border-width: 0;
 }
 
 .border-top {
@@ -246,6 +259,7 @@ h6, .h6 {
 	border-right-width: @border-width;
 }
 
+/* Clickable cursors */
 .clickable {
 	cursor: pointer;
 }
@@ -265,16 +279,12 @@ h6, .h6 {
 	cursor: not-allowed;
 }
 
-/* TODO does make sense ? */
-.border-radius {
-	border-radius: @border-radius;
-}
-
 /* Forms */
 /* TODO enable form bgs !?
 .svy-form {
 	background-color: @body-bg;
 }
+
 .svy-form-inverse {
 	background-color: @body-bg-inverse;
 }
@@ -332,7 +342,7 @@ h6, .h6 {
 /* Fields */
 .form-control {
 	box-shadow: none;
-	border-radius: @border-radius;
+	border-radius: @field-border-radius;
 	background-color: @field-bg;
 }
 
@@ -496,6 +506,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input {
 	border: 0;
 }
+
 /* Input Groups *
 .input-group .input-group-addon {
 	background-color: @field-addon-bg;
@@ -509,6 +520,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 	     -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
   	        transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
+
 .svy-field:focus ~ .input-group-addon,
 .svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
 .svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
@@ -518,6 +530,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input:focus ~ .input-group-addon  {
 	border-color: @main-color;
 }
+
 .svy-field:focus ~ .input-group-addon,
 .svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
 .svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
@@ -527,6 +540,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input:focus ~ .input-group-addon  {
 	border-color: @main-color;
 }
+
 .svy-calendar input,
 .bts-calendar input,
 .table .input-group .input-group-addon {
@@ -565,7 +579,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 }
 
 .svy-combobox input {
-	border: @field-border-width;
+	border-width: @field-border-width;
 	border-radius: 0;
 	box-shadow: none;
 }
@@ -793,6 +807,7 @@ data-servoyextra-fontawesome > div {
 .svy-sidenav-divider {
 	line-height: 0px;
 	padding: 0;
+	margin: 0;
 }
 
 .svy-sidenav-item {
@@ -814,7 +829,7 @@ data-servoyextra-fontawesome > div {
 }
 
 .svy-sidenav-item {
-	padding-left: 20px;
+	padding: 7px 15px 7px 20px;
 }
 
 .svy-sidenav-item.sn-level-2 {
@@ -834,13 +849,16 @@ data-servoyextra-fontawesome > div {
 	margin-left: -20px;
 	padding-left: 20px;
 }
+
 .svy-sidenav-item.sn-level-2 {
 	margin-right: 0;
 }
+
 .svy-sidenav-dropdown.sn-level-3 {
 	margin-left: -40px;
 	padding-left: 40px;
 }
+
 .svy-sidenav-dropdown.sn-level-4 {
 	margin-left: -60px;
 	padding-left: 60px;
@@ -1128,18 +1146,19 @@ data-servoyextra-fontawesome > div {
 	border: @table-border-width @border-style @border-color;
 }
 
-data-servoyextra-table thead {
+.bts-table thead,
+.svy-table thead {
 	background-color: @table-header-bg;					/* Table header bg */
 	font-style: @table-header-font-style;				/* Table header font style */
 	text-transform: @table-header-text-transform;		/* Table header text transform */
 }
 
-data-servoyextra-table tbody tr:nth-child(even):not(.table-servoyextra-selected) {
+.svy-table tbody tr:nth-child(even):not(.table-servoyextra-selected) {
 	background: @table-row-even-bg-color;
 	color: @table-row-even-text-color;
 }
 
-data-servoyextra-table tbody tr:nth-child(odd):not(.table-servoyextra-selected) {
+.svy-table tbody tr:nth-child(odd):not(.table-servoyextra-selected) {
 	background: @table-row-odd-bg-color;
 	color: @table-row-odd-text-color;
 }
@@ -1426,7 +1445,7 @@ data-servoyextra-table tbody tr:nth-child(odd):not(.table-servoyextra-selected) 
 .yuimenu {
 	padding: 0;
 	background: #FFF;
-    border-radius: @border-radius;
+    border-radius: @border-radius; /* TODO shall it use a popup border radius instead !? */
 }
 
 .yuimenuitemlabel {
@@ -1549,6 +1568,7 @@ data-servoyextra-table tbody tr:nth-child(odd):not(.table-servoyextra-selected) 
 }
 
 /* Style the flex footer if used on a form with theme servoy */
+/* TODO do i really need that ? */
 > .flexlayout > .flex-footer {
 	background-color: @main-color;
 	color: @main-color-inverse;
@@ -1638,10 +1658,6 @@ a.bg-danger:hover {
 	color: @brand-danger-highlighted-inverse;
 }
 
-/* Fonts */
-.font-weight-bold {
-	font-weight: bold;
-}
 
 /************************************************************************************
 * Default styles
@@ -1726,6 +1742,11 @@ a.bg-danger:hover {
 	white-space: initial;
 }
 
+/* Fonts */
+.font-weight-bold {
+	font-weight: bold;
+}
+
 .text-uppercase {
 	text-transform: uppercase;
 }
@@ -1742,7 +1763,7 @@ a.bg-danger:hover {
 .label-info, 
 .label-warning,
 .label-danger {
-	color: #FFF; /* TODO remove icon */
+	color: #FFF; /* TODO remove color */
 	text-align: center;
 	border-radius: @border-radius;
 }
@@ -1802,12 +1823,17 @@ a.bg-danger:hover {
 	color: @brand-primary-inverse;
 }
 
-.btn-primary:hover, .btn-primary:focus, .btn-primary.focus, 
-.btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary,
-.btn-primary.no-focus:hover, .btn-primary.no-focus.focus:hover {
+.btn-primary:hover, 
+.btn-primary:focus, .btn-primary.focus,
+.btn-primary:active, .btn-primary.active, 
+.btn-primary:active:focus, .btn-primary.active:focus, 
+.btn-primary:active.focus, .btn-primary.active.focus,
+.btn-primary.no-focus:hover, .btn-primary.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-primary {
 	background-color: @brand-primary-highlighted;
 	color: @brand-primary-highlighted-inverse;
 	outline-color: @brand-primary;
+	border-color: @brand-primary;
 }
 
 .btn-primary.disabled, .btn-primary[disabled], 
@@ -1829,11 +1855,17 @@ fieldset[disabled] .btn-primary:focus, .btn-primary.disabled.focus,
 	border-color: @brand-tertiary;
 }
 
-.btn-tertiary:hover, .btn-tertiary:focus, .btn-tertiary.focus, 
-.btn-tertiary:active, .btn-tertiary.active, .open > .dropdown-toggle.btn-tertiary {
+.btn-tertiary:hover, 
+.btn-tertiary:focus, .btn-tertiary.focus,
+.btn-tertiary:active, .btn-tertiary.active, 
+.btn-tertiary:active:focus, .btn-tertiary.active:focus, 
+.btn-tertiary:active.focus, .btn-tertiary.active.focus,
+.btn-tertiary.no-focus:hover, .btn-tertiary.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-tertiary {
 	background-color: @brand-tertiary-highlighted;
 	color: @brand-tertiary-highlighted-inverse;
 	outline-color: @brand-tertiary;
+	border-color: @brand-tertiary;
 }
 
 .btn-tertiary.disabled, .btn-tertiary[disabled], 
@@ -1855,11 +1887,17 @@ fieldset[disabled] .btn-tertiary:focus, .btn-tertiary.disabled.focus,
 	border-color: @brand-success;
 }
 
-.btn-success:hover, .btn-success:focus, .btn-success.focus, 
-.btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success {
+.btn-success:hover, 
+.btn-success:focus, .btn-success.focus,
+.btn-success:active, .btn-success.active, 
+.btn-success:active:focus, .btn-success.active:focus, 
+.btn-success:active.focus, .btn-success.active.focus,
+.btn-success.no-focus:hover, .btn-success.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-success {
 	background-color: @brand-success-highlighted;
 	color: @brand-success-highlighted-inverse;
 	outline-color: @brand-success;
+	border-color: @brand-success;
 }
 
 .btn-success.disabled, .btn-success[disabled], 
@@ -1881,11 +1919,17 @@ fieldset[disabled] .btn-success:focus, .btn-success.disabled.focus,
 	border-color: @brand-info;
 }
 
-.btn-info:hover, .btn-info:focus, .btn-info.focus, 
-.btn-info:active, .btn-info.active, .open > .dropdown-toggle.btn-info {
+.btn-info:hover, 
+.btn-info:focus, .btn-info.focus,
+.btn-info:active, .btn-info.active, 
+.btn-info:active:focus, .btn-info.active:focus, 
+.btn-info:active.focus, .btn-info.active.focus,
+.btn-info.no-focus:hover, .btn-info.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-info {
 	background-color: @brand-info-highlighted;
 	color: @brand-info-highlighted-inverse;
 	outline-color: @brand-info;
+	border-color: @brand-info;
 }
 
 .btn-info.disabled, .btn-info[disabled], 
@@ -1907,11 +1951,17 @@ fieldset[disabled] .btn-info:focus, .btn-info.disabled.focus,
 	border-color: @brand-warning;
 }
 
-.btn-warning:hover, .btn-warning:focus, .btn-warning.focus, 
-.btn-warning:active, .btn-warning.active, .open > .dropdown-toggle.btn-warning {
+.btn-warning:hover, 
+.btn-warning:focus, .btn-warning.focus,
+.btn-warning:active, .btn-warning.active, 
+.btn-warning:active:focus, .btn-warning.active:focus, 
+.btn-warning:active.focus, .btn-warning.active.focus,
+.btn-warning.no-focus:hover, .btn-warning.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-warning {
 	background-color: @brand-warning-highlighted;
 	color: @brand-warning-highlighted-inverse;
 	outline-color: @brand-warning;
+	border-color: @brand-warning;
 }
 
 .btn-warning.disabled, .btn-warning[disabled], 
@@ -1933,11 +1983,17 @@ fieldset[disabled] .btn-warning:focus, .btn-warning.disabled.focus,
 	border-color: @brand-danger;
 }
 
-.btn-danger:hover, .btn-danger:focus, .btn-danger.focus, 
-.btn-danger:active, .btn-danger.active, .open > .dropdown-toggle.btn-danger {
+.btn-danger:hover, 
+.btn-danger:focus, .btn-danger.focus,
+.btn-danger:active, .btn-danger.active, 
+.btn-danger:active:focus, .btn-danger.active:focus, 
+.btn-danger:active.focus, .btn-danger.active.focus,
+.btn-danger.no-focus:hover, .btn-danger.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-danger {
 	background-color: @brand-danger-highlighted;
 	color: @brand-danger-highlighted-inverse;
 	outline-color: @brand-danger;
+	border-color: @brand-danger;
 }
 
 .btn-danger.disabled, .btn-danger[disabled], 
@@ -1964,12 +2020,17 @@ fieldset[disabled] .btn-danger:focus, .btn-danger.disabled.focus,
 	border-color: @brand-primary;
 }
 
-.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary.focus, 
-.btn-outline-primary:active, .btn-outline-primary.active, .open > .dropdown-toggle.btn-outline-primary,
-.btn-outline-primary.no-focus:hover, .btn-outline-primary.no-focus.focus:hover {
+.btn-outline-primary:hover, 
+.btn-outline-primary:focus, .btn-outline-primary.focus,
+.btn-outline-primary:active, .btn-outline-primary.active, 
+.btn-outline-primary:active:focus, .btn-outline-primary.active:focus, 
+.btn-outline-primary:active.focus, .btn-outline-primary.active.focus,
+.btn-outline-primary.no-focus:hover, .btn-outline-primary.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-primary {
 	background-color: @brand-primary-highlighted;
 	color: @brand-primary-highlighted-inverse;
 	outline-color: @brand-primary;
+	border-color: @brand-primary;
 }
 
 .btn-outline-primary.disabled, .btn-outline-primary[disabled], 
@@ -1991,11 +2052,17 @@ fieldset[disabled] .btn-outline-primary:focus, .btn-outline-primary.disabled.foc
 	border-color: @brand-tertiary;
 }
 
-.btn-outline-tertiary:hover, .btn-outline-tertiary:focus, .btn-outline-tertiary.focus, 
-.btn-outline-tertiary:active, .btn-outline-tertiary.active, .open > .dropdown-toggle.btn-outline-tertiary {
+.btn-outline-tertiary:hover, 
+.btn-outline-tertiary:focus, .btn-outline-tertiary.focus,
+.btn-outline-tertiary:active, .btn-outline-tertiary.active, 
+.btn-outline-tertiary:active:focus, .btn-outline-tertiary.active:focus, 
+.btn-outline-tertiary:active.focus, .btn-outline-tertiary.active.focus,
+.btn-outline-tertiary.no-focus:hover, .btn-outline-tertiary.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-tertiary {
 	background-color: @brand-tertiary-highlighted;
 	color: @brand-tertiary-highlighted-inverse;
 	outline-color: @brand-tertiary;
+	border-color: @brand-tertiary;
 }
 
 .btn-outline-tertiary.disabled, .btn-outline-tertiary[disabled], 
@@ -2017,11 +2084,17 @@ fieldset[disabled] .btn-outline-tertiary:focus, .btn-outline-tertiary.disabled.f
 	border-color: @brand-success;
 }
 
-.btn-outline-success:hover, .btn-outline-success:focus, .btn-outline-success.focus, 
-.btn-outline-success:active, .btn-outline-success.active, .open > .dropdown-toggle.btn-outline-success {
+.btn-outline-success:hover, 
+.btn-outline-success:focus, .btn-outline-success.focus,
+.btn-outline-success:active, .btn-outline-success.active, 
+.btn-outline-success:active:focus, .btn-outline-success.active:focus, 
+.btn-outline-success:active.focus, .btn-outline-success.active.focus,
+.btn-outline-success.no-focus:hover, .btn-outline-success.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-success {
 	background-color: @brand-success-highlighted;
 	color: @brand-success-highlighted-inverse;
 	outline-color: @brand-success;
+	border-color: @brand-success;
 }
 
 .btn-outline-success.disabled, .btn-outline-success[disabled], 
@@ -2043,11 +2116,17 @@ fieldset[disabled] .btn-outline-success:focus, .btn-outline-success.disabled.foc
 	border-color: @brand-info;
 }
 
-.btn-outline-info:hover, .btn-outline-info:focus, .btn-outline-info.focus, 
-.btn-outline-info:active, .btn-outline-info.active, .open > .dropdown-toggle.btn-outline-info {
+.btn-outline-info:hover, 
+.btn-outline-info:focus, .btn-outline-info.focus,
+.btn-outline-info:active, .btn-outline-info.active, 
+.btn-outline-info:active:focus, .btn-outline-info.active:focus, 
+.btn-outline-info:active.focus, .btn-outline-info.active.focus,
+.btn-outline-info.no-focus:hover, .btn-outline-info.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-info {
 	background-color: @brand-info-highlighted;
 	color: @brand-info-highlighted-inverse;
 	outline-color: @brand-info;
+	border-color: @brand-info;
 }
 
 .btn-outline-info.disabled, .btn-outline-info[disabled], 
@@ -2069,11 +2148,17 @@ fieldset[disabled] .btn-outline-info:focus, .btn-outline-info.disabled.focus,
 	border-color: @brand-warning;
 }
 
-.btn-outline-warning:hover, .btn-outline-warning:focus, .btn-outline-warning.focus, 
-.btn-outline-warning:active, .btn-outline-warning.active, .open > .dropdown-toggle.btn-outline-warning {
+.btn-outline-warning:hover, 
+.btn-outline-warning:focus, .btn-outline-warning.focus,
+.btn-outline-warning:active, .btn-outline-warning.active, 
+.btn-outline-warning:active:focus, .btn-outline-warning.active:focus, 
+.btn-outline-warning:active.focus, .btn-outline-warning.active.focus,
+.btn-outline-warning.no-focus:hover, .btn-outline-warning.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-warning {
 	background-color: @brand-warning-highlighted;
 	color: @brand-warning-highlighted-inverse;
 	outline-color: @brand-warning;
+	border-color: @brand-warning;
 }
 
 .btn-outline-warning.disabled, .btn-outline-warning[disabled], 
@@ -2095,11 +2180,17 @@ fieldset[disabled] .btn-outline-warning:focus, .btn-outline-warning.disabled.foc
 	border-color: @brand-danger;
 }
 
-.btn-outline-danger:hover, .btn-outline-danger:focus, .btn-outline-danger.focus, 
-.btn-outline-danger:active, .btn-outline-danger.active, .open > .dropdown-toggle.btn-outline-danger {
+.btn-outline-danger:hover, 
+.btn-outline-danger:focus, .btn-outline-danger.focus,
+.btn-outline-danger:active, .btn-outline-danger.active, 
+.btn-outline-danger:active:focus, .btn-outline-danger.active:focus, 
+.btn-outline-danger:active.focus, .btn-outline-danger.active.focus,
+.btn-outline-danger.no-focus:hover, .btn-outline-danger.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-danger {
 	background-color: @brand-danger-highlighted;
 	color: @brand-danger-highlighted-inverse;
 	outline-color: @brand-danger;
+	border-color: @brand-danger;
 }
 
 .btn-outline-danger.disabled, .btn-outline-danger[disabled], 
@@ -2120,8 +2211,13 @@ fieldset[disabled] .btn-outline-danger:focus, .btn-outline-danger.disabled.focus
 	color: inherit;
 }
 
-.btn-outline-default:hover, .btn-outline-default:focus, .btn-outline-default.focus, 
-.btn-outline-default:active, .btn-outline-default.active, .open > .dropdown-toggle.btn-outline-default {
+.btn-outline-default:hover, 
+.btn-outline-default:focus, .btn-outline-default.focus,
+.btn-outline-default:active, .btn-outline-default.active, 
+.btn-outline-default:active:focus, .btn-outline-default.active:focus, 
+.btn-outline-default:active.focus, .btn-outline-default.active.focus,
+.btn-outline-default.no-focus:hover, .btn-outline-default.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-outline-default {
 	background-color: transparent;
 	color: inherit;
 	opacity: 0.8;
@@ -2141,8 +2237,18 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 }
 
 /* Special Buttons */
-.btn-round {
+
+.btn-round,
+.btn-round:hover, 
+.btn-round:focus, .btn-round.focus,
+.btn-round:active, .btn-round.active, 
+.btn-round:active:focus, .btn-round.active:focus, 
+.btn-round:active.focus, .btn-round.active.focus,
+.btn-round.no-focus:hover, .btn-round.no-focus.focus:hover,
+.open > .dropdown-toggle.btn-round {
 	border-radius: 50px;
+	outline: none;
+	/* TODO set box shadow instea of outline box-shadow: 0 0 3px orange; */
 }
 
 /* Fields */

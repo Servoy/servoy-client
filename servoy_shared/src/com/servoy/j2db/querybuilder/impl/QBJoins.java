@@ -30,14 +30,19 @@ import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryJoin;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.TableExpression;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
@@ -200,7 +205,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @param joinType join type, one of JSRelation.LEFT_OUTER_JOIN, JSRelation.INNER_JOIN, JSRelation.RIGHT_OUTER_JOIN, JSRelation.FULL_JOIN
 	 */
 	@JSFunction
-	public QBJoin add(String dataSource, int joinType) throws RepositoryException
+	public QBJoin add(String dataSource, int joinType)
 	{
 		return add(dataSource, joinType, null);
 	}
@@ -235,9 +240,68 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @param dataSource data source
 	 */
 	@JSFunction
-	public QBJoin add(String dataSource) throws RepositoryException
+	public QBJoin add(String dataSource)
 	{
 		return add(dataSource, IQueryBuilderJoin.LEFT_OUTER_JOIN, null);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(IQueryBuilder, int, String)
+	 * @sampleas add(QBSelect, int, String)
+	 *
+	 * @param subqueryBuilder
+	 * @param joinType
+	 */
+	public QBJoin js_add(QBSelect subqueryBuilder, int joinType)
+	{
+		return add(subqueryBuilder, joinType);
+	}
+
+	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType)
+	{
+		return add(subqueryBuilder, joinType, null);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(IQueryBuilder, int, String)
+	 * @sample
+	 * 	var subquery = datasources.db.example_data.products.createSelect();
+	 *  subquery.where.add(subquery.columns.supplierid.eq(99));
+	 *  subquery.result.add(subquery.columns.categoryid, 'subcat')
+	 *  subquery.result.add(subquery.columns.productid, 'subprod')
+	 *
+	 *  var query = datasources.db.example_data.order_details.createSelect();
+	 *  // add a join on a derived table using a subquery
+	 *  var join = query.joins.add(subquery, JSRelation.INNER_JOIN, 'subprods');
+	 *  join.on.add(query.columns.productid.eq(join.columns['subprod']));
+	 *  query.result.add(query.columns.quantity);
+	 *  query.result.add(join.columns['subcat']);
+	 *
+	 * @param subqueryBuilder
+	 * @param joinType
+	 * @param alias
+	 */
+	public QBJoin js_add(QBSelect subqueryBuilder, int joinType, String alias)
+	{
+		return add(subqueryBuilder, joinType, alias);
+	}
+
+	public QBJoin add(IQueryBuilder subqueryBuilder, int joinType, String alias)
+	{
+		if (!DataSourceUtils.isSameServer(getRoot().getDataSource(), subqueryBuilder.getDataSource()))
+		{
+			throw new RuntimeException(
+				"Cannot add derived table join from different server: " + getRoot().getDataSource() + " vs " + subqueryBuilder.getDataSource());
+		}
+
+		QuerySelect subquery = ((QBSelect)subqueryBuilder).getQuery();
+		QBJoin join = joins.get(alias);
+		if (join == null)
+		{
+			join = addJoin(new QueryJoin(alias, parent.getQueryTable(), new DerivedTable(subquery, alias), new AndCondition(), joinType, true),
+				subqueryBuilder.getDataSource(), alias);
+		}
+		return join;
 	}
 
 	/**
@@ -250,7 +314,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 */
 	@JSFunction
-	public QBJoin add(String dataSource, int joinType, String alias) throws RepositoryException
+	public QBJoin add(String dataSource, int joinType, String alias)
 	{
 		String name;
 		QBJoin join;
@@ -268,7 +332,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		{
 			Table foreignTable = root.getTable(dataSource);
 			join = addJoin(new QueryJoin(name, parent.getQueryTable(),
-				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias),
+				new TableExpression(
+					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias)),
 				new AndCondition(), joinType, true), dataSource, name);
 		}
 		return join;
@@ -278,7 +343,10 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	{
 		QBJoin join = new QBJoin(root, parent, dataSource, queryJoin, name);
 		root.getQuery().addJoin(queryJoin);
-		joins.put(name, join);
+		if (name != null)
+		{
+			joins.put(name, join);
+		}
 		return join;
 	}
 
@@ -307,7 +375,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		return null;
 	}
 
-	public ISQLSelect build() throws RepositoryException
+	public ISQLSelect build()
 	{
 		return getRoot().build();
 	}

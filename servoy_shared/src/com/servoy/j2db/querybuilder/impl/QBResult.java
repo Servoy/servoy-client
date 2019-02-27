@@ -188,6 +188,10 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 
 	public QBResult add(IQueryBuilderColumn column, String alias)
 	{
+		if (column == null)
+		{
+			throw new RuntimeException("Cannot add null or undefined column to a query");
+		}
 		IQuerySelectValue querySelectValue = ((QBColumn)column).getQuerySelectValue();
 		getParent().getQuery().addColumn(alias == null ? querySelectValue : querySelectValue.asAlias(alias));
 		return this;

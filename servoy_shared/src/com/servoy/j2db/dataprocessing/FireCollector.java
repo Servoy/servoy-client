@@ -25,7 +25,7 @@ import java.util.Map;
  * @author jcompagner
  *
  */
-public class FireCollector
+public class FireCollector implements AutoCloseable
 {
 	private static final ThreadLocal<FireCollector> current = new ThreadLocal<FireCollector>();
 
@@ -101,6 +101,17 @@ public class FireCollector
 		{
 			dataproviders.add(dataproviderID);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.AutoCloseable#close()
+	 */
+	@Override
+	public void close()
+	{
+		done();
 	}
 
 }

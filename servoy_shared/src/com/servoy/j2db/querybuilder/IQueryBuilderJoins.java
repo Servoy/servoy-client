@@ -67,4 +67,24 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	 */
 	IQueryBuilderJoin add(String dataSource) throws RepositoryException;
 
+	/**
+	 * Add a join clause from the parent query builder part to a derived table based on another query.
+	 *
+	 * @see #add(IQueryBuilder, int, String)
+	 */
+	IQueryBuilderJoin add(IQueryBuilder subqueryBuilder, int joinType);
+
+	/**
+	 * Add a join clause from the parent query builder part to a derived table based on another query.
+	 *
+	 * @param subqueryBuilder
+	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param alias alias for joining derived table
+	 *  <pre>
+	 * IQueryBuilderJoin join = query.joins().add(subquery, IQueryBuilderJoin.LEFT_OUTER_JOIN, "detail");
+	 * join.on().add(query.getColumn("pk").eq(join.getColumn("fk")));
+	 * </pre>
+	 */
+	IQueryBuilderJoin add(IQueryBuilder subqueryBuilder, int joinType, String alias);
+
 }

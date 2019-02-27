@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2019 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,37 +13,37 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
-package com.servoy.j2db.query;
+*/
+package com.servoy.j2db.util;
 
-import com.servoy.base.query.BaseQueryTable;
+import java.util.function.Predicate;
 
-/**
- * Interface for joins in queries, for all non-custom joins.
- *
- * @author rgansevles
- *
- */
-public interface ISQLTableJoin extends ISQLJoin
+public class TypePredicate<T> implements Predicate<Object>
 {
-	ITableReference getForeignTableReference();
+	private final Class<T> cls;
+	private final Predicate< ? super T> delegate;
 
-	default BaseQueryTable getForeignTable()
+	public TypePredicate(Class<T> cls)
 	{
-		return getForeignTableReference().getTable();
+		this(cls, null);
 	}
 
-	void invert(String newName);
+	public TypePredicate(Class<T> cls, Predicate< ? super T> delegate)
+	{
+		this.cls = cls;
+		this.delegate = delegate;
+	}
 
-	void setJoinType(int leftOuterJoin);
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean test(Object o)
+	{
+		if (o != null && cls.isInstance(o))
+		{
+			return delegate == null || delegate.test((T)o);
+		}
+		return false;
+	}
 
-	AndCondition getCondition();
 
-	boolean hasInnerJoin();
-
-	int getJoinType();
-
-	boolean isPermanent();
-
-	void setPermanent(boolean permanent);
 }

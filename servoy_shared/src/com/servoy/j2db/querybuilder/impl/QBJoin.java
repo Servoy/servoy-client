@@ -17,13 +17,26 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.DerivedTable;
+import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLTableJoin;
+import com.servoy.j2db.query.ITableReference;
+import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.TableExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * @author rgansevles
@@ -40,6 +53,14 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	{
 		super(root, parent, dataSource, alias);
 		this.join = join;
+	}
+
+	/**
+	 * @return the join
+	 */
+	public ISQLTableJoin getJoin()
+	{
+		return join;
 	}
 
 	@Override
@@ -82,6 +103,73 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 		}
 		return on;
 	}
+
+	@Override
+	protected String[] getColumnNames() throws RepositoryException
+	{
+		ITableReference foreignTableReference = join.getForeignTableReference();
+		if (foreignTableReference instanceof TableExpression)
+		{
+			Table joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			if (joinTable == null)
+			{
+				throw new RepositoryException("Cannot find table with in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+			}
+
+			return joinTable.getDataProviderIDs();
+		}
+		else if (foreignTableReference instanceof DerivedTable)
+		{
+			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
+			List<String> columNames = new ArrayList<>();
+			for (IQuerySelectValue qcol : query.getColumns())
+			{
+				columNames.add(qcol.getAlias() == null ? Ident.generateNormalizedNonReservedOSName(qcol.getColumn().getName()) : qcol.getAlias());
+			}
+			return columNames.toArray(new String[columNames.size()]);
+		}
+
+		throw new RepositoryException("Cannot find source for '" + foreignTableReference + "'");
+	}
+
+
+	@Override
+	protected QBColumn createColumn(String name) throws RepositoryException
+	{
+		ITableReference foreignTableReference = join.getForeignTableReference();
+		if (foreignTableReference instanceof TableExpression)
+		{
+
+			Table joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			if (joinTable == null)
+			{
+				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+			}
+
+			Column col = joinTable.getColumn(name);
+			if (col == null)
+			{
+				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+			}
+
+			return new QBColumn(getRoot(), this,
+				new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getFlags(), false));
+		}
+		else if (foreignTableReference instanceof DerivedTable)
+		{
+			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
+			for (IQuerySelectValue qcol : query.getColumns())
+			{
+				if (name.equals(qcol.getAlias()) || name.equals(Ident.generateNormalizedNonReservedOSName(qcol.getColumn().getName())))
+				{
+					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), Ident.generateNormalizedNonReservedOSName(name)));
+				}
+			}
+		}
+
+		throw new RepositoryException("Cannot find column '" + name + "' in source '" + foreignTableReference + "'");
+	}
+
 
 	@Override
 	public String toString()

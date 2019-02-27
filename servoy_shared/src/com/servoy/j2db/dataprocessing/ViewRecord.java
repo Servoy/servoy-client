@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +39,7 @@ import com.servoy.j2db.util.Utils;
 public final class ViewRecord implements IRecordInternal, Scriptable
 {
 	private final Map<String, Object> values = new HashMap<>();
+	private Object[] pk; // array of 1 string: the hash of all values
 	private Map<String, Object> changes;
 	private final List<IModificationListener> modificationListeners;
 	private final ViewFoundSet foundset;
@@ -84,14 +87,9 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		if (!Utils.equalObjects(managebleValue, prevValue))
 		{
 			values.put(dataProviderID, managebleValue);
-			FireCollector fireCollector = FireCollector.getFireCollector();
-			try
+			try (FireCollector fireCollector = getFireCollector())
 			{
 				notifyChange(new ModificationEvent(dataProviderID, value, this), fireCollector);
-			}
-			finally
-			{
-				fireCollector.done();
 			}
 			return prevValue;
 		}
@@ -120,7 +118,11 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public Object[] getPK()
 	{
-		return new Object[] { values.values().toArray() };
+		if (pk == null)
+		{
+			pk = new Object[] { Utils.calculateMD5HashBase64(RowManager.createPKHashKey(values.values().toArray())) };
+		}
+		return pk;
 	}
 
 	@Override
@@ -220,9 +222,13 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 
 	void updateValues(String[] columnNames, Object[] data)
 	{
-		for (int i = columnNames.length; --i >= 0;)
+		try (FireCollector fireCollector = getFireCollector())
 		{
-			setValueImpl(columnNames[i], data[i]);
+			for (int i = columnNames.length; --i >= 0;)
+			{
+				setValueImpl(columnNames[i], data[i]);
+			}
+			pk = null;
 		}
 	}
 
@@ -270,7 +276,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		if (obj == this) return true;
 		if (obj != null && obj.getClass() == getClass())
 		{
-			return values.equals(((ViewRecord)obj).values);
+			return getPK()[0].equals(((ViewRecord)obj).getPK()[0]);
 		}
 		return false;
 	}
@@ -278,7 +284,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public int hashCode()
 	{
-		return values.hashCode();
+		return getPK()[0].hashCode();
 	}
 
 	@Override

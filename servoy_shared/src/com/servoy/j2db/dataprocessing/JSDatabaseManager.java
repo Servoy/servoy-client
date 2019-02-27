@@ -1620,8 +1620,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			IRecordInternal record = (IRecordInternal)foundsetOrRecord;
 			SQLSheet sheet = record.getParentFoundSet().getSQLSheet();
-			recalculateRecord(record, sheet.getStoredCalculationNames());
-			((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
+			if (sheet != null)
+			{
+				recalculateRecord(record, sheet.getStoredCalculationNames());
+				((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
+			}
 		}
 		else if (foundsetOrRecord instanceof FoundSet)
 		{
@@ -1841,7 +1844,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (r instanceof IRecordInternal)
 		{
 			IRecordInternal rec = ((IRecordInternal)r);
-			if (rec.getParentFoundSet() != null && rec.getRawData() != null)
+			if (rec.getParentFoundSet() != null && rec.getRawData() != null && rec.getParentFoundSet().getSQLSheet() != null)
 			{
 				String[] cnames = rec.getParentFoundSet().getSQLSheet().getColumnNames();
 				Object[] oldd = rec.getRawData().getRawOldColumnData();
@@ -1877,11 +1880,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public String js_getSQL(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
-		if (foundsetOrQBSelect instanceof FoundSet && ((FoundSet)foundsetOrQBSelect).getTable() != null)
+		if (foundsetOrQBSelect instanceof IFoundSetInternal && ((IFoundSetInternal)foundsetOrQBSelect).getTable() != null)
 		{
 			try
 			{
-				QuerySet querySet = getQuerySet(((FoundSet)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
+				QuerySet querySet = getQuerySet(((IFoundSetInternal)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
 				StringBuilder sql = new StringBuilder();
 				QueryString[] prepares = querySet.getPrepares();
 				for (int i = 0; prepares != null && i < prepares.length; i++)
@@ -1969,12 +1972,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public Object[] js_getSQLParameters(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
-		if (foundsetOrQBSelect instanceof FoundSet && ((FoundSet)foundsetOrQBSelect).getTable() != null)
+		if (foundsetOrQBSelect instanceof IFoundSetInternal && ((IFoundSetInternal)foundsetOrQBSelect).getTable() != null)
 		{
 			try
 			{
 				// TODO parameters from updates and cleanups
-				QuerySet querySet = getQuerySet(((FoundSet)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
+				QuerySet querySet = getQuerySet(((IFoundSetInternal)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
 				Object[][] qsParams = querySet.getSelect().getParameters();
 				if (qsParams == null || qsParams.length == 0)
 				{
@@ -2558,7 +2561,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						for (String element : columnNames)
 						{
 							if (element == null) continue;
-							if (sfs.getSQLSheet().getColumnIndex(element) >= 0)
+							if (sfs.getColumnIndex(element) >= 0)
 							{
 								combinedDestinationRecord.setValue(element, sourceRecord.getValue(element));
 							}
@@ -2891,6 +2894,21 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Returns a ViewFoundSet that was created by getViewFoundSet(name,query,register) with the registerd boolean "true".
+	 * So it is registered and remembered by the system to use in Forms.
+	 * You can't get ViewFounSet back that are not registered to the system, those are not remembered.
+	 *
+	 * @param name The name to lookup a ViewFoundSet for
+	 *
+	 * @return A new ViewFoundSet for that query.
+	 */
+	public ViewFoundSet js_getViewFoundSet(String name) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().getRegisteredViewFoundSet(name);
+	}
+
+	/**
 	 * Returns a foundset object for a specified query.
 	 * This just creates one without keeping any reference to it, you have to
 	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
@@ -2910,9 +2928,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * databaseMananger.registerViewFoundSet(vfs);
 	 *
 	 * @param name The name given to this foundset (will create a datasource url like view:[name])
-	 * @param query The query to get the JSFoundset for.
+	 * @param query The query to get the ViewFoundSet for.
 	 *
-	 * @return A new JSFoundset for that query.
+	 * @return A new ViewFoundSet for that query.
 	 */
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
@@ -2921,18 +2939,53 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Registers the given ViewFoundSet to the system so it is picked up by forms that have this datasource (see viewFoundset.getDatasource() for the actual datasource string) assigned.
+	 * Returns a foundset object for a specified query.
+	 * This just creates one without keeping any reference to it, you have to
+	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
+	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
+	 *
+	 * If you query the pk with the columns that you display for the main or join tables then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
+	 * If there are changes in ViewRecords of this ViewFoundSet then databroadcast configurations that need to load new data won't do the query right away (only after the save)
+	 * Also loading more (the next chunksize) will not be done. This is because the ViewRecord on an index can be completely changed. We can't track those.
+	 *
+	 * Also databroadcast can be enabled by calling one of the ViewFoundSet#enableDatabroadcastFor(QBTableClause)} to listen for that specific table (main or joins).
+	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a full re-query to see the changes.
+	 *
+	 * if the register boolean is true, then the given ViewFoundSet is registered to the system so it is picked up by forms that have this datasource (see viewFoundset.getDatasource() for the actual datasource string) assigned.
 	 * The form's foundset will then have a much more limited API, so a lot of things can't be done with it - e.g. newRecord() or deleteRecords().
 	 * Also records can be updated in memory, so they are not fully read-only, but the developer is responsible for saving these changes to a persisted store. See also viewFoundset.save(...).
 	 *
 	 * If the solution doesn't need this ViewFoundSet anymore please use unregisterViewFoundSset(datasource), because otherwise this
 	 * register call will keep/hold this foundset in memory (for that datasource string to work) forever.
 	 *
+	 * @sample
+	 * /** @type {ViewFoundSet<view:myname>} *&#47;
+	 * var vfs = databaseManager.getViewFoundSet('myname', query)
+	 * // register now this view foundset to the system so they can be picked up by forms if a form has the view datasource.
+	 * databaseMananger.registerViewFoundSet(vfs);
+	 *
+	 * @param name The name given to this foundset (will create a datasource url like view:[name])
+	 * @param query The query to get the ViewFoundSet for.
+	 * @param register Register the created ViewFoundSet to the system so it can be used by forms.
+	 *
+	 * @return A new JSFoundset for that query.
+	 */
+	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query, boolean register) throws ServoyException
+	{
+		checkAuthorized();
+		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query);
+		if (register) application.getFoundSetManager().registerViewFoundSet(viewFoundSet);
+		return viewFoundSet;
+	}
+
+	/**
 	 * @sampleas getViewFoundSet(String, QBSelect)
 	 *
 	 * @param viewFoundset The ViewFoundSet to register to the system.
 	 * @throws ServoyException
+	 * @deprecated Use getViewFoundSet(String,QBSelect,register);
 	 */
+	@Deprecated
 	public boolean js_registerViewFoundSet(ViewFoundSet viewFoundset) throws ServoyException
 	{
 		checkAuthorized();
@@ -3858,6 +3911,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean copyMatchingFields(Object src, IRecordInternal dest, boolean overwrite, Object[] names) throws ServoyException
 	{
 		checkAuthorized();
+		if (dest.getParentFoundSet().getSQLSheet() == null)
+		{
+			return false;
+		}
+
 		List<Object> al = new ArrayList<Object>();
 		if (names != null)
 		{
@@ -3894,7 +3952,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						if (src instanceof IRecordInternal)
 						{
 							IRecordInternal src_rec = (IRecordInternal)src;
-							int index = src_rec.getParentFoundSet().getSQLSheet().getColumnIndex(c.getDataProviderID());
+							int index = src_rec.getParentFoundSet().getColumnIndex(c.getDataProviderID());
 							if (index != -1)
 							{
 								Object sval = src_rec.getValue(c.getDataProviderID());

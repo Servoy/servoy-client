@@ -68,14 +68,15 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		return null;
 	}
 
-	public BaseQueryTable getForeignTable()
+	@Override
+	public ITableReference getForeignTableReference()
 	{
 		if (joins.size() > 0)
 		{
 			ISQLJoin join = joins.get(joins.size() - 1);
 			if (join instanceof ISQLTableJoin)
 			{
-				return ((ISQLTableJoin)join).getForeignTable();
+				return ((ISQLTableJoin)join).getForeignTableReference();
 			}
 		}
 		return null;

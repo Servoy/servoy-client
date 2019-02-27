@@ -21,9 +21,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.DeepCloneVisitor;
@@ -31,7 +34,7 @@ import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.IVisitor.VisitorResult;
 import com.servoy.j2db.util.visitor.ReplaceVisitor;
-import com.servoy.j2db.util.visitor.VisitOnceDelegateVisitor;
+import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
  * Base class for all DML classes.
@@ -79,6 +82,8 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		classMapping.put(ObjectPlaceholderKey.class, Short.valueOf((short)27));
 		classMapping.put(QueryCompositeJoin.class, Short.valueOf((short)28));
 		classMapping.put(QueryFilter.class, Short.valueOf((short)29));
+		classMapping.put(TableExpression.class, Short.valueOf((short)30));
+		classMapping.put(DerivedTable.class, Short.valueOf((short)31));
 
 		ReplacedObject.installClassMapping(QUERY_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -200,14 +205,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	public static Placeholder getPlaceholder(IVisitable visitable, TablePlaceholderKey key)
 	{
-		PlaceHolderFinder phf = new PlaceHolderFinder(key);
-		visitable.acceptVisitor(new VisitOnceDelegateVisitor(phf));
-		List<Placeholder> placeHolders = phf.getPlaceHolders();
-		if (placeHolders.size() == 0)
-		{
-			return null;
-		}
-		return placeHolders.get(0);
+		return AbstractBaseQuery.<Placeholder> searchOne(visitable, new TypePredicate<>(Placeholder.class, o -> key.equals(o.getKey()))).orElse(null);
 	}
 
 	public boolean setPlaceholderValue(TablePlaceholderKey key, Object value)
@@ -222,50 +220,17 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		return phs.hasUpdated();
 	}
 
-	/**
-	 * Visitor class for finding place holders by key.
-	 *
-	 * @author rgansevles
-	 *
-	 */
-	public static class PlaceHolderFinder implements IVisitor
-	{
-		private final TablePlaceholderKey key;
-		private final List<Placeholder> placeHolders = new ArrayList<>();
-
-		PlaceHolderFinder(TablePlaceholderKey key)
-		{
-			this.key = key;
-		}
-
-		List<Placeholder> getPlaceHolders()
-		{
-			return placeHolders;
-		}
-
-		public Object visit(Object o)
-		{
-			if (o instanceof Placeholder && key.equals(((Placeholder)o).getKey()))
-			{
-				placeHolders.add((Placeholder)o);
-			}
-			return o;
-		}
-	}
-
 	public static List<String> getInvalidRangeConditions(ISQLCondition condition)
 	{
 		List<String> invalidRangeConditions = new ArrayList<>();
 
 		if (condition != null)
 		{
-			CompareConditionVisitor betweenConditionVisitor = new AbstractBaseQuery.CompareConditionVisitor(IBaseSQLCondition.BETWEEN_OPERATOR);
-			AbstractBaseQuery.acceptVisitor(condition, betweenConditionVisitor);
-			List<CompareCondition> rangeConditions = betweenConditionVisitor.getResult();
-
+			List<CompareCondition> betweenConditions = search(condition,
+				new TypePredicate<>(CompareCondition.class, o -> o.getOperator() == IBaseSQLCondition.BETWEEN_OPERATOR));
 			IQuerySelectValue[] ccKey;
 			Object ccOperand2;
-			for (CompareCondition cc : rangeConditions)
+			for (CompareCondition cc : betweenConditions)
 			{
 				ccKey = cc.getKeys();
 				ccOperand2 = cc.getOperand2();
@@ -285,6 +250,20 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		}
 
 		return invalidRangeConditions;
+	}
+
+	public static <T> List<T> search(Object o, Predicate<Object> filter)
+	{
+		SearchVisitor<T> search = new SearchVisitor<>(filter);
+		acceptVisitor(o, search);
+		return search.getFound();
+	}
+
+	public static <T> Optional<T> searchOne(Object o, Predicate<Object> filter)
+	{
+		SearchVisitor<T> search = new SearchVisitor<>(filter);
+		acceptVisitor(o, search);
+		return search.getFound().stream().findAny();
 	}
 
 	/**
@@ -343,31 +322,4 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	 * @return
 	 */
 	public abstract Object writeReplace();
-
-
-	static class CompareConditionVisitor implements IVisitor
-	{
-		private final int compareCondition;
-		private final List<CompareCondition> returnCompareConditions = new ArrayList<>();
-
-		CompareConditionVisitor(int compareCondition)
-		{
-			this.compareCondition = compareCondition;
-		}
-
-		public Object visit(Object o)
-		{
-			if (o instanceof CompareCondition && ((CompareCondition)o).getOperator() == compareCondition)
-			{
-				returnCompareConditions.add((CompareCondition)o);
-			}
-
-			return o;
-		}
-
-		List<CompareCondition> getResult()
-		{
-			return returnCompareConditions;
-		}
-	}
 }

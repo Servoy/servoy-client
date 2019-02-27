@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.ServoyException;
 
@@ -91,5 +92,19 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	public int getRawSize();
 
 	public void fireFoundSetChanged();
+
+	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException;
+
+	public boolean containsCalculation(String dataProviderID);
+
+	public boolean containsAggregate(String name);
+
+	/**
+	 * Get the column index based on a dataProviderID
+	 *
+	 * @param dataProviderID the dataprovider index to retrieve
+	 * @return the index (-1 if not found)
+	 */
+	public int getColumnIndex(String dataProviderID);
 
 }

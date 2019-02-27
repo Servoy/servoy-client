@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2018 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,37 +13,17 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
+
 package com.servoy.j2db.query;
 
 import com.servoy.base.query.BaseQueryTable;
 
 /**
- * Interface for joins in queries, for all non-custom joins.
- *
  * @author rgansevles
  *
  */
-public interface ISQLTableJoin extends ISQLJoin
+public interface ITableReference extends IQueryElement
 {
-	ITableReference getForeignTableReference();
-
-	default BaseQueryTable getForeignTable()
-	{
-		return getForeignTableReference().getTable();
-	}
-
-	void invert(String newName);
-
-	void setJoinType(int leftOuterJoin);
-
-	AndCondition getCondition();
-
-	boolean hasInnerJoin();
-
-	int getJoinType();
-
-	boolean isPermanent();
-
-	void setPermanent(boolean permanent);
+	BaseQueryTable getTable();
 }

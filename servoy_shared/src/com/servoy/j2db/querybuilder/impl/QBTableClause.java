@@ -46,6 +46,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 
 	private Table table;
 	private final Map<String, QBColumn> columns = new HashMap<String, QBColumn>();
+
 	private QBColumns builderColumns;
 
 	QBTableClause(String dataSource, String tableAlias)
@@ -107,13 +108,18 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		if (builderColumns == null)
 		{
 			builderColumns = new QBColumns(getRoot().getScriptableParent());
-			for (String columnName : getTable().getDataProviderIDs())
+			for (String columnName : getColumnNames())
 			{
 				builderColumns.put(columnName, getRoot().getScriptableParent(), getColumn(columnName));
 			}
 			builderColumns.setLocked(true);
 		}
 		return builderColumns;
+	}
+
+	protected String[] getColumnNames() throws RepositoryException
+	{
+		return getTable().getDataProviderIDs();
 	}
 
 	/**
@@ -144,16 +150,20 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		QBColumn builderColumn = columns.get(name);
 		if (builderColumn == null)
 		{
-			Column col = getTable().getColumn(name);
-			if (col == null)
-			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
-			}
-			columns.put(name,
-				builderColumn = new QBColumn(getRoot(), this, new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(),
-					col.getScale(), col.getFlags(), false)));
+			columns.put(name, builderColumn = createColumn(name));
 		}
 		return builderColumn;
+	}
+
+	protected QBColumn createColumn(String name) throws RepositoryException
+	{
+		Column col = getTable().getColumn(name);
+		if (col == null)
+		{
+			throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
+		}
+		return new QBColumn(getRoot(), this,
+			new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getFlags(), false));
 	}
 
 	/**

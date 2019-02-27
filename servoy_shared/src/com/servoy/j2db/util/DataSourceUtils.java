@@ -211,7 +211,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	/**
 	 * @param dataSource1
 	 * @param dataSource2
-	 * @return true if the datasources desginate the same server, false otherwise
+	 * @return true if the datasources designate the same server, false otherwise
 	 */
 	public static boolean isSameServer(String dataSource1, String dataSource2)
 	{
