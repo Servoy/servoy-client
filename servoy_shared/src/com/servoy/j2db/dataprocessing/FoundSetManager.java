@@ -2776,7 +2776,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 
-		String dataSource = server == IServer.INMEM_SERVER ? DataSourceUtils.createInmemDataSource(name) : DataSourceUtils.createViewDataSource(name);//TODO check others
+		String dataSource = server == IServer.VIEW_SERVER ? DataSourceUtils.createViewDataSource(name) : DataSourceUtils.createInmemDataSource(name);
 		FlattenedSolution s = application.getFlattenedSolution();
 
 		IDataSet fixedDataSet = dataSet;
@@ -3138,7 +3138,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		String dataSource = DataSourceUtils.createViewDataSource(name);
 		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
-		
+
 		// if this datasource defintion is created already in the developer then we need to check if the query columns are correctly matching it.
 		ServoyJSONObject columnsDef = null;
 		Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
@@ -3175,7 +3175,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 		}
-		
+
 		return vfs;
 	}
 
