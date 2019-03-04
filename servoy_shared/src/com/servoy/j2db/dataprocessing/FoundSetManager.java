@@ -1053,11 +1053,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		ITable table = dataSource.startsWith(DataSourceUtils.VIEW_DATASOURCE_SCHEME_COLON) ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
 		if (table == null)
 		{
-			ViewFoundSet vfs = viewFoundSets.get(dataSource);
-			table = vfs != null ? vfs.getTable() : null;
-		}
-		if (table == null)
-		{
 			// when it is a db:/server/table data source
 			String[] servernameTablename = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 			if (servernameTablename != null && servernameTablename[0] != null)
@@ -1095,7 +1090,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 			{
-				if (!viewFoundSets.containsKey(dataSource) && dataSourceExists(dataSource))
+				if (!viewDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
 				{
 					try
 					{
@@ -2882,7 +2877,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
-			String serverName = server == null ? (table == null ? IServer.INMEM_SERVER : table.getServerName()): server;
+			String serverName = server == null ? (table == null ? IServer.INMEM_SERVER : table.getServerName()) : server;
 			if (gt != null)
 			{
 				tid = gt.getTransactionID(serverName);
