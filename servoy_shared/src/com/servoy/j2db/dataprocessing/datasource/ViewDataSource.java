@@ -50,7 +50,7 @@ public class ViewDataSource extends DefaultJavaScope
 	{
 		for (String name : application.getFoundSetManager().getViewFoundsetDataSourceNames())
 		{
-			put(name, this, new JSDataSource(application, DataSourceUtils.createViewDataSource(name)));
+			put(name, this, new JSViewDataSource(application, DataSourceUtils.createViewDataSource(name)));
 		}
 
 		return true;
@@ -89,5 +89,4 @@ public class ViewDataSource extends DefaultJavaScope
 
 		return val;
 	}
-
 }
