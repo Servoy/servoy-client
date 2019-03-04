@@ -2882,7 +2882,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
-			String serverName = server == null ? table.getServerName() : server;
+			String serverName = server == null ? (table == null ? IServer.INMEM_SERVER : table.getServerName()): server;
 			if (gt != null)
 			{
 				tid = gt.getTransactionID(serverName);
