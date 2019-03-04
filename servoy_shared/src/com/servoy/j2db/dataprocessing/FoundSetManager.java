@@ -2878,7 +2878,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		try
 		{
-			ITable table = server == IServer.INMEM_SERVER ? inMemDataSources.get(dataSource) : viewDataSources.get(dataSource);
+			ITable table = server == IServer.VIEW_SERVER ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
 
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
