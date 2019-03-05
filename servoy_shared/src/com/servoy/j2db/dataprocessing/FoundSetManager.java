@@ -2459,8 +2459,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
 				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
-				targetServerName, table == null ? null : table.getName() /* create temp table when null */, targetTid, ColumnType.getColumnTypes(types),
-				pkNames);
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
+				targetTid, ColumnType.getColumnTypes(types), pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2909,9 +2909,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 
 
-			table = application.getDataServer().insertDataSet(application.getClientID(), fixedDataSet, dataSource, serverName,
-				table == null ? null : table.getName() /* create temp table when null */, tid, fixedColumnTypes /* inferred from dataset when null */, pkNames,
-				columnInfoDefinitions);
+			table = application.getDataServer().insertDataSet(application.getClientID(), fixedDataSet, dataSource,
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
+				fixedColumnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 			if (table != null)
 			{
 				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem definition) and it has rows
@@ -2921,7 +2921,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
 						tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 				}
-				if (table.getServerName() == IServer.INMEM_SERVER)
+				if (serverName == IServer.INMEM_SERVER)
 				{
 					inMemDataSources.put(dataSource, table);
 				}
