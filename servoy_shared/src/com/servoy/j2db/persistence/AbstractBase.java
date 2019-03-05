@@ -201,7 +201,7 @@ public abstract class AbstractBase implements IPersist
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);
+			Debug.error("Setting property '" + propertyName + "' with value '" + val + "' on persist " + toString(), ex);
 		}
 	}
 

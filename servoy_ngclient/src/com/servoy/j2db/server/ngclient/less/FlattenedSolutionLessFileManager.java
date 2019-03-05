@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.server.ngclient.less.resources.ThemeResourceLoader;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -33,14 +32,14 @@ import com.servoy.j2db.util.Debug;
  * @since 2019.03
  */
 @SuppressWarnings("nls")
-public class LessFileManager
+public class FlattenedSolutionLessFileManager extends LessFileMananger
 {
 	private final FlattenedSolution fs;
 	private final String startFolder;
 	private final String lessFile;
 	private final List<Media> imports = new ArrayList<>();
 
-	public LessFileManager(FlattenedSolution fs, String lessFile)
+	public FlattenedSolutionLessFileManager(FlattenedSolution fs, String lessFile)
 	{
 		this.fs = fs;
 		this.lessFile = lessFile;
@@ -54,50 +53,31 @@ public class LessFileManager
 		}
 	}
 
-	public String load(String path)
+	@Override
+	public Object readLess(String path, String encoding)
 	{
 		if (fs != null)
 		{
 			Media media = getMedia(path);
-			if (media == null && path.startsWith(ThemeResourceLoader.THEME_LESS))
-			{
-				int index = path.indexOf("version=");
-				if (index == -1)
-				{
-					return ThemeResourceLoader.getLatestTheme();
-				}
-				else
-				{
-					String version = path.substring(index + "version=".length());
-					return ThemeResourceLoader.getTheme(version);
-				}
-			}
-			if (media == null && path.startsWith(ThemeResourceLoader.PROPERTIES_LESS))
-			{
-				int index = path.indexOf("version=");
-				if (index == -1)
-				{
-					return ThemeResourceLoader.getLatestThemeProperties();
-				}
-				else
-				{
-					String version = path.substring(index + "version=".length());
-					return ThemeResourceLoader.getThemeProperties(version);
-				}
-			}
 			if (media != null)
 			{
 				imports.add(media);
-				try
+				if (encoding != null)
 				{
-					return new String(media.getMediaData(), "UTF-8");
+					try
+					{
+						return new String(media.getMediaData(), encoding);
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						return new String(media.getMediaData());
+					}
 				}
-				catch (UnsupportedEncodingException e)
-				{
-					return new String(media.getMediaData());
-				}
+				else return media.getMediaData();
 			}
 		}
+		Object content = super.readLess(path, encoding);
+		if (content != null) return content;
 		Debug.error("Couldn't resolve the media for " + startFolder + path + " when parsing the @import statement of the less file: " + lessFile);
 		return "";
 	}
