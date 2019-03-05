@@ -68,7 +68,7 @@ public class ThemeResourceLoader
 
 	public static String getLatestTheme()
 	{
-		return load(themePropertyResource.get(themeResource.lastKey()), ClientVersion.getPureVersion());
+		return load(themeResource.get(themeResource.lastKey()), ClientVersion.getPureVersion());
 	}
 
 

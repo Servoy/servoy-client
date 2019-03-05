@@ -365,7 +365,7 @@ public class ResourceProvider implements Filter
 	private void streamContent(ServletResponse response, String file, InputStream is) throws IOException
 	{
 		String compileLessWithNashorn = null;
-		if (file.toLowerCase().endsWith(".less") && (compileLessWithNashorn = LessCompiler.compileLessWithNashorn(is)) != null)
+		if (file.toLowerCase().endsWith(".less") && (compileLessWithNashorn = LessCompiler.compileLess(is)) != null)
 		{
 			response.setContentType("text/css");
 			response.setContentLength(compileLessWithNashorn.length());
