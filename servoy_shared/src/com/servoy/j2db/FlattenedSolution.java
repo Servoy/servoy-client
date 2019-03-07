@@ -3153,5 +3153,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			return false;
 		}
+
+		@Override
+		public void reload()
+		{
+		}
 	}
 }

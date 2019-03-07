@@ -45,6 +45,10 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	public SolutionModelPersistIndex(IPersistIndex index)
 	{
 		this.index = index;
+		for (Solution solution : solutions)
+		{
+			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
+		}
 	}
 
 	@Override
