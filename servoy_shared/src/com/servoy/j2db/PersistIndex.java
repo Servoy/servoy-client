@@ -38,6 +38,9 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.IntHashMap;
 
 /**
+ * This Persist Index class is a ItemChangeListener for the persist by itself.
+ * But it will not add listeners to the solutions. Subclasses need todo this, because this class is by default immutable.
+ *
  * @author jcompagner
  * @since 8.4
  */
@@ -59,10 +62,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	public PersistIndex(List<Solution> solutions)
 	{
 		this.solutions.addAll(solutions);
-		for (Solution solution : solutions)
-		{
-			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
-		}
 		createIndex();
 	}
 
@@ -193,6 +192,16 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		{
 			solution.acceptVisitor(visitor);
 		}
+	}
+
+	@Override
+	public void reload()
+	{
+		uuidToPersist.clear();
+		idToPersist.clear();
+		nameToPersist.clear();
+		scopeCacheByName.clear();
+		createIndex();
 	}
 
 	public void destroy()
