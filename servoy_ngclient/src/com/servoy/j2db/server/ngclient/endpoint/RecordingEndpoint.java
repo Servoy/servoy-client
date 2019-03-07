@@ -32,7 +32,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
  * @author jcompagner
  *
  */
-@ServerEndpoint(value = "/recording/websocket/{sessionid}/{windowname}/{windowid}")
+@ServerEndpoint(value = "/recording/websocket/{windowname}/{windowid}")
 public class RecordingEndpoint extends NGClientEndpoint
 {
 	private final StringBuilder incomingPartialMessage = new StringBuilder();
