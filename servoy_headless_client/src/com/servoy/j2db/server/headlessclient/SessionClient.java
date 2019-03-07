@@ -51,6 +51,7 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IForm;
@@ -240,7 +241,9 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			SolutionMetaData solutionMetaData = getApplicationServer().getSolutionDefinition(solutionName, getSolutionTypeFilter());
 			if (solutionMetaData == null)
 			{
-				throw new IllegalArgumentException(Messages.getString("servoy.exception.solutionNotFound", new Object[] { solutionName })); //$NON-NLS-1$
+				throw new IllegalArgumentException(Messages.getString("servoy.exception.solutionNotFound", //$NON-NLS-1$
+					new Object[] { solutionName, IApplication.getApplicationTypeAsString(
+						getClientInfo().getApplicationType()), SolutionMetaData.getSolutionNamesByFilter(getSolutionTypeFilter()) }));
 			}
 			loadSolution(solutionMetaData);
 		}

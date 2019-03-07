@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.persistence;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -170,5 +173,11 @@ public class SolutionMetaData extends RootObjectMetaData
 	public static boolean isNGOnlySolution(int solutionType)
 	{
 		return solutionType == NG_CLIENT_ONLY || solutionType == NG_MODULE;
+	}
+
+	public static String getSolutionNamesByFilter(int solutionTypeFilter)
+	{
+		return IntStream.range(0, solutionTypes.length).filter(i -> (solutionTypeFilter & solutionTypes[i]) != 0).mapToObj(i -> solutionTypeNames[i]).collect(
+			Collectors.joining(", "));
 	}
 }
