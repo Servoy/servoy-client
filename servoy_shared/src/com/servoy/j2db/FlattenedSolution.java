@@ -218,8 +218,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	@SuppressWarnings({ "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
-		T clone = (T)persist.clonePersist(newParent);
+		T clone = (T)persist.clonePersist(persist.getParent() == newParent ? null : newParent);
 		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
+		if (persist.getParent() == newParent)
+		{
+			newParent.addChild(clone);
+		}
 		// make sure that this persist is not seen as a copy a real persist/form
 		clone.setRuntimeProperty(CLONE_PROPERTY, null);
 		if (clone instanceof ISupportUpdateableName)
