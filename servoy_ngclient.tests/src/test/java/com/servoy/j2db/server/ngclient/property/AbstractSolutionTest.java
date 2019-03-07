@@ -71,8 +71,12 @@ import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.WebsocketSessionManager;
 
+import com.servoy.j2db.IPersistIndex;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.persistence.ChangeHandler;
+import com.servoy.j2db.persistence.IItemChangeListener;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISequenceProvider;
 import com.servoy.j2db.persistence.IServer;
@@ -458,6 +462,9 @@ public abstract class AbstractSolutionTest
 				public boolean loadSolutionsAndModules(SolutionMetaData solutionMetaData)
 				{
 					boolean b = super.loadSolutionsAndModules(solutionMetaData);
+					IPersistIndex index = PersistIndexCache.getCachedIndex(solution);
+					solution.getChangeHandler().addIPersistListener((IItemChangeListener<IPersist>)index);
+
 					try
 					{
 						setupData();
