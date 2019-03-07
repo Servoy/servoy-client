@@ -207,4 +207,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @return
 	 */
 	public ViewFoundSet getRegisteredViewFoundSet(String name);
+
+	/**
+	 * @return
+	 */
+	public Collection<String> getViewFoundsetDataSourceNames();
 }

@@ -12,8 +12,8 @@ module.exports = function(config) {
 			// libraries for testing and angular
 			'lib/jquery.js',
 			'lib/phantomjs.polyfill.js',
-			'../war/js/angular_1.*.js',
-			'lib/angular-mocks*.js',
+			'../war/js/angular.js',
+			'lib/angular-mocks.js',
 
 			// sablo scripts
 			'sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */

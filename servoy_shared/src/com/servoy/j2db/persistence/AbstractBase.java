@@ -201,7 +201,7 @@ public abstract class AbstractBase implements IPersist
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);
+			Debug.error("Setting property '" + propertyName + "' with value '" + val + "' on persist " + toString(), ex);
 		}
 	}
 
@@ -791,6 +791,14 @@ public abstract class AbstractBase implements IPersist
 	 */
 	public final IPersist clonePersist()
 	{
+		return clonePersist(null);
+	}
+
+	/**
+	 * @see java.lang.Object#clone()
+	 */
+	public final IPersist clonePersist(ISupportChilds newParent)
+	{
 		AbstractBase cloned;
 		try
 		{
@@ -800,7 +808,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			throw new RuntimeException(e);
 		}
-
+		if (newParent != null) newParent.addChild(cloned);
 		fillClone(cloned);
 		setRuntimeProperty(Cloned, Boolean.TRUE);
 		return cloned;

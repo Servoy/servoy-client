@@ -531,7 +531,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			SolutionMetaData solutionMetaData = getApplicationServer().getSolutionDefinition(solutionName, getSolutionTypeFilter());
 			if (solutionMetaData == null)
 			{
-				throw new IllegalArgumentException(Messages.getString("servoy.exception.solutionNotFound", new Object[] { solutionName })); //$NON-NLS-1$
+				throw new IllegalArgumentException(
+					Messages.getString("servoy.exception.solutionNotFound", new Object[] { solutionName, IApplication.getApplicationTypeAsString(
+						getClientInfo().getApplicationType()), SolutionMetaData.getSolutionNamesByFilter(getSolutionTypeFilter()) }));
 			}
 			loadSolution(solutionMetaData);
 		}

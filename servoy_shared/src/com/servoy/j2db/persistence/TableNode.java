@@ -159,6 +159,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
 		if (stn == null) stn = DataSourceUtils.getMemServernameTablename(getDataSource());
+		if (stn == null) stn = DataSourceUtils.getViewServernameTablename(getDataSource());
 
 		return stn == null ? null : stn[1];
 	}
@@ -173,6 +174,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
 		if (stn == null) stn = DataSourceUtils.getMemServernameTablename(getDataSource());
+		if (stn == null) stn = DataSourceUtils.getViewServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 

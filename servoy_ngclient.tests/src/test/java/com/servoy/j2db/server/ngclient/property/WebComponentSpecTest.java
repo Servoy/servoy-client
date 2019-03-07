@@ -138,7 +138,7 @@ public class WebComponentSpecTest
 		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
 		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
 
-		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.7.3/angular-animate.js"));
+		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.7.7/angular-animate.js"));
 
 	}
 

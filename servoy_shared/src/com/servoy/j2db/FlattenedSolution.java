@@ -205,9 +205,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			throw new RuntimeException("Form " + persist + " can not be altered by solution model because it is a reference form"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		copy = (T)persist.clonePersist();
+		copy = (T)persist.clonePersist(copySolution);
 		copy.setRuntimeProperty(CLONE_PROPERTY, persist);
-		copySolution.addChild(copy);
 		flush(persist);
 		if (persist instanceof Form)
 		{
@@ -219,9 +218,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	@SuppressWarnings({ "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
 	{
-		T clone = (T)persist.clonePersist();
+		T clone = (T)persist.clonePersist(persist.getParent() == newParent ? null : newParent);
 		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
-		if (newParent != null)
+		if (persist.getParent() == newParent)
 		{
 			newParent.addChild(clone);
 		}
@@ -3152,6 +3151,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		public boolean isRemoved(IPersist persist)
 		{
 			return false;
+		}
+
+		@Override
+		public void reload()
+		{
 		}
 	}
 }

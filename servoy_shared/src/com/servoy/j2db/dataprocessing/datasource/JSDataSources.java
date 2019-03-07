@@ -41,7 +41,7 @@ public class JSDataSources implements IDestroyable
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { DBDataSource.class, MemDataSource.class, JSDataSource.class, DBDataSourceServer.class };
+				return new Class< ? >[] { DBDataSource.class, MemDataSource.class, JSDataSource.class, DBDataSourceServer.class, ViewDataSource.class };
 			}
 		});
 	}
@@ -54,6 +54,7 @@ public class JSDataSources implements IDestroyable
 
 	private DBDataSource db;
 	private MemDataSource mem;
+	private ViewDataSource view;
 	private SPDataSource sp;
 
 	/**
@@ -86,6 +87,22 @@ public class JSDataSources implements IDestroyable
 			mem = new MemDataSource(application);
 		}
 		return mem;
+	}
+
+	/**
+	 * Scope property for view foundset data sources.
+	 *
+	 * @sample
+	 * datasources.view['myds']
+	 */
+	@JSReadonlyProperty
+	public ViewDataSource view()
+	{
+		if (view == null)
+		{
+			view = new ViewDataSource(application);
+		}
+		return view;
 	}
 
 	/**

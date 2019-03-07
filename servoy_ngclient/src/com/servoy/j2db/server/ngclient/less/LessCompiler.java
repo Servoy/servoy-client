@@ -23,14 +23,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
-import javax.script.Invocable;
+import javax.script.Bindings;
+import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
 
 /**
  * @author jcompagner
@@ -39,21 +42,24 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class LessCompiler
 {
-	private static Invocable invocable;
+	private static final Logger LOG = LoggerFactory.getLogger("com.servoy.less.Compiler");
+	private static ScriptEngine engine;
+	private static CompiledScript script;
+	private static Bindings bindings;
 
 	public static String compileSolutionLessFile(Media media, FlattenedSolution fs)
 	{
-		String cssAsString = compileLessWithNashorn(new String(media.getMediaData(), Charset.forName("UTF-8")), fs, media.getName());
+		String cssAsString = compileLess(new String(media.getMediaData(), Charset.forName("UTF-8")), fs, media.getName());
 		cssAsString = cssAsString.replaceAll("##last-changed-timestamp##",
 			Long.toHexString(media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getSolution().getLastModifiedTime()));
 		return cssAsString;
 	}
 
-	public static String compileLessWithNashorn(InputStream is)
+	public static String compileLess(InputStream is)
 	{
 		try
 		{
-			return compileLessWithNashorn(getText(is), null, null);
+			return compileLess(getText(is), null, null);
 		}
 		catch (IOException e)
 		{
@@ -62,48 +68,26 @@ public class LessCompiler
 		return null;
 	}
 
-	public static String compileLessWithNashorn(String text, FlattenedSolution fs, String name)
+	public static String compileLess(String text, FlattenedSolution fs, String name)
 	{
-
+		long time = System.currentTimeMillis();
+		String lesscompiler = Settings.getInstance().getProperty("servoy.less.compiler", "jlessc");
 		try
 		{
-			Invocable engine = getInvocable();
-			synchronized (engine)
+			switch (lesscompiler)
 			{
-				Object result = engine.invokeFunction("convert", text, fs != null ? new LessFileManager(fs, name) : null);
-				return result.toString();
+				case "lessjs" :
+					return LessJSCompiler.compileLessWithNashorn(text, fs, name);
+				default :
+					return JLessCompiler.compileLess(text, fs, name);
 			}
 		}
-		catch (ScriptException e)
+		finally
 		{
-			Debug.log(e);
+			LOG.info("Less '" + name + "' compiled in " + (System.currentTimeMillis() - time) + "ms with compiler " + lesscompiler +
+				", 2 lesscompilers available: lessjs, jlessc (default)");
 		}
-		catch (NoSuchMethodException e)
-		{
-			Debug.log(e);
-		}
-		catch (Exception e)
-		{
-			Debug.log(e);
-		}
-		return "";
-	}
 
-	private static synchronized Invocable getInvocable() throws NoSuchMethodException, ScriptException
-	{
-		if (invocable == null)
-		{
-			//we have to pass in null as classloader if we want to acess the java 8 nashorn
-			ScriptEngine engine = new ScriptEngineManager(null).getEngineByName("nashorn");
-			if (engine != null)
-			{
-				invocable = (Invocable)engine;
-				invocable.invokeFunction("load", LessCompiler.class.getResource("js/less-2.5.1.js"));
-				invocable.invokeFunction("load", LessCompiler.class.getResource("js/less-env-2.5.1.js"));
-				invocable.invokeFunction("load", LessCompiler.class.getResource("js/lessrunner.js"));
-			}
-		}
-		return invocable;
 	}
 
 	private static String getText(InputStream is) throws IOException
@@ -116,6 +100,4 @@ public class LessCompiler
 		bufferedReader.close();
 		return result.toString();
 	}
-
-
 }

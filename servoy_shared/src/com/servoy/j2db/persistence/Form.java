@@ -403,7 +403,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setExtendsID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
-		if (arg != (extendsForm == null ? 0 : extendsForm.getID()) && getRootObject().getChangeHandler() != null)
+		if ((extendsForm == null ? arg > 0 : extendsForm.getID() != arg) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
 			getRootObject().getChangeHandler().fireIPersistChanged(this);

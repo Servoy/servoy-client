@@ -145,7 +145,13 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						extendsMap.put(p.getUUID(), persist);
 						if (!p.getParent().getUUID().equals(getUUID()))
 						{
-							continue;
+							IPersist topPersist = p;
+							while (((ISupportExtendsID)topPersist).getExtendsID() > 0)
+							{
+								topPersist = PersistHelper.getSuperPersist((ISupportExtendsID)topPersist);
+							}
+							// only skip it if is override from other place in hierarchy; if real top container use it
+							if (!(topPersist.getParent() instanceof Form)) continue;
 						}
 					}
 				}

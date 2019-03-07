@@ -67,6 +67,13 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		return null;
 	}
 
+	public static String[] getViewServernameTablename(String dataSource)
+	{
+		if (dataSource != null && dataSource.startsWith(VIEW_DATASOURCE_SCHEME_COLON))
+			return new String[] { VIEW_DATASOURCE, dataSource.substring(VIEW_DATASOURCE_SCHEME_COLON.length()) };
+		return null;
+	}
+
 	/**
 	 * Create the a database data source string from server and table. Normalizes tableName if needed.
 	 *
@@ -148,6 +155,10 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		{
 			return IServer.INMEM_SERVER;
 		}
+		if (dataSource.startsWith(VIEW_DATASOURCE_SCHEME_COLON))
+		{
+			return IServer.VIEW_SERVER;
+		}
 		return null;
 	}
 
@@ -162,6 +173,10 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		if (dataSource.startsWith(INMEM_DATASOURCE_SCHEME_COLON))
 		{
 			return dataSource.substring(INMEM_DATASOURCE_SCHEME_COLON.length());
+		}
+		if (dataSource.startsWith(VIEW_DATASOURCE_SCHEME_COLON))
+		{
+			return dataSource.substring(VIEW_DATASOURCE_SCHEME_COLON.length());
 		}
 		return null;
 	}

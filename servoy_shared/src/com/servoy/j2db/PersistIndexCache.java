@@ -73,4 +73,14 @@ public class PersistIndexCache
 		persistIndexCache.clear();
 	}
 
+	/**
+	 * @param solution
+	 * @return
+	 */
+	public static IPersistIndex getCachedIndex(Solution solution)
+	{
+		if (solution != null) return persistIndexCache.get(solution.getUUID());
+		return null;
+	}
+
 }
