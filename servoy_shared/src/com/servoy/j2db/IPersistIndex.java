@@ -68,4 +68,6 @@ public interface IPersistIndex
 
 	void destroy();
 
+	void reload();
+
 }

@@ -79,15 +79,15 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String FORMS_PATH = "/forms/";
 	public static final String WAR_SERVOY_ADMIN_PATH = "/servoy-admin/";
 
-	public static final String ANGULAR_JS = "js/angular_1.7.3.js";
+	public static final String ANGULAR_JS = "js/angular.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
-		{ "angular-animate", "js/angular-modules/1.7.3/angular-animate.js" }, //
-		{ "angular-aria", "js/angular-modules/1.7.3/angular-aria.js" }, //
-		{ "angular-cookies", "js/angular-modules/1.7.3/angular-cookies.js" }, //
-		{ "angular-message-format", "js/angular-modules/1.7.3/angular-message-format.js" }, //
-		{ "angular-messages", "js/angular-modules/1.7.3/angular-messages.js" }, //
-		{ "angular-resource", "js/angular-modules/1.7.3/angular-resource.js" }, //
-		{ "angular-touch", "js/angular-modules/1.7.3/angular-touch.js" } };
+		{ "angular-animate", "js/angular-modules/1.7.7/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.7.7/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.7.7/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.7.7/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.7.7/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.7.7/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.7.7/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3RD_PARTY_CSS = { //
@@ -96,7 +96,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/jquery-3.3.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
-		"js/angular-sanitize_1.7.3.js", //
+		"js/angular-sanitize.js", //
 		"js/angular-translate-2.18.1.js", //
 		"js/angular-webstorage.js", //
 		"js/angularui/ui-bootstrap-tpls-2.4.0.js", //

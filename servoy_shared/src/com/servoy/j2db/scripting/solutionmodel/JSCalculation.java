@@ -65,8 +65,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 				ScriptCalculation sc = tableNode.getScriptCalculation(scriptCalculation.getName());
 				if (sc == null)
 				{
-					sc = (ScriptCalculation)scriptCalculation.clonePersist();
-					tableNode.addChild(sc);
+					sc = (ScriptCalculation)scriptCalculation.clonePersist(tableNode);
 					scriptCalculation = sc;
 				}
 				isCopy = true;
@@ -82,8 +81,8 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 	/**
 	 * Get or set the sql type of this variable.
 	 * Type should be one of JSVariable.DATETIME, JSVariable.TEXT, JSVariable.NUMBER , JSVariable.INTEGER or JSVariable.MEDIA.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
 	 * calc.variableType = JSVariable.DATETIME;
 	 */
@@ -120,11 +119,11 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/**
 	 * This method returns the name of the stored calculation.
-	 * 
+	 *
 	 * @sample
 	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
-	 * application.output(calc.getName()); 
-	 * 
+	 * application.output(calc.getName());
+	 *
 	 * @return the name of the stored calculation
 	 */
 	@JSFunction
@@ -135,12 +134,12 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/**
 	 * Returns whether this calculation is a stored one or not.
-	 * 
+	 *
 	 * @sample
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
 	 * if (calc.isStored()) application.output("The calculation is stored");
 	 * else application.output("The calculation is not stored");
-	 * 
+	 *
 	 * @return true if the calculation is stored, false otherwise
 	 */
 	@JSFunction
@@ -159,7 +158,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
-	 * 
+	 *
 	 * @sample
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
 	 * calc.code = "function myCalculation() { return 123; }";
@@ -215,10 +214,10 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/**
 	 * Returns the UUID of the calculation.
-	 * 
+	 *
 	 * @sample
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
-	 * application.output(calc.getUUID().toString()); 
+	 * application.output(calc.getUUID().toString());
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -226,21 +225,21 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 		return scriptCalculation.getUUID();
 	}
 
-	/** 
+	/**
 	 * Check a flag of the calculation.
 	 * The flags are a bit pattern consisting of 1 or more of the following bits:
 	 *  - JSColumn.UUID_COLUMN
-	 *  
+	 *
 	 * @sample
 	 * var datasourceNode = solutionModel.getDataSourceNode('db:/example_data/orders')
 	 * var calculation = datasourceNode.getCalculation('mycalculation')
 	 * if (calculation.hasFlag(JSColumn.UUID_COLUMN))
 	 * {
-	 * 	 // calculation was typed as UUID 
+	 * 	 // calculation was typed as UUID
 	 * }
-	 * 
+	 *
 	 * @param flag
-	 * 
+	 *
 	 * @return boolean whether flag is set.
 	 */
 	@JSFunction
@@ -251,7 +250,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -265,7 +264,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

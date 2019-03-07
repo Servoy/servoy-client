@@ -33,6 +33,7 @@ public interface IServer extends Remote
 	public static final String REPOSITORY_SERVER = "repository_server"; //$NON-NLS-1$
 	public static final String INMEM_SERVER = "_sv_inmem"; //$NON-NLS-1$
 	public static final String SERVOY_UPPERCASE_PREFIX = "SERVOY";
+	public static final String VIEW_SERVER = "_sv_view"; //$NON-NLS-1$
 
 
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException;

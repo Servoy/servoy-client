@@ -495,4 +495,26 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public void reportJSInfo(String msg);
 
 
+	public static String getApplicationTypeAsString(int applicationType)
+	{
+		switch (applicationType)
+		{
+			case IApplication.SERVER :
+				return "Servoy Application Server";
+			case IApplication.OFFLINE :
+				return "Servoy Offline Client";
+			case IApplication.CLIENT :
+				return "Servoy Smart Client";
+			case IApplication.HEADLESS_CLIENT :
+				return "Servoy Headless Client";
+			case IApplication.RUNTIME :
+				return "Servoy Runtime Client";
+			case IApplication.WEB_CLIENT :
+				return "Servoy Web Client";
+			case IApplication.NG_CLIENT :
+				return "Servoy NG Client";
+			default :
+				return "<unknown>";
+		}
+	}
 }

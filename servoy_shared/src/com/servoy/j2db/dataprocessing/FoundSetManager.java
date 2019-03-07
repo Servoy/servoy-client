@@ -88,6 +88,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
+import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
@@ -131,6 +132,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private boolean createEmptyFoundsets = false;
 	private Map<String, List<TableFilter>> tableFilterParams;//server -> ArrayList(TableFilter)
 	private Map<String, ITable> inMemDataSources; // dataSourceUri -> temp table
+	private Map<String, ITable> viewDataSources;
 
 	protected Map<String, ConcurrentMap<String, SoftReference<RelatedFoundSet>>> cachedSubStates;
 	protected List<String> locks = new SortedList<String>(StringComparator.INSTANCE);
@@ -918,6 +920,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		cachedSubStates = new ConcurrentHashMap<String, ConcurrentMap<String, SoftReference<RelatedFoundSet>>>(128);
 		inMemDataSources = new ConcurrentHashMap<String, ITable>();
+		viewDataSources = new ConcurrentHashMap<String, ITable>();
 	}
 
 	/**
@@ -1047,12 +1050,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			return null;
 		}
-		ITable table = inMemDataSources.get(dataSource);
-		if (table == null)
-		{
-			ViewFoundSet vfs = viewFoundSets.get(dataSource);
-			table = vfs != null ? vfs.getTable() : null;
-		}
+		ITable table = dataSource.startsWith(DataSourceUtils.VIEW_DATASOURCE_SCHEME_COLON) ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
 		if (table == null)
 		{
 			// when it is a db:/server/table data source
@@ -1080,7 +1078,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					try
 					{
-						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false);
+						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false,
+							IServer.INMEM_SERVER);
 					}
 					catch (Exception e)
 					{
@@ -1088,6 +1087,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					}
 				}
 				return inMemDataSources.get(dataSource);
+			}
+			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+			{
+				if (!viewDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
+				{
+					try
+					{
+						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false,
+							IServer.VIEW_SERVER);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+					}
+				}
+				return viewDataSources.get(dataSource);
 			}
 		}
 		return table;
@@ -1098,6 +1113,26 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 		{
 			if (inMemDataSources.containsKey(dataSource))
+			{
+				return true;
+			}
+			ServoyJSONObject columnsDef = null;
+			Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
+			while (tblIte.hasNext() && columnsDef == null)
+			{
+				TableNode tn = tblIte.next();
+				columnsDef = tn.getColumns();
+			}
+
+			if (columnsDef != null)
+			{
+				return true;
+			}
+			return false;
+		}
+		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+		{
+			if (viewDataSources.containsKey(dataSource))
 			{
 				return true;
 			}
@@ -2397,9 +2432,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			ITable table = inMemDataSources.get(dataSource);
 			GlobalTransaction gt = getGlobalTransaction();
 			String targetTid = null;
+			String targetServerName = table == null ? serverName : table.getServerName();
 			if (gt != null)
 			{
-				targetTid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+				targetTid = gt.getTransactionID(targetServerName);
 			}
 			if (table != null)
 			{
@@ -2724,12 +2760,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad)
 		throws ServoyException
 	{
+		return createDataSourceFromDataSet(name, dataSet, columnTypes, pkNames, skipOnLoad, null);
+	}
+
+	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad, String server)
+		throws ServoyException
+	{
 		if (name == null)
 		{
 			return null;
 		}
 
-		String dataSource = DataSourceUtils.createInmemDataSource(name);
+		String dataSource = server == IServer.VIEW_SERVER ? DataSourceUtils.createViewDataSource(name) : DataSourceUtils.createInmemDataSource(name);
 		FlattenedSolution s = application.getFlattenedSolution();
 
 		IDataSet fixedDataSet = dataSet;
@@ -2831,13 +2873,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		try
 		{
-			ITable table = inMemDataSources.get(dataSource);
+			ITable table = server == IServer.VIEW_SERVER ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
 
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
+			String serverName = server == null ? (table == null ? IServer.INMEM_SERVER : table.getServerName()) : server;
 			if (gt != null)
 			{
-				tid = gt.getTransactionID(table == null ? IServer.INMEM_SERVER : table.getServerName());
+				tid = gt.getTransactionID(serverName);
 			}
 
 			if (table != null)
@@ -2878,7 +2921,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
 						tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 				}
-				inMemDataSources.put(dataSource, table);
+				if (serverName == IServer.INMEM_SERVER)
+				{
+					inMemDataSources.put(dataSource, table);
+				}
+				else
+				{
+					viewDataSources.put(dataSource, table);
+				}
 				fireTableEvent(table);
 				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
 				{
@@ -3056,6 +3106,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IFoundSetInternal getFoundSet(String dataSource) throws ServoyException
 	{
+		if (dataSource.startsWith(DataSourceUtils.VIEW_DATASOURCE_SCHEME_COLON))
+		{
+			return viewFoundSets.get(dataSource);//TODO check
+		}
 		IFoundSetInternal fs = getNewFoundSet(dataSource, null, getDefaultPKSortColumns(dataSource));
 		fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
 		return fs;
@@ -3077,8 +3131,46 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
 	{
-		ViewFoundSet vfs = new ViewFoundSet(DataSourceUtils.createViewDataSource(name), query.build(), application.getFoundSetManager(), pkChunkSize);
-		// if this datasource defintion is created already in the developer then we need to chechk if the query columns are correctly matching it.
+		String dataSource = DataSourceUtils.createViewDataSource(name);
+		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
+
+		// if this datasource defintion is created already in the developer then we need to check if the query columns are correctly matching it.
+		ServoyJSONObject columnsDef = null;
+		Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
+		while (tblIte.hasNext() && columnsDef == null)
+		{
+			TableNode tn = tblIte.next();
+			columnsDef = tn.getColumns();
+			if (columnsDef != null)
+			{
+				TableDef def = DatabaseUtils.deserializeTableInfo(columnsDef);
+				for (ColumnInfoDef col : def.columnInfoDefSet)
+				{
+					try
+					{
+						QBColumn qbCol = query.getColumn(col.name);
+						if (qbCol == null)
+						{
+							Debug.error("Column " + col.name + " defined in view datasource '" + dataSource + "' was not found in the provided query.");
+							return null;
+						}
+						if (!qbCol.getColumnType().equals(col.columnType) &&
+							!(qbCol.getColumnType().getSqlType() == col.columnType.getSqlType() && col.columnType.getSqlType() == IColumnTypes.TEXT))
+						{
+							Debug.error("Column type for column '" + col.name + "' defined in view datasource '" + dataSource +
+								"' does not match the one provided in the query.");
+							return null;
+						}
+					}
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
+						return null;
+					}
+				}
+			}
+		}
+
 		return vfs;
 	}
 
@@ -3184,5 +3276,16 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	void clearFlushActions()
 	{
 		runOnEditOrTransactionStoppedActions.clear();
+	}
+
+	@Override
+	public Collection<String> getViewFoundsetDataSourceNames()
+	{
+		List<String> viewFoundsetDataSourceNames = new ArrayList<>(viewDataSources.size());
+		for (String dataSource : viewDataSources.keySet())
+		{
+			viewFoundsetDataSourceNames.add(DataSourceUtils.getViewDataSourceName(dataSource));
+		}
+		return viewFoundsetDataSourceNames;
 	}
 }
