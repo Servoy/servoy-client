@@ -6795,7 +6795,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		List<TableFilter> originalFilters = new ArrayList<>(foundSetFilters);
+		List<TableFilter> originalFilters = foundSetFilters == null ? null : new ArrayList<>(foundSetFilters);
 		boolean found = false;
 		if (foundSetFilters != null && filterName != null)
 		{
