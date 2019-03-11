@@ -427,7 +427,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	 */
 	public void show(Form form)
 	{
-		// TODO Auto-generated method stub
+		invokeLater(() -> getFormManager().showFormInMainPanel(form.getName()));
 	}
 
 	@Override
