@@ -74,6 +74,11 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		}
 	}
 
+	public boolean canDispose()
+	{
+		return formControllers.size() == 0;
+	}
+
 	/**
 	 * 	used to allow setting the selection to -1 when size >0  for printing
 	 */

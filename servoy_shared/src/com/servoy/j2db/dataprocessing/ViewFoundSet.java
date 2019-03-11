@@ -379,6 +379,21 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return records.size();
 	}
 
+	/**
+	 * Dispose a view foundset from memory when is no longer needed.
+	 *
+	 * @sample
+	 * 	%%prefix%%vfs.dispose();
+	 *
+	 *  @return boolean foundset was disposed
+	 */
+	@JSFunction
+	@Override
+	public boolean dispose()
+	{
+		return getFoundSetManager().unregisterViewFoundSet(datasource);
+	}
+
 	@Override
 	public int getRawSize()
 	{

@@ -107,4 +107,6 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	 */
 	public int getColumnIndex(String dataProviderID);
 
+	boolean dispose();
+
 }

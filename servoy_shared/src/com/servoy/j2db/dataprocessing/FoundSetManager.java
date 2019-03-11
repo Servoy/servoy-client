@@ -1811,6 +1811,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return foundSets.contains(set);
 	}
 
+	@Override
+	public void removeFoundSet(FoundSet foundset)
+	{
+		foundSets.remove(foundset);
+		if (sharedDataSourceFoundSet.get(foundset.getDataSource()) == foundset)
+		{
+			sharedDataSourceFoundSet.remove(foundset.getDataSource());
+		}
+		if (separateFoundSets.values().contains(foundset))
+		{
+			Iterator<Map.Entry<IFoundSetListener, FoundSet>> it = separateFoundSets.entrySet().iterator();
+			while (it.hasNext())
+			{
+				if (it.next().getValue() == foundset)
+				{
+					it.remove();
+					break;
+				}
+			}
+		}
+		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
+			FoundSet namedFoundset = entry.getValue().get();
+			if (namedFoundset == null)
+			{
+				it.remove();
+			}
+			else if (foundset == namedFoundset)
+			{
+				it.remove();
+				break;
+			}
+		}
+	}
+
 /*
  * _____________________________________________________________ Methods for informing valuelists about table contents changes
  */

@@ -312,4 +312,10 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 		if (selectionModel == null) createSelectionModel();
 		return selectionModel.getSelectedRows();
 	}
+
+	@Override
+	boolean canDispose()
+	{
+		return getRelationName() == null && (selectionModel == null || selectionModel.canDispose());
+	}
 }

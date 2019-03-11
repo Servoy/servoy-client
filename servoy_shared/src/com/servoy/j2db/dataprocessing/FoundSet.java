@@ -655,6 +655,29 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireDifference(size, getSize());
 	}
 
+	abstract boolean canDispose();
+
+	/**
+	 * Dispose a foundset from memory when foundset is no longer needed.
+	 *
+	 * @sample
+	 * %%prefix%%foundset.dispose();
+	 *
+	 * @return boolean foundset was disposed
+	 */
+	@JSFunction
+	public boolean dispose()
+	{
+		if (canDispose())
+		{
+			rowManager.unregister(this);
+			clear();
+			getFoundSetManager().removeFoundSet(this);
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * Use clear() or loadAllRecords() to make the filter effective.

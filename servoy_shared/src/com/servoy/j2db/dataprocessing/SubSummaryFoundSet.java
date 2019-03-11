@@ -180,7 +180,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#getColumnIndex(java.lang.String)
 	 */
 	@Override
@@ -688,5 +688,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
 	{
 		return null;
+	}
+
+	@Override
+	public boolean dispose()
+	{
+		return true;
 	}
 }
