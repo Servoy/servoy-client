@@ -64,6 +64,14 @@ public interface IPersistIndex
 	 */
 	ISupportScope getSupportScope(String scopeName, String baseName);
 
+	/**
+	 * @param scopeName
+	 * @param sort
+	 * @param cls class to filter
+	 * @return
+	 */
+	public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls);
+
 	public <T extends IPersist> Iterator<T> getIterableFor(Class<T> clz);
 
 	void destroy();
