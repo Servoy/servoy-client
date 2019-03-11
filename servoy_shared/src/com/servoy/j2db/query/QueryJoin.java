@@ -40,6 +40,8 @@ public final class QueryJoin implements ISQLTableJoin
 	private int joinType;
 	private boolean permanent;
 
+	private transient Object origin; // origin, transient, only used in the client
+
 	/**
 	 * Constructor for join clause. The condition must meet the following criteria:
 	 * <ul>
@@ -148,6 +150,19 @@ public final class QueryJoin implements ISQLTableJoin
 	{
 		this.permanent = permanent;
 	}
+
+	@Override
+	public void setOrigin(Object origin)
+	{
+		this.origin = origin;
+	}
+
+	@Override
+	public Object getOrigin()
+	{
+		return origin;
+	}
+
 
 	public BaseQueryTable getPrimaryTable()
 	{
@@ -300,4 +315,5 @@ public final class QueryJoin implements ISQLTableJoin
 		joinType = joinTypeAndPermant & ~PERMANENT_MASK;
 		permanent = (joinTypeAndPermant & PERMANENT_MASK) != 0;
 	}
+
 }
