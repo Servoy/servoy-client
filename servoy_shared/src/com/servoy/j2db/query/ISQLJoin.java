@@ -34,12 +34,19 @@ public interface ISQLJoin extends IQueryElement
 	public static final int[] ALL_JOIN_TYPES = { INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_JOIN };
 
 	public static final String[] JOIN_TYPES_NAMES = { "inner join", //$NON-NLS-1$
-	"left outer join", //$NON-NLS-1$
-	"right outer join", //$NON-NLS-1$
-	"full join" //$NON-NLS-1$
+		"left outer join", //$NON-NLS-1$
+		"right outer join", //$NON-NLS-1$
+		"full join" //$NON-NLS-1$
 	};
 
 	public abstract String getName();
 
 	public abstract BaseQueryTable getPrimaryTable();
+
+	/**
+	 * The object the join was created for (for example, a table filter)
+	 */
+	public abstract void setOrigin(Object origin);
+
+	public abstract Object getOrigin();
 }

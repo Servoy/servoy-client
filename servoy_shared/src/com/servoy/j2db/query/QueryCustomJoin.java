@@ -24,9 +24,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 /**
  * Query join based on user-defined string. The foreign tables (comma-separated string) are used as one string, the join condition is not part of this join and
  * must be applied separately to the select query.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QueryCustomJoin implements ISQLJoin
 {
@@ -34,9 +34,12 @@ public final class QueryCustomJoin implements ISQLJoin
 	private BaseQueryTable primaryTable;
 	private final String foreignTables;
 
+	private transient Object origin; // origin, transient, only used in the client
+
+
 	/**
 	 * Custom join with one or more tables.
-	 * 
+	 *
 	 * @param name
 	 * @param primaryTable
 	 * @param foreignTables
@@ -72,6 +75,16 @@ public final class QueryCustomJoin implements ISQLJoin
 	public void acceptVisitor(IVisitor visitor)
 	{
 		primaryTable = AbstractBaseQuery.acceptVisitor(primaryTable, visitor);
+	}
+
+	public void setOrigin(Object origin)
+	{
+		this.origin = origin;
+	}
+
+	public Object getOrigin()
+	{
+		return origin;
 	}
 
 	@Override

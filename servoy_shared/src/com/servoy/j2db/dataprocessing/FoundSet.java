@@ -6685,7 +6685,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
-			resetFiltercondition();
+			resetFiltercondition(foundSetFilters);
 		}
 		initialized = fs.initialized;
 
@@ -6781,7 +6781,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		foundSetFilters.add(filter);
 
-		resetFiltercondition();
+		resetFiltercondition(foundSetFilters);
 		initialized = false;//to enforce browse all
 		return true;
 	}
@@ -6795,6 +6795,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		List<TableFilter> originalFilters = new ArrayList<>(foundSetFilters);
 		boolean found = false;
 		if (foundSetFilters != null && filterName != null)
 		{
@@ -6816,21 +6817,30 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (found)
 		{
-			resetFiltercondition();
+			resetFiltercondition(originalFilters);
 			initialized = false;//to enforce browse all
 		}
 		return found;
 	}
 
-	private void resetFiltercondition()
+	private void resetFiltercondition(List<TableFilter> originalFilters)
 	{
 		synchronized (pksAndRecords)
 		{
 			creationSqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
 			// remove joins made for filter conditions
-			creationSqlSelect.removeUnusedJoins(false);
+			removeFilterJoins(creationSqlSelect, originalFilters);
 			addFilterconditions(creationSqlSelect, foundSetFilters);
 		}
+	}
+
+	private QuerySelect removeFilterJoins(QuerySelect select, List<TableFilter> filters)
+	{
+		for (TableFilter tf : iterate(filters))
+		{
+			select.removeJoinsWithOrigin(tf);
+		}
+		return select;
 	}
 
 	private QuerySelect addFilterconditions(QuerySelect select, List<TableFilter> filters)
@@ -6841,6 +6851,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
+				join.setOrigin(tf);
 				select.addJoin(join);
 			}
 		}

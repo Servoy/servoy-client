@@ -291,6 +291,26 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		joins.add(join);
 	}
 
+	public void removeJoinsWithOrigin(Object origin)
+	{
+		if (origin != null && joins != null)
+		{
+			Iterator<ISQLJoin> iterator = joins.iterator();
+			while (iterator.hasNext())
+			{
+				ISQLJoin join = iterator.next();
+				if (origin == join.getOrigin())
+				{
+					iterator.remove();
+				}
+			}
+			if (joins.isEmpty())
+			{
+				joins = null;
+			}
+		}
+	}
+
 	public void addSort(IQuerySort s)
 	{
 		if (s == null)
@@ -780,7 +800,6 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return true;
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -806,7 +825,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 					sb.append(" [AND] "); //$NON-NLS-1$
 				}
 				Map.Entry<String, AndCondition> entry = it.next();
-				sb.append(' ').append(entry.getKey().toString()).append(' ').append(entry.getValue().toString());
+				sb.append(' ').append(entry.getKey() == null ? "" : entry.getKey().toString()).append(' ').append(entry.getValue().toString());
 			}
 		}
 
