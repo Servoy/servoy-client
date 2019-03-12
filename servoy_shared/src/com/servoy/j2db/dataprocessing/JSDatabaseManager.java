@@ -3001,11 +3001,18 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return returns true if it could unregister this datasource
 	 * @throws ServoyException
+	 * @deprecated Use viewFoundset.dispose()
 	 */
+	@Deprecated
 	public boolean js_unegisterViewFoundSet(String datasource) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().unregisterViewFoundSet(datasource);
+		ViewFoundSet viewFoundset = application.getFoundSetManager().getRegisteredViewFoundSet(datasource);
+		if (viewFoundset != null)
+		{
+			return viewFoundset.dispose();
+		}
+		return false;
 	}
 
 	/**

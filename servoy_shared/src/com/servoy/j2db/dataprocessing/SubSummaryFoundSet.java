@@ -689,10 +689,4 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return null;
 	}
-
-	@Override
-	public boolean dispose()
-	{
-		return true;
-	}
 }

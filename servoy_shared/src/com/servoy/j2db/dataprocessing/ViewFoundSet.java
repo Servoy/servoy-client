@@ -380,7 +380,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Dispose a view foundset from memory when is no longer needed.
+	 * Dispose a view foundset from memory when is no longer needed. Returns whether foundset was disposed.
+	 * If linked to visible form or component, view foundset cannot be disposed.
 	 *
 	 * @sample
 	 * 	%%prefix%%vfs.dispose();
@@ -388,9 +389,18 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *  @return boolean foundset was disposed
 	 */
 	@JSFunction
-	@Override
 	public boolean dispose()
 	{
+		if (foundSetEventListeners.size() != 0)
+		{
+			Debug.warn("Cannot dispose view foundset, still linked to component.");
+			return false;
+		}
+		if (tableAndListEventDelegate != null && !tableAndListEventDelegate.canDispose())
+		{
+			Debug.warn("Cannot dispose foundset, still linked to form UI.");
+			return false;
+		}
 		return getFoundSetManager().unregisterViewFoundSet(datasource);
 	}
 

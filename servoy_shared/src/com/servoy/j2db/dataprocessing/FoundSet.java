@@ -658,7 +658,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	abstract boolean canDispose();
 
 	/**
-	 * Dispose a foundset from memory when foundset is no longer needed.
+	 * Dispose a foundset from memory when foundset is no longer needed. Should be used to destroy separate foundsets (is an optimization for memory management).
+	 * A related foundset or a foundset which is linked to visible forms/components cannot be disposed. Returns whether foundset was disposed or not.
 	 *
 	 * @sample
 	 * %%prefix%%foundset.dispose();
@@ -668,14 +669,25 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	@JSFunction
 	public boolean dispose()
 	{
-		if (canDispose())
+		if (getRelationName() != null)
 		{
-			rowManager.unregister(this);
-			clear();
-			getFoundSetManager().removeFoundSet(this);
-			return true;
+			Debug.warn("Cannot dispose a related foundset.");
+			return false;
 		}
-		return false;
+		if (foundSetEventListeners.size() != 0)
+		{
+			Debug.warn("Cannot dispose foundset, still linked to component.");
+			return false;
+		}
+		if (!canDispose())
+		{
+			Debug.warn("Cannot dispose foundset, still linked to form UI.");
+			return false;
+		}
+		rowManager.unregister(this);
+		clear();
+		getFoundSetManager().removeFoundSet(this);
+		return true;
 	}
 
 	/**

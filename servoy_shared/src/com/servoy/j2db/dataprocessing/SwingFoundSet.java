@@ -316,6 +316,6 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	@Override
 	boolean canDispose()
 	{
-		return getRelationName() == null && (selectionModel == null || selectionModel.canDispose());
+		return getRelationName() == null && (tableAndListEventDelegate == null || tableAndListEventDelegate.canDispose());
 	}
 }
