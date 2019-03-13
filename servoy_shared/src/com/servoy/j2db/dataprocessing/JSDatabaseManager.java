@@ -2952,7 +2952,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * The form's foundset will then have a much more limited API, so a lot of things can't be done with it - e.g. newRecord() or deleteRecords().
 	 * Also records can be updated in memory, so they are not fully read-only, but the developer is responsible for saving these changes to a persisted store. See also viewFoundset.save(...).
 	 *
-	 * If the solution doesn't need this ViewFoundSet anymore and you did use register is true, please use unregisterViewFoundSset(datasource), because otherwise this
+	 * If the solution doesn't need this ViewFoundSet anymore and you did use register is true, please use ViewFoundSet.dispose() to clear and remove it from the system, because otherwise this
 	 * register call will keep/hold this foundset in memory (for that datasource string to work) forever.
 	 *
 	 * @sample
