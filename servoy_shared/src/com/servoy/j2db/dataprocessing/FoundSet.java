@@ -666,22 +666,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return boolean foundset was disposed
 	 */
+	@SuppressWarnings("nls")
 	@JSFunction
 	public boolean dispose()
 	{
 		if (getRelationName() != null)
 		{
-			Debug.warn("Cannot dispose a related foundset.");
+			Debug.warn("Cannot dispose the related foundset:  " + getRelationName() + ", fs: " + this);
 			return false;
 		}
 		if (foundSetEventListeners.size() != 0)
 		{
-			Debug.warn("Cannot dispose foundset, still linked to component.");
+			Debug.warn("Cannot dispose foundset, still linked to component, fs: " + this + ", listeners: " + foundSetEventListeners);
 			return false;
 		}
 		if (!canDispose())
 		{
-			Debug.warn("Cannot dispose foundset, still linked to form UI.");
+			Debug.warn("Cannot dispose foundset, still linked to form UI, fs: " + this);
 			return false;
 		}
 		rowManager.unregister(this);
