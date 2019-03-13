@@ -101,6 +101,12 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	}
 
 	@Override
+	public Map<String, Object> getPropertiesMap()
+	{
+		return layoutContainer.getPropertiesMap();
+	}
+
+	@Override
 	public int hashCode()
 	{
 		return layoutContainer.hashCode();
