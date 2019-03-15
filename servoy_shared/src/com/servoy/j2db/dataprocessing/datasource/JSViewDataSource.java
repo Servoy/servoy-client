@@ -59,26 +59,30 @@ public class JSViewDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 * Returns a foundset object for a specified datasource or server and tablename.
-	 * It is important to note that this is a FACTORY method, it constantly creates new foundsets.
+	 * Returns the ViewFoundSet that was previously created and registered by a call t o {@link #getViewFoundSet(QBSelect)} or {@link #getViewFoundSet(QBSelect, boolean)} with the register boolean to true.
+	 * It will return null when it can't find a ViewFoundSet for this datasource.
 	 *
 	 * @sample
 	 * var fs = datasources.view.x.orders.getFoundSet()
-	 * var ridx = fs.newRecord()
-	 * var record = fs.getRecord(ridx)
+	 * var record = fs.getRecord(1)
+	 * // changes to records can only be done for ViewFoundSets that also do have the pk selected for the table of the column you change.
 	 * record.emp_name = 'John'
-	 * databaseManager.saveData()
+	 * fs.save(record);
 	 *
-	 * @return A new JSFoundset for the datasource.
+	 * @return A new ViewFoundSet  for the datasource.
 	 */
 	@JSFunction
-	public IFoundSet getFoundSet() throws ServoyException
+	public ViewFoundSet getFoundSet() throws ServoyException
 	{
-		return application.getFoundSetManager().getFoundSet(datasource);
+		IFoundSet foundSet = application.getFoundSetManager().getFoundSet(datasource);
+		if (foundSet instanceof ViewFoundSet) return (ViewFoundSet)foundSet;
+		return null;
 	}
 
 	/**
 	 * Creates a view foundset with the provided query and automatically registers it.
+	 * Registered ViewFoundSets will be kept in memory by the system until ViewFoundSet.dispose() is called.
+	 *
 	 * @param query a QBSelect query object
 	 *
 	 * @sample
@@ -99,6 +103,8 @@ public class JSViewDataSource implements IJavaScriptType, IDestroyable
 
 	/**
 	 * Creates a view foundset with the provided query and the option to register it.
+	 * A registered ViewFoundSets will be kept in memory by the system until ViewFoundSet.dispose() is called.
+	 *
 	 * @param query a QBSelect query object
 	 * @param register boolean
 	 *

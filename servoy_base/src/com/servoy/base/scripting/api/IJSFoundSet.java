@@ -339,4 +339,6 @@ public interface IJSFoundSet
 	 */
 	String[] alldataproviders();
 
+	boolean dispose();
+
 }

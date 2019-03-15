@@ -655,6 +655,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireDifference(size, getSize());
 	}
 
+	abstract boolean canDispose();
+
+	/**
+	 * Dispose a foundset from memory when foundset is no longer needed. Should be used to destroy separate foundsets (is an optimization for memory management).
+	 * A related foundset or a foundset which is linked to visible forms/components cannot be disposed. Returns whether foundset was disposed or not.
+	 *
+	 * @sample
+	 * %%prefix%%foundset.dispose();
+	 *
+	 * @return boolean foundset was disposed
+	 */
+	@SuppressWarnings("nls")
+	@JSFunction
+	public boolean dispose()
+	{
+		if (getRelationName() != null)
+		{
+			Debug.warn("Cannot dispose the related foundset:  " + getRelationName() + ", fs: " + this);
+			return false;
+		}
+		if (foundSetEventListeners.size() != 0)
+		{
+			Debug.warn("Cannot dispose foundset, still linked to component, fs: " + this + ", listeners: " + foundSetEventListeners);
+			return false;
+		}
+		if (!canDispose())
+		{
+			Debug.warn("Cannot dispose foundset, still linked to form UI, fs: " + this);
+			return false;
+		}
+		rowManager.unregister(this);
+		clear();
+		getFoundSetManager().removeFoundSet(this);
+		return true;
+	}
+
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * Use clear() or loadAllRecords() to make the filter effective.
@@ -6650,7 +6686,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
-			resetFiltercondition();
+			resetFiltercondition(foundSetFilters);
 		}
 		initialized = fs.initialized;
 
@@ -6746,7 +6782,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		foundSetFilters.add(filter);
 
-		resetFiltercondition();
+		resetFiltercondition(foundSetFilters);
 		initialized = false;//to enforce browse all
 		return true;
 	}
@@ -6760,6 +6796,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		List<TableFilter> originalFilters = foundSetFilters == null ? null : new ArrayList<>(foundSetFilters);
 		boolean found = false;
 		if (foundSetFilters != null && filterName != null)
 		{
@@ -6781,21 +6818,30 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (found)
 		{
-			resetFiltercondition();
+			resetFiltercondition(originalFilters);
 			initialized = false;//to enforce browse all
 		}
 		return found;
 	}
 
-	private void resetFiltercondition()
+	private void resetFiltercondition(List<TableFilter> originalFilters)
 	{
 		synchronized (pksAndRecords)
 		{
 			creationSqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
 			// remove joins made for filter conditions
-			creationSqlSelect.removeUnusedJoins(false);
+			removeFilterJoins(creationSqlSelect, originalFilters);
 			addFilterconditions(creationSqlSelect, foundSetFilters);
 		}
+	}
+
+	private QuerySelect removeFilterJoins(QuerySelect select, List<TableFilter> filters)
+	{
+		for (TableFilter tf : iterate(filters))
+		{
+			select.removeJoinsWithOrigin(tf);
+		}
+		return select;
 	}
 
 	private QuerySelect addFilterconditions(QuerySelect select, List<TableFilter> filters)
@@ -6806,6 +6852,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
+				join.setOrigin(tf);
 				select.addJoin(join);
 			}
 		}

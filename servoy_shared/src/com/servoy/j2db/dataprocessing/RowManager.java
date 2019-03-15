@@ -111,6 +111,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
+	void unregister(IRowListener fs)
+	{
+		synchronized (listeners)
+		{
+			listeners.remove(fs);
+		}
+	}
+
 	FoundSetManager getFoundsetManager()
 	{
 		return fsm;

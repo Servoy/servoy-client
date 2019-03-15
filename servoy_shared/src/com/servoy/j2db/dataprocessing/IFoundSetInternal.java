@@ -106,5 +106,4 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	 * @return the index (-1 if not found)
 	 */
 	public int getColumnIndex(String dataProviderID);
-
 }

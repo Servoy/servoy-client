@@ -31,7 +31,7 @@ import com.servoy.j2db.util.Debug;
 /**
  * Event delegator for TableModelEvent and ListDataEvent.
  * Also handles always-first-selection rule.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -62,6 +62,11 @@ public class TableAndListEventDelegate
 		{
 			tableModelListeners.remove(l);
 		}
+	}
+
+	public boolean canDispose()
+	{
+		return tableModelListeners == null || tableModelListeners.size() == 0;
 	}
 
 	public void fireTableModelEvent(int firstRow, int lastRow, int column, int type)
