@@ -1417,7 +1417,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		try
 		{
-			return manager.getTable(select.getTable().getDataSource());
+			return manager.getTable(getDataSource());
 		}
 		catch (RepositoryException e)
 		{
