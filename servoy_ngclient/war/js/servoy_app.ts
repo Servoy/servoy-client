@@ -294,6 +294,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 
+			// RAGTEST
 			if (msg.sessionid && recordingPrefix) {
 				var btn = <HTMLAnchorElement>$window.document.createElement("A");        // Create a <button> element
 				btn.href = "solutions/" + msg.sessionid + ".recording";

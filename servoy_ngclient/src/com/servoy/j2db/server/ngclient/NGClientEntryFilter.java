@@ -30,6 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -290,11 +291,13 @@ public class NGClientEntryFilter extends WebEntry
 				String solutionName = getSolutionNameFromURI(uri);
 				if (solutionName != null)
 				{
-					String clientUUID = request.getParameter("sessionId");
+					String clientnr = request.getParameter("clientnr");
 					INGClientWebsocketSession wsSession = null;
-					if (clientUUID != null)
+					HttpSession httpSession = request.getSession(false);
+					if (clientnr != null && httpSession != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession,
+							clientnr);
 					}
 					FlattenedSolution fs = null;
 					boolean closeFS = false;
@@ -345,7 +348,7 @@ public class NGClientEntryFilter extends WebEntry
 						}
 						catch (Exception e)
 						{
-							Debug.error("error loading solution: " + solutionName + " for clientid: " + clientUUID, e);
+							Debug.error("error loading solution: " + solutionName + " for clientnr: " + clientnr, e);
 						}
 					}
 

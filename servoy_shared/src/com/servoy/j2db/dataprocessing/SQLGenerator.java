@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.util.Utils.iterate;
+
 import java.lang.reflect.Array;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -610,6 +612,27 @@ public class SQLGenerator
 			(operator & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR);
 	}
 
+	public static QuerySelect resetFiltercondition(QuerySelect select, Table table, List<TableFilter> filters)
+	{
+		select.clearCondition(CONDITION_FILTER);
+		// remove joins made for filter conditions
+		select.removeUnusedJoins(false);
+		return addFilterconditions(select, table, filters);
+	}
+
+	private static QuerySelect addFilterconditions(QuerySelect select, Table table, List<TableFilter> filters)
+	{
+		for (TableFilter tf : iterate(filters))
+		{
+			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), table, tf);
+			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
+			for (ISQLJoin join : iterate(filtercondition.getJoins()))
+			{
+				select.addJoin(join);
+			}
+		}
+		return select;
+	}
 
 	/**
 	 * Distinct is allowed if order by clause is a subset of the selected columns.

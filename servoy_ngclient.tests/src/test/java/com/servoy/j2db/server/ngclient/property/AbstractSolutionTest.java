@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import static java.util.UUID.randomUUID;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +71,7 @@ import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.WebsocketSessionKey;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.IPersistIndex;
@@ -89,7 +92,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
-import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
@@ -436,7 +438,8 @@ public abstract class AbstractSolutionTest
 				};
 			};
 
-			NGClientWebsocketSession session = new NGClientWebsocketSession("1")
+			// RAGTEST mocking van httpSessie?
+			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(randomUUID().toString(), 1))
 			{
 				@Override
 				public void init(Map<String, List<String>> requestParams) throws Exception
@@ -764,12 +767,9 @@ public abstract class AbstractSolutionTest
 					// TODO Auto-generated method stub
 
 				}
-			}, null, "Test");
+			}, "42", null, "Test");
 
-			INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(endpoint.getEndpointType(), "1");
-			Assert.assertNotNull("no wsSession", wsSession);
-
-			CurrentWindow.set(wsSession.getWindows().iterator().next());
+			CurrentWindow.set(session.getWindows().iterator().next());
 		}
 		catch (RepositoryException e)
 		{

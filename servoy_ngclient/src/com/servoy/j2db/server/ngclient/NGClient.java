@@ -23,8 +23,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -508,7 +506,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				clientInfo.setTimeZone(timeZone);
 			}
 
-			clientInfo.addInfo("session uuid: " + getWebsocketSession().getUuid());
+			clientInfo.addInfo("session key: " + getWebsocketSession().getSessionKey());
 
 			try
 			{
@@ -1191,7 +1189,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 //				httpSession = null;
 //			}
 			if (showUrl == null) getWebsocketSession().sendRedirect(null);
-			WebsocketSessionManager.removeSession(getWebsocketSession().getUuid());
+			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
 	}
 
@@ -1475,8 +1473,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
-
-	private HttpSession httpSession;
 
 	@Override
 	public void recreateForm(Form form, String name)

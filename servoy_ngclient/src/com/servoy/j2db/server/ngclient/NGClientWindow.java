@@ -378,7 +378,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (clientUsedFormURL == null)
 		{
 			// need to add the session id to the default, because all urls will have that (also the one from the end point)
-			clientUsedFormURL = getDefaultFormURLStart(flattenedForm, realName) + "?sessionId=" + getSession().getUuid();
+			clientUsedFormURL = getDefaultFormURLStart(flattenedForm, realName) + "?clientnr=" + getSession().getSessionKey().getClientnr();
 		}
 		if (clientUsedFormURL != null)
 		{
@@ -396,16 +396,16 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (sc != null && sc.getChild(form.getUUID()) != null)
 		{
-			realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getSession().getUuid();
+			realUrl = realUrl + "?lm:" + form.getLastModified() + "&clientnr=" + getSession().getSessionKey().getClientnr();
 			copy = true;
 		}
 		else if (!form.getName().endsWith(realFormName))
 		{
-			realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getSession().getUuid();
+			realUrl = realUrl + "?lm:" + form.getLastModified() + "&clientnr=" + getSession().getSessionKey().getClientnr();
 		}
 		else
 		{
-			realUrl = realUrl + "?sessionId=" + getSession().getUuid();
+			realUrl = realUrl + "?clientnr=" + getSession().getSessionKey().getClientnr();
 		}
 
 		return new Pair<String, Boolean>(realUrl, Boolean.valueOf(copy));

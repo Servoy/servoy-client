@@ -50,7 +50,7 @@ public class MessageLogger implements IMessageLogger
 	private void logMessage(String message)
 	{
 		StringBuilder sb = new StringBuilder(message.length() + 50);
-		sb.append(session.getUuid()).append('|').append(windowId);
+		sb.append(session.getSessionKey()).append('|').append(windowId);
 		sb.append('|');
 		INGApplication client = session.getClient();
 		if (client != null)

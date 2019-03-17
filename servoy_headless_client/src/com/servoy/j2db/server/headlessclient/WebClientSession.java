@@ -378,6 +378,7 @@ public class WebClientSession extends WebSession
 	{
 		if (Debug.tracing())
 		{
+			// RAGTEST
 			Debug.trace("Session invalidated for sessionid: " + getId());
 		}
 		super.invalidateNow();

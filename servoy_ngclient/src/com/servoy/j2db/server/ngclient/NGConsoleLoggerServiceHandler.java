@@ -37,7 +37,7 @@ public class NGConsoleLoggerServiceHandler extends ConsoleLoggerServiceHandler
 	protected String getInformationMessage(String message)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(getSession().getUuid());
+		sb.append(getSession().getSessionKey());
 		sb.append('|');
 		INGApplication client = getSession().getClient();
 		if (client != null)

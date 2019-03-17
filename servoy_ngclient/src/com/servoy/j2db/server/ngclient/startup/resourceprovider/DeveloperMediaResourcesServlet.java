@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
@@ -32,9 +33,9 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 {
 	@Override
-	protected IApplication getClient(String clientUUID)
+	protected IApplication getClient(HttpServletRequest request, String clientnrStr)
 	{
-		IApplication client = super.getClient(clientUUID);
+		IApplication client = super.getClient(request, clientnrStr);
 		if (client == null)
 		{
 			IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
@@ -44,5 +45,6 @@ public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 			}
 		}
 		return client;
+
 	}
 }
