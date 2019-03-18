@@ -1218,6 +1218,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 												}
 											});
 										}
+										return [scope];
 								    });
 								});
 							}

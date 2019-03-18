@@ -4,7 +4,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	ID_FOR_FOUNDSET: "idForFoundset",
 	RECORD_LINKED: "recordLinked"
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $foundsetLinkedTypeConstants) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $foundsetLinkedTypeConstants, $webSocket) {
 
 	var SINGLE_VALUE = "sv";
 	var SINGLE_VALUE_UPDATE = "svu";
@@ -36,6 +36,13 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		
 		// keep listeners if needed
 		internalState.changeListeners = (oldValue && oldValue[$sabloConverters.INTERNAL_IMPL] ? oldValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
+		
+		/**
+		 * Adds a change listener that will get triggered when server sends changes for this foundset linked property.
+		 * 
+		 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
+		 * @param listener the listener to register.
+		 */
 		newValue.addChangeListener = function(listener) {
 			internalState.changeListeners.push(listener);
 		}
@@ -47,7 +54,9 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		}
 		internalState.fireChanges = function(values) {
 			for (var i = 0; i < internalState.changeListeners.length; i++) {
+				$webSocket.setIMHDTScopeHintInternal(componentScope);
 				internalState.changeListeners[i](values);
+				$webSocket.setIMHDTScopeHintInternal(undefined);
 			}
 		}
 	}

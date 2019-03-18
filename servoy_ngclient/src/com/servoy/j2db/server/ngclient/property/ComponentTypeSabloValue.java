@@ -86,6 +86,8 @@ import com.servoy.j2db.util.Utils;
 public class ComponentTypeSabloValue implements ISmartPropertyValue
 {
 
+	private static final String TAG_MAIN = "main";
+
 	public static final Logger log = LoggerFactory.getLogger(ComponentTypeSabloValue.class.getCanonicalName());
 
 	public static final String TAG_ADD_TO_ELEMENTS_SCOPE = "addToElementsScope";
@@ -173,7 +175,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			for (PropertyDescription propertyDesc : dp)
 			{
 				Object propertyValue = childComponent.getProperty(propertyDesc.getName());
-				if (propertyValue != null && (dataprovider == null || Boolean.TRUE.equals(propertyDesc.getTag("main"))))
+				if (propertyValue != null && (dataprovider == null || Boolean.TRUE.equals(propertyDesc.getTag(TAG_MAIN))))
 				{
 					dataprovider = ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
 				}
