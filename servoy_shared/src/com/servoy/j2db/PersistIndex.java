@@ -35,6 +35,7 @@ import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScope;
+import com.servoy.j2db.persistence.LineNumberComparator;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
@@ -164,6 +165,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		{
 			Stream<T> filtered = stream.filter(persist -> cls.isAssignableFrom(persist.getClass())).map(persist -> (T)persist);
 			if (sort) filtered = filtered.sorted(NameComparator.INSTANCE);
+			else if (cls == ScriptVariable.class) filtered = filtered.sorted(LineNumberComparator.INSTANCE); // special case always sort variables on line number
 			return filtered.collect(Collectors.toList()).iterator();
 		}
 
