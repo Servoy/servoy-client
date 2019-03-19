@@ -1634,7 +1634,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			var uiProps = getUiProperties();
 			if (value == null) delete uiProps[key];
 			else uiProps[key] = value;
-			webStorage.session.add("uiProperties", JSON.stringify(uiProps))
+			webStorage.session.set("uiProperties", JSON.stringify(uiProps))
 		}
 	}
 }])
