@@ -114,5 +114,7 @@ public class Types
 		TypesRegistry.addType(FoundsetReferencePropertyTypeOld.INSTANCE);
 		TypesRegistry.addType(RowReferencePropertyType.INSTANCE);
 		TypesRegistry.addType(MapPropertyType.INSTANCE);
+
+		TypesRegistry.addType(DbIdentPropertyType.INSTANCE);
 	}
 }
