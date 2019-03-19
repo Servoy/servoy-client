@@ -1094,8 +1094,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		var promise = $sabloApplication.callService<{username:string,password:string}>("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
 		promise.then(function(ok) {
 			if(ok) {
-				if(ok.username) webStorage.local.add('servoy_username', ok.username);
-				if(ok.password) webStorage.local.add('servoy_password', ok.password);
+				if(ok.username) webStorage.local.set('servoy_username', ok.username);
+				if(ok.password) webStorage.local.set('servoy_password', ok.password);
 				$uibModalInstance.close(ok);
 			} else {
 				$scope.model.message = 'Invalid username or password, try again';
@@ -1249,7 +1249,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			var userProps = getUserProperties();
 			if (value == null) delete userProps[key];
 			else userProps[key] = value;
-			webStorage.local.add("userProperties", JSON.stringify(userProps))
+			webStorage.local.set("userProperties", JSON.stringify(userProps))
 		},
 		getUIProperty: function(key) {
 			return $svyUIProperties.getUIProperty(key);
