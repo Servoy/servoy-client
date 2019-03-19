@@ -1332,30 +1332,30 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				this.setAngularLocale(language);
 				numeral.localeData((language + '-' + country).toLowerCase());
 				numeral.locale((language + '-' + country).toLowerCase());
-				if (!initializing) webStorage.session.add("locale", (language + '-' + country).toLowerCase());
+				if (!initializing) webStorage.session.set("locale", (language + '-' + country).toLowerCase());
 			} catch(e) {
 				try {
 					numeral.localeData(language + '-' + country);
 					numeral.locale(language + '-' + country);
-					if (!initializing) webStorage.session.add("locale", language + '-' + country);
+					if (!initializing) webStorage.session.set("locale", language + '-' + country);
 				} catch(e2) {
 					try {
 						//try it with just the language part
 						numeral.localeData(language);
 						numeral.locale(language);
-						if (!initializing) webStorage.session.add("locale", language);
+						if (!initializing) webStorage.session.set("locale", language);
 					} catch(e3) {
 						try {
 							//try it with just the language part but lowercase
 							numeral.localeData(language.toLowerCase());
 							numeral.locale(language.toLowerCase());
-							if (!initializing) webStorage.session.add("locale", language);
+							if (!initializing) webStorage.session.set("locale", language);
 						} catch(e4) {
 							try {
 								//try to duplicate the language in case it's only defined like that
 								numeral.localeData(language.toLowerCase() + "-" + language.toLowerCase()); // nl-nl for example is defined but browser only says 'nl' (this won't work for all languages for example "en-en" I don't think even exists)
 								numeral.locale(language.toLowerCase() + "-" + language.toLowerCase()); 
-								if (!initializing) webStorage.session.add("locale", language);
+								if (!initializing) webStorage.session.set("locale", language);
 							} catch(e5) {
 								// we can't find a suitable locale defined in locales.js; get the needed things from server (Java knows more locales)
 								// and create the locate info from that
@@ -1370,7 +1370,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 									numeral.register('locale',numeralLanguage,numeralLocaleInfo);
 									numeral.locale(numeralLanguage);
 									if (!initializing) {
-										webStorage.session.add("locale", numeralLanguage);
+										webStorage.session.set("locale", numeralLanguage);
 										$sabloApplication.setLocale({ language : language, country : country , full: language + "-" + country});
 									}
 								}, function(reason) {
