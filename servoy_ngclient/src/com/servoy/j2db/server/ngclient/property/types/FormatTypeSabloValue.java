@@ -268,6 +268,11 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 			}
 		}
 
+		if (propertyDependencies.foundsetPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
+		}
+
 		this.changeMonitor = null;
 		webObjectContext = null;
 
