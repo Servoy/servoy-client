@@ -908,11 +908,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
                         		return;
                         	}
                         }
-
                         scope.foundset.setPreferredViewportSize(numberOfCells);
                         
                         const startIndex = page * numberOfCells;
-                        if (scope.foundset.viewPort.startIndex != startIndex) {
+                        if (scope.foundset.viewPort.startIndex != startIndex || scope.foundset.viewPort.size > numberOfCells) {
                         	scope.foundset.loadRecordsAsync(startIndex, numberOfCells);
                         } else {
 						    destroyScopes(rowToModel);
@@ -1218,6 +1217,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 												}
 											});
 										}
+										return [scope];
 								    });
 								});
 							}
@@ -1633,7 +1633,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			var uiProps = getUiProperties();
 			if (value == null) delete uiProps[key];
 			else uiProps[key] = value;
-			webStorage.session.add("uiProperties", JSON.stringify(uiProps))
+			webStorage.session.set("uiProperties", JSON.stringify(uiProps))
 		}
 	}
 }])

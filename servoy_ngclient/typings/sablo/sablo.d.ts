@@ -30,7 +30,7 @@ declare namespace sablo {
 		onopen:(handler:(evt)=>void)=>void;
 		onerror:()=>void;
 		onclose:()=>void;
-		onMessageObject(handler:(msg, conversionInfo, scopesToDigest)=>void): void; 
+		onMessageObject(handler:(msg, conversionInfo, scopesToDigest: ScopeSet)=>void): void; 
 	}
 
 	interface Locale {
@@ -113,7 +113,22 @@ declare namespace sablo {
         getSession():WSSession,
         isConnected(): boolean,
         isReconnecting(): boolean,
-		addIncomingMessageHandlingDoneTask(func: ()=>void): void,
+        
+    	/**
+    	 * For internal use. Only used in order to implement backwards compatibility with addIncomingMessageHandlingDoneTask tasks that do not return the touched/modified scopes.
+    	 * In that case we try to guess those scopes via this method that should be called whenever we know code executing on a specific scope might call addIncomingMessageHandlingDoneTask(...).
+    	 */
+    	setIMHDTScopeHintInternal(scope: angular.IScope),
+    	
+    	/**
+    	 * Wait for all incoming changes to be applied to properties first (if a message from server is currently being processed) before executing given function
+    	 * 
+    	 * @param func will be called once the incoming message from server has been processed; can return an array of angular scopes that were touched/changed by this function; those scopes will be
+    	 * digested after all "incomingMessageHandlingDoneTask"s are executed. If no scope was altered you should return []. If the function returns nothing then sablo tries to detect situations when
+         * the task is added while some property value change from server is being processed and to digest the appropriate scope afterwards...
+    	 */
+    	addIncomingMessageHandlingDoneTask(func: () => angular.IScope[]): void,
+    	
         disconnect():void,
         getURLParameter(name:string): string,
         setPathname(pathname: string): void,
@@ -135,6 +150,26 @@ declare namespace sablo {
 		hideLoading(): void;
 		isShowing(): boolean;
 		isDefaultShowing(): boolean;
+	}
+	
+	interface HashCodeFunc<T> {
+	    (T: any): number;
+	}
+
+	/** A custom 'hash set' based on a configurable hash function received in constructor for now it can only do putItem */
+	class CustomHashSet<T> {
+		constructor(hashCodeFunc: HashCodeFunc<T>);
+		
+		public putItem(item: T) : void;
+		
+		public hasItem(item: T) : boolean;
+		
+		public getItems() : Array<T>;
+	}
+
+	/** A CustomHashSet that uses as hashCode for angular scopes their $id. */
+	class ScopeSet extends CustomHashSet<angular.IScope> {
+		constructor();		
 	}
 
 }

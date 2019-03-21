@@ -197,9 +197,17 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.viewportChangeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].viewportChangeListeners : []);
+
+					/**
+					 * Adds a change listener that will get triggered when server sends granular or full modelViewport changes for this component.
+					 * 
+					 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this same foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
+					 * @param listener the listener to register.
+					 */
 					newValue.addViewportChangeListener = function(listener) {
 						internalState.viewportChangeListeners.push(listener);
 					}
+					
 					newValue.removeViewportChangeListener = function(listener) {
 						var index = internalState.viewportChangeListeners.indexOf(listener);
 						if (index > -1) {
@@ -208,7 +216,9 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					}
 					internalState.fireChanges = function(viewportChanges) {
 						for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
+							$webSocket.setIMHDTScopeHintInternal(componentScope);
 							internalState.viewportChangeListeners[i](viewportChanges);
+							$webSocket.setIMHDTScopeHintInternal(undefined);
 						}
 					}
 

@@ -276,8 +276,8 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE | SolutionMetaData.SMART_CLIENT_ONLY | SolutionMetaData.WEB_CLIENT_ONLY |
-			SolutionMetaData.PRE_IMPORT_HOOK | SolutionMetaData.POST_IMPORT_HOOK;
+		return super.getSolutionTypeFilter() | SolutionMetaData.SERVICE | SolutionMetaData.MODULE | SolutionMetaData.SMART_CLIENT_ONLY |
+			SolutionMetaData.WEB_CLIENT_ONLY | SolutionMetaData.PRE_IMPORT_HOOK | SolutionMetaData.POST_IMPORT_HOOK;
 	}
 
 	@Override

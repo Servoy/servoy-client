@@ -474,6 +474,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					// even if it's a completely new value, keep listeners from old one if there is an old value
 					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
+					/**
+					 * Adds a change listener that will get triggered when server sends changes for this foundset.
+					 * 
+					 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
+					 * @param listener the listener to register.
+					 */
 					newValue.addChangeListener = function(listener: (change: foundsetType.ChangeEvent) => void) {
 						internalState.changeListeners.push(listener);
 					}
@@ -485,7 +491,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					internalState.fireChanges = function(foundsetChanges: foundsetType.ChangeEvent) {
 						for(var i = 0; i < internalState.changeListeners.length; i++) {
+							$webSocket.setIMHDTScopeHintInternal(componentScope);
 							internalState.changeListeners[i](foundsetChanges);
+							$webSocket.setIMHDTScopeHintInternal(undefined);
 						}
 					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)

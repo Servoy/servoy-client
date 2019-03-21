@@ -98,7 +98,7 @@ public class NGClientEntryFilter extends WebEntry
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize.js", //
-		"js/angular-translate-2.18.1.js", //
+		"js/angular-translate.js", //
 		"js/angular-webstorage.js", //
 		"js/angularui/ui-bootstrap-tpls-2.4.0.js", //
 		"js/numeral.js", //

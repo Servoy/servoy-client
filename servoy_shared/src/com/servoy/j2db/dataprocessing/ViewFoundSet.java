@@ -168,6 +168,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 */
 	public static final int MONITOR_AGGREGATES = 64;
 
+	public static final String VIEW_FOUNDSET = "ViewFoundSet";
+
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
@@ -1415,7 +1417,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		try
 		{
-			return manager.getTable(select.getTable().getDataSource());
+			return manager.getTable(getDataSource());
 		}
 		catch (RepositoryException e)
 		{

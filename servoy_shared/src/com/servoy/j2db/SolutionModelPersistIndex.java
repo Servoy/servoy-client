@@ -21,11 +21,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportScope;
+import com.servoy.j2db.persistence.LineNumberComparator;
+import com.servoy.j2db.persistence.NameComparator;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.FilteredIterator;
 import com.servoy.j2db.util.IFilter;
@@ -168,7 +172,8 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 		Iterator<T> iterator = index.getGlobalScriptObjects(scopeName, sort, cls);
 		if (testIndex())
 		{
-			Set<T> set = new HashSet<>();
+			Set<T> set = sort ? new TreeSet<>(NameComparator.INSTANCE)
+				: cls == ScriptVariable.class ? new TreeSet<>(LineNumberComparator.INSTANCE) : new HashSet<>();
 			super.getGlobalScriptObjects(scopeName, sort, cls).forEachRemaining((persist) -> set.add(persist));
 			if (set.size() > 0)
 			{

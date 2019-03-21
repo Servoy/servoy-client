@@ -500,7 +500,15 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 	return {
 
 		format: function(data, servoyFormat, type) {
-			if ((!servoyFormat) || (!type) || ((typeof data === "number") && isNaN(data))) return data;
+			if ((!servoyFormat) || (!type) || ((typeof data === "number") && isNaN(data))) 
+			{
+				if (!servoyFormat &&  ((type == "NUMBER") || (type == "INTEGER")) && (typeof data === "number") && !isNaN(data))
+				{
+					// make sure is always returned with correct type, otherwise compare will not work well
+					return data.toString();
+				}	
+				return data;
+			}
 			if (angular.isUndefined(data) || data === null) return "";
 			if ((type == "NUMBER") || (type == "INTEGER")) {
 				return formatNumbers(data, servoyFormat);

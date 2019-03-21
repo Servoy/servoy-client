@@ -139,6 +139,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 								}
 							}
 						}
+						return [$scope];
 					});
 				}
 			}
@@ -1515,6 +1516,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 								if (requestViewPortSize != vpSizeChange.newValue) requestViewPortSize = -1;
 								testNumberOfRows();
 							}
+							return [$scope];
 						});
 					};
 					$scope.$watch('foundset', function(newVal, oldVal) {
