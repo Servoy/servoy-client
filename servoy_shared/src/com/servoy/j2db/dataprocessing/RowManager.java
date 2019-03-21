@@ -134,15 +134,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				if (val instanceof DbIdentValue)
 				{
-					Object identValue = ((DbIdentValue)val).getPkValue();
-					if (identValue == null)
-					{
-						val = "_svdbi" + val.hashCode(); // DbIdentValue.hashCode() must be stable, i.e. not change when value is set //$NON-NLS-1$
-					}
-					else
-					{
-						val = identValue;
-					}
+					val = createPKHashKeyFromDBIdent((DbIdentValue)val);
 				}
 				else if (val instanceof QueryColumnValue)
 				{
@@ -189,6 +181,19 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * @param val has to be non-null, otherwise a {@link NullPointerException} will be thrown.
+	 */
+	public static Object createPKHashKeyFromDBIdent(DbIdentValue val)
+	{
+		Object identValue = val.getPkValue();
+		if (identValue == null)
+		{
+			identValue = "_svdbi" + val.hashCode(); // DbIdentValue.hashCode() must be stable, i.e. not change when value is set //$NON-NLS-1$
+		}
+		return identValue;
 	}
 
 	Pair<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> getCachedRow(Object[] pk)

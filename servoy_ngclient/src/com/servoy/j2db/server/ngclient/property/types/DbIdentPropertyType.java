@@ -27,6 +27,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.servoy.j2db.dataprocessing.RowManager;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 
 /**
@@ -57,12 +58,9 @@ public class DbIdentPropertyType extends DefaultPropertyType<DbIdentValue> imple
 	public JSONWriter toJSON(JSONWriter writer, String key, DbIdentValue sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
 		IBrowserConverterContext context) throws JSONException
 	{
-		Object identValue = sabloValue.getPkValue();
-		if (identValue == null)
-		{
-			identValue = "_svdbi" + sabloValue.hashCode(); // the same code as in RowManager.createPKHashKey
-		}
-		return FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, identValue, propertyDescription, clientConversion, context);
+		// sabloValue should always be != null as this type is a DefaultPropertyType<DbIdentValue> - so the value is an instance of DbIdentValue
+		return FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, RowManager.createPKHashKeyFromDBIdent(sabloValue), propertyDescription,
+			clientConversion, context);
 	}
 
 	@Override
