@@ -17,11 +17,15 @@
 
 package com.servoy.j2db.server.ngclient.less;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 
 import com.inet.lib.less.Less;
 import com.inet.lib.less.LessException;
@@ -42,7 +46,7 @@ public class JLessCompiler
 		String css = null;
 		try
 		{
-			css = Less.compile(new URL("http://localhost"), text, false, new ReaderFactory()
+			css = Less.compile(new URL("http://localhost"), text, Collections.singletonMap(Less.REWRITE_URLS, "all"), new ReaderFactory()
 			{
 				@Override
 				public Reader create(URL url) throws IOException
@@ -51,6 +55,19 @@ public class JLessCompiler
 					path = path.startsWith("/") ? path.substring(1) : path;
 					Object less = fileMananger.readLess(path, "UTF-8");
 					return less == null ? null : new StringReader(less.toString());
+				}
+
+				@Override
+				public InputStream openStream(URL url) throws IOException
+				{
+					String path = url.getFile();
+					path = path.startsWith("/") ? path.substring(1) : path;
+					Object bytes = fileMananger.readLess(path, null);
+					if (bytes instanceof byte[])
+					{
+						return new ByteArrayInputStream((byte[])bytes);
+					}
+					throw new FileNotFoundException(url.toString());
 				}
 			});
 		}
