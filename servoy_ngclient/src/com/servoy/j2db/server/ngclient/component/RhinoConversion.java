@@ -26,7 +26,6 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
-import org.mozilla.javascript.UniqueTag;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 
@@ -50,7 +49,7 @@ public class RhinoConversion
 	public static Object defaultFromRhino(Object propertyValue, Object oldValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
 	{
 		// convert simple values to json values
-		if (propertyValue == UniqueTag.NOT_FOUND || propertyValue == Undefined.instance)
+		if (isUndefinedOrNotFound(propertyValue))
 		{
 			return null;
 		}
@@ -90,6 +89,11 @@ public class RhinoConversion
 			return propertyValue.toString();
 		}
 		return propertyValue;
+	}
+
+	public static boolean isUndefinedOrNotFound(Object propertyValue)
+	{
+		return propertyValue == Scriptable.NOT_FOUND /* same as UniqueTag.NOT_FOUND */ || Undefined.isUndefined(propertyValue);
 	}
 
 	/**

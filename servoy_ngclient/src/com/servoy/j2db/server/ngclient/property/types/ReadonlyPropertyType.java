@@ -34,6 +34,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -120,7 +121,9 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	public ReadonlySabloValue toSabloComponentValue(Object rhinoValue, ReadonlySabloValue previousComponentValue, PropertyDescription pd,
 		IWebObjectContext componentOrService)
 	{
-		return new ReadonlySabloValue((ReadonlyConfig)pd.getConfig(), (Boolean)rhinoValue, previousComponentValue.getOldOppositeOfValue());
+		return new ReadonlySabloValue((ReadonlyConfig)pd.getConfig(),
+			(rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) ? Boolean.FALSE : (Boolean)rhinoValue,
+			previousComponentValue.getOldOppositeOfValue());
 	}
 
 	@Override

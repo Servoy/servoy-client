@@ -49,6 +49,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
@@ -240,6 +241,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public ValueListTypeSabloValue toSabloComponentValue(Object rhinoValue, ValueListTypeSabloValue previousComponentValue, PropertyDescription pd,
 		IWebObjectContext webObjectContext)
 	{
+		if (rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
+
 		if (previousComponentValue == null)
 		{
 			return rhinoValue instanceof String ? createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext) : null;
@@ -252,7 +255,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				// weird; but we are going to create a new value anyway so it doesn't matter much
 				return createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext);
 			}
-			else if (rhinoValue == null) return null;// weird; but we are going to return null anyway so it doesn't matter much that it is not initialized
 			else
 			{
 				// we cannot set values from a dataset if the previous value is not ready for it

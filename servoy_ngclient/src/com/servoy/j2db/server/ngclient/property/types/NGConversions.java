@@ -455,6 +455,7 @@ public class NGConversions
 		{
 			sabloVal = ((IRhinoToSabloComponent<T>)type).toSabloComponentValue(rhinoValue instanceof CharSequence ? rhinoValue.toString() : rhinoValue,
 				previousComponentValue, pd, webObjectContext);
+			if (RhinoConversion.isUndefinedOrNotFound(sabloVal)) sabloVal = null; // just in case the IRhinoToSabloComponent impl. is not smart enough to handle undefined/not found Rhino values
 		}
 		else
 		{
