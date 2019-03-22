@@ -18,9 +18,11 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -30,6 +32,7 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import org.json.JSONObject;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.GetHttpSessionConfigurator;
 import org.sablo.websocket.IWebsocketSession;
@@ -37,6 +40,7 @@ import org.sablo.websocket.IWebsocketSession;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.util.Debug;
@@ -66,6 +70,41 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 	{
 		super.start(newSession, clientnr, windowname, windowid);
 	}
+
+	@Override
+	protected HttpSession getHttpSession(Session session)
+	{
+		return GetHttpSessionConfigurator.getHttpSession(session);
+	}
+
+	@Override
+	public void onStart()
+	{
+		try
+		{
+			if (getWindow() != null && getWindow().getSession() != null)
+			{
+				Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormState", //$NON-NLS-1$
+					new Object[0]);
+				if (formsOnClient instanceof JSONObject)
+				{
+					JSONObject json = (JSONObject)formsOnClient;
+					for (String formName : json.keySet())
+					{
+						JSONObject formData = json.getJSONObject(formName);
+						addFormIfAbsent(formName, formData.getString("url"));
+						boolean domAttached = formData.optBoolean("attached");
+						setAttachedToDOM(formName, domAttached);
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+	}
+
 
 	@Override
 	@OnMessage

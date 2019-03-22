@@ -431,11 +431,11 @@ public abstract class AbstractSolutionTest
 
 			endpoint = new NGClientEndpoint()
 			{
-				// for testing onstart of the BaseNGClientEndpoint should not run
+				// for testing onstart of the NGClientEndpoint should not run
 				@Override
 				public void onStart()
 				{
-				};
+				}
 			};
 
 			// RAGTEST mocking van httpSessie?

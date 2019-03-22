@@ -25,6 +25,8 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.server.ServerEndpoint;
 
+import org.sablo.websocket.GetHttpSessionConfigurator;
+
 import com.servoy.j2db.server.ngclient.IMessagesRecorder;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
@@ -33,7 +35,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
  *
  */
 // RAGTEST testen??
-@ServerEndpoint(value = "/recording/websocket/{clientnr}/{windowname}/{windowid}")
+@ServerEndpoint(value = "/recording/websocket/{clientnr}/{windowname}/{windowid}", configurator = GetHttpSessionConfigurator.class)
 public class RecordingEndpoint extends NGClientEndpoint
 {
 	private final StringBuilder incomingPartialMessage = new StringBuilder();
@@ -48,7 +50,6 @@ public class RecordingEndpoint extends NGClientEndpoint
 	{
 		recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
 	}
-
 
 	@Override
 	@OnMessage
