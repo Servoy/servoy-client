@@ -73,7 +73,7 @@ public class ViewportOperation
 		{
 			w.key("rows");
 			clientDataConversions.pushNode("rows");
-			rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnName, foundset, w, clientDataConversions);
+			rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnName, foundset, w, clientDataConversions, null);
 			clientDataConversions.popNode();
 		}
 
