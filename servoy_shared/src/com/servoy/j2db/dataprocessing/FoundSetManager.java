@@ -43,12 +43,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jabsorb.serializer.MarshallException;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
@@ -75,6 +79,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -92,6 +97,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.DatabaseUtils;
@@ -1108,13 +1114,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 					try
 					{
-						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false,
-							IServer.VIEW_SERVER);
+						executeFoundsetTriggerInternal(tbl, new Object[] { DataSourceUtils.getViewDataSourceName(dataSource) },
+							StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, false, null); // can't entity methods, not supported on view foundsets
 					}
-					catch (Exception e)
+					catch (ServoyException e)
 					{
-						Debug.error(e);
+						Debug.error("Error executing foundset method for datasource:  " + dataSource, e);
 					}
+
 				}
 				return viewDataSources.get(dataSource);
 			}
@@ -2990,8 +2997,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
 				{
 					IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
-					((FoundSet)sharedFoundSet).executeFoundsetTrigger(new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
-						StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false);
+					executeFoundsetTriggerInternal(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, false, (Scriptable)sharedFoundSet);
 				}
 				refreshFoundSetsFromDB(dataSource, null, false);
 				return dataSource;
@@ -3344,5 +3351,71 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			viewFoundsetDataSourceNames.add(DataSourceUtils.getViewDataSourceName(dataSource));
 		}
 		return viewFoundsetDataSourceNames;
+	}
+
+	boolean executeFoundsetTriggerInternal(ITable table, Object[] args, TypedProperty<Integer> property, boolean breakOnFalse, boolean throwException,
+		Scriptable foundsetScope) throws ServoyException
+	{
+		FlattenedSolution solutionRoot = getApplication().getFlattenedSolution();
+		Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(table);
+		while (tableNodes.hasNext())
+		{
+			TableNode tn = tableNodes.next();
+			int methodId = ((Integer)tn.getProperty(property.getPropertyName())).intValue();
+			if (methodId > 0)
+			{
+				IExecutingEnviroment scriptEngine = getApplication().getScriptEngine();
+				Object function = null;
+				Scriptable scope = null;
+				ScriptMethod scriptMethod = solutionRoot.getScriptMethod(methodId);
+				if (scriptMethod != null)
+				{
+					if (scriptMethod.getParent() instanceof Solution)
+					{
+						// global method
+						GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+						if (gs != null)
+						{
+							scope = gs;
+							function = gs.get(scriptMethod.getName());
+						}
+					}
+					else if (foundsetScope != null)
+					{
+						// foundset method
+						scope = foundsetScope;
+						function = scope.getPrototype().get(scriptMethod.getName(), scope);
+					}
+				}
+				if (function instanceof Function)
+				{
+					try
+					{
+						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
+							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getFlattenedMethodArguments(property.getPropertyName()))), false,
+							throwException)) && breakOnFalse)
+						{
+							// break on false return, do not execute remaining triggers.
+							return false;
+						}
+					}
+					catch (JavaScriptException e)
+					{
+						// update or insert method threw exception.
+						throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue(), e).setContext(this.toString());
+					}
+					catch (EcmaError e)
+					{
+						throw new ApplicationException(ServoyException.SAVE_FAILED, e).setContext(this.toString());
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+						throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() }).setContext(this.toString());
+					}
+				}
+			}
+		}
+		return true;
 	}
 }
