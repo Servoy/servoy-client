@@ -1921,7 +1921,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public List<SortColumn> getSortColumns(ITable t, String options)
 	{
 		List<SortColumn> list = new ArrayList<SortColumn>(3);
-		if (t == null) return list;
+		if (t == null || DataSourceUtils.getViewDataSourceName(t.getDataSource()) != null) return list;
 		if (options != null)
 		{
 			try
