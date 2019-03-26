@@ -58,6 +58,7 @@ import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
@@ -95,6 +96,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
@@ -1090,8 +1092,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 			{
-				if (!viewDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
+				Pair<ServoyJSONObject, Integer> columnDefintion = null;
+				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)) != null)
 				{
+					TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnDefintion.getLeft());
+					Table tbl = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(dataSource), true, ITable.VIEW, null, null);
+					tbl.setDataSource(dataSource);
+					ArrayList<ColumnInfoDef> columnInfoDefSet = tableInfo.columnInfoDefSet;
+					for (ColumnInfoDef colDef : columnInfoDefSet)
+					{
+						tbl.createNewColumn(DummyValidator.INSTANCE, colDef.name, colDef.columnType.getSqlType(), colDef.columnType.getLength(),
+							colDef.columnType.getScale(), colDef.allowNull, false);
+					}
+					viewDataSources.put(dataSource, tbl);
+
 					try
 					{
 						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false,
@@ -1116,13 +1130,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				return true;
 			}
-			ServoyJSONObject columnsDef = null;
-			Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
-			while (tblIte.hasNext() && columnsDef == null)
-			{
-				TableNode tn = tblIte.next();
-				columnsDef = tn.getColumns();
-			}
+			Pair<ServoyJSONObject, Integer> columnsDef = getColumnDefintion(dataSource);
 
 			if (columnsDef != null)
 			{
@@ -1136,13 +1144,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				return true;
 			}
-			ServoyJSONObject columnsDef = null;
-			Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
-			while (tblIte.hasNext() && columnsDef == null)
-			{
-				TableNode tn = tblIte.next();
-				columnsDef = tn.getColumns();
-			}
+			Pair<ServoyJSONObject, Integer> columnsDef = getColumnDefintion(dataSource);
 
 			if (columnsDef != null)
 			{
@@ -1154,6 +1156,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return getTable(dataSource) != null;
 		}
+	}
+
+	/**
+	 * @param dataSource
+	 * @return
+	 */
+	private Pair<ServoyJSONObject, Integer> getColumnDefintion(String dataSource)
+	{
+		ServoyJSONObject columnsDef = null;
+		Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
+		int onFoundSetLoadMethodID = -1;
+		while (tblIte.hasNext() && columnsDef == null)
+		{
+			TableNode tn = tblIte.next();
+			columnsDef = tn.getColumns();
+			onFoundSetLoadMethodID = tn.getOnFoundSetLoadMethodID();
+		}
+		return columnsDef != null ? new Pair<ServoyJSONObject, Integer>(columnsDef, Integer.valueOf(onFoundSetLoadMethodID)) : null;
 	}
 
 	public Collection<String> getInMemDataSourceNames()
