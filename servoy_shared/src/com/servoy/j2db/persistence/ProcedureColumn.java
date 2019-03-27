@@ -57,4 +57,10 @@ public class ProcedureColumn implements Serializable
 		return columnType;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "ProcedureColumn[" + name + "," + columnType + "]";
+	}
+
 }
