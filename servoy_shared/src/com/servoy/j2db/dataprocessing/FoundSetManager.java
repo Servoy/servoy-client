@@ -62,7 +62,6 @@ import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
-import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
@@ -1101,15 +1100,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				Pair<ServoyJSONObject, Integer> columnDefintion = null;
 				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)) != null)
 				{
-					TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnDefintion.getLeft());
 					Table tbl = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(dataSource), true, ITable.VIEW, null, null);
 					tbl.setDataSource(dataSource);
-					ArrayList<ColumnInfoDef> columnInfoDefSet = tableInfo.columnInfoDefSet;
-					for (ColumnInfoDef colDef : columnInfoDefSet)
-					{
-						tbl.createNewColumn(DummyValidator.INSTANCE, colDef.name, colDef.columnType.getSqlType(), colDef.columnType.getLength(),
-							colDef.columnType.getScale(), colDef.allowNull, false);
-					}
+					DatabaseUtils.deserializeInMemoryTable(application.getFlattenedSolution().getPersistFactory(), tbl, columnDefintion.getLeft());
+					tbl.setExistInDB(true);
+					tbl.setInitialized(true);
 					viewDataSources.put(dataSource, tbl);
 
 					try

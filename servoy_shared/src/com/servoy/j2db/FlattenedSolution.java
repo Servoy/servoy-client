@@ -528,7 +528,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return max;
 	}
 
-	private SimplePersistFactory getPersistFactory()
+	public SimplePersistFactory getPersistFactory()
 	{
 		if (persistFactory == null)
 		{
