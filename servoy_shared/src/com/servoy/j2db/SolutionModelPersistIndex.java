@@ -21,11 +21,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportScope;
+import com.servoy.j2db.persistence.LineNumberComparator;
+import com.servoy.j2db.persistence.NameComparator;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.FilteredIterator;
 import com.servoy.j2db.util.IFilter;
@@ -160,6 +164,39 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 			supportScope = index.getSupportScope(scopeName, baseName);
 		}
 		return supportScope;
+	}
+
+	@Override
+	public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+	{
+		Iterator<T> iterator = index.getGlobalScriptObjects(scopeName, sort, cls);
+		if (testIndex())
+		{
+			Set<T> set = sort ? new TreeSet<>(NameComparator.INSTANCE)
+				: cls == ScriptVariable.class ? new TreeSet<>(LineNumberComparator.INSTANCE) : new HashSet<>();
+			super.getGlobalScriptObjects(scopeName, sort, cls).forEachRemaining((persist) -> set.add(persist));
+			if (set.size() > 0)
+			{
+				// must merge
+				iterator.forEachRemaining((persist) -> {
+					if (!set.contains(persist)) set.add(persist);
+				});
+				iterator = set.iterator();
+			}
+		}
+
+		if (!removedPersist.isEmpty())
+		{
+			iterator = new FilteredIterator<T>(iterator, new IFilter<T>()
+			{
+				@Override
+				public boolean match(Object o)
+				{
+					return !removedPersist.containsKey(o);
+				}
+			});
+		}
+		return iterator;
 	}
 
 	private boolean testIndex()

@@ -597,7 +597,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			for (IDataLinkedPropertyValue x : allComponentPropertiesLinkedToData.toArray(
 				new IDataLinkedPropertyValue[allComponentPropertiesLinkedToData.size()]))
 			{
-				x.dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
+				if (canFirePropertyValueListener(x))
+				{
+					x.dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
+				}
 			}
 		}
 		else
@@ -625,7 +628,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				interestedComponentProperties = new ArrayList<IDataLinkedPropertyValue>(interestedComponentProperties);
 				for (IDataLinkedPropertyValue x : interestedComponentProperties)
 				{
-					x.dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
+					if (canFirePropertyValueListener(x))
+					{
+						x.dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
+					}
 				}
 			}
 		}
@@ -634,6 +640,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			getApplication().getChangeListener().valueChanged();
 		}
+	}
+
+	protected boolean canFirePropertyValueListener(IDataLinkedPropertyValue propertyValue)
+	{
+		return true;
 	}
 
 	@Override

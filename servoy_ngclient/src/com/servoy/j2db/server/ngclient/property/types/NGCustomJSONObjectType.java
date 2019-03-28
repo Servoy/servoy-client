@@ -54,6 +54,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementExtension;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -202,7 +203,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public Map<String, SabloT> toSabloComponentValue(final Object rhinoValue, final Map<String, SabloT> previousComponentValue, PropertyDescription pd,
 		final IWebObjectContext webObjectContext)
 	{
-		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
+		if (rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
 
 		if (rhinoValue instanceof RhinoMapOrArrayWrapper)
 		{

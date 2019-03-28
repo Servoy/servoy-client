@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
@@ -33,6 +35,8 @@ import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScope;
+import com.servoy.j2db.persistence.LineNumberComparator;
+import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.IntHashMap;
@@ -138,6 +142,35 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	{
 		Map<String, ISupportScope> map = getGlobalScopeCache().get(scopeName);
 		return map != null ? map.get(baseName) : null;
+	}
+
+	@Override
+	public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+	{
+		Stream<ISupportScope> stream = null;
+		Map<String, Map<String, ISupportScope>> globalMap = getGlobalScopeCache();
+		if (scopeName != null)
+		{
+			Map<String, ISupportScope> map = globalMap.get(scopeName);
+			if (map != null)
+			{
+				stream = map.values().stream();
+			}
+		}
+		else
+		{
+			stream = globalMap.values().stream().flatMap(map -> map.values().stream());
+		}
+		if (stream != null)
+		{
+			Stream<T> filtered = stream.filter(persist -> cls.isAssignableFrom(persist.getClass())).map(persist -> (T)persist);
+			if (sort) filtered = filtered.sorted(NameComparator.INSTANCE);
+			else if (cls == ScriptVariable.class) filtered = filtered.sorted(LineNumberComparator.INSTANCE); // special case always sort variables on line number
+			return filtered.collect(Collectors.toList()).iterator();
+		}
+
+		List<T> empty = Collections.emptyList();
+		return empty.iterator();
 	}
 
 	private Map<String, Map<String, ISupportScope>> getGlobalScopeCache()

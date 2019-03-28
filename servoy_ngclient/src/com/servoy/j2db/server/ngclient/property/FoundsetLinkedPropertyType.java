@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
@@ -39,6 +38,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
@@ -282,7 +282,7 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(Object rhinoValue, FoundsetLinkedTypeSabloValue<YF, YT> previousComponentValue,
 		PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
-		if (rhinoValue == null || Undefined.isUndefined(rhinoValue)) return null;
+		if (rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
 
 		FoundsetLinkedTypeSabloValue<YF, YT> newFsLinkedVal;
 

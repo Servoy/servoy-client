@@ -528,7 +528,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return max;
 	}
 
-	private SimplePersistFactory getPersistFactory()
+	public SimplePersistFactory getPersistFactory()
 	{
 		if (persistFactory == null)
 		{
@@ -909,6 +909,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		// make sure is latest form
 		form = getForm(form.getID());
+
+		if (form == null) return null; // form is already deleted?
 
 		if (flattenedFormCache == null)
 		{
@@ -2148,16 +2150,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return beanDesignInstances == null ? null : beanDesignInstances.get(b);
 	}
 
-	// return only the global script methods. still using getAllObjectAsList
+	// return only the global script methods.
 	public Iterator<ScriptMethod> getScriptMethods(String scopeName, boolean sort)
 	{
-		return Solution.getScriptMethods(getAllObjectsAsList(), scopeName, sort);
+		return getIndex().getGlobalScriptObjects(scopeName, sort, ScriptMethod.class);
 	}
 
-	// return only the global script methods. still using getAllObjectAsList
+	// return only the global script methods.
 	public Iterator<ScriptMethod> getScriptMethods(boolean sort)
 	{
-		return Solution.getScriptMethods(getAllObjectsAsList(), null, sort);
+		return getIndex().getGlobalScriptObjects(null, sort, ScriptMethod.class);
 	}
 
 	// will return now all script methods through the whole solution
@@ -2216,16 +2218,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return getIndex().getSupportScope(scopeName, baseName);
 	}
 
-	// return only the global script variables. still using getAllObjectAsList
+	// return only the global script variables.
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
 	{
-		return Solution.getScriptVariables(getAllObjectsAsList(), null, sort);
+		return getIndex().getGlobalScriptObjects(null, sort, ScriptVariable.class);
 	}
 
-	// return only the global script variables. still using getAllObjectAsList
+	// return only the global script variables.
 	public Iterator<ScriptVariable> getScriptVariables(String scopeName, boolean sort)
 	{
-		return Solution.getScriptVariables(getAllObjectsAsList(), scopeName, sort);
+		return getIndex().getGlobalScriptObjects(scopeName, sort, ScriptVariable.class);
 	}
 
 	/**
@@ -2258,12 +2260,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<TableNode> getTableNodes(String dataSource)
 	{
-		return Solution.getTableNodes(getAllObjectsAsList(), dataSource);
+		return Solution.getTableNodes(getIndex().getIterableFor(TableNode.class), dataSource);
 	}
 
 	public Iterator<TableNode> getTableNodes(ITable table) throws RepositoryException
 	{
-		return Solution.getTableNodes(getRepository(), getAllObjectsAsList(), table);
+		return Solution.getTableNodes(getRepository(), getIndex().getIterableFor(TableNode.class), table);
 	}
 
 	public Iterator<Relation> getRelations(boolean sort) throws RepositoryException
@@ -3112,6 +3114,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		public ISupportScope getSupportScope(String scopeName, String baseName)
 		{
 			return null;
+		}
+
+		@Override
+		public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+		{
+			List<T> empty = Collections.emptyList();
+			return empty.iterator();
 		}
 
 		@Override

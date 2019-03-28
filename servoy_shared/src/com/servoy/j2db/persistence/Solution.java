@@ -693,6 +693,21 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		});
 	}
 
+	public static Iterator<TableNode> getTableNodes(Iterator<TableNode> tableNodes, final String dataSource)
+	{
+		if (dataSource == null)
+		{
+			return Collections.<TableNode> emptyList().iterator();
+		}
+		return new FilteredIterator<TableNode>(tableNodes, new IFilter<TableNode>()
+		{
+			public boolean match(Object o)
+			{
+				return dataSource.equals(((TableNode)o).getDataSource());
+			}
+		});
+	}
+
 	public static Iterator<TableNode> getTableNodes(IRepository repository, List<IPersist> childs, ITable table) throws RepositoryException
 	{
 		List<TableNode> retval = new ArrayList<TableNode>();
@@ -704,6 +719,25 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			while (it1.hasNext())
 			{
 				TableNode node = it1.next();
+				if (dataSources.contains(node.getDataSource()))
+				{
+					retval.add(node);
+				}
+			}
+		}
+		return retval.iterator();
+	}
+
+	public static Iterator<TableNode> getTableNodes(IRepository repository, Iterator<TableNode> tableNodes, ITable table) throws RepositoryException
+	{
+		List<TableNode> retval = new ArrayList<TableNode>();
+		if (table != null)
+		{
+			List<String> dataSources = getTableDataSources(repository, table);
+
+			while (tableNodes.hasNext())
+			{
+				TableNode node = tableNodes.next();
 				if (dataSources.contains(node.getDataSource()))
 				{
 					retval.add(node);
@@ -1412,6 +1446,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
 	}
+
 	@Override
 	public int compareTo(Solution o)
 	{

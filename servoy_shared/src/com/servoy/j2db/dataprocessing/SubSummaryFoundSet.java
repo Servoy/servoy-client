@@ -180,7 +180,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#getColumnIndex(java.lang.String)
 	 */
 	@Override

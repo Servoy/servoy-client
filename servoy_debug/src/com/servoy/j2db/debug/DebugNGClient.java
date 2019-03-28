@@ -41,8 +41,8 @@ import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -343,10 +343,10 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 					String name = controller.getName();
 					controller.destroy();
 					controller = getFormManager().leaseFormPanel(name);
-					FoundSet foundset;
+					IFoundSetInternal foundset;
 					try
 					{
-						foundset = (FoundSet)getFoundSetManager().getSharedFoundSet(controller.getDataSource());
+						foundset = getFoundSetManager().getSharedFoundSet(controller.getDataSource());
 						foundset.loadAllRecords();
 						controller.loadRecords(foundset);
 					}
@@ -427,7 +427,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	 */
 	public void show(Form form)
 	{
-		// TODO Auto-generated method stub
+		invokeLater(() -> getFormManager().showFormInMainPanel(form.getName()));
 	}
 
 	@Override

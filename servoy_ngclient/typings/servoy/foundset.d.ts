@@ -214,7 +214,7 @@ declare namespace foundsetType {
 		 * Adds a change listener that will get triggered when server sends changes for this foundset.
 		 * 
 		 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
-		 * @param viewportChangeListener the listener to register.
+		 * @param changeListener the listener to register.
 		 */
 		addChangeListener(changeListener : ChangeListener) : void;
 		removeChangeListener(changeListener : ChangeListener) : void;

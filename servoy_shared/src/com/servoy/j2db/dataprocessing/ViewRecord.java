@@ -38,6 +38,8 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord")
 public final class ViewRecord implements IRecordInternal, Scriptable
 {
+	public static final String VIEW_RECORD = "ViewRecord"; //$NON-NLS-1$
+
 	private final Map<String, Object> values = new HashMap<>();
 	private Object[] pk; // array of 1 string: the hash of all values
 	private Map<String, Object> changes;

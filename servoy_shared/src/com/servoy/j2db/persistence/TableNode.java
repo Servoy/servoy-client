@@ -520,11 +520,11 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
-	 * A method that is executed when an in memory table is first touched (by ui or scripting)
+	 * A method that is executed when an in memory or viewfoundset table is first touched (by ui or scripting)
 	 *
-	 * @templatedescription Foundset load trigger, make sure a JSDataSet.createDataSource(inMemName) is called.
+	 * @templatedescription Foundset load trigger, make sure a for inmem JSDataSet.createDataSource(inMemName) is called or that a ViewFoundSet is registered (datasources.view.xxx.getViewFoundset(select)
 	 * @templatename onFoundSetLoad
-	 * @templateparam String inMemName The in memory table name that is touched.
+	 * @templateparam String memOrViewName The in memory or view foundset table name that is touched.
 	 * @templateaddtodo
 	 */
 	public int getOnFoundSetLoadMethodID()

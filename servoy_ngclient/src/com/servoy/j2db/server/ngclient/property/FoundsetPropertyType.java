@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -43,6 +42,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -385,7 +385,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				newSabloValue.updateFoundset(newFoundset);
 			}
 		}
-		else if (rhinoValue != null && rhinoValue != Undefined.instance)
+		else if (rhinoValue != null && !RhinoConversion.isUndefinedOrNotFound(rhinoValue))
 		{
 			throw new RuntimeException("Cannot set " + rhinoValue +
 				" into a foundset property type; for existing foundset properties you can set the myProp.foundset or myProp.dataproviders directly. If you want to set a complete new value you have to give here something like { foundset : ...someFoundset..., dataproviders : { dp1: 'userNickname', dp2: 'userReviewRating', ... } } instead.");

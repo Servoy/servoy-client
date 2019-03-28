@@ -37,9 +37,7 @@ import java.util.StringTokenizer;
 
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
@@ -73,7 +71,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
@@ -653,6 +650,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		clear();
 		fireDifference(size, getSize());
+	}
+
+	abstract boolean canDispose();
+
+	/**
+	 * Dispose a foundset from memory when foundset is no longer needed. Should be used to destroy separate foundsets (is an optimization for memory management).
+	 * A related foundset or a foundset which is linked to visible forms/components cannot be disposed. Returns whether foundset was disposed or not.
+	 *
+	 * @sample
+	 * %%prefix%%foundset.dispose();
+	 *
+	 * @return boolean foundset was disposed
+	 */
+	@SuppressWarnings("nls")
+	@JSFunction
+	public boolean dispose()
+	{
+		if (getRelationName() != null)
+		{
+			Debug.warn("Cannot dispose the related foundset:  " + getRelationName() + ", fs: " + this);
+			return false;
+		}
+		if (foundSetEventListeners.size() != 0)
+		{
+			Debug.warn("Cannot dispose foundset, still linked to component, fs: " + this + ", listeners: " + foundSetEventListeners);
+			return false;
+		}
+		if (!canDispose())
+		{
+			Debug.warn("Cannot dispose foundset, still linked to form UI, fs: " + this);
+			return false;
+		}
+		rowManager.unregister(this);
+		clear();
+		getFoundSetManager().removeFoundSet(this);
+		return true;
 	}
 
 	/**
@@ -4444,7 +4477,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		return executeFoundsetTriggerInternal(args, property, true, throwException);
+		return fsm.executeFoundsetTriggerInternal(getTable(), args, property, true, throwException, this);
 	}
 
 	/**
@@ -4457,74 +4490,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		executeFoundsetTriggerInternal(args, property, false, throwException);
+		fsm.executeFoundsetTriggerInternal(getTable(), args, property, false, throwException, this);
 	}
 
-	private boolean executeFoundsetTriggerInternal(Object[] args, TypedProperty<Integer> property, boolean breakOnFalse, boolean throwException)
-		throws ServoyException
-	{
-		FlattenedSolution solutionRoot = fsm.getApplication().getFlattenedSolution();
-		Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(getTable());
-		while (tableNodes.hasNext())
-		{
-			TableNode tn = tableNodes.next();
-			int methodId = ((Integer)tn.getProperty(property.getPropertyName())).intValue();
-			if (methodId > 0)
-			{
-				IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-				Object function = null;
-				Scriptable scope = null;
-				ScriptMethod scriptMethod = solutionRoot.getScriptMethod(methodId);
-				if (scriptMethod != null)
-				{
-					if (scriptMethod.getParent() instanceof Solution)
-					{
-						// global method
-						GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
-						if (gs != null)
-						{
-							scope = gs;
-							function = gs.get(scriptMethod.getName());
-						}
-					}
-					else
-					{
-						// foundset method
-						scope = this;
-						function = scope.getPrototype().get(scriptMethod.getName(), scope);
-					}
-				}
-				if (function instanceof Function)
-				{
-					try
-					{
-						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
-							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getFlattenedMethodArguments(property.getPropertyName()))), false,
-							throwException)) && breakOnFalse)
-						{
-							// break on false return, do not execute remaining triggers.
-							return false;
-						}
-					}
-					catch (JavaScriptException e)
-					{
-						// update or insert method threw exception.
-						throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue(), e).setContext(this.toString());
-					}
-					catch (EcmaError e)
-					{
-						throw new ApplicationException(ServoyException.SAVE_FAILED, e).setContext(this.toString());
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-						throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() }).setContext(this.toString());
-					}
-				}
-			}
-		}
-		return true;
-	}
 
 	private boolean tableHasOnDeleteMethods()
 	{
@@ -6650,7 +6618,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
-			resetFiltercondition();
+			resetFiltercondition(foundSetFilters);
 		}
 		initialized = fs.initialized;
 
@@ -6746,7 +6714,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		foundSetFilters.add(filter);
 
-		resetFiltercondition();
+		resetFiltercondition(foundSetFilters);
 		initialized = false;//to enforce browse all
 		return true;
 	}
@@ -6760,6 +6728,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		List<TableFilter> originalFilters = foundSetFilters == null ? null : new ArrayList<>(foundSetFilters);
 		boolean found = false;
 		if (foundSetFilters != null && filterName != null)
 		{
@@ -6781,21 +6750,30 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (found)
 		{
-			resetFiltercondition();
+			resetFiltercondition(originalFilters);
 			initialized = false;//to enforce browse all
 		}
 		return found;
 	}
 
-	private void resetFiltercondition()
+	private void resetFiltercondition(List<TableFilter> originalFilters)
 	{
 		synchronized (pksAndRecords)
 		{
 			creationSqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
 			// remove joins made for filter conditions
-			creationSqlSelect.removeUnusedJoins(false);
+			removeFilterJoins(creationSqlSelect, originalFilters);
 			addFilterconditions(creationSqlSelect, foundSetFilters);
 		}
+	}
+
+	private QuerySelect removeFilterJoins(QuerySelect select, List<TableFilter> filters)
+	{
+		for (TableFilter tf : iterate(filters))
+		{
+			select.removeJoinsWithOrigin(tf);
+		}
+		return select;
 	}
 
 	private QuerySelect addFilterconditions(QuerySelect select, List<TableFilter> filters)
@@ -6806,6 +6784,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
+				join.setOrigin(tf);
 				select.addJoin(join);
 			}
 		}

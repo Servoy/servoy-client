@@ -2910,8 +2910,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Returns a foundset object for a specified query.
-	 * This just creates one without keeping any reference to it, you have to
-	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
+	 * This just creates one without keeping any reference to it, you have to use the getViewFoundSet(name,query,true) for registering it to the system.
 	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
 	 *
 	 * If you query the pk with the columns that you display for the main or join tables then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
@@ -2922,10 +2921,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Flags can be used to control what exactly should be monitored, some don't cost a lot of overhead others have to do a full re-query to see the changes.
 	 *
 	 * @sample
+	 * // create a new view foundset and also directly register it to the system so they can be picked up by forms if a form has the view datasource.
 	 * /** @type {ViewFoundSet<view:myname>} *&#47;
-	 * var vfs = databaseManager.getViewFoundSet('myname', query)
-	 * // register now this view foundset to the system so they can be picked up by forms if a form has the view datasource.
-	 * databaseMananger.registerViewFoundSet(vfs);
+	 * var vfs = databaseManager.getViewFoundSet('myname', query, true)
 	 *
 	 * @param name The name given to this foundset (will create a datasource url like view:[name])
 	 * @param query The query to get the ViewFoundSet for.
@@ -2939,9 +2937,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns a foundset object for a specified query.
-	 * This just creates one without keeping any reference to it, you have to
-	 * use registerViewFoundSet(foundset) for registering it in Servoy for use in forms.
+	 * Returns a foundset object for a specified query. If the boolean register is true then the system will register it to the system so it can be used in Forms.
+	 * Also getViewFoundSet(name) will then return that instance.
 	 * ViewFoundSets are different then normal foundsets because they have a lot less methods, stuff like newRecord/deleteRecord don't work.
 	 *
 	 * If you query the pk with the columns that you display for the main or join tables then those columns can be updated and through {@link ViewFoundSet#save(ViewRecord) they can be saved.
@@ -2955,14 +2952,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * The form's foundset will then have a much more limited API, so a lot of things can't be done with it - e.g. newRecord() or deleteRecords().
 	 * Also records can be updated in memory, so they are not fully read-only, but the developer is responsible for saving these changes to a persisted store. See also viewFoundset.save(...).
 	 *
-	 * If the solution doesn't need this ViewFoundSet anymore please use unregisterViewFoundSset(datasource), because otherwise this
+	 * If the solution doesn't need this ViewFoundSet anymore and you did use register is true, please use ViewFoundSet.dispose() to clear and remove it from the system, because otherwise this
 	 * register call will keep/hold this foundset in memory (for that datasource string to work) forever.
 	 *
 	 * @sample
+	 * // create a new view foundset and also directly register it to the system so they can be picked up by forms if a form has the view datasource.
 	 * /** @type {ViewFoundSet<view:myname>} *&#47;
-	 * var vfs = databaseManager.getViewFoundSet('myname', query)
-	 * // register now this view foundset to the system so they can be picked up by forms if a form has the view datasource.
-	 * databaseMananger.registerViewFoundSet(vfs);
+	 * var vfs = databaseManager.getViewFoundSet('myname', query, true)
 	 *
 	 * @param name The name given to this foundset (will create a datasource url like view:[name])
 	 * @param query The query to get the ViewFoundSet for.
@@ -3005,11 +3001,18 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return returns true if it could unregister this datasource
 	 * @throws ServoyException
+	 * @deprecated Use viewFoundset.dispose()
 	 */
+	@Deprecated
 	public boolean js_unegisterViewFoundSet(String datasource) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().unregisterViewFoundSet(datasource);
+		ViewFoundSet viewFoundset = application.getFoundSetManager().getRegisteredViewFoundSet(datasource);
+		if (viewFoundset != null)
+		{
+			return viewFoundset.dispose();
+		}
+		return false;
 	}
 
 	/**

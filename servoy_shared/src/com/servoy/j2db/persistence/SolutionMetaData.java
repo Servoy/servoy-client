@@ -44,9 +44,10 @@ public class SolutionMetaData extends RootObjectMetaData
 	public static final int MOBILE_MODULE = 512;
 	public static final int NG_CLIENT_ONLY = 1024;
 	public static final int NG_MODULE = 2048;
+	public static final int SERVICE = 4096;
 
-	public static final String[] solutionTypeNames = { "Normal", "Module", "Web Client", "Smart Client", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$
-	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE };
+	public static final String[] solutionTypeNames = { "Normal", "Module", "Web Client", "Smart Client", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$
+	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
 
 	private int solutionType;
 

@@ -908,9 +908,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
                         		return;
                         	}
                         }
-
                         scope.foundset.setPreferredViewportSize(numberOfCells);
-                        
                         const startIndex = page * numberOfCells;
                         if (scope.foundset.viewPort.startIndex != startIndex) {
                         	scope.foundset.loadRecordsAsync(startIndex, numberOfCells);
@@ -923,6 +921,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	                        }
 	                        if (numberOfCells > scope.foundset.viewPort.rows.length && scope.foundset.viewPort.startIndex + scope.foundset.viewPort.size < scope.foundset.serverSize) {
 	                        	scope.foundset.loadExtraRecordsAsync(Math.min(numberOfCells - scope.foundset.viewPort.rows.length, scope.foundset.serverSize - scope.foundset.viewPort.startIndex - scope.foundset.viewPort.size));
+	                        }
+	                        else if (scope.foundset.viewPort.size > numberOfCells) {
+								// the (initial) viewport  is bigger then the numberOfCells we have created rows for, adjust the viewport to be smaller.
+	                        	scope.foundset.loadLessRecordsAsync(numberOfCells - scope.foundset.viewPort.size);
 	                        }
 	                        
 	                        updatePagingControls();
@@ -1147,7 +1149,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 										shouldUpdatePagingControls = true;
 									}
 									else if ( value.type == $foundsetTypeConstants.ROWS_DELETED) {
-										for ( let k = value.startIndex; k <= value.endIndex; k++ ) {
+										const endIndex = Math.min(rowToModel.length-1, value.endIndex); // -1 because value.endIndex is including this call can happen because of a removed of the view port if the view port was bigger then cells that we render.
+										for ( let k = value.startIndex; k <= endIndex; k++ ) {
 											destroyScopes(rowToModel.splice(value.startIndex, 1));
 											parent.children()[value.startIndex + 1].remove(); // + 1 is due to pager that is the first div
 										}
@@ -1218,6 +1221,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 												}
 											});
 										}
+										return [scope];
 								    });
 								});
 							}
@@ -1633,7 +1637,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			var uiProps = getUiProperties();
 			if (value == null) delete uiProps[key];
 			else uiProps[key] = value;
-			webStorage.session.add("uiProperties", JSON.stringify(uiProps))
+			webStorage.session.set("uiProperties", JSON.stringify(uiProps))
 		}
 	}
 }])

@@ -31,6 +31,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
@@ -69,6 +70,23 @@ public class ServoyApiObject
 			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
 		}
 		return app.getFoundSetManager().getViewFoundSet(name, query);
+	}
+
+	/**
+	 * Get select query for dataSource
+	 * @param dataSource the dataSource
+	 * @return QB select for the dataSource
+	 * @throws ServoyException, RepositoryException
+	 */
+	@JSFunction
+	public QBSelect getQuerySelect(String dataSource) throws ServoyException, RepositoryException
+	{
+		if (!app.haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
+		}
+		return (QBSelect)app.getFoundSetManager().getQueryFactory().createSelect(dataSource);
 	}
 
 	/**

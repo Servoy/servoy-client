@@ -309,4 +309,10 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 		if (selectionModel == null) createSelectionModel();
 		return selectionModel.getSelectedRows();
 	}
+
+	@Override
+	boolean canDispose()
+	{
+		return false;
+	}
 }

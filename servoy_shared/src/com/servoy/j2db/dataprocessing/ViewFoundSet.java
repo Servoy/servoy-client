@@ -168,6 +168,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 */
 	public static final int MONITOR_AGGREGATES = 64;
 
+	public static final String VIEW_FOUNDSET = "ViewFoundSet";
+
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
@@ -377,6 +379,39 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 		}
 		return records.size();
+	}
+
+	/**
+	 * Dispose and unregisters a view foundset from memory when is no longer needed.
+	 * Returns whether foundset was disposed.
+	 * If linked to visible form or component, view foundset cannot be disposed.
+	 *
+	 * Normally ViewFoundSets are not hold on to by the system, so if you only use this inside a method it will be disposed by itself.
+	 * This method is then just helps by also calling clear()
+	 *
+	 * For ViewFoundSets that are also registered  by using true as the last argument in the call: databaseMananager.getViewFoundSet(name, query, boolean register)
+	 * are hold on to by the system and Forms can use it for there foundset. Calling dispose on those will remove it from the system, so it is not usable anymore in forms.
+	 *
+	 * @sample
+	 * 	%%prefix%%vfs.dispose();
+	 *
+	 *  @return boolean foundset was disposed
+	 */
+	@JSFunction
+	public boolean dispose()
+	{
+		if (foundSetEventListeners.size() != 0)
+		{
+			Debug.warn("Cannot dispose view foundset, still linked to component, fs: " + this + ", listeners: " + foundSetEventListeners);
+			return false;
+		}
+		if (tableAndListEventDelegate != null && !tableAndListEventDelegate.canDispose())
+		{
+			Debug.warn("Cannot dispose foundset, still linked to form UI, fs: " + this);
+			return false;
+		}
+		clear();
+		return getFoundSetManager().unregisterViewFoundSet(datasource);
 	}
 
 	@Override
@@ -1382,7 +1417,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		try
 		{
-			return manager.getTable(select.getTable().getDataSource());
+			return manager.getTable(getDataSource());
 		}
 		catch (RepositoryException e)
 		{

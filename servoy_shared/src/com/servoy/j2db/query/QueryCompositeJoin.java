@@ -35,6 +35,9 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 	private String name;
 	private List<ISQLJoin> joins = new ArrayList<ISQLJoin>();
 
+	private transient Object origin; // origin, transient, only used in the client
+
+
 	public QueryCompositeJoin(String name)
 	{
 		this.name = name;
@@ -179,6 +182,16 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		return joins.stream() //
 			.filter(ISQLTableJoin.class::isInstance) //
 			.map(ISQLTableJoin.class::cast);
+	}
+
+	public void setOrigin(Object origin)
+	{
+		this.origin = origin;
+	}
+
+	public Object getOrigin()
+	{
+		return origin;
 	}
 
 	private static List<ISQLJoin> flatten(List<ISQLJoin> joins, int start)

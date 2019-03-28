@@ -45,6 +45,7 @@ import com.servoy.j2db.server.shared.IServerStatus;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
 import com.servoy.j2db.util.JarManager.ExtensionResource;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
 import com.servoy.j2db.util.xmlxport.IXMLImportEngine;
@@ -424,5 +425,12 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	public boolean checkClientLicense(String companyName, String license, String numberOfLicenses)
 	{
 		return false;
+	}
+
+	@Override
+	public Pair<Boolean, String> upgradeLicense(String companyName, String licensecode, String licenses)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
