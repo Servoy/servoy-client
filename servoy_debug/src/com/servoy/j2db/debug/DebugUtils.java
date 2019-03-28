@@ -38,8 +38,6 @@ import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.IPersistIndex;
-import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.DebugJ2DBClient.DebugSwingFormMananger;
@@ -260,8 +258,6 @@ public class DebugUtils
 
 	public static Set<IFormController>[] getScopesAndFormsToReload(final ClientState clientState, Collection<IPersist> changes)
 	{
-		IPersistIndex index = PersistIndexCache.getCachedIndex(clientState.getSolution());
-		if (index != null) index.reload();
 		Set<IFormController> scopesToReload = new HashSet<IFormController>();
 		final Set<IFormController> formsToReload = new HashSet<IFormController>();
 

@@ -47,6 +47,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -333,9 +334,12 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 	}
 
 	@Override
-	public FormatTypeSabloValue toSabloComponentValue(Object rhinoValue, FormatTypeSabloValue previousComponentValue, PropertyDescription formatPD,
+	public FormatTypeSabloValue toSabloComponentValue(Object rV, FormatTypeSabloValue previousComponentValue, PropertyDescription formatPD,
 		IWebObjectContext webObjectContext)
 	{
+		Object rhinoValue = rV;
+		if (RhinoConversion.isUndefinedOrNotFound(rhinoValue)) rhinoValue = null;
+
 		// we only accept strings or nulls from Rhino
 		if (rhinoValue != null && !(rhinoValue instanceof String))
 			throw new IllegalArgumentException("You can only assing a string as format for format property types: " + rhinoValue + " - " + formatPD.getName() +

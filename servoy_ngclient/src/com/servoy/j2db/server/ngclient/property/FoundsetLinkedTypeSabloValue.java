@@ -525,8 +525,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		destinationJSON.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
 		clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
 		viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
-			foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON,
-			clientConversionInfo);
+			foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, null, getFoundsetValue().getFoundset(), destinationJSON,
+			clientConversionInfo, wrappedSabloValue);
 		clientConversionInfo.popNode();
 
 		// conversion info for websocket traffic (for example Date objects will turn into long)

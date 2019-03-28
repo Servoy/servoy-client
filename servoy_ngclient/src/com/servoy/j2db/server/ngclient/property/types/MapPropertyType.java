@@ -158,12 +158,6 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		return fixedJSONObject;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.IWebObjectContext)
-	 */
 	@Override
 	public JSONObject toSabloComponentValue(Object rhinoValue, JSONObject previousComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{

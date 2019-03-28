@@ -40,6 +40,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 {
 
 	private boolean keepQuiet = false;
+	private Object propertyValue;
 	private List<IDataLinkedPropertyRegistrationListener> dataLinkedPropertyRegistrationListeners;
 
 	public FoundsetDataAdapterList(IWebFormController formController)
@@ -143,6 +144,22 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		{
 			super.valueChanged(e);
 		}
+	}
+
+	public void onlyFireListenersForProperty(Object propertyValue)
+	{
+		this.propertyValue = propertyValue;
+	}
+
+	public void resumeNormalListeners()
+	{
+		this.propertyValue = null;
+	}
+
+	@Override
+	protected boolean canFirePropertyValueListener(IDataLinkedPropertyValue propertyValue)
+	{
+		return this.propertyValue == null || this.propertyValue == propertyValue;
 	}
 
 }

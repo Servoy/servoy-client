@@ -147,42 +147,34 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     	        var beanModel = modelFunction($scope);
     	        var propertyname = dataproviderString.substring(index+1);
     	        var beanname;
-    	        var parent = $scope.$parent;
+				var parentForm = $scope.$parent;
+				
+				while(parentForm && !parentForm.hasOwnProperty('formname')) {
+					parentForm = parentForm.$parent;
+				}
 
-    	        beanname = $element.attr("name");
-    	        if (! beanname) {
-    	        	var nameParentEl = $element.parents("[name]").first(); 
-    	        	if (nameParentEl) beanname = nameParentEl.attr("name");
-    	        }
-    	        if (! beanname) {
-    	        	for(var key in parent['model']) {
-    	        		if (parent['model'][key] === beanModel) {
-    	        			beanname = key;
-    	        			break;
-    	        		}
-    	        	}
-    	        }
-    	        
-    	        if (!beanname) {
-    	        	$log.error("bean name not found for model string: " + dataproviderString);
-    	        	return;
-    	        }
-    	        
-    	        var formname = parent['formname'];
-    	        while (!formname) {
-    	        	if (parent.$parent) {
-    	        		parent = parent.$parent;
-    	        		formname = parent['formname'];
-    	        	}
-    	        	else { 
-    	        		$log.error("no form found for " + beanname + "." + propertyname);
-    	        		return;
-    	        	}
-    	        }
-
-    	        $element.bind('click', function(event) {
-    	        	$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + beanname + "/" + propertyname);
-    	        });    	        
+				if(parentForm) {
+					if(parentForm['model']) {
+						for(var key in parentForm['model']) {
+							if (parentForm['model'][key] === beanModel) {
+								beanname = key;
+								break;
+							}
+						}
+					}
+					if (!beanname) {
+						$log.error("svyFileupload, bean name not found for model string: " + dataproviderString);
+						return;
+					}
+					var formname = parentForm['formname'];
+					$element.bind('click', function(event) {
+						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + beanname + "/" + propertyname);
+					});    	        
+				}
+				else {
+					$log.error("svyFileupload, no form found for model string: " + dataproviderString);
+					return;
+				}
             }
             else {
             	$log.error("svyFileupload attached to a element that doesn't have the right (model.value): " + dataproviderString)

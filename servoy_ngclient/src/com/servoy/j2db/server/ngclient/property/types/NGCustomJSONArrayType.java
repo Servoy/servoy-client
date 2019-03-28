@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -175,7 +176,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	public Object toSabloComponentValue(final Object rhinoValue, Object previousComponentValue, PropertyDescription pd,
 		final IWebObjectContext componentOrService)
 	{
-		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
+		if (rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
 
 		final ChangeAwareList<SabloT, SabloWT> previousSpecialArray = (ChangeAwareList<SabloT, SabloWT>)previousComponentValue;
 		if (rhinoValue instanceof RhinoMapOrArrayWrapper)

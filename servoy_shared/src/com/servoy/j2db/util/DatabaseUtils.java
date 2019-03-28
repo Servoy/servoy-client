@@ -35,7 +35,6 @@ import com.servoy.j2db.persistence.DummyValidator;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IPersistFactory;
-import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
@@ -122,8 +121,7 @@ public class DatabaseUtils
 		return tableInfo;
 	}
 
-	public static void deserializeInMemoryTable(IPersistFactory persistFactory, IServerInternal s, ITable t, ServoyJSONObject property)
-		throws RepositoryException, JSONException
+	public static void deserializeInMemoryTable(IPersistFactory persistFactory, ITable t, ServoyJSONObject property) throws RepositoryException, JSONException
 	{
 		int existingColumnInfo = 0;
 		TableDef tableInfo = deserializeTableInfo(property);

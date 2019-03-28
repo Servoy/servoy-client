@@ -528,7 +528,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return max;
 	}
 
-	private SimplePersistFactory getPersistFactory()
+	public SimplePersistFactory getPersistFactory()
 	{
 		if (persistFactory == null)
 		{
@@ -909,6 +909,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		// make sure is latest form
 		form = getForm(form.getID());
+
+		if (form == null) return null; // form is already deleted?
 
 		if (flattenedFormCache == null)
 		{

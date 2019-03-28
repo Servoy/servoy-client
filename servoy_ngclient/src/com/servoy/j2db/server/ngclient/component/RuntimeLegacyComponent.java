@@ -523,7 +523,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		{
 			clientProperties = new HashMap<Object, Object>();
 		}
-		clientProperties.put(key, value);
+		clientProperties.put(key, NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, clientProperties.get(key), null, component));
 	}
 
 	public Object getClientProperty(Object key)

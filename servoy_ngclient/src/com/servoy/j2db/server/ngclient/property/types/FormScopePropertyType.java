@@ -33,6 +33,7 @@ import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IServerRhinoToRhino;
@@ -74,7 +75,8 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 		{
 			return app.getFormManager().getForm((String)rhinoValue).getFormScope();
 		}
-		return rhinoValue;
+		else if (RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
+		else return rhinoValue;
 	}
 
 	@Override
