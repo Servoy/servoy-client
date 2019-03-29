@@ -193,7 +193,7 @@ public class MediaResourcesServlet extends HttpServlet
 				case FLATTENED_SOLUTION_ACCESS :
 					if (paths.length >= 3)
 					{
-						String clientnr = req.getParameter("clientnr"); // RAGTEST test via solutionmodel
+						String clientnr = req.getParameter("clientnr");
 						StringBuffer mediaName = new StringBuffer();
 						for (int i = 2; i < paths.length - 1; i++)
 							mediaName.append(paths[i]).append('/');

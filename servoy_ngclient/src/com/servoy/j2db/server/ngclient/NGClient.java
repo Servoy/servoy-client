@@ -1171,23 +1171,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				scheduledExecutorService = null;
 
 			}
-			// RAGTEST naar websocketmanager, invalideer de sessie als de laatste ngclient weg is
-//			if (httpSession != null)
-//			{
-//				try
-//				{
-//					AtomicInteger sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-//					if (sessionCounter.decrementAndGet() == 0)
-//					{
-//						httpSession.invalidate();
-//					}
-//				}
-//				catch (Exception ignore)
-//				{
-//					// http session can already be invalid..
-//				}
-//				httpSession = null;
-//			}
 			if (showUrl == null) getWebsocketSession().sendRedirect(null);
 			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
@@ -1645,7 +1628,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			this.timeout = timeout;
 			this.onRootFrame = onRootFrame;
 		}
-
 	}
 
 	@Override
@@ -1653,29 +1635,4 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		Debug.warn("Setting TimeZone on NG client is not allowed");
 	}
-
-	// RAGTEST naar websocketmanager, invalideer de sessie als de laatste ngclient weg is
-//	/**
-//	 * @param httpSession
-//	 */
-//	public void setHttpSession(HttpSession httpSession)
-//	{
-//		if (this.httpSession == null && httpSession != null)
-//		{
-//			this.httpSession = httpSession;
-//
-//			AtomicInteger sessionCounter;
-//			synchronized (httpSession)
-//			{
-//				sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-//				if (sessionCounter == null)
-//				{
-//					sessionCounter = new AtomicInteger();
-//					httpSession.setAttribute(HTTP_SESSION_COUNTER, sessionCounter);
-//				}
-//			}
-//			getClientInfo().addInfo("httpsession:" + httpSession.getId());
-//			sessionCounter.incrementAndGet();
-//		}
-//	}
 }

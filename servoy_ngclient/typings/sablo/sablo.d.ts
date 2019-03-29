@@ -77,7 +77,7 @@ declare namespace sablo {
         setLocale(locale:Locale): void;
         getCurrentFormUrl(fetch:boolean): string;
         setCurrentFormUrl(url:string, push:boolean): void;
-        clearSabloSession():void;
+        clearSabloInfo():void;
 	}
 	
 	interface ISabloConverters {

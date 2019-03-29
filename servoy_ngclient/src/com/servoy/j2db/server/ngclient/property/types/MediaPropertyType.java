@@ -182,7 +182,6 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 					if (paramsAdded) url += "&";
 					else url += "?";
 					url += "clientnr=" + application.getWebsocketSession().getSessionKey().getClientnr() + "&lm:" + sc.getLastModifiedTime();
-					// RAGTEST testen
 				}
 			}
 		}

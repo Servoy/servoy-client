@@ -35,13 +35,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import javax.websocket.CloseReason;
 import javax.websocket.EncodeException;
 import javax.websocket.Extension;
@@ -110,7 +116,6 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractSolutionTest
 {
-
 	static
 	{
 		// tell log4j to print to console output
@@ -212,7 +217,6 @@ public abstract class AbstractSolutionTest
 		{
 			return null;
 		}
-
 	};
 
 	private static IPackageReader[] getReaders(File[] packages, IPackageReader customComponents)
@@ -429,6 +433,8 @@ public abstract class AbstractSolutionTest
 			solution.setChangeHandler(new ChangeHandler(tr));
 			fillTestSolution();
 
+			HttpSession testHttpsession = new TestHttpsession();
+
 			endpoint = new NGClientEndpoint()
 			{
 				// for testing onstart of the NGClientEndpoint should not run
@@ -436,9 +442,14 @@ public abstract class AbstractSolutionTest
 				public void onStart()
 				{
 				}
+
+				@Override
+				protected HttpSession getHttpSession(Session session)
+				{
+					return testHttpsession;
+				}
 			};
 
-			// RAGTEST mocking van httpSessie?
 			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(randomUUID().toString(), 1))
 			{
 				@Override
@@ -483,291 +494,7 @@ public abstract class AbstractSolutionTest
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
 
-			endpoint.start(new Session()
-			{
-				@Override
-				public void setMaxTextMessageBufferSize(int arg0)
-				{
-				}
-
-				@Override
-				public void setMaxIdleTimeout(long arg0)
-				{
-				}
-
-				@Override
-				public void setMaxBinaryMessageBufferSize(int arg0)
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void removeMessageHandler(MessageHandler arg0)
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public boolean isSecure()
-				{
-					// TODO Auto-generated method stub
-					return false;
-				}
-
-				@Override
-				public boolean isOpen()
-				{
-					// TODO Auto-generated method stub
-					return true;
-				}
-
-				@Override
-				public Map<String, Object> getUserProperties()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public Principal getUserPrincipal()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public URI getRequestURI()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public Map<String, List<String>> getRequestParameterMap()
-				{
-					return Collections.singletonMap("solution", Arrays.asList("Test"));
-				}
-
-				@Override
-				public String getQueryString()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public String getProtocolVersion()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public Map<String, String> getPathParameters()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public Set<Session> getOpenSessions()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public String getNegotiatedSubprotocol()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public List<Extension> getNegotiatedExtensions()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public Set<MessageHandler> getMessageHandlers()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public int getMaxTextMessageBufferSize()
-				{
-					// TODO Auto-generated method stub
-					return 0;
-				}
-
-				@Override
-				public long getMaxIdleTimeout()
-				{
-					// TODO Auto-generated method stub
-					return 0;
-				}
-
-				@Override
-				public int getMaxBinaryMessageBufferSize()
-				{
-					// TODO Auto-generated method stub
-					return 0;
-				}
-
-				@Override
-				public String getId()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public WebSocketContainer getContainer()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public Basic getBasicRemote()
-				{
-					return new Basic()
-					{
-
-						@Override
-						public void setBatchingAllowed(boolean arg0) throws IOException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendPong(ByteBuffer arg0) throws IOException, IllegalArgumentException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendPing(ByteBuffer arg0) throws IOException, IllegalArgumentException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public boolean getBatchingAllowed()
-						{
-							// TODO Auto-generated method stub
-							return false;
-						}
-
-						@Override
-						public void flushBatch() throws IOException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendText(String arg0, boolean arg1) throws IOException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendText(String arg0) throws IOException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendObject(Object arg0) throws IOException, EncodeException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendBinary(ByteBuffer arg0, boolean arg1) throws IOException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public void sendBinary(ByteBuffer arg0) throws IOException
-						{
-							// TODO Auto-generated method stub
-
-						}
-
-						@Override
-						public Writer getSendWriter() throws IOException
-						{
-							// TODO Auto-generated method stub
-							return null;
-						}
-
-						@Override
-						public OutputStream getSendStream() throws IOException
-						{
-							// TODO Auto-generated method stub
-							return null;
-						}
-					};
-				}
-
-				@Override
-				public Async getAsyncRemote()
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public void close(CloseReason arg0) throws IOException
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void close() throws IOException
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public <T> void addMessageHandler(Class<T> arg0, Whole<T> arg1) throws IllegalStateException
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public <T> void addMessageHandler(Class<T> arg0, Partial<T> arg1) throws IllegalStateException
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void addMessageHandler(MessageHandler arg0) throws IllegalStateException
-				{
-					// TODO Auto-generated method stub
-
-				}
-			}, "42", null, "Test");
+			endpoint.start(new TestSession(), "42", null, "Test");
 
 			CurrentWindow.set(session.getWindows().iterator().next());
 		}
@@ -800,4 +527,340 @@ public abstract class AbstractSolutionTest
 	 */
 	protected abstract InMemPackageReader getTestComponents() throws IOException;
 
+	private static class TestHttpsession implements HttpSession
+	{
+		private final String id = randomUUID().toString();
+
+		private final ConcurrentMap<String, Object> attributes = new ConcurrentHashMap<>();
+
+		@Override
+		public long getCreationTime()
+		{
+			return 0;
+		}
+
+		@Override
+		public String getId()
+		{
+			return id;
+		}
+
+		@Override
+		public long getLastAccessedTime()
+		{
+			return 0;
+		}
+
+		@Override
+		public ServletContext getServletContext()
+		{
+			return null;
+		}
+
+		@Override
+		public void setMaxInactiveInterval(int interval)
+		{
+		}
+
+		@Override
+		public int getMaxInactiveInterval()
+		{
+			return 0;
+		}
+
+		@Override
+		public HttpSessionContext getSessionContext()
+		{
+			return null;
+		}
+
+		@Override
+		public Object getAttribute(String name)
+		{
+			return attributes.get(name);
+		}
+
+		@Override
+		public Object getValue(String name)
+		{
+			return null;
+		}
+
+		@Override
+		public Enumeration<String> getAttributeNames()
+		{
+			return Collections.enumeration(attributes.keySet());
+		}
+
+		@Override
+		public String[] getValueNames()
+		{
+			return null;
+		}
+
+		@Override
+		public void setAttribute(String name, Object value)
+		{
+			attributes.put(name, value);
+		}
+
+		@Override
+		public void putValue(String name, Object value)
+		{
+		}
+
+		@Override
+		public void removeAttribute(String name)
+		{
+			attributes.remove(name);
+		}
+
+		@Override
+		public void removeValue(String name)
+		{
+		}
+
+		@Override
+		public void invalidate()
+		{
+		}
+
+		@Override
+		public boolean isNew()
+		{
+			return false;
+		}
+	}
+
+	private static class TestSession implements Session
+	{
+		@Override
+		public void setMaxTextMessageBufferSize(int arg0)
+		{
+		}
+
+		@Override
+		public void setMaxIdleTimeout(long arg0)
+		{
+		}
+
+		@Override
+		public void setMaxBinaryMessageBufferSize(int arg0)
+		{
+		}
+
+		@Override
+		public void removeMessageHandler(MessageHandler arg0)
+		{
+		}
+
+		@Override
+		public boolean isSecure()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isOpen()
+		{
+			return true;
+		}
+
+		@Override
+		public Map<String, Object> getUserProperties()
+		{
+			return null;
+		}
+
+		@Override
+		public Principal getUserPrincipal()
+		{
+			return null;
+		}
+
+		@Override
+		public URI getRequestURI()
+		{
+			return null;
+		}
+
+		@Override
+		public Map<String, List<String>> getRequestParameterMap()
+		{
+			return Collections.singletonMap("solution", Arrays.asList("Test"));
+		}
+
+		@Override
+		public String getQueryString()
+		{
+			return null;
+		}
+
+		@Override
+		public String getProtocolVersion()
+		{
+			return null;
+		}
+
+		@Override
+		public Map<String, String> getPathParameters()
+		{
+			return null;
+		}
+
+		@Override
+		public Set<Session> getOpenSessions()
+		{
+			return null;
+		}
+
+		@Override
+		public String getNegotiatedSubprotocol()
+		{
+			return null;
+		}
+
+		@Override
+		public List<Extension> getNegotiatedExtensions()
+		{
+			return null;
+		}
+
+		@Override
+		public Set<MessageHandler> getMessageHandlers()
+		{
+			return null;
+		}
+
+		@Override
+		public int getMaxTextMessageBufferSize()
+		{
+			return 0;
+		}
+
+		@Override
+		public long getMaxIdleTimeout()
+		{
+			return 0;
+		}
+
+		@Override
+		public int getMaxBinaryMessageBufferSize()
+		{
+			return 0;
+		}
+
+		@Override
+		public String getId()
+		{
+			return null;
+		}
+
+		@Override
+		public WebSocketContainer getContainer()
+		{
+			return null;
+		}
+
+		@Override
+		public Basic getBasicRemote()
+		{
+			return new Basic()
+			{
+				@Override
+				public void setBatchingAllowed(boolean arg0) throws IOException
+				{
+				}
+
+				@Override
+				public void sendPong(ByteBuffer arg0) throws IOException, IllegalArgumentException
+				{
+				}
+
+				@Override
+				public void sendPing(ByteBuffer arg0) throws IOException, IllegalArgumentException
+				{
+				}
+
+				@Override
+				public boolean getBatchingAllowed()
+				{
+					return false;
+				}
+
+				@Override
+				public void flushBatch() throws IOException
+				{
+				}
+
+				@Override
+				public void sendText(String arg0, boolean arg1) throws IOException
+				{
+				}
+
+				@Override
+				public void sendText(String arg0) throws IOException
+				{
+				}
+
+				@Override
+				public void sendObject(Object arg0) throws IOException, EncodeException
+				{
+				}
+
+				@Override
+				public void sendBinary(ByteBuffer arg0, boolean arg1) throws IOException
+				{
+				}
+
+				@Override
+				public void sendBinary(ByteBuffer arg0) throws IOException
+				{
+				}
+
+				@Override
+				public Writer getSendWriter() throws IOException
+				{
+					return null;
+				}
+
+				@Override
+				public OutputStream getSendStream() throws IOException
+				{
+					return null;
+				}
+			};
+		}
+
+		@Override
+		public Async getAsyncRemote()
+		{
+			return null;
+		}
+
+		@Override
+		public void close(CloseReason arg0) throws IOException
+		{
+		}
+
+		@Override
+		public void close() throws IOException
+		{
+		}
+
+		@Override
+		public <T> void addMessageHandler(Class<T> arg0, Whole<T> arg1) throws IllegalStateException
+		{
+		}
+
+		@Override
+		public <T> void addMessageHandler(Class<T> arg0, Partial<T> arg1) throws IllegalStateException
+		{
+		}
+
+		@Override
+		public void addMessageHandler(MessageHandler arg0) throws IllegalStateException
+		{
+		}
+	}
 }
