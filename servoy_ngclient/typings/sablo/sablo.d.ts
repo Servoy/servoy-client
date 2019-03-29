@@ -48,7 +48,7 @@ declare namespace sablo {
         contributeFormResolver(contributedFormResolver:{prepareUnresolvedFormForUse(form:string)}): void;
         getSessionId(): string;
         getWindowName(): string;
-        getWindowId(): string;
+        getWindowNr(): string;
         getWindowUrl(name:string): string;
         applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope:angular.IScope):void ;
         getComponentChanges(now, prev, beanConversionInfo, parentSize, property): any;

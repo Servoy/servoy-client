@@ -118,9 +118,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public INGClientWindow createWindow(String windowUuid, String windowName)
+	public INGClientWindow createWindow(int windowNr, String windowName)
 	{
-		return new NGClientWindow(this, windowUuid, windowName);
+		return new NGClientWindow(this, windowNr, windowName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -196,7 +196,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 					}
 
-					client.getRuntimeWindowManager().setCurrentWindowName(CurrentWindow.get().getUuid());
+					client.getRuntimeWindowManager().setCurrentWindowName(String.valueOf(CurrentWindow.get().getNr()));
 					IWebFormController currentForm = client.getFormManager().getCurrentForm();
 					if (currentForm != null)
 					{
@@ -226,7 +226,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						sendUIProperties();
 
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
-						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
+						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getNr());
 						client.handleArguments(
 							args.getFirstArgument() != null ? new String[] { args.getSolutionName(), args.getMethodName(), args.getFirstArgument() }
 								: new String[] { args.getSolutionName(), args.getMethodName() },
@@ -447,7 +447,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (MessageLogger.doLog)
 		{
-			return new MessageLogger(this, window.getUuid());
+			return new MessageLogger(this, window.getNr());
 		}
 		return null;
 	}

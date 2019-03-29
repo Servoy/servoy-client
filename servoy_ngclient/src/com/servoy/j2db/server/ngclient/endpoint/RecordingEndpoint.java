@@ -35,7 +35,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
  *
  */
 // RAGTEST testen??
-@ServerEndpoint(value = "/recording/websocket/{clientnr}/{windowname}/{windowid}", configurator = GetHttpSessionConfigurator.class)
+@ServerEndpoint(value = "/recording/websocket/{clientnr}/{windowname}/{windownr}", configurator = GetHttpSessionConfigurator.class)
 public class RecordingEndpoint extends NGClientEndpoint
 {
 	private final StringBuilder incomingPartialMessage = new StringBuilder();

@@ -297,7 +297,7 @@ public class NGClientEntryFilter extends WebEntry
 					if (clientnr != null && httpSession != null)
 					{
 						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession,
-							clientnr);
+							Integer.parseInt(clientnr));
 					}
 					FlattenedSolution fs = null;
 					boolean closeFS = false;

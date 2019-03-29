@@ -33,9 +33,9 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 public class DeveloperMediaResourcesServlet extends MediaResourcesServlet
 {
 	@Override
-	protected IApplication getClient(HttpServletRequest request, String clientnrStr)
+	protected IApplication getClient(HttpServletRequest request, int clientnr)
 	{
-		IApplication client = super.getClient(request, clientnrStr);
+		IApplication client = super.getClient(request, clientnr);
 		if (client == null)
 		{
 			IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();

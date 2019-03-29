@@ -54,7 +54,7 @@ public class NGEvent extends Event
 	{
 		super.beforeExecute();
 		previous = client.getRuntimeWindowManager().getCurrentWindowName();
-		client.getRuntimeWindowManager().setCurrentWindowName(CurrentWindow.get().getUuid());
+		client.getRuntimeWindowManager().setCurrentWindowName(String.valueOf(CurrentWindow.get().getNr()));
 	}
 
 	@Override

@@ -55,7 +55,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 
-@ServerEndpoint(value = "/websocket/{clientnr}/{windowname}/{windowid}", configurator = GetHttpSessionConfigurator.class)
+@ServerEndpoint(value = "/websocket/{clientnr}/{windowname}/{windownr}", configurator = GetHttpSessionConfigurator.class)
 public class NGClientEndpoint extends BaseNGClientEndpoint
 {
 	public NGClientEndpoint()
@@ -66,9 +66,9 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 	@Override
 	@OnOpen
 	public void start(Session newSession, @PathParam("clientnr") String clientnr, @PathParam("windowname") String windowname,
-		@PathParam("windowid") String windowid) throws Exception
+		@PathParam("windownr") String windownr) throws Exception
 	{
-		super.start(newSession, clientnr, windowname, windowid);
+		super.start(newSession, clientnr, windowname, windownr);
 	}
 
 	@Override

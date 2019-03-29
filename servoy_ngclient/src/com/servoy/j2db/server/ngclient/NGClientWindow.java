@@ -65,9 +65,9 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	private final ConcurrentMap<String, WeakHashSet<INGFormElement>> allowedForms = new ConcurrentHashMap<>();
 	private final ConcurrentMap<String, WeakHashMap<INGFormElement, String>> allowedRelation = new ConcurrentHashMap<>();
 
-	public NGClientWindow(INGClientWebsocketSession websocketSession, String windowUuid, String windowName)
+	public NGClientWindow(INGClientWebsocketSession websocketSession, int windowNr, String windowName)
 	{
-		super(websocketSession, windowUuid, windowName);
+		super(websocketSession, windowNr, windowName);
 	}
 
 	public static INGClientWindow getCurrentWindow()

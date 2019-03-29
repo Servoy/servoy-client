@@ -200,7 +200,7 @@ public class MediaResourcesServlet extends HttpServlet
 						mediaName.append(paths[paths.length - 1]);
 
 						if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
-						else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientnr, mediaName.toString());
+						else found = sendClientFlattenedSolutionBasedMedia(req, resp, Integer.parseInt(clientnr), mediaName.toString());
 					}
 					break;
 
@@ -219,7 +219,7 @@ public class MediaResourcesServlet extends HttpServlet
 			{
 				String decrypt = SecuritySupport.decrypt(Settings.getInstance(), encrypted);
 				String clientnr = req.getParameter("clientnr");
-				found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(req, clientnr), decrypt),
+				found = clientnr != null && sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(req, Integer.parseInt(clientnr)), decrypt),
 					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
 			}
 			catch (Exception e)
@@ -346,7 +346,7 @@ public class MediaResourcesServlet extends HttpServlet
 			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 
-	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientnr, String mediaName)
+	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, int clientnr, String mediaName)
 		throws IOException
 	{
 		IApplication client = getClient(request, clientnr);
@@ -362,13 +362,13 @@ public class MediaResourcesServlet extends HttpServlet
 		return false;
 	}
 
-	protected IApplication getClient(HttpServletRequest request, String clientnrStr)
+	protected IApplication getClient(HttpServletRequest request, int clientnr)
 	{
-		INGClientWebsocketSession wsSession = getSession(request, clientnrStr);
+		INGClientWebsocketSession wsSession = getSession(request, clientnr);
 		return wsSession != null ? wsSession.getClient() : null;
 	}
 
-	protected INGClientWebsocketSession getSession(HttpServletRequest request, String clientnr)
+	protected INGClientWebsocketSession getSession(HttpServletRequest request, int clientnr)
 	{
 		// try to look it up as clientnr. (solution model)
 		HttpSession httpSession = request.getSession(false);
@@ -414,8 +414,7 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
 			{
-				// RAGTEST paths[1] was clientuuid, nu clientnr
-				String clientnr = paths[1];
+				int clientnr = paths[1].length() == 0 ? -1 : Integer.parseInt(paths[1]);
 				final INGClientWebsocketSession wsSession = getSession(req, clientnr);
 				try
 				{

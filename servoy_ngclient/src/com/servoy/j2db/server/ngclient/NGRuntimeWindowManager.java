@@ -127,8 +127,8 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	@Override
 	protected RuntimeWindow getMainApplicationWindow()
 	{
-		String windowId = CurrentWindow.exists() ? CurrentWindow.get().getUuid() : null;
-		return windowId != null ? getWindow(windowId) : null;
+		int windowNr = CurrentWindow.exists() ? CurrentWindow.get().getNr() : -1;
+		return windowNr != -1 ? getWindow(String.valueOf(windowNr)) : null;
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		{
 			// try to always just set the current parent if it is null
 			// this way we can later on use this to set the window back.
-			parent = getWindow(CurrentWindow.get().getUuid());
+			parent = getWindow(String.valueOf(CurrentWindow.get().getNr()));
 		}
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
@@ -185,13 +185,14 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		return new ArrayList<String>(windows.keySet());
 	}
 
-	public void createMainWindow(String windowsUUID)
+	public void createMainWindow(int windowNr)
 	{
-		if (getWindow(windowsUUID) == null)
+		String windowName = String.valueOf(windowNr);
+		if (getWindow(windowName) == null)
 		{
-			RuntimeWindow mainApplicationWindow = createWindow(windowsUUID, JSWindow.WINDOW, null);
+			RuntimeWindow mainApplicationWindow = createWindow(windowName, JSWindow.WINDOW, null);
 			mainApplicationWindow.setLocation(0, 0); //default values, that never change
-			setCurrentWindowName(windowsUUID);
+			setCurrentWindowName(windowName);
 		}
 	}
 
