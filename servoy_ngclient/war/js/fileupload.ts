@@ -144,9 +144,9 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
             if (index > 0) {
     	        var modelString = dataproviderString.substring(0,index);
     	        var modelFunction = $parse(modelString);
-    	        var beanModel = modelFunction($scope);
+    	        var componentModel = modelFunction($scope);
     	        var propertyname = dataproviderString.substring(index+1);
-    	        var beanname;
+    	        var componentname;
 				var parentForm = $scope.$parent;
 				
 				while(parentForm && !parentForm.hasOwnProperty('formname')) {
@@ -156,19 +156,19 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 				if(parentForm) {
 					if(parentForm['model']) {
 						for(var key in parentForm['model']) {
-							if (parentForm['model'][key] === beanModel) {
-								beanname = key;
+							if (parentForm['model'][key] === componentModel) {
+								componentname = key;
 								break;
 							}
 						}
 					}
-					if (!beanname) {
-						$log.error("svyFileupload, bean name not found for model string: " + dataproviderString);
+					if (!componentname) {
+						$log.error("svyFileupload, component name not found for model string: " + dataproviderString);
 						return;
 					}
 					var formname = parentForm['formname'];
 					$element.bind('click', function(event) {
-						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + beanname + "/" + propertyname);
+						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + componentname + "/" + propertyname);
 					});    	        
 				}
 				else {
