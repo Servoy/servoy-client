@@ -70,7 +70,7 @@ public abstract class ViewportRowDataProvider
 	}
 
 	protected void writeRowData(int startIndex, int endIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo,
-		Object sabloValue) throws JSONException
+		Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
 	{
 		w.array();
 		if (foundset != null)
@@ -88,9 +88,9 @@ public abstract class ViewportRowDataProvider
 				// turn change data/bounds of data that we are trying to write to JSON, we use fire collector; after we are done writing, any such handlers will be called
 				// and if they alter anything in the foundset, the foundset/other listeners will pick that up and generate a new change to be written to JSON...
 				FireCollector fireCollector = FireCollector.getFireCollector();
-				if (sabloValue != null)
+				if (sabloValueThatRequestedThisDataToBeWritten != null)
 				{
-					onlyFireListenersForProperty(sabloValue);
+					onlyFireListenersForProperty(sabloValueThatRequestedThisDataToBeWritten);
 				}
 				try
 				{
@@ -103,7 +103,7 @@ public abstract class ViewportRowDataProvider
 				}
 				finally
 				{
-					if (sabloValue != null)
+					if (sabloValueThatRequestedThisDataToBeWritten != null)
 					{
 						resumeNormalListeners();
 					}

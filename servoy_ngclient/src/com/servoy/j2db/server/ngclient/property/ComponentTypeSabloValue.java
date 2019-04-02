@@ -79,6 +79,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Value used at runtime in Sablo component.
+ * This is meant to be used as a property in a parent component that will handle the showing of this as a child component. (For example table view (portal) or list form component components do this - use child components as properties...)
  *
  * @author acostescu
  */
