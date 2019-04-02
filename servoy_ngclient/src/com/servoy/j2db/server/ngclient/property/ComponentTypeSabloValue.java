@@ -579,7 +579,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				{
 					clientConversionInfo.pushNode(String.valueOf(i));
 					viewPortChanges[i].writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), foundsetPropValue.getFoundset(),
-						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, clientConversionInfo);
+						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, clientConversionInfo, null);
 					clientConversionInfo.popNode();
 				}
 				clientConversionInfo.popNode();

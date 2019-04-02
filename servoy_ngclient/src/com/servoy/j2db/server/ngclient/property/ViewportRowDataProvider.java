@@ -90,7 +90,7 @@ public abstract class ViewportRowDataProvider
 				FireCollector fireCollector = FireCollector.getFireCollector();
 				if (sabloValueThatRequestedThisDataToBeWritten != null)
 				{
-					onlyFireListenersForProperty(sabloValueThatRequestedThisDataToBeWritten);
+					getDataAdapterList().onlyFireListenersForProperty(sabloValueThatRequestedThisDataToBeWritten);
 				}
 				try
 				{
@@ -105,23 +105,13 @@ public abstract class ViewportRowDataProvider
 				{
 					if (sabloValueThatRequestedThisDataToBeWritten != null)
 					{
-						resumeNormalListeners();
+						getDataAdapterList().resumeNormalListeners();
 					}
 					fireCollector.done();
 				}
 			}
 		}
 		w.endArray();
-	}
-
-	protected void onlyFireListenersForProperty(Object propertyValue)
-	{
-
-	}
-
-	protected void resumeNormalListeners()
-	{
-
 	}
 
 	protected abstract FoundsetDataAdapterList getDataAdapterList();

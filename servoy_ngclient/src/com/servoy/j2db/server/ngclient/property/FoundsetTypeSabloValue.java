@@ -733,7 +733,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					for (int i = 0; i < viewPortChanges.length; i++)
 					{
 						clientConversionInfo.pushNode(String.valueOf(i));
-						viewPortChanges[i].writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, clientConversionInfo);
+						viewPortChanges[i].writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, clientConversionInfo,
+							null);
 						clientConversionInfo.popNode();
 					}
 					clientConversionInfo.popNode();
