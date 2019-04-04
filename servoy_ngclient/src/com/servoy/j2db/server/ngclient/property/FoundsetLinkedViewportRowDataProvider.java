@@ -87,16 +87,4 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	{
 		return dal;
 	}
-
-	@Override
-	protected void onlyFireListenersForProperty(Object propertyValue)
-	{
-		dal.onlyFireListenersForProperty(propertyValue);
-	}
-
-	@Override
-	protected void resumeNormalListeners()
-	{
-		dal.resumeNormalListeners();
-	}
 }

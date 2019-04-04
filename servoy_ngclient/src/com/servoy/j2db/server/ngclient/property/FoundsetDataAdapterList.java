@@ -40,7 +40,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 {
 
 	private boolean keepQuiet = false;
-	private Object propertyValue;
+	private Object onlyFireListenersForPropertyValue;
 	private List<IDataLinkedPropertyRegistrationListener> dataLinkedPropertyRegistrationListeners;
 
 	public FoundsetDataAdapterList(IWebFormController formController)
@@ -148,18 +148,18 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 	public void onlyFireListenersForProperty(Object propertyValue)
 	{
-		this.propertyValue = propertyValue;
+		this.onlyFireListenersForPropertyValue = propertyValue;
 	}
 
 	public void resumeNormalListeners()
 	{
-		this.propertyValue = null;
+		this.onlyFireListenersForPropertyValue = null;
 	}
 
 	@Override
 	protected boolean canFirePropertyValueListener(IDataLinkedPropertyValue propertyValue)
 	{
-		return this.propertyValue == null || this.propertyValue == propertyValue;
+		return this.onlyFireListenersForPropertyValue == null || this.onlyFireListenersForPropertyValue == propertyValue;
 	}
 
 }

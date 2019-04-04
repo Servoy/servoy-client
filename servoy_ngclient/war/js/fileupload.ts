@@ -18,6 +18,8 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     }    
     
     $scope.doRemove = function(f) {
+        if($scope.uploadFiles && ! $scope.uploadFiles.length)
+            $scope.uploadFiles = [$scope.uploadFiles];
     	if($scope.uploadFiles.length) {
 	    	var idx = $scope.getUploadFiles().indexOf(f);
 	    	$scope.uploadFiles.splice(idx, 1);
@@ -76,19 +78,22 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     }
     
     $scope.doUpload = function() {
+        $scope.isUploading = true;
     	$scope.errorText = "";
     	progress = 0;
     	if($scope.isFileSelected()) {
     		$scope.upload = Upload.upload({
     			url: $svyFileuploadUtils.getUploadUrl(),
     			file: $scope.getUploadFiles()
-    		}).then(function(resp) {
+    		})
+    		$scope.upload.then(function(resp) {
     			// file is uploaded successfully
     			$scope.dismiss();
     		},
     		function(resp){
     			if (resp.data) $scope.errorText = resp.data;
     			else $scope.errorText = genericError;
+    	        $scope.isUploading = false;
 			},
 			function(evt) {
     			var current = 100.0 * evt.loaded / evt.total;
@@ -144,9 +149,9 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
             if (index > 0) {
     	        var modelString = dataproviderString.substring(0,index);
     	        var modelFunction = $parse(modelString);
-    	        var beanModel = modelFunction($scope);
+    	        var componentModel = modelFunction($scope);
     	        var propertyname = dataproviderString.substring(index+1);
-    	        var beanname;
+    	        var componentname;
 				var parentForm = $scope.$parent;
 				
 				while(parentForm && !parentForm.hasOwnProperty('formname')) {
@@ -156,19 +161,19 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 				if(parentForm) {
 					if(parentForm['model']) {
 						for(var key in parentForm['model']) {
-							if (parentForm['model'][key] === beanModel) {
-								beanname = key;
+							if (parentForm['model'][key] === componentModel) {
+								componentname = key;
 								break;
 							}
 						}
 					}
-					if (!beanname) {
-						$log.error("svyFileupload, bean name not found for model string: " + dataproviderString);
+					if (!componentname) {
+						$log.error("svyFileupload, component name not found for model string: " + dataproviderString);
 						return;
 					}
 					var formname = parentForm['formname'];
 					$element.bind('click', function(event) {
-						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + beanname + "/" + propertyname);
+						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + componentname + "/" + propertyname);
 					});    	        
 				}
 				else {

@@ -1,6 +1,6 @@
 <div class="svy-upload">
 	<h4 class="svy-upload-header-txt">{{getTitleText()}}</h4>
-	<table class="svy-upload-table" ng-if="isFileSelected()">
+	<table class="svy-upload-table" ng-if="isFileSelected() && !isUploading">
 		<caption>{{::i18_selectedFiles}}</caption>
 		<thead><tr><th>{{::i18n_name}}</th><th></th></tr></thead>
 		<tr ng-repeat="f in getUploadFiles()"><td>{{f.name}}</td><td><div class="svy-btn svy-btn-danger" ng-click="doRemove(f)">{{::i18n_remove}}</div></td></tr>

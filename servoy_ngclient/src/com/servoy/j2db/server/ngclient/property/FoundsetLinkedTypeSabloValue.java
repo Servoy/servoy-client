@@ -584,7 +584,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				{
 					clientConversionInfo.pushNode(String.valueOf(i));
 					viewPortChanges[i].writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), getFoundset(),
-						getFoundsetValue().getViewPort().getStartIndex(), writer, null, clientConversionInfo);
+						getFoundsetValue().getViewPort().getStartIndex(), writer, null, clientConversionInfo, wrappedSabloValue);
 					clientConversionInfo.popNode();
 				}
 				writer.endArray();
