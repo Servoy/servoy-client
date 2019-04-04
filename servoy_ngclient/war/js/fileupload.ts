@@ -18,6 +18,8 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     }    
     
     $scope.doRemove = function(f) {
+        if($scope.uploadFiles && ! $scope.uploadFiles.length)
+            $scope.uploadFiles = [$scope.uploadFiles];
     	if($scope.uploadFiles.length) {
 	    	var idx = $scope.getUploadFiles().indexOf(f);
 	    	$scope.uploadFiles.splice(idx, 1);
@@ -76,19 +78,22 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
     }
     
     $scope.doUpload = function() {
+        $scope.isUploading = true;
     	$scope.errorText = "";
     	progress = 0;
     	if($scope.isFileSelected()) {
     		$scope.upload = Upload.upload({
     			url: $svyFileuploadUtils.getUploadUrl(),
     			file: $scope.getUploadFiles()
-    		}).then(function(resp) {
+    		})
+    		$scope.upload.then(function(resp) {
     			// file is uploaded successfully
     			$scope.dismiss();
     		},
     		function(resp){
     			if (resp.data) $scope.errorText = resp.data;
     			else $scope.errorText = genericError;
+    	        $scope.isUploading = false;
 			},
 			function(evt) {
     			var current = 100.0 * evt.loaded / evt.total;
