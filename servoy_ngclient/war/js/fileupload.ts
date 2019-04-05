@@ -173,7 +173,7 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 					}
 					var formname = parentForm['formname'];
 					$element.bind('click', function(event) {
-						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + componentname + "/" + propertyname);
+						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getClientnr() + "/" + formname + "/" + componentname + "/" + propertyname);
 					});    	        
 				}
 				else {

@@ -198,7 +198,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		var solName = $webSocket.getURLParameter('s');
 		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($webSocket.getPathname())[1];
 		else $solutionSettings.solutionName  = solName;
-		$solutionSettings.windowName = $sabloApplication.getWindowNr();
+		$solutionSettings.windowName = $sabloApplication.getWindownr();
 		var recordingPrefix;
 		if ($window.location.search.indexOf("svy_record=true") > -1) {
 			recordingPrefix = "/recording/websocket";
@@ -1421,7 +1421,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			webStorage.local.remove('servoy_password');
 		},
 		showFileOpenDialog: function(title, multiselect, acceptFilter) {
-			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect, acceptFilter);
+			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getClientnr(), title, multiselect, acceptFilter);
 		},
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;

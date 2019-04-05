@@ -415,7 +415,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
 		/**
-		 * we should have to  check for hasForm here, because we shouldn push a recreatedUI form when it is not
+		 * we should have to  check for hasForm here, because we shouldn't push a recreatedUI form when it is not
 		 * on the client. Because it could be not visible again and not have all the data, then the next time the touch will
 		 * just fully ignore it.
 		 */
