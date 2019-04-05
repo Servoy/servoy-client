@@ -21,7 +21,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.sablo.IChangeListener;
@@ -33,7 +32,6 @@ import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -48,7 +46,6 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -418,25 +415,15 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 		if (dataproviderId != null && foundsetId != null)
 		{
-			Form form = ((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
-			Collection<PropertyDescription> fsProps = webObjectCntxt.getUnderlyingWebObject().getProperties(FoundsetPropertyType.INSTANCE);
 			ITable table = null;
-			if (fsProps != null)
+			Form form = ((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
+			// always assume now that the the properties has the foundset property name.
+			FoundsetTypeSabloValue runtimeValOfFoundset = (FoundsetTypeSabloValue)webObjectCntxt.getUnderlyingWebObject().getProperty(
+				this.propertyDependencies.foundsetPropertyName);
+			if (runtimeValOfFoundset != null && runtimeValOfFoundset.getFoundset() != null &&
+				runtimeValOfFoundset.getFoundset().getDataSource().equals(foundsetId))
 			{
-				// try to look the foundset up directly from webobject if possible.
-				for (PropertyDescription pd : fsProps)
-				{
-					Object property = webObjectCntxt.getUnderlyingWebObject().getProperty(pd.getName());
-					if (property instanceof FoundsetTypeSabloValue)
-					{
-						IFoundSetInternal foundset = ((FoundsetTypeSabloValue)property).getFoundset();
-						if (foundset != null && foundset.getDataSource().equals(foundsetId))
-						{
-							table = foundset.getTable();
-							break;
-						}
-					}
-				}
+				table = runtimeValOfFoundset.getFoundset().getTable();
 			}
 			if (table == null) table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetId, application, form);
 
