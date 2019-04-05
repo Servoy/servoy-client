@@ -3190,6 +3190,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
 	{
+		if (query.getQuery().getColumns() == null || query.getQuery().getColumns().size() == 0)
+		{
+			throw new RuntimeException("Can't create a ViewFoundset with name: " + name + " and query  " + query + " that has no columns");
+		}
 		String dataSource = DataSourceUtils.createViewDataSource(name);
 		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
 
