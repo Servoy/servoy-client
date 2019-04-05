@@ -450,7 +450,7 @@ public abstract class AbstractSolutionTest
 				}
 			};
 
-			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(randomUUID().toString(), 1))
+			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(testHttpsession.getId(), 1))
 			{
 				@Override
 				public void init(Map<String, List<String>> requestParams) throws Exception
@@ -494,7 +494,7 @@ public abstract class AbstractSolutionTest
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
 
-			endpoint.start(new TestSession(), "42", "null", "Test");
+			endpoint.start(new TestSession(), String.valueOf(session.getSessionKey().getClientnr()), "null", "42");
 
 			CurrentWindow.set(session.getWindows().iterator().next());
 		}
