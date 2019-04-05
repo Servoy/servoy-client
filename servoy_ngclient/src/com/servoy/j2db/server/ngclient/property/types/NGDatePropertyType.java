@@ -15,12 +15,12 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -77,15 +77,11 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 			// if no date conversion replace client time zone with server time zone
 			if (hasNoDateConversion)
 			{
-				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(sDate);
-				LocalDateTime clientLocalDateTime = clientDateTime.toLocalDateTime();
-				DateTime dateTime = clientLocalDateTime.toDateTime(DateTimeZone.getDefault());
-				return dateTime.toDate();
+				return Date.from(LocalDateTime.parse(sDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME).atZone(ZoneId.systemDefault()).toInstant());
 			}
 			else
 			{
-				DateTime clientDateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(sDate);
-				return clientDateTime.toDate();
+				return Date.from(OffsetDateTime.parse(sDate).toInstant());
 			}
 		}
 		return null;
@@ -99,15 +95,15 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		JSONUtils.addKeyIfPresent(writer, key);
 		String sDate;
 
-		DateTime dt = new DateTime(value);
+		OffsetDateTime offsetDT = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault());
 		// remove time zone info from sDate if no date conversion
 		if (pd != null && hasNoDateConversion(pd))
 		{
-			sDate = dt.toLocalDateTime().toString();
+			sDate = offsetDT.toLocalDateTime().toString();
 		}
 		else
 		{
-			sDate = dt.toString();
+			sDate = offsetDT.toString();
 		}
 
 		return writer.value(sDate);

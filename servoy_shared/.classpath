@@ -8,7 +8,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/fs-commons.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/fs-parser.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcifs.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/joda-time.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/minis.jar" sourcepath="libsrc/minis-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/PBKDF2.jar" sourcepath="libsrc/PBKDF2-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/prompt.jar" sourcepath="libsrc/xswingx.zip"/>

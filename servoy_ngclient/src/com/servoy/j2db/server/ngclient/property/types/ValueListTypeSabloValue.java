@@ -19,6 +19,8 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +30,6 @@ import java.util.Map;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -409,12 +410,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		if (o instanceof Date)
 		{
-			DateTime dt = new DateTime(o);
+			OffsetDateTime offsetDT = OffsetDateTime.ofInstant(((Date)o).toInstant(), ZoneId.systemDefault());
 			if (format != null && format.parsedFormat.useLocalDateTime())
 			{
-				return dt.toLocalDateTime().toString();
+				return offsetDT.toLocalDateTime().toString();
 			}
-			return dt.toString();
+			return offsetDT.toString();
 		}
 		return o;
 	}
