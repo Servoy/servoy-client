@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.util.UUID.randomUUID;
+
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.file.FileCleaner;
@@ -69,7 +72,6 @@ import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -78,13 +80,13 @@ import com.servoy.j2db.util.Utils;
  * Get:
  * <ul>
  * <li>/resources/fs/[rootSolutionName]/[media.name.including.mediafolderpath] - for flattened solution access - useful when resources such as CSS link to each other relatively by name/path:</li>
- * <li>/resources/fs/[rootSolutionName]/[media.name.including.mediafolderpath]?uuid=... - for SolutionModel altered media access ((dynamic)) flattened solution of a specific client; not cached)
+ * <li>/resources/fs/[rootSolutionName]/[media.name.including.mediafolderpath]?clientnr=... - for SolutionModel altered media access ((dynamic)) flattened solution of a specific client; not cached)
  * <li>/resources/dynamic/[dynamic_uuid] - for on-the-fly content (for example being served directly from the database); 'dynamic_uuid' is the one returned by MediaResourcesServlet.getMediaInfo(byte[]))</li>
  * </ul>
  * Post:
  * <ul>
- * <li>/resources/upload/[clientuuid]/[formName]/[elementName]/[propertyName] - for binary upload targeting an element property</li>
- * <li>/resources/upload/[clientuuid] - for binary upload of files selected with the built-in file selector</li>
+ * <li>/resources/upload/[clientnr]/[formName]/[elementName]/[propertyName] - for binary upload targeting an element property</li>
+ * <li>/resources/upload/[clientnr] - for binary upload of files selected with the built-in file selector</li>
  * </ul>
  *
  * @author jcompagner
@@ -106,8 +108,8 @@ public class MediaResourcesServlet extends HttpServlet
 
 	public static MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
 	{
-		MediaInfo mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName,
-			contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType, contentDisposition, mediaBytes);
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
+			contentDisposition, mediaBytes);
 		dynamicMediasMap.put(mediaInfo.getName(), mediaInfo);
 		return mediaInfo;
 	}
@@ -191,14 +193,14 @@ public class MediaResourcesServlet extends HttpServlet
 				case FLATTENED_SOLUTION_ACCESS :
 					if (paths.length >= 3)
 					{
-						String clientUUID = req.getParameter("uuid");
+						String clientnr = req.getParameter("clientnr");
 						StringBuffer mediaName = new StringBuffer();
 						for (int i = 2; i < paths.length - 1; i++)
 							mediaName.append(paths[i]).append('/');
 						mediaName.append(paths[paths.length - 1]);
 
-						if (clientUUID == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
-						else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientUUID, mediaName.toString());
+						if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
+						else found = sendClientFlattenedSolutionBasedMedia(req, resp, Integer.parseInt(clientnr), mediaName.toString());
 					}
 					break;
 
@@ -216,8 +218,8 @@ public class MediaResourcesServlet extends HttpServlet
 			try
 			{
 				String decrypt = SecuritySupport.decrypt(Settings.getInstance(), encrypted);
-				String clientUUID = req.getParameter("uuid");
-				found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(clientUUID), decrypt),
+				String clientnr = req.getParameter("clientnr");
+				found = clientnr != null && sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(req, Integer.parseInt(clientnr)), decrypt),
 					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
 			}
 			catch (Exception e)
@@ -344,10 +346,10 @@ public class MediaResourcesServlet extends HttpServlet
 			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
 	}
 
-	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
+	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, int clientnr, String mediaName)
 		throws IOException
 	{
-		IApplication client = getClient(clientUUID);
+		IApplication client = getClient(request, clientnr);
 
 		if (client != null)
 		{
@@ -360,16 +362,21 @@ public class MediaResourcesServlet extends HttpServlet
 		return false;
 	}
 
-	/**
-	 * @param clientUUID
-	 * @return
-	 */
-	protected IApplication getClient(String clientUUID)
+	protected IApplication getClient(HttpServletRequest request, int clientnr)
 	{
-		// try to look it up as clientId. (solution model)
-		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
-			clientUUID);
+		INGClientWebsocketSession wsSession = getSession(request, clientnr);
 		return wsSession != null ? wsSession.getClient() : null;
+	}
+
+	protected INGClientWebsocketSession getSession(HttpServletRequest request, int clientnr)
+	{
+		// try to look it up as clientnr. (solution model)
+		HttpSession httpSession = request.getSession(false);
+		if (httpSession != null)
+		{
+			return (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession, clientnr);
+		}
+		return null;
 	}
 
 	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
@@ -407,9 +414,8 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
 			{
-				String clientID = paths[1];
-				final INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
-					WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
+				int clientnr = paths[1].length() == 0 ? -1 : Integer.parseInt(paths[1]);
+				final INGClientWebsocketSession wsSession = getSession(req, clientnr);
 				try
 				{
 					final String formName = paths.length == 5 ? paths[2] : null;

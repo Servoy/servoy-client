@@ -25,6 +25,8 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.server.ServerEndpoint;
 
+import org.sablo.websocket.GetHttpSessionConfigurator;
+
 import com.servoy.j2db.server.ngclient.IMessagesRecorder;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
@@ -32,12 +34,12 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
  * @author jcompagner
  *
  */
-@ServerEndpoint(value = "/recording/websocket/{sessionid}/{windowname}/{windowid}")
+@ServerEndpoint(value = "/recording/websocket/{clientnr}/{windowname}/{windownr}", configurator = GetHttpSessionConfigurator.class)
 public class RecordingEndpoint extends NGClientEndpoint
 {
 	private final StringBuilder incomingPartialMessage = new StringBuilder();
 	private final IMessagesRecorder recorder;
-	private String uuid;
+	private String sessionKeyString;
 
 	/**
 	 * @param recorder
@@ -47,7 +49,6 @@ public class RecordingEndpoint extends NGClientEndpoint
 	{
 		recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
 	}
-
 
 	@Override
 	@OnMessage
@@ -66,27 +67,27 @@ public class RecordingEndpoint extends NGClientEndpoint
 			message = incomingPartialMessage.toString();
 			incomingPartialMessage.setLength(0);
 		}
-		if (!"P".equals(message)) recorder.addMessage(getSessionUUID(), '>' + message);
+		if (!"P".equals(message)) recorder.addMessage(getSessionKeyString(), '>' + message);
 	}
 
 
 	/**
 	 * @return
 	 */
-	private String getSessionUUID()
+	private String getSessionKeyString()
 	{
-		if (uuid == null)
+		if (sessionKeyString == null)
 		{
-			uuid = getWindow().getSession().getUuid();
+			sessionKeyString = getWindow().getSession().getSessionKey().toString();
 		}
-		return uuid;
+		return sessionKeyString;
 	}
 
 	@Override
 	public synchronized void sendText(String message) throws IOException
 	{
 		super.sendText(message);
-		if (!"p".equals(message)) recorder.addMessage(getSessionUUID(), message);
+		if (!"p".equals(message)) recorder.addMessage(getSessionKeyString(), message);
 	}
 
 	@Override
@@ -95,7 +96,7 @@ public class RecordingEndpoint extends NGClientEndpoint
 	{
 		// TODO should we support refresh of the browser in recording mode?
 		// then we can only clear it when the session is really disposed..
-		recorder.clear(getSessionUUID());
+		recorder.clear(getSessionKeyString());
 		super.onClose(closeReason);
 	}
 
@@ -104,6 +105,6 @@ public class RecordingEndpoint extends NGClientEndpoint
 	public void onError(Throwable t)
 	{
 		super.onError(t);
-		recorder.clear(getSessionUUID());
+		recorder.clear(getSessionKeyString());
 	}
 }

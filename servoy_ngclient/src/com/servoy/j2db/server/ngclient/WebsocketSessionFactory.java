@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
+import org.sablo.websocket.WebsocketSessionKey;
 
 /**
  * Create websocket session handler based on endpoint type.
@@ -31,11 +32,12 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	public static final String CLIENT_ENDPOINT = "client";
 
 	/**
-	 * @param uuid
+	 * @param sessionKey
 	 * @return the session
 	 */
-	public IWebsocketSession createSession(String uuid) throws Exception
+	@Override
+	public IWebsocketSession createSession(WebsocketSessionKey sessionKey) throws Exception
 	{
-		return new NGClientWebsocketSession(uuid);
+		return new NGClientWebsocketSession(sessionKey);
 	}
 }

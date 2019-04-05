@@ -198,7 +198,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		var solName = $webSocket.getURLParameter('s');
 		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($webSocket.getPathname())[1];
 		else $solutionSettings.solutionName  = solName;
-		$solutionSettings.windowName = $sabloApplication.getWindowId();
+		$solutionSettings.windowName = $sabloApplication.getWindowNr();
 		var recordingPrefix;
 		if ($window.location.search.indexOf("svy_record=true") > -1) {
 			recordingPrefix = "/recording/websocket";
@@ -294,9 +294,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 
-			if (msg.sessionid && recordingPrefix) {
+			if (msg.clientnr && recordingPrefix) {
 				var btn = <HTMLAnchorElement>$window.document.createElement("A");        // Create a <button> element
-				btn.href = "solutions/" + msg.sessionid + ".recording";
+				btn.href = "solutions/" + msg.clientnr + ".recording";
 				btn.target = "_blank";
 				btn.style.position= "absolute";
 				btn.style.right = "0px";
@@ -305,8 +305,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				btn.appendChild(t);                                // Append the text to <button>
 				$window.document.body.appendChild(btn); 
 			}
-			if (msg.windowid) {
-				$solutionSettings.windowName = msg.windowid;
+			if (msg.windownr) {
+				$solutionSettings.windowName = msg.windownr;
 			}
 		});
 

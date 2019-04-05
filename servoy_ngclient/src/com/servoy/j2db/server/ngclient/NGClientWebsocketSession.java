@@ -30,8 +30,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpSession;
-
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
@@ -47,6 +45,7 @@ import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IMessageLogger;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWindow;
+import org.sablo.websocket.WebsocketSessionKey;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -93,9 +92,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private NGClient client;
 
-	public NGClientWebsocketSession(String uuid)
+	public NGClientWebsocketSession(WebsocketSessionKey sessionKey)
 	{
-		super(uuid);
+		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
 	}
 
@@ -119,9 +118,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public INGClientWindow createWindow(String windowUuid, String windowName)
+	public INGClientWindow createWindow(int windowNr, String windowName)
 	{
-		return new NGClientWindow(this, windowUuid, windowName);
+		return new NGClientWindow(this, windowNr, windowName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -197,7 +196,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 					}
 
-					client.getRuntimeWindowManager().setCurrentWindowName(CurrentWindow.get().getUuid());
+					client.getRuntimeWindowManager().setCurrentWindowName(String.valueOf(CurrentWindow.get().getNr()));
 					IWebFormController currentForm = client.getFormManager().getCurrentForm();
 					if (currentForm != null)
 					{
@@ -217,12 +216,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 			}
 
-			if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
-			{
-				HttpSession httpSession = (HttpSession)CurrentWindow.get().getEndpoint().getSession().getUserProperties().get(HttpSession.class.getName());
-				client.setHttpSession(httpSession);
-			}
-
 			getEventDispatcher().addEvent(new Runnable()
 			{
 				@Override
@@ -233,7 +226,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						sendUIProperties();
 
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
-						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
+						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getNr());
 						client.handleArguments(
 							args.getFirstArgument() != null ? new String[] { args.getSolutionName(), args.getMethodName(), args.getFirstArgument() }
 								: new String[] { args.getSolutionName(), args.getMethodName() },
@@ -327,10 +320,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						timestamp += refLM.longValue();
 					}
 				}
-				styleSheets.set(i,
-					"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
-						styleSheets.get(i).replace(".less", ".css") + "?t=" +
-						Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&uuid=" + getUuid());
+				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
+					styleSheets.get(i).replace(".less", ".css") + "?t=" +
+					Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&clientnr=" + getSessionKey().getClientnr());
 			}
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
 			lastSentStyleSheets = new ArrayList<String>(styleSheets);
@@ -455,7 +447,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (MessageLogger.doLog)
 		{
-			return new MessageLogger(this, window.getUuid());
+			return new MessageLogger(this, window.getNr());
 		}
 		return null;
 	}

@@ -26,6 +26,7 @@ import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
+import org.sablo.websocket.WebsocketSessionKey;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.IDebugClientHandler;
@@ -57,9 +58,9 @@ public class Activator implements BundleActivator
 			WebsocketSessionManager.setWebsocketSessionFactory(WebsocketSessionFactory.CLIENT_ENDPOINT, new IWebsocketSessionFactory()
 			{
 				@Override
-				public IWebsocketSession createSession(String uuid) throws Exception
+				public IWebsocketSession createSession(WebsocketSessionKey sessionKey) throws Exception
 				{
-					NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid)
+					NGClientWebsocketSession wsSession = new NGClientWebsocketSession(sessionKey)
 					{
 						@Override
 						public void init(Map<String, List<String>> requestParams) throws Exception
@@ -77,7 +78,7 @@ public class Activator implements BundleActivator
 									{
 										NGClient debugNGClient = (NGClient)service.getDebugNGClient();
 										if (debugNGClient != null && !debugNGClient.isShutDown() &&
-											debugNGClient.getWebsocketSession().getUuid().equals(getUuid())) setClient(debugNGClient);
+											debugNGClient.getWebsocketSession().getSessionKey().equals(getSessionKey())) setClient(debugNGClient);
 										else setClient((NGClient)service.createDebugNGClient(this));
 									}
 									else

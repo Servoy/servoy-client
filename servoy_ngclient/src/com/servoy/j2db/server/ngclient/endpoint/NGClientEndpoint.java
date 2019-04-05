@@ -18,12 +18,12 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
-import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -32,13 +32,15 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import org.json.JSONObject;
 import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.GetHttpSessionConfigurator;
 import org.sablo.websocket.IWebsocketSession;
 
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.server.ngclient.GetHttpSessionConfigurator;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.util.Debug;
@@ -53,7 +55,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 
-@ServerEndpoint(value = "/websocket/{sessionid}/{windowname}/{windowid}", configurator = GetHttpSessionConfigurator.class)
+@ServerEndpoint(value = "/websocket/{clientnr}/{windowname}/{windownr}", configurator = GetHttpSessionConfigurator.class)
 public class NGClientEndpoint extends BaseNGClientEndpoint
 {
 	public NGClientEndpoint()
@@ -61,17 +63,48 @@ public class NGClientEndpoint extends BaseNGClientEndpoint
 		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
 	}
 
+	@Override
 	@OnOpen
-	public void start(Session newSession, @PathParam("sessionid") String sessionid, @PathParam("windowname") String windowname,
-		@PathParam("windowid") String windowid, EndpointConfig config) throws Exception
+	public void start(Session newSession, @PathParam("clientnr") String clientnr, @PathParam("windowname") String windowname,
+		@PathParam("windownr") String windownr) throws Exception
 	{
-		super.start(newSession, sessionid, windowname, windowid);
-		HttpSession httpSession = (HttpSession)config.getUserProperties().get(HttpSession.class.getName());
-		if (httpSession != null)
+		super.start(newSession, clientnr, windowname, windownr);
+	}
+
+	@Override
+	protected HttpSession getHttpSession(Session session)
+	{
+		return GetHttpSessionConfigurator.getHttpSession(session);
+	}
+
+	@Override
+	public void onStart()
+	{
+		try
 		{
-			newSession.getUserProperties().put(HttpSession.class.getName(), httpSession);
+			if (getWindow() != null && getWindow().getSession() != null)
+			{
+				Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormState", //$NON-NLS-1$
+					new Object[0]);
+				if (formsOnClient instanceof JSONObject)
+				{
+					JSONObject json = (JSONObject)formsOnClient;
+					for (String formName : json.keySet())
+					{
+						JSONObject formData = json.getJSONObject(formName);
+						addFormIfAbsent(formName, formData.getString("url"));
+						boolean domAttached = formData.optBoolean("attached");
+						setAttachedToDOM(formName, domAttached);
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
 		}
 	}
+
 
 	@Override
 	@OnMessage

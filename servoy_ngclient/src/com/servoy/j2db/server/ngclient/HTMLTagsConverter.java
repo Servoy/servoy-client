@@ -120,8 +120,7 @@ public class HTMLTagsConverter
 							try
 							{
 								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
-								attr.setValue(
-									"resources/servoy_blobloader?blob=" + blobpart + "&uuid=" + context.getApplication().getWebsocketSession().getUuid());
+								attr.setValue("resources/servoy_blobloader?blob=" + blobpart);
 							}
 							catch (Exception e1)
 							{
