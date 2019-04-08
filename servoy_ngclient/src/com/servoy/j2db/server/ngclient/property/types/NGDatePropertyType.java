@@ -104,6 +104,17 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		else
 		{
 			sDate = offsetDT.toString();
+			if (sDate.indexOf('+') != -1)
+			{
+				String[] sDateA = sDate.split("\\+");
+				String[] offset = sDateA[1].split(":");
+				if (offset.length > 1) // seconds in offset, cut it, as it can't be handled in js
+				{
+					StringBuilder sDateBuilder = new StringBuilder(sDateA[0]).append('+');
+					sDateBuilder.append(offset[0]).append(':').append(offset[1]);
+					sDate = sDateBuilder.toString();
+				}
+			}
 		}
 
 		return writer.value(sDate);
