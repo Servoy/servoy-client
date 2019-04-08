@@ -174,6 +174,11 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("Freeware\n");
 		sb.append("\n");
 
+		sb.append("Joda time\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://joda-time.sourceforge.net/license.html\n");
+		sb.append("\n");
+
 		sb.append("JUG\n");
 		sb.append("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999\n");
 		sb.append("http://jug.safehaus.org\n");
