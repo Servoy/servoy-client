@@ -36,7 +36,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>com.servoy.eclipse.docgenerator.client.product</artifactId>
-									<version>1.4.4</version>
+									<version>1.4.5</version>
 									<type>zip</type>
 									<outputDirectory>${project.build.directory}/repository</outputDirectory>
 								</artifactItem>
@@ -122,7 +122,7 @@
 							<repositories>
 								<repository>
 									<id>servoy</id>
-									<url>${servoy-repo.url}</url>
+									<url>${eclipse.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
@@ -264,7 +264,7 @@
 							<repositories>
 								<repository>
 									<id>servoy</id>
-									<url>${servoy-repo.url}</url>
+									<url>${eclipse.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
