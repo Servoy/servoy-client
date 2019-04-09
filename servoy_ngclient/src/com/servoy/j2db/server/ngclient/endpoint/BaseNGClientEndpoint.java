@@ -18,14 +18,11 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
-import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.json.JSONObject;
 import org.sablo.websocket.WebsocketEndpoint;
 
-import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -35,7 +32,7 @@ import com.servoy.j2db.util.Pair;
  *
  */
 
-public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClientWebsocketEndpoint
+public abstract class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClientWebsocketEndpoint
 {
 
 	/**
@@ -51,37 +48,6 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	public BaseNGClientEndpoint(String endpointType)
 	{
 		super(endpointType);
-	}
-
-	@Override
-	public void onStart()
-	{
-		try
-		{
-			if (getWindow() != null && getWindow().getSession() != null)
-			{
-				Object formsOnClient = getWindow().getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLoadedFormState", //$NON-NLS-1$
-					new Object[0]);
-				if (formsOnClient instanceof JSONObject)
-				{
-					JSONObject json = (JSONObject)formsOnClient;
-					for (String formName : json.keySet())
-					{
-						JSONObject formData = json.getJSONObject(formName);
-						if (!formsOnClientForThisEndpoint.containsKey(formName))
-						{
-							addFormIfAbsent(formName, formData.getString("url"));
-						}
-						boolean domAttached = formData.optBoolean("attached");
-						setAttachedToDOM(formName, domAttached);
-					}
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	@Override

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
@@ -292,11 +291,13 @@ public class NGClientEntryFilter extends WebEntry
 				String solutionName = getSolutionNameFromURI(uri);
 				if (solutionName != null)
 				{
-					String clientUUID = request.getParameter("sessionId");
+					String clientnr = request.getParameter("clientnr");
 					INGClientWebsocketSession wsSession = null;
-					if (clientUUID != null)
+					HttpSession httpSession = request.getSession(false);
+					if (clientnr != null && httpSession != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession,
+							Integer.parseInt(clientnr));
 					}
 					FlattenedSolution fs = null;
 					boolean closeFS = false;
@@ -347,7 +348,7 @@ public class NGClientEntryFilter extends WebEntry
 						}
 						catch (Exception e)
 						{
-							Debug.error("error loading solution: " + solutionName + " for clientid: " + clientUUID, e);
+							Debug.error("error loading solution: " + solutionName + " for clientnr: " + clientnr, e);
 						}
 					}
 
@@ -403,30 +404,16 @@ public class NGClientEntryFilter extends WebEntry
 							}
 							else
 							{
-								if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.useHttpSession", "false")).booleanValue())
+								boolean maintenanceMode = wsSession == null //
+									&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
+									// when there is a http session, let the new client go through, otherwise another
+									// client from the same browser may be killed by a load balancer
+									&& request.getSession(false) == null;
+								if (maintenanceMode)
 								{
-									boolean maintenanceMode = wsSession == null && ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode();
-									if (maintenanceMode)
-									{
-										HttpSession session = request.getSession(false);
-										if (session != null)
-										{
-											AtomicInteger sessionCounter = (AtomicInteger)session.getAttribute(NGClient.HTTP_SESSION_COUNTER);
-											if (sessionCounter != null && sessionCounter.get() > 0)
-											{
-												// if there is a session and that session has one or more clients, then also allow this client. (or this can be even the same client doing a refresh)
-												maintenanceMode = false;
-											}
-										}
-									}
-									if (maintenanceMode)
-									{
-										response.getWriter().write("Server in maintenance mode");
-										response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-										return;
-									}
-									// make sure a session is created. when a ngclient is created, that one should set the timeout to 0
-									request.getSession(true);
+									response.getWriter().write("Server in maintenance mode");
+									response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+									return;
 								}
 
 								// prepare for possible index.html lookup

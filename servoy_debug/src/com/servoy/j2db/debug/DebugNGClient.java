@@ -176,7 +176,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		// shutdown can be called for an older client when opening a new debug client.
 		// then nothing should be done for the current window which is already for the new client instance
 		IWindow currentWindow = null;
-		if (CurrentWindow.exists() && !CurrentWindow.get().getSession().getUuid().equals(getWebsocketSession().getUuid()))
+		if (CurrentWindow.exists() && !CurrentWindow.get().getSession().getSessionKey().equals(getWebsocketSession().getSessionKey()))
 		{
 			currentWindow = CurrentWindow.set(null);
 		}

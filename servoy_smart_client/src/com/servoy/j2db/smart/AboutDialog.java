@@ -39,7 +39,7 @@ import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
  * Shows about info
- * 
+ *
  * @author jblok
  */
 @SuppressWarnings("nls")
@@ -69,13 +69,9 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		ta.setMargin(new Insets(3, 3, 3, 3));
 		String version = ClientVersion.getVersion() + "-build " + ClientVersion.getReleaseNumber();
 		version += "\nJava version " + System.getProperty("java.version") + " (" + System.getProperty("os.name") + ")";//$NON-NLS-2$
-		dialogText = new String(
-			app.getApplicationName() +
-				"\nVersion " +
-				version +
-				"\n\nCopyright \u00A9 1997-" +
-				Utils.formatTime(System.currentTimeMillis(), "yyyy") +
-				" \nServoy BV\nwww.servoy.com\n\nWarning: This computer program is protected by\ncopyright law and international treaties. Unauthorized\nreproduction or distribution of this program, or any\nportion of it, may result in severe civil and criminal\npenalties, and will be prosecuted to the maximum extent\npossible under law.");
+		dialogText = new String(app.getApplicationName() + "\nVersion " + version + "\n\nCopyright \u00A9 1997-" +
+			Utils.formatTime(System.currentTimeMillis(), "yyyy") +
+			" \nServoy BV\nwww.servoy.com\n\nWarning: This computer program is protected by\ncopyright law and international treaties. Unauthorized\nreproduction or distribution of this program, or any\nportion of it, may result in severe civil and criminal\npenalties, and will be prosecuted to the maximum extent\npossible under law.");
 		ta.setText(dialogText);
 		ta.setOpaque(false);
 		ta.setEditable(false);

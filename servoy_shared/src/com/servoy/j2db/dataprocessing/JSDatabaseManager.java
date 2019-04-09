@@ -2351,14 +2351,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public JSTable js_getTable(IFoundSetInternal foundset) throws ServoyException
 	{
-		String serverName = null;
-		String tableName = null;
 		if (foundset != null && foundset.getTable() != null)
 		{
-			serverName = foundset.getTable().getServerName();
-			tableName = foundset.getTable().getName();
+			return new JSTable(foundset.getTable(), application.getSolution().getServer(foundset.getTable().getServerName()));
 		}
-		return js_getTable(serverName, tableName);
+		return null;
 	}
 
 	/**

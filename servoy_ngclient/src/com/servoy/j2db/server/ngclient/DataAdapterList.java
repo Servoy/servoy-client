@@ -749,9 +749,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
 
-		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
-		// but what if it was a global or form variable?
-		if (editingRecord == null || editingRecord.startEditing())
+		if (editingRecord == null || editingRecord.startEditing() || editingRecord.getParentFoundSet().getColumnIndex(dataProviderID) == -1)
 		{
 			Object v;
 			// if the value is a map, then it means, that a set of related properties needs to be updated,

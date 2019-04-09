@@ -1715,7 +1715,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			ViewFoundSet vfs = viewFoundSets.get(dataSource);
 			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
-				" is not registered yet on the form manager, please use databaseManager.regiserViewFoundset() first before showing a form");
+				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasourcs.view.xxx.getFoundSet() first before showing a form");
 			return vfs;
 		}
 
@@ -3190,6 +3190,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
 	{
+		if (query.getQuery().getColumns() == null || query.getQuery().getColumns().size() == 0)
+		{
+			throw new RuntimeException("Can't create a ViewFoundset with name: " + name + " and query  " + query + " that has no columns");
+		}
 		String dataSource = DataSourceUtils.createViewDataSource(name);
 		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
 

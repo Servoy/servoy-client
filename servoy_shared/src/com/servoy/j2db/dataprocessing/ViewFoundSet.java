@@ -53,8 +53,12 @@ import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.DummyValidator;
+import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
@@ -72,6 +76,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.TypePredicate;
@@ -206,6 +211,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private int multiSelectPinLevel;
 	private final Map<BaseQueryTable, List<IQuerySelectValue>> pkColumnsForTable;
 	private final Map<BaseQueryTable, List<IQuerySelectValue>> columnsForTable;
+
+	private ITable table;
 
 	public ViewFoundSet(String datasource, QuerySelect select, IFoundSetManagerInternal manager, int chunkSize)
 	{
@@ -1415,15 +1422,41 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public ITable getTable()
 	{
-		try
+		if (table == null)
 		{
-			return manager.getTable(getDataSource());
+			try
+			{
+				table = manager.getTable(getDataSource());
+				if (table == null)
+				{
+
+					table = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(getDataSource()), true, ITable.VIEW, null, null);
+					for (IQuerySelectValue col : select.getColumns())
+					{
+						ITable colTable = manager.getTable(col.getColumn().getTable().getDataSource());
+						if (colTable != null)
+						{
+							Column column = colTable.getColumn(col.getColumn().getName());
+							if (column != null)
+							{
+								Column newCol = table.createNewColumn(DummyValidator.INSTANCE, columnNames.get(col), column.getType(), column.getLength(),
+									column.getScale(), column.getAllowNull());
+								if (column.getColumnInfo() != null)
+								{
+									DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
+									newCol.getColumnInfo().copyFrom(column.getColumnInfo());
+								}
+							}
+						}
+					}
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return null;
+		return table;
 	}
 
 	@Override

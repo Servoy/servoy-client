@@ -26,13 +26,11 @@ import java.sql.Types;
 import java.text.DecimalFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 
 import com.servoy.base.persistence.BaseColumn;
 import com.servoy.base.persistence.IBaseColumn;
@@ -397,8 +395,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					}
 					if (obj instanceof String)
 					{
-						DateTime dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime((String)obj);
-						return new java.sql.Date(dateTime.toDate().getTime());
+						return new java.sql.Date(OffsetDateTime.parse((String)obj).toEpochSecond() * 1000);
 					}
 					if (throwOnFail)
 					{
@@ -433,8 +430,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					}
 					if (obj instanceof String)
 					{
-						DateTime dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime((String)obj);
-						return new Timestamp(dateTime.toDate().getTime());
+						return new Timestamp(OffsetDateTime.parse((String)obj).toEpochSecond() * 1000);
 					}
 					if (throwOnFail)
 					{

@@ -36,22 +36,21 @@ public class MessageLogger implements IMessageLogger
 	public static boolean doLog = messageLogger.isDebugEnabled();
 
 	private final INGClientWebsocketSession session;
-	private final String windowId;
+	private final int windowNr;
 
 	/**
 	 * @param window
 	 */
-	public MessageLogger(INGClientWebsocketSession session, String windowId)
+	public MessageLogger(INGClientWebsocketSession session, int windowNr)
 	{
 		this.session = session;
-		this.windowId = windowId;
+		this.windowNr = windowNr;
 	}
 
 	private void logMessage(String message)
 	{
 		StringBuilder sb = new StringBuilder(message.length() + 50);
-		sb.append(session.getUuid()).append('|').append(windowId);
-		sb.append('|');
+		sb.append(session.getSessionKey()).append('|').append(windowNr).append('|');
 		INGApplication client = session.getClient();
 		if (client != null)
 		{

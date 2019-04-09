@@ -62,7 +62,7 @@ public class ViewportOperation
 	}
 
 	public boolean writeJSONContent(ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset, int viewportStartIndex, JSONWriter w,
-		String keyInParent, DataConversion clientDataConversions) throws JSONException
+		String keyInParent, DataConversion clientDataConversions, Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(w, keyInParent);
 
@@ -73,7 +73,8 @@ public class ViewportOperation
 		{
 			w.key("rows");
 			clientDataConversions.pushNode("rows");
-			rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnName, foundset, w, clientDataConversions, null);
+			rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnName, foundset, w, clientDataConversions,
+				sabloValueThatRequestedThisDataToBeWritten);
 			clientDataConversions.popNode();
 		}
 

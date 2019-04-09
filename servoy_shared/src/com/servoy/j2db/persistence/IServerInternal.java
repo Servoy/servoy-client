@@ -48,7 +48,7 @@ public interface IServerInternal
 
 	boolean hasTable(String tableName) throws RepositoryException;
 
-	String[] syncTableObjWithDB(ITable table, boolean createMissingServoySequences, boolean createMissingDBSequences, Table templateTable)
+	String[] syncTableObjWithDB(ITable table, boolean createMissingServoySequences, boolean createMissingDBSequences)
 		throws RepositoryException, SQLException;
 
 	void syncWithExternalTable(String tableName, Table externalTable) throws RepositoryException;

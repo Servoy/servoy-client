@@ -141,7 +141,7 @@ public class JSServer
 			if (table != null)
 			{
 				tableName = table.getTable().getName();
-				((IServerInternal)server).syncTableObjWithDB(table.getTable(), true, true, null);
+				((IServerInternal)server).syncTableObjWithDB(table.getTable(), true, true);
 				return true;
 			}
 		}

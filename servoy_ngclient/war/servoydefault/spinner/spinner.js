@@ -20,8 +20,9 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 					$scope.$watch('model.dataProviderID', function() {
 						$scope.selection = getSelectionFromDataprovider();
 					})
-
+					
 					var input = $element.find('input').eq(0);
+				
 					//copied from angularui timepicker
 					var isScrollingUp = function(e) {
 						if (e.originalEvent) {
@@ -141,6 +142,19 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 							case "margin":
 								if (value)
 									input.css(value);
+								break;
+							case "size":
+								var up = $element.find('i.glyphicon-chevron-up');
+								var down = $element.find('i.glyphicon-chevron-down');
+								var spinnerClassName = 'spinner-xx-small-icons';
+								if(value.height < 50){
+									up.addClass(spinnerClassName);
+									down.addClass(spinnerClassName);
+								}
+								else{
+									up.removeClass(spinnerClassName);
+									down.removeClass(spinnerClassName);
+								}
 								break;
 							}
 						}

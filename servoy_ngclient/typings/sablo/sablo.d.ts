@@ -46,9 +46,9 @@ declare namespace sablo {
 	interface ISabloApplication {
         connect(context, queryArgs, websocketUri): WSSession;
         contributeFormResolver(contributedFormResolver:{prepareUnresolvedFormForUse(form:string)}): void;
-        getSessionId(): string;
+        getClientnr(): string;
         getWindowName(): string;
-        getWindowId(): string;
+        getWindownr(): string;
         getWindowUrl(name:string): string;
         applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope:angular.IScope):void ;
         getComponentChanges(now, prev, beanConversionInfo, parentSize, property): any;
@@ -77,7 +77,6 @@ declare namespace sablo {
         setLocale(locale:Locale): void;
         getCurrentFormUrl(fetch:boolean): string;
         setCurrentFormUrl(url:string, push:boolean): void;
-        clearSabloSession():void;
 	}
 	
 	interface ISabloConverters {

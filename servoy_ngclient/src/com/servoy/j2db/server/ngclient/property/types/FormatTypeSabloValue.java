@@ -415,8 +415,17 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 		if (dataproviderId != null && foundsetId != null)
 		{
+			ITable table = null;
 			Form form = ((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
-			ITable table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetId, application, form);
+			// always assume now that the the properties has the foundset property name.
+			FoundsetTypeSabloValue runtimeValOfFoundset = (FoundsetTypeSabloValue)webObjectCntxt.getUnderlyingWebObject().getProperty(
+				this.propertyDependencies.foundsetPropertyName);
+			if (runtimeValOfFoundset != null && runtimeValOfFoundset.getFoundset() != null &&
+				runtimeValOfFoundset.getFoundset().getDataSource().equals(foundsetId))
+			{
+				table = runtimeValOfFoundset.getFoundset().getTable();
+			}
+			if (table == null) table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetId, application, form);
 
 			if (table != null)
 			{

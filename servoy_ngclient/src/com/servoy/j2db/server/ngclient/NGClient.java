@@ -22,9 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.servlet.http.HttpSession;
 
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
@@ -117,7 +114,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
-	public static final String HTTP_SESSION_COUNTER = "httpSessionCounter";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -511,7 +507,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				clientInfo.setTimeZone(timeZone);
 			}
 
-			clientInfo.addInfo("session uuid: " + getWebsocketSession().getUuid());
+			clientInfo.addInfo("session key: " + getWebsocketSession().getSessionKey());
 
 			try
 			{
@@ -1176,24 +1172,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				scheduledExecutorService = null;
 
 			}
-			if (httpSession != null)
-			{
-				try
-				{
-					AtomicInteger sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-					if (sessionCounter.decrementAndGet() == 0)
-					{
-						httpSession.invalidate();
-					}
-				}
-				catch (Exception ignore)
-				{
-					// http session can already be invalid..
-				}
-				httpSession = null;
-			}
 			if (showUrl == null) getWebsocketSession().sendRedirect(null);
-			WebsocketSessionManager.removeSession(getWebsocketSession().getUuid());
+			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
 	}
 
@@ -1478,8 +1458,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
 
-	private HttpSession httpSession;
-
 	@Override
 	public void recreateForm(Form form, String name)
 	{
@@ -1652,36 +1630,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			this.timeout = timeout;
 			this.onRootFrame = onRootFrame;
 		}
-
 	}
 
 	@Override
 	public void setTimeZone(TimeZone zone)
 	{
 		Debug.warn("Setting TimeZone on NG client is not allowed");
-	}
-
-	/**
-	 * @param httpSession
-	 */
-	public void setHttpSession(HttpSession httpSession)
-	{
-		if (this.httpSession == null && httpSession != null)
-		{
-			this.httpSession = httpSession;
-			httpSession.setMaxInactiveInterval(0);
-			AtomicInteger sessionCounter;
-			synchronized (httpSession)
-			{
-				sessionCounter = (AtomicInteger)httpSession.getAttribute(HTTP_SESSION_COUNTER);
-				if (sessionCounter == null)
-				{
-					sessionCounter = new AtomicInteger();
-					httpSession.setAttribute(HTTP_SESSION_COUNTER, sessionCounter);
-				}
-			}
-			getClientInfo().addInfo("httpsession:" + httpSession.getId());
-			sessionCounter.incrementAndGet();
-		}
 	}
 }

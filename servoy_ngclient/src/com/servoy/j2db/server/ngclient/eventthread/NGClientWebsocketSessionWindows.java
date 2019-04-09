@@ -61,7 +61,7 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 			{
 				for (INGClientWindow window : windows)
 				{
-					if (window.getUuid().equals(currentWindow.getName()))
+					if (String.valueOf(window.getNr()).equals(currentWindow.getName()))
 					{
 						lastKnownWindow = window;
 						break;
@@ -107,10 +107,10 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	}
 
 	@Override
-	public String getUuid()
+	public int getNr()
 	{
-		if (lastKnownWindow != null) return lastKnownWindow.getUuid();
-		return super.getUuid();
+		if (lastKnownWindow != null) return lastKnownWindow.getNr();
+		return super.getNr();
 	}
 
 

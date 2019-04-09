@@ -43,7 +43,7 @@
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.6</version>
+				<version>1.7.5</version>
 				<executions>
 
 					<!-- 1. Install node and npm locally -->
@@ -55,8 +55,8 @@
 						</goals>
 						<configuration>
 							<skipTests>${maven.test.skip}</skipTests>
-							<nodeVersion>v8.10.0 </nodeVersion>
-							<npmVersion>5.6.0</npmVersion>
+							<nodeVersion>v10.15.3</nodeVersion>
+							<npmVersion>6.4.1</npmVersion>
 						</configuration>
 					</execution>
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
@@ -155,7 +156,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 */
 	public boolean isExcluded()
 	{
-		return hasFlag(Column.EXCLUDED_COLUMN);
+		return hasFlag(IBaseColumn.EXCLUDED_COLUMN);
 	}
 
 	public boolean isDBManaged()
@@ -815,6 +816,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		setValidatorProperties(sourceColumnInfo.getValidatorProperties());
 		setDefaultValue(sourceColumnInfo.getDefaultValue());
 		setTitleText(sourceColumnInfo.getTitleText());
+		setDefaultFormat(sourceColumnInfo.getDefaultFormat());
 		setConverterName(sourceColumnInfo.getConverterName());
 		setConverterProperties(sourceColumnInfo.getConverterProperties());
 		setForeignType(sourceColumnInfo.getForeignType());
