@@ -66,4 +66,10 @@ public class Procedure implements Serializable
 	{
 		return columns;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Procedure[" + name + ", param:" + parameters + ", columns:" + columns + "]";
+	}
 }
