@@ -58,10 +58,10 @@ public class DateTest
 		jsonWriter.object();
 		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
 		jsonWriter.endObject();
-		JSONAssert.assertEquals(
-			new JSONObject("{\"mydate\" : \"1919-02-02T00:00" +
-				OffsetDateTime.ofInstant(new java.util.Date(19, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString() + "\"}"),
-			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
+		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"" +
+			stripOffsetSeconds(
+				"1919-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(19, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString()) +
+			"\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
@@ -164,6 +164,23 @@ public class DateTest
 		Assert.assertEquals(new Date(new Date(70, 5, 2).getTime() + 3600000),
 			NGDatePropertyType.NG_INSTANCE.fromJSON("1970-06-02T00:00" + ZoneOffset.ofTotalSeconds(
 				ZoneId.systemDefault().getRules().getOffset(new java.util.Date(70, 5, 2).toInstant()).getTotalSeconds() - 3600).toString(), false));
+	}
+
+	private String stripOffsetSeconds(String dateTime)
+	{
+		String strippedDate = dateTime;
+		if (strippedDate != null && strippedDate.indexOf('+') != -1)
+		{
+			String[] sDateA = strippedDate.split("\\+");
+			String[] offset = sDateA[1].split(":");
+			if (offset.length > 1) // seconds in offset, cut it, as it can't be handled in js
+			{
+				StringBuilder sDateBuilder = new StringBuilder(sDateA[0]).append('+');
+				sDateBuilder.append(offset[0]).append(':').append(offset[1]);
+				strippedDate = sDateBuilder.toString();
+			}
+		}
+		return strippedDate;
 	}
 
 	@Test
