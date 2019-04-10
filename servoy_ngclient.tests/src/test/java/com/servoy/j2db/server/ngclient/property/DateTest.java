@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,10 +59,10 @@ public class DateTest
 		jsonWriter.object();
 		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
 		jsonWriter.endObject();
-		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"" +
-			stripOffsetSeconds(
-				"1919-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(19, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString()) +
-			"\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
+		String stripOffsetSeconds = stripOffsetSeconds(
+			"1919-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(19, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString());
+		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"" + stripOffsetSeconds + "\"}"), new JSONObject(stringWriter.toString()),
+			JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
@@ -93,6 +94,23 @@ public class DateTest
 			new JSONObject("{\"mydate\" : \"2018-06-05T11:50:55" +
 				OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString() + "\"}"),
 			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
+
+		TimeZone default1 = TimeZone.getDefault();
+		try
+		{
+			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+			stringWriter = new StringWriter();
+			jsonWriter = new JSONWriter(stringWriter);
+			jsonWriter.object();
+			NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+			jsonWriter.endObject();
+			JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"1919-02-02T00:00+01:44\"}"), new JSONObject(stringWriter.toString()),
+				JSONCompareMode.STRICT);
+		}
+		finally
+		{
+			TimeZone.setDefault(default1);
+		}
 	}
 
 	@Test
