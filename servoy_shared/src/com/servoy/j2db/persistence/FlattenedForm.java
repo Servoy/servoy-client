@@ -133,6 +133,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		Set<String> methods = new HashSet<String>(64);
 		Set<String> variables = new HashSet<String>(64);
 		List<Integer> existingIDs = new ArrayList<Integer>();
+		//first fill in the map to be sure is complete, can we improve this ?
 		for (Form f : allForms)
 		{
 			for (IPersist persist : f.getAllObjectsAsList())
@@ -143,16 +144,26 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 					if (p != null)
 					{
 						extendsMap.put(p.getUUID(), persist);
-						if (!p.getParent().getUUID().equals(getUUID()))
+					}
+				}
+			}
+		}
+		for (Form f : allForms)
+		{
+			for (IPersist persist : f.getAllObjectsAsList())
+			{
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && f.isResponsiveLayout())
+				{
+					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
+					if (p != null && !p.getParent().getUUID().equals(getUUID()))
+					{
+						IPersist topPersist = p;
+						while (((ISupportExtendsID)topPersist).getExtendsID() > 0)
 						{
-							IPersist topPersist = p;
-							while (((ISupportExtendsID)topPersist).getExtendsID() > 0)
-							{
-								topPersist = PersistHelper.getSuperPersist((ISupportExtendsID)topPersist);
-							}
-							// only skip it if is override from other place in hierarchy; if real top container use it
-							if (!(topPersist.getParent() instanceof Form)) continue;
+							topPersist = PersistHelper.getSuperPersist((ISupportExtendsID)topPersist);
 						}
+						// only skip it if is override from other place in hierarchy; if real top container use it
+						if (!(topPersist.getParent() instanceof Form)) continue;
 					}
 				}
 				IPersist ip = extendsMap.containsKey(persist.getUUID()) ? extendsMap.get(persist.getUUID()) : persist;

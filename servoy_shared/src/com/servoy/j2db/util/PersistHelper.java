@@ -978,10 +978,9 @@ public class PersistHelper
 				ISupportChilds parent = superPersist.getParent();
 				if (parent != null)
 				{
-					Iterator<IPersist> it = persist.getParent().getAllObjects();
-					while (it.hasNext())
+					// not all overrides are on form level, search everywhere
+					for (IPersist possibleParent : ((Form)persist.getParent()).getFlattenedFormElementsAndLayoutContainers())
 					{
-						IPersist possibleParent = it.next();
 						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() == parent.getID())
 						{
 							return (ISupportChilds)possibleParent;
