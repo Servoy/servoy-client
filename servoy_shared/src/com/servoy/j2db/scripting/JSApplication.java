@@ -2140,6 +2140,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns a date object initialized in client with current date and time.
 	 * This should be used instead of new Date() for webclients when the clients are in different times zones then the server.
 	 * Then this call will really return a time that is the locals webclients time.
+	 * For NG clients this is only useful when displaying on the client using format property (Use local time), and then
+	 * this is equivalent to new Date() on the client side, so basically this can be used to pre-fill with 'now' such a display.
 	 *
 	 * @sample var clienttime = application.getTimeStamp();
 	 *
@@ -2152,6 +2154,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Returns a date object initialized on server with current date and time.
+	 * For NG and web clients this is the same as new Date() in scripting.
 	 *
 	 * @sample var servertime = application.getServerTimeStamp();
 	 *
