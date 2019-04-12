@@ -1374,7 +1374,7 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public byte[] stringToBytes(String string)
 	{
-		return string.getBytes(StandardCharsets.UTF_8);
+		return string != null ? string.getBytes(StandardCharsets.UTF_8) : null;
 	}
 
 	/**
@@ -1391,7 +1391,7 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public String bytesToString(byte[] byteArray)
 	{
-		return new String(byteArray, StandardCharsets.UTF_8);
+		return byteArray != null ? new String(byteArray, StandardCharsets.UTF_8) : null;
 	}
 
 	/**
@@ -1408,7 +1408,7 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public String stringToBase64(String string)
 	{
-		return Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8));
+		return string != null ? Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8)) : null;
 	}
 
 	/**
@@ -1425,7 +1425,7 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public String base64ToString(String base64String)
 	{
-		return new String(Base64.getDecoder().decode(base64String.getBytes(StandardCharsets.UTF_8)));
+		return base64String != null ? new String(Base64.getDecoder().decode(base64String.getBytes(StandardCharsets.UTF_8))) : null;
 	}
 
 	/**
@@ -1442,7 +1442,7 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public String bytesToBase64(byte[] byteArray)
 	{
-		return new String(Base64.getEncoder().encode(byteArray), StandardCharsets.UTF_8);
+		return byteArray != null ? new String(Base64.getEncoder().encode(byteArray), StandardCharsets.UTF_8) : null;
 	}
 
 	/**
@@ -1459,7 +1459,7 @@ public class JSUtils implements IJSUtils
 	@JSFunction
 	public byte[] base64ToBytes(String base64String)
 	{
-		return Base64.getDecoder().decode(base64String.getBytes(StandardCharsets.UTF_8));
+		return base64String != null ? Base64.getDecoder().decode(base64String.getBytes(StandardCharsets.UTF_8)) : null;
 	}
 
 	@Override
