@@ -139,7 +139,7 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 		}
 	}
 })
-.directive('svyFileupload', function ($parse, $sabloApplication, $svyFileuploadUtils, $log) {
+.directive('svyFileupload', function ($parse, $sabloApplication, $svyFileuploadUtils, $log, $utils) {
 	return {
 		restrict: 'A',
         link: function ($scope, $element, $attrs) {
@@ -173,7 +173,7 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 					}
 					var formname = parentForm['formname'];
 					$element.bind('click', function(event) {
-						$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getClientnr() + "/" + formname + "/" + componentname + "/" + propertyname);
+						$svyFileuploadUtils.open($utils.generateUploadUrl(formname,componentname,propertyname));
 					});    	        
 				}
 				else {

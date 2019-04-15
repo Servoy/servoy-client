@@ -35,7 +35,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties) {
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -282,7 +282,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 			}
 			return jsEvent;
-		}
+		},
+        
+        generateUploadUrl: function(formname ,beanname, propertyName){
+        	formname = formname ? "/" + formname : "";
+        	beanname = beanname ? "/" + beanname : "";
+        	propertyName = propertyName ? "/" + propertyName : "";
+        	
+            return "resources/upload/" + $sabloApplication.getClientnr() + formname + beanname + propertyName;
+        }
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
 	return <servoy.IServoyProperties> {

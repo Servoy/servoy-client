@@ -47,6 +47,7 @@ declare namespace sablo {
         connect(context, queryArgs, websocketUri): WSSession;
         contributeFormResolver(contributedFormResolver:{prepareUnresolvedFormForUse(form:string)}): void;
         getClientnr(): string;
+        getSessionId(): string;
         getWindowName(): string;
         getWindownr(): string;
         getWindowUrl(name:string): string;

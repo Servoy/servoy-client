@@ -1193,8 +1193,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$uibModal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties',
-                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$uibModal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$uibModal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties','$utils',
+                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$uibModal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties, $utils:servoy.IUtils) {
 	var showDefaultLoginWindow = function() {
 		$uibModal.open({
 			templateUrl: 'templates/login.html',
@@ -1421,7 +1421,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			webStorage.local.remove('servoy_password');
 		},
 		showFileOpenDialog: function(title, multiselect, acceptFilter) {
-			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getClientnr(), title, multiselect, acceptFilter);
+			$svyFileuploadUtils.open($utils.generateUploadUrl(null,null,null), title, multiselect, acceptFilter);
 		},
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;
