@@ -34,6 +34,7 @@ import java.util.TreeSet;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.api.IJSI18N;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
@@ -316,6 +317,27 @@ public class JSI18N implements IJSI18N
 	}
 
 	/**
+	 * Gets the real message using the specified locale for a specified message key.
+	 *
+	 * @sample
+	 * // returns 'Welcome my_name in my solution'
+	 * // if the key 'mykey.username.text' is 'Welcome {0} in my solution'
+	 * i18n.getI18NMessage('mykey.username.text',new Array('my_name'),'en','US')
+	 *
+	 * @param i18nKey The message key
+	 * @param language The lowercase 2 letter code of the locale
+	 * @param country The upper case 2 letter code of the locale
+	 *
+	 * @return a String that is the message for the message key.
+	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = false, mc = true)
+	@JSFunction
+	public String getI18NMessage(String i18nKey, String language, String country)
+	{
+		return application.getI18NMessage(i18nKey, language, country);
+	}
+
+	/**
 	 * Gets the real message (for the clients locale) for a specified message key.
 	 * You can use parameter substitution by using {n}, where n is a index number of the value thats in the arguments array.
 	 *
@@ -334,6 +356,29 @@ public class JSI18N implements IJSI18N
 	public String getI18NMessage(String i18nKey, Object[] dynamicValues)
 	{
 		return application.getI18NMessage(i18nKey, dynamicValues);
+	}
+
+	/**
+	 * Gets the real message using specified locale for a specified message key.
+	 * You can use parameter substitution by using {n}, where n is a index number of the value thats in the arguments array.
+	 *
+	 * @sample
+	 * // returns 'Welcome my_name in my solution'
+	 * // if the key 'mykey.username.text' is 'Welcome {0} in my solution'
+	 * i18n.getI18NMessage('mykey.username.text',new Array('my_name'),'en','US')
+	 *
+	 * @param i18nKey The message key
+	 * @param dynamicValues Arguments array when using parameter substitution.
+	 * @param language The lowercase 2 letter code of the locale
+	 * @param country The upper case 2 letter code of the locale
+	 *
+	 * @return a String that is the message for the message key.
+	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = false, mc = true)
+	@JSFunction
+	public String getI18NMessage(String i18nKey, Object[] dynamicValues, String language, String country)
+	{
+		return application.getI18NMessage(i18nKey, dynamicValues, language, country);
 	}
 
 	/**

@@ -357,18 +357,33 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	public String getI18NMessage(String key, Object[] args)
 	{
-		if (key == null || key.length() == 0) return key;
-
-		Properties properties = getMessages(getLocale());
-		return getI18NMessage(key, args, properties, localeJarMessages, getLocale());
+		return getI18NMessage(key, args, getLocale());
 	}
 
 	public String getI18NMessage(String key)
 	{
-		if (key == null || key.length() == 0) return key;
+		return getI18NMessage(key, null, getLocale());
+	}
 
-		Properties properties = getMessages(getLocale());
-		return getI18NMessage(key, null, properties, localeJarMessages, getLocale());
+	@Override
+	public String getI18NMessage(String key, Object[] args, String language, String country)
+	{
+		if (language == null || country == null) return key;
+		return getI18NMessage(key, args, new Locale(language, country));
+	}
+
+	@Override
+	public String getI18NMessage(String key, String language, String country)
+	{
+		if (language == null || country == null) return key;
+		return getI18NMessage(key, null, new Locale(language, country));
+	}
+
+	private String getI18NMessage(String key, Object[] args, Locale locale)
+	{
+		if (key == null || key.length() == 0) return key;
+		Properties properties = getMessages(locale);
+		return getI18NMessage(key, args, properties, localeJarMessages, locale);
 	}
 
 	public void setI18NMessage(String key, String value)

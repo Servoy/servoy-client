@@ -27,24 +27,28 @@ public interface I18NProvider
 
 	/**
 	 * get a i18n message for the given key
-	 * 
+	 *
 	 * @param i18nKey
 	 * @return a String for the given key.
 	 */
 	public String getI18NMessage(String i18nKey);
 
+	public String getI18NMessage(String i18nKey, String language, String country);
+
 	/**
 	 * get a i18n message for the given key and array
-	 * 
+	 *
 	 * @param i18nKey
 	 * @param array
 	 * @return a String for the given key.
 	 */
 	public String getI18NMessage(String i18nKey, Object[] array);
 
+	public String getI18NMessage(String i18nKey, Object[] array, String language, String country);
+
 	/**
 	 * get a i18n message for the given key if the key is prefixed with i18n. If it is not prefixed the key it self is returned
-	 * 
+	 *
 	 * @param i18nKey
 	 * @return a String for the given key or the key itself
 	 */
@@ -52,7 +56,7 @@ public interface I18NProvider
 
 	/**
 	 * set an i18n message client side
-	 * 
+	 *
 	 * @param i18nKey
 	 * @param value
 	 */
