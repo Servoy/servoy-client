@@ -38,7 +38,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -51,7 +50,6 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IBasicWebObject;
 import com.servoy.j2db.persistence.IChildWebObject;
-import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -67,7 +65,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.CSSPositionPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -291,12 +288,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
 							{
 								PropertyDescription property = legacySpec.getProperty(key);
-								if (property == null && IContentSpecConstants.PROPERTY_CSS_POSITION.equals(key))
-								{
-									property = new PropertyDescription(IContentSpecConstants.PROPERTY_CSS_POSITION,
-										TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME));
-									legacySpec.putProperty(IContentSpecConstants.PROPERTY_CSS_POSITION, property);
-								}
 								if (property != null && property.getType() instanceof IDesignValueConverter)
 								{
 									val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property);

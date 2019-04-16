@@ -29,6 +29,7 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.types.IntPropertyType;
 
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
@@ -50,10 +51,10 @@ public class RhinoMapWrapperTest
 
 		TopLevel toplevelScope = new ImporterTopLevel(cx);
 		PropertyDescription pd = new PropertyDescription("myCustomObjectProp", new NGCustomJSONObjectType("myCustomObjectType", null));
-		PropertyDescription copd = new PropertyDescription("myCustomObjectType", pd.getType());
+		PropertyDescription copd = new PropertyDescriptionBuilder("myCustomObjectType", pd.getType()).putProperty("someInt",
+			new PropertyDescription("someInt", IntPropertyType.INSTANCE)).create();
 		((NGCustomJSONObjectType)pd.getType()).setCustomJSONDefinition(copd);
 
-		copd.putProperty("someInt", new PropertyDescription("someInt", IntPropertyType.INSTANCE));
 
 		wrappedMapValue = new HashMap<String, Object>();
 		wrappedMapValue.put("someInt", 111);

@@ -64,8 +64,8 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		path.add("childElements");
 		JSONObject tags = new JSONObject();
 		tags.put(ComponentTypeSabloValue.TAG_ADD_TO_ELEMENTS_SCOPE, true);
-		PropertyDescription compPd = new PropertyDescription(pd.getName(), ComponentPropertyType.INSTANCE, pd.getConfig(), null, null, false, null, null, tags,
-			false);
+		PropertyDescription compPd = new PropertyDescription(pd.getName(), ComponentPropertyType.INSTANCE, pd.getConfig(), null, null, null, false, null, null,
+			tags, false);
 		for (int i = 0; i < components.length; i++)
 		{
 			FormElement element = elements.get(i);

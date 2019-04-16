@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.border.Border;
 
@@ -91,14 +93,15 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		private FormSpecification()
 		{
-			super("form_spec", "", IPackageReader.WEB_COMPONENT, "", null, null, null, "", null);
-			JSONObject tags = new JSONObject();
-			tags.put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" }));
-			putProperty("size",
-				new PropertyDescription("size", DimensionPropertyType.INSTANCE, null, null, null, false, null, PushToServerEnum.allow, tags, false));
-			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
-			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
-			putProperty("findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow));
+			// @formatter:off
+			super("form_spec", "", IPackageReader.WEB_COMPONENT, "", null, null, null, "", null,null,
+				Stream.of(new Object[][] {
+				    { "size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, null, null, null, null, false, null, PushToServerEnum.allow, new JSONObject().put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" })), false) },
+				    { "visible",  new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow) },
+				    { WebFormUI.ENABLED,  new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow) },
+				    { "findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow) },
+				}).collect(Collectors.toMap(data -> (String) data[0], data -> (PropertyDescription) data[1])));
+			// @formatter:on
 		}
 	}
 

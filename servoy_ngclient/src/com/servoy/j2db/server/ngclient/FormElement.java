@@ -34,18 +34,14 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
-import org.sablo.specification.SpecReloadSubject.ISpecReloadListener;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.specification.property.types.DimensionPropertyType;
-import org.sablo.specification.property.types.IntPropertyType;
-import org.sablo.specification.property.types.PointPropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
@@ -58,7 +54,6 @@ import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportBounds;
@@ -67,7 +62,6 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.CSSPositionPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
@@ -404,27 +398,6 @@ public final class FormElement implements INGFormElement
 				}
 			}
 		}
-		adjustForAbsoluteLayout();
-	}
-
-	protected void adjustForAbsoluteLayout()
-	{
-		if ((form != null && !form.isResponsiveLayout()) || CSSPosition.isInAbsoluteLayoutMode(getPersistIfAvailable()))
-		{
-			WebObjectSpecification spec = getWebComponentSpec();
-			if (spec.getProperty("location") == null)
-				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
-			if (spec.getProperty("size") == null)
-				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
-			if (spec.getProperty("anchors") == null)
-				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
-			if (spec.getProperty("formIndex") == null)
-				spec.putProperty("formIndex", new PropertyDescription("formIndex", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
-			if (spec.getProperty(IContentSpecConstants.PROPERTY_CSS_POSITION) == null) spec.putProperty(IContentSpecConstants.PROPERTY_CSS_POSITION,
-				new PropertyDescription(IContentSpecConstants.PROPERTY_CSS_POSITION, TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)));
-			// TODO the following is a workaround that allows not clearing the form element cache when reloading any ng package (so only when reloaded spec was actually altered here before and it might need to be re-altered again)
-			WebComponentSpecProvider.getSpecReloadSubject().addSpecReloadListener(spec.getName(), ClearFormElementCacheWhenSpecChanges.INSTANCE);
-		}
 	}
 
 	public Map<String, Object> getRawPropertyValues()
@@ -747,7 +720,6 @@ public final class FormElement implements INGFormElement
 	{
 		Map<String, Object> properties = new HashMap<>();
 
-		adjustForAbsoluteLayout();
 		WebObjectSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
@@ -778,15 +750,15 @@ public final class FormElement implements INGFormElement
 		if (formview != null) properties.put("formview", formview);
 
 		// get types for conversion
-		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
+		PropertyDescriptionBuilder propertyTypes = AggregatedPropertyType.newAggregatedPropertyBuilder();
 		for (Entry<String, Object> p : properties.entrySet())
 		{
 			PropertyDescription t = getWebComponentSpec().getProperty(p.getKey());
 			if (t != null) propertyTypes.putProperty(p.getKey(), t);
 		}
 
-
-		return new TypedData<>(properties, propertyTypes.hasChildProperties() ? propertyTypes : null);
+		PropertyDescription pd = propertyTypes.create();
+		return new TypedData<>(properties, pd.hasChildProperties() ? pd : null);
 	}
 
 	Dimension getDesignSize()
@@ -894,18 +866,4 @@ public final class FormElement implements INGFormElement
 
 		return false;
 	}
-
-	private static class ClearFormElementCacheWhenSpecChanges implements ISpecReloadListener
-	{
-
-		public static final ClearFormElementCacheWhenSpecChanges INSTANCE = new ClearFormElementCacheWhenSpecChanges();
-
-		@Override
-		public void webObjectSpecificationReloaded()
-		{
-			FormElementHelper.INSTANCE.reload();
-		}
-
-	}
-
 }
