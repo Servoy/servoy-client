@@ -419,8 +419,7 @@ public abstract class AbstractSolutionTest
 			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, null);
 		}
 
-		WebComponentSpecProvider.init(componentsReaders);
-		WebComponentSpecProvider.getInstance().setDefaultComponentPropertiesProvider(DefaultComponentPropertiesProvider.instance);
+		WebComponentSpecProvider.init(componentsReaders, DefaultComponentPropertiesProvider.instance);
 		WebServiceSpecProvider.init(servicesReaders);
 
 		final TestRepository tr = new TestRepository();

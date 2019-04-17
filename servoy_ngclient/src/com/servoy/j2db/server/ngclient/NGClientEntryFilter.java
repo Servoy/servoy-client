@@ -195,9 +195,13 @@ public class NGClientEntryFilter extends WebEntry
 			}
 
 			super.init(fc);
-
-			WebComponentSpecProvider.getInstance().setDefaultComponentPropertiesProvider(DefaultComponentPropertiesProvider.instance);
 		}
+	}
+
+	@Override
+	public void initWebComponentSpecs(FilterConfig fc)
+	{
+		WebComponentSpecProvider.init(fc.getServletContext(), getWebComponentBundleNames(), DefaultComponentPropertiesProvider.instance);
 	}
 
 	@Override

@@ -262,8 +262,7 @@ public class ResourceProvider implements Filter
 		servicePackages.add(sabloReader);
 		componentPackages.add(sabloReader);
 
-		WebComponentSpecProvider.init(componentPackages.toArray(new IPackageReader[componentPackages.size()]));
-		WebComponentSpecProvider.getInstance().setDefaultComponentPropertiesProvider(DefaultComponentPropertiesProvider.instance);
+		WebComponentSpecProvider.init(componentPackages.toArray(new IPackageReader[componentPackages.size()]), DefaultComponentPropertiesProvider.instance);
 		WebServiceSpecProvider.init(servicePackages.toArray(new IPackageReader[servicePackages.size()]));
 		// this is second init in developer, so make sure all web components use the new loaded specs
 		WebObjectRegistry.clearWebObjectCaches();
