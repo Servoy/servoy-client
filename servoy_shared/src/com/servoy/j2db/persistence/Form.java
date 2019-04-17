@@ -2166,4 +2166,35 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return result.iterator();
 	}
 
+	/**
+	 * Return a description string of the associated layout
+	 *
+	 * @return "responsive layout" - for the NG responsive forms
+	 * @return "css position layout" - for the NG forms using CSS position
+	 * @return "absolute layout" - for the forms using anchors
+	 * @return "no layout" - for forms with no UI
+	 */
+	public String getLayoutType()
+	{
+		if (isResponsiveLayout()) return "responsive layout";
+		if (getUseCssPosition().booleanValue()) return "css position layout";
+		Iterator<Part> it = getParts();
+		if (it.hasNext()) return "absolute layout";
+		return "no layout";
+	}
+
+	/**
+	 * Verify the presence of the associated UI
+	 *
+	 * @return true if the form is abstract (no UI) otherwise return false
+	 */
+	public boolean isAbstractForm()
+	{
+		if (isResponsiveLayout()) return false;
+		if (getUseCssPosition().booleanValue() == true) return false;
+		Iterator<Part> it = getParts();
+		if (it.hasNext()) return false; //abstract form has no parts
+		return true;
+	}
+
 }
