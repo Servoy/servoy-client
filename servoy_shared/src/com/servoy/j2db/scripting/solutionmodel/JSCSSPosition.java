@@ -43,12 +43,11 @@ public class JSCSSPosition
 	}
 
 	/**
-	 * Get left css position (in pixels or percent).
+	 * Get/Set left css position (in pixels or percent).
 	 *
 	 * @sample
 	 * var left = comp.cssPosition.left;
 	 *
-	 * @return left css position
 	 */
 	@JSGetter
 	public String getLeft()
@@ -61,14 +60,6 @@ public class JSCSSPosition
 		return null;
 	}
 
-	/**
-	 * Set left css position (in pixels or percent).
-	 *
-	 * @sample
-	 * comp.cssPosition.left = '10%'
-	 *
-	 * @return left css position
-	 */
 	@JSSetter
 	public void setLeft(String left)
 	{
@@ -81,12 +72,11 @@ public class JSCSSPosition
 	}
 
 	/**
-	 * Get right css position (in pixels or percent).
+	 * Get/Set right css position (in pixels or percent).
 	 *
 	 * @sample
-	 * comp.cssPosition.r()
+	 * comp.cssPosition.right
 	 *
-	 * @return right css position
 	 */
 	@JSGetter
 	public String getRight()
@@ -99,16 +89,6 @@ public class JSCSSPosition
 		return null;
 	}
 
-	/**
-	 * Set right css position (in pixels or percent).
-	 *
-	 * @param right right position in pixels or percentage
-	 *
-	 * @sample
-	 * comp.cssPosition.r("10").b("10").w("20%").h("30px")
-	 *
-	 * @return css position
-	 */
 	@JSSetter
 	public void setRight(String right)
 	{
@@ -121,12 +101,11 @@ public class JSCSSPosition
 	}
 
 	/**
-	 * Get top css position (in pixels or percent).
+	 * Get/Set top css position (in pixels or percent).
 	 *
 	 * @sample
-	 * comp.cssPosition.t()
+	 * comp.cssPosition.top
 	 *
-	 * @return top css position
 	 */
 	@JSGetter
 	public String getTop()
@@ -139,16 +118,6 @@ public class JSCSSPosition
 		return null;
 	}
 
-	/**
-	 * Set top css position (in pixels or percent).
-	 *
-	 * @param top top position in pixels or percentage
-	 *
-	 * @sample
-	 * comp.cssPosition.l("10").t("10").w("20%").h("30px")
-	 *
-	 * @return css position
-	 */
 	@JSSetter
 	public void setTop(String top)
 	{
@@ -162,12 +131,11 @@ public class JSCSSPosition
 
 
 	/**
-	 * Get bottom css position (in pixels or percent).
+	 * Get/Set bottom css position (in pixels or percent).
 	 *
 	 * @sample
-	 * comp.cssPosition.b()
+	 * comp.cssPosition.bottom
 	 *
-	 * @return bottom css position
 	 */
 	@JSGetter
 	public String getBottom()
@@ -181,16 +149,6 @@ public class JSCSSPosition
 	}
 
 
-	/**
-	 * Set bottom css position (in pixels or percent).
-	 *
-	 * @param bottom bottom position in pixels or percentage
-	 *
-	 * @sample
-	 * comp.cssPosition.r("10").b("10").w("20%").h("30px")
-	 *
-	 * @return css position
-	 */
 	@JSSetter
 	public void setBottom(String bottom)
 	{
@@ -203,10 +161,10 @@ public class JSCSSPosition
 	}
 
 	/**
-	 * Get width css position (in pixels or percent).
+	 * Get/Set width css position (in pixels or percent).
 	 *
 	 * @sample
-	 * comp.cssPosition.w()
+	 * comp.cssPosition.width
 	 *
 	 * @return width css position
 	 */
@@ -221,17 +179,6 @@ public class JSCSSPosition
 		return null;
 	}
 
-
-	/**
-	 * Set width css position (in pixels or percent).
-	 *
-	 * @param width width position in pixels or percentage
-	 *
-	 * @sample
-	 * comp.cssPosition.l("10").t("10").w("20%").h("30px")
-	 *
-	 * @return css position
-	 */
 	@JSSetter
 	public void setWidth(String width)
 	{
@@ -251,15 +198,11 @@ public class JSCSSPosition
 	 *
 	 * @return height css position
 	 */
+	@Deprecated
 	@JSGetter
 	public String getHeigth()
 	{
-		CSSPosition position = component.getBaseComponent(false).getCssPosition();
-		if (position != null)
-		{
-			return position.height;
-		}
-		return null;
+		return getHeight();
 	}
 
 
@@ -273,8 +216,33 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Deprecated
 	@JSGetter
 	public void setHeigth(String height)
+	{
+		setHeight(height);
+	}
+
+	/**
+	 * Get/Set height css position (in pixels or percent).
+	 *
+	 * @sample
+	 * comp.cssPosition.height
+	 *
+	 */
+	@JSGetter
+	public String getHeight()
+	{
+		CSSPosition position = component.getBaseComponent(false).getCssPosition();
+		if (position != null)
+		{
+			return position.height;
+		}
+		return null;
+	}
+
+	@JSGetter
+	public void setHeight(String height)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
@@ -283,7 +251,6 @@ public class JSCSSPosition
 			component.getBaseComponent(true).setCssPosition(position);
 		}
 	}
-
 
 	/**
 	 * Set left css position (in pixels or percent).
