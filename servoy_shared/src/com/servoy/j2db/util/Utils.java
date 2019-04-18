@@ -2234,7 +2234,7 @@ public final class Utils
 		return pf;
 	}
 
-	public static final double DEFAULT_EQUALS_PRECISION = 1e-7d;
+	public static double DEFAULT_EQUALS_PRECISION = 1e-7d;
 
 	//null,null == true
 	public final static boolean equalObjects(Object oldObj, Object obj)
