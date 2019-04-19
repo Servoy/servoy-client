@@ -114,9 +114,9 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		}
 
 		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
-		config.setWrappedPropertyDescription(
-			new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig, null, parameters.defaultValue,
-				parameters.initialValue, parameters.defaultValue != null, parameters.values, parameters.pushToServer, parameters.tags, parameters.optional));
+		config.setWrappedPropertyDescription(new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig,
+			null, parameters.defaultValue, parameters.initialValue, parameters.defaultValue != null, parameters.values, parameters.pushToServer,
+			parameters.tags, parameters.optional, parameters.deprecated));
 		return this;
 	}
 

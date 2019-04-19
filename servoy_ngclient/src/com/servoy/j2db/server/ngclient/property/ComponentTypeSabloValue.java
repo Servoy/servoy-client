@@ -722,7 +722,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					properties.remove(propertyName);
 					changes.contentType = new PropertyDescription(changes.contentType.getName(), changes.contentType.getType(), changes.contentType.getConfig(),
 						properties, changes.contentType.getDefaultValue(), changes.contentType.getInitialValue(), changes.contentType.hasDefault(),
-						changes.contentType.getValues(), changes.contentType.getPushToServer(), null, changes.contentType.isOptional());
+						changes.contentType.getValues(), changes.contentType.getPushToServer(), null, changes.contentType.isOptional(),
+						changes.contentType.isDeprecated());
 				}
 			}
 		}
