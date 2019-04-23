@@ -163,6 +163,21 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return obj;
 	}
 
+	@Override
+	public void addChild(IPersist obj)
+	{
+		super.addChild(obj);
+		flushCashedItems();
+	}
+
+	@Override
+	public void removeChild(IPersist obj)
+	{
+		super.removeChild(obj);
+		flushCashedItems();
+	}
+
+
 	/*
 	 * _____________________________________________________________ Methods from this class
 	 */

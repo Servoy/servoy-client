@@ -381,7 +381,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 	private FlattenedSolution getSharedFlattenedSolution(FlattenedSolution fs)
 	{
-		FlattenedSolution flattenedSolution = globalFlattendSolutions.get(fs.getName());
+		FlattenedSolution flattenedSolution = globalFlattendSolutions.get(fs.getMainSolutionMetaData().getName());
 		if (flattenedSolution == null)
 		{
 			try

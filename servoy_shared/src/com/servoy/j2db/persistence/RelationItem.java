@@ -66,6 +66,21 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	 * _____________________________________________________________ Methods from this class
 	 */
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.AbstractBase#clearChanged()
+	 */
+	@Override
+	public void clearChanged()
+	{
+		if (isChanged && getParent() instanceof Relation)
+		{
+			((Relation)getParent()).flushCashedItems();
+		}
+		super.clearChanged();
+	}
+
 	/**
 	 * Set the tableName1
 	 *

@@ -54,7 +54,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
-import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.NGClient;
@@ -322,7 +321,6 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		if (forms != null && forms.size() > 0)
 		{
 			reload = true;
-			FormElementHelper.INSTANCE.reload();
 			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
 			for (IFormController formController : cachedFormControllers)
 			{
