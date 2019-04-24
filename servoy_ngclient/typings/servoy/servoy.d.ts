@@ -18,7 +18,7 @@ declare namespace servoy {
 		noLicense:{viewUrl:string,redirectUrl:string,redirectTimeout:number},
 		maintenanceMode:{viewUrl:string,redirectUrl:string,redirectTimeout:number},
 		sessionExpired:{viewUrl:string,redirectUrl:string},
-		internalServerError:{viewUrl:string},		
+		internalServerError:{viewUrl:string},
 	}
 	
 	interface WindowType{
@@ -69,6 +69,7 @@ declare namespace servoy {
 		destroy(name):void,
 		switchForm(name:string,form:FormType,navigatorForm:FormType):void,
 		setTitle(name:string,title:string):void,
+		setIcon(favicon:string, size:string):void,
 		setInitialBounds(name:string,initialBounds:{x:number,y:number,width:number,height:number}): void,
 		setStoreBounds(name:string,storeBounds:boolean):void,
 		resetBounds(name:string):void,

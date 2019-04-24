@@ -476,6 +476,13 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						}
 					}
 				},
+				setIcon: function(favicon, size) {
+					var link:any = document.querySelector("link[rel*='icon'][sizes='" + size + "']");
+					if(link && link.href != favicon) {
+						link.href = favicon;
+						document.getElementsByTagName('head')[0].appendChild(link);
+					}
+				},
 				setInitialBounds: function( name, initialBounds ) {
 					if ( instances[name] ) {
 						instances[name].initialBounds = initialBounds;
