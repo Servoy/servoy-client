@@ -73,6 +73,11 @@ public class PersistIndexCache
 		persistIndexCache.clear();
 	}
 
+	public static void reload()
+	{
+		persistIndexCache.values().stream().forEach(index -> index.reload());
+	}
+
 	/**
 	 * @param solution
 	 * @return
