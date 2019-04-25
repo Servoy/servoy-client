@@ -96,11 +96,11 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			// @formatter:off
 			super("form_spec", "", IPackageReader.WEB_COMPONENT, "", null, null, null, "", null,null,
 				Stream.of(new Object[][] {
-				    { "size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, null, null, null, null, false, null, PushToServerEnum.allow, new JSONObject().put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" })), false, false) },
+				    { "size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, null, null, null, null, false, null, PushToServerEnum.allow, new JSONObject().put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" })), false, null) },
 				    { "visible",  new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow) },
 				    { WebFormUI.ENABLED,  new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow) },
 				    { "findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow) }
-				}).collect(Collectors.toMap(data -> (String) data[0], data -> (PropertyDescription) data[1])), false);
+				}).collect(Collectors.toMap(data -> (String) data[0], data -> (PropertyDescription) data[1])), null);
 			// @formatter:on
 		}
 	}
