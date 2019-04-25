@@ -342,22 +342,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			new Object[] { this.getName(), titleString });
 	}
 
-	public void sendFavicons()
-	{
-		Object icon32 = getApplication().getClientProperty(NGCONSTANTS.WINDOW_BRANDING_ICON_32);
-		if (icon32 instanceof String)
-		{
-			getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setIcon",
-				new Object[] { icon32, "32x32" });
-		}
-		Object icon192 = getApplication().getClientProperty(NGCONSTANTS.WINDOW_BRANDING_ICON_192);
-		if (icon192 instanceof String)
-		{
-			getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setIcon",
-				new Object[] { icon192, "192x192" });
-		}
-	}
-
 	@Override
 	public boolean isVisible()
 	{

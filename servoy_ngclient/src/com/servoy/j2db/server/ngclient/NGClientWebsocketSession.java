@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
@@ -204,6 +205,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						startHandlingEvent();
 						try
 						{
+							sendUIProperties();
 							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
 							sendSolutionCSSURL(solution.getSolution());
 						}
@@ -258,10 +260,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private void sendUIProperties()
 	{
-		// set default trustDataAsHtml based on system setting
-		Boolean trustDataAsHtml = Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString()));
-		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty",
-			new Object[] { IApplication.TRUST_DATA_AS_HTML, trustDataAsHtml });
+		Map<String, Object> clientProperties = client.getClientSideUIProperties();
+		if (!clientProperties.containsValue(IApplication.TRUST_DATA_AS_HTML))
+		{
+			// set default trustDataAsHtml based on system setting
+			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,
+				Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString())));
+		}
+		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperties", new Object[] { new JSONObject(clientProperties) });
 	}
 
 	@Override

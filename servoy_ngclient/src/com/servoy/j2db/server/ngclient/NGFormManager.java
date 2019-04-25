@@ -405,7 +405,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IFormController showFormInMainPanel(String name)
 	{
-		((NGRuntimeWindow)this.getCurrentContainer()).sendFavicons();
 		return showFormInCurrentContainer(name);
 	}
 

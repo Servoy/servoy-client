@@ -35,6 +35,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
+}).value("$clientPropertyConstants", {
+	WINDOW_BRANDING_ICON_32 : "window.branding.icon.32",
+	WINDOW_BRANDING_ICON_192 : "window.branding.icon.192"
 }).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication) {
 
 	// internal function
@@ -1646,6 +1649,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			if (value == null) delete uiProps[key];
 			else uiProps[key] = value;
 			webStorage.session.set("uiProperties", JSON.stringify(uiProps))
+		},
+		setUIProperties: function(properties) {
+			uiProperties = properties;
 		}
 	}
 }])
