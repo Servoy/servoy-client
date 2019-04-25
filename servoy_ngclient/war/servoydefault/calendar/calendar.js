@@ -165,19 +165,24 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					theDateTimePicker.destroy();
 				} else {
 					$element.off("dp.error");
-					child.datetimepicker({
-						widgetParent: $(document.body),
-						useCurrent : false,
-						useStrict : true,
-						showClear : true,
-						ignoreReadonly : true,
-						showTodayButton: true,
-						calendarWeeks: true,
-						showClose: true,
-						icons: {
-							close: 'glyphicon glyphicon-ok'
-						}
-					});
+					var opts = {
+								widgetParent: $(document.body),
+								useCurrent : false,
+								useStrict : true,
+								showClear : true,
+								ignoreReadonly : true,
+								showTodayButton: true,
+								calendarWeeks: true,
+								showClose: true,
+								icons: {
+									close: 'glyphicon glyphicon-ok'
+								}
+							};
+					if (showISOWeeks)
+					{
+						opts.isoCalendarWeeks = true;
+					}	
+					child.datetimepicker(opts);
 					theDateTimePicker = child.data('DateTimePicker');
 					theDateTimePicker.format(dateFormat);
 					try {
