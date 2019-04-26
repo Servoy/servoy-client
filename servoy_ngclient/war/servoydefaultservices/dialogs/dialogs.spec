@@ -8,7 +8,7 @@
 		
 		{
 			"name": "bootstrap",
-			"version": "3.3.7",
+			"version": "3.4.1",
 			"url": "servoydefaultservices/dialogs/bootstrap.min.js",
 			"mimetype": "text/javascript"
 		},
