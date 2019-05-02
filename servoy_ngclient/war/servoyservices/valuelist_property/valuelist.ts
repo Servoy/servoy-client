@@ -46,16 +46,8 @@ angular.module('valuelist_property', ['webSocketModule'])
 							return internalState.hasRealValues;
 						}, enumerable: false });
 
-					if(currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL]) {
-						internalState.realToDisplayCache = currentClientValue[$sabloConverters.INTERNAL_IMPL].realToDisplayCache;
-						if(newValue.length) {
-							// clear cache, or should we check newValue and update the cache?
-							internalState.realToDisplayCache = {};	
-						}
-					}
-					else {
-						internalState.realToDisplayCache = {};
-					}
+					// clear the cache
+					internalState.realToDisplayCache = {};
 
 					Object.defineProperty(newValue, 'getDisplayValue', {
 						value: function(realValue) {
