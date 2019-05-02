@@ -129,9 +129,6 @@ public class JSNGWebComponent extends JSWebComponent
 		JSONObject json = webComponent.getFlattenedJson();
 		if (json == null) return Context.getUndefinedValue();
 
-		//TODO for now this works because it is stored as a json;
-		//this needs to be changed to getProperty when SVY-9365 is done
-		//then we will also need special conversions for rhino
 		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
