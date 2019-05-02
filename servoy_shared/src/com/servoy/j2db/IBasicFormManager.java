@@ -158,9 +158,13 @@ public interface IBasicFormManager extends IFormManager
 		public boolean removeForm(String formName)
 		{
 			int i = list.indexOf(formName);
-			if (i != -1 && !removeIndex(i))
+			while (i != -1)
 			{
-				return false;
+				if (!removeIndex(i))
+				{
+					return false;
+				}
+				i = list.indexOf(formName);
 			}
 			return application.getFormManager().destroyFormInstance(formName);
 		}
