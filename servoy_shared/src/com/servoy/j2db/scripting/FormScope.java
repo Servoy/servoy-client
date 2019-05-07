@@ -50,6 +50,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormScope extends ScriptVariableScope implements Wrapper, ContextualScope
 {
+	private final String formName;
 	private volatile IFormController _fp;
 	private volatile LazyCompilationScope[] extendScopes;
 
@@ -57,6 +58,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		super(fp.getApplication().getScriptEngine().getSolutionScope(), fp.getApplication().getScriptEngine(), extendsHierarchy[0]);
 		_fp = fp;
+		formName = fp.getName();
 		putWithoutFireChange("_formname_", fp.getName()); //$NON-NLS-1$
 
 		this.extendScopes = new LazyCompilationScope[extendsHierarchy.length - 1];
@@ -124,7 +126,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public String toString()
 	{
-		return "FormScope: " + _fp.getName();// + " extendsHierarchy: " + Arrays.toString(extendScopes); //$NON-NLS-1$
+		return "FormScope: " + formName + (_fp == null ? "<destroyed>" : "");
 	}
 
 	@Override
@@ -174,7 +176,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		if (_fp == null)
 		{
-			Debug.warn("Error accessing a form that is already destroyed for getting: " + name);
+			Debug.warn("Error accessing a form " + formName + "  that is already destroyed for getting: " + name);
 			throw new ExitScriptException("killing current script, client/solution already terminated");
 		}
 
@@ -337,7 +339,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		if (_fp == null)
 		{
-			Debug.warn("Error accessing a form that is already destroyed for getting: " + name);
+			Debug.warn("Error accessing a form " + formName + " that is already destroyed for getting: " + name);
 			throw new ExitScriptException("killing current script, client/solution already terminated");
 		}
 		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
