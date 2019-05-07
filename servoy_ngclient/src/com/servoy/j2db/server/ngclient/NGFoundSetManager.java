@@ -23,6 +23,7 @@ import java.util.WeakHashMap;
 
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
@@ -116,7 +117,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 
 				CustomJSONObjectType dummyCustomObjectTypeForChildRelationInfo = (CustomJSONObjectType)TypesRegistry.createNewType(
 					CustomJSONObjectType.TYPE_NAME, "svy__dummyCustomObjectTypeForDeprecatedFMServiceChildRelationInfo");
-				PropertyDescription dummyPD = new PropertyDescription("", dummyCustomObjectTypeForChildRelationInfo);
+				PropertyDescription dummyPD = new PropertyDescriptionBuilder().withType(dummyCustomObjectTypeForChildRelationInfo).build();
 				dummyCustomObjectTypeForChildRelationInfo.setCustomJSONDefinition(dummyPD);
 				foundsets.add(new ChangeAwareMap(foundsetinfoMap, null, dummyPD));
 			}
@@ -137,7 +138,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				if (o instanceof IFoundSetInternal)
 				{
 					IFoundSetInternal relatedFoundset = (IFoundSetInternal)o;
-					PropertyDescription foundsetRefProperty = new PropertyDescription("", FoundsetReferencePropertyTypeOld.INSTANCE);
+					PropertyDescription foundsetRefProperty = new PropertyDescriptionBuilder().withType(FoundsetReferencePropertyTypeOld.INSTANCE).build();
 					return new TypedData<IFoundSetInternal>(relatedFoundset, foundsetRefProperty);
 				}
 			}

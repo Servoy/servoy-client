@@ -275,9 +275,9 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 
 	public PropertyDescription getPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs)
 	{
-		PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder(property, FormComponentPropertyType.INSTANCE);
-		PropertyDescription formDesc = new PropertyDescription(SVY_FORM, StringPropertyType.INSTANCE);
-		pdBuilder.putProperty(SVY_FORM, formDesc);
+		PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
+		PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
+		pdBuilder.withProperty(SVY_FORM, formDesc);
 		if (currentValue != null)
 		{
 			String formName = currentValue.optString(SVY_FORM);
@@ -294,28 +294,28 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
 						if (properties.size() > 0)
 						{
-							PropertyDescriptionBuilder nestedFormComponentBuilder = new PropertyDescriptionBuilder(element.getName(), null);
+							PropertyDescriptionBuilder nestedFormComponentBuilder = new PropertyDescriptionBuilder().withName(element.getName());
 							for (PropertyDescription nestedFormComponentPD : properties)
 							{
 								Object object = ((AbstractBase)element).getProperty(nestedFormComponentPD.getName());
 								if (object instanceof JSONObject)
 								{
-									nestedFormComponentBuilder.putProperty(nestedFormComponentPD.getName(),
+									nestedFormComponentBuilder.withProperty(nestedFormComponentPD.getName(),
 										getPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs));
 								}
 							}
-							pdBuilder.putProperty(element.getName(), nestedFormComponentBuilder.create());
+							pdBuilder.withProperty(element.getName(), nestedFormComponentBuilder.build());
 						}
 						else
 						{
-							pdBuilder.putProperty(element.getName(), spec);
+							pdBuilder.withProperty(element.getName(), spec);
 						}
 					}
 				}
 				form = form.getExtendsForm();
 			}
 		}
-		return pdBuilder.create();
+		return pdBuilder.build();
 	}
 
 	private class FormComponentValue implements IFormComponentRhinoConverter

@@ -33,10 +33,11 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -82,7 +83,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
-			destroy.addParameter(new PropertyDescription("name", TypesRegistry.getType(StringPropertyType.TYPE_NAME)));
+			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
 			destroy.setPreDataServiceCall(true);
 			addApiFunction(destroy);
@@ -387,7 +388,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
 		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebComponentSpecification(name);
-		if (spec == null) spec = new WebObjectSpecification(name, "", IPackageReader.WEB_SERVICE, name, null, null, null, "", null);
+		if (spec == null) spec = new WebObjectSpecificationBuilder().withName(name).withPackageType(IPackageReader.WEB_SERVICE).build();
 
 		return new ServoyClientService(name, spec, this, true);
 	}

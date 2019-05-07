@@ -21,7 +21,7 @@ import org.sablo.Container;
 import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -861,9 +861,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	static WebObjectFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
 	{
 		WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
-		call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
-		call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
-		call.addParameter(new PropertyDescription("exception", TypesRegistry.getType("object")));
+		call.addParameter(new PropertyDescriptionBuilder().withName("event").withType(TypesRegistry.getType("object")).build());
+		call.addParameter(new PropertyDescriptionBuilder().withName("returnValue").withType(TypesRegistry.getType("object")).build());
+		call.addParameter(new PropertyDescriptionBuilder().withName("exception").withConfig(TypesRegistry.getType("object")).build());
 		return call;
 	}
 

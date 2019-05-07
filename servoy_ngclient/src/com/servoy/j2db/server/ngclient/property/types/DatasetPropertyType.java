@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
@@ -44,7 +45,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
  *
  * @author acostescu
  */
-public class DatasetPropertyType extends DefaultPropertyType<IDataSet>implements IConvertedPropertyType<IDataSet>
+public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implements IConvertedPropertyType<IDataSet>
 {
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
@@ -154,7 +155,7 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet>implements
 					try
 					{
 						IPropertyType< ? > pt = TypesRegistry.getType(columnTypesObj.get(propertyName).toString());
-						if (pt != null) columnTypes.put(propertyName, new PropertyDescription(propertyName, pt));
+						if (pt != null) columnTypes.put(propertyName, new PropertyDescriptionBuilder().withName(propertyName).withType(pt).build());
 					}
 					catch (JSONException ex)
 					{

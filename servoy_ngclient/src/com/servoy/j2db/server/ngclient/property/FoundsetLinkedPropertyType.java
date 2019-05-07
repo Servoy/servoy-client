@@ -24,6 +24,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
@@ -114,9 +115,10 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		}
 
 		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
-		config.setWrappedPropertyDescription(new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig,
-			null, parameters.defaultValue, parameters.initialValue, parameters.defaultValue != null, parameters.values, parameters.pushToServer,
-			parameters.tags, parameters.optional, parameters.deprecated));
+		config.setWrappedPropertyDescription(new PropertyDescriptionBuilder().withName(propertyName).withType(wrappedType).withConfig(
+			((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig).withDefaultValue(parameters.defaultValue).withInitialValue(
+				parameters.initialValue).withHasDefault(parameters.defaultValue != null).withValues(parameters.values).withPushToServer(
+					parameters.pushToServer).withTags(parameters.tags).withOptional(parameters.optional).withDeprecated(parameters.deprecated).build());
 		return this;
 	}
 

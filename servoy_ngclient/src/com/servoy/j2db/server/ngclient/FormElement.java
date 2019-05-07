@@ -754,10 +754,10 @@ public final class FormElement implements INGFormElement
 		for (Entry<String, Object> p : properties.entrySet())
 		{
 			PropertyDescription t = getWebComponentSpec().getProperty(p.getKey());
-			if (t != null) propertyTypes.putProperty(p.getKey(), t);
+			if (t != null) propertyTypes.withProperty(p.getKey(), t);
 		}
 
-		PropertyDescription pd = propertyTypes.create();
+		PropertyDescription pd = propertyTypes.build();
 		return new TypedData<>(properties, pd.hasChildProperties() ? pd : null);
 	}
 

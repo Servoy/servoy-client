@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.sablo.specification.IDefaultComponentPropertiesProvider;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
@@ -46,12 +47,13 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 	public Map<String, PropertyDescription> getDefaultComponentProperties()
 	{
 		Map<String, PropertyDescription> properties = new HashMap<String, PropertyDescription>();
-		properties.put("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
-		properties.put("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
-		properties.put("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
-		properties.put("formIndex", new PropertyDescription("formIndex", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+		properties.put("location", new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
+		properties.put("size", new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
+		properties.put("anchors", new PropertyDescriptionBuilder().withName("anchors").withType(TypesRegistry.getType(IntPropertyType.TYPE_NAME)).build());
+		properties.put("formIndex", new PropertyDescriptionBuilder().withName("formIndex").withType(TypesRegistry.getType(IntPropertyType.TYPE_NAME)).build());
 		properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
-			new PropertyDescription(IContentSpecConstants.PROPERTY_CSS_POSITION, TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)));
+			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
+				TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
 		return properties;
 	}
 }

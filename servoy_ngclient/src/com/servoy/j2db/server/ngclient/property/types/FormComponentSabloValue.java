@@ -25,6 +25,7 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.utils.DataConversion;
@@ -64,8 +65,8 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		path.add("childElements");
 		JSONObject tags = new JSONObject();
 		tags.put(ComponentTypeSabloValue.TAG_ADD_TO_ELEMENTS_SCOPE, true);
-		PropertyDescription compPd = new PropertyDescription(pd.getName(), ComponentPropertyType.INSTANCE, pd.getConfig(), null, null, null, false, null, null,
-			tags, false, null);
+		PropertyDescription compPd = new PropertyDescriptionBuilder().withName(pd.getName()).withType(ComponentPropertyType.INSTANCE).withConfig(
+			pd.getConfig()).withTags(tags).build();
 		for (int i = 0; i < components.length; i++)
 		{
 			FormElement element = elements.get(i);

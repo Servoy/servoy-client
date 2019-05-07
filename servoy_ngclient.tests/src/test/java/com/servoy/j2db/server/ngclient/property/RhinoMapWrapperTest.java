@@ -50,9 +50,10 @@ public class RhinoMapWrapperTest
 		Context cx = Context.enter();
 
 		TopLevel toplevelScope = new ImporterTopLevel(cx);
-		PropertyDescription pd = new PropertyDescription("myCustomObjectProp", new NGCustomJSONObjectType("myCustomObjectType", null));
-		PropertyDescription copd = new PropertyDescriptionBuilder("myCustomObjectType", pd.getType()).putProperty("someInt",
-			new PropertyDescription("someInt", IntPropertyType.INSTANCE)).create();
+		PropertyDescription pd = new PropertyDescriptionBuilder().withName("myCustomObjectProp").withType(
+			new NGCustomJSONObjectType("myCustomObjectType", null)).build();
+		PropertyDescription copd = new PropertyDescriptionBuilder().withName("myCustomObjectType").withType(pd.getType()).withProperty("someInt",
+			new PropertyDescriptionBuilder().withName("someInt").withType(IntPropertyType.INSTANCE).build()).build();
 		((NGCustomJSONObjectType)pd.getType()).setCustomJSONDefinition(copd);
 
 
