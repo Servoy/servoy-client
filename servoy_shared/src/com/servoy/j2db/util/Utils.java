@@ -2724,6 +2724,16 @@ public final class Utils
 		return getPlatform() == PLATFORM_MAC;
 	}
 
+	public static boolean isWindowsOS()
+	{
+		return getPlatform() == PLATFORM_WINDOWS;
+	}
+
+	public static boolean isLinuxOS()
+	{
+		return getPlatform() == PLATFORM_LINUX;
+	}
+
 	public static boolean isValidEmailAddress(String email)
 	{
 		return (email != null
