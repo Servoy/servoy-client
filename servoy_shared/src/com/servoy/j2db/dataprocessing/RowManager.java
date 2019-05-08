@@ -719,7 +719,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							// because that would be a byte[]
 							continue;
 						}
-						if ((olddata[i] != null && !olddata[i].equals(newdata[i])) || (newdata[i] != null && !newdata[i].equals(olddata[i])))
+						if (!Utils.equalObjects(olddata[i], newdata[i]))
 						{
 							if (sheet.isUsedByAggregate(dataProviderID))
 							{

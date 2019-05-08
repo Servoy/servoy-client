@@ -2349,6 +2349,14 @@ public final class Utils
 			{
 				obj = BigDecimal.valueOf(((Double)obj).doubleValue());
 			}
+			else if (obj instanceof Integer)
+			{
+				obj = BigDecimal.valueOf(((Integer)obj).longValue());
+			}
+			else if (obj instanceof Float)
+			{
+				obj = BigDecimal.valueOf(((Float)obj).doubleValue());
+			}
 		}
 		else if (obj instanceof BigDecimal && !(oldObj instanceof BigDecimal))
 		{
@@ -2359,6 +2367,14 @@ public final class Utils
 			else if (oldObj instanceof Double)
 			{
 				oldObj = BigDecimal.valueOf(((Double)oldObj).doubleValue());
+			}
+			else if (oldObj instanceof Integer)
+			{
+				oldObj = BigDecimal.valueOf(((Integer)oldObj).longValue());
+			}
+			else if (oldObj instanceof Float)
+			{
+				oldObj = BigDecimal.valueOf(((Float)oldObj).doubleValue());
 			}
 		}
 		// separate tests for BigDecimal and Long, the tests based on Double may give
