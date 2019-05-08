@@ -62,6 +62,8 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		this.components = new ComponentTypeSabloValue[elements.size()];
 		this.elementStartName = FormElementHelper.getStartElementName(component.getFormElement(), pd);
 		PropertyPath path = new PropertyPath();
+		path.add(component.getName());
+		path.add("containedForm");
 		path.add("childElements");
 		JSONObject tags = new JSONObject();
 		tags.put(ComponentTypeSabloValue.TAG_ADD_TO_ELEMENTS_SCOPE, true);
@@ -70,9 +72,11 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		for (int i = 0; i < components.length; i++)
 		{
 			FormElement element = elements.get(i);
+			path.add(i);
 			ComponentTypeFormElementValue elementValue = ComponentPropertyType.INSTANCE.getFormElementValue(null, compPd, path, element,
 				dal.getApplication().getFlattenedSolution());
 			components[i] = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, element, component, dal);
+			path.backOneLevel();
 		}
 	}
 
