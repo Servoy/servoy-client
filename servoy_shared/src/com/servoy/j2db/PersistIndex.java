@@ -50,10 +50,15 @@ import com.servoy.j2db.util.IntHashMap;
  */
 public class PersistIndex implements IItemChangeListener<IPersist>, IPersistIndex
 {
+	private enum EventType
+	{
+		CREATED, UPDATED, REMOVED
+	}
+
 	protected final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>();
 	protected final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
 	// caches per persist class a map of Name->Persist (we assume that is unique!)
-	protected final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, ? extends IPersist>> nameToPersist = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> nameToPersist = new ConcurrentHashMap<>();
 
 	protected final ConcurrentMap<String, Map<String, ISupportScope>> scopeCacheByName = new ConcurrentHashMap<>();
 
@@ -88,16 +93,16 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByName(String name, Class<T> persistClass)
 	{
-		ConcurrentMap<String, ? extends IPersist> classToList = nameToPersist.get(persistClass);
+		ConcurrentMap<String, IPersist> classToList = nameToPersist.get(persistClass);
 		if (classToList == null)
 		{
-			final ConcurrentMap<String, T> tmp = new ConcurrentHashMap<>();
+			final ConcurrentMap<String, IPersist> tmp = new ConcurrentHashMap<>();
 			if (ISupportName.class.isAssignableFrom(persistClass))
 			{
 				visit((persist) -> {
 					if (persist.getClass() == persistClass)
 					{
-						tmp.put(((ISupportName)persist).getName(), (T)persist);
+						tmp.put(((ISupportName)persist).getName(), persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
@@ -203,20 +208,28 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	protected final void createIndex()
 	{
 		visit((persist) -> {
-			uuidToPersist.put(persist.getUUID().toString(), persist);
-			IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
-			if (cacheById == null)
-			{
-				cacheById = new IntHashMap<>();
-				IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
-				if (currentValue != null) cacheById = currentValue;
-			}
-			synchronized (cacheById)
-			{
-				cacheById.put(persist.getID(), persist);
-			}
+			putInCache(persist);
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		});
+	}
+
+	/**
+	 * @param persist
+	 */
+	protected final void putInCache(IPersist persist)
+	{
+		uuidToPersist.put(persist.getUUID().toString(), persist);
+		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
+		if (cacheById == null)
+		{
+			cacheById = new IntHashMap<>();
+			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
+			if (currentValue != null) cacheById = currentValue;
+		}
+		synchronized (cacheById)
+		{
+			cacheById.put(persist.getID(), persist);
+		}
 	}
 
 	protected final void visit(IPersistVisitor visitor)
@@ -255,19 +268,8 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	public void itemCreated(IPersist item)
 	{
 		if (uuidToPersist.isEmpty()) return;
-		uuidToPersist.put(item.getUUID().toString(), item);
-		IntHashMap<IPersist> cacheById = idToPersist.get(item.getClass());
-		if (cacheById == null)
-		{
-			cacheById = new IntHashMap<>();
-			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(item.getClass(), cacheById);
-			if (currentValue != null) cacheById = currentValue;
-		}
-		synchronized (cacheById)
-		{
-			cacheById.put(item.getID(), item);
-		}
-		nameToPersist.remove(item.getClass());
+		putInCache(item);
+		testNameCache(item, EventType.CREATED);
 		if (item instanceof ISupportChilds)
 		{
 			// If a form (or any isupport childs is added, also add all children); this is in mirror with remove
@@ -280,6 +282,41 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		if (item instanceof ISupportScope)
 		{
 			scopeCacheByName.clear();
+		}
+	}
+
+	/**
+	 * @param item
+	 */
+	protected void testNameCache(IPersist item, EventType type)
+	{
+		if (item instanceof ISupportName)
+		{
+			ConcurrentMap<String, IPersist> nameCache = nameToPersist.get(item.getClass());
+			if (nameCache != null)
+			{
+				String name = ((ISupportName)item).getName();
+				if (name != null)
+				{
+					switch (type)
+					{
+						case CREATED :
+							nameCache.put(name, item);
+							break;
+						case REMOVED :
+							if (nameCache.remove(name) != item) nameToPersist.remove(item.getClass());
+							break;
+						case UPDATED :
+							if (nameCache.get(name) != item) nameToPersist.remove(item.getClass());
+					}
+				}
+				else if (type != EventType.CREATED)
+				{
+					// if it is removed or updated and it didn't have a name just remove the class cache for a rebuild
+					// could be a name change to null.
+					nameToPersist.remove(item.getClass());
+				}
+			}
 		}
 	}
 
@@ -296,7 +333,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				idCache.remove(item.getID());
 			}
 		}
-		nameToPersist.remove(item.getClass());
+		testNameCache(item, EventType.REMOVED);
 		if (item instanceof ISupportChilds)
 		{
 			// If a form (or any isupport childs is removed, also remove all children)
@@ -324,7 +361,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		{
 			cacheById.put(item.getID(), item);
 		}
-		nameToPersist.remove(item.getClass());
+		testNameCache(item, EventType.UPDATED);
 		if (item instanceof ISupportScope)
 		{
 			scopeCacheByName.clear();
