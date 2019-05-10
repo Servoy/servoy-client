@@ -42,6 +42,7 @@ import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.dataprocessing.TableFilterdefinition;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.I18NUtil;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Solution;
@@ -460,7 +461,7 @@ public class Messages
 			QuerySelect sql = new QuerySelect(messagesTable);
 			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
+			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 			sql.addColumn(msgKey);
 			sql.addColumn(msgVal);
 
@@ -477,13 +478,22 @@ public class Messages
 				sql.addCondition(condMessages, cc);
 			}
 
+			//Filter to only include records with the default (null) value for columns flagged as Tenant column
+			for (Column column : I18NUtil.getTenantColumns(table))
+			{
+				QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+					column.getScale(), column.getFlags());
+				CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+				sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
+			}
+
 			if (searchKey != null || searchText != null)
 			{
 				QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 				QuerySelect subselect = new QuerySelect(subselectTable);
 				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
+				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 				subselect.addColumn(msgKeySub);
 
 				String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -540,7 +550,7 @@ public class Messages
 		QuerySelect sql = new QuerySelect(messagesTable);
 		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
+		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 		sql.addColumn(msgKey);
 		sql.addColumn(msgVal);
 
@@ -557,13 +567,22 @@ public class Messages
 			sql.addCondition(condMessages, cc);
 		}
 
+		//Filter to only include records with the default (null) value for columns flagged as Tenant column
+		for (Column column : I18NUtil.getTenantColumns(table))
+		{
+			QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+				column.getScale(), column.getFlags());
+			CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+			sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
+		}
+
 		if (searchKey != null || searchText != null)
 		{
 			QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect subselect = new QuerySelect(subselectTable);
 			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 5, 0, 0); //$NON-NLS-1$
+			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
 			subselect.addColumn(msgKeySub);
 
 			String condSearch = "SEARCH"; //$NON-NLS-1$

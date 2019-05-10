@@ -18,10 +18,12 @@ package com.servoy.j2db.persistence;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -120,7 +122,7 @@ public class I18NUtil
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength(),
 					pkColumn.getScale(), pkColumn.getFlags());
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0);
 				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0);
 				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0);
 
@@ -137,6 +139,8 @@ public class I18NUtil
 					logIdIsServoyManaged = (autoEnterType == ColumnInfo.SEQUENCE_AUTO_ENTER) && (autoEnterSubType != ColumnInfo.NO_SEQUENCE_SELECTED) &&
 						(autoEnterSubType != ColumnInfo.DATABASE_IDENTITY);
 				}
+
+				ArrayList<Column> tenantColumns = getTenantColumns(i18NTable);
 
 				Iterator<Map.Entry<String, MessageEntry>> messagesIte = messages.entrySet().iterator();
 				Map.Entry<String, MessageEntry> messageEntry;
@@ -214,6 +218,15 @@ public class I18NUtil
 							}
 						}
 
+						//Add condition to update only records having the default tenant value (null)
+						for (Column column : tenantColumns)
+						{
+							QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+								column.getScale(), column.getFlags());
+							CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+							update.addCondition(cc);
+						}
+
 						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update,
 							fm != null ? fm.getTableFilterParams(i18NServerName, update) : null));
 					}
@@ -251,6 +264,15 @@ public class I18NUtil
 								}
 							}
 
+							//Add condition to remove only records having the default tenant value (null)
+							for (Column column : tenantColumns)
+							{
+								QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(),
+									column.getLength(), column.getScale(), column.getFlags());
+								CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+								delete.addCondition(cc);
+							}
+
 							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete,
 								fm != null ? fm.getTableFilterParams(i18NServerName, delete) : null));
 
@@ -281,13 +303,22 @@ public class I18NUtil
 				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QuerySelect sql = new QuerySelect(messagesTable);
 
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5, 0, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0);
 				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0);
 				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0);
 
 				sql.addColumn(msgLang);
 				sql.addColumn(msgKey);
 				sql.addColumn(msgVal);
+
+				//Filter to only include records with the default (null) value for columns flagged as Tenant column
+				for (Column column : getTenantColumns(i18NTable))
+				{
+					QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
+						column.getScale(), column.getFlags());
+					CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+					sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
+				}
 
 				if (filterName != null)
 				{
@@ -320,6 +351,21 @@ public class I18NUtil
 		}
 
 		return sortedMessages;
+	}
+
+	public static ArrayList<Column> getTenantColumns(Table i18NTable)
+	{
+		Collection<Column> columns = i18NTable.getColumns();
+		ArrayList<Column> tenantColumns = new ArrayList<Column>();
+		for (Column column : columns)
+		{
+			if (column.hasFlag(IBaseColumn.TENANT_COLUMN))
+			{
+				tenantColumns.add(column);
+			}
+		}
+
+		return tenantColumns;
 	}
 
 }
