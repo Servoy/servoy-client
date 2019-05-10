@@ -984,6 +984,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.model[simpleName] = rowModel;
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
 						row.api[simpleName] = {};
+						childElement['api'][index] = row.api[simpleName];
 						if ( scope.svyFormComponent.absoluteLayout ) {
 							
 							var elementLayout = {position: "absolute"};
