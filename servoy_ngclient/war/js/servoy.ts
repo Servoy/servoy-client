@@ -288,11 +288,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
         
         generateUploadUrl: function(formname ,beanname, propertyName){
-        	formname = formname ? "/" + formname : "";
-        	beanname = beanname ? "/" + beanname : "";
-        	propertyName = propertyName ? "/" + propertyName : "";
-        	
-            return "resources/upload/" + $sabloApplication.getClientnr() + formname + beanname + propertyName;
+            return "resources/upload/" + $sabloApplication.getClientnr() + 
+	            formname ? "/" + formname : "" + 
+	    		beanname ? "/" + beanname : "" + 
+				propertyName ? "/" + propertyName : "";
         }
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
