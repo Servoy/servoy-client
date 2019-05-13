@@ -635,13 +635,17 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					scope.$on("dialogResize",setImageStyle);
 				}
 			}
+
+			var componentSizeWatch;
 			scope.$watch(attrs['svyImagemediaid'],function(newVal) {
 				media = newVal;
 				var componentSize = {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
 				if (componentSize.width > 0 && componentSize.height > 0 )
 					angular.element(element[0]).ready(setImageStyle);
 				else if (media && media.visible) {
-					var componentSizeWatch = scope.$watch(function() {
+					angular.element(element[0]).ready(setImageStyle);
+					if(componentSizeWatch) componentSizeWatch();
+					componentSizeWatch = scope.$watch(function() {
 						return {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
 					}, function(newVal) {
 						if (newVal.width > 0 && newVal.height > 0) {

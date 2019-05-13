@@ -47,13 +47,11 @@ describe('styles helpers', function() {
 		template.data('$isolateScope',isolatedScope);
 		var myDiv = $compile(template)(isolatedScope);
 		isolatedScope.$digest();
-		$timeout.flush();
 		expect($(myDiv[0].firstElementChild.firstElementChild).css('background-image')).toContain('image1.png');
 		
 		// change image at runtime
 		isolatedScope.myModel = {img: 'image2.png?imageWidth=121&imageHeight=92', componentSize:{width: 16, height: 16},rollOverImg:null,visible:true};
 		isolatedScope.$digest();
-		$timeout.flush();
 		expect($(myDiv[0].firstElementChild.firstElementChild).css('background-image')).toContain('image2.png');
 	});
 
