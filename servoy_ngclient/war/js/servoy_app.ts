@@ -641,9 +641,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if (componentSize.width > 0 && componentSize.height > 0 )
 					angular.element(element[0]).ready(setImageStyle);
 				else if (media && media.visible) {
-					// TODO should this below be just a timeout or a timeout call wrapped into a function?					
-//					angular.element(element[0]).ready($timeout(function(){setImageStyle();},0,false));
-					$timeout(function(){setImageStyle();},0,false)
+					var componentSizeWatch = scope.$watch(function() {
+						return {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
+					}, function(newVal) {
+						if (newVal.width > 0 && newVal.height > 0) {
+							angular.element(element[0]).ready(setImageStyle);
+							componentSizeWatch();
+						}
+					}, true);
 				}
 			}, true)
 
