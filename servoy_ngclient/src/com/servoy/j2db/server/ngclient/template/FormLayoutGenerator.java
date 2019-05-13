@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,7 +57,6 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
@@ -82,10 +82,25 @@ public class FormLayoutGenerator
 	{
 		StringWriter out = new StringWriter();
 		PrintWriter writer = new PrintWriter(out);
-		Iterator<IPersist> components = fs.getFlattenedForm(form).getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (components.hasNext())
+		List components = fs.getFlattenedForm(form).getAllObjectsAsList();
+		if (!form.isResponsiveLayout())
 		{
-			IPersist component = components.next();
+			List<IFormElement> persists = new ArrayList(components);
+			Iterator<IFormElement> it = persists.iterator();
+			while (it.hasNext())
+			{
+				IPersist persist = it.next();
+				if (!(persist instanceof BaseComponent))
+				{
+					it.remove();
+				}
+			}
+			Collections.sort(persists, FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+			components = persists;
+		}
+		for (int i = 0; i < components.size(); i++)
+		{
+			IPersist component = (IPersist)components.get(i);
 			if (component instanceof LayoutContainer)
 			{
 				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false, cache);
