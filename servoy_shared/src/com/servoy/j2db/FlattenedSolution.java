@@ -285,6 +285,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 		flush(persist);
+		getIndex().reload();
 		return clone;
 	}
 
