@@ -38,6 +38,7 @@ import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
+import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
@@ -102,10 +103,23 @@ public class EventExecutor
 					}
 				}
 				// very like a foundset/entity method
-				else if (formController.getFormModel() != null)
+				else
 				{
-					scope = (Scriptable)formController.getFormModel(); // TODO ViewFoundSets should be come a scriptable if they have foundset methods..
-					f = (Function)scope.getPrototype().get(scriptMethod.getName(), scope);
+					Scriptable foundsetScope = null;
+					if (component instanceof WebFormComponent)
+					{
+						IRecord rec = ((WebFormComponent)component).getDataAdapterList().getRecord();
+						if (rec != null)
+						{
+							foundsetScope = (Scriptable)rec.getParentFoundSet();
+						}
+					}
+					if (foundsetScope == null) foundsetScope = (Scriptable)formController.getFormModel();
+					if (foundsetScope != null)
+					{
+						scope = foundsetScope; // TODO ViewFoundSets should be come a scriptable if they have foundset methods..
+						f = (Function)scope.getPrototype().get(scriptMethod.getName(), scope);
+					}
 				}
 			}
 		}
