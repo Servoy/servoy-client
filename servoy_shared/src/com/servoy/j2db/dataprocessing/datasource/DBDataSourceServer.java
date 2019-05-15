@@ -18,6 +18,7 @@
 package com.servoy.j2db.dataprocessing.datasource;
 
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
@@ -94,6 +95,36 @@ public class DBDataSourceServer extends DefaultJavaScope
 	public String getServerName()
 	{
 		return serverName;
+	}
+
+	/**
+	 * Get server table names.
+	 *
+	 * @sample
+	 * datasources.db.example_data.getTableNames()
+	 *
+	 * @return List<String> server  table names;
+	 */
+	@JSFunction
+	public List<String> getTableNames()
+	{
+		try
+		{
+			IServerInternal server = (IServerInternal)application.getRepository().getServer(serverName);
+			if (server != null)
+			{
+				return server.getTableNames(false);
+			}
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 
 	/**
