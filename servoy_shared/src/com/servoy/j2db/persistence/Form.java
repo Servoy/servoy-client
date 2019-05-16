@@ -2180,7 +2180,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		if (getUseCssPosition().booleanValue()) return "css position layout";
 		Iterator<Part> it = getParts();
 		if (it.hasNext()) return "absolute layout";
-		return "no layout";
+		return "abstract form (no layout)";
 	}
 
 	/**
