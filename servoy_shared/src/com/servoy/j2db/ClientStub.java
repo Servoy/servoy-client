@@ -124,6 +124,7 @@ public class ClientStub implements IUserClient
 				{
 					public void run()
 					{
+						if (client.isShutDown() || !client.isSolutionLoaded()) return;
 						IDataServer dataServer = client.getDataServer();
 						if (dataServer instanceof DataServerProxy)
 						{
