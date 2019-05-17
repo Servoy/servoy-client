@@ -35,7 +35,7 @@ public interface ISQLTableJoin extends ISQLJoin
 
 	void invert(String newName);
 
-	void setJoinType(int leftOuterJoin);
+	void setJoinType(int joinType);
 
 	AndCondition getCondition();
 

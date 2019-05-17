@@ -16,8 +16,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.scripting.IDeprecated;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
@@ -32,17 +32,13 @@ public class JOINTYPE implements IPrefixedConstantsObject, IDeprecated
 	 * @deprecated replaced by JSRelation.INNER_JOIN
 	 */
 	@Deprecated
-	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
+	public static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
 
 	/**
 	 * @deprecated replaced by JSRelation.LEFT_OUTER_JOIN
 	 */
 	@Deprecated
-	public static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
-
-//	public static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;
-//	public static final int FULL_JOIN = ISQLJoin.FULL_JOIN;
-
+	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

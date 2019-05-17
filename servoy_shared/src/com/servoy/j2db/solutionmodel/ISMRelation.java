@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.persistence.constants.IJoinConstants;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.solutionmodel.IBaseSMRelation;
 
 
@@ -32,16 +32,11 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 {
 
 	/**
-	 * Constant for the joinType of a JSRelation. It is also used in solutionModel.newRelation(...) and in the QueryBuilder.
+	 * Constant for the joinType of a JSRelation. It is also used in solutionModel.newRelation(...).
 	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
-	 *
-	 * 	var query = datasources.db.example_data.orders.createSelect();
-	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
-	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
-	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
 	 */
 	public static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
 
@@ -52,19 +47,14 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
 
 	/**
-	 * Constant for the joinType of a Query Builder join.
-	 *
-	 * @sample
-	 * 	var query = datasources.db.example_data.orders.createSelect();
-	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
-	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.RIGHT_OUTER_JOIN, 'odetail')
-	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
+	 * @sameas INNER_JOIN
+	 * @see #INNER_JOIN
 	 */
 	public static final int RIGHT_OUTER_JOIN = IJoinConstants.RIGHT_OUTER_JOIN;
 
 	/**
-	 * @sameas RIGHT_OUTER_JOIN
-	 * @see #RIGHT_OUTER_JOIN
+	 * @sameas INNER_JOIN
+	 * @see #INNER_JOIN
 	 */
 	public static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
 

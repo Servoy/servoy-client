@@ -24,6 +24,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IRelation;
@@ -194,7 +195,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @sample
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
-	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
+	 * 	var join = query.joins.add('db:/example_data/order_details', QBJoin.INNER_JOIN, 'odetail')
 	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
 	 *  // to add a join based on a relation, use the relation name
 	 *  var join2 = query.joins.add('orders_to_customers', 'cust')
@@ -202,7 +203,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * 	foundset.loadRecords(query)
 	 *
 	 * @param dataSource data source
-	 * @param joinType join type, one of JSRelation.LEFT_OUTER_JOIN, JSRelation.INNER_JOIN, JSRelation.RIGHT_OUTER_JOIN, JSRelation.FULL_JOIN
+	 * @param joinType join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType)
@@ -230,7 +231,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 			throw new RepositoryException("Cannot find relation '" + dataSourceOrRelation + "'");
 		}
 		// a data source
-		return add(dataSourceOrRelation, IQueryBuilderJoin.LEFT_OUTER_JOIN, alias);
+		return add(dataSourceOrRelation, IJoinConstants.LEFT_OUTER_JOIN, alias);
 	}
 
 	/**
@@ -242,7 +243,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin add(String dataSource)
 	{
-		return add(dataSource, IQueryBuilderJoin.LEFT_OUTER_JOIN, null);
+		return add(dataSource, IJoinConstants.LEFT_OUTER_JOIN, null);
 	}
 
 	/**
@@ -272,7 +273,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 *  var query = datasources.db.example_data.order_details.createSelect();
 	 *  // add a join on a derived table using a subquery
-	 *  var join = query.joins.add(subquery, JSRelation.INNER_JOIN, 'subprods');
+	 *  var join = query.joins.add(subquery, QBJoin.INNER_JOIN, 'subprods');
 	 *  join.on.add(query.columns.productid.eq(join.columns['subprod']));
 	 *  query.result.add(query.columns.quantity);
 	 *  query.result.add(join.columns['subcat']);

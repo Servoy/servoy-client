@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -545,7 +545,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return false;
 		}
-		if (getJoinType() != ISQLJoin.INNER_JOIN)
+		if (getJoinType() != IJoinConstants.INNER_JOIN)
 		{ // outer joins icw or-null modifiers do not work (oracle) or looses outer join (ansi)
 			for (int operator : getOperators())
 			{

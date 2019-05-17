@@ -37,6 +37,7 @@ import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
@@ -259,9 +260,9 @@ public class SQLGenerator
 						// override join type to left outer join, a related OR-search should not make the result set smaller
 						for (ISQLJoin join : retval.getJoins())
 						{
-							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == ISQLJoin.INNER_JOIN)
+							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == IJoinConstants.INNER_JOIN)
 							{
-								((QueryJoin)join).setJoinType(ISQLJoin.LEFT_OUTER_JOIN);
+								((QueryJoin)join).setJoinType(IJoinConstants.LEFT_OUTER_JOIN);
 							}
 						}
 					}

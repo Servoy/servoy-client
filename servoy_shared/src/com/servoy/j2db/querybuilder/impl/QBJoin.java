@@ -20,9 +20,11 @@ package com.servoy.j2db.querybuilder.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -35,6 +37,7 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TableExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
+import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -43,7 +46,7 @@ import com.servoy.j2db.util.keyword.Ident;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBJoin extends QBTableClause implements IQueryBuilderJoin
+public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IJoinConstants, IConstantsObject
 {
 	private final ISQLTableJoin join;
 
@@ -74,10 +77,16 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	 *
 	 * @return joinType.
 	 */
-	@JSFunction
+	@JSGetter
 	public int getJoinType()
 	{
 		return join.getJoinType();
+	}
+
+	@JSSetter
+	public void setJoinType(int joinType)
+	{
+		join.setJoinType(joinType);
 	}
 
 	/**

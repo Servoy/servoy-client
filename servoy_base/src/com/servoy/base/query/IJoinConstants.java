@@ -15,20 +15,43 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.persistence.constants;
+package com.servoy.base.query;
 
 /**
  * Constants useful when dealing with SQL joins.
- * 
+ *
  * @author acostescu
- * 
+ *
  */
 public interface IJoinConstants
 {
-
+	/**
+	 * Constant for the joinType of a join or a relation. It is also used in solutionModel.newRelation(...) and in the QueryBuilder.
+	 *
+	 * @sample
+	 * 	var query = datasources.db.example_data.orders.createSelect();
+	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
+	 * 	var join = query.joins.add('db:/example_data/order_details', QBJoin.INNER_JOIN, 'odetail')
+	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
+	 */
 	public static final int INNER_JOIN = 0;
+
+	/**
+	 * @sameas INNER_JOIN
+	 * @see #INNER_JOIN
+	 */
 	public static final int LEFT_OUTER_JOIN = 1;
+
+	/**
+	 * @sameas INNER_JOIN
+	 * @see #INNER_JOIN
+	 */
 	public static final int RIGHT_OUTER_JOIN = 2;
+
+	/**
+	 * @sameas INNER_JOIN
+	 * @see #INNER_JOIN
+	 */
 	public static final int FULL_JOIN = 3;
 
 }

@@ -16,7 +16,11 @@
  */
 package com.servoy.j2db.query;
 
-import com.servoy.base.persistence.constants.IJoinConstants;
+import static com.servoy.base.query.IJoinConstants.FULL_JOIN;
+import static com.servoy.base.query.IJoinConstants.INNER_JOIN;
+import static com.servoy.base.query.IJoinConstants.LEFT_OUTER_JOIN;
+import static com.servoy.base.query.IJoinConstants.RIGHT_OUTER_JOIN;
+
 import com.servoy.base.query.BaseQueryTable;
 
 /** Interface for joins in queries.
@@ -25,12 +29,6 @@ import com.servoy.base.query.BaseQueryTable;
  */
 public interface ISQLJoin extends IQueryElement
 {
-	// join types
-	public static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
-	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
-	public static final int RIGHT_OUTER_JOIN = IJoinConstants.RIGHT_OUTER_JOIN;
-	public static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
-
 	public static final int[] ALL_JOIN_TYPES = { INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_JOIN };
 
 	public static final String[] JOIN_TYPES_NAMES = { "inner join", //$NON-NLS-1$
