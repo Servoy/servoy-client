@@ -48,7 +48,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugNGClient;
-import com.servoy.j2db.IDebugNGDesktopClient;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
@@ -95,7 +94,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	private volatile DebugWebClient debugWebClient;
 	@SuppressWarnings("unused")
 	private volatile DebugNGClient debugNGClient;
-	private volatile DebugNGDesktopClient debugNGDesktopClient;
 	private volatile DebugJ2DBClient debugJ2DBClient;
 	private volatile Solution currentSolution;
 
@@ -122,11 +120,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			SolutionScope solutionScope = debugNGClient.getScriptEngine().getSolutionScope();
 			designerCallback.addScriptObjects(debugNGClient, solutionScope);
-		}
-		if (debugNGDesktopClient != null && debugNGDesktopClient.getSolution() != null)
-		{
-			SolutionScope solutionScope = debugNGDesktopClient.getScriptEngine().getSolutionScope();
-			designerCallback.addScriptObjects(debugNGDesktopClient, solutionScope);
 		}
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
 		{
@@ -545,12 +538,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public IDebugNGClient getDebugNGClient()
 	{
 		return debugNGClient;
-	}
-
-	@Override
-	public IDebugNGDesktopClient getDebugNGDesktopClient()
-	{
-		return debugNGDesktopClient;
 	}
 
 	public DebugHeadlessClient getDebugHeadlessClient()

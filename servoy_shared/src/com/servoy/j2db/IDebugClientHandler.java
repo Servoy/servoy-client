@@ -61,8 +61,6 @@ public interface IDebugClientHandler
 
 	IDebugNGClient getDebugNGClient();
 
-	IDebugNGDesktopClient getDebugNGDesktopClient();
-
 	<T extends IDebugClient> T getDebugClient(DebugClientType<T> type);
 
 	void flagModelInitialised();
