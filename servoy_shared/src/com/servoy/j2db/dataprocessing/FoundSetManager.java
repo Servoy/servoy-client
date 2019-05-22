@@ -633,35 +633,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		Map<String, SoftReference<RelatedFoundSet>> rfsMap = cachedSubStates.get(relation.getName());
 		if (rfsMap != null)
 		{
+			RelatedFoundSet rfs = null;
 			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
 			if (sr != null)
 			{
-				RelatedFoundSet rfs = sr.get();
-				if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
-				{
-					return rfs;
-				}
+				rfs = sr.get();
 			}
 			else
 			{
-				List<RelatedHashedArguments> identArguments = dbIdentArguments.get(relation.getName());
-				if (identArguments != null && identArguments.indexOf(relatedArguments) >= 0)
-				{
-					RelatedHashedArguments oldDBIdentArguments = identArguments.get(identArguments.indexOf(relatedArguments));
-					SoftReference<RelatedFoundSet> oldSR = rfsMap.get(oldDBIdentArguments.hash);
-					if (oldSR != null)
-					{
-						RelatedFoundSet retval = oldSR.get();
-						// adjust the related cache
-						rfsMap.put(relatedArguments.hash, oldSR);
-						rfsMap.remove(oldDBIdentArguments.hash);
-						identArguments.remove(oldDBIdentArguments);
-						if (retval != null && !retval.mustQueryForUpdates() && !retval.mustAggregatesBeLoaded())
-						{
-							return retval;
-						}
-					}
-				}
+				rfs = checkDbIdentMap(relation.getName(), relatedArguments, rfsMap);
+			}
+			if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
+			{
+				return rfs;
 			}
 		}
 		return null;
@@ -702,20 +686,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			else
 			{
-				List<RelatedHashedArguments> identArguments = dbIdentArguments.get(relationName);
-				if (identArguments != null && identArguments.indexOf(relatedArguments) >= 0)
-				{
-					RelatedHashedArguments oldDBIdentArguments = identArguments.get(identArguments.indexOf(relatedArguments));
-					SoftReference<RelatedFoundSet> oldSR = rfs.get(oldDBIdentArguments.hash);
-					if (oldSR != null)
-					{
-						retval = oldSR.get();
-						// adjust the related cache
-						rfs.put(relatedArguments.hash, oldSR);
-						rfs.remove(oldDBIdentArguments.hash);
-						identArguments.remove(oldDBIdentArguments);
-					}
-				}
+				retval = checkDbIdentMap(relationName, relatedArguments, rfs);
 			}
 		}
 
@@ -828,7 +799,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 									List<RelatedHashedArguments> storedDBIdentArguments = dbIdentArguments.get(relationName);
 									if (storedDBIdentArguments == null)
 									{
-										storedDBIdentArguments = new ArrayList<RelatedHashedArguments>();
+										storedDBIdentArguments = Collections.synchronizedList(new ArrayList<RelatedHashedArguments>());
 										dbIdentArguments.put(relationName, storedDBIdentArguments);
 									}
 									storedDBIdentArguments.add(relargs);
@@ -856,6 +827,42 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					for (Runnable runnable : runnables)
 					{
 						runnable.run();
+					}
+				}
+			}
+		}
+		return retval;
+	}
+
+	/**
+	 * @param relationName
+	 * @param retval
+	 * @param relatedArguments
+	 * @param rfs
+	 * @return
+	 */
+	private RelatedFoundSet checkDbIdentMap(String relationName, RelatedHashedArguments relatedArguments, Map<String, SoftReference<RelatedFoundSet>> rfs)
+	{
+		RelatedFoundSet retval = null;
+		List<RelatedHashedArguments> identArguments = dbIdentArguments.get(relationName);
+		int index = -1;
+		if (identArguments != null && (index = identArguments.indexOf(relatedArguments)) >= 0)
+		{
+			RelatedHashedArguments oldDBIdentArguments = identArguments.get(index);
+			SoftReference<RelatedFoundSet> oldSR = rfs.get(oldDBIdentArguments.hash);
+			if (oldSR != null)
+			{
+				retval = oldSR.get();
+				// adjust the related cache
+				rfs.put(relatedArguments.hash, oldSR);
+				rfs.remove(oldDBIdentArguments.hash);
+				// test if last entry, if so remove the complete relation key
+				synchronized (identArguments)
+				{
+					identArguments.remove(oldDBIdentArguments);
+					if (identArguments.size() == 0)
+					{
+						dbIdentArguments.remove(relationName);
 					}
 				}
 			}
