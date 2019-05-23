@@ -1223,7 +1223,7 @@ public class EditRecordList
 					//access is based on columns, but we don't yet use that fine grained level, its table only
 					access = Integer.valueOf(
 						fsm.getApplication().getFlattenedSolution().getSecurityAccess(Utils.getDotQualitfied(table.getServerName(), table.getName(), cname),
-							fsm.getApplication().getFlattenedSolution().getSolution().getOrCreateTableNode(table.getDataSource()).getImplicitSecurityNoRights()
+							fsm.getApplication().getFlattenedSolution().getSolution().getImplicitSecurityNoRights(table.getDataSource())
 								? IRepository.IMPLICIT_TABLE_NO_ACCESS : IRepository.IMPLICIT_TABLE_ACCESS));
 				}
 				else
