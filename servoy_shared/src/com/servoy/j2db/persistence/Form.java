@@ -2113,6 +2113,18 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_CSS_POSITION }, cssPosition);
 	}
 
+	public boolean getImplicitSecurityNoRights()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS });
+		if (customProperty instanceof Boolean) return ((Boolean)customProperty).booleanValue();
+		return false;
+	}
+
+	public void setImplicitSecurityNoRights(boolean implicitSecurity)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS }, Boolean.valueOf(implicitSecurity));
+	}
+
 	/**
 	 * Set the onElementChangeMethodID
 	 *

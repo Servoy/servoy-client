@@ -1273,14 +1273,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public int getSecurityAccess(Object element_id)
+	public int getSecurityAccess(Object element_id, int implicitValue)
 	{
 		if (securityAccess == null) return -1;
 
 		Integer i = securityAccess.get(element_id);
 		if (i == null)
 		{
-			return -1;
+			//return -1;
+			// we now return implicit value here
+			return implicitValue;
 		}
 		else
 		{

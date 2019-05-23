@@ -77,9 +77,10 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	private static boolean isSecurityVisible(FlattenedSolution fs, IPersist persist)
+	private static boolean isSecurityVisible(FlattenedSolution fs, IPersist persist, Form form)
 	{
-		return (fs.getSecurityAccess(persist.getUUID()) & IRepository.VIEWABLE) != 0;
+		return (fs.getSecurityAccess(persist.getUUID(),
+			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS) & IRepository.VIEWABLE) != 0;
 	}
 
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
@@ -202,7 +203,7 @@ public class FormLayoutStructureGenerator
 			else if (component instanceof IFormElement)
 			{
 				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design);
-				if (!isSecurityVisible(fs, fe.getPersistIfAvailable()))
+				if (!isSecurityVisible(fs, fe.getPersistIfAvailable(), form))
 				{
 					continue;
 				}

@@ -49,7 +49,8 @@ public class ComponentFactory
 		if (persist != null)
 		{
 			// don't add the component to the form ui if component is not visible due to security settings
-			access = application.getFlattenedSolution().getSecurityAccess(persist.getUUID());
+			access = application.getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+				form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (!((access & IRepository.VIEWABLE) != 0)) return null;
 		}
 
@@ -87,14 +88,16 @@ public class ComponentFactory
 				{
 					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
 					{
-						elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID());
+						elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID(),
+							form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 						break;
 					}
 				}
 			}
 			else if (persist.getParent() instanceof Portal)
 			{
-				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID());
+				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID(),
+					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			}
 			else
 			{
@@ -106,7 +109,8 @@ public class ComponentFactory
 			}
 			else
 			{
-				int formSecurity = application.getFlattenedSolution().getSecurityAccess(form);
+				int formSecurity = application.getFlattenedSolution().getSecurityAccess(form.getUUID(),
+					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((formSecurity & IRepository.ACCESSIBLE) != 0)) // form not accessible
 				{
 					webComponent.setProperty("enabled", false);

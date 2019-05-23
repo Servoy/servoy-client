@@ -221,7 +221,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			IPersist persist = formElement.getPersistIfAvailable();
 			if (persist != null)
 			{
-				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+					formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((access & IRepository.ACCESSIBLE) != 0))
 					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
 			}

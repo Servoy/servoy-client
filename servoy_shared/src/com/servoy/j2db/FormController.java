@@ -481,7 +481,8 @@ public class FormController extends BasicFormController
 		}
 
 		//apply security
-		int access = application.getFlattenedSolution().getSecurityAccess(form.getUUID());
+		int access = application.getFlattenedSolution().getSecurityAccess(form.getUUID(),
+			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		if (access != -1)
 		{
 			boolean b_accessible = ((access & IRepository.ACCESSIBLE) != 0);

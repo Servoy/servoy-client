@@ -245,7 +245,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement element : formelements)
 		{
-			if (isSecurityVisible(element, fs))
+			if (isSecurityVisible(element, fs, frm))
 			{
 				element = (IFormElement)((AbstractBase)element).clonePersist();
 				// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
@@ -344,9 +344,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return name != null ? name + '$' + pd.getName() + '$' : null;
 	}
 
-	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs)
+	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs, Form form)
 	{
-		int access = fs.getSecurityAccess(persist.getUUID());
+		int access = fs.getSecurityAccess(persist.getUUID(),
+			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;
 	}

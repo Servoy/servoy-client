@@ -537,6 +537,18 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, arg);
 	}
 
+	public boolean getImplicitSecurityNoRights()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS });
+		if (customProperty instanceof Boolean) return ((Boolean)customProperty).booleanValue();
+		return false;
+	}
+
+	public void setImplicitSecurityNoRights(boolean implicitSecurity)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS }, Boolean.valueOf(implicitSecurity));
+	}
+
 	public boolean isEmpty()
 	{
 		// Table node is empty if it has no method/var and no property set (except for dataSource)
