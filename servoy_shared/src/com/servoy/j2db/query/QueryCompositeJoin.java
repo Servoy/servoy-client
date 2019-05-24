@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -137,7 +138,7 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 	{
 		return tableJoins().findAny() //
 			.map(ISQLTableJoin::getJoinType) //
-			.orElse(Integer.valueOf(ISQLJoin.INNER_JOIN)) //
+			.orElse(Integer.valueOf(IJoinConstants.INNER_JOIN)) //
 			.intValue();
 	}
 

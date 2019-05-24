@@ -18,6 +18,8 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -219,7 +221,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			IPersist persist = formElement.getPersistIfAvailable();
 			if (persist != null)
 			{
-				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+					formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((access & IRepository.ACCESSIBLE) != 0))
 					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
 			}
@@ -235,16 +238,30 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			}
 
 			Object executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
+			Form formElementForm = null;
+			if (persist instanceof AbstractBase)
+			{
+				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+				if (formName != null)
+				{
+					formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
+				}
+
+			}
+			if (formElementForm == null)
+			{
+				formElementForm = formElement.getForm();
+			}
+
 
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				(formElement.getForm().getOnElementDataChangeMethodID() > 0) && formElement.getForm().getOnElementDataChangeMethodID() != functionID)
+				(formElementForm.getOnElementDataChangeMethodID() > 0) && formElementForm.getOnElementDataChangeMethodID() != functionID)
 			{
 				boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
 					!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
 				if (isValueValid)
 				{
-					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementDataChangeMethodID(),
-						args);
+					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementDataChangeMethodID(), args);
 				}
 			}
 

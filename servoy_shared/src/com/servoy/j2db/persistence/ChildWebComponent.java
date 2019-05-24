@@ -24,6 +24,7 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
@@ -51,14 +52,14 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	public final static String TYPE_NAME_KEY = "typeName";
 	public final static String DEFINITION_KEY = "definition";
 
-	public static final PropertyDescription NAME_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(),
-		StringPropertyType.INSTANCE);
-	public static final PropertyDescription SIZE_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(),
-		TypesRegistry.getType(DimensionPropertyType.TYPE_NAME));
-	public static final PropertyDescription LOCATION_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(),
-		TypesRegistry.getType(PointPropertyType.TYPE_NAME));
-	public static final PropertyDescription ANCHORS_PROPERTY_DESCRIPTION = new PropertyDescription(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(),
-		IntPropertyType.INSTANCE);
+	public static final PropertyDescription NAME_PROPERTY_DESCRIPTION = new PropertyDescriptionBuilder().withName(
+		StaticContentSpecLoader.PROPERTY_NAME.getPropertyName()).withType(StringPropertyType.INSTANCE).build();
+	public static final PropertyDescription SIZE_PROPERTY_DESCRIPTION = new PropertyDescriptionBuilder().withName(
+		StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()).withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build();
+	public static final PropertyDescription LOCATION_PROPERTY_DESCRIPTION = new PropertyDescriptionBuilder().withName(
+		StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName()).withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build();
+	public static final PropertyDescription ANCHORS_PROPERTY_DESCRIPTION = new PropertyDescriptionBuilder().withName(
+		StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()).withType(IntPropertyType.INSTANCE).build();
 
 	private transient String jsonKey;
 	private transient int index;

@@ -238,7 +238,8 @@ public class FormWrapper
 	public boolean isSecurityVisible(IPersist persist)
 	{
 		if (context.getApplication() == null) return true;
-		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;
 	}

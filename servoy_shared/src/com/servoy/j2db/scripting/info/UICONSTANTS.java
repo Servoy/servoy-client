@@ -373,9 +373,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String VALUELIST_MAX_ROWS = IApplication.VALUELIST_MAX_ROWS;
 
 	/**
-	 * Property that can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty(), preferably in solution onOpen handler (or anyway before forms containing calendars are shown).
 	 *
-	 * If set to true, the default calendar will show week number according to ISO 8601. By default (false) will show week number according to locale.
+	 * If set to true, the default calendar, bootstrap calendar, bootstrap inline calendar and nggrid calendar will show week number according to ISO 8601. Other 3rd party (calendar) components are free to take this value into consideration as they please.
+	 * By default (false) those will show week number according to locale.
 	 *
 	 * The value can be true/false
 	 * DEFAULT: false

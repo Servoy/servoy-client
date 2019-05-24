@@ -33,22 +33,22 @@ public interface IJSHistory
 	@ServoyClientSupport(ng = true, mc = true)
 	public void forward();
 
-	@ServoyClientSupport(ng = false, mc = true)
+	@ServoyClientSupport(ng = true, mc = true)
 	public void clear();
 
-	@ServoyClientSupport(ng = false, mc = true)
+	@ServoyClientSupport(ng = true, mc = true)
 	String getFormName(int i);
 
-	@ServoyClientSupport(ng = false, mc = true)
+	@ServoyClientSupport(ng = true, mc = true)
 	void go(int i);
 
-	@ServoyClientSupport(ng = false, mc = true)
+	@ServoyClientSupport(ng = true, mc = true)
 	int size();
 
-	@ServoyClientSupport(ng = false, mc = true)
+	@ServoyClientSupport(ng = true, mc = true)
 	int getCurrentIndex();
 
-	@ServoyClientSupport(ng = false, mc = true)
+	@ServoyClientSupport(ng = true, mc = true)
 	boolean removeIndex(int index);
 
 	@ServoyClientSupport(ng = true, mc = true)

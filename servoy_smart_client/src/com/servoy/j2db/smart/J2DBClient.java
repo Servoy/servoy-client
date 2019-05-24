@@ -3754,6 +3754,20 @@ public class J2DBClient extends ClientState
 		return Messages.getString(i18nKey);
 	}
 
+	@Override
+	public String getI18NMessage(String i18nKey, Object[] array, String language, String country)
+	{
+		//should we implement this ?
+		return i18nKey;
+	}
+
+	@Override
+	public String getI18NMessage(String i18nKey, String language, String country)
+	{
+		//should we implement this ?
+		return i18nKey;
+	}
+
 	public void setI18NMessage(String key, String value)
 	{
 		Messages.setI18nScriptingMessage(key, value);

@@ -97,6 +97,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
+import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
@@ -418,7 +419,7 @@ public abstract class AbstractSolutionTest
 			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, null);
 		}
 
-		WebComponentSpecProvider.init(componentsReaders);
+		WebComponentSpecProvider.init(componentsReaders, DefaultComponentPropertiesProvider.instance);
 		WebServiceSpecProvider.init(servicesReaders);
 
 		final TestRepository tr = new TestRepository();

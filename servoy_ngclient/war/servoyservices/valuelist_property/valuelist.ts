@@ -45,9 +45,10 @@ angular.module('valuelist_property', ['webSocketModule'])
 						value: function() {
 							return internalState.hasRealValues;
 						}, enumerable: false });
-					// TODO caching this value means for this specific valuelist instance that the display value will not be updated if that would be changed on the server end..
-					internalState.realToDisplayCache = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL]) ? 
-															currentClientValue[$sabloConverters.INTERNAL_IMPL].realToDisplayCache : {};
+
+					// clear the cache
+					internalState.realToDisplayCache = {};
+
 					Object.defineProperty(newValue, 'getDisplayValue', {
 						value: function(realValue) {
 							if (realValue != null && realValue != undefined) {

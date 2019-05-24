@@ -38,6 +38,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
@@ -312,7 +313,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			IPropertyType< ? > specType = TypesRegistry.getType((String)dpPD.getTag(TAG_TYPE_NAME));
 			if (specType != null && (typeOfDP == null || !specType.getClass().isAssignableFrom(typeOfDP.getClass())))
 			{
-				typeOfDP = new PropertyDescription("Spec type hint", specType);
+				typeOfDP = new PropertyDescriptionBuilder().withName("Spec type hint").withType(specType).build();
 			}
 		}
 

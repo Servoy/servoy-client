@@ -2113,6 +2113,18 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_CSS_POSITION }, cssPosition);
 	}
 
+	public boolean getImplicitSecurityNoRights()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS });
+		if (customProperty instanceof Boolean) return ((Boolean)customProperty).booleanValue();
+		return false;
+	}
+
+	public void setImplicitSecurityNoRights(boolean implicitSecurity)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS }, Boolean.valueOf(implicitSecurity));
+	}
+
 	/**
 	 * Set the onElementChangeMethodID
 	 *
@@ -2164,6 +2176,37 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			if (fe instanceof WebComponent) result.add((WebComponent)fe);
 		}
 		return result.iterator();
+	}
+
+	/**
+	 * Return a description string of the associated layout
+	 *
+	 * @return "responsive layout" - for the NG responsive forms
+	 * @return "css position layout" - for the NG forms using CSS position
+	 * @return "absolute layout" - for the forms using anchors
+	 * @return "no layout" - for forms with no UI
+	 */
+	public String getLayoutType()
+	{
+		if (isResponsiveLayout()) return "responsive layout";
+		if (getUseCssPosition().booleanValue()) return "css position layout";
+		Iterator<Part> it = getParts();
+		if (it.hasNext()) return "absolute layout";
+		return "abstract form (no layout)";
+	}
+
+	/**
+	 * Verify the presence of the associated UI
+	 *
+	 * @return true if the form is abstract (no UI) otherwise return false
+	 */
+	public boolean isAbstractForm()
+	{
+		if (isResponsiveLayout()) return false;
+		if (getUseCssPosition().booleanValue() == true) return false;
+		Iterator<Part> it = getParts();
+		if (it.hasNext()) return false; //abstract form has no parts
+		return true;
 	}
 
 }

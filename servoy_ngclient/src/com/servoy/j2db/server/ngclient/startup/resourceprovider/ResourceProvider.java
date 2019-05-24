@@ -61,6 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.persistence.WebObjectRegistry;
+import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.less.LessCompiler;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -261,7 +262,7 @@ public class ResourceProvider implements Filter
 		servicePackages.add(sabloReader);
 		componentPackages.add(sabloReader);
 
-		WebComponentSpecProvider.init(componentPackages.toArray(new IPackageReader[componentPackages.size()]));
+		WebComponentSpecProvider.init(componentPackages.toArray(new IPackageReader[componentPackages.size()]), DefaultComponentPropertiesProvider.instance);
 		WebServiceSpecProvider.init(servicePackages.toArray(new IPackageReader[servicePackages.size()]));
 		// this is second init in developer, so make sure all web components use the new loaded specs
 		WebObjectRegistry.clearWebObjectCaches();

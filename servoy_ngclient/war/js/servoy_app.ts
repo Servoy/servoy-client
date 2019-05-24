@@ -635,15 +635,24 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					scope.$on("dialogResize",setImageStyle);
 				}
 			}
+
+			var componentSizeWatch;
 			scope.$watch(attrs['svyImagemediaid'],function(newVal) {
 				media = newVal;
 				var componentSize = {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
 				if (componentSize.width > 0 && componentSize.height > 0 )
 					angular.element(element[0]).ready(setImageStyle);
 				else if (media && media.visible) {
-					// TODO should this below be just a timeout or a timeout call wrapped into a function?					
-//					angular.element(element[0]).ready($timeout(function(){setImageStyle();},0,false));
-					$timeout(function(){setImageStyle();},0,false)
+					angular.element(element[0]).ready(setImageStyle);
+					if(componentSizeWatch) componentSizeWatch();
+					componentSizeWatch = scope.$watch(function() {
+						return {width: element[0].parentNode.parentNode['offsetWidth'],height: element[0].parentNode.parentNode['offsetHeight']};
+					}, function(newVal) {
+						if (newVal.width > 0 && newVal.height > 0) {
+							angular.element(element[0]).ready(setImageStyle);
+							componentSizeWatch();
+						}
+					}, true);
 				}
 			}, true)
 
@@ -1193,8 +1202,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //	}
 
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$uibModal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties',
-                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$uibModal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$uibModal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService','$log','$translate', '$svyUIProperties','$utils','$clientPropertyConstants',
+                           function($window:angular.IWindowService,$timeout:angular.ITimeoutService,webStorage,$uibModal,$sabloApplication:sablo.ISabloApplication,$solutionSettings:servoy.SolutionSettings,$rootScope:angular.IRootScopeService,$svyFileuploadUtils,$locale,$svyI18NService:servoy.IServoyI18NService,$log:sablo.ILogService,$translate,$svyUIProperties, $utils:servoy.IUtils, $clientPropertyConstants) {
 	var showDefaultLoginWindow = function() {
 		$uibModal.open({
 			templateUrl: 'templates/login.html',
@@ -1234,6 +1243,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return $window.location.protocol + '//'+ $window.location.host + context;
 	}
 	
+	function setIcon(favicon, size) {
+		var link:any = document.querySelector("link[rel*='icon'][sizes='" + size + "']");
+		if(link && link.href != favicon) {
+			link.href = favicon;
+			document.getElementsByTagName('head')[0].appendChild(link);
+		}
+	}
+
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
@@ -1256,6 +1273,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		setUIProperty: function(key,value) {
 			$svyUIProperties.setUIProperty(key, value);
+			if(key == $clientPropertyConstants.WINDOW_BRANDING_ICON_32) {
+				setIcon(value, "32x32");
+			} else if (key == $clientPropertyConstants.WINDOW_BRANDING_ICON_192) {
+				setIcon(value, "192x192");
+			}
+		},
+		setUIProperties: function(properties) {
+			$svyUIProperties.setUIProperties(properties);
+			if(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_32]) {
+				setIcon(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_32], "32x32");
+			}
+			if(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_192]) {
+				setIcon(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_192], "192x192");
+			}
 		},
 		showMessage: function(message) {
 			$window.alert(message);
@@ -1421,7 +1452,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			webStorage.local.remove('servoy_password');
 		},
 		showFileOpenDialog: function(title, multiselect, acceptFilter) {
-			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getClientnr(), title, multiselect, acceptFilter);
+			$svyFileuploadUtils.open($utils.generateUploadUrl(null,null,null), title, multiselect, acceptFilter);
 		},
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;

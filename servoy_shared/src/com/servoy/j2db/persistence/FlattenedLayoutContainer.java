@@ -36,6 +36,14 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		getAncestor(IRepository.FORMS);
 		List<IPersist> children = PersistHelper.getHierarchyChildren(layoutContainer);
 		Map<UUID, IPersist> extendsMap = flattenedForm.getExtendsMap();
+		// not all overrides are on form level so extendsMap may be incomplete
+		// add overrides from current container to the map
+		for (IPersist child : layoutContainer.getAllObjectsAsList())
+		{
+			if (!(child instanceof ISupportExtendsID) || ((ISupportExtendsID)child).getExtendsID() <= 0) continue;
+			IPersist parent = PersistHelper.getSuperPersist((ISupportExtendsID)child);
+			extendsMap.put(parent.getUUID(), child);
+		}
 		for (IPersist child : children)
 		{
 			if (child instanceof LayoutContainer)

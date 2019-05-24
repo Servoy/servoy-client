@@ -18,7 +18,7 @@ declare namespace servoy {
 		noLicense:{viewUrl:string,redirectUrl:string,redirectTimeout:number},
 		maintenanceMode:{viewUrl:string,redirectUrl:string,redirectTimeout:number},
 		sessionExpired:{viewUrl:string,redirectUrl:string},
-		internalServerError:{viewUrl:string},		
+		internalServerError:{viewUrl:string},
 	}
 	
 	interface WindowType{
@@ -134,6 +134,7 @@ declare namespace servoy {
 		testEnterKey(e):boolean, 
 		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
 		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string)
+		generateUploadUrl(formname:string,beanname:string,propertyName: string)
 	}
 	
 	interface IServoyScope extends angular.IScope {

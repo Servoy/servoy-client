@@ -52,6 +52,7 @@ public interface IRepository
 	 * Default access rights for a form/form element.
 	 */
 	public static final int IMPLICIT_FORM_ACCESS = VIEWABLE | ACCESSIBLE;
+	public static final int IMPLICIT_FORM_NO_ACCESS = 0;
 
 	public static final int READ = 1;
 	public static final int INSERT = 2;
@@ -64,6 +65,7 @@ public interface IRepository
 	 * Default access rights for a table.
 	 */
 	public static final int IMPLICIT_TABLE_ACCESS = READ | INSERT | UPDATE | DELETE; // NO TRACKING for implicit
+	public static final int IMPLICIT_TABLE_NO_ACCESS = 0;
 
 	public static final int SYSTEM_USER_ID = 0;
 	public static final String ADMIN_GROUP = "Administrators"; //$NON-NLS-1$

@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -82,10 +83,28 @@ public class FormLayoutGenerator
 	{
 		StringWriter out = new StringWriter();
 		PrintWriter writer = new PrintWriter(out);
-		Iterator<IPersist> components = fs.getFlattenedForm(form).getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (components.hasNext())
+		Iterator< ? extends IPersist> componentsIterator = null;
+		if (!form.isResponsiveLayout())
 		{
-			IPersist component = components.next();
+			List<IPersist> components = fs.getFlattenedForm(form).getAllObjectsAsList();
+			List<IFormElement> formElements = new ArrayList<>();
+			for (IPersist persist : components)
+			{
+				if (persist instanceof IFormElement)
+				{
+					formElements.add((IFormElement)persist);
+				}
+			}
+			Collections.sort(formElements, FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+			componentsIterator = formElements.iterator();
+		}
+		else
+		{
+			componentsIterator = fs.getFlattenedForm(form).getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		}
+		while (componentsIterator.hasNext())
+		{
+			IPersist component = componentsIterator.next();
 			if (component instanceof LayoutContainer)
 			{
 				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false, cache);

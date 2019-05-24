@@ -198,16 +198,17 @@ public class PartWrapper
 			Point location = CSSPosition.getLocation(persist);
 			if (startPos <= location.y && endPos > location.y && persist instanceof BaseComponent)
 			{
-				if (isSecurityVisible(persist, converterContext)) baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist, converterContext, context)) baseComponents.add((BaseComponent)persist);
 			}
 		}
 		return baseComponents;
 	}
 
-	public static boolean isSecurityVisible(IPersist persist, IServoyDataConverterContext converterContext)
+	public static boolean isSecurityVisible(IPersist persist, IServoyDataConverterContext converterContext, Form form)
 	{
 		if (converterContext.getApplication() == null) return true;
-		int access = converterContext.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+		int access = converterContext.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;
 	}

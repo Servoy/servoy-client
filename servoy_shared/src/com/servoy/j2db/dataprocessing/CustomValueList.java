@@ -338,7 +338,9 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 									catch (Exception e)
 									{
 										Debug.error("Could not convert custom value list value '" + strval + "' to type " +
-											Column.getDisplayTypeString(getValueType()) + " for value list " + getName() + " -- skipped: " + e.getMessage());
+											Column.getDisplayTypeString(getValueType()) + " with format: " +
+											(format != null ? format.getDisplayFormat() : "<noformat>") + " for value list " + getName() + " -- skipped: " +
+											e.getMessage());
 										continue;
 									}
 									super.addElement(value);

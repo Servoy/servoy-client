@@ -41,6 +41,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.solutionmodel.IBaseSMPart;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -52,7 +53,6 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.WebComponent;
-import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -182,7 +182,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);
 		solution.setServerProxies(serverProxies);
 
-		Relation relation = solution.createNewRelation(validator, "test_to_relatedtest", "mem:test", "mem:relatedtest", ISQLJoin.LEFT_OUTER_JOIN);
+		Relation relation = solution.createNewRelation(validator, "test_to_relatedtest", "mem:test", "mem:relatedtest", IJoinConstants.LEFT_OUTER_JOIN);
 		Column primaryColumn = ((Table)client.getFoundSetManager().getTable(relation.getPrimaryDataSource())).getColumn("pk");
 		Column foreignColumn = ((Table)client.getFoundSetManager().getTable(relation.getForeignDataSource())).getColumn("testpk");
 		relation.createNewRelationItem(client.getFoundSetManager(), primaryColumn, IBaseSQLCondition.EQUALS_OPERATOR, foreignColumn);

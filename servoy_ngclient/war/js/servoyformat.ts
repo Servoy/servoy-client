@@ -770,14 +770,17 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 			function findDelta(value, prevValue) {
 				var delta = '';
-				for (var i = 0; i < value.length; i++) {
-					var str = value.substr(0, i) + value.substr(i + value.length - prevValue.length);
-					if (str === prevValue) {
-						delta = value.substr(i, value.length - prevValue.length);
+				if(typeof value === 'string' && typeof prevValue === 'string' && value.length >= prevValue.length) {
+					for (var i = 0; i < value.length; i++) {
+						var str = value.substr(0, i) + value.substr(i + value.length - prevValue.length);
+						if (str === prevValue) {
+							delta = value.substr(i, value.length - prevValue.length);
+							break;
+						}
 					}
 				}
 				return delta;
-			}			
+			}
 			
 	        function getNumbersFromString(e, currentValue, oldInputValue){
                 if(oldInputValue === currentValue){

@@ -218,6 +218,7 @@ public final class Settings extends SortedProperties
 			remove("selectedlnf"); //$NON-NLS-1$
 		}
 		applySystemProperties();
+		setDecimalPrecision();
 	}
 
 	public synchronized void loadFromURL(URL url) throws IOException
@@ -228,6 +229,7 @@ public final class Settings extends SortedProperties
 			load(is);
 			is.close();
 			applySystemProperties();
+			setDecimalPrecision();
 		}
 	}
 
@@ -263,6 +265,7 @@ public final class Settings extends SortedProperties
 				}
 			}
 			applySystemProperties();
+			setDecimalPrecision();
 			Debug.log("Loading - Done"); //$NON-NLS-1$
 		}
 		else
@@ -285,6 +288,23 @@ public final class Settings extends SortedProperties
 			else if (property.startsWith("sablo."))
 			{
 				System.setProperty(property, getProperty(property));
+			}
+		}
+	}
+
+	private void setDecimalPrecision()
+	{
+		String equalsPrecision = getProperty("servoy.client.equals.decimal.precision");
+		if (equalsPrecision != null)
+		{
+			int precision = Utils.getAsInteger(equalsPrecision);
+			if (precision > 0)
+			{
+				Utils.DEFAULT_EQUALS_PRECISION = Math.pow(10, -precision);
+			}
+			else
+			{
+				Debug.warn("Invalid value for: servoy.client.equals.decimal.precision; should be a number (default value is 7) :" + equalsPrecision);
 			}
 		}
 	}

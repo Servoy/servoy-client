@@ -984,6 +984,22 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return uiProperties == null ? null : uiProperties.get(name);
 	}
 
+	public Map<String, Object> getClientSideUIProperties()
+	{
+		Map<String, Object> clientSideUIProperties = new HashMap<String, Object>();
+		if (uiProperties != null)
+		{
+			for (Map.Entry<Object, Object> e : uiProperties.entrySet())
+			{
+				if (e.getKey() instanceof String && (e.getValue() instanceof String || e.getValue() instanceof Number || e.getValue() instanceof Boolean))
+				{
+					clientSideUIProperties.put((String)e.getKey(), e.getValue());
+				}
+			}
+		}
+		return clientSideUIProperties;
+	}
+
 	@Override
 	public void setTitle(String title)
 	{
@@ -1529,9 +1545,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public void onStopSubAction(Pair<UUID, UUID> perfId)
 	{
-		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
-		if (performanceData != null) performanceData.endSubAction(perfId);
-
+		if (perfId != null)
+		{
+			PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
+			if (performanceData != null) performanceData.endSubAction(perfId);
+		}
 	}
 
 	@Override

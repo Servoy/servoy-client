@@ -38,6 +38,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.shared.IPerformanceRegistry;
 import com.servoy.j2db.server.shared.PerformanceData;
@@ -315,6 +316,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			String appName = "Servoy NG Client"; //$NON-NLS-1$
 			boolean branding = Utils.getAsBoolean(getApplication().getSettings().getProperty("servoy.branding", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 			String appTitle = getApplication().getSettings().getProperty("servoy.branding.windowtitle"); //$NON-NLS-1$
+			Object runtimeAppTitle = getApplication().getClientProperty(NGCONSTANTS.WINDOW_BRANDING_TITLE);
+			if (runtimeAppTitle instanceof String)
+			{
+				appTitle = (String)runtimeAppTitle;
+			}
 			if (branding && appTitle != null)
 			{
 				appName = appTitle;

@@ -17,10 +17,12 @@
 package com.servoy.j2db.scripting;
 
 
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
@@ -1356,6 +1358,108 @@ public class JSUtils implements IJSUtils
 	public String js_stringInitCap(String text)
 	{
 		return Utils.stringInitCap(text);
+	}
+
+	/**
+	 * Return the byte array representation of the string
+	 *
+	 ** @sample
+	 * var byteArray = utils.stringToBytes('This is A test');
+	 *
+	 *  @param  string: the string to convert to bytes
+	 *
+	 *  @return byte array representation of the string using UTF-8 charset for conversion
+	 *
+	 */
+	@JSFunction
+	public byte[] stringToBytes(String string)
+	{
+		return string != null ? string.getBytes(StandardCharsets.UTF_8) : null;
+	}
+
+	/**
+	 * Return the string conversion of the byteArray
+	 *
+	 ** @sample
+	 * var string = utils.bytesToString(byteArray);
+	 *
+	 *  @param  byteArray: the byte array to convert to
+	 *
+	 *  @return string representation of the byte array using UTF-8 charset for conversion
+	 *
+	 */
+	@JSFunction
+	public String bytesToString(byte[] byteArray)
+	{
+		return byteArray != null ? new String(byteArray, StandardCharsets.UTF_8) : null;
+	}
+
+	/**
+	 * Return the Base64 representation of the string
+	 *
+	 ** @sample
+	 * var string = utils.stringToBase64('This is A test');
+	 *
+	 *  @param  string: the string to convert to Base64
+	 *
+	 *  @return Base64 encoded representation of the string using UTF-8 charset for conversion
+	 *
+	 */
+	@JSFunction
+	public String stringToBase64(String string)
+	{
+		return string != null ? Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8)) : null;
+	}
+
+	/**
+	 * Return the String representation of the Base64 value
+	 *
+	 ** @sample
+	 * var string = utils.base64ToString(base64Value);
+	 *
+	 *  @param  base64String: the Base64 value to convert to String
+	 *
+	 *  @return String decoded representation of the Base64 value using UTF-8 charset for conversion
+	 *
+	 */
+	@JSFunction
+	public String base64ToString(String base64String)
+	{
+		return base64String != null ? new String(Base64.getDecoder().decode(base64String.getBytes(StandardCharsets.UTF_8))) : null;
+	}
+
+	/**
+	 * Return the Base64 value representation of the byteArray
+	 *
+	 ** @sample
+	 * var string = utils.bytesToBase64(byteArray);
+	 *x`
+	 *  @param  byteArray: the byte array to convert to Base64 value
+	 *
+	 *  @return Base64 representation of the byte array using UTF-8 charset for conversion
+	 *
+	 */
+	@JSFunction
+	public String bytesToBase64(byte[] byteArray)
+	{
+		return byteArray != null ? new String(Base64.getEncoder().encode(byteArray), StandardCharsets.UTF_8) : null;
+	}
+
+	/**
+	 * Return the byte array representation of the Base64 value
+	 *
+	 ** @sample
+	 * var string = utils.base64ToBytes(base64String);
+	 *
+	 *  @param  base64String: the Base64 encoded string to convert to byte array
+	 *
+	 *  @return byteArray representation of the base64 string using UTF-8 charset for conversion
+	 *
+	 */
+	@JSFunction
+	public byte[] base64ToBytes(String base64String)
+	{
+		return base64String != null ? Base64.getDecoder().decode(base64String.getBytes(StandardCharsets.UTF_8)) : null;
 	}
 
 	@Override

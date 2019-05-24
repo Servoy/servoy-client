@@ -30,12 +30,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package.IPackageReader;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -85,7 +87,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
-			destroy.addParameter(new PropertyDescription("name", TypesRegistry.getType(StringPropertyType.TYPE_NAME)));
+			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
 			destroy.setPreDataServiceCall(true);
 			addApiFunction(destroy);
@@ -227,6 +229,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						startHandlingEvent();
 						try
 						{
+							sendUIProperties();
 							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
 							sendSolutionCSSURL(solution.getSolution());
 						}
@@ -281,10 +284,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private void sendUIProperties()
 	{
-		// set default trustDataAsHtml based on system setting
-		Boolean trustDataAsHtml = Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString()));
-		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty",
-			new Object[] { IApplication.TRUST_DATA_AS_HTML, trustDataAsHtml });
+		Map<String, Object> clientProperties = client.getClientSideUIProperties();
+		if (!clientProperties.containsValue(IApplication.TRUST_DATA_AS_HTML))
+		{
+			// set default trustDataAsHtml based on system setting
+			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,
+				Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString())));
+		}
+		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperties", new Object[] { new JSONObject(clientProperties) });
 	}
 
 	@Override
@@ -404,7 +411,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
 		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebComponentSpecification(name);
-		if (spec == null) spec = new WebObjectSpecification(name, "", IPackageReader.WEB_SERVICE, name, null, null, null, "", null);
+		if (spec == null) spec = new WebObjectSpecificationBuilder().withName(name).withPackageType(IPackageReader.WEB_SERVICE).build();
 
 		return new ServoyClientService(name, spec, this, true);
 	}

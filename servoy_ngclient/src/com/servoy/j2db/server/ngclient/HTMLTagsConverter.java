@@ -120,14 +120,16 @@ public class HTMLTagsConverter
 							try
 							{
 								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
-								attr.setValue("resources/servoy_blobloader?blob=" + blobpart);
+								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&clientnr=" +
+									context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
 							}
 							catch (Exception e1)
 							{
 								Debug.error("could not encrypt blobloaderpart: " + blobpart);
 							}
 						}
-						else attr.setValue("resources/fs/" + context.getSolution().getName() + media);
+						else attr.setValue("resources/fs/" + context.getSolution().getName() + media + "?clientnr=" +
+							context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
 
 						changed = true;
 					}

@@ -35,7 +35,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties) {
+}).value("$clientPropertyConstants", {
+	WINDOW_BRANDING_ICON_32 : "window.branding.icon.32",
+	WINDOW_BRANDING_ICON_192 : "window.branding.icon.192"
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -282,7 +285,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 			}
 			return jsEvent;
-		}
+		},
+        
+        generateUploadUrl: function(formname ,beanname, propertyName){
+            return "resources/upload/" + $sabloApplication.getClientnr() + 
+	            formname ? "/" + formname : "" + 
+	    		beanname ? "/" + beanname : "" + 
+				propertyName ? "/" + propertyName : "";
+        }
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
 	return <servoy.IServoyProperties> {
@@ -973,6 +983,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.model[simpleName] = rowModel;
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
 						row.api[simpleName] = {};
+						childElement['api'][index] = row.api[simpleName];
 						if ( scope.svyFormComponent.absoluteLayout ) {
 							
 							var elementLayout = {position: "absolute"};
@@ -1638,6 +1649,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			if (value == null) delete uiProps[key];
 			else uiProps[key] = value;
 			webStorage.session.set("uiProperties", JSON.stringify(uiProps))
+		},
+		setUIProperties: function(properties) {
+			uiProperties = properties;
 		}
 	}
 }])

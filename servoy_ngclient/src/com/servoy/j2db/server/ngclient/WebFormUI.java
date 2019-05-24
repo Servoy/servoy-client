@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.border.Border;
 
@@ -27,7 +29,10 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.BooleanPropertyType;
@@ -87,22 +92,14 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 	}
 
-	private static final class FormSpecification extends WebObjectSpecification
-	{
-		private FormSpecification()
-		{
-			super("form_spec", "", IPackageReader.WEB_COMPONENT, "", null, null, null, "", null);
-			JSONObject tags = new JSONObject();
-			tags.put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" }));
-			putProperty("size",
-				new PropertyDescription("size", DimensionPropertyType.INSTANCE, null, null, null, false, null, PushToServerEnum.allow, tags, false));
-			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
-			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
-			putProperty("findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow));
-		}
-	}
-
-	private static final WebObjectSpecification FORM_SPEC = new FormSpecification();
+	// @formatter:off
+	private static final WebObjectSpecification FORM_SPEC = new WebObjectSpecificationBuilder().withName("form_spec").withPackageType(IPackageReader.WEB_COMPONENT).withProperties(Stream.of(new Object[][] {
+	   			{ "size", new PropertyDescriptionBuilder().withName("size").withType(DimensionPropertyType.INSTANCE).withPushToServer(PushToServerEnum.allow).withTags(new JSONObject().put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" }))).build() },
+	   			{ "visible",  new PropertyDescriptionBuilder().withName("visible").withType(VisiblePropertyType.INSTANCE).withPushToServer(PushToServerEnum.allow).build() },
+	   			{ WebFormUI.ENABLED, new PropertyDescriptionBuilder().withName(WebFormUI.ENABLED).withType(NGEnabledPropertyType.NG_INSTANCE).withPushToServer(PushToServerEnum.allow).build() },
+	   			{ "findmode", new PropertyDescriptionBuilder().withName("findmode").withType(BooleanPropertyType.INSTANCE).withPushToServer(PushToServerEnum.allow).build() },
+	}).collect(Collectors.toMap(data -> (String) data[0], data -> (PropertyDescription) data[1]))).build();
+	// @formatter:on
 
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;

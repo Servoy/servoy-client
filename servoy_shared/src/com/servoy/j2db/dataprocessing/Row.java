@@ -291,10 +291,11 @@ public class Row
 				o = ValueFactory.createDbIdentValue().setRow(this);
 				columndata[identindex] = o;
 			}
-			if (o instanceof DbIdentValue)
-			{
-				return o;
-			}
+			// just return the value, it may already have its value replaced, we have support for setting db ident values in query generator
+//			if (o instanceof DbIdentValue)
+//			{
+			return o;
+//			}
 		}
 		Debug.error("No DbIdent for this row: " + this); //$NON-NLS-1$
 		return null;

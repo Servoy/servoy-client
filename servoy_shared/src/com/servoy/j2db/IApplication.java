@@ -116,7 +116,8 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = "ngClientOptimizedReadonlyMode"; //$NON-NLS-1$
 
 	/**
-	 * When Boolean.TRUE, the NGClient default calendar will show ISO 8601 week number. By default it shows the week number according to locale.
+	 * When Boolean.TRUE, the NGClient default calendar, bootstrap calendar, bootstrap inline calendar and nggrid calendar will show ISO 8601 week number. Other 3rd party (calendar) components are free to take this value into consideration as they please.
+	 * By default those show the week number according to locale.
 	 */
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = "ngCalendarShowISOWeeks"; //$NON-NLS-1$
 

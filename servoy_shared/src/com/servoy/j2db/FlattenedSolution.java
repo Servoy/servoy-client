@@ -36,6 +36,7 @@ import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
@@ -98,7 +99,6 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.CompareCondition;
-import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.ObjectPlaceholderKey;
 import com.servoy.j2db.query.Placeholder;
@@ -285,6 +285,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 		flush(persist);
+		getIndex().reload();
 		return clone;
 	}
 
@@ -1272,14 +1273,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public int getSecurityAccess(Object element_id)
+	public int getSecurityAccess(Object element_id, int implicitValue)
 	{
 		if (securityAccess == null) return -1;
 
 		Integer i = securityAccess.get(element_id);
 		if (i == null)
 		{
-			return -1;
+			//return -1;
+			// we now return implicit value here
+			return implicitValue;
 		}
 		else
 		{
@@ -2583,7 +2586,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				{
 					for (Relation r : relationSequence)
 					{
-						if (r.getJoinType() != ISQLJoin.INNER_JOIN)
+						if (r.getJoinType() != IJoinConstants.INNER_JOIN)
 						{
 							// disabled related vl sorting for muti-level related VLs,
 							// outer join on the intermediate tables causes extra results that influence the sorting result
@@ -2666,7 +2669,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				if (relationSequence == null)
 				{
 					// table values
-					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), ISQLJoin.LEFT_OUTER_JOIN, false));
+					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), IJoinConstants.LEFT_OUTER_JOIN, false));
 
 					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name
 					{
@@ -2728,7 +2731,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						callingColumn.getScale(), callingColumn.getFlags())));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
-					ISQLJoin.LEFT_OUTER_JOIN);
+					IJoinConstants.LEFT_OUTER_JOIN);
 
 				ISQLTableJoin join;
 				if (joins.size() == 1)

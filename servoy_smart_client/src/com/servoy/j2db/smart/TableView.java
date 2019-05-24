@@ -312,7 +312,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		}
 		boolean b_accessible = true;
 		boolean b_viewable = true;
-		int access = app.getFlattenedSolution().getSecurityAccess(cellview.getUUID());
+		int access = app.getFlattenedSolution().getSecurityAccess(cellview.getUUID(),
+			fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		if (access != -1)
 		{
 			b_accessible = ((access & IRepository.ACCESSIBLE) != 0);
@@ -663,7 +664,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 								unmovableColumns.add(Integer.valueOf(index));
 							}
 						}
-						int objAccess = app.getFlattenedSolution().getSecurityAccess(obj.getUUID());
+						int objAccess = app.getFlattenedSolution().getSecurityAccess(obj.getUUID(),
+							fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 						boolean b_visible = (objAccess == -1 || ((objAccess & IRepository.VIEWABLE) == IRepository.VIEWABLE));
 						if (b_visible)
 						{

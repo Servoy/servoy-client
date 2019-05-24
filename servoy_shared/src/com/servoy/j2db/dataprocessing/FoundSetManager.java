@@ -59,6 +59,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -142,6 +143,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private Map<String, ITable> viewDataSources;
 
 	protected Map<String, ConcurrentMap<String, SoftReference<RelatedFoundSet>>> cachedSubStates;
+	protected Map<String, List<RelatedHashedArguments>> dbIdentArguments;
 	protected List<String> locks = new SortedList<String>(StringComparator.INSTANCE);
 
 	private final GlobalFoundSetEventListener globalFoundSetEventListener = new GlobalFoundSetEventListener();
@@ -631,14 +633,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		Map<String, SoftReference<RelatedFoundSet>> rfsMap = cachedSubStates.get(relation.getName());
 		if (rfsMap != null)
 		{
+			RelatedFoundSet rfs = null;
 			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
 			if (sr != null)
 			{
-				RelatedFoundSet rfs = sr.get();
-				if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
-				{
-					return rfs;
-				}
+				rfs = sr.get();
+			}
+			else
+			{
+				rfs = checkDbIdentMap(relation.getName(), relatedArguments, rfsMap);
+			}
+			if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
+			{
+				return rfs;
 			}
 		}
 		return null;
@@ -676,6 +683,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (retval == null && Debug.tracing())
 					Debug.trace("-----------CacheMiss for related founset " + relationName + " for keys " + relatedArguments.hash); //$NON-NLS-1$ //$NON-NLS-2$
 				//else Debug.trace("-----------CacheHit!! for related foundset " + relID + " for keys " + calcPKHashKey);
+			}
+			else
+			{
+				retval = checkDbIdentMap(relationName, relatedArguments, rfs);
 			}
 		}
 
@@ -783,6 +794,16 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							if (retvals != null)
 							{
 								rfs.put(relargs.hash, new SoftReference<RelatedFoundSet>(retvals[f]));
+								if (relargs.isDBIdentity())
+								{
+									List<RelatedHashedArguments> storedDBIdentArguments = dbIdentArguments.get(relationName);
+									if (storedDBIdentArguments == null)
+									{
+										storedDBIdentArguments = Collections.synchronizedList(new ArrayList<RelatedHashedArguments>());
+										dbIdentArguments.put(relationName, storedDBIdentArguments);
+									}
+									storedDBIdentArguments.add(relargs);
+								}
 							}
 							locks.remove(relationName + relargs.hash);
 						}
@@ -806,6 +827,42 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					for (Runnable runnable : runnables)
 					{
 						runnable.run();
+					}
+				}
+			}
+		}
+		return retval;
+	}
+
+	/**
+	 * @param relationName
+	 * @param retval
+	 * @param relatedArguments
+	 * @param rfs
+	 * @return
+	 */
+	private RelatedFoundSet checkDbIdentMap(String relationName, RelatedHashedArguments relatedArguments, Map<String, SoftReference<RelatedFoundSet>> rfs)
+	{
+		RelatedFoundSet retval = null;
+		List<RelatedHashedArguments> identArguments = dbIdentArguments.get(relationName);
+		int index = -1;
+		if (identArguments != null && (index = identArguments.indexOf(relatedArguments)) >= 0)
+		{
+			RelatedHashedArguments oldDBIdentArguments = identArguments.get(index);
+			SoftReference<RelatedFoundSet> oldSR = rfs.get(oldDBIdentArguments.hash);
+			if (oldSR != null)
+			{
+				retval = oldSR.get();
+				// adjust the related cache
+				rfs.put(relatedArguments.hash, oldSR);
+				rfs.remove(oldDBIdentArguments.hash);
+				// test if last entry, if so remove the complete relation key
+				synchronized (identArguments)
+				{
+					identArguments.remove(oldDBIdentArguments);
+					if (identArguments.size() == 0)
+					{
+						dbIdentArguments.remove(relationName);
 					}
 				}
 			}
@@ -926,6 +983,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		tableFilterParams = new ConcurrentHashMap<String, List<TableFilter>>();
 
 		cachedSubStates = new ConcurrentHashMap<String, ConcurrentMap<String, SoftReference<RelatedFoundSet>>>(128);
+		dbIdentArguments = new ConcurrentHashMap<String, List<RelatedHashedArguments>>();
 		inMemDataSources = new ConcurrentHashMap<String, ITable>();
 		viewDataSources = new ConcurrentHashMap<String, ITable>();
 	}
@@ -2762,12 +2820,73 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		final IRecordInternal state;
 		final Object[] whereArgs;
 		final String hash;
+		boolean isDBIdentiy;
 
 		public RelatedHashedArguments(IRecordInternal state, Object[] whereArgs, String hash)
 		{
 			this.state = state;
 			this.whereArgs = whereArgs;
 			this.hash = hash;
+			if (whereArgs != null)
+			{
+				for (Object arg : whereArgs)
+				{
+					if (arg instanceof DbIdentValue)
+					{
+						isDBIdentiy = true;
+						break;
+					}
+				}
+			}
+		}
+
+		public boolean isDBIdentity()
+		{
+			return isDBIdentiy;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (!(obj instanceof RelatedHashedArguments))
+			{
+				return false;
+			}
+			RelatedHashedArguments other = ((RelatedHashedArguments)obj);
+			if (Utils.equalObjects(state, other.state))
+			{
+				if (Utils.equalObjects(hash, other.hash))
+				{
+					return true;
+				}
+				if (isDBIdentiy || other.isDBIdentiy)
+				{
+					// check for special scenario with dbidentity
+					if (whereArgs != null && other.whereArgs != null && whereArgs.length == other.whereArgs.length)
+					{
+						boolean argsEqual = true;
+						for (int i = 0; i < whereArgs.length; i++)
+						{
+							if (!Utils.equalObjects(whereArgs[i], other.whereArgs[i]))
+							{
+								argsEqual = false;
+								if (whereArgs[i] instanceof DbIdentValue && Utils.equalObjects(((DbIdentValue)whereArgs[i]).getPkValue(), other.whereArgs[i]))
+								{
+									argsEqual = true;
+								}
+								if (other.whereArgs[i] instanceof DbIdentValue &&
+									Utils.equalObjects(((DbIdentValue)other.whereArgs[i]).getPkValue(), whereArgs[i]))
+								{
+									argsEqual = true;
+								}
+								if (!argsEqual) break;
+							}
+						}
+						return argsEqual;
+					}
+				}
+			}
+			return false;
 		}
 
 		@Override

@@ -37,7 +37,8 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 								// see comment below where lastServerValueAsSeenByTinyMCEContent is set in dataProviderID watch
 								ed.setContent($scope.tinyValue || '');
 								lastServerValueAsSeenByTinyMCEContent = ed.getContent(); 
-							}	 
+							}
+							$svyProperties.setScrollbars($(ed.getBody()), $scope.model.scrollbars);
 						});
 						$scope.$watch('model.editable',function (newVal,oldVal){
 							if (!$scope.init) return;

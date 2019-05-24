@@ -360,8 +360,8 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 
 						if (realValuelist == null)
 						{
-							realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true, Types.OTHER, null,
-								null, true);
+							realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, valuelistPersist, true, Types.OTHER,
+								ComponentFormat.getComponentFormat(formatValue, dataproviderId, null, application, true).parsedFormat, null, true);
 						}
 						if (realValuelist.hasRealValues())
 						{

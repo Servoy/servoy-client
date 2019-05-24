@@ -176,7 +176,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 		finally
 		{
-			if (perfId != null) getClient().onStopSubAction(perfId);
+			getClient().onStopSubAction(perfId);
 		}
 	}
 
@@ -495,7 +495,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 		finally
 		{
-			if (perfId != null) getClient().onStopSubAction(perfId);
+			getClient().onStopSubAction(perfId);
 		}
 	}
 

@@ -50,6 +50,38 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	public static final String WINDOW_TIMEOUT = "window.timeout"; //$NON-NLS-1$
 
 	/**
+	 * When use branding is enabled (see servoy.branding setting in Servoy Admin Page / servoy.properties) this client
+	 * property can be used to set the main window title text.
+	 *
+	 * @sample
+	 * // set main window title onSolutionOpen
+	 * application.putClientProperty(APP_NG_PROPERTY.WINDOW_BRANDING_TITLE, "My app title");
+	 */
+	public static final String WINDOW_BRANDING_TITLE = "window.branding.title";
+
+	/**
+	 * Client property used to set the icon of the main window. This should be a PNG
+	 * image of size 32x32, and it can be the file name that is stored under the web app root
+	 * or it can be a base64 encoded image from the solution.
+	 *
+	 * @sample
+	 * // set image from the web app root onSolutionOpen
+	 * application.putClientProperty(APP_NG_PROPERTY.WINDOW_BRANDING_ICON_32, "favicon32x32.png");
+	 * // set base64 encoded image from solution onSolutionOpen
+	 * 	var img = solutionModel.getMedia("favicon32x32.png")
+	 *	var imgAsBase64 = new Packages.org.apache.commons.codec.binary.Base64().encodeAsString(img.bytes);
+	 *	var imgHref = "data:image/png;base64," + imgAsBase64;
+	 *	application.putClientProperty(APP_NG_PROPERTY.WINDOW_BRANDING_ICON_32, imgHref);
+	 */
+	public static final String WINDOW_BRANDING_ICON_32 = "window.branding.icon.32";
+
+	/**
+	 * Same as the WINDOW_BRANDING_ICON_32 client property just for images of size 192x192,
+	 * usually used as shortcut icon for the web app.
+	 */
+	public static final String WINDOW_BRANDING_ICON_192 = "window.branding.icon.192";
+
+	/**
 	 * By default the NGClient appends the name of the current main form to the url in the address bar of the browser using a fragment identifier (#....)
 	 * <p>
 	 * By setting the FORM_BASED_BROWSER_HISTORY property to false, this is disabled

@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -71,26 +72,26 @@ public abstract class NGUtils
 		Types.getTypesInstance().registerTypes();
 	}
 
-	public static final PropertyDescription DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
-		TypesRegistry.getType(DatePropertyType.TYPE_NAME));
-	public static final PropertyDescription LOCAL_DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
-		TypesRegistry.getType(DatePropertyType.TYPE_NAME), new JSONObject("{useLocalDateTime:true}"));
-	public static final PropertyDescription MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD = new PropertyDescription("Dataprovider (media)",
-		TypesRegistry.getType(ByteArrayResourcePropertyType.TYPE_NAME));
-	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_PARSE_HTML_CACHED_PD = new PropertyDescription("Dataprovider (media PP)",
-		TypesRegistry.getType(MediaDataproviderPropertyType.TYPE_NAME), Boolean.TRUE);
-	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_NO_PARSE_HTML_CACHED_PD = new PropertyDescription("Dataprovider (media PN)",
-		TypesRegistry.getType(MediaDataproviderPropertyType.TYPE_NAME), Boolean.FALSE);
-	public static final PropertyDescription INTEGER_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (int)",
-		TypesRegistry.getType(LongPropertyType.TYPE_NAME));
-	public static final PropertyDescription NUMBER_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (number)",
-		TypesRegistry.getType(DoublePropertyType.TYPE_NAME));
-	public static final PropertyDescription TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (text/ph)",
-		TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME), Boolean.TRUE);
-	public static final PropertyDescription TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (text/nph)",
-		TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME), Boolean.FALSE);
-	public static final PropertyDescription UUID_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (uuid)",
-		TypesRegistry.getType(NGUUIDPropertyType.TYPE_NAME));
+	public static final PropertyDescription DATE_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName("Dataprovider (date)").withType(
+		TypesRegistry.getType(DatePropertyType.TYPE_NAME)).build();
+	public static final PropertyDescription LOCAL_DATE_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName("Dataprovider (date)").withType(
+		TypesRegistry.getType(DatePropertyType.TYPE_NAME)).withConfig(new JSONObject("{useLocalDateTime:true}")).build();
+	public static final PropertyDescription MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD = new PropertyDescriptionBuilder().withName(
+		"Dataprovider (media)").withType(TypesRegistry.getType(ByteArrayResourcePropertyType.TYPE_NAME)).build();
+	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_PARSE_HTML_CACHED_PD = new PropertyDescriptionBuilder().withName(
+		"Dataprovider (media PP)").withType(TypesRegistry.getType(MediaDataproviderPropertyType.TYPE_NAME)).withConfig(Boolean.TRUE).build();
+	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_NO_PARSE_HTML_CACHED_PD = new PropertyDescriptionBuilder().withName(
+		"Dataprovider (media PN)").withType(TypesRegistry.getType(MediaDataproviderPropertyType.TYPE_NAME)).withConfig(Boolean.FALSE).build();
+	public static final PropertyDescription INTEGER_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName("Dataprovider (int)").withType(
+		TypesRegistry.getType(LongPropertyType.TYPE_NAME)).build();
+	public static final PropertyDescription NUMBER_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName("Dataprovider (number)").withType(
+		TypesRegistry.getType(DoublePropertyType.TYPE_NAME)).build();
+	public static final PropertyDescription TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName(
+		"Dataprovider (text/ph)").withType(TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME)).withConfig(Boolean.TRUE).build();
+	public static final PropertyDescription TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName(
+		"Dataprovider (text/nph)").withType(TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME)).withConfig(Boolean.FALSE).build();
+	public static final PropertyDescription UUID_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName("Dataprovider (uuid)").withType(
+		TypesRegistry.getType(NGUUIDPropertyType.TYPE_NAME)).build();
 
 	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, IApplication app, boolean parseHTML,
 		boolean useLocalDateTime)

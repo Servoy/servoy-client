@@ -319,12 +319,19 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 			for (Entry<String, Object> entry : tmp)
 			{
 				PropertyDescription pd = propertyDescription.getProperty(entry.getKey());
-				IPropertyType< ? > type = pd.getType();
-				// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
-				if (!(type instanceof ISabloComponentToRhino< ? >) ||
-					((ISabloComponentToRhino)type).isValueAvailableInRhino(entry.getValue(), pd, webObjectContext))
+				if (pd == null)
 				{
 					result.add(entry.getKey());
+				}
+				else
+				{
+					IPropertyType< ? > type = pd.getType();
+					// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
+					if (!(type instanceof ISabloComponentToRhino< ? >) ||
+						((ISabloComponentToRhino)type).isValueAvailableInRhino(entry.getValue(), pd, webObjectContext))
+					{
+						result.add(entry.getKey());
+					}
 				}
 			}
 			return result.toArray();

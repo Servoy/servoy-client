@@ -222,4 +222,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_CSS_POSITION = "cssPosition";
 	public static final String PROPERTY_VALUELIST_REALVALUE_TYPE = "realValueType";
 	public static final String PROPERTY_VALUELIST_DISPLAYVALUE_TYPE = "displayValueType";
+
+	public static final String PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS = "implicitSecurityNoRights";
 }

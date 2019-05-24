@@ -38,6 +38,7 @@ import org.sablo.IDirtyPropertyListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.CurrentWindow;
@@ -716,7 +717,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					changes.content = new HashMap<String, Object>(changes.content);
 					changes.content.remove(propertyName);
 				}
-				if (changes.contentType != null) changes.contentType.putProperty(propertyName, null);
+				if (changes.contentType != null)
+				{
+					Map<String, PropertyDescription> properties = new HashMap(changes.contentType.getProperties());
+					properties.remove(propertyName);
+					changes.contentType = new PropertyDescriptionBuilder().withName(changes.contentType.getName()).withType(
+						changes.contentType.getType()).withConfig(changes.contentType.getConfig()).withProperties(properties).withDefaultValue(
+							changes.contentType.getDefaultValue()).withInitialValue(changes.contentType.getInitialValue()).withHasDefault(
+								changes.contentType.hasDefault()).withValues(changes.contentType.getValues()).withPushToServer(
+									changes.contentType.getPushToServer()).withOptional(changes.contentType.isOptional()).withDeprecated(
+										changes.contentType.getDeprecated()).build();
+				}
 			}
 		}
 	}

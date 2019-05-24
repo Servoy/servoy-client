@@ -26,6 +26,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -274,9 +275,9 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 
 	public PropertyDescription getPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs)
 	{
-		PropertyDescription pd = new PropertyDescription(property, FormComponentPropertyType.INSTANCE);
-		PropertyDescription formDesc = new PropertyDescription(SVY_FORM, StringPropertyType.INSTANCE);
-		pd.putProperty(SVY_FORM, formDesc);
+		PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
+		PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
+		pdBuilder.withProperty(SVY_FORM, formDesc);
 		if (currentValue != null)
 		{
 			String formName = currentValue.optString(SVY_FORM);
@@ -293,28 +294,28 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
 						if (properties.size() > 0)
 						{
-							PropertyDescription nestedFormComponent = new PropertyDescription(element.getName(), null);
-							pd.putProperty(element.getName(), nestedFormComponent);
+							PropertyDescriptionBuilder nestedFormComponentBuilder = new PropertyDescriptionBuilder().withName(element.getName());
 							for (PropertyDescription nestedFormComponentPD : properties)
 							{
 								Object object = ((AbstractBase)element).getProperty(nestedFormComponentPD.getName());
 								if (object instanceof JSONObject)
 								{
-									nestedFormComponent.putProperty(nestedFormComponentPD.getName(),
+									nestedFormComponentBuilder.withProperty(nestedFormComponentPD.getName(),
 										getPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs));
 								}
 							}
+							pdBuilder.withProperty(element.getName(), nestedFormComponentBuilder.build());
 						}
 						else
 						{
-							pd.putProperty(element.getName(), spec);
+							pdBuilder.withProperty(element.getName(), spec);
 						}
 					}
 				}
 				form = form.getExtendsForm();
 			}
 		}
-		return pd;
+		return pdBuilder.build();
 	}
 
 	private class FormComponentValue implements IFormComponentRhinoConverter

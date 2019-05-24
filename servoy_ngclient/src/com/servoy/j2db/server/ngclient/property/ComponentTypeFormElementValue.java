@@ -59,7 +59,8 @@ public class ComponentTypeFormElementValue
 		IPersist persist = element.getPersistIfAvailable();
 		if (persist != null && solution != null)
 		{
-			int access = solution.getSecurityAccess(persist.getUUID());
+			int access = solution.getSecurityAccess(persist.getUUID(),
+				element.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (!((access & IRepository.VIEWABLE) != 0)) return false;
 		}
 

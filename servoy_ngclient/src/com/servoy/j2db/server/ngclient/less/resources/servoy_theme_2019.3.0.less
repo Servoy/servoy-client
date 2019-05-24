@@ -441,7 +441,13 @@ fieldset[disabled] .form-control {
 .bts-check input[type=checkbox],
 .bts-radiogroup input[type=checkbox],
 .bts-radiogroup input[type=radio] { 
-	display:none; /* to hide the checkbox itself */
+	/* to hide the checkbox itself */
+ 	webkit-appearence: none;
+	-webkit-appearance: none;
+	-moz-appearance:    none;
+	appearance:         none;
+	width: 0;
+	height: 0;
 } 
 
 .svy-check input[type=checkbox] + span:before,
@@ -455,6 +461,16 @@ fieldset[disabled] .form-control {
   	font-family: 'Glyphicons Halflings';
   	letter-spacing: 5px;
   	color: @field-check-color;
+}
+
+.svy-check input[type=checkbox]:focus + span:before,
+.svy-check input[type=radio]:focus + span:before,
+.svy-checkgroup input[type=checkbox]:focus + span:before,
+.svy-radiogroup input[type=radio]:focus + span:before,
+.bts-check input[type=checkbox]:focus + span:before,
+.bts-radiogroup input[type=checkbox]:focus + span:before,
+.bts-radiogroup input[type=radio]:focus + span:before {
+	color: darken(@field-check-color, 15%);
 }
 
 input[type="radio"][disabled] + span, 

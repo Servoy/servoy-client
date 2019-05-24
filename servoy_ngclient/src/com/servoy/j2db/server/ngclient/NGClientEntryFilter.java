@@ -38,6 +38,7 @@ import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
 import org.sablo.services.template.ModifiablePropertiesGenerator;
+import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -195,6 +196,12 @@ public class NGClientEntryFilter extends WebEntry
 
 			super.init(fc);
 		}
+	}
+
+	@Override
+	public void initWebComponentSpecs(FilterConfig fc)
+	{
+		WebComponentSpecProvider.init(fc.getServletContext(), getWebComponentBundleNames(), DefaultComponentPropertiesProvider.instance);
 	}
 
 	@Override

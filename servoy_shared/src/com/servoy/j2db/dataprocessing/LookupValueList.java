@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -621,14 +622,23 @@ public class LookupValueList implements IValueList
 			Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
 			if (relations != null && relations.length > 0)
 			{
-				try
+				List<IDataProvider> dataProviders = new ArrayList<IDataProvider>();
+				for (Relation relation : relations)
 				{
-					return relations[relations.length - 1].getPrimaryDataProviders(application.getFlattenedSolution());
+					try
+					{
+						IDataProvider[] currentDPS = relation.getPrimaryDataProviders(application.getFlattenedSolution());
+						if (currentDPS != null && currentDPS.length > 0)
+						{
+							dataProviders.addAll(Arrays.asList(currentDPS));
+						}
+					}
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
+					}
 				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
-				}
+				return dataProviders.toArray(new IDataProvider[0]);
 			}
 			return new IDataProvider[0];
 		}

@@ -600,6 +600,16 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return createNewTableNode(dataSource);
 	}
 
+	public boolean getImplicitSecurityNoRights(String dataSource)
+	{
+		Iterator<TableNode> it = getTableNodes(dataSource);
+		if (it.hasNext())
+		{
+			return it.next().getImplicitSecurityNoRights();
+		}
+		return false;
+	}
+
 	public ScriptCalculation createNewScriptCalculation(IValidateName validator, ITable table, String name, String userTemplate) throws RepositoryException
 	{
 		return getOrCreateTableNode(table.getDataSource()).createNewScriptCalculation(validator, name, userTemplate, table);
@@ -881,7 +891,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);

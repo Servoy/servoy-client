@@ -44,15 +44,9 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	private final ConcurrentMap<IPersist, Boolean> removedPersist = new ConcurrentHashMap<>();
 	private final IPersistIndex index;
 
-	private boolean flush = false;
-
 	public SolutionModelPersistIndex(IPersistIndex index)
 	{
 		this.index = index;
-		for (Solution solution : solutions)
-		{
-			if (solution.getChangeHandler() != null) solution.getChangeHandler().addIPersistListener(this);
-		}
 	}
 
 	@Override
@@ -201,9 +195,8 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 
 	private boolean testIndex()
 	{
-		while (flush)
+		if (uuidToPersist.isEmpty() && solutions.size() > 0)
 		{
-			flush = false;
 			createIndex();
 		}
 		return !uuidToPersist.isEmpty();
@@ -215,15 +208,6 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	{
 		solutions.add(solution);
 		solution.getChangeHandler().addIPersistListener(this);
-	}
-
-	private void flushIndex()
-	{
-		flush = true;
-		uuidToPersist.clear();
-		idToPersist.clear();
-		nameToPersist.clear();
-		scopeCacheByName.clear();
 	}
 
 	public boolean isRemoved(IPersist persist)
@@ -244,18 +228,5 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	public Set<IPersist> getRemoved()
 	{
 		return Collections.unmodifiableSet(removedPersist.keySet());
-	}
-
-
-	@Override
-	public void itemCreated(IPersist item)
-	{
-		flushIndex();
-	}
-
-	@Override
-	public void itemRemoved(IPersist item)
-	{
-		flushIndex();
 	}
 }

@@ -1004,8 +1004,14 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	@Override
 	public void output(Object msg, int level)
 	{
-		super.output(msg, level);
-		if (outputChannel != null) outputChannel.info(msg != null ? msg.toString() : "NULL", level); //$NON-NLS-1$
+		if (outputChannel == null)
+		{
+			super.output(msg, level);
+		}
+		else
+		{
+			outputChannel.info(msg != null ? msg.toString() : "NULL", level); //$NON-NLS-1$
+		}
 	}
 
 	public String getUserProperty(String a_name)
