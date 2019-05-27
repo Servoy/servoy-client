@@ -216,7 +216,7 @@ declare namespace foundsetType {
 		 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
 		 * @param changeListener the listener to register.
 		 */
-		addChangeListener(changeListener : ChangeListener) : void;
+		addChangeListener(changeListener : ChangeListener) : ()=>void;
 		removeChangeListener(changeListener : ChangeListener) : void;
 
 	}
