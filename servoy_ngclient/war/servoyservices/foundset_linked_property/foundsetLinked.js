@@ -45,6 +45,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		 */
 		newValue.addChangeListener = function(listener) {
 			internalState.changeListeners.push(listener);
+			return  function () { return newValue.removeChangeListener(listener); };
 		}
 		newValue.removeChangeListener = function(listener) {
 			var index = internalState.changeListeners.indexOf(listener);

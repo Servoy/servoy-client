@@ -482,6 +482,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					 */
 					newValue.addChangeListener = function(listener: (change: foundsetType.ChangeEvent) => void) {
 						internalState.changeListeners.push(listener);
+						return () => newValue.removeChangeListener(listener);
 					}
 					newValue.removeChangeListener = function(listener) {
 						var index = internalState.changeListeners.indexOf(listener);

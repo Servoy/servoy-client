@@ -206,6 +206,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					 */
 					newValue.addViewportChangeListener = function(listener) {
 						internalState.viewportChangeListeners.push(listener);
+						return  function () { return newValue.removeViewportChangeListener(listener); };
 					}
 					
 					newValue.removeViewportChangeListener = function(listener) {
