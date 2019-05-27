@@ -5394,10 +5394,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (!selectedPKsRecPresent)
 		{
-			setSelectedIndex(newSize > 0 ? 0 : -1);
+			if (fsm.getApplication().isEventDispatchThread())
+			{
+				setSelectedIndex(newSize > 0 ? 0 : -1);
+			}
+			else
+			{
+				fsm.getApplication().invokeLater(() -> setSelectedIndex(newSize > 0 ? 0 : -1));
+			}
 		}
 
 		return true;
+
 	}
 
 	public void sort(Comparator<Object[]> recordPKComparator)
