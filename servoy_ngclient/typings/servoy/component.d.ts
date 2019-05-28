@@ -17,7 +17,7 @@ declare namespace componentType {
 		 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this same foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
 		 * @param viewportChangeListener the listener to register.
 		 */
-		addViewportChangeListener(viewportChangeListener : ViewportChangeListener) : void;
+		addViewportChangeListener(viewportChangeListener : ViewportChangeListener) : () =>void;
 		removeViewportChangeListener(viewportChangeListener : ViewportChangeListener) : void;
 	}
 	

@@ -855,6 +855,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 				}
 				else {
+					let foundsetListener = null;
+					const componentListeners = [];
+					scope.$on('$destroy', function() {
+				        console.log("destroy listform");
+				        if (foundsetListener) foundsetListener();
+				        componentListeners.forEach(value => value());
+				        foundsetListener = null;
+				        componentListeners.length = 0;
+				     });
 					let page = 0; // todo should be a model hidden object
 					let numberOfCells = 0;
 					
@@ -1140,7 +1149,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 						
 						// this listener works in tandem with childElement.addViewportChangeListener(...) listeners 
-						getFoundset().addChangeListener(function(changes) {
+						foundsetListener = getFoundset().addChangeListener(function(changes) {
 						    // check to see what actually changed server-side and update what is needed in browser
 							let shouldUpdatePagingControls = false;
 							if (changes.viewportRowsCompletelyChanged) {
@@ -1211,7 +1220,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							const simpleName = childElement.name.substring(propertyInName.length );
 							childElement["svy_simple_name"] = simpleName;
 							if (childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
-								childElement.addViewportChangeListener((change) => {
+								componentListeners.push(childElement.addViewportChangeListener((change) => {
 									// make sure the child element listeners are executed later, after the foundset change listener had a chance to process inserts and deletes
 									$webSocket.addIncomingMessageHandlingDoneTask(function() {
 										if (change.viewportRowsUpdated) {
@@ -1234,7 +1243,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 										}
 										return [scope];
 								    });
-								});
+								}));
 							}
 							
 							// TODO do we always have to attach this? Because the component maybe doesn't use that modelChangeNotifier
