@@ -23,6 +23,7 @@ import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -5735,7 +5736,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						else if (row == null && getSize() > 0 && (!e.isAggregateChange() || aggregateCache.size() > 0))
 						{
 							clearAggregates();
-							fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
+							Object[] changedColumnNames = e.getChangedColumnNames();
+							if (changedColumnNames instanceof String[])
+							{
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, Arrays.asList((String[])changedColumnNames));
+							}
+							else
+							{
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
+							}
 						}
 						break;
 

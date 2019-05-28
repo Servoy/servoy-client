@@ -422,7 +422,27 @@ public class FoundsetTypeChangeMonitor
 
 		if (firstRow == 0 && lastRow == foundSetSize - 1)
 		{
-			if (viewPort.getSize() > 0) viewPortCompletelyChanged();
+			// calculation field change
+			if (dataproviders != null && dataproviders.size() > 0)
+			{
+				int oldChangeFlags = changeFlags;
+				if (!shouldSendAll() && !shouldSendWholeViewPort())
+				{
+					final int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);
+					callAllViewportDataChangeMonitorsWrappedInFireCollector(new IVPDCMRunnable()
+					{
+						public void run(ViewportDataChangeMonitor< ? > vpdcm)
+						{
+							for (String dataprovider : dataproviders)
+							{
+								vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
+							}
+						}
+					});
+				}
+				if (oldChangeFlags != changeFlags) notifyChange();
+			}
+			else if (viewPort.getSize() > 0) viewPortCompletelyChanged();
 		}
 		else
 		{

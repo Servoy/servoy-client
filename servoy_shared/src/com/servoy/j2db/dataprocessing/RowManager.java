@@ -1378,7 +1378,12 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						if (fires.size() > 0)
 						{
 							fireRowNotifyChanges(fires);
-							fireNotifyChange(null, null, null, null, RowEvent.UPDATE);
+							ArrayList<String> calcColumns = new ArrayList<String>();
+							for (RowFireNotifyChange f : fires)
+							{
+								calcColumns.add(f.name);
+							}
+							fireNotifyChange(null, null, null, calcColumns.toArray(new String[0]), RowEvent.UPDATE);
 						}
 					}
 				}
