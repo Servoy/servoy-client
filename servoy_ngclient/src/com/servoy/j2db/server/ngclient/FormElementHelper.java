@@ -271,7 +271,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				{
 					elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
 				}
-				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, elementName);
+				String templateName = getStartElementName(parent, pd) + elementName;
+				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, templateName);
 				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, parent.getForm().getName());
 				JSONObject elementJson = json.optJSONObject(elementName);
 				if (elementJson != null)
@@ -330,8 +331,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						else((AbstractBase)element).setProperty(key, val);
 					}
 				}
-				String name = getStartElementName(parent, pd);
-				element.setName(name != null ? (name + elementName) : elementName);
+				element.setName(templateName);
 				elements.add(element);
 			}
 		}

@@ -104,34 +104,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
 			},
 			getFormComponentElements: function(propertyName, formComponentValue) {
-				var newScope = $scope.$new(false,$scope);
-				newScope.model = {}
-				newScope.api = {};
-				newScope.layout = {};
-				newScope.handlers = {}
-				var prefix = beanname + '$' + propertyName + '$';
-				if (propertyName.indexOf(beanname + '$') == 0) prefix = propertyName;
-				for(var key in $scope.model) {
-					if (key.substr(0, prefix.length) === prefix) {
-						newScope.model[key.substr(prefix.length)] = $scope.model[key];
-					}
-				}
-				for(var key in $scope.api) {
-					if (key.substr(0, prefix.length) === prefix) {
-						newScope.api[key.substr(prefix.length)] = $scope.api[key];
-					}
-				}
-				for(var key in $scope.layout) {
-					if (key.substr(0, prefix.length) === prefix) {
-						newScope.layout[key.substr(prefix.length)] = $scope.layout[key];
-					}
-				}
-				for(var key in $scope.handlers) {
-					if (key.substr(0, prefix.length) === prefix) {
-						newScope.handlers[key.substr(prefix.length)] = $scope.handlers[key];
-					}
-				}
-				return $compile($templateCache.get(formComponentValue.uuid))(newScope);
+				return $compile($templateCache.get(formComponentValue.uuid))($scope);
 			},
 			isInDesigner: function() {
 				return false;

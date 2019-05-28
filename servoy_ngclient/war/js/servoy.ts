@@ -986,8 +986,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				
 						const rowModel = new Model()
 				
-						const simpleName = childElement["svy_simple_name"];
-				
+						const simpleName = childElement.name;
+						
 						copyRecordProperties( childElement, rowModel, index );
 						row.model[simpleName] = rowModel;
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
@@ -1217,8 +1217,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						for ( let j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
 							const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
 							if (childElement.name.indexOf(propertyInName) != 0) throw "The child name " + childElement.name + " should start with " +  propertyInName;
-							const simpleName = childElement.name.substring(propertyInName.length );
-							childElement["svy_simple_name"] = simpleName;
+							const simpleName = childElement.name;
 							if (childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
 								componentListeners.push(childElement.addViewportChangeListener((change) => {
 									// make sure the child element listeners are executed later, after the foundset change listener had a chance to process inserts and deletes
