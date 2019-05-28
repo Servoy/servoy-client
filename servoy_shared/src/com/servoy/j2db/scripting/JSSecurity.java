@@ -1258,6 +1258,97 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		return false;
 	}
 
+	/**
+	 * Returns whether form is viewable.
+	 *
+	 * security.canView(formName)
+	 *
+	 * @param formName form name
+	 * @return true if viewable
+	 */
+	@JSFunction
+	public boolean canView(String formName)
+	{
+		return hasFormAccess(formName, null, IRepository.VIEWABLE);
+	}
+
+
+	/**
+	 * Returns whether form is accessible.
+	 *
+	 * security.canAccess(formName)
+	 *
+	 * @param formName form name
+	 * @return true if accessible
+	 */
+	@JSFunction
+	public boolean canAccess(String formName)
+	{
+		return hasFormAccess(formName, null, IRepository.ACCESSIBLE);
+	}
+
+	/**
+	 * Returns whether element from form is viewable.
+	 *
+	 * security.canView(formName,elementName)
+	 *
+	 * @param formName form name
+	 * @param elementName element name from specified form
+	 * @return true if viewable
+	 */
+	@JSFunction
+	public boolean canView(String formName, String elementName)
+	{
+		return hasFormAccess(formName, elementName, IRepository.VIEWABLE);
+	}
+
+
+	/**
+	 * Returns whether element from form is accessible.
+	 *
+	 * security.canAccess(formName,elementName)
+	 *
+	 * @param formName form name
+	 * @param elementName element name from specified form
+	 * @return true if accessible
+	 */
+	@JSFunction
+	public boolean canAccess(String formName, String elementName)
+	{
+		return hasFormAccess(formName, elementName, IRepository.ACCESSIBLE);
+	}
+
+	private boolean hasFormAccess(String formName, String elementName, int accessType)
+	{
+		Form form = application.getFlattenedSolution().getForm(formName);
+		int access = 0;
+		if (form != null)
+		{
+			UUID accesUUID = null;
+			if (elementName != null)
+			{
+				for (IPersist persist : form.getFlattenedFormElementsAndLayoutContainers())
+				{
+					if (persist instanceof ISupportName && Utils.equalObjects(elementName, ((ISupportName)persist).getName()))
+					{
+						accesUUID = persist.getUUID();
+						break;
+					}
+				}
+			}
+			else
+			{
+				accesUUID = form.getUUID();
+			}
+			if (accesUUID != null)
+			{
+				access = application.getFlattenedSolution().getSecurityAccess(accesUUID,
+					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+			}
+		}
+		return ((access & accessType) != 0);
+	}
+
 	//made easier for developers to work with old ids
 	private String normalizeUID(Object a_userUID)
 	{
