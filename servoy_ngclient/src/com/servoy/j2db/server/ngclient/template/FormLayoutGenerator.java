@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
-import java.awt.Point;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -355,71 +354,49 @@ public class FormLayoutGenerator
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			String style = "";
-			if (form.getUseCssPosition() || CSSPosition.isInAbsoluteLayoutMode(bc))
+			if (form.getUseCssPosition().booleanValue() || CSSPosition.isInAbsoluteLayoutMode(bc))
 			{
-				CSSPosition position = bc.getCssPosition();
-				if (CSSPosition.isSet(position.left))
+				if (designId != null)
 				{
-					style += "left:" + getCSSValue(position.left) + ";";
-				}
-				if (CSSPosition.isSet(position.top))
-				{
-					String top = position.top;
-					if (designId == null)
+					// this should be in sync with servoy_app.ts applyBeanData for css pos layout
+					CSSPosition position = bc.getCssPosition();
+					if (CSSPosition.isSet(position.left))
 					{
-						Point location = CSSPosition.getLocation(bc);
-						Part part = form.getPartAt(location.y);
-						if (part != null)
+						style += "left:" + getCSSValue(position.left) + ";";
+					}
+					if (CSSPosition.isSet(position.top))
+					{
+						style += "top:" + getCSSValue(position.top) + ";";
+					}
+					if (CSSPosition.isSet(position.bottom))
+					{
+						style += "bottom:" + getCSSValue(position.bottom) + ";";
+					}
+					if (CSSPosition.isSet(position.right))
+					{
+						style += "right:" + getCSSValue(position.right) + ";";
+					}
+					if (CSSPosition.isSet(position.width))
+					{
+						if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
 						{
-							int topStart = form.getPartStartYPos(part.getID());
-							if (topStart > 0)
-							{
-								if (top.endsWith("px"))
-								{
-									top = top.substring(0, top.length() - 2);
-								}
-								int topInteger = Utils.getAsInteger(top, -1);
-								if (topInteger != -1)
-								{
-									top = String.valueOf(topInteger - topStart);
-								}
-								else
-								{
-									top = "calc(" + top + "-" + topStart + "px)";
-								}
-							}
+							style += "min-width:" + getCSSValue(position.width) + ";";
+						}
+						else
+						{
+							style += "width:" + getCSSValue(position.width) + ";";
 						}
 					}
-					style += "top:" + getCSSValue(top) + ";";
-				}
-				if (CSSPosition.isSet(position.bottom))
-				{
-					style += "bottom:" + getCSSValue(position.bottom) + ";";
-				}
-				if (CSSPosition.isSet(position.right))
-				{
-					style += "right:" + getCSSValue(position.right) + ";";
-				}
-				if (CSSPosition.isSet(position.width))
-				{
-					if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
+					if (CSSPosition.isSet(position.height))
 					{
-						style += "min-width:" + getCSSValue(position.width) + ";";
-					}
-					else
-					{
-						style += "width:" + getCSSValue(position.width) + ";";
-					}
-				}
-				if (CSSPosition.isSet(position.height))
-				{
-					if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
-					{
-						style += "min-height:" + getCSSValue(position.height + ";");
-					}
-					else
-					{
-						style += "height:" + getCSSValue(position.height) + ";";
+						if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
+						{
+							style += "min-height:" + getCSSValue(position.height + ";");
+						}
+						else
+						{
+							style += "height:" + getCSSValue(position.height) + ";";
+						}
 					}
 				}
 			}

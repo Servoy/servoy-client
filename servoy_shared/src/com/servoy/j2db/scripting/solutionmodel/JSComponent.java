@@ -491,7 +491,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	@Override
 	@JSGetter
 	@ServoyClientSupport(ng = true, wc = false, sc = false, mc = false)
-	public JSCSSPosition getCssPosition()
+	public ICSSPosition getCssPosition()
 	{
 		return new JSCSSPosition(this);
 	}
@@ -499,7 +499,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	@Override
 	@JSSetter
 	@ServoyClientSupport(ng = true, wc = false, sc = false, mc = false)
-	public void setCssPosition(JSCSSPosition cssPosition)
+	public void setCssPosition(ICSSPosition cssPosition)
 	{
 		//cannot assign for now
 	}

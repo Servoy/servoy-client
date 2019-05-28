@@ -442,7 +442,7 @@ public class CSSPosition implements Serializable
 		return false;
 	}
 
-	private static AbstractContainer getParentContainer(BaseComponent component)
+	public static AbstractContainer getParentContainer(BaseComponent component)
 	{
 		IPersist currentComponent = component;
 		while (currentComponent != null)

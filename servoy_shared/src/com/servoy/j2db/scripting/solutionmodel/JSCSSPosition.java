@@ -32,7 +32,7 @@ import com.servoy.j2db.persistence.CSSPosition;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSCSSPosition
+public class JSCSSPosition implements ICSSPosition
 {
 	private final JSComponent< ? extends BaseComponent> component;
 
@@ -49,6 +49,7 @@ public class JSCSSPosition
 	 * var left = comp.cssPosition.left;
 	 *
 	 */
+	@Override
 	@JSGetter
 	public String getLeft()
 	{
@@ -78,6 +79,7 @@ public class JSCSSPosition
 	 * comp.cssPosition.right
 	 *
 	 */
+	@Override
 	@JSGetter
 	public String getRight()
 	{
@@ -107,6 +109,7 @@ public class JSCSSPosition
 	 * comp.cssPosition.top
 	 *
 	 */
+	@Override
 	@JSGetter
 	public String getTop()
 	{
@@ -137,6 +140,7 @@ public class JSCSSPosition
 	 * comp.cssPosition.bottom
 	 *
 	 */
+	@Override
 	@JSGetter
 	public String getBottom()
 	{
@@ -168,6 +172,7 @@ public class JSCSSPosition
 	 *
 	 * @return width css position
 	 */
+	@Override
 	@JSGetter
 	public String getWidth()
 	{
@@ -230,6 +235,7 @@ public class JSCSSPosition
 	 * comp.cssPosition.height
 	 *
 	 */
+	@Override
 	@JSGetter
 	public String getHeight()
 	{
@@ -262,8 +268,9 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Override
 	@JSFunction
-	public JSCSSPosition l(String left)
+	public ICSSPosition l(String left)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
@@ -284,8 +291,9 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Override
 	@JSFunction
-	public JSCSSPosition r(String right)
+	public ICSSPosition r(String right)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
@@ -306,8 +314,9 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Override
 	@JSFunction
-	public JSCSSPosition t(String top)
+	public ICSSPosition t(String top)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
@@ -328,8 +337,9 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Override
 	@JSFunction
-	public JSCSSPosition b(String bottom)
+	public ICSSPosition b(String bottom)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
@@ -350,8 +360,9 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Override
 	@JSFunction
-	public JSCSSPosition w(String width)
+	public ICSSPosition w(String width)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
@@ -372,8 +383,9 @@ public class JSCSSPosition
 	 *
 	 * @return css position
 	 */
+	@Override
 	@JSFunction
-	public JSCSSPosition h(String height)
+	public ICSSPosition h(String height)
 	{
 		CSSPosition position = component.getBaseComponent(true).getCssPosition();
 		if (position != null)
