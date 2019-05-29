@@ -153,6 +153,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		{
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
+		String prefix = FormElementHelper.getStartElementName(webFormComponent.getFormElement(), pd);
 		for (FormElement fe : cache.getFormComponentElements())
 		{
 			String name = fe.getPersistIfAvailable() instanceof AbstractBase
@@ -162,7 +163,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 				RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(fe.getRawName());
 				if (webComponent != null)
 				{
-					newObject.put(name, newObject, webComponent);
+					newObject.put(name.substring(prefix.length()), newObject, webComponent);
 				}
 			}
 		}
