@@ -1184,7 +1184,9 @@ if (typeof(Servoy.TableView) == "undefined")
 				callbackUrl+'&topPh='+newValue,
 				null,
 				function() { onAjaxError(); }.bind(scrollEl),
-				function() { return Wicket.$(scrollEl.id) != null; }.bind(scrollEl)
+				function() {
+					return scrollEl && (Wicket.$(scrollEl.id) != null);
+				}.bind(scrollEl)
 			);
 		}
 	};
