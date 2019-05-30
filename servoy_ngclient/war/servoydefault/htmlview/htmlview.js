@@ -113,6 +113,9 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
 					if (className)
 						element.addClass(className);
 					break;
+				case "scrollbars":
+					$svyProperties.setScrollbars(element, $scope.model.scrollbars);
+					break;
 				}
 			}
 		});
