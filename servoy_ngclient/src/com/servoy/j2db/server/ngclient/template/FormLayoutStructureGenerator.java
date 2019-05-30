@@ -135,6 +135,23 @@ public class FormLayoutStructureGenerator
 
 			if (!highSet) ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");
 			if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
+			String title = container.getCssClasses().replaceFirst("col-", "");
+			//we should make sure the container title in the wireframe is not too long
+			if (title.length() > 20)
+			{
+				String[] parts = title.split(" ");
+				title = parts[0];
+				if (parts.length > 1)
+				{
+					int i = 1;
+					do
+					{
+						title += " " + parts[i++];
+					}
+					while (i < parts.length && title.length() < 20);
+				}
+			}
+			writer.print(" svy-title='" + title + "'");
 		}
 		else
 		{
