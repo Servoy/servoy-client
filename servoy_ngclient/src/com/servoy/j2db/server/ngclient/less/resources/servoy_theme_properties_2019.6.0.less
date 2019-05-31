@@ -1,0 +1,215 @@
+/* main theme color; should be called primary ? */
+@main-color: #E9720B;							/* Main color */
+@main-color-inverse: #FFF;						/* Main color inverse */
+@main-color-light: lighten(@main-color, 10%); 	/* Main color light lighten(@main-color, 28%); #F9DB89 */
+@main-color-dark: darken(@main-color, 15%); 	/* Main color dark EB8C39 */
+
+@secondary-color: #18222C;						/* Secondary color */
+@secondary-color-inverse: #FFF;					/* Secondary color inverse */
+@secondary-color-light: #464E56;				/* Secondary color light*/
+@secondary-color-dark: #364453;					/* Secondary color dark*/
+
+/* Scrollbars */
+@theme-scrollbar: true;							/* Set theme-scrollbar to true to use custom scrollbar theme, set it to false to use the default browser webkit */
+@scrollbar-bg: #FFF;							/* Scrollbar background color. Only when theme-scrollbar is true */
+@scrollbar-color: #DBDBDB;						/* Scrollbar thumb color. Only when theme-scrollbar is true */
+@scrollbar-border-width: 0 1px;					/* Scrollbar border width. Only when theme-scrollbar is true */
+
+/* Font & Font Sizes */
+@font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+/* when the font-size is set to 62.5 1rem = 10px */
+@rem-to-px: 10;								
+
+@font-size-h1 :3.6rem;
+@font-size-h2 : 3.0rem;
+@font-size-h3 : 2.4rem;
+@font-size-h4 : 1.8rem;
+@font-size-h5 : 1.4rem;
+@font-size-h6 : 1.2rem;
+
+/*
+@font-size-h1 : 36px;
+@font-size-h2 : 30px;
+@font-size-h3 : 24px;
+@font-size-h4 : 18px;
+@font-size-h5 : 14px;
+@font-size-h6 : 12px;
+*/
+
+
+/* Body bg */
+@body-bg: #FFF;									/* Bogy bg */
+@body-bg-inverse: #DDD;							/* Body bg inverse */
+
+/* TODO setup borders for colors */
+/* Borders */
+@border-color : #DBDBDB; 						/* Border color */
+@border-width : 1px; 							/* Border width */
+@border-style : solid;							/* Border style */
+@border-radius: 2px;							/* Border radius */
+
+/* Colors for labels and inputs */
+@text-font-size: @font-size-h5;
+@text-color : #777777;							/* Text color */
+@text-color-inverse: @text-color;				/* Text color inverse */
+@text-color-default: #333;
+@text-color-default-inverse: #333;
+
+/* Fields */
+@field-font-size: @text-font-size;
+@field-bg : #FFF;								/* Field bg */
+@field-disabled-bg : @field-bg;					/* Field disabled bg */
+@field-color: @text-color;  					/* Field color */
+@field-addon-bg: @field-bg;						/* Field addon bg */
+@field-border-width: 1px 1px @border-width 1px;	/* Field width */
+@field-border-radius: 2px;						/* Field border radius */
+@field-check-color: @brand-info;				/* Check and Radio Color */
+
+/* TODO icons */
+
+/* Sidenav */
+@sidenav-color: @secondary-color;
+@sidenav-text-color: @secondary-color-inverse;
+@sidenav-text-font-size: @font-size-h6;
+@sidenav-border-width: 1px;
+@sidenav-border-color: @border-color;
+@sidenav-selected-color: @secondary-color-light;
+@sidenav-selected-text-color: @sidenav-text-color;
+@sidenav-selected-border-color: @main-color;
+@sidenav-selected-border-width: 0px 0px 0px 0px; /* Border for selected top-level item top|right|bottom|left */
+
+/* Sidenav Secondary color */
+@sidenav-secondary-color: @main-color;
+@sidenav-secondary-text-color: @main-color-inverse;
+@sidenav-secondary-text-font-size: @font-size-h6;
+@sidenav-secondary-border-width: 1px;
+@sidenav-secondary-border-color: @border-color;
+@sidenav-secondary-selected-color: @main-color-light;
+@sidenav-secondary-selected-text-color: @main-color-inverse;
+@sidenav-secondary-selected-border-color: @main-color-inverse;
+@sidenav-secondary-selected-border-width: 0px 0px 0px 5px; /* Border for selected top-level item top|right|bottom|left */
+
+/* Navbar */
+@navbar-bg: @main-color;								/* Navbar background color; */
+@navbar-bg-highlighted: @main-color-dark; 				/* Navbar highlighted item; */
+@navbar-text-color: @main-color-inverse;				/* Navbar text color; */
+@navbar-dropdown-bg: @navbar-bg;
+@navbar-dropdown-text-color: @navbar-text-color;
+@navbar-active-bg: @navbar-bg;
+@navbar-active-text-color: @navbar-text-color;
+@navbar-active-border-color:  @main-color-inverse;
+@navbar-active-border-width: 0;
+
+/* Tabs */
+@tab-bg: @body-bg-inverse;
+@tab-text-color: @text-color;
+@tab-text-transform: uppercase;
+@tab-border-color: @body-bg;
+@tab-border-width: 0;
+@tab-border-radius: 0;
+
+@tab-active-bg: @main-color;
+@tab-active-text-color: @main-color-inverse;
+@tab-active-border-color: @main-color;
+@tab-active-border-width: 0;
+
+/* Windows */
+@window-header-bg : @brand-primary;				/* Window header bg */
+@window-header-color: @brand-primary-inverse;	/* Window header color */
+@window-body-bg: @body-bg;						/* Window body bg */
+@window-footer-bg: @body-bg;					/* Window footer bg */
+@window-border-radius: 6px;						/* Border radius for window and dialogs */
+
+/* Dialogs */
+@dialog-info-header-bg: @brand-info;			/* Info Dialog header bg */
+@dialog-info-header-color: @brand-info-inverse; /* Info Dialog header color */
+@dialog-question-header-bg: @window-header-bg;	/* Question Dialog header bg */
+@dialog-question-header-color: @window-header-color;	/* Question Dialog header color */
+@dialog-input-header-bg: @window-header-bg;			/* Input and Select Dialog header bg */
+@dialog-input-header-color: @window-header-color;	/* Input and Select Dialog header color */
+
+/* Tables */
+@table-bg: inherit;								/* Table bg */
+@table-border-width: 1px;						/* TODO Table border width */
+@table-border-radius: 0;						/* Table border radius */
+@table-header-bg: inherit;						/* Table header bg */
+@table-header-text-color: @text-color;			/* Table header color */
+@table-header-font-style: normal;				/* Table header font style */
+@table-header-text-transform: uppercase;		/* Table header text transform */
+
+@table-row-odd-bg-color: @body-bg;
+@table-row-odd-text-color: @text-color;
+@table-row-even-bg-color: @body-bg;
+@table-row-even-text-color: @text-color;
+@table-row-selected-bg-color: @main-color;
+@table-row-selected-text-color: @main-color-inverse;
+@table-row-border-width: 1px;
+
+/* NG Table style: applied only for NG Grid components having the styleClass ag-theme-servoy */
+@ngtable-cell-value-line-height : 23px;
+@ngtable-row-group-bg: @body-bg;				
+@ngtable-row-group-color: @text-color;			
+@ngtable-row-group-bg-level-0: #F9F9F9;			
+@ngtable-row-group-color-level-0: @main-color;			
+@ngtable-row-group-cell-font-weight : bold;			
+
+/* NG Table Panels: applied only for NG Grid components having the styleClass ag-theme-servoy */
+@ngtable-menu-panel-bg: @body-bg;
+@ngtable-menu-panel-text-color: @text-color;
+@ngtable-side-panel-bg: #F9F9F9;
+@ngtable-side-panel-text-color: @text-color;
+@ngtable-side-button-bg: @body-bg;
+@ngtable-side-button-text-color: @text-color;
+@ngtable-side-button-selected-bg: #F9F9F9;
+@ngtable-side-button-selected-text-color: @text-color;
+@ngtable-search-field-height: 32px;
+
+/* Breadcrumb specific style */
+@breadcrumb-bg: @body-bg;
+@breadcrumb-color: @main-color;
+@breadcrumb-selected-color: @text-color;
+
+/* Brand colors applicable to labels and buttons */
+@brand-primary: #428bca;
+@brand-tertiary: #E8E6E6;
+@brand-success: #5cb85c;
+@brand-info:    #5bc0de;
+@brand-warning: #f0ad4e;
+@brand-danger:  #d9534f;
+
+/* TODO this one is not applicable to theme roller, what can i do about it ? */
+@text-tertiary: #999997;
+
+/* Brand colors applicable to labels and buttons */
+@brand-primary-inverse: #FFF;
+@brand-tertiary-inverse: @text-color;
+@brand-success-inverse: #FFF;
+@brand-info-inverse:    #FFF;
+@brand-warning-inverse: #FFF;
+@brand-danger-inverse:  #FFF;
+/* VERSION: 2019.6.0 */
+
+/* Brand colors applicable to hovers of labels and buttons */
+@brand-primary-highlighted: 	darken(@brand-primary, 5%);
+@brand-tertiary-highlighted: 	darken(@brand-tertiary, 5%);
+@brand-success-highlighted: 	darken(@brand-success, 5%);
+@brand-info-highlighted:   		darken(@brand-info, 5%);
+@brand-warning-highlighted: 	darken(@brand-warning, 5%);
+@brand-danger-highlighted:  	darken(@brand-danger, 5%);
+
+/* Brand colors applicable to hovers of labels and buttons */
+@brand-primary-highlighted-inverse: #FFF;
+@brand-tertiary-highlighted-inverse: @text-color;
+@brand-success-highlighted-inverse: #FFF;
+@brand-info-highlighted-inverse:    #FFF;
+@brand-warning-highlighted-inverse: #FFF;
+@brand-danger-highlighted-inverse:  #FFF;
+
+/* Validations */
+@form-required-label-suffix : "";
+
+/* Margin sizing applicable to margins and padding */
+@box-size-10 : 10px;
+@box-size-20 : 20px;
+@box-size-30 : 30px;
