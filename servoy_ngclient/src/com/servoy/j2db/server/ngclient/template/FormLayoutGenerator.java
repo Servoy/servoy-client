@@ -314,9 +314,7 @@ public class FormLayoutGenerator
 	{
 		String designId = getDesignId(fe);
 		String name = fe.getName();
-		boolean selectable = false;
-		if (name == null) name = fe.getName();
-		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);
+		boolean selectable = fe.isFormComponentChild() ? name.indexOf('$' + FormElement.SVY_NAME_PREFIX) == -1 : true;
 		if (designId != null)
 		{
 
@@ -429,7 +427,7 @@ public class FormLayoutGenerator
 			writer.print(" svy-id='");
 			writer.print(designId);
 			writer.print("'");
-			if (selectable)
+			if (!selectable)
 			{
 				writer.print(" svy-non-selectable='noname'");
 			}
