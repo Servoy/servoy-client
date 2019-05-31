@@ -43,7 +43,6 @@ import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -314,8 +313,7 @@ public class FormLayoutGenerator
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, Form form, boolean isResponsive)
 	{
 		String designId = getDesignId(fe);
-		String name = fe.getPersistIfAvailable() instanceof AbstractBase
-			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
+		String name = fe.getName();
 		boolean selectable = false;
 		if (name == null) name = fe.getName();
 		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);
@@ -510,8 +508,7 @@ public class FormLayoutGenerator
 
 	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form)
 	{
-		String name = fe.getPersistIfAvailable() instanceof AbstractBase
-			? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
+		String name = fe.getName();
 		boolean selectable = false;
 		if (name == null) name = fe.getName();
 		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);

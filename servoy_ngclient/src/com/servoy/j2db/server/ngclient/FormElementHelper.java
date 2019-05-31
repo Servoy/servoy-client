@@ -89,9 +89,6 @@ import com.servoy.j2db.util.xmlxport.SolutionImportNotifier;
  */
 public class FormElementHelper implements IFormElementCache, ISolutionImportListener
 {
-	public final static RuntimeProperty<String> FORM_COMPONENT_TEMPLATE_NAME = new RuntimeProperty<String>()
-	{
-	};
 	public final static RuntimeProperty<String> FORM_COMPONENT_FORM_NAME = new RuntimeProperty<String>()
 	{
 	};
@@ -272,7 +269,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
 				}
 				String templateName = getStartElementName(parent, pd) + elementName;
-				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME, templateName);
 				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, parent.getForm().getName());
 				JSONObject elementJson = json.optJSONObject(elementName);
 				if (elementJson != null)
@@ -355,7 +351,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (designer || (fs.getSolutionCopy(false) != null) || ((AbstractBase)formElement).getRuntimeProperty(FORM_COMPONENT_TEMPLATE_NAME) != null)
+		if (designer || (fs.getSolutionCopy(false) != null) || ((AbstractBase)formElement).getRuntimeProperty(FORM_COMPONENT_FORM_NAME) != null)
 		{
 			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
 			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer);

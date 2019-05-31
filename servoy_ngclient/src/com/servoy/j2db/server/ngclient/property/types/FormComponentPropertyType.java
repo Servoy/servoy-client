@@ -156,8 +156,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		String prefix = FormElementHelper.getStartElementName(webFormComponent.getFormElement(), pd);
 		for (FormElement fe : cache.getFormComponentElements())
 		{
-			String name = fe.getPersistIfAvailable() instanceof AbstractBase
-				? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : null;
+			String name = fe.getName();
 			if (name != null && !name.startsWith(FormElement.SVY_NAME_PREFIX))
 			{
 				RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(fe.getRawName());
