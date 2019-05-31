@@ -313,7 +313,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		boolean b_accessible = true;
 		boolean b_viewable = true;
 		int access = app.getFlattenedSolution().getSecurityAccess(cellview.getUUID(),
-			fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+			fc != null && fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		if (access != -1)
 		{
 			b_accessible = ((access & IRepository.ACCESSIBLE) != 0);
