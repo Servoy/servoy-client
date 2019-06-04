@@ -593,8 +593,8 @@ function eventCallback(el, strEvent, callbackUrl, event)
 function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 {	
 	if(strEvent == "blur")
-	{
-		if(el === wicketReplacedElementInSafari) // element was replaced by wicket
+	{ 
+		if(el && wicketReplacedElementInSafari && $(el).closest(wicketReplacedElementInSafari).length) // element was replaced by wicket
 		{
 			return true;
 		}	
