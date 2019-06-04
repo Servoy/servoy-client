@@ -54,7 +54,12 @@ public class LineNumberComparator implements Comparator<Object>
 			}
 			if (sv1.getLineNumberOffset() > sv2.getLineNumberOffset()) return 1;
 			else if (sv1.getLineNumberOffset() < sv2.getLineNumberOffset()) return -1;
-			else return 0;
+			else if (sv1.equals(sv2))
+			{
+				return 0;
+			}
+			else return sv1.getUUID().compareTo(sv2.getUUID());
+
 		}
 		else if (o1 instanceof ScriptVariable && !(o2 instanceof ScriptVariable))
 		{
