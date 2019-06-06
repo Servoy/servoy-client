@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -68,6 +69,7 @@ import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -1556,7 +1558,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				}
 			}
 
-			Map<Object, Integer> securityAccess = getUserManager().getSecurityAccess(clientInfo.getClientId(), sids, srns, groups);
+			Pair<Map<Object, Integer>, Set<Object>> securityAccess = getUserManager().getSecurityAccess(clientInfo.getClientId(), sids, srns, groups);
 			root.addSecurityAccess(securityAccess);
 
 			if (foundSetManager != null)

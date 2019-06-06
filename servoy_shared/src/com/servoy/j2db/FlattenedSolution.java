@@ -134,7 +134,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private volatile Solution copySolution = null;
 
-	private volatile ConcurrentMap<Object, Integer> securityAccess;
+	private volatile Set<Object> overridenSecurityIds;
+	private volatile Pair<ConcurrentMap<Object, Integer>, Set<Object>> securityAccess;
 
 	private volatile ConcurrentMap<ITable, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
 	private final ConcurrentMap<String, IDataProvider> globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16); //global -> dp ,runtime var
@@ -272,14 +273,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		if (securityAccess != null)
 		{
-			for (Object elementUUID : new HashSet(securityAccess.keySet()))
+			ConcurrentMap<Object, Integer> securityValues = securityAccess.getLeft();
+			for (Object elementUUID : new HashSet(securityValues.keySet()))
 			{
 				if (updatedElementIds.containsKey(elementUUID.toString()))
 				{
 					UUID uuid = Utils.getAsUUID(updatedElementIds.get(elementUUID.toString()), false);
 					if (uuid != null)
 					{
-						securityAccess.put(uuid, securityAccess.get(elementUUID));
+						securityValues.put(uuid, securityValues.get(elementUUID));
 					}
 				}
 			}
@@ -1230,36 +1232,47 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return scopes;
 	}
 
-	public void addSecurityAccess(Map<Object, Integer> sp)
+	public void addSecurityAccess(Pair<Map<Object, Integer>, Set<Object>> sp)
 	{
 		addSecurityAccess(sp, true);
 	}
 
 	public void overrideSecurityAccess(Map<Object, Integer> sp)
 	{
-		addSecurityAccess(sp, false);
+		if (overridenSecurityIds == null)
+		{
+			overridenSecurityIds = new HashSet<>();
+		}
+		overridenSecurityIds.addAll(sp.keySet());
+		addSecurityAccess(new Pair<Map<Object, Integer>, Set<Object>>(sp, securityAccess != null ? securityAccess.getRight() : new HashSet<>()), false);
 	}
 
-	public void addSecurityAccess(Map<Object, Integer> sp, boolean combineIfExisting)
+	public void addSecurityAccess(Pair<Map<Object, Integer>, Set<Object>> sp, boolean combineIfExisting)
 	{
+		if (sp == null || sp.getLeft() == null) return;
+		// always make sure that the overridenSecurityIds are never any more in implicit mode
+		sp.getRight().removeAll(overridenSecurityIds);
 		if (securityAccess == null)
 		{
-			securityAccess = new ConcurrentHashMap<Object, Integer>(sp);
+			securityAccess = new Pair<ConcurrentMap<Object, Integer>, Set<Object>>(new ConcurrentHashMap<Object, Integer>(sp.getLeft()), sp.getRight());
 		}
-		else if (sp != null)
+		else
 		{
-			Iterator<Map.Entry<Object, Integer>> iterator = sp.entrySet().iterator();
+			// first add the implicit list to the current list, this has only effect of combineIfExisting is true (false would mean overriden and then it is already adjusted)
+			securityAccess.getRight().addAll(sp.getRight());
+			// then merge or override the flags per element
+			Iterator<Map.Entry<Object, Integer>> iterator = sp.getLeft().entrySet().iterator();
 			while (iterator.hasNext())
 			{
 				Map.Entry<Object, Integer> entry = iterator.next();
 				Object elementUID = entry.getKey();
 				int newValue = entry.getValue().intValue();
-				Integer currentValue = securityAccess.get(elementUID);
+				Integer currentValue = securityAccess.getLeft().get(elementUID);
 				if (currentValue != null && combineIfExisting)
 				{
 					newValue |= currentValue.intValue();
 				}
-				securityAccess.put(elementUID, new Integer(newValue));
+				securityAccess.getLeft().put(elementUID, new Integer(newValue));
 			}
 		}
 	}
@@ -1268,7 +1281,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (securityAccess != null)
 		{
-			securityAccess.clear();
+			securityAccess.getLeft().clear();
 			securityAccess = null;
 		}
 	}
@@ -1277,7 +1290,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (securityAccess == null) return -1;
 
-		Integer i = securityAccess.get(element_id);
+		Integer i = securityAccess.getLeft().get(element_id);
 		if (i == null)
 		{
 			//return -1;
@@ -1286,6 +1299,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		else
 		{
+			// if the value is not the implicit value and an implicit value is asked for and it was registered that it should have an implicit value then return the implict value
+			// so this is in implicit mode where the element was not configured in all the groups..
+			if (i.intValue() != implicitValue && (implicitValue == IRepository.IMPLICIT_FORM_ACCESS || implicitValue == IRepository.IMPLICIT_TABLE_ACCESS) &&
+				securityAccess.getRight().contains(element_id)) return implicitValue;
 			return i.intValue();
 		}
 	}

@@ -18,8 +18,10 @@ package com.servoy.j2db;
 
 import java.rmi.RemoteException;
 import java.util.Map;
+import java.util.Set;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -46,6 +48,6 @@ public interface ISolutionSecurityManager
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public Map<Object, Integer> getSecurityAccess(String clientId, int[] solution_id, int[] releaseNumber, String[] groups) throws RemoteException,
-		ServoyException;
+	public Pair<Map<Object, Integer>, Set<Object>> getSecurityAccess(String clientId, int[] solution_id, int[] releaseNumber, String[] groups)
+		throws RemoteException, ServoyException;
 }
