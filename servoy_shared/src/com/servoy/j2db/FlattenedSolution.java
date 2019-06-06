@@ -1251,7 +1251,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (sp == null || sp.getLeft() == null) return;
 		// always make sure that the overridenSecurityIds are never any more in implicit mode
-		sp.getRight().removeAll(overridenSecurityIds);
+		if (overridenSecurityIds != null) sp.getRight().removeAll(overridenSecurityIds);
 		if (securityAccess == null)
 		{
 			securityAccess = new Pair<ConcurrentMap<Object, Integer>, Set<Object>>(new ConcurrentHashMap<Object, Integer>(sp.getLeft()), sp.getRight());
