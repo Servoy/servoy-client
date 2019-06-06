@@ -1283,6 +1283,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			securityAccess.getLeft().clear();
 			securityAccess = null;
+			overridenSecurityIds = null;
 		}
 	}
 
