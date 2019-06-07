@@ -2948,7 +2948,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		else
 		{
-			if (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows())) getStylePropertyChanges().setValueChanged();
+			if (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows()))
+			{
+				if (isScrollMode()) resetScrollParams();
+				lastRenderedPath = null;
+				getStylePropertyChanges().setValueChanged();
+			}
 		}
 
 		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
@@ -3366,6 +3371,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		if (isScrollMode()) resetScrollParams();
+		lastRenderedPath = null;
 	}
 
 	private boolean isSelectionByCellAction;
