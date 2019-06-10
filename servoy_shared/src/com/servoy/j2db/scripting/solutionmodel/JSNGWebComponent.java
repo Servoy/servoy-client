@@ -93,6 +93,14 @@ public class JSNGWebComponent extends JSWebComponent
 		}
 	}
 
+	@Override
+	public boolean isJSONPropertySet(String propertyName)
+	{
+		WebComponent webComponent = getBaseComponent(false);
+		JSONObject json = webComponent.getFlattenedJson();
+		return json != null && json.has(propertyName);
+	}
+
 	private Pair<PropertyDescription, String> getPropertyDescriptionAndName(String propertyName, WebObjectSpecification spec)
 	{
 		if (spec == null) return new Pair<PropertyDescription, String>(null, propertyName);
@@ -133,7 +141,16 @@ public class JSNGWebComponent extends JSWebComponent
 		if (spec != null)
 		{
 			Pair<PropertyDescription, String> propAndName = getPropertyDescriptionAndName(propertyName, spec);
-			return fromDesignToRhinoValue(json.opt(propAndName.getRight()), propAndName.getLeft(), application, this, propertyName);
+			Object value;
+			if (!json.has(propAndName.getRight()) && propAndName.getLeft() != null && propAndName.getLeft().hasDefault())
+			{
+				value = propAndName.getLeft().getDefaultValue();
+			}
+			else
+			{
+				value = json.opt(propAndName.getRight());
+			}
+			return fromDesignToRhinoValue(value, propAndName.getLeft(), application, this, propertyName);
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}
 		Object value = json.opt(propertyName);

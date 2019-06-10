@@ -242,6 +242,23 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	}
 
 	/**
+	 * Returns whatever the design-time value of the given property was set.
+	 *
+	 * @param propertyName the name of the property to check
+	 *
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent');
+	 * var isSet = wc.isJSONPropertySet(''mytext''); // returns false
+	 * wc.setJSONProperty('mytext', 'Hello World Extended!');
+	 * isSet = wc.isJSONPropertySet(''mytext''); // returns true
+	 */
+	@JSFunction
+	public boolean isJSONPropertySet(String propertyName)
+	{
+		return false;
+	}
+
+	/**
 	 * Set the JSMethod handler for the given handler name. The handlerName is checked for existence in the component spec file, if the component does not declare this handler, an error is thrown.
 	 * If the handler is already set, it will be replaced with the new JSMethod.
 	 *
@@ -328,7 +345,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	}
 
 	/**
-	 * Get the design-time value of the given property.
+	 * Get the design-time value of the given property. If the value was never set and
+	 * the component has default value for the give property, that value will be returned.
+	 * To check if the value was set, use isJSONPropertySet.
 	 *
 	 * @param propertyName the name of the property to get
 	 *
