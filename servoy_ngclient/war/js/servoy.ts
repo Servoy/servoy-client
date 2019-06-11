@@ -998,44 +998,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							var elementLayout = {position: "absolute"};
 							if (scope.svyFormComponent.useCssPosition)
 							{
-								if (childElement.model.cssPosition.left != "-1")
-								{
-									elementLayout['left'] = childElement.model.cssPosition.left;
-								}
-								if (childElement.model.cssPosition.right != "-1")
-								{
-									elementLayout['right'] = childElement.model.cssPosition.right;
-								}
-								if (childElement.model.cssPosition.top != "-1")
-								{
-									elementLayout['top'] = childElement.model.cssPosition.top;
-								}
-								if (childElement.model.cssPosition.bottom != "-1")
-								{
-									elementLayout['bottom'] = childElement.model.cssPosition.bottom;
-								}
-								if (childElement.model.cssPosition.width != "-1")
-								{
-									if (childElement.model.cssPosition.left != "-1" && childElement.model.cssPosition.right != "-1")
-									{
-										elementLayout['min-width'] = childElement.model.cssPosition.width;
-									}
-									else
-									{
-										elementLayout['width'] = childElement.model.cssPosition.width;
-									}	
-								}
-								if (childElement.model.cssPosition.height != "-1")
-								{
-									if (childElement.model.cssPosition.top != "-1" && childElement.model.cssPosition.bottom != "-1")
-									{
-										elementLayout['min-height'] = childElement.model.cssPosition.height;
-									}
-									else
-									{
-										elementLayout['height'] = childElement.model.cssPosition.height;
-									}	
-								}
+								elementLayout = childElement.model.cssPosition;
 							}
 							else
 							{
