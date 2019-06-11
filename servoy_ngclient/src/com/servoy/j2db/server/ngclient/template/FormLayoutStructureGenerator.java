@@ -19,10 +19,15 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
@@ -30,6 +35,7 @@ import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
+import org.sablo.specification.property.types.StyleClassPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.CSSPosition;
@@ -43,6 +49,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Generates HTML for a flow layout form
@@ -120,12 +127,21 @@ public class FormLayoutStructureGenerator
 				{
 					ngClass.put("inheritedElement", true);
 				}
-				if (spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0)
+				String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
+					: "customDivDesign";
+				if ("customDivDesign".equals(designClass) && hasSameDesignClassAsParent(container, spec))
 				{
-					highSet = true;
-					ngClass.put(spec.getDesignStyleClass(), "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
-					ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+					designClass = isEvenLayoutContainer(container) ? "customDivDesignOdd" : "customDivDesignEven";
 				}
+				highSet = true;
+				ngClass.put(designClass, "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+
+				List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
+				String solutionStyleClasses = Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(
+					Collectors.joining(" "));
+				ngClass.put(solutionStyleClasses, "<showSolutionLayoutsCss<");
+				if (!containerStyleClasses.isEmpty()) writer.print(" class='" + containerStyleClasses.stream().collect(Collectors.joining(" ")) + "'");
 				if (spec.getAllowedChildren().size() > 0 || spec.getExcludedChildren() != null)
 				{
 					ngClass.put("drop_highlight", "<canContainDraggedElement('" + spec.getPackageName() + "." + spec.getName() + "')<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
@@ -301,6 +317,84 @@ public class FormLayoutStructureGenerator
 //			Debug.error(e);
 //		}
 //	}
+
+	private static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
+	{
+		if (container.getParent() instanceof LayoutContainer)
+		{
+			LayoutContainer parent = (LayoutContainer)container.getParent();
+			if (parent.getPackageName() != null)
+			{
+				PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+					parent.getPackageName());
+				if (pkg != null)
+				{
+					WebLayoutSpecification parentSpec = pkg.getSpecification(parent.getSpecName());
+					return spec.getDesignStyleClass().equals(parentSpec.getDesignStyleClass());
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean isEvenLayoutContainer(LayoutContainer c)
+	{
+		int i = 0;
+		LayoutContainer container = c;
+		while (container.getParent() instanceof LayoutContainer)
+		{
+			container = (LayoutContainer)container.getParent();
+			i++;
+		}
+		return i % 2 == 0;
+	}
+
+	/**
+	 * Filters out the solution css classes (the ones which are not in the spec file of the layout container).
+	 * @param spec the spec of the current container
+	 * @param cssClasses that are set on the current container
+	 * @return the css classes which are also in the spec
+	 */
+	private static List<String> getStyleClassValues(WebLayoutSpecification spec, String cssClasses)
+	{
+		List<String> result = new ArrayList<String>();
+		String[] classes = cssClasses.split(" ");
+		JSONObject config = spec.getConfig() instanceof String ? new JSONObject((String)spec.getConfig()) : null;
+		String defaultClass = config.optString("class", "");
+
+		Collection<PropertyDescription> properties = spec.getProperties(StyleClassPropertyType.INSTANCE);
+		for (PropertyDescription pd : properties)
+		{
+			for (String cls : classes)
+			{
+				if (defaultClass.equals(cls) || pd.hasDefault() && cls.equals(pd.getDefaultValue()))
+				{
+					result.add(cls);
+				}
+				else if (pd.getValues() != null)
+				{
+					if (pd.getValues().contains(cls))
+					{
+						result.add(cls);
+					}
+					else
+					{
+						for (Object value : pd.getValues())
+						{
+							String val = value.toString();
+							if (val.endsWith("-") && cls.startsWith(val) && Utils.getAsInteger(cls.replaceFirst(val, "")) != -1)
+							{
+								result.add(cls);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return result;
+	}
 
 //	/**
 //	 * Merge of wicket MarkupParser,HTMLHandler,Markup (since not usable without running inside wicket)
