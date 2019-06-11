@@ -253,16 +253,16 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
   		  });
 			
 			$scope.api.getWidth = function() {
-				return $scope.model.anchors ? $apifunctions.getWidth($element[0])() : $scope.model.size.width;
+				return $scope.model.anchors || $scope.model.cssPosition ? $apifunctions.getWidth($element[0])() : $scope.model.size.width;
 			}
 			$scope.api.getHeight = function() {
-				return $scope.model.anchors ? $apifunctions.getHeight($element[0])() : $scope.model.size.height;
+				return $scope.model.anchors || $scope.model.cssPosition ? $apifunctions.getHeight($element[0])() : $scope.model.size.height;
 			}
 			$scope.api.getLocationX = function() {
-				return $scope.model.anchors ? $apifunctions.getX($element[0])() : $scope.model.location.x;
+				return $scope.model.anchors || $scope.model.cssPosition ? $apifunctions.getX($element[0])() : $scope.model.location.x;
 			}
 			$scope.api.getLocationY = function() {
-				return $scope.model.anchors ? $apifunctions.getY($element[0])() : $scope.model.location.y;
+				return $scope.model.anchors || $scope.model.cssPosition ? $apifunctions.getY($element[0])() : $scope.model.location.y;
 			}
 			
 			var className = null;
