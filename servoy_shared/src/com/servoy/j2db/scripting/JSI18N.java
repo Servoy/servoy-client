@@ -125,21 +125,24 @@ public class JSI18N implements IJSI18N
 	public void setLocale(String language, String country, String[] extensions)
 	{
 		Builder b = new Locale.Builder();
-		String extensionTags = ""; //$NON-NLS-1$
 
 		b.setLanguage(language).setRegion(country);
 
-		for (String extension : extensions)
+		if (extensions != null)
 		{
-			if (extension.matches("[a-zA-Z0-9]{1,8}")) //$NON-NLS-1$
+			String extensionTags = ""; //$NON-NLS-1$
+			for (String extension : extensions)
 			{
-				extensionTags = (extensionTags.length() > 0 ? "-" : "") + extension; //$NON-NLS-1$ //$NON-NLS-2$
+				if (extension.matches("[a-zA-Z0-9]{1,8}")) //$NON-NLS-1$
+				{
+					extensionTags = (extensionTags.length() > 0 ? "-" : "") + extension; //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
-		}
 
-		if (extensionTags.length() > 0)
-		{
-			b.setExtension(Locale.PRIVATE_USE_EXTENSION, extensionTags);
+			if (extensionTags.length() > 0)
+			{
+				b.setExtension(Locale.PRIVATE_USE_EXTENSION, extensionTags);
+			}
 		}
 
 		application.setLocale(b.build());
@@ -189,7 +192,9 @@ public class JSI18N implements IJSI18N
 	@JSFunction
 	public String[] getCurrentExtensions()
 	{
-		return application.getLocale().getExtension(Locale.PRIVATE_USE_EXTENSION).split("-"); //$NON-NLS-1$
+		String extensions = application.getLocale().getExtension(Locale.PRIVATE_USE_EXTENSION);
+		if (extensions == null) return new String[0];
+		return extensions.split("-"); //$NON-NLS-1$
 	}
 
 	/**
