@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -106,6 +108,7 @@ public class FormLayoutStructureGenerator
 		boolean isCSSPositionContainer = CSSPosition.isCSSPositionContainer(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
+		Set<String> writtenAttributes = new HashSet<>();
 		if (design)
 		{
 			writer.print(" svy-id='");
@@ -142,6 +145,10 @@ public class FormLayoutStructureGenerator
 					Collectors.joining(" "));
 				ngClass.put(solutionStyleClasses, "<showSolutionLayoutsCss<");
 				if (!containerStyleClasses.isEmpty()) writer.print(" class='" + containerStyleClasses.stream().collect(Collectors.joining(" ")) + "'");
+				if (container.getCssClasses().trim().length() > 0)
+				{
+					writtenAttributes.add("class");
+				}
 				if (spec.getAllowedChildren().size() > 0 || spec.getExcludedChildren() != null)
 				{
 					ngClass.put("drop_highlight", "<canContainDraggedElement('" + spec.getPackageName() + "." + spec.getName() + "')<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
@@ -207,6 +214,7 @@ public class FormLayoutStructureGenerator
 		}
 		for (Entry<String, String> entry : attributes.entrySet())
 		{
+			if (design && writtenAttributes.contains(entry.getKey())) continue;
 			writer.print(" ");
 			try
 			{
