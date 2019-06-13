@@ -191,39 +191,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 		
 		if (beanData.cssPosition && !useAnchoring) {
-		    // this should be in sync with FormLayoutGenerator.generateFormElementWrapper
-		    function addPixels(value) {
-		        if (parseInt(value) == value) return value +"px";
-		        return value;
-		    }
-		    function isSet(value) {
-		        return value && value != "-1";
-		    }
-		    const pos = beanData.cssPosition;
-		    if (isSet(pos.bottom)) beanLayout.bottom = addPixels(pos.bottom);
-		    else delete beanLayout.bottom;
-            if (isSet(pos.height)) {
-                if (isSet(pos.top) && isSet(pos.bottom)){
-                	beanLayout["min-height:"] = addPixels(pos.height);
-                	delete beanLayout.height;
-                }
-                else beanLayout.height = addPixels(pos.height);
-            }
-            else delete beanLayout.height;
-            if (isSet(pos.left)) beanLayout.left = addPixels(pos.left);
-            else delete beanLayout.left;
-            if (isSet(pos.right)) beanLayout.right = addPixels(pos.right);
-            else delete beanLayout.right;
-            if (isSet(pos.top)) beanLayout.top = addPixels(pos.top);
-            else delete beanLayout.top;
-            if (isSet(pos.width)) {
-                if (isSet(pos.left) && isSet(pos.right)){
-                	beanLayout["min-width"] = addPixels(pos.width);
-                	delete beanLayout.width;
-                }
-                else beanLayout.width = addPixels(pos.width);
-            }
-            else delete beanLayout.width;
+			angular.copy(beanData.cssPosition,beanLayout); 
 		}
 	}
 

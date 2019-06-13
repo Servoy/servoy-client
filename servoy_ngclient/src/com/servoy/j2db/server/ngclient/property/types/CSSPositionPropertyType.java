@@ -56,6 +56,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	implements IClassPropertyType<CSSPosition>, IFormElementToTemplateJSON<CSSPosition, CSSPosition>, IDesignToFormElement<Object, CSSPosition, CSSPosition>,
 	IDesignValueConverter<CSSPosition>, ISabloComponentToRhino<CSSPosition>
@@ -98,6 +99,17 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		return toJSON(writer, key, object, pd, clientConversion, fe);
 	}
 
+	private String addPixels(String value)
+	{
+		if (Utils.getAsInteger(value, -1) != -1) return value + "px";
+		return value;
+	}
+
+	private boolean isSet(String value)
+	{
+		return value != null && !value.equals("-1") && !value.trim().isEmpty();
+	}
+
 	private JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, DataConversion clientConversion,
 		FormElement formElement) throws JSONException
 	{
@@ -105,6 +117,8 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		writer.object();
 		if (object != null)
 		{
+			writer.key("position").value("absolute");
+
 			String top = object.top;
 			if (formElement != null)
 			{
@@ -138,8 +152,27 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 					}
 				}
 			}
-			writer.key("top").value(top).key("right").value(object.right).key("bottom").value(object.bottom).key("left").value(object.left).key("width").value(
-				object.width).key("height").value(object.height);
+
+			if (isSet(top)) writer.key("top").value(addPixels(top));
+			if (isSet(object.left)) writer.key("left").value(addPixels(object.left));
+			if (isSet(object.bottom)) writer.key("bottom").value(addPixels(object.bottom));
+			if (isSet(object.right)) writer.key("right").value(addPixels(object.right));
+			if (isSet(object.height))
+			{
+				if (isSet(top) && isSet(object.bottom))
+				{
+					writer.key("min-height").value(addPixels(object.height));
+				}
+				else writer.key("height").value(addPixels(object.height));
+			}
+			if (isSet(object.width))
+			{
+				if (isSet(object.left) && isSet(object.right))
+				{
+					writer.key("min-width").value(addPixels(object.width));
+				}
+				else writer.key("width").value(addPixels(object.width));
+			}
 		}
 		writer.endObject();
 		return writer;
