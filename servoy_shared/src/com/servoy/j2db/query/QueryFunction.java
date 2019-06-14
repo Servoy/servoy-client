@@ -19,6 +19,8 @@ package com.servoy.j2db.query;
 import java.util.Arrays;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
+import com.servoy.base.query.BaseColumnType;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -133,9 +135,9 @@ public final class QueryFunction implements IQuerySelectValue
 
 	public QueryColumn getColumn()
 	{
-		if (args != null && args.length == 1)
+		if (args != null && args.length >= 1)
 		{
-			// for functions that do not change the return type return the column
+			// for functions that do not change the return type return the first column
 			switch (function)
 			{
 				case upper :
@@ -143,6 +145,17 @@ public final class QueryFunction implements IQuerySelectValue
 				case trim :
 				case abs :
 				case mod :
+				case substring :
+				case floor :
+				case round :
+				case ceil :
+				case distinct :
+				case nullif :
+				case concat :
+				case plus :
+				case minus :
+				case multiply :
+				case divide :
 					return args[0].getColumn();
 
 				default :
@@ -151,6 +164,32 @@ public final class QueryFunction implements IQuerySelectValue
 		}
 
 		return null;
+	}
+
+
+	@Override
+	public BaseColumnType getColumnType()
+	{
+		// for functions that do not change the return type return the column
+		switch (function)
+		{
+			case second :
+			case minute :
+			case hour :
+			case day :
+			case month :
+			case year :
+			case locate :
+			case length :
+			case bit_length :
+				return ColumnType.getColumnType(IColumnTypes.INTEGER);
+
+			default :
+				break;
+		}
+
+		// resolve via getColumn()
+		return IQuerySelectValue.super.getColumnType();
 	}
 
 	@Override
