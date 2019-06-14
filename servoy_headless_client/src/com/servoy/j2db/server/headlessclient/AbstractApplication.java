@@ -537,7 +537,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	}
 
 	@Override
-	public Object getTenantValue()
+	public Object[] getTenantValue()
 	{
 		return getClientInfo().getTenantValue();
 	}

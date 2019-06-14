@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
+import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.iterate;
 
 import java.io.IOException;
@@ -34,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
@@ -41,6 +44,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jabsorb.serializer.MarshallException;
 import org.mozilla.javascript.EcmaError;
@@ -50,6 +55,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
@@ -107,6 +113,7 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
+import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.WeakHashSet;
 import com.servoy.j2db.util.serialize.JSONSerializerWrapper;
@@ -554,7 +561,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					{
 						try
 						{
-							if (!element.creationSqlSelect.equals(element.getSqlSelect()))
+							if (!element.creationSqlSelect.equals(element.getQuerySelectForReading()))
 							{
 								element.invalidateFoundset();
 							}
@@ -1453,6 +1460,69 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return removedFilters.size() > 0;
 	}
 
+	private Stream<IFoundSetInternal> getAllFoundsets()
+	{
+		return Stream.concat(separateFoundSets.values().stream(), //
+			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
+				Stream.concat(viewFoundSets.values().stream(), //
+					Stream.concat(foundSets.stream(), //
+						Stream.concat(namedFoundSets.values().stream().map(WeakReference::get).filter(Objects::nonNull), //
+							cachedSubStates.values().stream() //
+								.map(ConcurrentMap::values).flatMap(Collection::stream) //
+								.map(SoftReference::get) //
+								.filter(Objects::nonNull))))));
+	}
+
+	public void refreshFoundsetsForTenantTables()
+	{
+		List<ITable> tenantTablesInuse = getAllFoundsets() //
+			.map(IFoundSetInternal::getQuerySelectForReading) //
+			.filter(Objects::nonNull) //
+			.map(query -> AbstractBaseQuery.<BaseQueryTable> search(query, new TypePredicate<>(BaseQueryTable.class))) //
+			.flatMap(List::stream) //
+			.map(BaseQueryTable::getDataSource) //
+			.filter(Objects::nonNull) //
+			.distinct() //
+			.map(datasource -> catchExceptions(() -> getTable(datasource))) //
+			.filter(Objects::nonNull) //
+			.filter(FoundSetManager::tableHasTenantColumn) //
+			.collect(Collectors.toList());
+		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(Collectors.toSet());
+
+		// refresh foundsets that use any of these datasources
+		getAllFoundsets().filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
+			.forEach(catchExceptions(fs -> {
+				if (fs.isInitialized())
+				{
+					if (fs instanceof RelatedFoundSet)
+					{
+						((RelatedFoundSet)fs).invalidateFoundset();
+					}
+					else if (fs instanceof ViewFoundSet)
+				{
+					((ViewFoundSet)fs).loadAllRecords();
+				}
+					else if (fs instanceof FoundSet)
+				{
+					((FoundSet)fs).refreshFromDB(false, false);
+				}
+				}
+			}));
+
+		getEditRecordList().fireEvents();
+		tenantTablesInuse.stream().forEach(table -> catchExceptions(() -> fireTableEvent(table)));
+	}
+
+	private static boolean usesDatasource(ISQLSelect select, Set<String> tenantDatasourcesInuse)
+	{
+		return searchOne(select, new TypePredicate<>(BaseQueryTable.class, table -> tenantDatasourcesInuse.contains(table.getDataSource()))).isPresent();
+	}
+
+	private static boolean tableHasTenantColumn(ITable table)
+	{
+		return !table.getTenantColumns().isEmpty();
+	}
+
 	public Object[][] getTableFilterParams(String serverName, String filterName)
 	{
 		List<Object[]> result = new ArrayList<Object[]>();
@@ -1490,7 +1560,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql)
 	{
 		final List<TableFilter> serverFilters = tableFilterParams.get(serverName);
-		if (serverFilters == null)
+		Object tenantValue[] = application.getTenantValue();
+		if (serverFilters == null && tenantValue == null)
 		{
 			return null;
 		}
@@ -1499,68 +1570,78 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		final Set<String> tableSqlNames = new HashSet<String>();
 		// find the filters for the tables found in the query
 		final ArrayList<TableFilter>[] filters = new ArrayList[] { null };
-		sql.acceptVisitor(new IVisitor()
-		{
-			public Object visit(Object o)
+		sql.acceptVisitor(o -> {
+			try
 			{
-				if (o instanceof QueryTable && ((QueryTable)o).getName() != null && tableSqlNames.add(((QueryTable)o).getName()))
+				if (o instanceof QueryTable && ((QueryTable)o).getDataSource() != null && ((QueryTable)o).getName() != null &&
+					tableSqlNames.add(((QueryTable)o).getName()))
 				{
 					QueryTable qTable = (QueryTable)o;
-					for (TableFilter filter : serverFilters)
+					Table table = (Table)getTable(qTable.getDataSource());
+					if (table == null)
 					{
-						TableFilter useFilter = null;
+						// should never happen
+						throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
+					}
+
+					if (tenantValue != null)
+					{
+						for (Column tenantColumn : table.getTenantColumns())
+						{
+							addFilter(filters, createTenantFilter(table, tenantColumn, tenantValue));
+						}
+					}
+
+					for (TableFilter filter : iterate(serverFilters))
+					{
 						TableFilterdefinition tableFilterdefinition = filter.getTableFilterdefinition();
 						if (filter.getTableName() == null && tableFilterdefinition instanceof DataproviderTableFilterdefinition)
 						{
 							DataproviderTableFilterdefinition dataproviderTableFilterdefinition = (DataproviderTableFilterdefinition)tableFilterdefinition;
 							// filter is on all tables with specified dataProvider as column
-							try
+							Column column = table.getColumn(dataproviderTableFilterdefinition.getDataprovider());
+							if (column != null)
 							{
-								if (qTable.getDataSource() != null)
-								{
-									Table table = (Table)getTable(qTable.getDataSource());
-									if (table == null)
-									{
-										// should never happen
-										throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
-									}
-									Column column = table.getColumn(dataproviderTableFilterdefinition.getDataprovider());
-									if (column != null)
-									{
-										// Use filter with table name filled in.
-										// When table was null value was not yet converted, convert now.
-										Object value = convertFilterValue(table, column, dataproviderTableFilterdefinition.getValue());
-										useFilter = new TableFilter(filter.getName(), filter.getServerName(), table.getName(), table.getSQLName(),
-											dataproviderTableFilterdefinition.getDataprovider(), dataproviderTableFilterdefinition.getOperator(), value);
-									}
-								}
-							}
-							catch (Exception e)
-							{
-								// big trouble, this is security filtering, so bail out on error
-								throw new RuntimeException(e);
+								// Use filter with table name filled in.
+								// When table was null value was not yet converted, convert now.
+								Object value = convertFilterValue(table, column, dataproviderTableFilterdefinition.getValue());
+								TableFilter useFilter = new TableFilter(filter.getName(), filter.getServerName(), table.getName(), table.getSQLName(),
+									dataproviderTableFilterdefinition.getDataprovider(), dataproviderTableFilterdefinition.getOperator(), value);
+								addFilter(filters, useFilter);
 							}
 						}
 						else if (filter.getTableSQLName().equals(qTable.getName()))
 						{
-							useFilter = filter;
-						}
-
-						if (useFilter != null)
-						{
-							if (filters[0] == null)
-							{
-								filters[0] = new ArrayList<TableFilter>();
-							}
-							filters[0].add(useFilter);
+							addFilter(filters, filter);
 						}
 					}
 				}
-				return o;
 			}
+			catch (Exception e)
+			{
+				// big trouble, this is security filtering, so bail out on error
+				throw new RuntimeException(e);
+			}
+			return o;
 		});
 
 		return filters[0];
+	}
+
+	private TableFilter createTenantFilter(ITable table, Column tenantColumn, Object[] tenantValue) throws ServoyException
+	{
+		Object convertedTenantValue = convertFilterValue(table, tenantColumn, tenantValue);
+		return new TableFilter("_svy_tenant_id_table_filter", table.getServerName(), table.getName(), table.getSQLName(), tenantColumn.getDataProviderID(),
+			IBaseSQLCondition.IN_OPERATOR, convertedTenantValue);
+	}
+
+	private static void addFilter(ArrayList<TableFilter>[] filters, TableFilter filter)
+	{
+		if (filters[0] == null)
+		{
+			filters[0] = new ArrayList<TableFilter>();
+		}
+		filters[0].add(filter);
 	}
 
 	/**
@@ -2323,7 +2404,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				IDataServer ds = application.getDataServer();
 				Table t = (Table)foundset.getTable();
 				String transaction_id = getTransactionID(t.getServerName());
-				QuerySelect sqlString = foundset.getSqlSelect();
+				QuerySelect sqlString = foundset.getQuerySelectForReading();
 
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
 				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,

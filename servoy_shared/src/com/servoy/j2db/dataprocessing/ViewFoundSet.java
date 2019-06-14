@@ -1073,6 +1073,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
+	public ISQLSelect getQuerySelectForReading()
+	{
+		return select;
+	}
+
+	@Override
 	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
 	{
 		return clone ? AbstractBaseQuery.deepClone(this.select, true) : this.select;

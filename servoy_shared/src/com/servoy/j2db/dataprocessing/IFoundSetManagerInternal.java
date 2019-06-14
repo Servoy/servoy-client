@@ -214,4 +214,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public Collection<String> getViewFoundsetDataSourceNames();
 
 	public void removeFoundSet(FoundSet foundset);
+
+	public void refreshFoundsetsForTenantTables();
 }

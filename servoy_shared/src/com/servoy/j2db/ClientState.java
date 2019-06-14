@@ -962,7 +962,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	}
 
 	@Override
-	public Object getTenantValue()
+	public Object[] getTenantValue()
 	{
 		return getClientInfo().getTenantValue();
 	}

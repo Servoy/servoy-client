@@ -2483,7 +2483,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Get a reference to the current sql. NOTE: this is not a copy, make no change to the query.
 	 */
-	public QuerySelect getSqlSelect()
+	@Override
+	public QuerySelect getQuerySelectForReading()
 	{
 		return pksAndRecords.getQuerySelectForReading();
 	}

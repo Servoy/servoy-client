@@ -59,14 +59,14 @@ import com.servoy.j2db.util.RendererParentWrapper;
 
 /**
  * this class renders the pages in the printpreview and suplies pageble for real printing
- * 
+ *
  * @author jblok
  */
 public class FormPreviewPanel extends JPanel implements IPrintInfo
 {
 	private final IApplication application;
 	private final FormController controllerBeingPreviewed;
-	private IFoundSetInternal formData;//NOTE this can be different than form model from formBeingPreviewed 
+	private IFoundSetInternal formData;//NOTE this can be different than form model from formBeingPreviewed
 
 	private Map<Part, DataRenderer> part_panels;
 	private PageFormat currentPageFormat;
@@ -348,7 +348,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 				//dump chain
 				Debug.trace("Root " + root); //$NON-NLS-1$
 
-				QuerySelect sqlString = ((FoundSet)formData).getSqlSelect();
+				QuerySelect sqlString = ((FoundSet)formData).getQuerySelectForReading();
 				Table table = formData.getSQLSheet().getTable();
 
 				FoundSet fs = (FoundSet)((FoundSetManager)application.getFoundSetManager()).getNewFoundSet(table, null, sortColumns);
@@ -547,7 +547,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void flushCachedData()//removePrintedStatesFromFoundSets()
 	{

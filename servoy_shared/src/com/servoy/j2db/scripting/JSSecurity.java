@@ -18,10 +18,8 @@ package com.servoy.j2db.scripting;
 
 
 import java.lang.reflect.Array;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,18 +27,14 @@ import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSSecurity;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.DataproviderTableFilterdefinition;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -174,17 +168,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		Map<String, IServer> serverProxies = application.getFlattenedSolution().getSolution().getServerProxies();
 		ClientInfo clientInfo = application.getClientInfo();
-		if (clientInfo.getTenantValue() != null)
-		{
-			// switch to a different tenant, remove all table filters for this tenant and flush all foundset
-			for (String serverName : serverProxies.keySet())
-			{
-				application.getFoundSetManager().removeTableFilterParam(serverName, "_svy_tenant_id_table_filter");
-			}
-		}
-		clientInfo.setTenantValue(value);
+		clientInfo.setTenantValue(toArray(value));
 		try
 		{
 			application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
@@ -193,49 +178,29 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			Debug.error(e);
 		}
-		if (value != null)
+
+		// flush all foundsets that are based on tenant columns
+		application.getFoundSetManager().refreshFoundsetsForTenantTables();
+
+	}
+
+	private static Object[] toArray(Object value)
+	{
+		if (value == null)
 		{
-			for (IServer server : serverProxies.values())
-			{
-				try
-				{
-					List<String> tableNames = server.getTableNames(true);
-					for (String tableName : tableNames)
-					{
-						ITable table = server.getTable(tableName);
-						Collection<Column> columns = table.getColumns();
-						for (Column column : columns)
-						{
-							if (column.hasFlag(IBaseColumn.TENANT_COLUMN))
-							{
-								int operator = IBaseSQLCondition.EQUALS_OPERATOR;
-								if (value.getClass().isArray())
-								{
-									operator = IBaseSQLCondition.IN_OPERATOR;
-									int length = Array.getLength(value);
-									Object newArray = Array.newInstance(value.getClass().getComponentType(), length);
-									System.arraycopy(value, 0, newArray, 0, length);
-									value = newArray;
-								}
-								try
-								{
-									application.getFoundSetManager().addTableFilterParam("_svy_tenant_id_table_filter", server.getName(), table,
-										new DataproviderTableFilterdefinition(column.getDataProviderID(), operator, value));
-								}
-								catch (ServoyException e)
-								{
-									Debug.error("error setting the tenant table filter on " + column.getDataProviderID() + " of table" + tableName, e);
-								}
-							}
-						}
-					}
-				}
-				catch (RepositoryException | RemoteException e)
-				{
-					Debug.error(e);
-				}
-			}
+			return null;
 		}
+
+		if (value.getClass().isArray())
+		{
+			int length = Array.getLength(value);
+			Object[] array = new Object[length];
+			System.arraycopy(value, 0, array, 0, length);
+			return array;
+		}
+
+		// single value
+		return new Object[] { value };
 	}
 
 	/**

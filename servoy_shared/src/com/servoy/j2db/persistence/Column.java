@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
@@ -661,12 +660,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				default :
 					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
 					{
-						Object tenantValue = application.getTenantValue();
-						if (tenantValue != null && tenantValue.getClass().isArray() && Array.getLength(tenantValue) > 0)
+						Object[] tenantValue = application.getTenantValue();
+						if (tenantValue != null && tenantValue.length > 0)
 						{
-							tenantValue = Array.get(tenantValue, 0);
+							return tenantValue[0];
 						}
-						return tenantValue;
 					}
 					return null;
 			}

@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.util.ServoyException;
@@ -94,6 +95,11 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	public void fireFoundSetChanged();
 
 	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException;
+
+	/**
+	 * Get the querySelect for reading only, make no change to the query!
+	 */
+	public ISQLSelect getQuerySelectForReading();
 
 	public boolean containsCalculation(String dataProviderID);
 

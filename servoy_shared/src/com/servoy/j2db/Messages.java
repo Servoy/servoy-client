@@ -479,7 +479,7 @@ public class Messages
 			}
 
 			//Filter to only include records with the default (null) value for columns flagged as Tenant column
-			for (Column column : I18NUtil.getTenantColumns(table))
+			for (Column column : table.getTenantColumns())
 			{
 				QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
 					column.getScale(), column.getFlags());
@@ -568,7 +568,7 @@ public class Messages
 		}
 
 		//Filter to only include records with the default (null) value for columns flagged as Tenant column
-		for (Column column : I18NUtil.getTenantColumns(table))
+		for (Column column : table.getTenantColumns())
 		{
 			QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
 				column.getScale(), column.getFlags());

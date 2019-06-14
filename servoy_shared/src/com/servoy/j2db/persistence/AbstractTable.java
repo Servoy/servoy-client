@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.persistence;
 
+import static com.servoy.base.persistence.IBaseColumn.TENANT_COLUMN;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.SortedList;
@@ -106,6 +109,14 @@ public abstract class AbstractTable implements ITable, Serializable
 	public void fireIColumnsChanged(Collection<IColumn> cols)
 	{
 		ColumnChangeHandler.getInstance().fireItemChanged(this, cols);
+	}
+
+	@Override
+	public List<Column> getTenantColumns()
+	{
+		return getColumns().stream() //
+			.filter(column -> column.hasFlag(TENANT_COLUMN)) //
+			.collect(Collectors.toList());
 	}
 
 	/*
