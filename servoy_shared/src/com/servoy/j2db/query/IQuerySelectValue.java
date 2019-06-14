@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseQuerySelectValue;
 
 
@@ -30,4 +31,31 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 	QueryColumn getColumn();
 
 	IQuerySelectValue asAlias(String alias);
+
+	default String getAliasOrName()
+	{
+		String alias = getAlias();
+		if (alias != null)
+		{
+			return alias;
+		}
+
+		QueryColumn qcol = getColumn();
+		if (qcol != null)
+		{
+			return qcol.getName();
+		}
+
+		return toString();
+	}
+
+	default BaseColumnType getColumnType()
+	{
+		QueryColumn qcol = getColumn();
+		if (qcol != null)
+		{
+			return qcol.getColumnType();
+		}
+		return null;
+	}
 }

@@ -50,6 +50,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
@@ -85,6 +86,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
+import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
@@ -94,7 +96,6 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
-import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -3328,25 +3329,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				TableDef def = DatabaseUtils.deserializeTableInfo(columnsDef);
 				for (ColumnInfoDef col : def.columnInfoDefSet)
 				{
-					try
+					IQuerySelectValue selectValue = getSelectvalue(query, col.name);
+					if (selectValue == null)
 					{
-						QBColumn qbCol = query.getColumn(col.name);
-						if (qbCol == null)
-						{
-							Debug.error("Column " + col.name + " defined in view datasource '" + dataSource + "' was not found in the provided query.");
-							return null;
-						}
-						if (!qbCol.getColumnType().equals(col.columnType) &&
-							!(qbCol.getColumnType().getSqlType() == col.columnType.getSqlType() && col.columnType.getSqlType() == IColumnTypes.TEXT))
-						{
-							Debug.error("Column type for column '" + col.name + "' defined in view datasource '" + dataSource +
-								"' does not match the one provided in the query.");
-							return null;
-						}
+						Debug.error("Column " + col.name + " defined in view datasource '" + dataSource + "' was not found in the provided query.");
+						return null;
 					}
-					catch (RepositoryException e)
+
+					BaseColumnType columnType = selectValue.getColumnType();
+					if (columnType != null && !columnType.equals(col.columnType) &&
+						!(columnType.getSqlType() == col.columnType.getSqlType() && col.columnType.getSqlType() == IColumnTypes.TEXT))
 					{
-						Debug.error(e);
+						Debug.error("Column type for column '" + col.name + "' defined in view datasource '" + dataSource +
+							"' does not match the one provided in the query.");
 						return null;
 					}
 				}
@@ -3354,6 +3349,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		return vfs;
+	}
+
+	private IQuerySelectValue getSelectvalue(QBSelect query, String name)
+	{
+		return query.getQuery().getColumns().stream() //
+			.filter(column -> name.equals(column.getAliasOrName())) //
+			.findAny().orElse(null);
 	}
 
 	@Override

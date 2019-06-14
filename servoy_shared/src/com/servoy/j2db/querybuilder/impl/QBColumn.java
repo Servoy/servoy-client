@@ -89,8 +89,9 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	protected IQuerySelectValue createOperand(Object value)
 	{
-		QueryColumn qColumn = getQuerySelectValue().getColumn();
-		return getRoot().createOperand(value, qColumn == null ? null : qColumn.getColumnType(), qColumn == null ? 0 : qColumn.getFlags());
+		IQuerySelectValue querySelectValue = getQuerySelectValue();
+		QueryColumn qColumn = querySelectValue.getColumn();
+		return getRoot().createOperand(value, querySelectValue.getColumnType(), qColumn == null ? 0 : qColumn.getFlags());
 	}
 
 	/**
@@ -196,11 +197,10 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	public QBCondition in(Object[] values)
 	{
-		QueryColumn qColumn = getQuerySelectValue().getColumn();
-		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
-			new Object[][] { values == null ? new Object[0]
-				: getRoot().createOperands(values, qColumn == null ? null : qColumn.getColumnType(), qColumn == null ? 0 : qColumn.getFlags()) },
-			true));
+		IQuerySelectValue querySelectValue = getQuerySelectValue();
+		QueryColumn qColumn = querySelectValue.getColumn();
+		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { querySelectValue },
+			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, querySelectValue.getColumnType(), qColumn == null ? 0 : qColumn.getFlags()) }, true));
 	}
 
 	@Override
@@ -707,7 +707,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@Override
 	public BaseColumnType getColumnType()
 	{
-		return getQuerySelectValue().getColumn().getColumnType();
+		return getQuerySelectValue().getColumnType();
 	}
 
 	/**

@@ -16,15 +16,19 @@
  */
 package com.servoy.j2db.query;
 
+import java.util.Date;
+
+import com.servoy.base.query.BaseColumnType;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 
 /**
  * Container for a fixed value in a query structure (for instance, "select 1 from tab".
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QueryColumnValue implements IQuerySelectValue
 {
@@ -70,6 +74,33 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public QueryColumn getColumn()
 	{
+		return null;
+	}
+
+	@Override
+	public BaseColumnType getColumnType()
+	{
+		if (value instanceof Integer || value instanceof Long)
+		{
+			return ColumnType.getColumnType(IColumnTypes.INTEGER);
+		}
+		if (value instanceof Number)
+		{
+			return ColumnType.getColumnType(IColumnTypes.NUMBER);
+		}
+		if (value instanceof String)
+		{
+			return ColumnType.getColumnType(IColumnTypes.TEXT);
+		}
+		if (value instanceof Date)
+		{
+			return ColumnType.getColumnType(IColumnTypes.DATETIME);
+		}
+		if (value instanceof byte[])
+		{
+			return ColumnType.getColumnType(IColumnTypes.MEDIA);
+		}
+
 		return null;
 	}
 

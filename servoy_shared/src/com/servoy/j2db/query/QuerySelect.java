@@ -637,6 +637,10 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 */
 	public Optional<QueryColumn> getRealColumn(IQuerySelectValue column)
 	{
+		if (column == null)
+		{
+			return Optional.empty();
+		}
 		QueryColumn qColumn = column.getColumn();
 		if (qColumn == null)
 		{

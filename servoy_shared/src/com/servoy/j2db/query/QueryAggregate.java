@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseColumnType;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -39,10 +41,10 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 	private final static int SKIP_FLAG = 1 << 16; // used in serialization, should not overlap with aggregate types
 
 	public static final String[] AGGREGATE_TYPE_HIBERNATE = new String[] { "count", //$NON-NLS-1$
-	"max", //$NON-NLS-1$
-	"min", //$NON-NLS-1$
-	"avg", //$NON-NLS-1$
-	"sum" //$NON-NLS-1$
+		"max", //$NON-NLS-1$
+		"min", //$NON-NLS-1$
+		"avg", //$NON-NLS-1$
+		"sum" //$NON-NLS-1$
 	};
 
 	public static final String ASTERIX = "*";
@@ -106,6 +108,16 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 			return null;
 		}
 		return aggregee.getColumn();
+	}
+
+	@Override
+	public BaseColumnType getColumnType()
+	{
+		if (type == COUNT)
+		{
+			return ColumnType.getColumnType(IColumnTypes.INTEGER);
+		}
+		return IQuerySelectValue.super.getColumnType();
 	}
 
 	public String getAggregateName()
@@ -178,7 +190,8 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 	@Override
 	public String toString()
 	{
-		return new StringBuilder(getAggregateName().toUpperCase()).append('(' + aggregee.toString()).append(") ").append(name).append(alias == null ? "" : (" AS " + alias)).toString(); //$NON-NLS-1$
+		return new StringBuilder(getAggregateName().toUpperCase()).append('(' + aggregee.toString()).append(") ").append(name).append( //$NON-NLS-1$
+			alias == null ? "" : (" AS " + alias)).toString();
 	}
 
 

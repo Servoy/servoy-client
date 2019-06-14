@@ -49,17 +49,20 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -231,9 +234,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		for (IQuerySelectValue selectValue : select.getColumns())
 		{
 			QueryColumn column = selectValue.getColumn();
-			String name = selectValue.getAlias() != null ? selectValue.getAlias() : column.getName();
+			String name = selectValue.getAliasOrName();
 			IQuerySelectValue duplicate = nameToSelect.get(name);
-			if (duplicate != null)
+			if (column != null && duplicate != null)
 			{
 				if (duplicate.getColumn().getTable() == baseTable)
 				{
@@ -268,12 +271,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				{
 					columnsMap = columnsForTable;
 				}
-				BaseQueryTable table = realColumn.getTable();
-				List<IQuerySelectValue> list = columnsMap.get(table);
+				BaseQueryTable realcolumnTable = realColumn.getTable();
+				List<IQuerySelectValue> list = columnsMap.get(realcolumnTable);
 				if (list == null)
 				{
 					list = new ArrayList<>();
-					columnsMap.put(table, list);
+					columnsMap.put(realcolumnTable, list);
 				}
 				list.add(realColumn);
 			});
@@ -288,12 +291,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private void addRealColumnToTableMap(Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, QueryColumn column)
 	{
 		select.getRealColumn(column).ifPresent(realColumn -> {
-			BaseQueryTable table = realColumn.getTable();
-			List<QueryColumn> list = columnsInJoinsPerTable.get(table);
+			BaseQueryTable realcolumnTable = realColumn.getTable();
+			List<QueryColumn> list = columnsInJoinsPerTable.get(realcolumnTable);
 			if (list == null)
 			{
 				list = new ArrayList<>();
-				columnsInJoinsPerTable.put(table, list);
+				columnsInJoinsPerTable.put(realcolumnTable, list);
 			}
 			list.add(realColumn);
 		});
@@ -1429,24 +1432,42 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				table = manager.getTable(getDataSource());
 				if (table == null)
 				{
-
 					table = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(getDataSource()), true, ITable.VIEW, null, null);
 					for (IQuerySelectValue col : select.getColumns())
 					{
-						ITable colTable = manager.getTable(col.getColumn().getTable().getDataSource());
-						if (colTable != null)
+						Column newCol = null;
+
+						QueryColumn qCol = col.getColumn();
+						if (qCol != null && qCol.getTable() != null)
 						{
-							Column column = colTable.getColumn(col.getColumn().getName());
-							if (column != null)
+							ITable colTable = manager.getTable(qCol.getTable().getDataSource());
+							if (colTable != null)
 							{
-								Column newCol = table.createNewColumn(DummyValidator.INSTANCE, columnNames.get(col), column.getType(), column.getLength(),
-									column.getScale(), column.getAllowNull());
-								if (column.getColumnInfo() != null)
+								Column column = colTable.getColumn(col.getColumn().getName());
+								if (column != null)
 								{
-									DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
-									newCol.getColumnInfo().copyFrom(column.getColumnInfo());
+									newCol = table.createNewColumn(DummyValidator.INSTANCE, columnNames.get(col), column.getType(), column.getLength(),
+										column.getScale(), column.getAllowNull());
+									if (column.getColumnInfo() != null)
+									{
+										DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
+										newCol.getColumnInfo().copyFrom(column.getColumnInfo());
+									}
 								}
 							}
+						}
+
+						if (newCol == null)
+						{
+							// existing database column not found, create column on the fly
+							BaseColumnType columnType = col.getColumnType();
+							if (columnType == null)
+							{
+								columnType = ColumnType.getColumnType(IColumnTypes.TEXT);
+							}
+
+							table.createNewColumn(DummyValidator.INSTANCE, col.getAliasOrName(), columnType.getSqlType(), columnType.getLength(),
+								columnType.getScale(), true);
 						}
 					}
 				}
