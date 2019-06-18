@@ -425,11 +425,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					}
 				}
 				
-				$scope.gridApi.grid.refreshCanvas(true).then(function() {
-					// make sure the columns are all rendered that are in the viewport (SVY-8638)
-					$scope.gridApi.grid.redrawInPlace();
-				})
-				
+				$scope.gridApi.grid.refresh(false);				
 			}			
 			
 			
@@ -1284,7 +1280,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					// this is needed because Safari's elastic scrolling : when scrolling down and reaching the bottom,
 					// the scroll bounces up, firing a 'scroll up' event, that is not handled by ui-grid, those not loading
 					// possible additional rows
-					if(!$scope.gridApi.grid.infiniteScroll.dataLoading) {
+					if(!$scope.gridApi.grid.infiniteScroll.dataLoading && e.y) {
 						var targetPercentage = $scope.gridApi.grid.options.infiniteScrollRowsFromEnd / $scope.gridApi.grid.renderContainers.body.visibleRowCache.length;
 			            var percentage = 1 - e.y.percentage;
 			            if (percentage <= targetPercentage){
