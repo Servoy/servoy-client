@@ -45,12 +45,14 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -328,9 +330,10 @@ public class FormLayoutStructureGenerator
 
 	private static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
 	{
-		if (container.getParent() instanceof LayoutContainer)
+		ISupportChilds realParent = container.getExtendsID() > 0 ? PersistHelper.getRealParent(container) : container.getParent();
+		if (realParent instanceof LayoutContainer)
 		{
-			LayoutContainer parent = (LayoutContainer)container.getParent();
+			LayoutContainer parent = (LayoutContainer)realParent;
 			if (parent.getPackageName() != null)
 			{
 				PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
