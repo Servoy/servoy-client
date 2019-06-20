@@ -1401,10 +1401,24 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			scope.$watch(attrs['svyFormstyle'], function(newVal) {
 				if (newVal)
 				{
-					element.css(newVal)
+					if(scope["formProperties"] && !scope["formProperties"]["hasExtraParts"] && isInContainer(scope)) {
+        				delete newVal["minWidth"];
+        				delete newVal["minHeight"];
+        			}
+					element.css(newVal);
 				}	
 			})
 		}
+	}
+
+	// checks if formProperties on the scope exists	
+	function isInContainer(scope) {
+		var parent = scope.$parent;	
+		while(parent) {
+			if(parent.formProperties && parent.formStyle) return true;
+			parent = parent.$parent;
+		}	
+		return false;
 	}
 }).directive("svyDecimalKeyConverter",[function(){
 	return {

@@ -278,8 +278,8 @@ public class FormWrapper
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
 		properties.put("designSize", form.getSize());
-		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) &&
-			FormElementHelper.INSTANCE.hasExtraParts(form));
+		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW));
+		properties.put("hasExtraParts", Boolean.valueOf(FormElementHelper.INSTANCE.hasExtraParts(form)));
 		HashMap<String, Boolean> absolute = new HashMap<>(formComponentsLayout);
 		absolute.put("", !form.isResponsiveLayout());
 		for (FormElement fe : getAbsoluteLayoutElements())
