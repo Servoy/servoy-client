@@ -103,6 +103,9 @@ public class FormLayoutGenerator
 		while (componentsIterator.hasNext())
 		{
 			IPersist component = componentsIterator.next();
+
+			// form components don't have a security tab yet; they can only be changed as a whole via the form component component on main form which has security
+			// if (PartWrapper.isSecurityVisible(component, fs, form))
 			if (component instanceof LayoutContainer)
 			{
 				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false, cache);
@@ -506,6 +509,8 @@ public class FormLayoutGenerator
 
 	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form)
 	{
+		IPersist fePersist = fe.getPersistIfAvailable();
+
 		String name = fe.getName();
 		boolean selectable = false;
 		if (name == null) name = fe.getName();
@@ -518,9 +523,9 @@ public class FormLayoutGenerator
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
 			String elementName = name;
-			if (elementName.startsWith("svy_") && fe.getPersistIfAvailable() != null)
+			if (elementName.startsWith("svy_") && fePersist != null)
 			{
-				elementName = "svy_" + fe.getPersistIfAvailable().getUUID().toString();
+				elementName = "svy_" + fePersist.getUUID().toString();
 			}
 			writer.print(" data-svy-name='");
 			writer.print(form.getName() + "." + elementName);
@@ -534,10 +539,10 @@ public class FormLayoutGenerator
 				writer.print(" svy-id='");
 				writer.print(designId);
 				writer.print("'");
-				if (fe.getPersistIfAvailable() instanceof ISupportBounds)
+				if (fePersist instanceof ISupportBounds)
 				{
 					writer.print(" svy-location='");
-					writer.print(((ISupportBounds)fe.getPersistIfAvailable()).getLocation().x);
+					writer.print(((ISupportBounds)fePersist).getLocation().x);
 					writer.print("'");
 				}
 				if (selectable)
@@ -579,8 +584,7 @@ public class FormLayoutGenerator
 				}
 
 
-				if (!fe.getForm().equals(form) || fe.getPersistIfAvailable() instanceof ISupportExtendsID &&
-					PersistHelper.getSuperPersist((ISupportExtendsID)fe.getPersistIfAvailable()) != null) //is this inherited or override element?
+				if (!fe.getForm().equals(form) || fePersist instanceof ISupportExtendsID && PersistHelper.getSuperPersist((ISupportExtendsID)fePersist) != null) //is this inherited or override element?
 				{
 					ngClass.put("inheritedElement", true);
 				}
@@ -606,9 +610,9 @@ public class FormLayoutGenerator
 			writer.print(" svy-servoyApi=\"servoyApi('");
 			writer.print(designId);
 			writer.print("')\"");
-			if (fe.getPersistIfAvailable() instanceof IFormElement)
+			if (fePersist instanceof IFormElement)
 			{
-				writer.print(" form-index=" + ((IFormElement)fe.getPersistIfAvailable()).getFormIndex() + "");
+				writer.print(" form-index=" + ((IFormElement)fePersist).getFormIndex() + "");
 			}
 		}
 		else
@@ -627,9 +631,9 @@ public class FormLayoutGenerator
 			writer.print(".svy_servoyApi'");
 		}
 
-		if (fe.getPersistIfAvailable() instanceof BaseComponent)
+		if (fePersist instanceof BaseComponent)
 		{
-			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fePersist).getMergedAttributes());
 			for (Entry<String, String> entry : attributes.entrySet())
 			{
 				writer.print(" ");

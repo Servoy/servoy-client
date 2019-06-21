@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -198,16 +199,16 @@ public class PartWrapper
 			Point location = CSSPosition.getLocation(persist);
 			if (startPos <= location.y && endPos > location.y && persist instanceof BaseComponent)
 			{
-				if (isSecurityVisible(persist, converterContext, context)) baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist, converterContext.getSolution(), context)) baseComponents.add((BaseComponent)persist);
 			}
 		}
 		return baseComponents;
 	}
 
-	public static boolean isSecurityVisible(IPersist persist, IServoyDataConverterContext converterContext, Form form)
+	public static boolean isSecurityVisible(IPersist persist, FlattenedSolution fs, Form form)
 	{
-		if (converterContext.getApplication() == null) return true;
-		int access = converterContext.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+		if (fs == null) return true;
+		int access = fs.getSecurityAccess(persist.getUUID(),
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;

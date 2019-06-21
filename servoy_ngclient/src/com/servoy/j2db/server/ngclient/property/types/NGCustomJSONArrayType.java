@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
@@ -75,6 +76,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>,
 	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>, IRhinoDesignConverter, IDesignValueConverter<Object>, II18NPropertyType<Object>
 {
+
+	public static final String SKIP_NULL_ITEMS_AT_RUNTIME_CONFIG_KEY = "skipNullItemsAtRuntime";
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
 	{
@@ -165,11 +168,16 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			for (Object element : formElementValue)
 			{
 				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(element, getCustomJSONTypeDefinition(), formElement, component, dal);
-				if (v != null) list.add((SabloT)v);
+				if (v != null || !shouldSkipNullItemsInFormElementToSabloValueConversion(pd)) list.add((SabloT)v);
 			}
 			return list;
 		}
 		return null;
+	}
+
+	private boolean shouldSkipNullItemsInFormElementToSabloValueConversion(PropertyDescription pd)
+	{
+		return ((JSONObject)pd.getConfig()).optBoolean(SKIP_NULL_ITEMS_AT_RUNTIME_CONFIG_KEY, false);
 	}
 
 	@Override

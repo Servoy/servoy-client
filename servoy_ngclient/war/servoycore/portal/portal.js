@@ -336,7 +336,8 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 							svyRightClick: headerRightClick,
 							svyDoubleClick: headerDblClick,
 							type: "string", // just put a type here, we don't know the type and we dont use the edit feature of ui-grid
-							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
+							svyColumnHeaderIndex: el.componentIndex ? el.componentIndex : idx, // if form security makes some of the columns not visible, those are not sent at all in childElements; then indexes in headers array and childElements array might not match, that is why el.componentIndex is used 
+							svyColumnIndex: idx
 						});
 						applyColumnTitle($scope.columnDefinitions[newL - 1], columnTitle);
 						updateColumnDefinition($scope, idx);
@@ -477,7 +478,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					}
 				}, false);				
 
-				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnIndex ? scope.columnDefinitions[idx].svyColumnIndex : idx;
+				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnHeaderIndex ? scope.columnDefinitions[idx].svyColumnHeaderIndex : idx;
 				// NOTE: below !scope.model.headers[columnHeaderIdx] is also true for !"" - in case html or tastrings are used for columnHeaders
 				if (!scope.model.headers || columnHeaderIdx >= scope.model.headers.length || !scope.model.headers[columnHeaderIdx].model.text) {
 					// that means component titleText matters for headers

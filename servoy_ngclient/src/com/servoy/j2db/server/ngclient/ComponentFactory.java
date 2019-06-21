@@ -45,13 +45,48 @@ public class ComponentFactory
 	{
 		String name = fe.getName();
 		IPersist persist = fe.getPersistIfAvailable();
-		int access = 0;
+		int elementSecurity = 0;
 		if (persist != null)
 		{
+			boolean getItDirectlyBasedOnPersistAndForm = true;
+			// FormComponent's child security is the security of the FormComponent
+			if (fe.isFormComponentChild())
+			{
+				String feName = fe.getName();
+				// form component children security access is currently dictated by the root form component component security settings; currently one only has the Security tab in form editors not in form component editors;
+				// for example if you have a form that contains a form component component A pointing to form component X that has in it a form component component B that points to form component Y
+				// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
+
+				// so find the 'root' form component component persist and get it's access rights; this should always be found!
+				String formComponentName = feName.substring(0, feName.indexOf('$'));
+				for (IPersist p : form.getAllObjectsAsList())
+				{
+					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+					{
+						elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID(),
+							form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+						getItDirectlyBasedOnPersistAndForm = false;
+						break;
+					}
+				}
+				if (getItDirectlyBasedOnPersistAndForm) Debug.warn("'Root' form component including component on form " + form.getName() +
+					" was not found when trying to determine access rights for a child of a form component: " + name);
+			}
+			else if (persist.getParent() instanceof Portal)
+			{
+				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID(),
+					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+				getItDirectlyBasedOnPersistAndForm = false;
+			}
+
+			if (getItDirectlyBasedOnPersistAndForm)
+			{
+				elementSecurity = application.getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+			}
+
 			// don't add the component to the form ui if component is not visible due to security settings
-			access = application.getFlattenedSolution().getSecurityAccess(persist.getUUID(),
-				form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-			if (!((access & IRepository.VIEWABLE) != 0)) return null;
+			if (!((elementSecurity & IRepository.VIEWABLE) != 0)) return null;
 		}
 
 		// TODO anything to do here for custom special types?
@@ -76,33 +111,6 @@ public class ComponentFactory
 		// overwrite accessible
 		if (persist != null)
 		{
-			int elementSecurity;
-			// FormComponent's child security is the security of the FormComponent
-			if (fe.isFormComponentChild())
-			{
-				// default security is that of the child component for the unlikely case the form component is not found
-				elementSecurity = access;
-				String feName = fe.getName();
-				String formComponentName = feName.substring(0, feName.indexOf('$'));
-				for (IPersist p : form.getAllObjectsAsList())
-				{
-					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
-					{
-						elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID(),
-							form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-						break;
-					}
-				}
-			}
-			else if (persist.getParent() instanceof Portal)
-			{
-				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID(),
-					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-			}
-			else
-			{
-				elementSecurity = access;
-			}
 			if (!((elementSecurity & IRepository.ACCESSIBLE) != 0)) // element not accessible
 			{
 				webComponent.setProperty("enabled", false);
@@ -117,7 +125,6 @@ public class ComponentFactory
 				}
 			}
 		}
-
 
 		// TODO should this be a part of type conversions for handlers instead?
 		for (String eventName : componentSpec.getHandlers().keySet())

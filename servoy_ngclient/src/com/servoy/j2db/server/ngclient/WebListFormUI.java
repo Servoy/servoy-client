@@ -62,12 +62,14 @@ public class WebListFormUI extends WebFormUI
 			Part body = FormElementHelper.INSTANCE.getBodyPart(form);
 			int bodyStartY = form.getPartStartYPos(body.getID());
 			int bodyEndY = body.getHeight();
+			
+			// remove body elements; those will be part of elements.add(getPortal())'s childElements below;
+			// only the elements from other form parts then body still need to be added to cached elements
 			while (it.hasNext())
 			{
 				IFormElement element = it.next();
 				if (bodyStartY <= element.getLocation().y && bodyEndY > element.getLocation().y)
 				{
-					// remove body elements
 					it.remove();
 				}
 			}

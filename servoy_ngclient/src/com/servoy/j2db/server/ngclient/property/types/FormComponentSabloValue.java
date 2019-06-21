@@ -69,20 +69,19 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		tags.put(ComponentTypeSabloValue.TAG_ADD_TO_ELEMENTS_SCOPE, true);
 		PropertyDescription compPd = new PropertyDescriptionBuilder().withName(pd.getName()).withType(ComponentPropertyType.INSTANCE).withConfig(
 			pd.getConfig()).withTags(tags).build();
+		int j = 0;
 		for (int i = 0; i < components.length; i++)
 		{
 			FormElement element = elements.get(i);
-			path.add(i);
+			path.add(j);
 			ComponentTypeFormElementValue elementValue = ComponentPropertyType.INSTANCE.getFormElementValue(null, compPd, path, element,
 				dal.getApplication().getFlattenedSolution());
-			components[i] = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, element, component, dal);
+			ComponentTypeSabloValue ctsv = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, element, component, dal);
+			if (ctsv != null) components[j++] = ctsv; // if it is null then it is probably a child component that was blocked by security (visibility == false); in that case just ignore it (similar to what portal does through .spec setting on comp. array to ignore null values at runtime)
 			path.backOneLevel();
 		}
 	}
 
-	/**
-	 * @return the cache
-	 */
 	public FormComponentCache getCache()
 	{
 		return cache;
@@ -106,19 +105,13 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		}
 	}
 
-	/**
-	 * @param writer
-	 * @param clientConversion
-	 * @param formComponentPropertyType
-	 * @param dataConverterContext
-	 */
 	public void fullToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType,
 		IBrowserConverterContext dataConverterContext)
 	{
 		clientConversion.convert("formcomponent");
 		writer.object();
 		writer.key("uuid");
-		writer.value(cache.getCacheUUID());
+		writer.value(cache.getHtmlTemplateUUIDForAngular());
 		writer.key("formHeight");
 		writer.value(form.getSize().height);
 		writer.key("formWidth");
@@ -162,11 +155,6 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		}
 	}
 
-	/**
-	 * @param writer
-	 * @param clientConversion
-	 * @param formComponentPropertyType
-	 */
 	public void changesToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType)
 	{
 		clientConversion.convert("formcomponent");

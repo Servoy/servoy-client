@@ -20,10 +20,13 @@ package com.servoy.j2db.server.ngclient.property.types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -83,6 +86,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>, IRhinoDesignConverter, IDesignValueConverter<Object>,
 	II18NPropertyType<Map<String, SabloT>>
 {
+
+	public static final String SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL = "setToNullAtRuntimeIfAnyOfTheseKeysAreNull";
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
 	{
@@ -188,15 +193,35 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		if (formElementValue != null)
 		{
 			Map<String, SabloT> map = new HashMap<>(formElementValue.size());
+			Set<String> nullifyWholeValueIfTheValueForAnyOfTheseIsNull = null;
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
 				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(), getCustomJSONTypeDefinition().getProperty(e.getKey()),
 					new FormElementExtension(formElement, formElementValue, getCustomJSONTypeDefinition()), component, dal);
 				if (v != null) map.put(e.getKey(), (SabloT)v);
+				else {
+					if (nullifyWholeValueIfTheValueForAnyOfTheseIsNull == null) nullifyWholeValueIfTheValueForAnyOfTheseIsNull = shouldSetFullValueToNullInFormElementToSabloValueIfTheseKeysHaveNullValues(pd);
+					if (nullifyWholeValueIfTheValueForAnyOfTheseIsNull.contains(e.getKey())) return null;
+				}
 			}
 			return map;
 		}
 		return null;
+	}
+
+	private Set<String> shouldSetFullValueToNullInFormElementToSabloValueIfTheseKeysHaveNullValues(PropertyDescription pd)
+	{
+		// useful if for example you have columns[] in a custom component where each column is an object of properties and where if a dataprovider or component key in that is null you want that column to be completely ignored (be fully null)
+		// then you can combine array's type SKIP_NULL_ITEMS_AT_RUNTIME_CONFIG_KEY with this option (SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL) in .spec to get the desired result
+		JSONArray v = ((JSONObject)pd.getConfig()).optJSONArray(SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL);
+		Set<String> rv = new HashSet<>();
+		if (v != null) v.forEach((item) -> {
+			if (item instanceof String) rv.add((String)item);
+			else log.error(SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL +
+				" configuration option from spec file should be an array of strings but it contains | " + item + " | instead. PD: " + pd);
+		});
+
+		return rv;
 	}
 
 	@Override
