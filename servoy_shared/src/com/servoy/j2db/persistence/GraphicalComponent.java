@@ -280,7 +280,7 @@ public class GraphicalComponent extends BaseComponent
 	 * The method that is executed when the component is right clicked.
 	 *
 	 * @templatedescription Perform the element on right click action
-	 * @templatename onClick
+	 * @templatename onRightClick
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
