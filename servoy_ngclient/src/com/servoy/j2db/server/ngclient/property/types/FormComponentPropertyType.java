@@ -186,10 +186,10 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		Form form = getForm(formElementValue, fs);
 		if (form != null)
 		{
+			JSONUtils.addKeyIfPresent(writer, key);
 			// we output here a uuid that is a uuid that must be used to get the compiled template from the $formcomponentCache
-			writer.key(key);
 			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
-				fs).getCacheUUID();
+				fs).getHtmlTemplateUUIDForAngular();
 			writer.object();
 			writer.key("uuid");
 			writer.value(uuid);
@@ -204,11 +204,6 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		return writer;
 	}
 
-	/**
-	 * @param formElementValue
-	 * @param fs
-	 * @return
-	 */
 	public Form getForm(Object formElementValue, FlattenedSolution fs)
 	{
 		Object formId = formElementValue;

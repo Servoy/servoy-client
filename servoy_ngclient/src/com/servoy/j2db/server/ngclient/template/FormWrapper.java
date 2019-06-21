@@ -178,8 +178,11 @@ public class FormWrapper
 		List<IFormElement> persists = form.getFlattenedObjects(Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
-			if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
-			checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
+			if (isSecurityVisible(persist))
+			{
+				if ((excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
+				checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
+			}
 		}
 		if ((isListView && !design) || isTableView)
 		{
@@ -194,14 +197,10 @@ public class FormWrapper
 		return components;
 	}
 
-	/**
-	 * @param components
-	 * @param excludedComponents
-	 * @param persist
-	 */
-	private void checkFormComponents(List<IFormElement> components, FormElement formElement)
+	private void checkFormComponents(List<IFormElement> components, FormElement formComponentFormElement)
 	{
-		WebObjectSpecification spec = formElement.getWebComponentSpec();
+		// if it's not a form component then .spec will not contain properties of type FormComponentPropertyType.INSTANCE and nothing will happen below
+		WebObjectSpecification spec = formComponentFormElement.getWebComponentSpec();
 		if (spec != null)
 		{
 			Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
@@ -211,15 +210,16 @@ public class FormWrapper
 				{
 					Object config = pd.getConfig();
 					boolean isRepeating = config instanceof ComponentTypeConfig && ((ComponentTypeConfig)config).forFoundset != null;
-					Object propertyValue = formElement.getPropertyValue(pd.getName());
+					Object propertyValue = formComponentFormElement.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;
-					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)propertyValue, frm,
+					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formComponentFormElement, pd, (JSONObject)propertyValue, frm,
 						context.getSolution());
 					Dimension frmSize = frm.getSize();
 					for (FormElement element : cache.getFormComponentElements())
 					{
-						if (!isRepeating || design) components.add((IFormElement)element.getPersistIfAvailable());
+						IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
+						if ((!isRepeating || design)) components.add(persistOfElement);
 						formComponentParentSizes.put(element.getName(), frmSize);
 						if (!frm.isResponsiveLayout())
 						{
@@ -229,7 +229,7 @@ public class FormWrapper
 							formComponentCSSPositionElementNames.put(element.getName(), Boolean.TRUE);
 						checkFormComponents(components, element);
 					}
-					formComponentTemplates.put(cache.getCacheUUID(), cache.getTemplate());
+					formComponentTemplates.put(cache.getHtmlTemplateUUIDForAngular(), cache.getTemplate());
 				}
 			}
 		}

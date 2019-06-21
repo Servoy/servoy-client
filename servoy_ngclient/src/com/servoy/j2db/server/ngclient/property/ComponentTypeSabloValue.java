@@ -1094,7 +1094,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	@Override
 	public String toString()
 	{
-		return "Child component value: " + childComponent;
+		return "Child component value: " + (childComponent != null ? childComponent : "not yet attached");
 	}
 
 

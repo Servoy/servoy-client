@@ -125,14 +125,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return lst;
 	}
 
-	/**
-	 * @param formElement
-	 * @param pd
-	 * @param formElementValue
-	 * @param form
-	 * @param fs
-	 * @return
-	 */
 	public FormComponentCache getFormComponentCache(INGFormElement formElement, PropertyDescription pd, JSONObject formElementValue, Form form,
 		FlattenedSolution fs)
 	{
@@ -144,7 +136,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 		return getFormComponentFromCache(formElement, pd, formElementValue, form, getSharedFlattenedSolution(fs));
 	}
-
 
 	private FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
@@ -164,14 +155,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return fcCache;
 	}
 
-	/**
-	 * @param pd
-	 * @param parentElement
-	 * @param frm
-	 * @param fs
-	 * @param list
-	 * @return
-	 */
 	private FormComponentCache generateFormComponentCacheObject(INGFormElement parentElement, PropertyDescription pd, Form frm, FlattenedSolution fs,
 		final List<FormElement> list)
 	{
@@ -194,37 +177,20 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return new FormComponentCache(parentElement, pd, list, template);
 	}
 
-	/**
-	 * @param parentElement
-	 * @param pd
-	 * @param json
-	 * @param frm
-	 * @param fs
-	 * @param excludedComponents
-	 * @return
-	 */
 	private List<FormElement> testForDesignAndSolutionModel(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
 		FlattenedSolution fs)
 	{
 		// for designer always just generate it
 		if (parentElement.getDesignId() != null) return generateFormComponentElements(parentElement, pd, json, frm, fs);
 
-		// if the form of the main form component is a solution copy then don't cache.
+		// if the form of the main form component component is a solution copy then don't cache (the form component component that has the form component in it might have changed via solution model)
+		// that means that the main form component component name or the customization it applies to the form component might have changed and some of these can affect the templateHTML
 		Solution solutionCopy = fs.getSolutionCopy(false);
 		if (solutionCopy != null && solutionCopy.getForm(parentElement.getForm().getName()) != null)
 			return generateFormComponentElements(parentElement, pd, json, frm, fs);
 		return null;
 	}
 
-	/**
-	 * @param parentElement
-	 * @param pd
-	 * @param json
-	 * @param frm
-	 * @param fs
-	 * @param excludedComponents
-	 * @return
-	 */
 	private List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
@@ -242,94 +208,91 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement element : formelements)
 		{
-			if (isSecurityVisible(element, fs, frm))
+			element = (IFormElement)((AbstractBase)element).clonePersist();
+			// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
+			UUID newElementUUID = null;
+			synchronized (formComponentElementsUUIDS)
 			{
-				element = (IFormElement)((AbstractBase)element).clonePersist();
-				// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
-				UUID newElementUUID = null;
-				synchronized (formComponentElementsUUIDS)
+				Map<UUID, UUID> map = formComponentElementsUUIDS.get(parent.getPersistIfAvailable().getUUID());
+				if (map == null)
 				{
-					Map<UUID, UUID> map = formComponentElementsUUIDS.get(parent.getPersistIfAvailable().getUUID());
-					if (map == null)
-					{
-						map = new HashMap<>();
-						formComponentElementsUUIDS.put(parent.getPersistIfAvailable().getUUID(), map);
-					}
-					newElementUUID = map.get(element.getUUID());
-					if (newElementUUID == null)
-					{
-						newElementUUID = UUID.randomUUID();
-						map.put(element.getUUID(), newElementUUID);
-					}
+					map = new HashMap<>();
+					formComponentElementsUUIDS.put(parent.getPersistIfAvailable().getUUID(), map);
 				}
-				((AbstractBase)element).resetUUID(newElementUUID);
-				String elementName = element.getName();
-				if (elementName == null)
+				newElementUUID = map.get(element.getUUID());
+				if (newElementUUID == null)
 				{
-					elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
+					newElementUUID = UUID.randomUUID();
+					map.put(element.getUUID(), newElementUUID);
 				}
-				String templateName = getStartElementName(parent, pd) + elementName;
-				((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, parent.getForm().getName());
-				JSONObject elementJson = json.optJSONObject(elementName);
-				if (elementJson != null)
-				{
-					Map<String, Method> methods = RepositoryHelper.getSetters(element);
-					WebObjectSpecification legacySpec = FormTemplateGenerator.getWebObjectSpecification(element);
-					for (String key : elementJson.keySet())
-					{
-						Object val = elementJson.get(key);
-						if (val != null && methods.get(key) != null)
-						{
-							Method method = methods.get(key);
-							Class< ? > paramType = method.getParameterTypes()[0];
-							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
-							{
-								PropertyDescription property = legacySpec.getProperty(key);
-								if (property != null && property.getType() instanceof IDesignValueConverter)
-								{
-									val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property);
-								}
-								else
-								{
-									// will not fit, very likely a uuid that should be an int.
-									if (val != null)
-									{
-										IPersist found = fs.searchPersist(val.toString());
-										if (found != null) val = Integer.valueOf(found.getID());
-									}
-								}
-							}
-						}
-						if (val instanceof JSONObject && ((AbstractBase)element).getProperty(key) instanceof JSONObject)
-						{
-							// if both are json (like a nested form) then merge it in.
-							ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
-						}
-						else if (val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key) &&
-							((AbstractBase)element).getCustomProperties() != null)
-						{
-							// custom properties needs to be merged in..
-							JSONObject original = new ServoyJSONObject(((AbstractBase)element).getCustomProperties(), true);
-							ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, true), original);
-							((AbstractBase)element).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
-						}
-						else if (val instanceof JSONArray && ((AbstractBase)element).getProperty(key) instanceof IChildWebObject[])
-						{
-							IChildWebObject[] webObjectChildren = (IChildWebObject[])((AbstractBase)element).getProperty(key);
-							JSONArray original = new JSONArray();
-							for (IChildWebObject element2 : webObjectChildren)
-							{
-								original.put(element2.getJson());
-							}
-							ServoyJSONObject.mergeAndDeepCloneJSON((JSONArray)val, original);
-							((AbstractBase)element).setProperty(key, original);
-						}
-						else((AbstractBase)element).setProperty(key, val);
-					}
-				}
-				element.setName(templateName);
-				elements.add(element);
 			}
+			((AbstractBase)element).resetUUID(newElementUUID);
+			String elementName = element.getName();
+			if (elementName == null)
+			{
+				elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
+			}
+			String templateName = getStartElementName(parent, pd) + elementName;
+			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, parent.getForm().getName());
+			JSONObject elementJson = json.optJSONObject(elementName);
+			if (elementJson != null)
+			{
+				Map<String, Method> methods = RepositoryHelper.getSetters(element);
+				WebObjectSpecification legacySpec = FormTemplateGenerator.getWebObjectSpecification(element);
+				for (String key : elementJson.keySet())
+				{
+					Object val = elementJson.get(key);
+					if (val != null && methods.get(key) != null)
+					{
+						Method method = methods.get(key);
+						Class< ? > paramType = method.getParameterTypes()[0];
+						if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
+						{
+							PropertyDescription property = legacySpec.getProperty(key);
+							if (property != null && property.getType() instanceof IDesignValueConverter)
+							{
+								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property);
+							}
+							else
+							{
+								// will not fit, very likely a uuid that should be an int.
+								if (val != null)
+								{
+									IPersist found = fs.searchPersist(val.toString());
+									if (found != null) val = Integer.valueOf(found.getID());
+								}
+							}
+						}
+					}
+					if (val instanceof JSONObject && ((AbstractBase)element).getProperty(key) instanceof JSONObject)
+					{
+						// if both are json (like a nested form) then merge it in.
+						ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
+					}
+					else if (val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key) &&
+						((AbstractBase)element).getCustomProperties() != null)
+					{
+						// custom properties needs to be merged in..
+						JSONObject original = new ServoyJSONObject(((AbstractBase)element).getCustomProperties(), true);
+						ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, true), original);
+						((AbstractBase)element).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
+					}
+					else if (val instanceof JSONArray && ((AbstractBase)element).getProperty(key) instanceof IChildWebObject[])
+					{
+						IChildWebObject[] webObjectChildren = (IChildWebObject[])((AbstractBase)element).getProperty(key);
+						JSONArray original = new JSONArray();
+						for (IChildWebObject element2 : webObjectChildren)
+						{
+							original.put(element2.getJson());
+						}
+						ServoyJSONObject.mergeAndDeepCloneJSON((JSONArray)val, original);
+						((AbstractBase)element).setProperty(key, original);
+					}
+					else((AbstractBase)element).setProperty(key, val);
+				}
+			}
+			element.setName(templateName);
+			elements.add(element);
 		}
 		return elements;
 	}
@@ -973,12 +936,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 		private final String uuid;
 
-		/**
-		 * @param pd
-		 * @param parentElement
-		 * @param list
-		 * @param template
-		 */
 		public FormComponentCache(INGFormElement parentElement, PropertyDescription pd, List<FormElement> list, String template)
 		{
 			this.list = list;
@@ -1005,7 +962,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			this.uuid = uuidHit;
 		}
 
-		public String getCacheUUID()
+		public String getHtmlTemplateUUIDForAngular()
 		{
 			return uuid;
 		}
