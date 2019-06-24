@@ -199,8 +199,10 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(), getCustomJSONTypeDefinition().getProperty(e.getKey()),
 					new FormElementExtension(formElement, formElementValue, getCustomJSONTypeDefinition()), component, dal);
 				if (v != null) map.put(e.getKey(), (SabloT)v);
-				else {
-					if (nullifyWholeValueIfTheValueForAnyOfTheseIsNull == null) nullifyWholeValueIfTheValueForAnyOfTheseIsNull = shouldSetFullValueToNullInFormElementToSabloValueIfTheseKeysHaveNullValues(pd);
+				else
+				{
+					if (nullifyWholeValueIfTheValueForAnyOfTheseIsNull == null)
+						nullifyWholeValueIfTheValueForAnyOfTheseIsNull = shouldSetFullValueToNullInFormElementToSabloValueIfTheseKeysHaveNullValues(pd);
 					if (nullifyWholeValueIfTheValueForAnyOfTheseIsNull.contains(e.getKey())) return null;
 				}
 			}
@@ -213,7 +215,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	{
 		// useful if for example you have columns[] in a custom component where each column is an object of properties and where if a dataprovider or component key in that is null you want that column to be completely ignored (be fully null)
 		// then you can combine array's type SKIP_NULL_ITEMS_AT_RUNTIME_CONFIG_KEY with this option (SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL) in .spec to get the desired result
-		JSONArray v = ((JSONObject)pd.getConfig()).optJSONArray(SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL);
+		JSONObject config = ((JSONObject)pd.getConfig());
+		JSONArray v = config != null ? config.optJSONArray(SET_SABLO_VALUE_TO_NULL_IF_ANY_OF_THESE_KEYS_ARE_NULL) : null;
 		Set<String> rv = new HashSet<>();
 		if (v != null) v.forEach((item) -> {
 			if (item instanceof String) rv.add((String)item);
