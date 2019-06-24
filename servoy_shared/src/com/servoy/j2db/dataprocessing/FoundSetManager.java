@@ -1640,14 +1640,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IFoundSetInternal getSeparateFoundSet(IFoundSetListener l, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
-		if (l.getDataSource() == null)
+		String dataSource = l.getDataSource();
+		if (dataSource == null)
 		{
 			return getNoTableFoundSet();
 		}
 		else
 		{
 			// make sure inmem table is created
-			getTable(l.getDataSource());
+			getTable(dataSource);
+		}
+		// if it is a view foundset then just return the view foundset datasource, its always 1 per datasource
+		if (DataSourceUtils.getViewDataSourceName(dataSource) != null)
+		{
+			ViewFoundSet vfs = viewFoundSets.get(dataSource);
+			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
+				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasourcs.view.xxx.getFoundSet() first before showing a form");
+			return vfs;
 		}
 		FoundSet foundset = null;
 		if (l.getSharedFoundsetName() != null)
@@ -1665,7 +1674,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		if (foundset == null)
 		{
-			foundset = createSeparateFoundset(l.getDataSource(), l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, defaultSortColumns);
+			foundset = createSeparateFoundset(dataSource, l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, defaultSortColumns);
 		}
 		return foundset;
 	}
