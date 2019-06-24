@@ -177,7 +177,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 	private boolean shouldSkipNullItemsInFormElementToSabloValueConversion(PropertyDescription pd)
 	{
-		return ((JSONObject)pd.getConfig()).optBoolean(SKIP_NULL_ITEMS_AT_RUNTIME_CONFIG_KEY, false);
+		JSONObject config = ((JSONObject)pd.getConfig());
+		return config != null ? config.optBoolean(SKIP_NULL_ITEMS_AT_RUNTIME_CONFIG_KEY, false) : false;
 	}
 
 	@Override
