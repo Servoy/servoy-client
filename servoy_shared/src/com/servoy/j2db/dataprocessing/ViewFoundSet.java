@@ -284,7 +284,17 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		for (IQuerySelectValue selectValue : select.getColumns())
 		{
-			select.getRealColumn(selectValue).ifPresent(realColumn -> columnNames.put(realColumn, selectToName.get(selectValue)));
+			IQuerySelectValue col;
+			Optional<QueryColumn> realCol = select.getRealColumn(selectValue);
+			if (realCol.isPresent())
+			{
+				col = realCol.get();
+			}
+			else
+			{
+				col = selectValue;
+			}
+			columnNames.put(col, selectToName.get(selectValue));
 		}
 	}
 
