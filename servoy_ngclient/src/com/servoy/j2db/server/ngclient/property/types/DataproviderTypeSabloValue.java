@@ -736,6 +736,27 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
+	public void checkValueForChanges(final IRecordInternal record)
+	{
+		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dataProviderID);
+		if (v == Scriptable.NOT_FOUND) v = null;
+		// check if ui converter would change the value (even if input would stay the same)
+		if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getUIConverterName() != null)
+		{
+			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
+		}
+		if (v != value && (v == null || !v.equals(value)))
+		{
+			value = v;
+			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
+			jsonValue = null;
+
+			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
+			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
+			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
+		}
+	}
+
 	@Override
 	public String toString()
 	{
