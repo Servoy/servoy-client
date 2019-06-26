@@ -121,6 +121,7 @@ public class FormLayoutStructureGenerator
 			writer.print("'");
 			boolean highSet = false;
 			JSONObject ngClass = new JSONObject();
+			String solutionStyleClasses = "";
 			if (spec != null)
 			{
 				writer.print(" svy-layoutname='");
@@ -143,9 +144,8 @@ public class FormLayoutStructureGenerator
 				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 
 				List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
-				String solutionStyleClasses = Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(
+				solutionStyleClasses = Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(
 					Collectors.joining(" "));
-				ngClass.put(solutionStyleClasses, "<showSolutionLayoutsCss<");
 				if (!containerStyleClasses.isEmpty()) writer.print(" class='" + containerStyleClasses.stream().collect(Collectors.joining(" ")) + "'");
 				if (container.getCssClasses().trim().length() > 0)
 				{
@@ -159,7 +159,11 @@ public class FormLayoutStructureGenerator
 			}
 
 			if (!highSet) ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");
-			if (ngClass.length() > 0) writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
+			if (ngClass.length() > 0)
+			{
+				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
+				writer.print(" svy-solution-layout-class='" + solutionStyleClasses + "'");
+			}
 			String title = container.getCssClasses().replaceFirst("col-", "");
 			//we should make sure the container title in the wireframe is not too long
 			if (title.length() > 20)
@@ -366,7 +370,7 @@ public class FormLayoutStructureGenerator
 	 * @param cssClasses that are set on the current container
 	 * @return the css classes which are also in the spec
 	 */
-	private static List<String> getStyleClassValues(WebLayoutSpecification spec, String cssClasses)
+	public static List<String> getStyleClassValues(WebLayoutSpecification spec, String cssClasses)
 	{
 		List<String> result = new ArrayList<String>();
 		String[] classes = cssClasses.split(" ");
