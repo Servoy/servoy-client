@@ -706,6 +706,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					catch (Exception ex)
 					{
 						Debug.error(ex);
+						// just set the value to the newValue so we dont loose the input of the user (maybe only the other time part, like minutes)
+						value = newValue;
 					}
 				}
 				else value = newValue;
