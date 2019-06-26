@@ -59,7 +59,7 @@ public class ComponentFactory
 
 				// so find the 'root' form component component persist and get it's access rights; this should always be found!
 				String formComponentName = feName.substring(0, feName.indexOf('$'));
-				for (IPersist p : form.getAllObjectsAsList())
+				for (IPersist p : form.getFlattenedFormElementsAndLayoutContainers())
 				{
 					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
 					{

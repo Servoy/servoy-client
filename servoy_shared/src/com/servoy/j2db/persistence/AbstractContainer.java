@@ -396,9 +396,8 @@ public abstract class AbstractContainer extends AbstractBase
 	}
 
 	/**
-	 * Flatten this containers containment hierarchy into a list and return it sorted if the given comparator is not null.
-	 * @param comparator
-	 * @return
+	 * Flatten this container's containment hierarchy into a list and return it sorted if the given comparator is not null.
+	 * This is useful if you want to iterate over all nested components/layouts in responsive forms.
 	 */
 	public List<IFormElement> getFlattenedObjects(Comparator< ? super IFormElement> comparator)
 	{
