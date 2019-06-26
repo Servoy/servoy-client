@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -695,10 +696,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				{
 					try
 					{
-						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
-							dataAdapterList.getApplication().getLocale(), true);
+						Locale locale = dataAdapterList.getApplication().getLocale();
+						if (locale == null) locale = Locale.getDefault(Locale.Category.FORMAT);
+						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
 						formatter.setOriginal((Date)oldValue);
-						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(newValue));
+						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
 						value = formatter.getMergedDate();
 					}
 					catch (Exception ex)
