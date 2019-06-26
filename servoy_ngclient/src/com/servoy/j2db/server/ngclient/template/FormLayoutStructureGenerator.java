@@ -121,6 +121,7 @@ public class FormLayoutStructureGenerator
 			writer.print("'");
 			boolean highSet = false;
 			JSONObject ngClass = new JSONObject();
+			String layoutStyleClasses = "";
 			String solutionStyleClasses = "";
 			if (spec != null)
 			{
@@ -146,7 +147,11 @@ public class FormLayoutStructureGenerator
 				List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
 				solutionStyleClasses = Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(
 					Collectors.joining(" "));
-				if (!containerStyleClasses.isEmpty()) writer.print(" class='" + containerStyleClasses.stream().collect(Collectors.joining(" ")) + "'");
+				if (!containerStyleClasses.isEmpty())
+				{
+					layoutStyleClasses = containerStyleClasses.stream().collect(Collectors.joining(" "));
+					writer.print(" class='" + layoutStyleClasses + "'");
+				}
 				if (container.getCssClasses().trim().length() > 0)
 				{
 					writtenAttributes.add("class");
@@ -155,15 +160,20 @@ public class FormLayoutStructureGenerator
 				{
 					ngClass.put("drop_highlight", "<canContainDraggedElement('" + spec.getPackageName() + "." + spec.getName() + "')<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
-
 			}
 
 			if (!highSet) ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");
 			if (ngClass.length() > 0)
 			{
 				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
+
+			}
+			if (writtenAttributes.contains("class"))
+			{
+				writer.print(" svy-layout-class='" + layoutStyleClasses + "'");
 				writer.print(" svy-solution-layout-class='" + solutionStyleClasses + "'");
 			}
+
 			String title = container.getCssClasses().replaceFirst("col-", "");
 			//we should make sure the container title in the wireframe is not too long
 			if (title.length() > 20)
