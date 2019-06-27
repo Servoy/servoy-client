@@ -95,6 +95,25 @@ public class DateTest
 				OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString() + "\"}"),
 			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		jsonWriter.object();
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD,
+			new DataConversion(), null);
+		jsonWriter.endObject();
+		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"2018-06-05T00:00\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
+
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		jsonWriter.object();
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(),
+			null);
+		jsonWriter.endObject();
+		JSONAssert.assertEquals(
+			new JSONObject("{\"mydate\" : \"2018-06-05T00:00" +
+				OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString() + "\"}"),
+			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
+
 		TimeZone default1 = TimeZone.getDefault();
 		try
 		{
@@ -182,6 +201,24 @@ public class DateTest
 		Assert.assertEquals(new Date(new Date(70, 5, 2).getTime() + 3600000),
 			NGDatePropertyType.NG_INSTANCE.fromJSON("1970-06-02T00:00" + ZoneOffset.ofTotalSeconds(
 				ZoneId.systemDefault().getRules().getOffset(new java.util.Date(70, 5, 2).toInstant()).getTotalSeconds() - 3600).toString(), false));
+
+		Assert.assertEquals(new java.sql.Date(118, 5, 5),
+			NGDatePropertyType.NG_INSTANCE.fromJSON(
+				"2018-06-05T00:00" +
+					OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(),
+				new java.sql.Date(118, 6, 6), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null, null));
+
+		Assert.assertEquals(new java.sql.Date(118, 5, 5),
+			NGDatePropertyType.NG_INSTANCE.fromJSON(
+				"2018-06-05T00:00" +
+					OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(),
+				new java.sql.Date(118, 6, 6), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null, null));
+
+		Assert.assertEquals(new java.sql.Date(118, 5, 5),
+			NGDatePropertyType.NG_INSTANCE.fromJSON(
+				"2018-06-05T00:00" +
+					OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(),
+				null, NGUtils.DATE_DATAPROVIDER_CACHED_PD, null, null));
 	}
 
 	private String stripOffsetSeconds(String dateTime)

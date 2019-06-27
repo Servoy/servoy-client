@@ -94,8 +94,17 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		if (clientConversion != null) clientConversion.convert("svy_date"); //$NON-NLS-1$
 		JSONUtils.addKeyIfPresent(writer, key);
 		String sDate;
-
-		OffsetDateTime offsetDT = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault());
+		OffsetDateTime offsetDT;
+		// java.sqlDate seems to only be created by variable assignment where we make a new sql.Date() of a js date.
+		// what the datbase returns is a question, so we can't just always assume that is also a sql date..
+		if (value instanceof java.sql.Date)
+		{
+			offsetDT = ((java.sql.Date)value).toLocalDate().atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
+		}
+		else
+		{
+			offsetDT = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault());
+		}
 		// remove time zone info from sDate if no date conversion
 		if (pd != null && hasNoDateConversion(pd))
 		{
@@ -108,7 +117,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 			{
 				String[] sDateA = sDate.split("\\+");
 				String[] offset = sDateA[1].split(":");
-				if (offset.length > 1) // seconds in offset, cut it, as it can't be handled in js
+				if (offset.length > 2) // seconds in offset, cut it, as it can't be handled in js
 				{
 					StringBuilder sDateBuilder = new StringBuilder(sDateA[0]).append('+');
 					sDateBuilder.append(offset[0]).append(':').append(offset[1]);
