@@ -1459,11 +1459,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 							ITable colTable = manager.getTable(qCol.getTable().getDataSource());
 							if (colTable != null)
 							{
-								Column column = colTable.getColumn(col.getColumn().getName());
+								Column column = colTable.getColumn(qCol.getName());
 								if (column != null)
 								{
-									newCol = table.createNewColumn(DummyValidator.INSTANCE, columnNames.get(col), column.getType(), column.getLength(),
-										column.getScale(), column.getAllowNull());
+									String colname = getColunmName(col, qCol);
+									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getType(), column.getLength(), column.getScale(),
+										column.getAllowNull());
 									if (column.getColumnInfo() != null)
 									{
 										DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
@@ -1482,8 +1483,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 								columnType = ColumnType.getColumnType(IColumnTypes.TEXT);
 							}
 
-							table.createNewColumn(DummyValidator.INSTANCE, col.getAliasOrName(), columnType.getSqlType(), columnType.getLength(),
-								columnType.getScale(), true);
+							String colname = getColunmName(col, qCol);
+
+							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType.getSqlType(), columnType.getLength(), columnType.getScale(),
+								true);
 						}
 					}
 				}
@@ -1494,6 +1497,19 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 		}
 		return table;
+	}
+
+	/**
+	 * @param col
+	 * @param qCol
+	 * @return
+	 */
+	private String getColunmName(IQuerySelectValue col, QueryColumn qCol)
+	{
+		String colname = columnNames.get(qCol != null ? qCol : col);
+		if (colname == null) colname = columnNames.get(col);
+		if (colname == null) colname = col.getAliasOrName();
+		return colname;
 	}
 
 	@Override
