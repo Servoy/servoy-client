@@ -27,7 +27,7 @@ public class MySQLTemplate extends ServerTemplateDefinition
 {
 	public MySQLTemplate()
 	{
-		super(new ServerConfig("new_mysql", "root", "", "jdbc:mysql://localhost/<database_name>", null, "com.mysql.jdbc.Driver", null, null, true, false, null,
-			null));
+		super(new ServerConfig("new_mysql", "root", "", "jdbc:mysql://localhost/<database_name>", null, "com.mysql.cj.jdbc.Driver", null, null, true, false,
+			null, null));
 	}
 }
