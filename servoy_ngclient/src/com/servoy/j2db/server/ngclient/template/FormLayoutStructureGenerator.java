@@ -173,24 +173,7 @@ public class FormLayoutStructureGenerator
 				writer.print(" svy-layout-class='" + layoutStyleClasses + "'");
 				writer.print(" svy-solution-layout-class='" + solutionStyleClasses + "'");
 			}
-
-			String title = container.getCssClasses().replaceFirst("col-", "");
-			//we should make sure the container title in the wireframe is not too long
-			if (title.length() > 20)
-			{
-				String[] parts = title.split(" ");
-				title = parts[0];
-				if (parts.length > 1)
-				{
-					int i = 1;
-					do
-					{
-						title += " " + parts[i++];
-					}
-					while (i < parts.length && title.length() < 20);
-				}
-			}
-			writer.print(" svy-title='" + title + "'");
+			writer.print(" svy-title='" + getLayouContainerTitle(container) + "'");
 		}
 		else
 		{
@@ -419,6 +402,27 @@ public class FormLayoutStructureGenerator
 		}
 
 		return result;
+	}
+
+	public static String getLayouContainerTitle(LayoutContainer container)
+	{
+		String title = container.getCssClasses().replaceFirst("col-", "");
+		//we should make sure the container title in the wireframe is not too long
+		if (title.length() > 20)
+		{
+			String[] parts = title.split(" ");
+			title = parts[0];
+			if (parts.length > 1)
+			{
+				int i = 1;
+				do
+				{
+					title += " " + parts[i++];
+				}
+				while (i < parts.length && title.length() < 20);
+			}
+		}
+		return title;
 	}
 
 //	/**
