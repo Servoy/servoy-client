@@ -13,9 +13,12 @@ body {
 	color:@text-color;
 }
 
+html, body {
+	font-size: @text-font-size;
+}
+
 *, body {
 	font-family: @font-family;
-	font-size: @text-font-size;
 }
 
 :focus {
@@ -1390,6 +1393,11 @@ data-servoyextra-fontawesome > div {
 .svy-table.no-border,
 .bts-table.no-border {
 	border: none;
+}
+
+.svy-table.no-border thead,
+.bts-table.no-border thead {
+	border: 0px;
 }
 
 .bts-table thead,
