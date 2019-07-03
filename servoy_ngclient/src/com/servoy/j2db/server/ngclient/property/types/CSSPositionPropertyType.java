@@ -21,7 +21,6 @@ import java.awt.Point;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
@@ -243,9 +242,15 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	{
 		if (javaValue instanceof CSSPosition)
 		{
-			JSONStringer writer = new JSONStringer();
-			toJSON(writer, null, (CSSPosition)javaValue, pd, null, (FormElement)null);
-			return new JSONObject(writer.toString());
+			CSSPosition cssPosition = (CSSPosition)javaValue;
+			JSONObject json = new JSONObject();
+			json.put("top", cssPosition.top);
+			json.put("left", cssPosition.left);
+			json.put("bottom", cssPosition.bottom);
+			json.put("right", cssPosition.right);
+			json.put("width", cssPosition.width);
+			json.put("height", cssPosition.height);
+			return json;
 		}
 		return javaValue;
 	}
