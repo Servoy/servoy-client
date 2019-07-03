@@ -64,9 +64,13 @@ public interface IServerManagerInternal extends IServerManager
 
 	String getLogServerName();
 
+	String getLogTableName();
+
 	void testServerConfigConnection(ServerConfig serverConfig, int i) throws Exception;
 
 	void setLogServerName(String currentServerName);
+
+	void setLogTableName(String tableName);
 
 	void saveServerConfig(String oldServerName, ServerConfig serverConfig) throws RepositoryException;
 
