@@ -353,53 +353,7 @@ public class FormLayoutGenerator
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			String style = "";
-			if (form.getUseCssPosition().booleanValue() || CSSPosition.isInAbsoluteLayoutMode(bc))
-			{
-				if (designId != null)
-				{
-					// this should be in sync with servoy_app.ts applyBeanData for css pos layout
-					CSSPosition position = bc.getCssPosition();
-					if (CSSPosition.isSet(position.left))
-					{
-						style += "left:" + getCSSValue(position.left) + ";";
-					}
-					if (CSSPosition.isSet(position.top))
-					{
-						style += "top:" + getCSSValue(position.top) + ";";
-					}
-					if (CSSPosition.isSet(position.bottom))
-					{
-						style += "bottom:" + getCSSValue(position.bottom) + ";";
-					}
-					if (CSSPosition.isSet(position.right))
-					{
-						style += "right:" + getCSSValue(position.right) + ";";
-					}
-					if (CSSPosition.isSet(position.width))
-					{
-						if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
-						{
-							style += "min-width:" + getCSSValue(position.width) + ";";
-						}
-						else
-						{
-							style += "width:" + getCSSValue(position.width) + ";";
-						}
-					}
-					if (CSSPosition.isSet(position.height))
-					{
-						if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
-						{
-							style += "min-height:" + getCSSValue(position.height + ";");
-						}
-						else
-						{
-							style += "height:" + getCSSValue(position.height) + ";";
-						}
-					}
-				}
-			}
-			else
+			if (!form.getUseCssPosition().booleanValue() && !CSSPosition.isInAbsoluteLayoutMode(bc))
 			{
 				int anchors = bc.getAnchors();
 				if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))

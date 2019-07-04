@@ -225,8 +225,14 @@ public class FormWrapper
 						{
 							formComponentsLayout.put(element.getName(), Boolean.TRUE);
 						}
-						if (frm.getUseCssPosition() && !formComponentCSSPositionElementNames.containsKey(element.getName()))
-							formComponentCSSPositionElementNames.put(element.getName(), Boolean.TRUE);
+						if (frm.getUseCssPosition())
+						{
+							String name = element.getDesignId() != null ? element.getDesignId() : element.getName();
+							if (!formComponentCSSPositionElementNames.containsKey(name))
+							{
+								formComponentCSSPositionElementNames.put(name, Boolean.TRUE);
+							}
+						}
 						checkFormComponents(components, element);
 					}
 					formComponentTemplates.put(cache.getHtmlTemplateUUIDForAngular(), cache.getTemplate());
@@ -404,7 +410,8 @@ public class FormWrapper
 		{
 			if (form.getUseCssPosition() || CSSPosition.isInAbsoluteLayoutMode(persist))
 			{
-				String name = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design).getName();
+				FormElement formElement = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design);
+				String name = formElement.getDesignId() != null ? formElement.getDesignId() : formElement.getName();
 				if (!names.containsKey(name)) names.put(name, Boolean.TRUE);
 			}
 		}
