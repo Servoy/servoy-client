@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Unit tests for servoy_ngclient bundle
 Bundle-SymbolicName: servoy_ngclient.tests
-Bundle-Version: 2019.6.0.3501_rc2
+Bundle-Version: 2019.6.0.3502
 Bundle-Vendor: Servoy
 Fragment-Host: servoy_ngclient
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
