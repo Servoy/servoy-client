@@ -826,7 +826,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				svyFormComponent: "=svyFormComponent",
 				foundset: "=foundset",
 				responsivePageSize: "=responsivePageSize",
-				pageLayout: "=pageLayout"
+				pageLayout: "=pageLayout",
+				selectionClass: "=selectionClass"
 			},
 			link: function( scope: any, element, attrs ) {
 				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
@@ -890,6 +891,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							createRows();
 						}
 					}
+
+					scope.onRowClick = function(index) {
+						scope.foundset.requestSelectionUpdate([index]);
+					}
+
 					const parent = element.parent();
                     const rowToModel: Array<servoy.IServoyScope> = [];
 					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1'><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
@@ -933,7 +939,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
                         	scope.foundset.loadRecordsAsync(startIndex, numberOfCells);
                         } else {
 						    destroyScopes(rowToModel);
-						    parent.children("[svy-form-component]" ).remove();
+						    parent.children("[svy-form-component-clone]" ).remove();
 	                        const maxRows = Math.min(numberOfCells, scope.foundset.viewPort.rows.length);
 	                        for ( let i = 0; i < maxRows; i++ ) {
 	                        	createRow(i, true);
@@ -1060,6 +1066,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.createdChildElements = 0;
 						
 						const clone = element.clone();
+						clone.attr("svy-form-component-clone", clone.attr("svy-form-component"));
+						clone.removeAttr("svy-form-component");
+						clone.attr("ng-click", "onRowClick(" + (scope.foundset.viewPort.startIndex + index) + ")");
+						$compile(clone)(scope);
 						
 						// pager div is the first div in parent; form component divs follow starting at index 1
 						if (rowToModel.length - 1 == index) {
@@ -1087,6 +1097,29 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					}
 				
+					function updateSelection(newValue, oldValue?) {
+						let children = parent.children();
+						if(oldValue) {
+							for(let k = 0; k < oldValue.length; k++) {
+								let idx = oldValue[k] - scope.foundset.viewPort.startIndex;
+								if(idx > -1 && idx < children.length - 1) {
+									$(parent.children()[idx + 1]).removeClass(scope.selectionClass);
+								}
+							}
+						}
+						else {
+							for(let k = 1; k < children.length; k++) {
+								$(parent.children()[k]).removeClass(scope.selectionClass);
+							}
+						}
+						for(let k = 0; k < newValue.length; k++) {
+							let idx = newValue[k] - scope.foundset.viewPort.startIndex;
+							if(idx > -1 && idx < children.length - 1) {
+								$(parent.children()[idx + 1]).addClass(scope.selectionClass);
+							}
+						}						
+					}
+
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
 						&& scope.svyFormComponent && scope.svyFormComponent.childElements ) {
 						element.empty();
@@ -1172,8 +1205,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 									
 									getFoundset().notifyChanged();
 								}
+								if(scope.selectionClass) {
+									updateSelection(getFoundset().selectedRowIndexes);
+								}
 							}
 							
+							if(changes.selectedRowIndexesChanged && scope.selectionClass) {
+								updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
+							}
+
 							// TODO any other types of changes that need handling here?
 						});
 
