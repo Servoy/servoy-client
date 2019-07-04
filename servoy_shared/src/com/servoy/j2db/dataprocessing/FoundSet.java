@@ -5546,9 +5546,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
 						}
 
-						for (IFoundSetEventListener element : array)
+						// make sure that all the foundset events are completely handled
+						// and then the events that are triggered by those are done
+						FireCollector fireCollector = FireCollector.getFireCollector();
+						try
 						{
-							element.foundSetChanged(e);
+							for (IFoundSetEventListener element : array)
+							{
+								element.foundSetChanged(e);
+							}
+						}
+						finally
+						{
+							fireCollector.done();
 						}
 					}
 				}
