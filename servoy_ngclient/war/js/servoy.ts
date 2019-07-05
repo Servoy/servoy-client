@@ -832,6 +832,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			link: function( scope: any, element, attrs ) {
 				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
 				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
+				let handlers = scope.$parent.handlers;
 				if ( svyServoyApi.isInDesigner() ) {
 					// in designer just show it as a normal form component
 					const newValue = scope.svyFormComponent
@@ -1117,7 +1118,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							if(idx > -1 && idx < children.length - 1) {
 								$(parent.children()[idx + 1]).addClass(scope.selectionClass);
 							}
-						}						
+						}
 					}
 
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
@@ -1210,10 +1211,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								}
 							}
 							
-							if(changes.selectedRowIndexesChanged && scope.selectionClass) {
-								updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
+							if(changes.selectedRowIndexesChanged) {
+								if(scope.selectionClass) {
+									updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
+								}
+								if(handlers && handlers.onSelectionChanged) {
+									var e = {target: parent[0]};
+									handlers.onSelectionChanged($utils.createJSEvent(e,"onselectionchanged"));
+								}
 							}
-
 							// TODO any other types of changes that need handling here?
 						});
 
