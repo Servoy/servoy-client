@@ -73,6 +73,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
 	private boolean isUUID = false;
+	private boolean isNativetype = false;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -1155,6 +1156,22 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void setUUIDFlag(boolean isUUID)
 	{
 		this.isUUID = isUUID;
+	}
+
+	/**
+	 * @return the isNativetype
+	 */
+	public boolean isNativetype()
+	{
+		return isNativetype;
+	}
+
+	/**
+	 * @param isNativetype the isNativetype to set
+	 */
+	public void setNativetypeFlag(boolean isNativetype)
+	{
+		this.isNativetype = isNativetype;
 	}
 
 	private transient String note;//used to show temp tooltip text when hovering over
