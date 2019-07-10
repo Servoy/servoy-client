@@ -639,4 +639,16 @@ public class String
 	{
 		return null;
 	}
+	
+	/**
+	 * Determines whether one string may be found within another string.
+	 *
+	 * @sample string.includes('foo');
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+	 */
+	public String js_includes()
+	{
+		return null;
+	}
 }
