@@ -349,8 +349,14 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 
 					internalState.requests = [];
-					$sabloDeferHelper.initInternalStateForDeferring(internalState, "svy foundset * ");
-					
+					if (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL])
+					{	
+						$sabloDeferHelper.initInternalStateForDeferringFromOldInternalState(internalState, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
+					}
+					else
+					{
+						$sabloDeferHelper.initInternalStateForDeferring(internalState, "svy foundset * ");
+					}	
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
 					$viewportModule.updateAllConversionInfo(rows, internalState, newValue[VIEW_PORT][$sabloConverters.TYPES_KEY] ? newValue[VIEW_PORT][$sabloConverters.TYPES_KEY][ROWS] : undefined);
 					if (newValue[VIEW_PORT][$sabloConverters.TYPES_KEY]) {
