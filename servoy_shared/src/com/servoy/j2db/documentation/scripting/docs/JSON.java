@@ -28,7 +28,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "JSON", scriptingName = "JSON")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class JSON
 {
 	/**

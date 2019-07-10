@@ -27,7 +27,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeComponent;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "elements", scriptingName = "elements")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class FormElements
 {
 	/**
