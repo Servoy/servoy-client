@@ -16,6 +16,7 @@
 	<properties>
 		<workspace_dir>${project.build.directory}/ws</workspace_dir>
 		<servoy-local.url>${project.baseUri}/target/repository/</servoy-local.url>
+		<doc.version>1.5.0</doc.version>
 	</properties>
 
 	<build>
@@ -36,7 +37,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>com.servoy.eclipse.docgenerator.client.product</artifactId>
-									<version>1.4.5</version>
+									<version>${doc.version}</version>
 									<type>zip</type>
 									<outputDirectory>${project.build.directory}/repository</outputDirectory>
 								</artifactItem>
