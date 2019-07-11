@@ -1585,7 +1585,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			if (serverKeysCounter > 0) {
 				var promiseA = $sabloApplication.callService("i18nService", "getI18NMessages", serverKeys,false);
-				var promiseB = promiseA.then(function(result) {
+				var promiseB = promiseA.then(function(result:any) {
 					for(var key in result) {
 						cachedMessages[key] = result[key];
 						retValue[key] = result[key];
