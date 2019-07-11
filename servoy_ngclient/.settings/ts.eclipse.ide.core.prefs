@@ -16,3 +16,4 @@ tslintInstalledTypeScriptPath=
 tslintStrategy=DisableTslint
 tslintUseCustomTslingJsonFile=
 tslintUseEmbeddedTypeScript=true
+typeScriptBuildPath={"tsconfig.json"\:{}}
