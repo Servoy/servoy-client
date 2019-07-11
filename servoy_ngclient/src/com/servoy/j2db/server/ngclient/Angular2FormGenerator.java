@@ -43,7 +43,6 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Form;
@@ -266,8 +265,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, client.getFlattenedSolution(), null, false);
 				writer.object();
 				writer.key("name");
-				String name = o instanceof AbstractBase ? ((AbstractBase)o).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : fe.getName();
-				if (name == null) name = fe.getName();
+				String name = fe.getName();
 				writer.value(name);
 				writer.key("type");
 				if (o instanceof TabPanel)
