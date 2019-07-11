@@ -383,7 +383,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	{
 		if (key == null || key.length() == 0) return key;
 		Properties properties = getMessages(locale);
-		return getI18NMessage(key, args, properties, localeJarMessages, locale);
+		return getI18NMessage(key, args, properties, ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale), locale);
 	}
 
 	public void setI18NMessage(String key, String value)
