@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -695,15 +696,18 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				{
 					try
 					{
-						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null,
-							dataAdapterList.getApplication().getLocale(), true);
+						Locale locale = dataAdapterList.getApplication().getLocale();
+						if (locale == null) locale = Locale.getDefault(Locale.Category.FORMAT);
+						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
 						formatter.setOriginal((Date)oldValue);
-						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat()).format(newValue));
+						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
 						value = formatter.getMergedDate();
 					}
 					catch (Exception ex)
 					{
 						Debug.error(ex);
+						// just set the value to the newValue so we dont loose the input of the user (maybe only the other time part, like minutes)
+						value = newValue;
 					}
 				}
 				else value = newValue;
@@ -727,6 +731,27 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 		if (serverSideValueIsNotTheSameAsClient.value.booleanValue())
 		{
+			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
+			jsonValue = null;
+
+			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
+			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
+			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
+		}
+	}
+
+	public void checkValueForChanges(final IRecordInternal record)
+	{
+		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dataProviderID);
+		if (v == Scriptable.NOT_FOUND) v = null;
+		// check if ui converter would change the value (even if input would stay the same)
+		if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getUIConverterName() != null)
+		{
+			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
+		}
+		if (v != value && (v == null || !v.equals(value)))
+		{
+			value = v;
 			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
 			jsonValue = null;
 

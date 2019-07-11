@@ -715,7 +715,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return null;
 	}
 
-	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue, String foundsetLinkedRowID)
+	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object value, String foundsetLinkedRowID)
 	{
 		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
 
@@ -723,10 +723,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (dataProviderID == null)
 		{
 			Debug.log(
-				"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + newValue + " of component: " + webComponent);
+				"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + value + " of component: " + webComponent);
 			return;
 		}
 
+		Object newValue = value;
 		// Check security
 		webComponent.checkPropertyProtection(beanProperty);
 
@@ -786,6 +787,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			try
 			{
 				oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
+				if (value instanceof DataproviderTypeSabloValue) ((DataproviderTypeSabloValue)value).checkValueForChanges(editingRecord);
 			}
 			catch (IllegalArgumentException e)
 			{

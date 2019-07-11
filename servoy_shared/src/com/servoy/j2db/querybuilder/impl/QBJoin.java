@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.util.keyword.Ident.generateNormalizedNonReservedOSName;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +41,6 @@ import com.servoy.j2db.query.TableExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
-import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * @author rgansevles
@@ -133,7 +134,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IJoinCon
 			List<String> columNames = new ArrayList<>();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
-				columNames.add(qcol.getAlias() == null ? Ident.generateNormalizedNonReservedOSName(qcol.getColumn().getName()) : qcol.getAlias());
+				columNames.add(qcol.getAlias() == null ? generateNormalizedNonReservedOSName(qcol.getColumn().getName()) : qcol.getAlias());
 			}
 			return columNames.toArray(new String[columNames.size()]);
 		}
@@ -169,9 +170,10 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IJoinCon
 			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
-				if (name.equals(qcol.getAlias()) || name.equals(Ident.generateNormalizedNonReservedOSName(qcol.getColumn().getName())))
+				if (name.equals(qcol.getAliasOrName()) ||
+					(qcol.getColumn() != null && name.equals(generateNormalizedNonReservedOSName(qcol.getColumn().getName()))))
 				{
-					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), Ident.generateNormalizedNonReservedOSName(name)));
+					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
 				}
 			}
 		}

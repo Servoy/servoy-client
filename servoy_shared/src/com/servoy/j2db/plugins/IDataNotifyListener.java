@@ -30,7 +30,7 @@ public interface IDataNotifyListener
 	/**
 	 * @param dataSource
 	 */
-	void flushCachedDatabaseData(String dataSource, Object tenantValue);
+	void flushCachedDatabaseData(String dataSource, Object[] tenantValue);
 
 	/**
 	 * @param server_name
@@ -39,6 +39,6 @@ public interface IDataNotifyListener
 	 * @param action
 	 * @param insertColumnData
 	 */
-	void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, Object tenantValue);
+	void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, Object[] tenantValue);
 
 }

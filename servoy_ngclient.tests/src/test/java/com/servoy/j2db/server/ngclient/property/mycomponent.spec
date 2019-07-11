@@ -7,7 +7,10 @@
 	{
 		"background": {"type":"color", "pushToServer":"shallow"},
 		"objectT": "mytype007",
-		"arrayT": "mytype007[]"
+		"arrayT": "mytype007[]",
+		"arraySkipNullsAtRuntime": { "type" : "objWith3Keys[]", "skipNullItemsAtRuntime": true, "elementConfig": { "setToNullAtRuntimeIfAnyOfTheseKeysAreNull": [ "a", "c" ] } },
+		"normalArray": "objWith3Keys[]",
+		"normalArrayWithConfig": { "type": "objWith3Keys[]", "elementConfig": {} }
 	},
 	"types": {
 		"mytype007": {
@@ -21,6 +24,11 @@
 		"activeType": {
 			"field": "int",
 			"percent": "double"
+		},
+		"objWith3Keys": {
+			"a": "string",
+			"b": "int",
+			"c": "date"
 		}
 	}
 } 

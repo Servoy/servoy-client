@@ -29,8 +29,8 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jblok
  */
-public class GraphicalComponent extends BaseComponent implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia,
-	IBaseGraphicalComponent
+public class GraphicalComponent extends BaseComponent
+	implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia, IBaseGraphicalComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -237,16 +237,17 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
 	}
 
-	/**
-	 * Set the actionMethodID
-	 *
-	 * @param arg the actionMethodID
-	 */
 	public void setOnActionMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
+	/**
+	 * @templatedescription Perform the element onclick action
+	 * @templatename onClick
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 */
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
@@ -277,6 +278,11 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * The method that is executed when the component is right clicked.
+	 *
+	 * @templatedescription Perform the element on right click action
+	 * @templatename onRightClick
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
 	 */
 	public int getOnRightClickMethodID()
 	{

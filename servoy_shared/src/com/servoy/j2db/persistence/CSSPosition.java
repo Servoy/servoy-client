@@ -35,6 +35,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class CSSPosition implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	public String top;
 	public String left;
 	public String bottom;
@@ -456,7 +458,7 @@ public class CSSPosition implements Serializable
 		return false;
 	}
 
-	private static AbstractContainer getParentContainer(BaseComponent component)
+	public static AbstractContainer getParentContainer(BaseComponent component)
 	{
 		IPersist currentComponent = component;
 		while (currentComponent != null)

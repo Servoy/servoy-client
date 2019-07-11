@@ -34,6 +34,7 @@ import com.servoy.base.dataprocessing.BaseSQLGenerator;
 import com.servoy.base.dataprocessing.ITypeConverter;
 import com.servoy.base.dataprocessing.IValueConverter;
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
@@ -1013,20 +1014,10 @@ public class SQLGenerator
 					for (int i = 0; i < columns.size(); i++)
 					{
 						IQuerySelectValue col = columns.get(i);
-						BaseQueryColumn qcol = col.getColumn();
-						String colname;
-						if (col.getAlias() == null)
-						{
-							colname = qcol == null ? col.toString() : qcol.getName();
-						}
-						else
-						{
-							colname = col.getAlias();
-						}
-
-						columnNames[i] = colname;
-						columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0)
-							: ColumnType.getInstance(qcol.getColumnType().getSqlType(), qcol.getColumnType().getLength(), qcol.getColumnType().getScale());
+						columnNames[i] = col.getAliasOrName();
+						BaseColumnType columnType = col.getColumnType();
+						columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0)
+							: ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale());
 					}
 
 					return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);

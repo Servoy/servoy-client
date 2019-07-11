@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
@@ -74,6 +73,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
 	private boolean isUUID = false;
+	private boolean isNativetype = false;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -457,7 +457,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 				case INTEGER :
 					if (obj instanceof Integer) return obj;
-					if (obj instanceof Long) return obj;
 					if ("".equals(obj)) return null;
 
 					long asLong = Utils.getAsLong(obj, throwOnFail);
@@ -661,12 +660,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				default :
 					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
 					{
-						Object tenantValue = application.getTenantValue();
-						if (tenantValue != null && tenantValue.getClass().isArray() && Array.getLength(tenantValue) > 0)
+						Object[] tenantValue = application.getTenantValue();
+						if (tenantValue != null && tenantValue.length > 0)
 						{
-							tenantValue = Array.get(tenantValue, 0);
+							return tenantValue[0];
 						}
-						return tenantValue;
 					}
 					return null;
 			}
@@ -1157,6 +1155,22 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void setUUIDFlag(boolean isUUID)
 	{
 		this.isUUID = isUUID;
+	}
+
+	/**
+	 * @return the isNativetype
+	 */
+	public boolean isNativetype()
+	{
+		return isNativetype;
+	}
+
+	/**
+	 * @param isNativetype the isNativetype to set
+	 */
+	public void setNativetypeFlag(boolean isNativetype)
+	{
+		this.isNativetype = isNativetype;
 	}
 
 	private transient String note;//used to show temp tooltip text when hovering over

@@ -27,7 +27,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Globals", scriptingName = "globals")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class Globals
 {
 	/**

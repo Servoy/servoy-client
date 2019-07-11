@@ -14,6 +14,7 @@
 	        "borderType" : { "type" : "border", "stringformat" : true }, 
 	        "childElements" : { "type" : "component[]", "pushToServer" : "allow",
 	        					"tags" : { "scope" : "private" },
+	        					"skipNullItemsAtRuntime" : true,
 								"elementConfig" : {
 									"forFoundset" : "relatedFoundset",
 									"tags" : { "addToElementsScope" : "true" }

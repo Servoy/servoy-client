@@ -357,6 +357,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		uuidToPersist.put(item.getUUID().toString(), item);
 		IntHashMap<IPersist> cacheById = idToPersist.get(item.getClass());
 		// changed item should be in the cache..
+		if (cacheById == null)
+		{
+			// solution deserizalier seems to fire changed also for new?
+			cacheById = new IntHashMap<>();
+			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(item.getClass(), cacheById);
+			if (currentValue != null) cacheById = currentValue;
+		}
 		synchronized (cacheById)
 		{
 			cacheById.put(item.getID(), item);

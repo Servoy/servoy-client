@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
@@ -686,6 +687,12 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 	@Override
 	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
+	{
+		return null;
+	}
+
+	@Override
+	public ISQLSelect getQuerySelectForReading()
 	{
 		return null;
 	}

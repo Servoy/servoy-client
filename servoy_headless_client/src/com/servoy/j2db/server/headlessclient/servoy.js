@@ -593,8 +593,8 @@ function eventCallback(el, strEvent, callbackUrl, event)
 function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 {	
 	if(strEvent == "blur")
-	{
-		if(el === wicketReplacedElementInSafari) // element was replaced by wicket
+	{ 
+		if(el && wicketReplacedElementInSafari && $(el).closest(wicketReplacedElementInSafari).length) // element was replaced by wicket
 		{
 			return true;
 		}	
@@ -918,7 +918,7 @@ if (typeof(Servoy.TableView) == "undefined")
 		keepLoadedRows : false,
 		topPhHeight: new Array(),
 		scrollCallback: new Array(),
-		selectIndexTimer:null,
+		selectIndexTimer:{},
 
 		clearDisplayNone: function(tableBody, id) {
 		    // see WebCellBasedView.displayNoneUntilAfterRender (sets display: none initially to avoid a flicker)
@@ -1097,8 +1097,9 @@ if (typeof(Servoy.TableView) == "undefined")
 		
 		scrollRowIntoView : function (rowContainerBodyId, delay, rowTopPos, rowHeight, clearDisplayNone) {
 			delay = (typeof delay !== 'undefined' ? delay : 1000);
-			if (Servoy.TableView.selectIndexTimer) clearTimeout(Servoy.TableView.selectIndexTimer);
-			Servoy.TableView.selectIndexTimer = setTimeout(function () {
+			if (Servoy.TableView.selectIndexTimer[rowContainerBodyId]) clearTimeout(Servoy.TableView.selectIndexTimer[rowContainerBodyId]);
+			Servoy.TableView.selectIndexTimer[rowContainerBodyId] = setTimeout(function () {
+					delete Servoy.TableView.selectIndexTimer[rowContainerBodyId];
     			    var tableBody = $('#' + rowContainerBodyId);
     			    var minSpaceFromEdge = 15;
     			    if (clearDisplayNone) Servoy.TableView.clearDisplayNone(tableBody);
@@ -1184,7 +1185,9 @@ if (typeof(Servoy.TableView) == "undefined")
 				callbackUrl+'&topPh='+newValue,
 				null,
 				function() { onAjaxError(); }.bind(scrollEl),
-				function() { return Wicket.$(scrollEl.id) != null; }.bind(scrollEl)
+				function() {
+					return scrollEl && (Wicket.$(scrollEl.id) != null);
+				}.bind(scrollEl)
 			);
 		}
 	};

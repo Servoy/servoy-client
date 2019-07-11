@@ -135,6 +135,11 @@ public interface ITable
 	/**
 	 * @return
 	 */
+	public List<Column> getTenantColumns();
+
+	/**
+	 * @return
+	 */
 	public Iterator<Column> getColumnsSortedByName();
 
 	/**

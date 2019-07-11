@@ -18,12 +18,11 @@ package com.servoy.j2db.persistence;
 
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -140,7 +139,7 @@ public class I18NUtil
 						(autoEnterSubType != ColumnInfo.DATABASE_IDENTITY);
 				}
 
-				ArrayList<Column> tenantColumns = getTenantColumns(i18NTable);
+				List<Column> tenantColumns = i18NTable.getTenantColumns();
 
 				Iterator<Map.Entry<String, MessageEntry>> messagesIte = messages.entrySet().iterator();
 				Map.Entry<String, MessageEntry> messageEntry;
@@ -312,7 +311,7 @@ public class I18NUtil
 				sql.addColumn(msgVal);
 
 				//Filter to only include records with the default (null) value for columns flagged as Tenant column
-				for (Column column : getTenantColumns(i18NTable))
+				for (Column column : i18NTable.getTenantColumns())
 				{
 					QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
 						column.getScale(), column.getFlags());
@@ -352,20 +351,4 @@ public class I18NUtil
 
 		return sortedMessages;
 	}
-
-	public static ArrayList<Column> getTenantColumns(Table i18NTable)
-	{
-		Collection<Column> columns = i18NTable.getColumns();
-		ArrayList<Column> tenantColumns = new ArrayList<Column>();
-		for (Column column : columns)
-		{
-			if (column.hasFlag(IBaseColumn.TENANT_COLUMN))
-			{
-				tenantColumns.add(column);
-			}
-		}
-
-		return tenantColumns;
-	}
-
 }

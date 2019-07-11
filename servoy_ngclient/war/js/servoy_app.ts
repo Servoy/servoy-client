@@ -189,6 +189,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				delete beanLayout.display;
 			}
 		}
+		
+		if (beanData.cssPosition && !useAnchoring) {
+			angular.copy(beanData.cssPosition,beanLayout); 
+		}
 	}
 
 	

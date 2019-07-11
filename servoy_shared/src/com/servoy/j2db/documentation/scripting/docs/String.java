@@ -26,7 +26,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "String", scriptingName = "String")
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class String
 {
 	/**
@@ -636,6 +636,18 @@ public class String
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/toUpperCase
 	 */
 	public String js_toUpperCase()
+	{
+		return null;
+	}
+	
+	/**
+	 * Determines whether one string may be found within another string.
+	 *
+	 * @sample string.includes('foo');
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+	 */
+	public String js_includes()
 	{
 		return null;
 	}

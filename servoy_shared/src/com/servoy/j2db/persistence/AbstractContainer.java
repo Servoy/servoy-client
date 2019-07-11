@@ -396,9 +396,8 @@ public abstract class AbstractContainer extends AbstractBase
 	}
 
 	/**
-	 * Flatten this containers containment hierarchy into a list and return it sorted if the given comparator is not null.
-	 * @param comparator
-	 * @return
+	 * Flatten this container's containment hierarchy into a list and return it sorted if the given comparator is not null.
+	 * This is useful if you want to iterate over all nested components/layouts in responsive forms.
 	 */
 	public List<IFormElement> getFlattenedObjects(Comparator< ? super IFormElement> comparator)
 	{
@@ -468,21 +467,4 @@ public abstract class AbstractContainer extends AbstractBase
 		return null;
 	}
 
-	public ArrayList<IPersist> getSortedChildren()
-	{
-		ArrayList<IPersist> children = new ArrayList<IPersist>();
-		Iterator<IPersist> it = getAllObjects();
-		while (it.hasNext())
-		{
-			IPersist p = it.next();
-			if (p instanceof ISupportBounds)
-			{
-				children.add(p instanceof IFlattenedPersistWrapper ? ((IFlattenedPersistWrapper< ? >)p).getWrappedPersist() : p);
-			}
-		}
-		IPersist[] sortedChildArray = children.toArray(new IPersist[0]);
-		Arrays.sort(sortedChildArray, PositionComparator.XY_PERSIST_COMPARATOR);
-		children = new ArrayList<IPersist>(Arrays.asList(sortedChildArray));
-		return children;
-	}
 }

@@ -186,7 +186,7 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 	 *
 	 * @return Object the tenant value
 	 */
-	public Object getTenantValue();
+	public Object[] getTenantValue();
 
 	/**
 	 * Get the client's locale.

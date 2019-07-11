@@ -262,7 +262,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @sample
 	 * // make sure the subquery returns exactly 1 value.
 	 * // select (select max from othertab where val = 'test') from tab
-	 * query.result.addSubSelect("select max from othertab where val = ?", ["test"]);
+	 * query.result.addSubSelect("select max(field) from othertab where val = ?", ["test"]);
 	 *
 	 * @param customQuery query to add to result
 	 * @param args arguments to the query

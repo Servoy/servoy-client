@@ -336,7 +336,8 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 							svyRightClick: headerRightClick,
 							svyDoubleClick: headerDblClick,
 							type: "string", // just put a type here, we don't know the type and we dont use the edit feature of ui-grid
-							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
+							svyColumnHeaderIndex: el.componentIndex ? el.componentIndex : idx, // if form security makes some of the columns not visible, those are not sent at all in childElements; then indexes in headers array and childElements array might not match, that is why el.componentIndex is used 
+							svyColumnIndex: idx
 						});
 						applyColumnTitle($scope.columnDefinitions[newL - 1], columnTitle);
 						updateColumnDefinition($scope, idx);
@@ -425,11 +426,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					}
 				}
 				
-				$scope.gridApi.grid.refreshCanvas(true).then(function() {
-					// make sure the columns are all rendered that are in the viewport (SVY-8638)
-					$scope.gridApi.grid.redrawInPlace();
-				})
-				
+				$scope.gridApi.grid.refresh(false);				
 			}			
 			
 			
@@ -477,7 +474,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					}
 				}, false);				
 
-				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnIndex ? scope.columnDefinitions[idx].svyColumnIndex : idx;
+				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnHeaderIndex ? scope.columnDefinitions[idx].svyColumnHeaderIndex : idx;
 				// NOTE: below !scope.model.headers[columnHeaderIdx] is also true for !"" - in case html or tastrings are used for columnHeaders
 				if (!scope.model.headers || columnHeaderIdx >= scope.model.headers.length || !scope.model.headers[columnHeaderIdx].model.text) {
 					// that means component titleText matters for headers
@@ -1284,7 +1281,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					// this is needed because Safari's elastic scrolling : when scrolling down and reaching the bottom,
 					// the scroll bounces up, firing a 'scroll up' event, that is not handled by ui-grid, those not loading
 					// possible additional rows
-					if(!$scope.gridApi.grid.infiniteScroll.dataLoading) {
+					if(!$scope.gridApi.grid.infiniteScroll.dataLoading && e.y) {
 						var targetPercentage = $scope.gridApi.grid.options.infiniteScrollRowsFromEnd / $scope.gridApi.grid.renderContainers.body.visibleRowCache.length;
 			            var percentage = 1 - e.y.percentage;
 			            if (percentage <= targetPercentage){

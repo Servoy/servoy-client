@@ -121,6 +121,10 @@ angular.module('window',['servoy'])
 		 */
 		showFormPopup : function(component,form,width,height,x,y,showBackdrop)
 		{
+			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
+				$( "#mainForm" ).trigger( "disableTabseq" );
+			}
+
 			$formService.formWillShow(form, true);
 			scope.getFormUrl = function(){
 				return $windowService.getFormUrl(form);
@@ -131,7 +135,7 @@ angular.module('window',['servoy'])
 			}
 			
 			scope.firstElementFocused =  function( e ) {
-				var tabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
+				var tabIndex = parseInt( this.popupElement.closest( '#tabStop' ).attr( 'tabindex' ) );
 				$( '[tabindex=' + ( tabIndex - 1 ) + ']' ).focus();
 			}
 			
@@ -297,6 +301,8 @@ angular.module('window',['servoy'])
 					body.append('<div class="formpopup-backdrop modal-backdrop fade in" style="z-index:1498"></div>');
 				}
 				body.append(popup);
+				popup.closest( '#tabStart' ).focus();
+
 		 }, function()
 		 {
 			 $log.error('Cannot show form popup, the related element is not visible: form name "'+form+'".');
@@ -334,6 +340,9 @@ angular.module('window',['servoy'])
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && backdrop.length) {
 				backdrop.remove();
+			}
+			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
+				$( "#mainForm" ).trigger( "enableTabseq" );
 			}
 		},
 		generateMenu: function(items,oMenu)

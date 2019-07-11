@@ -153,16 +153,16 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		{
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
+		String prefix = FormElementHelper.getStartElementName(webFormComponent.getFormElement(), pd);
 		for (FormElement fe : cache.getFormComponentElements())
 		{
-			String name = fe.getPersistIfAvailable() instanceof AbstractBase
-				? ((AbstractBase)fe.getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_TEMPLATE_NAME) : null;
+			String name = fe.getName();
 			if (name != null && !name.startsWith(FormElement.SVY_NAME_PREFIX))
 			{
 				RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(fe.getRawName());
 				if (webComponent != null)
 				{
-					newObject.put(name, newObject, webComponent);
+					newObject.put(name.substring(prefix.length()), newObject, webComponent);
 				}
 			}
 		}
@@ -186,10 +186,10 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		Form form = getForm(formElementValue, fs);
 		if (form != null)
 		{
+			JSONUtils.addKeyIfPresent(writer, key);
 			// we output here a uuid that is a uuid that must be used to get the compiled template from the $formcomponentCache
-			writer.key(key);
 			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
-				fs).getCacheUUID();
+				fs).getHtmlTemplateUUIDForAngular();
 			writer.object();
 			writer.key("uuid");
 			writer.value(uuid);
@@ -204,11 +204,6 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		return writer;
 	}
 
-	/**
-	 * @param formElementValue
-	 * @param fs
-	 * @return
-	 */
 	public Form getForm(Object formElementValue, FlattenedSolution fs)
 	{
 		Object formId = formElementValue;
@@ -259,7 +254,10 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 				{
 					WebFormComponent child = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
 						dataAdapterList.getForm().getForm());
-					formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
+					if (child != null)
+					{
+						formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
+					}
 				}
 			}
 		}

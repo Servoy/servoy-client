@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -263,6 +264,117 @@ public class CustomArrayAndObjectPropertyRhinoTest
 		{
 			Context.exit();
 		}
+	}
+
+	@Test
+	public void testSkipNullAndSetToNullIfKeys() throws JSONException
+	{
+		WebComponent component = new WebComponent("mycomponent", "testComponentName");
+		PropertyDescription arraySkipNullsAtRuntimePD = component.getSpecification().getProperty("arraySkipNullsAtRuntime");
+
+		assertNull(component.getProperty("arraySkipNullsAtRuntime"));
+		List<Map<String, Object>> javaV = new ArrayList<>();
+		HashMap<String, Object> hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 1");
+		hm.put("b", Integer.valueOf(1));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		javaV.add(null); // to sablo conversion should skip this index completely
+		hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 2");
+		hm.put("b", Integer.valueOf(2));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		hm = new HashMap<String, Object>();
+		hm.put("a", null); // to sablo conversion should make the whole object null because "a" key is null then make then because whole thing is null skip the whole array index
+		hm.put("b", Integer.valueOf(3));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 4");
+		hm.put("b", Integer.valueOf(4));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 5");
+		hm.put("b", Integer.valueOf(5));
+		hm.put("c", null); // to sablo conversion should make the whole object null because "c" key is null then make then because whole thing is null skip the whole array index
+		javaV.add(hm);
+
+		// conversion should turn it into a change-aware list
+		Object sabloBeforeWrap = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(javaV.toArray(), arraySkipNullsAtRuntimePD, null, null, null);
+		assertTrue(sabloBeforeWrap instanceof List< ? >);
+
+		@SuppressWarnings("unchecked")
+		List<Map< ? , ? >> sbr = (List<Map< ? , ? >>)sabloBeforeWrap;
+		assertEquals("Just some text 1", sbr.get(0).get("a"));
+		assertEquals("Just some text 2", sbr.get(1).get("a"));
+		assertEquals("Just some text 4", sbr.get(2).get("a"));
+		assertEquals(3, sbr.size());
+	}
+
+	@Test
+	public void seeThatNormalArraysAndCustomObjectsKeepNullsAsExpected() throws JSONException
+	{
+		WebComponent component = new WebComponent("mycomponent", "testComponentName");
+		PropertyDescription normalArrayPD = component.getSpecification().getProperty("normalArray");
+
+		checkNormalArraysAndCustomObjectsWithNullValues(component, normalArrayPD);
+	}
+
+	@Test
+	public void seeThatNormalArraysAndCustomObjectsWithIrrelevantConfigKeepNullsAsExpected() throws JSONException
+	{
+		WebComponent component = new WebComponent("mycomponent", "testComponentName");
+		PropertyDescription normalArrayPD = component.getSpecification().getProperty("normalArrayWithConfig");
+
+		checkNormalArraysAndCustomObjectsWithNullValues(component, normalArrayPD);
+	}
+
+	private void checkNormalArraysAndCustomObjectsWithNullValues(WebComponent component, PropertyDescription normalArrayPD)
+	{
+		assertNull(component.getProperty("normalArray"));
+		List<Map<String, Object>> javaV = new ArrayList<>();
+		HashMap<String, Object> hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 1");
+		hm.put("b", Integer.valueOf(1));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		javaV.add(null);
+		hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 2");
+		hm.put("b", Integer.valueOf(2));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		hm = new HashMap<String, Object>();
+		hm.put("a", null);
+		hm.put("b", Integer.valueOf(3));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 4");
+		hm.put("b", Integer.valueOf(4));
+		hm.put("c", new Date());
+		javaV.add(hm);
+		hm = new HashMap<String, Object>();
+		hm.put("a", "Just some text 5");
+		hm.put("b", Integer.valueOf(5));
+		hm.put("c", null);
+		javaV.add(hm);
+
+		// conversion should turn it into a change-aware list
+		Object sabloBeforeWrap = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(javaV.toArray(), normalArrayPD, null, null, null);
+		assertTrue(sabloBeforeWrap instanceof List< ? >);
+
+		@SuppressWarnings("unchecked")
+		List<Map< ? , ? >> sbr = (List<Map< ? , ? >>)sabloBeforeWrap;
+		assertEquals("Just some text 1", sbr.get(0).get("a"));
+		assertEquals(null, sbr.get(1));
+		assertEquals("Just some text 2", sbr.get(2).get("a"));
+		assertEquals(null, sbr.get(3).get("a"));
+		assertEquals("Just some text 4", sbr.get(4).get("a"));
+		assertEquals(null, sbr.get(5).get("c"));
+		assertEquals(6, sbr.size());
 	}
 
 }
