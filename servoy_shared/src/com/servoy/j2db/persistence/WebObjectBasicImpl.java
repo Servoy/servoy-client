@@ -115,6 +115,11 @@ public class WebObjectBasicImpl
 		return null;
 	}
 
+	public Object getOwnProperty(String propertyName)
+	{
+		return null;
+	}
+
 	public Object getPropertyDefaultValue(String propertyName)
 	{
 		return null;

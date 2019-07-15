@@ -332,8 +332,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	/**
-	 * This returns  the own property of this persist, does not make a copy of mutable object, be carefull what to do with those objects.
-	 * use getProperty() to be able to mutable or make a copy your self.
+	 * This returns  the own property of this persist this is a copy, so adjusting it will not mutate the internal state.
 	 *
 	 * @param propertyName
 	 * @return null if the property was not set as its own property
@@ -342,15 +341,14 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName))
 		{
-			return bufferPropertiesMap.get(propertyName);
+			return makeCopy(bufferPropertiesMap.get(propertyName));
 		}
-		return propertiesMap.get(propertyName);
+		return makeCopy(propertiesMap.get(propertyName));
 	}
 
 	/**
 	 * This returns the own property of this persist or the default value according to the content spec.
-	 * Does not make a copy of mutable object, be carefull what to do with those objects.
-	 * use getProperty() to be able to mutable or make a copy your self.
+	 * This returns a copy so mutating it will not adjust the internal state
 	 *
 	 * @param propertyName
 	 * @return the property or the default value of the spec
@@ -359,16 +357,16 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName))
 		{
-			return bufferPropertiesMap.get(propertyName);
+			return makeCopy(bufferPropertiesMap.get(propertyName));
 		}
 		else if (propertiesMap.containsKey(propertyName))
 		{
-			return propertiesMap.get(propertyName);
+			return makeCopy(propertiesMap.get(propertyName));
 		}
 		Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
 		if (element != null)
 		{
-			return element.getDefaultClassValue();
+			return makeCopy(element.getDefaultClassValue());
 		}
 		return null;
 	}
@@ -450,6 +448,14 @@ public abstract class AbstractBase implements IPersist
 		}
 
 
+		return makeCopy(value);
+	}
+
+	/**
+	 * @param value
+	 */
+	protected final Object makeCopy(Object value)
+	{
 		if (value instanceof Insets)
 		{
 			return new Insets(((Insets)value).top, ((Insets)value).left, ((Insets)value).bottom, ((Insets)value).right);
