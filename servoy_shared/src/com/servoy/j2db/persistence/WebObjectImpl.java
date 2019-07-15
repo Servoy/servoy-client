@@ -415,6 +415,28 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return propPD != null && propPD.hasDefault() ? ServoyJSONObject.deepCloneJSONArrayOrObj(propPD.getDefaultValue()) : null;
 	}
 
+	@Override
+	public Object getOwnProperty(String propertyName)
+	{
+		Object object = getJson().opt(propertyName);
+		if (object != null)
+		{
+			PropertyDescription propertyDescription = getPropertyDescription();
+			if (propertyDescription != null)
+			{
+				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+				if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+					((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+					childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
+				if (childPd != null)
+				{
+					object = convertToJavaType(childPd, object);
+				}
+			}
+		}
+		return object;
+	}
+
 	public static Object convertToJavaType(PropertyDescription childPd, Object val)
 	{
 		Object value = val;

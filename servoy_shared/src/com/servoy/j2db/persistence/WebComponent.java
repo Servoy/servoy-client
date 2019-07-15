@@ -160,6 +160,18 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
+	public Object getOwnPropertyOrDefault(String propertyName)
+	{
+		Object value = null;
+		if (webObjectImpl == null || hasPersistProperty(propertyName)) value = getOwnProperty(propertyName);
+		if (value == null && webObjectImpl != null)
+		{
+			value = makeCopy(webObjectImpl.getOwnProperty(propertyName));
+		}
+		return value != null ? value : super.getOwnPropertyOrDefault(propertyName);
+	}
+
+	@Override
 	public Object getPropertyDefaultValueClone(String propertyName)
 	{
 		return webObjectImpl != null ? webObjectImpl.getPropertyDefaultValue(propertyName) : null;

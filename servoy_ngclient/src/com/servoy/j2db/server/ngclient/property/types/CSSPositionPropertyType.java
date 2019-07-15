@@ -243,8 +243,20 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	{
 		if (javaValue instanceof CSSPosition)
 		{
+			CSSPosition object = (CSSPosition)javaValue;
 			JSONStringer writer = new JSONStringer();
-			toJSON(writer, null, (CSSPosition)javaValue, pd, null, (FormElement)null);
+
+			writer.object();
+			if (object != null)
+			{
+				writer.key("top").value(object.top);
+				writer.key("left").value((object.left));
+				writer.key("bottom").value((object.bottom));
+				writer.key("right").value((object.right));
+				writer.key("height").value((object.height));
+				writer.key("width").value((object.width));
+			}
+			writer.endObject();
 			return new JSONObject(writer.toString());
 		}
 		return javaValue;
