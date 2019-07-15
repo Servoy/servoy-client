@@ -27,6 +27,10 @@ import java.text.DecimalFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -395,7 +399,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					}
 					if (obj instanceof String)
 					{
-						return new java.sql.Date(OffsetDateTime.parse((String)obj).toEpochSecond() * 1000);
+						return new java.sql.Date(getAsTime((String)obj));
 					}
 					if (throwOnFail)
 					{
@@ -430,7 +434,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					}
 					if (obj instanceof String)
 					{
-						return new Timestamp(OffsetDateTime.parse((String)obj).toEpochSecond() * 1000);
+						return new Timestamp(getAsTime((String)obj));
 					}
 					if (throwOnFail)
 					{
@@ -515,6 +519,44 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public Object getAsRightType(Object obj, boolean throwOnFail, boolean truncate)
 	{
 		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), throwOnFail, truncate);
+	}
+
+	private static final DateTimeFormatter CUSTOM_FORMATTER = new DateTimeFormatterBuilder()
+		.appendPattern("yyyy")  //
+		.appendLiteral('-') //
+		.appendValue(ChronoField.MONTH_OF_YEAR)
+		.appendLiteral('-') //
+		.appendValue(ChronoField.DAY_OF_MONTH) //
+		.appendPattern("[ HH:mm]") // optional sections are surrounded by []
+		.appendPattern("['T'HH:mm]") // optional sections are surrounded by []
+		.appendPattern("[:s]") // optional sections are surrounded by []
+		.appendPattern("[:SSS]") // optional sections are surrounded by []
+		.appendPattern("[xxx]") // optional sections are surrounded by []
+		.appendPattern("[Z]") // optional sections are surrounded by []
+		.parseDefaulting(ChronoField.HOUR_OF_DAY,
+				ChronoField.HOUR_OF_DAY.range().getMinimum())
+		.parseDefaulting(ChronoField.MINUTE_OF_HOUR,
+				ChronoField.MINUTE_OF_HOUR.range().getMinimum())
+		.parseDefaulting(ChronoField.SECOND_OF_MINUTE,
+				ChronoField.SECOND_OF_MINUTE.range().getMinimum())
+		.parseDefaulting(ChronoField.MILLI_OF_SECOND,
+			ChronoField.MILLI_OF_SECOND.range().getMinimum())
+		.parseDefaulting(ChronoField.NANO_OF_SECOND,
+				ChronoField.NANO_OF_SECOND.range().getMinimum())
+		.parseDefaulting(ChronoField.OFFSET_SECONDS,-1)
+		.toFormatter();
+
+	private static long getAsTime(String date)
+	{
+		OffsetDateTime parse = OffsetDateTime.parse(date, CUSTOM_FORMATTER);
+		if (parse.getOffset().getTotalSeconds() == -1)
+		{
+			return parse.toLocalDateTime().toInstant(ZoneId.systemDefault().getRules().getOffset(parse.toLocalDateTime())).toEpochMilli();
+		}
+		else
+		{
+			return parse.toEpochSecond() * 1000;
+		}
 	}
 
 	public boolean isAggregate()
