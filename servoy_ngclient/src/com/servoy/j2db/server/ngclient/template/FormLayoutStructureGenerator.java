@@ -366,6 +366,7 @@ public class FormLayoutStructureGenerator
 	public static List<String> getStyleClassValues(WebLayoutSpecification spec, String cssClasses)
 	{
 		List<String> result = new ArrayList<String>();
+		if (cssClasses == null) return result;
 		String[] classes = cssClasses.split(" ");
 		JSONObject config = spec.getConfig() instanceof String ? new JSONObject((String)spec.getConfig()) : null;
 		String defaultClass = config.optString("class", "");
