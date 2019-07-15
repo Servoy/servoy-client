@@ -418,23 +418,28 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public Object getOwnProperty(String propertyName)
 	{
-		Object object = getJson().opt(propertyName);
-		if (object != null)
+		JSONObject json = getJson();
+		if (json != null)
 		{
-			PropertyDescription propertyDescription = getPropertyDescription();
-			if (propertyDescription != null)
+			Object object = json.opt(propertyName);
+			if (object != null)
 			{
-				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
-				if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
-					((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
-					childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
-				if (childPd != null)
+				PropertyDescription propertyDescription = getPropertyDescription();
+				if (propertyDescription != null)
 				{
-					object = convertToJavaType(childPd, object);
+					PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+					if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+						((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+						childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
+					if (childPd != null)
+					{
+						object = convertToJavaType(childPd, object);
+					}
 				}
 			}
+			return object;
 		}
-		return object;
+		return null;
 	}
 
 	public static Object convertToJavaType(PropertyDescription childPd, Object val)
