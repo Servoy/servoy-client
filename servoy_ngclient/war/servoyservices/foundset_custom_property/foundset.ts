@@ -204,6 +204,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if (!serverJSONValue) {
 				newValue = serverJSONValue; // set it to nothing
 				if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : serverJSONValue };
+				var oldInternalState = currentClientValue ? currentClientValue[$sabloConverters.INTERNAL_IMPL] : undefined; // internal state / $sabloConverters interface
+				if (oldInternalState) $sabloDeferHelper.cancelAll(oldInternalState);
+
 			} else {
 				// check for updates
 				var updates = false;
