@@ -522,10 +522,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	}
 
 	private static final DateTimeFormatter CUSTOM_FORMATTER = new DateTimeFormatterBuilder()
-		.appendPattern("yyyy")  //
+		.appendPattern("yyyy") //
 		.appendLiteral('-') //
-		.appendValue(ChronoField.MONTH_OF_YEAR)
-		.appendLiteral('-') //
+		.appendValue(ChronoField.MONTH_OF_YEAR).appendLiteral('-') //
 		.appendValue(ChronoField.DAY_OF_MONTH) //
 		.appendPattern("[ HH:mm]") // optional sections are surrounded by []
 		.appendPattern("['T'HH:mm]") // optional sections are surrounded by []
@@ -533,20 +532,13 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		.appendPattern("[:SSS]") // optional sections are surrounded by []
 		.appendPattern("[xxx]") // optional sections are surrounded by []
 		.appendPattern("[Z]") // optional sections are surrounded by []
-		.parseDefaulting(ChronoField.HOUR_OF_DAY,
-				ChronoField.HOUR_OF_DAY.range().getMinimum())
-		.parseDefaulting(ChronoField.MINUTE_OF_HOUR,
-				ChronoField.MINUTE_OF_HOUR.range().getMinimum())
-		.parseDefaulting(ChronoField.SECOND_OF_MINUTE,
-				ChronoField.SECOND_OF_MINUTE.range().getMinimum())
-		.parseDefaulting(ChronoField.MILLI_OF_SECOND,
-			ChronoField.MILLI_OF_SECOND.range().getMinimum())
-		.parseDefaulting(ChronoField.NANO_OF_SECOND,
-				ChronoField.NANO_OF_SECOND.range().getMinimum())
-		.parseDefaulting(ChronoField.OFFSET_SECONDS,-1)
-		.toFormatter();
+		.parseDefaulting(ChronoField.HOUR_OF_DAY, ChronoField.HOUR_OF_DAY.range().getMinimum()).parseDefaulting(ChronoField.MINUTE_OF_HOUR,
+			ChronoField.MINUTE_OF_HOUR.range().getMinimum()).parseDefaulting(ChronoField.SECOND_OF_MINUTE,
+				ChronoField.SECOND_OF_MINUTE.range().getMinimum()).parseDefaulting(ChronoField.MILLI_OF_SECOND,
+					ChronoField.MILLI_OF_SECOND.range().getMinimum()).parseDefaulting(ChronoField.NANO_OF_SECOND,
+						ChronoField.NANO_OF_SECOND.range().getMinimum()).parseDefaulting(ChronoField.OFFSET_SECONDS, -1).toFormatter();
 
-	private static long getAsTime(String date)
+	public static long getAsTime(String date)
 	{
 		OffsetDateTime parse = OffsetDateTime.parse(date, CUSTOM_FORMATTER);
 		if (parse.getOffset().getTotalSeconds() == -1)
