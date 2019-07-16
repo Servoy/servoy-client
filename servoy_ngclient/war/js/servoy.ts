@@ -860,7 +860,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					let foundsetListener = null;
 					const componentListeners = [];
 					scope.$on('$destroy', function() {
-				        console.log("destroy listform");
 				        if (foundsetListener) foundsetListener();
 				        componentListeners.forEach(value => value());
 				        foundsetListener = null;
