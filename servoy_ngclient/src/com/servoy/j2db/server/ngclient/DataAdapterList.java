@@ -967,8 +967,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		HashMap<IWebFormController, String> childFormsCopy = getVisibleChildFormCopy();
 		for (IWebFormController relatedController : childFormsCopy.keySet())
 		{
-			updateParentContainer(relatedController, childFormsCopy.get(relatedController), b);
-			if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables);
+			if (!relatedController.isDestroyed())
+			{
+				updateParentContainer(relatedController, childFormsCopy.get(relatedController), b);
+				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables);
+			}
 		}
 	}
 
