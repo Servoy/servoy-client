@@ -26,6 +26,7 @@ import java.util.Map;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJavaClass;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
@@ -162,7 +163,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 			}
 			//cx.setDebugger(null, null);
 			Object o = cx.evaluateString(this, str, sourceName, lineNumber == -1 ? 0 : lineNumber, null);
-			if (o instanceof Wrapper && !(o instanceof NativeArray))
+			if (o instanceof Wrapper && !(o instanceof NativeArray) && !(o instanceof NativeJavaClass))
 			{
 				o = ((Wrapper)o).unwrap();
 			}
