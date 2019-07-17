@@ -223,12 +223,6 @@ public class ComponentFormat
 		return obj;
 	}
 
-	/**
-	 * @param obj
-	 * @param dataProviderID
-	 * @param foundsetManager
-	 * @param cf
-	 */
 	public static Object applyUIConverterFromObject(Object obj, String dataProviderID, IFoundSetManagerInternal foundsetManager, ComponentFormat cf)
 	{
 		if (cf != null && cf.parsedFormat.getUIConverterName() != null)
