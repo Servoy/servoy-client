@@ -108,7 +108,7 @@ public class FormLayoutGenerator
 			// if (PartWrapper.isSecurityVisible(component, fs, form))
 			if (component instanceof LayoutContainer)
 			{
-				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false, cache);
+				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, null, cache);
 			}
 			else if (component instanceof IFormElement)
 			{

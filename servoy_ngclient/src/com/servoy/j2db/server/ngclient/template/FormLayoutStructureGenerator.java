@@ -62,11 +62,26 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class FormLayoutStructureGenerator
 {
-	public static void generateLayout(Form form, String realFormName, FlattenedSolution fs, PrintWriter writer, boolean design)
+	public static class DesignProperties
+	{
+		int mainContainer;
+
+		public DesignProperties(int mainContainer)
+		{
+			this.mainContainer = mainContainer;
+		}
+
+		public DesignProperties()
+		{
+			this.mainContainer = -1;
+		}
+	}
+
+	public static void generateLayout(Form form, String realFormName, FlattenedSolution fs, PrintWriter writer, DesignProperties design)
 	{
 		try
 		{
-			FormLayoutGenerator.generateFormStartTag(writer, form, realFormName, false, design);
+			FormLayoutGenerator.generateFormStartTag(writer, form, realFormName, false, design != null);
 			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (components.hasNext())
 			{
@@ -80,7 +95,7 @@ public class FormLayoutStructureGenerator
 					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form);
 				}
 			}
-			FormLayoutGenerator.generateFormEndTag(writer, design);
+			FormLayoutGenerator.generateFormEndTag(writer, design != null);
 		}
 		catch (Exception e)
 		{
@@ -94,7 +109,7 @@ public class FormLayoutStructureGenerator
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS) & IRepository.VIEWABLE) != 0;
 	}
 
-	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, boolean design,
+	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, DesignProperties design,
 		IFormElementCache cache)
 	{
 		WebLayoutSpecification spec = null;
@@ -111,7 +126,7 @@ public class FormLayoutStructureGenerator
 		writer.print("<");
 		writer.print(container.getTagType());
 		Set<String> writtenAttributes = new HashSet<>();
-		if (design)
+		if (design != null)
 		{
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
@@ -141,7 +156,15 @@ public class FormLayoutStructureGenerator
 					designClass = isEvenLayoutContainer(container) ? "customDivDesignOdd" : "customDivDesignEven";
 				}
 				highSet = true;
-				ngClass.put(designClass, "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+				if (design.mainContainer != container.getID())
+				{
+					ngClass.put(designClass, "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+				}
+				else
+				{
+					writer.print(" data-maincontainer='true'");
+					ngClass.put(designClass, "<false<");
+				}
 				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 
 				List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
@@ -214,7 +237,7 @@ public class FormLayoutStructureGenerator
 		}
 		for (Entry<String, String> entry : attributes.entrySet())
 		{
-			if (design && writtenAttributes.contains(entry.getKey())) continue;
+			if (design != null && writtenAttributes.contains(entry.getKey())) continue;
 			writer.print(" ");
 			try
 			{
@@ -243,7 +266,7 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design);
+				FormElement fe = cache.getFormElement((IFormElement)component, fs, null, design != null);
 				if (!isSecurityVisible(fs, fe.getPersistIfAvailable(), form))
 				{
 					continue;
