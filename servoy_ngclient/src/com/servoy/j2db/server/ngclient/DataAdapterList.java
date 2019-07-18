@@ -973,6 +973,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables);
 			}
 		}
+		if (!b)
+		{
+			visibleChildForms.clear();
+		}
 	}
 
 	/**
