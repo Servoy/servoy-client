@@ -40,7 +40,7 @@ import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.property.types.StyleClassPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -122,7 +122,7 @@ public class FormLayoutStructureGenerator
 				spec = pkg.getSpecification(container.getSpecName());
 			}
 		}
-		boolean isCSSPositionContainer = CSSPosition.isCSSPositionContainer(spec);
+		boolean isCSSPositionContainer = CSSPositionUtils.isCSSPositionContainer(spec);
 		writer.print("<");
 		writer.print(container.getTagType());
 		Set<String> writtenAttributes = new HashSet<>();

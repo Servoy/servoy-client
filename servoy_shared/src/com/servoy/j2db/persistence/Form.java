@@ -181,7 +181,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		{
 			if (persist instanceof IFormElement)
 			{
-				int persistWidth = CSSPosition.getLocation((IFormElement)persist).x + CSSPosition.getSize((IFormElement)persist).width;
+				int persistWidth = CSSPositionUtils.getLocation((IFormElement)persist).x + CSSPositionUtils.getSize((IFormElement)persist).width;
 				if (persistWidth > minWidth) minWidth = persistWidth;
 			}
 		}

@@ -44,7 +44,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -353,7 +353,7 @@ public class FormLayoutGenerator
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			String style = "";
-			if (!form.getUseCssPosition().booleanValue() && !CSSPosition.isInAbsoluteLayoutMode(bc))
+			if (!form.getUseCssPosition().booleanValue() && !CSSPositionUtils.isInAbsoluteLayoutMode(bc))
 			{
 				int anchors = bc.getAnchors();
 				if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))

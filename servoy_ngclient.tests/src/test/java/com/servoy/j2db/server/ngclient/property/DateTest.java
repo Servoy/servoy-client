@@ -281,5 +281,13 @@ public class DateTest
 		Assert.assertEquals(1562558880000l, Column.getAsTime("2019-07-08T07:08+03:00"));
 		Assert.assertEquals(1562558880000l, Column.getAsTime("2019-7-8T07:08+03:00"));
 		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05:00"));
+		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+0500"));
+		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05"));
+		Assert.assertEquals(OffsetDateTime.parse("2019-07-08T21:59:03+05:00").toInstant().toEpochMilli(), Column.getAsTime("2019-7-8T21:59:03+05"));
+		Assert.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.000Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.000Z"));
+		Assert.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.001Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.001Z"));
+		Assert.assertEquals(1562605143100l, Column.getAsTime("2019-7-8T21:59:03.100+0500"));
+		Assert.assertEquals(1562605143900l, Column.getAsTime("2019-7-8T21:59:03:900+05"));
+
 	}
 }

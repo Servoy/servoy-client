@@ -39,7 +39,7 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IContentSpecConstants;
@@ -263,7 +263,7 @@ public class FormWrapper
 		for (IFormElement persist : persists)
 		{
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			Point location = CSSPosition.getLocation(persist);
+			Point location = CSSPositionUtils.getLocation(persist);
 			if (startPos <= location.y && endPos > location.y)
 			{
 				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
@@ -392,7 +392,7 @@ public class FormWrapper
 		{
 			for (IFormElement component : components)
 			{
-				if (CSSPosition.isInAbsoluteLayoutMode(component))
+				if (CSSPositionUtils.isInAbsoluteLayoutMode(component))
 				{
 					elements.add(FormElementHelper.INSTANCE.getFormElement(component, context.getSolution(), null, design));
 				}
@@ -408,7 +408,7 @@ public class FormWrapper
 		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
-			if (form.getUseCssPosition() || CSSPosition.isInAbsoluteLayoutMode(persist))
+			if (form.getUseCssPosition() || CSSPositionUtils.isInAbsoluteLayoutMode(persist))
 			{
 				FormElement formElement = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design);
 				String name = formElement.getDesignId() != null ? formElement.getDesignId() : formElement.getName();
