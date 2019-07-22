@@ -521,8 +521,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return getAsRightType(getType(), getFlags(), obj, columnType.getLength(), throwOnFail, truncate);
 	}
 
-	private static final DateTimeFormatter CUSTOM_FORMATTER = new DateTimeFormatterBuilder()
-		.appendPattern("yyyy") //
+	private static final DateTimeFormatter CUSTOM_FORMATTER = new DateTimeFormatterBuilder().appendPattern("yyyy") //
 		.appendLiteral('-') //
 		.appendValue(ChronoField.MONTH_OF_YEAR).appendLiteral('-') //
 		.appendValue(ChronoField.DAY_OF_MONTH) //
@@ -530,13 +529,18 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		.appendPattern("['T'HH:mm]") // optional sections are surrounded by []
 		.appendPattern("[:s]") // optional sections are surrounded by []
 		.appendPattern("[:SSS]") // optional sections are surrounded by []
-		.appendPattern("[xxx]") // optional sections are surrounded by []
-		.appendPattern("[Z]") // optional sections are surrounded by []
-		.parseDefaulting(ChronoField.HOUR_OF_DAY, ChronoField.HOUR_OF_DAY.range().getMinimum()).parseDefaulting(ChronoField.MINUTE_OF_HOUR,
-			ChronoField.MINUTE_OF_HOUR.range().getMinimum()).parseDefaulting(ChronoField.SECOND_OF_MINUTE,
-				ChronoField.SECOND_OF_MINUTE.range().getMinimum()).parseDefaulting(ChronoField.MILLI_OF_SECOND,
-					ChronoField.MILLI_OF_SECOND.range().getMinimum()).parseDefaulting(ChronoField.NANO_OF_SECOND,
-						ChronoField.NANO_OF_SECOND.range().getMinimum()).parseDefaulting(ChronoField.OFFSET_SECONDS, -1).toFormatter();
+		.appendPattern("[.SSS]") // optional sections are surrounded by []
+		.appendPattern("[Z]") // optional time zone section for +0800
+		.optionalStart() //
+		.appendOffsetId() // optional time zone section for just "Z" or +08:00
+		.optionalEnd() //
+		.optionalStart() //
+		.appendOffset("+HH", "+00") // support for just hours in timezone
+		.optionalEnd() //
+		.parseDefaulting(ChronoField.HOUR_OF_DAY, ChronoField.HOUR_OF_DAY.range().getMinimum()) //
+		.parseDefaulting(ChronoField.MINUTE_OF_HOUR, ChronoField.MINUTE_OF_HOUR.range().getMinimum()) //
+		.parseDefaulting(ChronoField.SECOND_OF_MINUTE, ChronoField.SECOND_OF_MINUTE.range().getMinimum()) //
+		.parseDefaulting(ChronoField.OFFSET_SECONDS, -1).toFormatter();
 
 	public static long getAsTime(String date)
 	{
@@ -547,7 +551,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		else
 		{
-			return parse.toEpochSecond() * 1000;
+			return parse.toInstant().toEpochMilli();
 		}
 	}
 
