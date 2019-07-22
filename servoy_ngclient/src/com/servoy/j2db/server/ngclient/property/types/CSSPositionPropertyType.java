@@ -37,6 +37,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IPersist;
@@ -126,8 +127,8 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 				IPersist persist = formElement.getPersistIfAvailable();
 				if (persist instanceof BaseComponent)
 				{
-					AbstractContainer parentContainer = CSSPosition.getParentContainer((BaseComponent)persist);
-					Point location = CSSPosition.getLocation(object, parentContainer.getSize());
+					AbstractContainer parentContainer = CSSPositionUtils.getParentContainer((BaseComponent)persist);
+					Point location = CSSPositionUtils.getLocation(object, parentContainer.getSize());
 					Form form = (Form)persist.getAncestor(IRepository.FORMS);
 					Part part = form.getPartAt(location.y);
 					if (part != null)

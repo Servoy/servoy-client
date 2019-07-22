@@ -157,8 +157,8 @@ public abstract class AbstractContainer extends AbstractBase
 		Field obj = (Field)getSolution().getChangeHandler().createNewObject(this, IRepository.FIELDS);
 
 		//set all the required properties
-		CSSPosition.setLocation(obj, location.x, location.y);
-		CSSPosition.setSize(obj, 140, 20);
+		CSSPositionUtils.setLocation(obj, location.x, location.y);
+		CSSPositionUtils.setSize(obj, 140, 20);
 
 		addChild(obj);
 		return obj;
@@ -216,8 +216,8 @@ public abstract class AbstractContainer extends AbstractBase
 		GraphicalComponent obj = (GraphicalComponent)getRootObject().getChangeHandler().createNewObject(this, IRepository.GRAPHICALCOMPONENTS);
 		//set all the required properties
 
-		CSSPosition.setLocation(obj, location.x, location.y);
-		CSSPosition.setSize(obj, 80, 20);
+		CSSPositionUtils.setLocation(obj, location.x, location.y);
+		CSSPositionUtils.setSize(obj, 80, 20);
 
 		addChild(obj);
 		return obj;
@@ -248,7 +248,7 @@ public abstract class AbstractContainer extends AbstractBase
 		Shape obj = (Shape)getRootObject().getChangeHandler().createNewObject(this, IRepository.SHAPES);
 		//set all the required properties
 
-		CSSPosition.setLocation(obj, location.x, location.y);
+		CSSPositionUtils.setLocation(obj, location.x, location.y);
 		obj.setLineSize(1);
 		addChild(obj);
 		return obj;
@@ -279,7 +279,7 @@ public abstract class AbstractContainer extends AbstractBase
 		Portal obj = (Portal)getRootObject().getChangeHandler().createNewObject(this, IRepository.PORTALS);
 		//set all the required properties
 
-		CSSPosition.setLocation(obj, location.x, location.y);
+		CSSPositionUtils.setLocation(obj, location.x, location.y);
 		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
 
 		addChild(obj);

@@ -45,6 +45,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -353,31 +354,31 @@ public class FormLayoutGenerator
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			String style = "";
-			if (form.getUseCssPosition().booleanValue() || CSSPosition.isInAbsoluteLayoutMode(bc))
+			if (form.getUseCssPosition().booleanValue() || CSSPositionUtils.isInAbsoluteLayoutMode(bc))
 			{
 				if (designId != null)
 				{
 					// this should be in sync with servoy_app.ts applyBeanData for css pos layout
 					CSSPosition position = bc.getCssPosition();
-					if (CSSPosition.isSet(position.left))
+					if (CSSPositionUtils.isSet(position.left))
 					{
 						style += "left:" + getCSSValue(position.left) + ";";
 					}
-					if (CSSPosition.isSet(position.top))
+					if (CSSPositionUtils.isSet(position.top))
 					{
 						style += "top:" + getCSSValue(position.top) + ";";
 					}
-					if (CSSPosition.isSet(position.bottom))
+					if (CSSPositionUtils.isSet(position.bottom))
 					{
 						style += "bottom:" + getCSSValue(position.bottom) + ";";
 					}
-					if (CSSPosition.isSet(position.right))
+					if (CSSPositionUtils.isSet(position.right))
 					{
 						style += "right:" + getCSSValue(position.right) + ";";
 					}
-					if (CSSPosition.isSet(position.width))
+					if (CSSPositionUtils.isSet(position.width))
 					{
-						if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
+						if (CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
 						{
 							style += "min-width:" + getCSSValue(position.width) + ";";
 						}
@@ -386,9 +387,9 @@ public class FormLayoutGenerator
 							style += "width:" + getCSSValue(position.width) + ";";
 						}
 					}
-					if (CSSPosition.isSet(position.height))
+					if (CSSPositionUtils.isSet(position.height))
 					{
-						if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
+						if (CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
 						{
 							style += "min-height:" + getCSSValue(position.height + ";");
 						}
