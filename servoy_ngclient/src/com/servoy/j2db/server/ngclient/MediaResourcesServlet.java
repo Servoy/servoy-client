@@ -471,7 +471,19 @@ public class MediaResourcesServlet extends HttpServlet
 												" but component  is not found, data: " + fileData);
 											return;
 										}
-										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
+										// if the property is a event handler  then just call that event with the FileUploadData as the argument
+										if (webComponent.getEventHandler(propertyName) != null)
+										{
+											try
+											{
+												webComponent.executeEvent(propertyName, new Object[] { new FileUploadData(item) });
+											}
+											catch (Exception e)
+											{
+												Debug.error("Error calling the upload event handler " + propertyName + "   of " + webComponent, e);
+											}
+										}
+										else form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
 									}
 								});
 							}
