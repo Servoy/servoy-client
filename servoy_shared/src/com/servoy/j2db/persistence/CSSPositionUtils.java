@@ -448,11 +448,12 @@ public final class CSSPositionUtils
 
 	public static boolean isInAbsoluteLayoutMode(IPersist persist)
 	{
-		while (persist != null)
+		IPersist parent = persist.getParent();
+		while (parent != null)
 		{
-			IPersist parent = persist.getParent();
 			if (parent instanceof LayoutContainer) return isCSSPositionContainer((LayoutContainer)parent);
 			if (parent instanceof Form) break;
+			parent = parent.getParent();
 		}
 		return false;
 	}
