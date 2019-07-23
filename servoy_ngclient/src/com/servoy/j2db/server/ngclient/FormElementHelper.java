@@ -44,7 +44,7 @@ import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -523,7 +523,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					IPersist persist = it.next();
 					if (persist instanceof IFormElement)
 					{
-						Point loc = CSSPosition.getLocation((IFormElement)persist);
+						Point loc = CSSPositionUtils.getLocation((IFormElement)persist);
 						if (startPos <= loc.y && endPos > loc.y)
 						{
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
@@ -816,7 +816,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 										if (((ISupportTabSeq)element).getTabSeq() >= 0)
 										{
 											selected.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
-												CSSPosition.getLocation(formElement)));
+												CSSPositionUtils.getLocation(formElement)));
 										}
 										else
 										{
@@ -842,7 +842,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 													if (tabseq >= 0)
 													{
 														selected.add(
-															new TabSeqProperty(element, tabSeqProperty.getName(), CSSPosition.getLocation(formElement)));
+															new TabSeqProperty(element, tabSeqProperty.getName(), CSSPositionUtils.getLocation(formElement)));
 													}
 													else
 													{
@@ -945,7 +945,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			Point location = new Point();
 			if (element instanceof ISupportBounds)
 			{
-				Point elementLocation = CSSPosition.getLocation((ISupportBounds)element);
+				Point elementLocation = CSSPositionUtils.getLocation((ISupportBounds)element);
 				location.setLocation(elementLocation.x + (locationOffset != null ? locationOffset.x : 0),
 					elementLocation.y + (locationOffset != null ? locationOffset.y : 0));
 			}
