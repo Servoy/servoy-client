@@ -136,8 +136,8 @@ public class I18NPanel extends JPanel implements DocumentListener
 			stopCellEditing();
 			int row = getSelectedRow();
 			String i18nKey = (String)messageModel.getValueAt(row, 0);
-			int option = JOptionPane.showConfirmDialog(I18NPanel.this,
-				"Are you sure you want to delete this key", "Deleting a i18n key", JOptionPane.YES_NO_OPTION); //$NON-NLS-1$ //$NON-NLS-2$
+			int option = JOptionPane.showConfirmDialog(I18NPanel.this, "Are you sure you want to delete this key", "Deleting a i18n key", //$NON-NLS-1$//$NON-NLS-2$
+				JOptionPane.YES_NO_OPTION);
 			Solution appSolution = application.getSolution();
 			if (option == JOptionPane.YES_OPTION &&
 				Messages.deleteKey(i18nKey, appSolution != null ? appSolution.getI18nDataSource() : null, application.getClientID(), application.getSettings(),
@@ -411,7 +411,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 
 	/**
 	 * Searches for a key in the loaded table. If it finds the key, it selects it and loads it's data into the text areas.
-	 * 
+	 *
 	 * @return true if the key was found, false otherwise.
 	 */
 	public boolean findAndSelectKey(String i18nKey)
@@ -684,7 +684,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 	{
 		boolean operationPerformed = false;
 		if (Messages.invalidConnection || Messages.noConnection || referenceValue == null || "".equals(referenceValue)) //$NON-NLS-1$
-		return operationPerformed; // false
+			return operationPerformed; // false
 
 		String i18nDataSource = DataSourceUtils.getI18NDataSource(application.getSolution(), application.getSettings());
 
@@ -773,7 +773,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 			}
 
 			Collection<I18NMessagesModelEntry> messages = i18NMessagesModel.getMessages(searchKey, filterColumn, filterValue, application.getFoundSetManager(),
-				false);
+				false, null);
 
 			Object selLang = "<unknown>";
 			if (languagesCombo.getSelectedItem() != null) selLang = ((Object[])languagesCombo.getSelectedItem())[1];
@@ -781,13 +781,13 @@ public class I18NPanel extends JPanel implements DocumentListener
 			String[] columns = null;
 			if (endUser)
 			{
-				columns = new String[] { Messages.getString("servoy.i18nPanel.key"), Messages.getString("servoy.i18nPanel.default"), Messages.getString("servoy.i18nPanel.locale") +
-					" (" + selLang + ")" };
+				columns = new String[] { Messages.getString("servoy.i18nPanel.key"), Messages.getString(
+					"servoy.i18nPanel.default"), Messages.getString("servoy.i18nPanel.locale") + " (" + selLang + ")" };
 			}
 			else
 			{
-				columns = new String[] { Messages.getString("servoy.i18nPanel.key"), Messages.getString("servoy.i18nPanel.default"), Messages.getString("servoy.i18nPanel.locale") +
-					" (" + selLang + ")", "" };
+				columns = new String[] { Messages.getString("servoy.i18nPanel.key"), Messages.getString(
+					"servoy.i18nPanel.default"), Messages.getString("servoy.i18nPanel.locale") + " (" + selLang + ")", "" };
 			}
 
 			messageModel = new DefaultTableModel(columns, 0)
@@ -818,7 +818,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 
 
 	/**
-	 * 
+	 *
 	 */
 	public void refresh()
 	{
@@ -842,7 +842,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 
 	/**
 	 * Selects the language specified by preselect_language.
-	 * 
+	 *
 	 * @param preselect_language the language to be selected. For example "en", "nl" ...
 	 */
 	public void selectLanguage(String preselect_language)

@@ -31,6 +31,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.StringComparator;
+import com.servoy.j2db.util.Utils;
 
 public class I18NMessagesModel
 {
@@ -84,8 +85,8 @@ public class I18NMessagesModel
 		Properties currentLocaleJarMessages = new Properties();
 		try
 		{
-			currentLocaleJarMessages.load(Messages.class.getClassLoader().getResourceAsStream(
-				Messages.BUNDLE_NAME.replace('.', '/') + "_" + language.getLanguage() + ".properties")); //$NON-NLS-1$ //$NON-NLS-2$
+			currentLocaleJarMessages.load(
+				Messages.class.getClassLoader().getResourceAsStream(Messages.BUNDLE_NAME.replace('.', '/') + "_" + language.getLanguage() + ".properties")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		catch (Exception e)
 		{
@@ -93,8 +94,8 @@ public class I18NMessagesModel
 		}
 		try
 		{
-			currentLocaleJarMessages.load(Messages.class.getClassLoader().getResourceAsStream(
-				Messages.BUNDLE_NAME.replace('.', '/') + "_" + language + ".properties")); //$NON-NLS-1$ //$NON-NLS-2$
+			currentLocaleJarMessages.load(
+				Messages.class.getClassLoader().getResourceAsStream(Messages.BUNDLE_NAME.replace('.', '/') + "_" + language + ".properties")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		catch (Exception e)
 		{
@@ -131,7 +132,7 @@ public class I18NMessagesModel
 	}
 
 	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, String[] filterValue, IFoundSetManagerInternal fm,
-		boolean mobileKeys)
+		boolean mobileKeys, I18NMessagesModelEntry selectedEntry)
 	{
 		TreeMap<String, I18NMessagesModelEntry> tm = new TreeMap<String, I18NMessagesModelEntry>(StringComparator.INSTANCE);
 		if (defaultMap != null)
@@ -172,8 +173,8 @@ public class I18NMessagesModel
 
 		Properties messageDefault = new Properties();
 		Properties messageLocale = new Properties();
-		Messages.loadMessagesFromDatabase(null, clientId, settings, dataServer, repository, messageDefault, messageLocale, language, searchKey, searchKey,
-			null, null, fm);
+		Messages.loadMessagesFromDatabase(null, clientId, settings, dataServer, repository, messageDefault, messageLocale, language, searchKey, searchKey, null,
+			null, fm);
 
 		addKeys(tm, messageDefault, messageLocale);
 
@@ -183,7 +184,10 @@ public class I18NMessagesModel
 			dataServer, repository, messageDefault, messageLocale, language, searchKey, searchKey, filterColumn, filterValue, fm);
 
 		addKeys(tm, messageDefault, messageLocale);
-
+		if (selectedEntry != null && !tm.containsKey(selectedEntry.key))
+		{
+			tm.put(selectedEntry.key, selectedEntry);
+		}
 		return tm.values();
 	}
 
@@ -203,6 +207,16 @@ public class I18NMessagesModel
 			this.key = key;
 			this.defaultvalue = defaultvalue;
 			this.localeValue = localeValue;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (!(obj instanceof I18NMessagesModelEntry)) return false;
+			if (Utils.equalObjects(this.key, ((I18NMessagesModelEntry)obj).key) &&
+				Utils.equalObjects(this.defaultvalue, ((I18NMessagesModelEntry)obj).defaultvalue) &&
+				Utils.equalObjects(this.localeValue, ((I18NMessagesModelEntry)obj).localeValue)) return true;
+			return false;
 		}
 	}
 }
