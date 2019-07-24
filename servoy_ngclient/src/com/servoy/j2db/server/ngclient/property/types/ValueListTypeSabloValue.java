@@ -547,7 +547,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		writer.key("hasRealValues");
 		writer.value(valueList.hasRealValues());
-		if (valueList.getValueList().getRealValueType() != 0 && valueList.getValueList().getDisplayValueType() != 0 &&
+		if (valueList != null && valueList.getValueList().getRealValueType() != 0 && valueList.getValueList().getDisplayValueType() != 0 &&
 			valueList.getValueList().getRealValueType() != valueList.getValueList().getDisplayValueType())
 		{
 			writer.key("hasDifferentTypes");
