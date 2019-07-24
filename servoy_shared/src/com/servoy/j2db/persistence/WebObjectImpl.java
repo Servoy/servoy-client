@@ -483,7 +483,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return allPersistMappedProperties;
 	}
 
-	private Map<String, Object> getPersistMappedProperties()
+	private synchronized Map<String, Object> getPersistMappedProperties()
 	{
 		if (!arePersistMappedPropertiesLoaded)
 		{
