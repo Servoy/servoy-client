@@ -511,7 +511,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return persistMappedProperties;
 	}
 
-	protected void updatePersistMappedPropertyFromJSON(String beanJSONKey, Object object)
+	protected synchronized void updatePersistMappedPropertyFromJSON(String beanJSONKey, Object object)
 	{
 		if (object != null && getChildPropertyDescription(beanJSONKey) != null)
 		{
