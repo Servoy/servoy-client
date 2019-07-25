@@ -43,6 +43,7 @@ import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
+import com.servoy.base.util.TagParser;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MessagesResourceBundle;
@@ -437,6 +438,10 @@ public class NGClientEntryFilter extends WebEntry
 								if (StringUtils.isBlank(titleText))
 								{
 									titleText = fs.getSolution().getName();
+								}
+								else if (titleText.equals("<empty>") || titleText.contains("i18n:") || titleText.contains(TagParser.TAGCHAR))
+								{
+									titleText = "";
 								}
 								variableSubstitution.put("solutionTitle", titleText);
 
