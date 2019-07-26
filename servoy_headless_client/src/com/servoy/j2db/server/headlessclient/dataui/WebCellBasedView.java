@@ -278,6 +278,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private StringBuilder javascriptForScrollBehaviorRenderHead;
 
+	private boolean isRendering = false;
+
 	private final class HeaderHeightCalculationBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 	{
 		@Override
@@ -2948,7 +2950,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		else
 		{
-			if (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows()))
+			if (!isRendering && (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows())))
 			{
 				if (isScrollMode()) resetScrollParams();
 				lastRenderedPath = null;
@@ -3081,6 +3083,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
+		isRendering = false;
 		getStylePropertyChanges().setRendered();
 		nrUpdatedListItems = 0;
 
@@ -3096,6 +3099,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			Debug.error("Rendering tableview that is already destroyed," + findParent(WebForm.class)); //$NON-NLS-1$
 		}
+		isRendering = true;
 		hasOnRender = null;
 		IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
 		Dimension tabSize = null;
