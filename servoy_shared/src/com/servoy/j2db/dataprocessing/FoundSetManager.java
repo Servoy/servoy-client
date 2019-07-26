@@ -95,6 +95,7 @@ import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
@@ -873,6 +874,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						dbIdentArguments.remove(relationName);
 					}
 				}
+				if (retval != null)
+				{
+					QuerySelect creationSelect = retval.getCreationSqlSelect();
+					Placeholder whereArgsPlaceholder = creationSelect.getPlaceholder(
+						SQLGenerator.createRelationKeyPlaceholderKey(creationSelect.getTable(), relationName));
+					if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
+					{
+						Object[][] createWhereArgs = (Object[][])whereArgsPlaceholder.getValue();
+						for (int i = 0; i < createWhereArgs.length; i++)
+						{
+							if (createWhereArgs[i][0] instanceof DbIdentValue)
+							{
+								createWhereArgs[i][0] = ((DbIdentValue)createWhereArgs[i][0]).getPkValue();
+							}
+						}
+					}
+				}
 			}
 		}
 		return retval;
@@ -1500,13 +1518,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						((RelatedFoundSet)fs).invalidateFoundset();
 					}
 					else if (fs instanceof ViewFoundSet)
-				{
-					((ViewFoundSet)fs).loadAllRecords();
-				}
+					{
+						((ViewFoundSet)fs).loadAllRecords();
+					}
 					else if (fs instanceof FoundSet)
-				{
-					((FoundSet)fs).refreshFromDB(false, false);
-				}
+					{
+						((FoundSet)fs).refreshFromDB(false, false);
+					}
 				}
 			}));
 
