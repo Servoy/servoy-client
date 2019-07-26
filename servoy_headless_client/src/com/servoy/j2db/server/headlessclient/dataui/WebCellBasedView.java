@@ -2910,9 +2910,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public void tableChanged(TableModelEvent e)
 	{
 		// If it is one row change, only update/touch that row;
-		// If we already have more then the half of the table rows changes, just mark the whole table
+		// If we already have more then 20 rows changes, just mark the whole table
 		// as changed, as it will be faster on the client the component replace
-		if (e.getType() == TableModelEvent.UPDATE && e.getFirstRow() == e.getLastRow() && (nrUpdatedListItems < table.getRowsPerPage() / 2))
+		if ((e.getType() == TableModelEvent.UPDATE) && (e.getFirstRow() == e.getLastRow()) && (nrUpdatedListItems < 20))
 		{
 			Component component = table.get(Integer.toString(e.getFirstRow()));
 			if (component instanceof ListItem)
