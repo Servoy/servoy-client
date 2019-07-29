@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -205,5 +206,22 @@ public class ServoyApiObject
 		}
 		Debug.error("cannot return object: " + value + " as NativeObject");
 		return new NativeObject();
+	}
+
+	/**
+	 * This will generate a url from a byte array so that the client can get the bytes from that url.
+	 *
+	 * @sample
+	 * var url = servoyApi.getMediaUrl(bytes);
+	 *
+	 * @param bytes The value where an url should be created for
+	 * @return the url where the bytes can be downloaded from
+	 */
+	@JSFunction
+	public String getMediaUrl(byte[] bytes)
+	{
+		MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bytes);
+		String url = "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();//$NON-NLS-1$//$NON-NLS-2$
+		return url;
 	}
 }
