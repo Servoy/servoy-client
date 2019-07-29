@@ -391,14 +391,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$
 			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$
 
-			int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
-			boolean hasVerticalScrollbarsAlways = (ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS & scrollbars) != 0 ? true : false;
-
-			if ((isScrollMode() && (needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue() || hasVerticalScrollbarsAlways)))
-			{
-				newBodyWidthHint -= SCROLLBAR_SIZE; // extract the vertical scrollbar width
-			}
-
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
 				boolean needToRenderTable = true;
@@ -432,7 +424,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						int bodyDesignHeight = resizeEndY - resizeStartY;
 						int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
-						((WebTabPanel)tabPanel).setTabSize(new Dimension(bodyWidthHint, bodyHeightHint + otherPartsHeight));
+						((WebTabPanel)tabPanel).setTabSize(new Dimension(getDisplayBodyWidthHint(), bodyHeightHint + otherPartsHeight));
 					}
 					WebCellBasedView.this.setVisibilityAllowed(true);
 					WebCellBasedView.this.getStylePropertyChanges().setChanged();
@@ -2957,7 +2949,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (!isRendering && (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows())))
 			{
 				if (isScrollMode()) resetScrollParams();
-				lastRenderedPath = null;
 				getStylePropertyChanges().setValueChanged();
 			}
 		}
@@ -3379,7 +3370,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		if (isScrollMode()) resetScrollParams();
-		lastRenderedPath = null;
 	}
 
 	private boolean isSelectionByCellAction;
@@ -5328,11 +5318,26 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			if (stretchedElementsCount > 0)
 			{
-				int delta = bodyWidthHint - totalDefaultWidth;
+				int delta = getDisplayBodyWidthHint() - totalDefaultWidth;
 				distributeExtraSpace(delta, totalWidthToStretch, null, true);
 				setHeadersWidth();
 			}
 		}
+	}
+
+	private int getDisplayBodyWidthHint()
+	{
+		int displayBodyWidthHint = bodyWidthHint;
+
+		int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
+		boolean hasVerticalScrollbarsAlways = (ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS & scrollbars) != 0 ? true : false;
+
+		if ((isScrollMode() && (needsMoreThanOnePage(displayBodyWidthHint).getLeft().booleanValue() || hasVerticalScrollbarsAlways)))
+		{
+			displayBodyWidthHint -= SCROLLBAR_SIZE; // extract the vertical scrollbar width
+		}
+
+		return displayBodyWidthHint;
 	}
 
 	private int getOtherFormPartsHeight()
