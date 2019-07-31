@@ -24,3 +24,6 @@ Web-Component: True
 
 Name: defaultloadingindicator/defaultloadingindicator.spec
 Web-Component: True
+
+Name: listformcomponent/listformcomponent.spec
+Web-Component: True
