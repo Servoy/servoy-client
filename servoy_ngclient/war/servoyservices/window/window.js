@@ -301,7 +301,6 @@ angular.module('window',['servoy'])
 					body.append('<div class="formpopup-backdrop modal-backdrop fade in" style="z-index:1498"></div>');
 				}
 				body.append(popup);
-				popup.closest( '#tabStart' ).focus();
 
 		 }, function()
 		 {
