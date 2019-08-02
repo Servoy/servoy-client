@@ -292,6 +292,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	            (formname ? "/" + formname : "") + 
 	    		(beanname ? "/" + beanname : "") + 
 				(propertyName ? "/" + propertyName : "");
+        },
+        
+        generateServiceUploadUrl: function(serviceName, apiFunctionName){
+        	// svy_services should be in sync with MediaResourceServlet.SERVICE_UPLOAD
+            return "resources/upload/" + $sabloApplication.getClientnr() + "/svy_services/" + serviceName + "/" + apiFunctionName;
         }
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {

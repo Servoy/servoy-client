@@ -102,6 +102,11 @@ import com.servoy.j2db.util.Utils;
 public class MediaResourcesServlet extends HttpServlet
 {
 	/**
+	 * constant for calling a service, should be in sync with servoy.ts generateServiceUploadUrl() function
+	 */
+	private static final String SERVICE_UPLOAD = "svy_services";
+
+	/**
 	 * the folder that contains the compiled less files
 	 */
 	public static final String SERVOY_SOLUTION_CSS = "servoy_solution_css/";
@@ -475,7 +480,7 @@ public class MediaResourcesServlet extends HttpServlet
 										{
 											formFields.put(fileItem.getFieldName(), fileItem.getString());
 										}
-										if (formName.equals("svy_services"))
+										if (formName.equals(SERVICE_UPLOAD))
 										{
 											Scriptable plugins = (Scriptable)wsSession.getClient().getScriptEngine().getSolutionScope().get(
 												IExecutingEnviroment.TOPLEVEL_PLUGINS, null);
