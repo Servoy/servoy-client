@@ -50,6 +50,9 @@ public class JSUpload implements IUploadData, IJavaScriptType
 	}
 
 	/**
+	 * If this returns false, then a tmp file is created for it. This means that you can also convert this to a JSFile and call rename() on it.
+	 * But the method write(file) will always work by writing the contents of this upload file to a different file.
+	 *
 	 * @return true if this upload is fully in memory (not saved to a temp file)
 	 */
 	@JSFunction
@@ -86,8 +89,9 @@ public class JSUpload implements IUploadData, IJavaScriptType
 
 	/**
 	 * Writes the contents of this upload right to a file. Use the file plugin to create a JSFile object that can be given to this function.
+	 * If this file was not fully in memory (isInMemory == false) then this will just stream the tmp file to the give file.
 	 *
-	 * @param file the file object where to write to.
+	 * @param file the file object where to write to can be a JSFile or path string
 	 * @return if write could be done
 	 */
 	@JSFunction
@@ -95,6 +99,7 @@ public class JSUpload implements IUploadData, IJavaScriptType
 	{
 		Object f = file;
 		if (f instanceof IFile) f = ((IFile)f).getFile();
+		if (f instanceof String) f = new File((String)f);
 		if (f instanceof File)
 		{
 			try
@@ -114,7 +119,6 @@ public class JSUpload implements IUploadData, IJavaScriptType
 	/**
 	 * @return the java file object if it is backed by a file, use file plugin.convertToJSFile(upload) to convert this to a JSFile to work with it.
 	 */
-	@JSFunction
 	public File getFile()
 	{
 		if (item instanceof DiskFileItem)
@@ -166,7 +170,6 @@ public class JSUpload implements IUploadData, IJavaScriptType
 	/**
 	 * @return the java input stream object.
 	 */
-	@JSFunction
 	public InputStream getInputStream() throws IOException
 	{
 		return item.getInputStream();
