@@ -522,7 +522,7 @@ public class MediaResourcesServlet extends HttpServlet
 												return;
 											}
 											// if the property is a event handler  then just call that event with the FileUploadData as the argument
-											if (webComponent.getEventHandler(propertyName) != null)
+											if (webComponent.hasEvent(propertyName))
 											{
 												try
 												{
