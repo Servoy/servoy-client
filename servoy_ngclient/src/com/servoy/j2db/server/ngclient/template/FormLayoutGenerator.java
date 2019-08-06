@@ -272,7 +272,8 @@ public class FormLayoutGenerator
 		}
 		else if (design)
 		{
-			writer.print(" style=\"height:100%\"");
+			// design form should grow with content and dictate the height to parent
+			writer.print(" style=\"min-height:100%\"");
 		}
 		writer.print("svy-layout-update svy-form-class-update svy-autosave ");
 		// skip the scrollbars for forms in tableview then the portal component does this
