@@ -41,6 +41,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.IApplication;
@@ -52,6 +53,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
+import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -120,6 +122,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private Long handledIDForResponse; // when a filter(...) is requested, we must include the filter req. id (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
 	private boolean valuesRequested;
+
+	// dataset of the runtime set custom valuelist
+	private Object customValueListDataSet;
 
 	/**
 	 * Creates a new ValueListTypeSabloValue that is not ready yet for operation.<br/>
@@ -319,8 +324,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		return new TargetDataLinks(dataproviders, recordLinked);
 	}
 
-	public void setNewCustomValuelistInstance(IValueList vl)
+	public void setNewCustomValuelistInstance(IValueList vl, Object dataSource)
 	{
+		this.customValueListDataSet = dataSource;
 		// this gets called when items are set specifically for this component (so comp.setValuelistItems(...) in case of legacy or comp.myValuelistProp = someJSDataSet or IDataSet)
 		if (valueList != null) valueList.removeListDataListener(this); // remove listener from old custom vl
 		this.valueList = vl;
@@ -452,6 +458,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	public void detach()
 	{
 		clearUpRuntimeValuelistAndFormat();
+		customValueListDataSet = null;
 
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
@@ -714,6 +721,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (valuelistPersist != null)
 		{
 			valueList = getRealValueList(application, valuelistPersist, format, dataproviderID);
+			if (customValueListDataSet != null && valuelistPersist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
+			{
+				valueList = ValueListFactory.fillRealValueList(application, valuelistPersist, IValueListConstants.CUSTOM_VALUES,
+					((CustomValueList)valueList).getFormat(), ((CustomValueList)valueList).getValueType(), customValueListDataSet);
+			}
 		}
 		else
 		{
