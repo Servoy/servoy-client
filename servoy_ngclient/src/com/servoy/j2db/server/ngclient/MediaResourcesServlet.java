@@ -69,6 +69,7 @@ import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSMap;
+import com.servoy.j2db.scripting.JSUpload;
 import com.servoy.j2db.server.ngclient.less.LessCompiler;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -494,7 +495,7 @@ public class MediaResourcesServlet extends HttpServlet
 													try
 													{
 														((Function)func).call(context, plugin, plugin,
-															new Object[] { new FileUploadData(item), context.getWrapFactory().wrap(context, plugin, formFields,
+															new Object[] { new JSUpload(item), context.getWrapFactory().wrap(context, plugin, formFields,
 																null) });
 													}
 													finally
