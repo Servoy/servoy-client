@@ -526,7 +526,7 @@ public class MediaResourcesServlet extends HttpServlet
 											{
 												try
 												{
-													webComponent.executeEvent(propertyName, new Object[] { new FileUploadData(item), formFields });
+													webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item), formFields });
 												}
 												catch (Exception e)
 												{
