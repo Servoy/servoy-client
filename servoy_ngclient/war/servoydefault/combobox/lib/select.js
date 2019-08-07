@@ -426,17 +426,21 @@ uis.controller('uiSelectCtrl',
           if (phase === 'start' && ctrl.items.length === 0) {
             // Only focus input after the animation has finished
             ctrl.$animate.off('removeClass', searchInput[0], animateHandler);
-            $timeout(function () {
-              ctrl.focusSearchInput(initSearchValue);
+            $timeout(function () { // TODO can we rely on some callback instead? to avoid $timeout?
+            	if (ctrl.open) { // as this is in a timeout, make sure that the drop-down is still open
+            		ctrl.focusSearchInput(initSearchValue);
+            	}
             });
           } else if (phase === 'close') {
             // Only focus input after the animation has finished
             ctrl.$animate.off('enter', container[0], animateHandler);
-            $timeout(function () {
-              ctrl.focusSearchInput(initSearchValue);
-              if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
-                _ensureHighlightVisible();
-              }              
+            $timeout(function () { // TODO can we rely on some callback instead? to avoid $timeout?
+            	if (ctrl.open) { // as this is in a timeout, make sure that the drop-down is still open
+            		ctrl.focusSearchInput(initSearchValue);
+            		if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
+            			_ensureHighlightVisible();
+            		}
+            	}
             });
           }
         };
@@ -447,11 +451,13 @@ uis.controller('uiSelectCtrl',
           ctrl.$animate.on('removeClass', searchInput[0], animateHandler);
         }
       } else {
-        $timeout(function () {
-          ctrl.focusSearchInput(initSearchValue);
-          if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
-            _ensureHighlightVisible();
-          }
+        $timeout(function () { // TODO can we rely on some callback instead? to avoid $timeout?
+        	if (ctrl.open) { // as this is in a timeout, make sure that the drop-down is still open
+        		ctrl.focusSearchInput(initSearchValue);
+        		if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
+        			_ensureHighlightVisible();
+        		}
+        	}
         });
       }
     }
