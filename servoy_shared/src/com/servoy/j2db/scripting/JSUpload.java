@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Debug;
  * @since 2019.09
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSUpload")
-public class JSUpload implements IUploadData, IJavaScriptType
+public class JSUpload implements IUploadData, IJavaScriptType, IFile
 {
 	private final FileItem item;
 
