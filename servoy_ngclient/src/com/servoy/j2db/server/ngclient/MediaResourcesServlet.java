@@ -494,9 +494,7 @@ public class MediaResourcesServlet extends HttpServlet
 													Context context = Context.enter();
 													try
 													{
-														((Function)func).call(context, plugin, plugin,
-															new Object[] { new JSUpload(item), context.getWrapFactory().wrap(context, plugin, formFields,
-																null) });
+														((Function)func).call(context, plugin, plugin, new Object[] { new JSUpload(item, formFields) });
 													}
 													finally
 													{
@@ -526,7 +524,7 @@ public class MediaResourcesServlet extends HttpServlet
 											{
 												try
 												{
-													webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item), formFields });
+													webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item, formFields) });
 												}
 												catch (Exception e)
 												{

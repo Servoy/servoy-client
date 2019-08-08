@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.upload.DiskFileItem;
@@ -42,10 +43,12 @@ import com.servoy.j2db.util.Debug;
 public class JSUpload implements IUploadData, IJavaScriptType, IFile
 {
 	private final FileItem item;
+	private final Map<String, String> formFields;
 
-	public JSUpload(FileItem item)
+	public JSUpload(FileItem item, Map<String, String> formFields)
 	{
 		this.item = item;
+		this.formFields = formFields;
 
 	}
 
@@ -114,6 +117,29 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * This returns the field names of the form fields that where give as metadata to this upload file.
+	 *
+	 * @return String[] Array of names of the field names
+	 */
+	@JSFunction
+	public String[] getFields()
+	{
+		return formFields != null ? formFields.keySet().toArray(new String[0]) : new String[0];
+	}
+
+	/**
+	 * Returns the value for a give form field that was give as metadata to this uploaded file
+	 *
+	 * @param name The form fields name
+	 * @return the value that was given or null
+	 */
+	@JSFunction
+	public String getFieldValue(String name)
+	{
+		return formFields != null ? formFields.get(name) : null;
 	}
 
 	/**
