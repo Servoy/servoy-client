@@ -83,7 +83,7 @@ public class GlobalMethodValueList extends CustomValueList
 	@Override
 	public boolean hasRealValues()
 	{
-		return hasRealValue;
+		return hasRealValue || super.hasRealValues();
 	}
 
 	public void fill(boolean force)
