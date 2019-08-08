@@ -65,6 +65,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -666,6 +667,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
+	// this variable prevents infinite cycle for form components that have a tabseq property
+	private final ThreadLocal<Boolean> nestedCall = new ThreadLocal<Boolean>();
+
 	/**
 	 * Generates a Servoy controlled tab-sequence-index. We try to avoid sending default (0 or null) tabSeq even
 	 * for forms that do use default tab sequence in order to avoid problems with nesting default and non-default tabSeq forms.
@@ -679,125 +683,151 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public Integer getControlledTabSeqReplacementFor(Integer designValue, PropertyDescription pd, Form flattenedForm, IPersist persistIfAvailable,
 		FlattenedSolution flattenedSolution) // TODO more args will be needed here such as the tabSeq property name or description
 	{
-		if (persistIfAvailable == null) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
-		if (flattenedForm.isFormComponent() && persistIfAvailable instanceof AbstractBase)
+		if (persistIfAvailable == null || (nestedCall.get() != null && nestedCall.get().booleanValue())) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
+		nestedCall.set(Boolean.TRUE);
+		try
 		{
-			String mainFormName = ((AbstractBase)persistIfAvailable).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
-			if (mainFormName != null)
+			if (flattenedForm.isFormComponent() && persistIfAvailable instanceof AbstractBase)
 			{
-				flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
-			}
-		}
-		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
-		Map<TabSeqProperty, Integer> cachedTabSeq = null;
-		if (formWasModifiedViaSolutionModel)
-		{
-			Pair<Long, Map<TabSeqProperty, Integer>> pair = flattenedForm.getRuntimeProperty(FORM_TAB_SEQUENCE);
-			if (pair != null && flattenedForm.getLastModified() == pair.getLeft().longValue())
-			{
-				cachedTabSeq = pair.getRight();
-			}
-		}
-		else cachedTabSeq = formTabSequences.get(flattenedForm.getUUID());
-
-		if (cachedTabSeq == null)
-		{
-			cachedTabSeq = new HashMap<TabSeqProperty, Integer>();
-			SortedList<TabSeqProperty> selected = new SortedList<TabSeqProperty>(new Comparator<TabSeqProperty>()
-			{
-				public int compare(TabSeqProperty o1, TabSeqProperty o2)
+				String mainFormName = ((AbstractBase)persistIfAvailable).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
+				if (mainFormName != null)
 				{
-					int seq1 = o1.getSeqValue();
-					int seq2 = o2.getSeqValue();
-					if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
-					{
-						int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
-						if (positionComparator != 0)
-						{
-							return positionComparator;
-						}
-					}
-					return TabSeqComparator.compareTabSeq(seq1, o1.element, seq2, o2.element);
+					flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
 				}
-			});
-			Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
-			while (iterator.hasNext())
+			}
+			boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
+			Map<TabSeqProperty, Integer> cachedTabSeq = null;
+			if (formWasModifiedViaSolutionModel)
 			{
-				IFormElement formElement = iterator.next();
-				if (FormTemplateGenerator.isWebcomponentBean(formElement))
+				Pair<Long, Map<TabSeqProperty, Integer>> pair = flattenedForm.getRuntimeProperty(FORM_TAB_SEQUENCE);
+				if (pair != null && flattenedForm.getLastModified() == pair.getLeft().longValue())
 				{
-					String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
-					WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
-					if (specification != null)
+					cachedTabSeq = pair.getRight();
+				}
+			}
+			else cachedTabSeq = formTabSequences.get(flattenedForm.getUUID());
+
+			if (cachedTabSeq == null)
+			{
+				cachedTabSeq = new HashMap<TabSeqProperty, Integer>();
+				SortedList<TabSeqProperty> selected = new SortedList<TabSeqProperty>(new Comparator<TabSeqProperty>()
+				{
+					public int compare(TabSeqProperty o1, TabSeqProperty o2)
 					{
-						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
-						if (properties != null && properties.size() > 0)
+						int seq1 = o1.getSeqValue();
+						int seq2 = o2.getSeqValue();
+						if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
 						{
-							IBasicWebComponent webComponent = (IBasicWebComponent)formElement;
-							for (PropertyDescription tabSeqProperty : properties)
+							int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
+							if (positionComparator != 0)
 							{
-								int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
-								if (tabseq >= 0)
-								{
-									selected.add(new TabSeqProperty(formElement, tabSeqProperty.getName()));
-								}
-								else
-								{
-									cachedTabSeq.put(new TabSeqProperty(formElement, tabSeqProperty.getName()), Integer.valueOf(-2));
-								}
+								return positionComparator;
 							}
 						}
-						properties = specification.getProperties(FormComponentPropertyType.INSTANCE);
-						if (properties != null && properties.size() > 0)
+						return TabSeqComparator.compareTabSeq(seq1, o1.element, seq2, o2.element);
+					}
+				});
+				Map<TabSeqProperty, List<TabSeqProperty>> listFormComponentMap = new HashMap<TabSeqProperty, List<TabSeqProperty>>();
+				List<TabSeqProperty> listFormComponentElements = null;
+				TabSeqProperty listFormComponentTabSeq = null;
+				Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
+				while (iterator.hasNext())
+				{
+					IFormElement formElement = iterator.next();
+					if (FormTemplateGenerator.isWebcomponentBean(formElement))
+					{
+						String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
+						WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
+						if (specification != null)
 						{
-							FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formElement, flattenedSolution, null, true);
-							for (PropertyDescription property : properties)
+							Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
+							Collection<PropertyDescription> formComponentProperties = specification.getProperties(FormComponentPropertyType.INSTANCE);
+							boolean isListFormComponent = isListFormComponent(formComponentProperties);
+							if (properties != null && properties.size() > 0)
 							{
-								Object frmValue = formComponentEl.getPropertyValue(property.getName());
-								Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
-								if (frm == null) continue;
-
-								List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm,
-									flattenedSolution);
-
-								for (IFormElement element : elements)
+								IBasicWebComponent webComponent = (IBasicWebComponent)formElement;
+								for (PropertyDescription tabSeqProperty : properties)
 								{
-									if (element instanceof ISupportTabSeq)
+									int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
+									TabSeqProperty seqProperty = new TabSeqProperty(formElement, tabSeqProperty.getName());
+									if (listFormComponentTabSeq == null && isListFormComponent)
 									{
-										if (((ISupportTabSeq)element).getTabSeq() >= 0)
-										{
-											selected.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
-												CSSPositionUtils.getLocation(formElement)));
-										}
-										else
-										{
-											cachedTabSeq.put(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
-												Integer.valueOf(-2));
-										}
+										listFormComponentTabSeq = seqProperty;
+										listFormComponentElements = new ArrayList<TabSeqProperty>();
+										listFormComponentMap.put(listFormComponentTabSeq, listFormComponentElements);
 									}
-									else if (FormTemplateGenerator.isWebcomponentBean(element))
+									if (tabseq >= 0)
 									{
-										String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
-										WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
-											nestedDomponentType);
-										if (specification != null)
+										selected.add(seqProperty);
+									}
+									else
+									{
+										cachedTabSeq.put(seqProperty, Integer.valueOf(-2));
+									}
+								}
+							}
+
+							if (formComponentProperties != null && formComponentProperties.size() > 0)
+							{
+								// avoid infinite cycle here
+								FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formElement, flattenedSolution, null, true);
+								for (PropertyDescription property : formComponentProperties)
+								{
+									Object frmValue = formComponentEl.getPropertyValue(property.getName());
+									Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
+									if (frm == null) continue;
+
+									List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm,
+										flattenedSolution);
+
+									for (IFormElement element : elements)
+									{
+										if (element instanceof ISupportTabSeq)
 										{
-											Collection<PropertyDescription> nestedProperties = nestedSpecification.getProperties(
-												NGTabSeqPropertyType.NG_INSTANCE);
-											if (nestedProperties != null && nestedProperties.size() > 0)
+											if (isListFormComponent && listFormComponentElements != null)
 											{
-												IBasicWebComponent webComponent = (IBasicWebComponent)element;
-												for (PropertyDescription tabSeqProperty : nestedProperties)
+												listFormComponentElements.add(
+													new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+											}
+											else if (((ISupportTabSeq)element).getTabSeq() >= 0)
+											{
+												selected.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
+													CSSPositionUtils.getLocation(formElement)));
+											}
+											else
+											{
+												cachedTabSeq.put(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
+													Integer.valueOf(-2));
+											}
+										}
+										else if (FormTemplateGenerator.isWebcomponentBean(element))
+										{
+											String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
+											WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+												nestedDomponentType);
+											if (specification != null)
+											{
+												Collection<PropertyDescription> nestedProperties = nestedSpecification.getProperties(
+													NGTabSeqPropertyType.NG_INSTANCE);
+												if (nestedProperties != null && nestedProperties.size() > 0)
 												{
-													int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
-													if (tabseq >= 0)
+													IBasicWebComponent webComponent = (IBasicWebComponent)element;
+													for (PropertyDescription tabSeqProperty : nestedProperties)
 													{
-														selected.add(
-															new TabSeqProperty(element, tabSeqProperty.getName(), CSSPositionUtils.getLocation(formElement)));
-													}
-													else
-													{
-														cachedTabSeq.put(new TabSeqProperty(element, tabSeqProperty.getName()), Integer.valueOf(-2));
+														int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
+														if (isListFormComponent && listFormComponentElements != null)
+														{
+															listFormComponentElements.add(new TabSeqProperty(element, tabSeqProperty.getName()));
+														}
+														else if (tabseq >= 0)
+														{
+															selected.add(new TabSeqProperty(element, tabSeqProperty.getName(),
+																CSSPositionUtils.getLocation(formElement)));
+														}
+														else
+														{
+															cachedTabSeq.put(new TabSeqProperty(element, tabSeqProperty.getName()), Integer.valueOf(-2));
+														}
 													}
 												}
 											}
@@ -807,44 +837,82 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							}
 						}
 					}
+					else if (formElement instanceof ISupportTabSeq)
+					{
+						if (((ISupportTabSeq)formElement).getTabSeq() >= 0)
+						{
+							selected.add(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+						}
+						else
+						{
+							cachedTabSeq.put(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()), Integer.valueOf(-2));
+						}
+					}
 				}
-				else if (formElement instanceof ISupportTabSeq)
+
+				int i = 1;
+				for (TabSeqProperty tabSeq : selected)
 				{
-					if (((ISupportTabSeq)formElement).getTabSeq() >= 0)
+					cachedTabSeq.put(tabSeq, Integer.valueOf(i++));
+				}
+
+				for (TabSeqProperty tabSeq : listFormComponentMap.keySet())
+				{
+					List<TabSeqProperty> elements = listFormComponentMap.get(tabSeq);
+					if (elements != null)
 					{
-						selected.add(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
-					}
-					else
-					{
-						cachedTabSeq.put(new TabSeqProperty(formElement, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()), Integer.valueOf(-2));
+						Integer value = cachedTabSeq.get(tabSeq);
+						// all elements inside list form component have same tabindex as the list itself
+						for (TabSeqProperty tabSeqElement : elements)
+						{
+							cachedTabSeq.put(tabSeqElement, value);
+						}
 					}
 				}
+				if (!formWasModifiedViaSolutionModel)
+				{
+					formTabSequences.putIfAbsent(flattenedForm.getUUID(), cachedTabSeq);
+				}
+				else
+				{
+					flattenedForm.setRuntimeProperty(FORM_TAB_SEQUENCE, new Pair<>(Long.valueOf(flattenedForm.getLastModified()), cachedTabSeq));
+				}
 			}
+			IPersist realPersist = flattenedForm.findChild(persistIfAvailable.getUUID());
+			if (realPersist == null)
+			{
+				realPersist = persistIfAvailable;
+			}
+			Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(realPersist, pd.getName()));
+			if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
-			int i = 1;
-			for (TabSeqProperty tabSeq : selected)
-			{
-				cachedTabSeq.put(tabSeq, Integer.valueOf(i++));
-			}
-
-			if (!formWasModifiedViaSolutionModel)
-			{
-				formTabSequences.putIfAbsent(flattenedForm.getUUID(), cachedTabSeq);
-			}
-			else
-			{
-				flattenedForm.setRuntimeProperty(FORM_TAB_SEQUENCE, new Pair<>(Long.valueOf(flattenedForm.getLastModified()), cachedTabSeq));
-			}
+			return controlledTabSeq;
 		}
-		IPersist realPersist = flattenedForm.findChild(persistIfAvailable.getUUID());
-		if (realPersist == null)
+		finally
 		{
-			realPersist = persistIfAvailable;
+			nestedCall.set(Boolean.FALSE);
 		}
-		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty(realPersist, pd.getName()));
-		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
+	}
 
-		return controlledTabSeq;
+	public static boolean isListFormComponent(Collection<PropertyDescription> properties)
+	{
+		boolean isListFormComponent = false;
+		if (properties != null)
+		{
+			for (PropertyDescription property : properties)
+			{
+				if (property.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)property.getConfig()).forFoundset != null)
+				{
+					isListFormComponent = true;
+				}
+				else
+				{
+					isListFormComponent = false;
+					break;
+				}
+			}
+		}
+		return isListFormComponent;
 	}
 
 	public static class TabSeqProperty

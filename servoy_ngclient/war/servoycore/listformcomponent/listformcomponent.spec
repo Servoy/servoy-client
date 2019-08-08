@@ -12,7 +12,8 @@
 		"pageLayout" : {"type" : "string" , "values" : ["cardview","listview"] , "initialValue" : "cardview" },
 		"responsivePageSize": "int",
 		"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default": "svy-listformcomponent" },
-		"selectionClass": { "type": "styleclass", "tags": { "scope" :"design" }}
+		"selectionClass": { "type": "styleclass", "tags": { "scope" :"design" }},
+		"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}
 	},
 	"handlers" : {
 		"onSelectionChanged": {
