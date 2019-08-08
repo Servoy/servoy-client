@@ -68,14 +68,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			
 			$scope.$watch('model.valuelistID', function() {
 				if (!$scope.model.valuelistID) return; // not loaded yet or already filtered
-				if ($scope.model.valuelistID.length == 0)
-				{
-					if (hasRealValues == undefined && $scope.model.valuelistID.hasDifferentTypes())
-					{
-						hasRealValues = true;
-					}	
-					return;
-				}	
 				hasRealValues =  $scope.model.valuelistID.hasRealValues();
 				if (hasRealValues && !editing)
 				{

@@ -42,10 +42,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 							
 							return promise;
 						}, enumerable: false });
-					Object.defineProperty(newValue, 'hasDifferentTypes', {
-						value: function() {
-							return internalState.hasDifferentTypes;
-						}, enumerable: false });
 
 					Object.defineProperty(newValue, 'hasRealValues', {
 						value: function() {
