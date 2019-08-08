@@ -1071,8 +1071,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.createdChildElements = 0;
 						
 						const clone = element.clone();
+						
+						// as we do the $compile below we don't want to create an svy-form-component directive instance for each row
 						clone.attr("svy-form-component-clone", clone.attr("svy-form-component"));
 						clone.removeAttr("svy-form-component");
+						// this compile (that happens before row contents are added to "clone") is only for ng-click to work on each rows container div, not the actual scope of the row (which is created and used for compilation in createChildElementForRow)
 						clone.attr("ng-click", "onRowClick(" + (scope.foundset.viewPort.startIndex + index) + ")");
 						$compile(clone)(scope);
 						
