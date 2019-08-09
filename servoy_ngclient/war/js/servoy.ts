@@ -832,12 +832,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				foundset: "=foundset",
 				responsivePageSize: "=responsivePageSize",
 				pageLayout: "=pageLayout",
-				selectionClass: "=selectionClass"
+				selectionClass: "=selectionClass",
+				selectionChangedHandler: "="
 			},
 			link: function( scope: any, element, attrs ) {
 				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
 				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
-				let handlers = scope.$parent.handlers;
 				if ( svyServoyApi.isInDesigner() ) {
 					// in designer just show it as a normal form component
 					const newValue = scope.svyFormComponent
@@ -1222,9 +1222,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								if(scope.selectionClass) {
 									updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								}
-								if(handlers && handlers.onSelectionChanged) {
+								if(scope.selectionChangedHandler) {
 									var e = {target: parent[0]};
-									handlers.onSelectionChanged($utils.createJSEvent(e,"onselectionchanged"));
+									scope.selectionChangedHandler($utils.createJSEvent(e,"onselectionchanged"));
 								}
 							}
 							// TODO any other types of changes that need handling here?
