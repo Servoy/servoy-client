@@ -16,10 +16,11 @@
  */
 package com.servoy.j2db.server.shared;
 
+import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 
-public interface IHeadlessClient
+public interface IHeadlessClient extends IEventDelegator
 {
 	/**
 	 * Check if the client still valid for usage.
@@ -28,14 +29,14 @@ public interface IHeadlessClient
 
 	/**
 	 * Gets the clientId of this client.
-	 * 
+	 *
 	 * @return A String which holds the id of the client.
 	 */
 	public String getClientID();
 
 	/**
 	 * Get a dataprovider value.
-	 * 
+	 *
 	 * @param contextName This is the form name or null if the method is a global method.
 	 * @param dataprovider the dataprovider name as seen in Servoy
 	 * @return the value for the dataprovider
@@ -44,7 +45,7 @@ public interface IHeadlessClient
 
 	/**
 	 * Set a dataprovider value.
-	 * 
+	 *
 	 * @param contextName This is the form name or null if the method is a global method.
 	 * @param dataprovider the dataprovider name as seen in Servoy
 	 * @param value to set
@@ -66,7 +67,7 @@ public interface IHeadlessClient
 
 	/**
 	 * Load solution into the client
-	 * 
+	 *
 	 * @param solutionName of the solution to load
 	 * @throws RepositoryException
 	 */
@@ -74,7 +75,7 @@ public interface IHeadlessClient
 
 	/**
 	 * Close currently opened solution
-	 * 
+	 *
 	 * @param force to enforce close
 	 * @return whether the closing was successful
 	 */
