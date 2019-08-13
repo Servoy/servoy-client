@@ -663,7 +663,7 @@ public class WebEventExecutor extends BaseEventExecutor
 									{
 										if (selectedIndexesA.size() > 1)
 										{
-											((ISwingFoundSet)fs).getSelectionModel().removeIndexInterval(selectedIndex, selectedIndex);
+											((ISwingFoundSet)fs).getSelectionModel().removeSelectionInterval(selectedIndex, selectedIndex);
 										}
 									}
 									else
