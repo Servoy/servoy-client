@@ -412,7 +412,7 @@ public final class CSSPositionUtils
 		while (currentComponent != null)
 		{
 			if (currentComponent.getParent() instanceof AbstractContainer) return (AbstractContainer)currentComponent.getParent();
-			currentComponent = component.getParent();
+			currentComponent = currentComponent.getParent();
 		}
 		return null;
 	}
