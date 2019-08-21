@@ -42,7 +42,10 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		{
 			if (!(child instanceof ISupportExtendsID) || ((ISupportExtendsID)child).getExtendsID() <= 0) continue;
 			IPersist parent = PersistHelper.getSuperPersist((ISupportExtendsID)child);
-			extendsMap.put(parent.getUUID(), child);
+			if (parent != null)
+			{
+				extendsMap.put(parent.getUUID(), child);
+			}
 		}
 		for (IPersist child : children)
 		{
