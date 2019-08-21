@@ -263,6 +263,51 @@ public final class CSSPositionUtils
 		return new Dimension(width, height);
 	}
 
+	public static CSSPosition adjustCSSPosition(BaseComponent baseComponent, int x, int y, int width, int height)
+	{
+		CSSPosition position = baseComponent.getCssPosition();
+		CSSPosition adjustedPosition = (position == null) ? new CSSPosition("0", "-1", "-1", "0", "0", "0")
+			: new CSSPosition(position.top, position.right, position.bottom, position.left, position.width, position.height);
+		AbstractContainer container = getParentContainer(baseComponent);
+		Dimension containerSize = container.getSize();
+		if (CSSPositionUtils.isSet(position.left) && !CSSPositionUtils.isSet(position.right))
+		{
+			adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
+			adjustedPosition.width = pixelsToPercentage(width, containerSize.width, position.width);
+		}
+		else if (!CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
+		{
+			adjustedPosition.right = pixelsToPercentage(containerSize.width - x - width, containerSize.width, position.right);
+			adjustedPosition.width = pixelsToPercentage(width, containerSize.width, position.width);
+		}
+		else
+		{
+			adjustedPosition.right = pixelsToPercentage(
+				percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x, containerSize.width,
+				position.right);
+			adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
+		}
+
+		if (CSSPositionUtils.isSet(position.top) && !CSSPositionUtils.isSet(position.bottom))
+		{
+			adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
+			adjustedPosition.height = pixelsToPercentage(height, containerSize.height, position.height);
+		}
+		else if (!CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
+		{
+			adjustedPosition.bottom = pixelsToPercentage(containerSize.height - y - height, containerSize.height, position.bottom);
+			adjustedPosition.height = pixelsToPercentage(height, containerSize.height, position.height);
+		}
+		else
+		{
+			adjustedPosition.bottom = pixelsToPercentage(
+				percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y, containerSize.height,
+				position.bottom);
+			adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
+		}
+		return adjustedPosition;
+	}
+
 	public static boolean isSet(String value)
 	{
 		return !"-1".equals(value);
@@ -392,7 +437,7 @@ public final class CSSPositionUtils
 		return String.valueOf(value);
 	}
 
-	private static boolean useCSSPosition(Object persist)
+	public static boolean useCSSPosition(Object persist)
 	{
 		if (persist instanceof BaseComponent && ((BaseComponent)persist).getParent() instanceof Form &&
 			((Form)((BaseComponent)persist).getParent()).getUseCssPosition().booleanValue())
