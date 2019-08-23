@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.util.HashMap;
+import static com.servoy.j2db.querybuilder.impl.QBParameter.PARAMETER_PREFIX;
+
 import java.util.Map;
 
 import org.mozilla.javascript.Context;
@@ -27,9 +28,13 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.TypePredicate;
 
 /**
  * @author rgansevles
@@ -41,93 +46,98 @@ public class QBParameters extends DefaultJavaScope
 	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBParameters.class);
 
 	private final QBSelect query;
-	private final Map<String, QBParameter> parameters = new HashMap<String, QBParameter>();
 
 	QBParameters(Scriptable scriptParent, QBSelect query)
 	{
 		super(scriptParent, jsFunctions);
 		this.query = query;
+
+		QuerySelect querySelect = query.getQuery(false);
+		if (querySelect != null)
+		{
+			// get all existing parameters from the query
+			AbstractBaseQuery.<TablePlaceholderKey> search(querySelect,
+				new TypePredicate<>(TablePlaceholderKey.class, key -> key.getName().startsWith(PARAMETER_PREFIX))) //
+				.forEach(key -> getParameter(key.getName().substring(PARAMETER_PREFIX.length())));
+		}
 	}
 
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		Object obj = super.get(name, start);
-		if (obj != null && obj != Scriptable.NOT_FOUND)
+		QBParameter parameter = (QBParameter)allVars.get(name);
+		if (parameter != null)
 		{
-			return obj;
+			Object value = null;
+			try
+			{
+				value = parameter.getValue();
+			}
+			catch (RepositoryException e)
+			{
+				Debug.log(e);
+			}
+			if (value != null && value != Scriptable.NOT_FOUND && !(value instanceof Scriptable))
+			{
+				Context context = Context.getCurrentContext();
+				if (context != null) value = context.getWrapFactory().wrap(context, start, value, value.getClass());
+			}
+			return value;
 		}
 
-		QBParameter param = parameters.get(name);
-		try
-		{
-			if (param != null)
-			{
-				Object o = param.getValue();
-				if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
-				{
-					Context context = Context.getCurrentContext();
-					if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
-				}
-				return o;
-			}
-		}
-		catch (RepositoryException e)
-		{
-			Debug.log(e);
-		}
-		return null;
+		return super.get(name, start);
 	}
 
 	@Override
 	public void put(String name, Scriptable start, Object val)
 	{
-		Object value = val;
-		if (value instanceof Wrapper)
+		// the parameter has to be created first using QBSelect.getParameter(), otherwise the parameter value is not RAGTEST
+		QBParameter parameter = (QBParameter)allVars.get(name);
+		if (parameter != null)
 		{
-			value = ((Wrapper)value).unwrap();
-		}
-
-		try
-		{
-			if (value instanceof IQueryBuilder)
+			Object value = val;
+			if (value instanceof Wrapper)
 			{
-				value = ((IQueryBuilder)value).build();
+				value = ((Wrapper)value).unwrap();
 			}
-			getParameter(name).setValue(value);
+
+			try
+			{
+				if (value instanceof IQueryBuilder)
+				{
+					value = ((IQueryBuilder)value).build();
+				}
+
+				parameter.setValue(value);
+			}
+			catch (RepositoryException e)
+			{
+				Debug.log(e);
+			}
+			super.put(name, start, parameter);
 		}
-		catch (RepositoryException e)
-		{
-			Debug.log(e);
-		}
-		super.put(name, start, null);
 	}
+
+	@Override
+	public Object remove(String key)
+	{
+		// ignore
+		return null;
+	}
+
 
 	@Override
 	public void delete(String name)
 	{
-		parameters.remove(name);
-		super.delete(name);
+		// ignore
 	}
 
-	@Override
-	public Object[] getIds()
+	QBParameter getParameter(String name)
 	{
-		return parameters.keySet().toArray();
-	}
-
-	@Override
-	public boolean has(String name, Scriptable start)
-	{
-		return parameters.containsKey(name) || super.has(name, start);
-	}
-
-	public QBParameter getParameter(String name) throws RepositoryException
-	{
-		QBParameter param = parameters.get(name);
+		QBParameter param = (QBParameter)allVars.get(name);
 		if (param == null)
 		{
-			parameters.put(name, param = new QBParameter(query, name));
+			allVars.put(name, param = new QBParameter(query, name));
 		}
 		return param;
 	}
