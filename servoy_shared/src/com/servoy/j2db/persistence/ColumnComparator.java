@@ -18,6 +18,9 @@ package com.servoy.j2db.persistence;
 
 
 import java.util.Comparator;
+import java.util.List;
+
+import com.servoy.base.persistence.IBaseColumn;
 
 /**
  * @author jcompagner
@@ -25,6 +28,8 @@ import java.util.Comparator;
 public class ColumnComparator implements Comparator<IColumn>
 {
 	public static final ColumnComparator INSTANCE = new ColumnComparator();
+
+	private List<String> indexedNamesList = null;
 
 	/**
 	 * @see java.util.Comparator#compare(Object, Object)
@@ -34,18 +39,30 @@ public class ColumnComparator implements Comparator<IColumn>
 		// Names of IColumn can't be null!!
 		if (column1 instanceof Column && column2 instanceof Column)
 		{
-			if (((Column)column1).getRowIdentType() != Column.NORMAL_COLUMN)
+			if (((Column)column1).getRowIdentType() != IBaseColumn.NORMAL_COLUMN)
 			{
-				if (((Column)column2).getRowIdentType() == Column.NORMAL_COLUMN) return -1;
+				if (((Column)column2).getRowIdentType() == IBaseColumn.NORMAL_COLUMN) return -1;
 			}
-			else if (((Column)column2).getRowIdentType() != Column.NORMAL_COLUMN)
+			else if (((Column)column2).getRowIdentType() != IBaseColumn.NORMAL_COLUMN)
 			{
-				if (((Column)column1).getRowIdentType() == Column.NORMAL_COLUMN) return 1;
+				if (((Column)column1).getRowIdentType() == IBaseColumn.NORMAL_COLUMN) return 1;
 			}
 
+		}
+
+		if (indexedNamesList != null)
+		{
+			Integer index1 = new Integer(indexedNamesList.indexOf(column1.getName()));
+			Integer index2 = new Integer(indexedNamesList.indexOf(column2.getName()));
+			return index1.compareTo(index2);
 		}
 		String name1 = column1.getName();
 		String name2 = column2.getName();
 		return name1.compareToIgnoreCase(name2);
+	}
+
+	public void setIndexedNamesList(List<String> indexedNamesList)
+	{
+		this.indexedNamesList = indexedNamesList;
 	}
 }

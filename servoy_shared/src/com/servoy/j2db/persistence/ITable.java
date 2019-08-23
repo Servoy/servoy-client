@@ -266,4 +266,10 @@ public interface ITable
 	 * @return
 	 */
 	public IColumn getColumnBySqlname(String columnSqlname);
+
+	/**
+	 * @param indexedNames
+	 * @return
+	 */
+	public Iterator<Column> getColumnsSortedByIndex(List<String> indexedNames);
 }

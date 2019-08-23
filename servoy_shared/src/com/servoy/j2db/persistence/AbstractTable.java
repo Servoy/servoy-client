@@ -313,4 +313,18 @@ public abstract class AbstractTable implements ITable, Serializable
 
 		return dataProviderIDs;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#getColumnsSortedByPrefs()
+	 */
+	@Override
+	public Iterator<Column> getColumnsSortedByIndex(List<String> indexedNamesList)
+	{
+		ColumnComparator myComparator = ColumnComparator.INSTANCE;
+		myComparator.setIndexedNamesList(indexedNamesList);
+		SortedList<Column> newList = new SortedList<Column>(myComparator, getColumns());
+		return newList.iterator();
+	}
 }
