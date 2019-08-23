@@ -263,7 +263,21 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 
 		// register parent record changed listener
-		if (parentDAL != null) parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
+		if (parentDAL != null)
+		{
+			TargetDataLinks dataLinks = TargetDataLinks.LINKED_TO_ALL;
+			if (foundsetSelector != null && !FORM_FOUNDSET_SELECTOR.equals(foundsetSelector) && !DataSourceUtils.isDatasourceUri(foundsetSelector))
+			{
+				// it is a relation then, not a datasource (separate or named foundset)
+				Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector);
+				if (relations != null && relations.length > 1)
+				{
+					// if this is a nested relation the parent dall needs to know this. so it can monitor the paren relations.
+					dataLinks = new TargetDataLinks(null, true, relations);
+				}
+			}
+			parentDAL.addDataLinkedProperty(this, dataLinks);
+		}
 
 		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
 	}

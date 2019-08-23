@@ -11,6 +11,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,10 +36,14 @@ import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.dataprocessing.FireCollector;
+import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
+import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.AggregateVariable;
@@ -86,12 +93,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final WeakHashMap<IWebFormController, String> visibleChildForms = new WeakHashMap<>();
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
+	private final List<Relation[]> toWatchRelations = new ArrayList<Relation[]>(3);
+	private final List<RelatedListener> relatedListeners = new ArrayList<RelatedListener>(3);
+
 	private IRecordInternal record;
 	private boolean findMode = false;
 	private boolean settingRecord;
 
 	private boolean isFormScopeListener;
 	private boolean isGlobalScopeListener;
+
 
 	public DataAdapterList(IWebFormController formController)
 	{
@@ -472,6 +483,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 
 		if (!allComponentPropertiesLinkedToData.contains(propertyValue)) allComponentPropertiesLinkedToData.add(propertyValue);
+
+		if (targetDataLinks.relations != null)
+		{
+			toWatchRelations.add(targetDataLinks.relations);
+
+			if (record != null)
+			{
+				System.err.println("start wiatching");
+			}
+		}
 	}
 
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
@@ -530,6 +551,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				this.record.addModificationListener(this);
 				this.record.getParentFoundSet().addAggregateModificationListener(this);
 			}
+			createRelationListeners();
 		}
 		finally
 		{
@@ -551,6 +573,35 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
+	}
+
+	public void createRelationListeners()
+	{
+		// first remove the previous onces
+		for (RelatedListener relatedListener : relatedListeners)
+		{
+			relatedListener.dispose();
+		}
+		relatedListeners.clear();
+		if (this.record != null)
+		{
+			for (Relation[] relationsToWatch : toWatchRelations)
+			{
+				IRecordInternal current = this.record;
+				for (int i = 0; i < relationsToWatch.length - 1; i++)
+				{
+					IFoundSetInternal related = current.getRelatedFoundSet(relationsToWatch[i].getName());
+					if (related != null)
+					{
+						// if selection changes or the current record changes then an update should happen.
+						relatedListeners.add(new RelatedListener(related));
+						current = related.getRecord(related.getSelectedIndex());
+						if (current == null) break;
+					}
+					else break;
+				}
+			}
+		}
 	}
 
 	protected boolean shouldIgnoreRecordChange(IRecord oldRecord, IRecord newRecord)
@@ -679,6 +730,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 			}
 		}
+		// one of the relations could be changed make sure they are recreated.
+		createRelationListeners();
 		if (getForm().isFormVisible())
 		{
 			pushChangedValues(e.getName(), true);
@@ -1050,9 +1103,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (tabs instanceof List && ((List)tabs).size() > 0)
 				{
 					List tabsList = (List)tabs;
-					for (int i = 0; i < tabsList.size(); i++)
+					for (Object element : tabsList)
 					{
-						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+						Map<String, Object> tab = (Map<String, Object>)element;
 						if (tab != null)
 						{
 							String relation = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
@@ -1097,5 +1150,68 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+	}
+
+	private class RelatedListener implements ListSelectionListener, IModificationListener, IFoundSetEventListener
+	{
+
+		private final IFoundSetInternal related;
+		private final IRecordInternal selectedRecord;
+
+		/**
+		 * @param related
+		 */
+		public RelatedListener(IFoundSetInternal related)
+		{
+			this.related = related;
+			if (this.related instanceof ISwingFoundSet)
+			{
+				((ISwingFoundSet)this.related).getSelectionModel().addListSelectionListener(this);
+			}
+			this.related.addFoundSetEventListener(this);
+			selectedRecord = this.related.getRecord(this.related.getSelectedIndex());
+			if (selectedRecord != null)
+			{
+				selectedRecord.addModificationListener(this);
+			}
+		}
+
+		public void dispose()
+		{
+//			System.err.println("Disposed " + this.related);
+			if (this.related instanceof ISwingFoundSet)
+			{
+				((ISwingFoundSet)this.related).getSelectionModel().removeListSelectionListener(this);
+			}
+			this.related.removeFoundSetEventListener(this);
+			if (selectedRecord != null)
+			{
+				selectedRecord.removeModificationListener(this);
+			}
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e)
+		{
+			// TODO should this event has a name?
+			DataAdapterList.this.valueChanged(new ModificationEvent(null, null, e.getSource()));
+		}
+
+		@Override
+		public void valueChanged(ModificationEvent e)
+		{
+			// TODO can we give this modification event or should one be made?
+			DataAdapterList.this.valueChanged(e);
+		}
+
+		@Override
+		public void foundSetChanged(FoundSetEvent e)
+		{
+			if (this.related.getRecord(this.related.getSelectedIndex()) != this.selectedRecord)
+			{
+				System.err.println("fs  selected reecord chaged on fs change " + related);
+				DataAdapterList.this.valueChanged(new ModificationEvent(null, null, e.getSource()));
+			}
+		}
 	}
 }
