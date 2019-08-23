@@ -80,6 +80,8 @@ public class ChainedRelatedFoundsetSelectionMonitor
 				ISwingFoundSet currentRelatedFoundset = (ISwingFoundSet)currentRecord.getValue(relationNames[i]);
 				currentRelatedFoundset.getSelectionModel().addListSelectionListener(listSelectionListener);
 				monitoredChainedFoundsets.add(currentRelatedFoundset);
+				currentRecord = currentRelatedFoundset.getRecord(currentRelatedFoundset.getSelectedIndex());
+				if (currentRecord == null) break;
 			}
 		}
 		this.rootRecord = rootRecord;
