@@ -1174,7 +1174,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		public void dispose()
 		{
-//			System.err.println("Disposed " + this.related);
 			if (this.related instanceof ISwingFoundSet)
 			{
 				((ISwingFoundSet)this.related).getSelectionModel().removeListSelectionListener(this);
@@ -1205,7 +1204,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (this.related.getRecord(this.related.getSelectedIndex()) != this.selectedRecord)
 			{
-				System.err.println("fs  selected reecord chaged on fs change " + related);
 				DataAdapterList.this.valueChanged(new ModificationEvent(null, null, e.getSource()));
 			}
 		}
