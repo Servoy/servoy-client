@@ -467,9 +467,7 @@ public class FormLayoutGenerator
 		IPersist fePersist = fe.getPersistIfAvailable();
 
 		String name = fe.getName();
-		boolean selectable = false;
-		if (name == null) name = fe.getName();
-		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);
+		boolean selectable = fe.isFormComponentChild() ? name.indexOf('$' + FormElement.SVY_NAME_PREFIX) == -1 : true;
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -500,7 +498,7 @@ public class FormLayoutGenerator
 					writer.print(((ISupportBounds)fePersist).getLocation().x);
 					writer.print("'");
 				}
-				if (selectable)
+				if (!selectable)
 				{
 					writer.print(" svy-non-selectable='noname'");
 				}
