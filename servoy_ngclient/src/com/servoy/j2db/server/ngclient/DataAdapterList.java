@@ -487,11 +487,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (targetDataLinks.relations != null)
 		{
 			toWatchRelations.add(targetDataLinks.relations);
-
-			if (record != null)
-			{
-				System.err.println("start wiatching");
-			}
+			createRelationListeners();
 		}
 	}
 
