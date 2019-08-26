@@ -19,10 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.querybuilder.impl.QBParameter.PARAMETER_PREFIX;
 
-import java.util.Map;
-
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -32,7 +29,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.TypePredicate;
 
@@ -41,15 +38,13 @@ import com.servoy.j2db.util.TypePredicate;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBParameters extends DefaultJavaScope
+public class QBParameters extends DefaultScope
 {
-	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBParameters.class);
-
 	private final QBSelect query;
 
 	QBParameters(Scriptable scriptParent, QBSelect query)
 	{
-		super(scriptParent, jsFunctions);
+		super(scriptParent);
 		this.query = query;
 
 		QuerySelect querySelect = query.getQuery(false);
@@ -118,6 +113,16 @@ public class QBParameters extends DefaultJavaScope
 		}
 	}
 
+	/**
+	 * @see org.mozilla.javascript.Scriptable#has(java.lang.String, org.mozilla.javascript.Scriptable)
+	 */
+	@Override
+	public boolean has(String name, Scriptable start)
+	{
+		// only the parameters, so that a loop 'for (var p in query.params)' works as expected
+		return allVars.containsKey(name);
+	}
+
 	@Override
 	public Object remove(String key)
 	{
@@ -134,11 +139,6 @@ public class QBParameters extends DefaultJavaScope
 
 	QBParameter getParameter(String name)
 	{
-		QBParameter param = (QBParameter)allVars.get(name);
-		if (param == null)
-		{
-			allVars.put(name, param = new QBParameter(query, name));
-		}
-		return param;
+		return (QBParameter)allVars.computeIfAbsent(name, nm -> new QBParameter(query, nm));
 	}
 }
