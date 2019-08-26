@@ -80,7 +80,7 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 		 * is interested in changes to one dataProviderID only (so whole record changing or that specific dataProvider changing).
 		 * @param dataProviderID the dataProvider that a property is interested in.
 		 * @param recordLinked true of this is a record dependent dataProvider and false otherwise (scope/form variable).
-		 * @param relations the relations  that this target displays the data from. Only needs to be set if the array is bigger then 1
+		 * @param relations the parent relations  that this target displays the data from. those relations should be monitored
 		 */
 		public TargetDataLinks(String[] dataProviderIDs, boolean recordLinked, Relation[] relations)
 		{

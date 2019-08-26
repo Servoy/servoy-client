@@ -269,11 +269,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (foundsetSelector != null && !FORM_FOUNDSET_SELECTOR.equals(foundsetSelector) && !DataSourceUtils.isDatasourceUri(foundsetSelector))
 			{
 				// it is a relation then, not a datasource (separate or named foundset)
-				Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector);
-				if (relations != null && relations.length > 1)
+				int lastIndex = foundsetSelector.lastIndexOf('.');
+				if (lastIndex > 0)
 				{
-					// if this is a nested relation the parent dall needs to know this. so it can monitor the paren relations.
-					dataLinks = new TargetDataLinks(null, true, relations);
+					// if this is a nested relation the parent dal needs to know this. so it can monitor the parent relations.
+					Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector.substring(0, lastIndex));
+					if (relations != null && relations.length > 0)
+					{
+						dataLinks = new TargetDataLinks(null, true, relations);
+					}
 				}
 			}
 			parentDAL.addDataLinkedProperty(this, dataLinks);

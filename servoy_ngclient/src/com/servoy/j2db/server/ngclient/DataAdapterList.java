@@ -3,6 +3,7 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,11 +91,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private final IWebFormController formController;
 	private final EventExecutor executor;
-	private final WeakHashMap<IWebFormController, String> visibleChildForms = new WeakHashMap<>();
-	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
+	private final WeakHashMap<IWebFormController, String> visibleChildForms = new WeakHashMap<>(3);
+	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>(3);
 
-	private final List<Relation[]> toWatchRelations = new ArrayList<Relation[]>(3);
-	private final List<RelatedListener> relatedListeners = new ArrayList<RelatedListener>(3);
+	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
 
 	private IRecordInternal record;
 	private boolean findMode = false;
@@ -486,8 +486,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (targetDataLinks.relations != null)
 		{
-			toWatchRelations.add(targetDataLinks.relations);
-			createRelationListeners();
+			if (toWatchRelations == null) toWatchRelations = new HashMap<>(3);
+			toWatchRelations.put(propertyValue, new Pair<Relation[], List<RelatedListener>>(targetDataLinks.relations, Collections.emptyList()));
+			createRelationListeners(propertyValue);
 		}
 	}
 
@@ -571,32 +572,34 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	}
 
-	public void createRelationListeners()
+	private void createRelationListeners()
+	{
+		if (toWatchRelations != null) toWatchRelations.keySet().forEach(key -> createRelationListeners(key));
+	}
+
+	private void createRelationListeners(IDataLinkedPropertyValue propertyValue)
 	{
 		// first remove the previous onces
-		for (RelatedListener relatedListener : relatedListeners)
-		{
-			relatedListener.dispose();
-		}
-		relatedListeners.clear();
+		Pair<Relation[], List<RelatedListener>> pair = toWatchRelations.get(propertyValue);
+		pair.getRight().forEach(listener -> listener.dispose());
 		if (this.record != null)
 		{
-			for (Relation[] relationsToWatch : toWatchRelations)
+			Relation[] relationsToWatch = pair.getLeft();
+			IRecordInternal current = this.record;
+			ArrayList<RelatedListener> listeners = new ArrayList<>(relationsToWatch.length);
+			for (Relation element : relationsToWatch)
 			{
-				IRecordInternal current = this.record;
-				for (int i = 0; i < relationsToWatch.length - 1; i++)
+				IFoundSetInternal related = current.getRelatedFoundSet(element.getName());
+				if (related != null)
 				{
-					IFoundSetInternal related = current.getRelatedFoundSet(relationsToWatch[i].getName());
-					if (related != null)
-					{
-						// if selection changes or the current record changes then an update should happen.
-						relatedListeners.add(new RelatedListener(related));
-						current = related.getRecord(related.getSelectedIndex());
-						if (current == null) break;
-					}
-					else break;
+					// if selection changes or the current record changes then an update should happen.
+					listeners.add(new RelatedListener(propertyValue, related));
+					current = related.getRecord(related.getSelectedIndex());
+					if (current == null) break;
 				}
+				else break;
 			}
+			pair.setRight(listeners);
 		}
 	}
 
@@ -611,7 +614,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return record;
 	}
 
-	protected final boolean isFormDataprovider(String dataprovider)
+	protected boolean isFormDataprovider(String dataprovider)
 	{
 		if (dataprovider == null) return false;
 		FormScope fs = formController.getFormScope();
@@ -1153,12 +1156,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		private final IFoundSetInternal related;
 		private final IRecordInternal selectedRecord;
+		private final IDataLinkedPropertyValue propertyValue;
 
 		/**
 		 * @param related
 		 */
-		public RelatedListener(IFoundSetInternal related)
+		public RelatedListener(IDataLinkedPropertyValue propertyValue, IFoundSetInternal related)
 		{
+			this.propertyValue = propertyValue;
 			this.related = related;
 			if (this.related instanceof ISwingFoundSet)
 			{
@@ -1185,18 +1190,22 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
+		private void changed()
+		{
+			propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
+			createRelationListeners(propertyValue);
+		}
+
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			// TODO should this event has a name?
-			DataAdapterList.this.valueChanged(new ModificationEvent(null, null, e.getSource()));
+			changed();
 		}
 
 		@Override
 		public void valueChanged(ModificationEvent e)
 		{
-			// TODO can we give this modification event or should one be made?
-			DataAdapterList.this.valueChanged(e);
+			changed();
 		}
 
 		@Override
@@ -1204,7 +1213,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (this.related.getRecord(this.related.getSelectedIndex()) != this.selectedRecord)
 			{
-				DataAdapterList.this.valueChanged(new ModificationEvent(null, null, e.getSource()));
+				changed();
 			}
 		}
 	}
