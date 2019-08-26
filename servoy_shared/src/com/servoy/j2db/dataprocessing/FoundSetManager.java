@@ -2658,7 +2658,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			ITable table = inMemDataSources.get(dataSource);
 			GlobalTransaction gt = getGlobalTransaction();
 			String targetTid = null;
-			String targetServerName = table == null ? serverName : table.getServerName();
+			String targetServerName = table == null ? IServer.INMEM_SERVER : table.getServerName();
 			if (gt != null)
 			{
 				targetTid = gt.getTransactionID(targetServerName);
