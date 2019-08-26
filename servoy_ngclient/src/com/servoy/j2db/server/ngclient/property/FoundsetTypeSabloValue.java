@@ -1088,8 +1088,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											{
 												// TODO handle the validaton errors.
 												IWebFormUI formUI = getFormUI();
-												formUI.getController().getApplication().reportError(
-													"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
+												formUI.getController()
+													.getApplication()
+													.reportError(
+														"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
 											}
 										}
 										// else cannot start editing; finally block will deal with it (send old value back to client as new one can't be pushed)
@@ -1138,7 +1140,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
 		if (dataAdapterList == null && webObjectContext != null && webObjectContext.getUnderlyingWebObject() instanceof WebComponent)
 		{
-			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
+			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController(), this);
 			if (foundset != null) dataAdapterList.setFindMode(foundset.isInFindMode());
 		}
 		return dataAdapterList;

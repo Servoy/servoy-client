@@ -18,7 +18,9 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -42,10 +44,13 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	private boolean keepQuiet = false;
 	private Object onlyFireListenersForPropertyValue;
 	private List<IDataLinkedPropertyRegistrationListener> dataLinkedPropertyRegistrationListeners;
+	private final FoundsetTypeSabloValue foundsetTypeSabloValue;
+	private Set<String> globalDataproviders;
 
-	public FoundsetDataAdapterList(IWebFormController formController)
+	public FoundsetDataAdapterList(IWebFormController formController, FoundsetTypeSabloValue foundsetTypeSabloValue)
 	{
 		super(formController);
+		this.foundsetTypeSabloValue = foundsetTypeSabloValue;
 	}
 
 	public void setRecordQuietly(IRecord record)
@@ -137,12 +142,37 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{
-		// if the current record is already not in the foundset anymore, just ignore this change.
-		// this is because the row of the record could still fire a ModificationEvent change at the moment the record is removed from the foundset.
-		IRecordInternal r = getRecord();
-		if (r == null || r.getParentFoundSet().getRecordIndex(r) != -1)
+		// if this is a global modification event and we need to react on that one
+		// then just mark the foundset as fully changed.
+		if (globalDataproviders != null && e.getName() != null && globalDataproviders.contains(e.getName()))
 		{
-			super.valueChanged(e);
+			foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
+			// it would be better if we could just mark the actual full column viewport as changed..
+			// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
+			// but then the clients also need to react on that specific change..
+			// or we call queuCellChange for every cell of that column (so for every row)
+		}
+		else
+		{
+			IRecordInternal r = getRecord();
+			// if the current record is already not in the foundset anymore, just ignore this change.
+			// this is because the row of the record could still fire a ModificationEvent change at the moment the record is removed from the foundset.
+			if (r == null || r.getParentFoundSet().getRecordIndex(r) != -1)
+			{
+				super.valueChanged(e);
+			}
+		}
+	}
+
+	@Override
+	protected void setupModificationListener(String dataprovider)
+	{
+		super.setupModificationListener(dataprovider);
+
+		if (isGlobalDataprovider(dataprovider))
+		{
+			if (globalDataproviders == null) globalDataproviders = new HashSet<String>(3);
+			globalDataproviders.add(dataprovider);
 		}
 	}
 
