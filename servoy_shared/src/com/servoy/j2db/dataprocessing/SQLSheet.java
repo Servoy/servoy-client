@@ -140,9 +140,9 @@ public class SQLSheet
 		return allCalculationsTypes.containsKey(dataProviderID);
 	}
 
-	public Iterator<String> getAllCalculationNames()
+	public List<String> getAllCalculationNames()
 	{
-		return allCalculationsTypes.keySet().iterator();
+		return new ArrayList<>(allCalculationsTypes.keySet());
 	}
 
 	public List<String> getStoredCalculationNames()
@@ -157,6 +157,20 @@ public class SQLSheet
 		}
 
 		return storedCalcs;
+	}
+
+	public List<String> getUnStoredCalculationNames()
+	{
+		List<String> unstored = new ArrayList<String>();
+		for (String calc : allCalculationsTypes.keySet())
+		{
+			if (!getDataProviderIDsColumnMap().containsKey(calc))
+			{
+				unstored.add(calc);
+			}
+		}
+
+		return unstored;
 	}
 
 	Map<String, Object> getAllUnstoredCalculationNamesWithNoValue()
@@ -344,8 +358,10 @@ public class SQLSheet
 							{
 								try
 								{
-									obj = application.getScriptEngine().getScopesScope().executeGlobalFunction(globalScriptMethod.getScopeName(),
-										globalScriptMethod.getName(), null, false, false);
+									obj = application.getScriptEngine()
+										.getScopesScope()
+										.executeGlobalFunction(globalScriptMethod.getScopeName(),
+											globalScriptMethod.getName(), null, false, false);
 								}
 								catch (Exception e)
 								{

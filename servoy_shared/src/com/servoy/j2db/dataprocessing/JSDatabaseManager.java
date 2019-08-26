@@ -420,8 +420,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			// else table remains null: apply to all tables with that column
 
-			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager().createDataproviderTableFilterdefinition(
-				table, dataprovider, operator, value);
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager()
+				.createDataproviderTableFilterdefinition(
+					table, dataprovider, operator, value);
 			if (dataproviderTableFilterdefinition == null)
 			{
 				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
@@ -587,8 +588,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 
 				ITable ft = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
-				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null,
-					application.getFoundSetManager().getDefaultPKSortColumns(ft.getDataSource()));
+				FoundSet fs_new = (FoundSet)application.getFoundSetManager()
+					.getNewFoundSet(ft, null,
+						application.getFoundSetManager().getDefaultPKSortColumns(ft.getDataSource()));
 
 				QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
 				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
@@ -766,8 +768,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						trackingInfo.setTrackingData(sqlSelect.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
-					IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+					IDataSet dataSet = fsm.getDataServer()
+						.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
+							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
+							trackingInfo);
 
 					lst = new ArrayList<Object[]>(dataSet.getRowCount());
 					for (int i = 0; i < dataSet.getRowCount(); i++)
@@ -1550,8 +1554,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_executeStoredProcedure", //$NON-NLS-1$
-						new Class[] { String.class, String.class, Object[].class, int[].class, int.class });
+					Method m = so.getClass()
+						.getMethod("js_executeStoredProcedure", //$NON-NLS-1$
+							new Class[] { String.class, String.class, Object[].class, int[].class, int.class });
 					return m.invoke(so, new Object[] { serverName, procedureDeclaration, args, inOutType, new Integer(maxNumberOfRowsToRetrieve) });
 				}
 				catch (Exception e)
@@ -1596,6 +1601,34 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			return application.getFoundSetManager().getFoundSetCount((IFoundSetInternal)foundset);
 		}
 		return 0;
+	}
+
+	/**
+	 * This method differences for recalculate() that it only works on a datasource rows/records that are loaded in memory.
+	 * It will not cause extra rows of that datasource to be loaded in memory (except if a calc itself would do that)
+	 *
+	 * if onlyUnstored is true, then only unstored calculations will be flushed. (so also not causing any saves to the database)
+	 *
+	 * @sample
+	 * // flushed all unstored caclulations of the foundsets datasource.
+	 * databaseManager.flushCalculations(datasource, true);
+	 *
+	 * @param datasource The datasource to flush all calculations of
+	 * @param onlyUnstored boolean to only go over the unstore cals of this datasource
+	 */
+	public void js_flushCalculations(String datasource, boolean unstoredOnly) throws ServoyException
+	{
+		checkAuthorized();
+		if (datasource != null)
+		{
+			RowManager rowManager = application.getFoundSetManager().getRowManager(datasource);
+			if (rowManager != null)
+			{
+				List<String> calcNames = unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
+					: rowManager.getSQLSheet().getAllCalculationNames();
+				rowManager.clearCalcs(null, calcNames);
+			}
+		}
 	}
 
 	/**
@@ -2166,8 +2199,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					}
 					try
 					{
-						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+						dataSet = fsm.getDataServer()
+							.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
+								sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
+								trackingInfo);
 					}
 					catch (RemoteException e)
 					{
