@@ -42,10 +42,10 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSUpload")
 public class JSUpload implements IUploadData, IJavaScriptType, IFile
 {
-	private final FileItem item;
+	private final Object item;
 	private final Map<String, String> formFields;
 
-	public JSUpload(FileItem item, Map<String, String> formFields)
+	public JSUpload(Object item, Map<String, String> formFields)
 	{
 		this.item = item;
 		this.formFields = formFields;
@@ -61,7 +61,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public boolean isInMemory()
 	{
-		return item.isInMemory();
+		return ((FileItem)item).isInMemory(); // inlining casting is needed because of smart client, that doesn't have a FileItem
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public long getSize()
 	{
-		return item.getSize();
+		return ((FileItem)item).getSize();
 	}
 
 	/**
@@ -82,12 +82,12 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	{
 		try
 		{
-			return item.getString("UTF-8"); //$NON-NLS-1$
+			return ((FileItem)item).getString("UTF-8"); //$NON-NLS-1$
 		}
 		catch (UnsupportedEncodingException e)
 		{
 		}
-		return item.getString();
+		return ((FileItem)item).getString();
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 		{
 			try
 			{
-				item.write((File)f);
+				((FileItem)item).write((File)f);
 			}
 			catch (Exception e)
 			{
@@ -162,7 +162,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public byte[] getBytes()
 	{
-		return item.get();
+		return ((FileItem)item).get();
 	}
 
 
@@ -172,7 +172,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public String getName()
 	{
-		String name = item.getName();
+		String name = ((FileItem)item).getName();
 
 		// when uploading from localhost some browsers will specify the entire path, we strip it
 		// down to just the file name
@@ -190,7 +190,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public String getContentType()
 	{
-		return item.getContentType();
+		return ((FileItem)item).getContentType();
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	 */
 	public InputStream getInputStream() throws IOException
 	{
-		return item.getInputStream();
+		return ((FileItem)item).getInputStream();
 	}
 
 	/**
