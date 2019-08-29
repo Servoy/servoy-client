@@ -8,7 +8,7 @@
 	"model":
 	{
 		"foundset" : {"type": "foundset", "default" : {"foundsetSelector":""}},
-		"containedForm": {"type":"formcomponent", "forFoundset":"foundset", "tags": { "scope" :"design" }},
+		"containedForm": {"type":"formcomponent", "forFoundset":"foundset"},
 		"pageLayout" : {"type" : "string" , "values" : ["cardview","listview"] , "initialValue" : "cardview" },
 		"responsivePageSize": "int",
 		"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default": "svy-listformcomponent" },

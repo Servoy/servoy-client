@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -31,6 +32,7 @@ import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
 import org.sablo.websocket.CurrentWindow;
@@ -45,6 +47,8 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
@@ -165,6 +169,23 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
 			call.put("propertyPath", componentContext.getPropertyPath());
+
+			WebObjectSpecification spec = receiver.getParent().getSpecification();
+			Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+			if (properties.size() > 0)
+			{
+				boolean isRepeating = false;
+				for (PropertyDescription pd : properties)
+				{
+					Object config = pd.getConfig();
+					isRepeating = config instanceof ComponentTypeConfig && ((ComponentTypeConfig)config).forFoundset != null;
+					if (isRepeating) break;
+				}
+				if (isRepeating)
+				{
+					call.put("selectedIndex", Integer.valueOf(form.getFoundSet().getSelectedIndex()));
+				}
+			}
 		}
 
 		Pair<UUID, UUID> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
