@@ -316,7 +316,7 @@ angular.module('window',['servoy'])
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "enableTabseq" );
 			}
-			if (scope.model.popupform.component === scope.formPopupShown.component) {
+			if (scope.model.popupform === scope.formPopupShown) {
 				scope.model.popupform = null;
 				scope.formPopupShown = null;
 			}
@@ -444,6 +444,7 @@ angular.module('window',['servoy'])
 				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
 				scope.formPopupShown = newvalue.popupform;
 			}
+			else window.cancelFormPopup();
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
