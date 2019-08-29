@@ -535,12 +535,16 @@ public abstract class AbstractBase implements IPersist
 	public Object acceptVisitor(IPersistVisitor visitor)
 	{
 		Object retval = visitor.visit(this);
-		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL && this instanceof ISupportChilds)
+		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL && this instanceof ISupportChilds && allobjects != null)
 		{
-			Iterator<IPersist> it = getAllObjects();
-			while ((retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER) && it.hasNext())
+			// synchronize on allobjects so that mutations are not allowed when looping over it.
+			synchronized (allobjects)
 			{
-				retval = it.next().acceptVisitor(visitor);
+				Iterator<IPersist> it = getAllObjects();
+				while ((retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER) && it.hasNext())
+				{
+					retval = it.next().acceptVisitor(visitor);
+				}
 			}
 		}
 		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
@@ -550,14 +554,17 @@ public abstract class AbstractBase implements IPersist
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
 	{
 		Object retval = IPersistVisitor.CONTINUE_TRAVERSAL;
-		if (this instanceof ISupportChilds)
+		if (this instanceof ISupportChilds && allobjects != null)
 		{
-			Iterator<IPersist> it = getAllObjects();
-			while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
-				retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
+			synchronized (allobjects)
 			{
-				IPersist visitee = it.next();
-				retval = visitee.acceptVisitorDepthFirst(visitor);
+				Iterator<IPersist> it = getAllObjects();
+				while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+					retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
+				{
+					IPersist visitee = it.next();
+					retval = visitee.acceptVisitorDepthFirst(visitor);
+				}
 			}
 		}
 		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER)
