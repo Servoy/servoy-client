@@ -316,7 +316,7 @@ angular.module('window',['servoy'])
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "enableTabseq" );
 			}
-			if (scope.model.popupform === scope.formPopupShown) {
+			if (scope.model.popupform.component === scope.formPopupShown.component) {
 				scope.model.popupform = null;
 				scope.formPopupShown = null;
 			}
