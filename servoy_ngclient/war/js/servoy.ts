@@ -1003,7 +1003,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.model[simpleName] = rowModel;
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
 						row.api[simpleName] = {};
-						childElement['api'][index] = row.api[simpleName];
+						if(childElement['_api'] == undefined) {
+							childElement['_api'] = [];
+						}
+						childElement['_api'][index] = row.api[simpleName];
 						if ( scope.svyFormComponent.absoluteLayout ) {
 							
 							var elementLayout = {position: "absolute"};
@@ -1105,6 +1108,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					}
 				
+					function updateChildElementsAPI(selectedRow) {
+						const viewportIndex = selectedRow - scope.foundset.viewPort.startIndex;  
+						for(let i = 0; i < scope.svyFormComponent.childElements.length; i++) {
+							if(viewportIndex < scope.svyFormComponent.childElements[i]['_api'].length) {
+								scope.svyFormComponent.childElements[i].api = scope.svyFormComponent.childElements[i]['_api'][viewportIndex]; 
+							}
+						}
+					}
+
 					function updateSelection(newValue, oldValue?) {
 						let children = parent.children();
 						if(oldValue) {
@@ -1126,6 +1138,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								$(parent.children()[idx + 1]).addClass(scope.selectionClass);
 							}
 						}
+						updateChildElementsAPI(newValue[0]);
 					}
 
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
