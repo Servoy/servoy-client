@@ -45,6 +45,7 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -420,9 +421,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			// else table remains null: apply to all tables with that column
 
-			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager()
-				.createDataproviderTableFilterdefinition(
-					table, dataprovider, operator, value);
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager().createDataproviderTableFilterdefinition(
+				table, dataprovider, operator, value);
 			if (dataproviderTableFilterdefinition == null)
 			{
 				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
@@ -588,9 +588,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 
 				ITable ft = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
-				FoundSet fs_new = (FoundSet)application.getFoundSetManager()
-					.getNewFoundSet(ft, null,
-						application.getFoundSetManager().getDefaultPKSortColumns(ft.getDataSource()));
+				FoundSet fs_new = (FoundSet)application.getFoundSetManager().getNewFoundSet(ft, null,
+					application.getFoundSetManager().getDefaultPKSortColumns(ft.getDataSource()));
 
 				QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
 				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
@@ -768,10 +767,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						trackingInfo.setTrackingData(sqlSelect.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
-					IDataSet dataSet = fsm.getDataServer()
-						.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
-							trackingInfo);
+					IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
+						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 
 					lst = new ArrayList<Object[]>(dataSet.getRowCount());
 					for (int i = 0; i < dataSet.getRowCount(); i++)
@@ -1554,9 +1551,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			{
 				try
 				{
-					Method m = so.getClass()
-						.getMethod("js_executeStoredProcedure", //$NON-NLS-1$
-							new Class[] { String.class, String.class, Object[].class, int[].class, int.class });
+					Method m = so.getClass().getMethod("js_executeStoredProcedure", //$NON-NLS-1$
+						new Class[] { String.class, String.class, Object[].class, int[].class, int.class });
 					return m.invoke(so, new Object[] { serverName, procedureDeclaration, args, inOutType, new Integer(maxNumberOfRowsToRetrieve) });
 				}
 				catch (Exception e)
@@ -2199,10 +2195,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					}
 					try
 					{
-						dataSet = fsm.getDataServer()
-							.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-								sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
-								trackingInfo);
+						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
+							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 					}
 					catch (RemoteException e)
 					{
@@ -2734,6 +2728,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		pds.switchServer(sourceName, destinationName);
 		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null);//flush all
 		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server
+
+		if (sourceName.equals(application.getSolution().getI18nServerName()))
+		{
+			((ClientState)application).refreshI18NMessages();
+		}
+
 		return true;
 	}
 
