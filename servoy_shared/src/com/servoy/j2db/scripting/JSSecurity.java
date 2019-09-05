@@ -184,6 +184,21 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	}
 
+	/**
+	 * Retrieve the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
+	 * This results in adding a table filter for that table based on that column and the this value.
+	 *<p>
+	 *  A client with tenant value will only receive databroadcasts from other clients that have no or a common tenant value set
+	 *  Be sure to not access or depend on records having different tenant values, as no databroadcasts will be received for those
+	 *</p>
+	 * @return An array of tenant values for this client.
+	 */
+	@JSFunction
+	public Object[] getTenantValue()
+	{
+		return application.getClientInfo().getTenantValue();
+	}
+
 	private static Object[] toArray(Object value)
 	{
 		if (value == null)
