@@ -37,10 +37,10 @@ public class DataCallProfileData
 	 * @param string
 	 * @param server_name
 	 * @param transaction_id
-	 * @param startTime 
+	 * @param startTime
 	 * @param endTime
-	 * @param query 
-	 * @param argumentString 
+	 * @param query
+	 * @param argumentString
 	 */
 	public DataCallProfileData(String name, String datasource, String transaction_id, long startTime, long endTime, String query, String argumentString,
 		int count)
@@ -106,5 +106,26 @@ public class DataCallProfileData
 	public int getCount()
 	{
 		return count;
+	}
+
+	public void toXML(StringBuilder sb)
+	{
+		sb.append("<sqlprofiledata ");
+		sb.append("name=\"");
+		sb.append(name);
+		sb.append("\" datasource=\"");
+		sb.append(datasource);
+		sb.append("\" time=\"");
+		sb.append(getTime());
+		sb.append("\" query=\"");
+		sb.append(query);
+		sb.append("\" argumentString=\"");
+		sb.append(argumentString);
+		if (transaction_id != null)
+		{
+			sb.append("\" transactionid=\"");
+			sb.append(transaction_id);
+		}
+		sb.append("\"/>");
 	}
 }

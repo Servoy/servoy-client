@@ -286,12 +286,21 @@ public final class ProfileData
 			sb.append(parentSourceCall);
 		}
 		sb.append("\">");
+		if (dataCallProfileDatas != null)
+		{
+			for (DataCallProfileData dataCallProfileData : dataCallProfileDatas)
+			{
+				sb.append('\n');
+				sb.append(childPrefix);
+				dataCallProfileData.toXML(sb);
+			}
+		}
 		for (ProfileData child : childs)
 		{
 			sb.append('\n');
 			sb.append(childPrefix);
 			child.toXML(sb);
 		}
-		sb.append("</profiledata>");
+		sb.append("\n</profiledata>\n");
 	}
 }
