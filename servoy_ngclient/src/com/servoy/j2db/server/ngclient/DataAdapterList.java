@@ -505,6 +505,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		// TODO keep track & unregister when needed global/form scope listeners: so undo setupModificationListener(dpID)? they are only max two listeners and they are removed at destroy anyway, but if there are no DPs needing it anymore...
 		allComponentPropertiesLinkedToData.remove(propertyValue);
+
+		// remove any relation listeners that may be set for this property value
+		Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
+		if (toWatchRelationsForPropertyValue != null)
+		{
+			toWatchRelationsForPropertyValue.getRight().forEach(listener -> listener.dispose());
+			toWatchRelationsForPropertyValue.getRight().clear();
+		}
 	}
 
 	public void addFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)
@@ -579,9 +587,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void createRelationListeners(IDataLinkedPropertyValue propertyValue)
 	{
-		// first remove the previous onces
+		// first remove the previous ones
 		Pair<Relation[], List<RelatedListener>> pair = toWatchRelations.get(propertyValue);
 		pair.getRight().forEach(listener -> listener.dispose());
+		pair.getRight().clear();
+
 		if (this.record != null)
 		{
 			Relation[] relationsToWatch = pair.getLeft();
