@@ -507,11 +507,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		allComponentPropertiesLinkedToData.remove(propertyValue);
 
 		// remove any relation listeners that may be set for this property value
-		Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
-		if (toWatchRelationsForPropertyValue != null)
+		if (toWatchRelations != null)
 		{
-			toWatchRelationsForPropertyValue.getRight().forEach(listener -> listener.dispose());
-			toWatchRelationsForPropertyValue.getRight().clear();
+			Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
+			if (toWatchRelationsForPropertyValue != null)
+			{
+				toWatchRelationsForPropertyValue.getRight().forEach(listener -> listener.dispose());
+				toWatchRelationsForPropertyValue.getRight().clear();
+			}
 		}
 	}
 
