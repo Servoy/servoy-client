@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Base Plug-in
 Bundle-SymbolicName: servoy_base;singleton:=true
-Bundle-Version: 2019.9.0.3520_rc
+Bundle-Version: 2019.9.0.3521_rc2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.base.dataprocessing,

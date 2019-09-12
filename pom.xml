@@ -5,7 +5,7 @@
 		<maven>3.6.0</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>2019.9.0.3520_rc</version>
+	<version>2019.9.0.3521_rc2</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
