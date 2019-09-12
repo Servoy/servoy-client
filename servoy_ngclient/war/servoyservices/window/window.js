@@ -444,6 +444,7 @@ angular.module('window',['servoy'])
 				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
 				scope.formPopupShown = newvalue.popupform;
 			}
+			else window.cancelFormPopup();
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
