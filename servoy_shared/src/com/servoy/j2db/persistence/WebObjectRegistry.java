@@ -57,7 +57,7 @@ public class WebObjectRegistry
 			}
 			for (WebObjectImpl webObject : array)
 			{
-				webObject.reload();
+				webObject.reload(false);
 			}
 		} // else we are not tracking anything; probably running in client; it's weird that this even got called
 	}

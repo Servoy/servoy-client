@@ -359,7 +359,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	public void setExtendsID(int arg)
 	{
 		super.setExtendsID(arg);
-		webObjectImpl.reload();
+		webObjectImpl.reload(true);
 	}
 
 	/**

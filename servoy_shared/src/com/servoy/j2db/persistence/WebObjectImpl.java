@@ -692,11 +692,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	}
 
 	@Override
-	public void reload()
+	public void reload(boolean keepPersistMappedProperties)
 	{
 		arePersistMappedPropertiesLoaded = false;
-		persistMappedProperties.clear();
-		persistMappedPropetiesByUUID = null;
+		if (!keepPersistMappedProperties)
+		{
+			persistMappedProperties.clear();
+			persistMappedPropetiesByUUID = null;
+		}
 		if (pdIsWebComponentSpecification) pdPleaseUseGetterToAccessThis = null; // if it's a web component, next time it's needed reload it's spec as well, don't use cached one
 	}
 

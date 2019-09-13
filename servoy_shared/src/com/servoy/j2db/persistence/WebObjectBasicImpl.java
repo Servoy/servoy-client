@@ -166,7 +166,7 @@ public class WebObjectBasicImpl
 	{
 	}
 
-	public void reload()
+	public void reload(boolean keepPersistMappedProperties)
 	{
 
 	}
