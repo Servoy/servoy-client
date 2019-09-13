@@ -211,7 +211,7 @@ public final class CSSPositionUtils
 			// not set, we should calculate it then
 			int right = percentageToPixels(position.right, parentSize.width);
 			int width = percentageToPixels(position.width, parentSize.width);
-			if (right >= 0 && width >= 0)
+			if (width >= 0)
 			{
 				left = parentSize.width - right - width;
 			}
@@ -221,7 +221,7 @@ public final class CSSPositionUtils
 			// not set, we should calculate it then
 			int height = percentageToPixels(position.height, parentSize.height);
 			int bottom = percentageToPixels(position.bottom, parentSize.height);
-			if (height >= 0 && bottom >= 0)
+			if (height >= 0)
 			{
 				top = parentSize.height - height - bottom;
 			}
