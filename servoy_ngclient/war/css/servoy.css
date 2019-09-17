@@ -266,6 +266,11 @@ div.svy-label-with-focus:focus{
    width: auto !important;
 }
 
+body > .ui-select-bootstrap.open {
+  z-index: 9999 !important; /* Put it always on top */
+}
+
+
 .svyPortalGridStyle .form-control[readonly]
 {
 	cursor : default;
