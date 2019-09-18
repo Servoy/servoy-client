@@ -273,7 +273,7 @@ angular.module('window',['servoy'])
 				var popup = $compile('<div id="tabStart" sablo-tabseq="1" ng-focus="firstElementFocused()"></div><div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" sablo-tabseq="2" sablo-tabseq-config="{container: true}"></div><div id="tabStop" sablo-tabseq="3" ng-focus="lastElementFocused()"></div>')(scope);
 				scope.popupElement = popup;
 				$timeout(function(){
-					body.on('mousedown',formPopupBodyListener);
+					body.on('mouseup',formPopupBodyListener);
 				},300);
 				if(showBackdrop) {
 					body.append('<div class="formpopup-backdrop modal-backdrop fade in" style="z-index:1498"></div>');
