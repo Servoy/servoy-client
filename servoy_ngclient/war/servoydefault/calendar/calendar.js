@@ -39,6 +39,15 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			child.datetimepicker(options);
 			var theDateTimePicker = child.data('DateTimePicker');
 
+			if ($scope.model.format && $scope.model.format.isMask)
+			{
+				// delete shortcut clears the date; this interferes(behaves strange) with mask, so cancel the shortcut in this scenario 
+				var defaultBinding = theDateTimePicker.keyBinds();
+				defaultBinding.delete = function (widget) {
+					// nop
+		        }
+			}	
+	        
 			function inputChanged(e) {
 				if ($scope.model.findmode) {
 					ngModel.$setViewValue(child.children("input").val());
