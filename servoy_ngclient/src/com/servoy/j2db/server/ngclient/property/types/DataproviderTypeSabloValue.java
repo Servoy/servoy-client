@@ -19,6 +19,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.sql.Types;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -693,7 +696,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (!findMode && typeOfDP != null)
 		{
 			if (typeOfDP.getType() instanceof DatePropertyType && fieldFormat != null && fieldFormat.parsedFormat != null &&
-				fieldFormat.parsedFormat.getDisplayFormat() != null && oldUIValue instanceof Date)
+				fieldFormat.parsedFormat.getDisplayFormat() != null && (oldUIValue instanceof Date || oldUIValue == null))
 			{
 				// if we have format with no hour, skip converting the date from the client and merge it with the old date
 				String displayFormat = fieldFormat.parsedFormat.getDisplayFormat();
@@ -706,7 +709,18 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						Locale locale = dataAdapterList.getApplication().getLocale();
 						if (locale == null) locale = Locale.getDefault(Locale.Category.FORMAT);
 						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
-						formatter.setOriginal((Date)oldUIValue);
+						Date originalDate;
+						if (oldUIValue instanceof Date)
+						{
+							originalDate = (Date)oldUIValue;
+						}
+						else
+						{
+							// if oldUIValue is null, create a Date with time: 0:00:00
+							LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
+							originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+						}
+						formatter.setOriginal(originalDate);
 						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
 						uiValue = formatter.getMergedDate();
 					}
