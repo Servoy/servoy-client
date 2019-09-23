@@ -56,6 +56,9 @@
 			"parameters": [{ "name": "jQuerySelector", "type": "string" }, { "name": "className", "type": "string" }],
 			"blockEventProcessing": false,
 			"async": true
+		},
+		"printDocument": {
+			"parameters": [{ "name": "url", "type": "string" }]
 		}
 	},
 
