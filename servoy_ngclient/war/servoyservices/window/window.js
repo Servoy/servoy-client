@@ -438,16 +438,13 @@ angular.module('window',['servoy'])
 				}	
 			}
 		}
-		if (newvalue && newvalue.popupform && oldvalue.popupform != newvalue.popupform)
+		if (newvalue && newvalue.popupform && !angular.equals(oldvalue.popupform,newvalue.popupform))
 		{
-			if (!oldvalue.popupform || oldvalue.popupform.component != newvalue.popupform.component || oldvalue.popupform.form != newvalue.popupform.form || oldvalue.popupform.x != newvalue.popupform.x || oldvalue.popupform.y != newvalue.popupform.y)
-			{
-				if (!scope.formPopupShown) {
-					window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
-					scope.formPopupShown = newvalue.popupform;
-				}
-				else window.cancelFormPopup();
-			}	
+			if (!scope.formPopupShown) {
+				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+				scope.formPopupShown = newvalue.popupform;
+			}
+			else window.cancelFormPopup();
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{
