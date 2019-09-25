@@ -114,12 +114,12 @@ public interface ITable
 	/**
 	 * @param b
 	 */
-	public void setHiddenInDeveloperBecauseNoPk(boolean b);
+	public void setTableInvalidInDeveloperBecauseNoPk(boolean b);
 
 	/**
 	 * @return
 	 */
-	public boolean isHiddenInDeveloperBecauseNoPk();
+	public boolean isTableInvalidInDeveloperBecauseNoPk();
 
 	/**
 	 * @return
