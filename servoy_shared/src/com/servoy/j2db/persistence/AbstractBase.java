@@ -22,7 +22,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +57,6 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public abstract class AbstractBase implements IPersist
 {
-
 	private static final long serialVersionUID = 1L;
 
 	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
@@ -86,7 +85,7 @@ public abstract class AbstractBase implements IPersist
 	/*
 	 * All 1-n providers for this class
 	 */
-	private List<IPersist> allobjects = null;
+	private CopyOnWriteArrayList<IPersist> allobjects = null;
 	private transient Map<UUID, IPersist> allobjectsMap = null;
 
 	private Map<String, Object> propertiesMap = new HashMap<String, Object>();
@@ -537,14 +536,10 @@ public abstract class AbstractBase implements IPersist
 		Object retval = visitor.visit(this);
 		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL && this instanceof ISupportChilds && allobjects != null)
 		{
-			// synchronize on allobjects so that mutations are not allowed when looping over it.
-			synchronized (allobjects)
+			Iterator<IPersist> it = getAllObjects();
+			while ((retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER) && it.hasNext())
 			{
-				Iterator<IPersist> it = getAllObjects();
-				while ((retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER) && it.hasNext())
-				{
-					retval = it.next().acceptVisitor(visitor);
-				}
+				retval = it.next().acceptVisitor(visitor);
 			}
 		}
 		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
@@ -556,15 +551,12 @@ public abstract class AbstractBase implements IPersist
 		Object retval = IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (this instanceof ISupportChilds && allobjects != null)
 		{
-			synchronized (allobjects)
+			Iterator<IPersist> it = getAllObjects();
+			while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+				retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
 			{
-				Iterator<IPersist> it = getAllObjects();
-				while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
-					retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
-				{
-					IPersist visitee = it.next();
-					retval = visitee.acceptVisitorDepthFirst(visitor);
-				}
+				IPersist visitee = it.next();
+				retval = visitee.acceptVisitorDepthFirst(visitor);
 			}
 		}
 		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER)
@@ -681,7 +673,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (allobjects == null)
 		{
-			allobjects = Collections.synchronizedList(new ArrayList<IPersist>(3));
+			allobjects = new CopyOnWriteArrayList<IPersist>();
 		}
 		if (obj != null && obj.getParent() == this)
 		{
@@ -867,7 +859,9 @@ public abstract class AbstractBase implements IPersist
 		cloned.copyPropertiesMap(getPropertiesMap(), true);
 		if (cloned.allobjects != null)
 		{
-			cloned.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
+			// would be nicer to make the copy on write with the full copy of the list
+			// but that is not possible we seem to need to call addChild(clone)
+			cloned.allobjects = new CopyOnWriteArrayList<IPersist>();
 			for (IPersist persist : allobjects)
 			{
 				if (persist instanceof ICloneable)
@@ -918,7 +912,7 @@ public abstract class AbstractBase implements IPersist
 			clone.allobjectsMap = null;
 			if (deep && allobjects != null)
 			{
-				clone.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
+				clone.allobjects = new CopyOnWriteArrayList<IPersist>();
 				Iterator<IPersist> it = Collections.unmodifiableList(this.allobjects).iterator();
 				while (it.hasNext())
 				{
