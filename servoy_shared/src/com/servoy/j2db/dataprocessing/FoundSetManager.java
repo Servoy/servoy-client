@@ -876,24 +876,28 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 				if (retval != null)
 				{
-					QuerySelect creationSelect = retval.getCreationSqlSelect();
-					Placeholder whereArgsPlaceholder = creationSelect.getPlaceholder(
-						SQLGenerator.createRelationKeyPlaceholderKey(creationSelect.getTable(), relationName));
-					if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
-					{
-						Object[][] createWhereArgs = (Object[][])whereArgsPlaceholder.getValue();
-						for (int i = 0; i < createWhereArgs.length; i++)
-						{
-							if (createWhereArgs[i][0] instanceof DbIdentValue)
-							{
-								createWhereArgs[i][0] = ((DbIdentValue)createWhereArgs[i][0]).getPkValue();
-							}
-						}
-					}
+					unwrapDbIdentValue(retval.getCreationSqlSelect(), relationName);
+					unwrapDbIdentValue(retval.getQuerySelectForReading(), relationName);
 				}
 			}
 		}
 		return retval;
+	}
+
+	private static void unwrapDbIdentValue(QuerySelect querySelect, String relationName)
+	{
+		Placeholder whereArgsPlaceholder = querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));
+		if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
+		{
+			Object[][] createWhereArgs = (Object[][])whereArgsPlaceholder.getValue();
+			for (int i = 0; i < createWhereArgs.length; i++)
+			{
+				if (createWhereArgs[i][0] instanceof DbIdentValue && ((DbIdentValue)createWhereArgs[i][0]).getPkValue() != null)
+				{
+					createWhereArgs[i][0] = ((DbIdentValue)createWhereArgs[i][0]).getPkValue();
+				}
+			}
+		}
 	}
 
 	private RelatedHashedArguments calculateFKHash(IRecordInternal state, Relation r, boolean testForCalcs) throws RepositoryException
