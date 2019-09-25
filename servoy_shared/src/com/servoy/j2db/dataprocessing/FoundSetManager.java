@@ -884,7 +884,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return retval;
 	}
 
-	private void unwrapDbIdentValue(QuerySelect querySelect, String relationName)
+	private static void unwrapDbIdentValue(QuerySelect querySelect, String relationName)
 	{
 		Placeholder whereArgsPlaceholder = querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));
 		if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
