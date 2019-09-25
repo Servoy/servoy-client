@@ -162,6 +162,19 @@ public final class ProfileData
 		return dataCallProfileDatas;
 	}
 
+	public long getDataQueriesTime()
+	{
+		long time = 0;
+		if (dataCallProfileDatas != null && dataCallProfileDatas.size() > 0)
+		{
+			for (DataCallProfileData profile : dataCallProfileDatas)
+			{
+				time += profile.getTime();
+			}
+		}
+		return time;
+	}
+
 	/**
 	 * @param profileData
 	 */
