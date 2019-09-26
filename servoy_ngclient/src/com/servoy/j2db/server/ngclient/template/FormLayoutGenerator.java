@@ -31,7 +31,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
-import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -238,7 +237,7 @@ public class FormLayoutGenerator
 				}
 				if (allowedChildren.size() > 0)
 				{
-					String allowedChildrenJoin = StringUtil.join(allowedChildren, ",");
+					String allowedChildrenJoin = String.join(",", allowedChildren);
 					writer.print(" svy-allowed-children=\"");
 					writer.print(allowedChildrenJoin);
 					writer.print("\"");
@@ -396,7 +395,7 @@ public class FormLayoutGenerator
 			if (typeAndPropertyNames[0].size() > 0)
 			{
 				writer.print(" svy-types='");
-				writer.print("[" + StringUtil.join(typeAndPropertyNames[0], ",") + "]");
+				writer.print("[" + String.join(",", typeAndPropertyNames[0]) + "]");
 				writer.print("'");
 			}
 			String directEditPropertyName = getDirectEditProperty(fe);
@@ -410,7 +409,7 @@ public class FormLayoutGenerator
 			if (forbiddenComponentNames.size() > 0)
 			{
 				writer.print(" svy-forbidden-components='");
-				writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+				writer.print("[" + String.join(",", forbiddenComponentNames) + "]");
 				writer.print("'");
 			}
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
@@ -511,21 +510,21 @@ public class FormLayoutGenerator
 				if (typeAndPropertyNames[0].size() > 0)
 				{
 					writer.print(" svy-types='");
-					writer.print("[" + StringUtil.join(typeAndPropertyNames[0], ",") + "]");
+					writer.print("[" + String.join(",", typeAndPropertyNames[0]) + "]");
 					writer.print("'");
 
 					writer.print(" svy-types-properties='");
-					writer.print("[" + StringUtil.join(typeAndPropertyNames[1], ",") + "]");
+					writer.print("[" + String.join(",", typeAndPropertyNames[1]) + "]");
 					writer.print("'");
 
 					ngClass.put("drop_highlight",
-						"<canContainDraggedElement('" + fe.getTypeName() + "',['" + StringUtil.join(typeAndPropertyNames[0], "','") + "'])<");
+						"<canContainDraggedElement('" + fe.getTypeName() + "',['" + String.join("','", typeAndPropertyNames[0]) + "'])<");
 				}
 				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
 				if (forbiddenComponentNames.size() > 0)
 				{
 					writer.print(" svy-forbidden-components='");
-					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+					writer.print("[" + String.join(",", forbiddenComponentNames) + "]");
 					writer.print("'");
 				}
 				String directEditPropertyName = getDirectEditProperty(fe);
