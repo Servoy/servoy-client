@@ -62,6 +62,8 @@ public class Types
 			new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(), DataproviderPropertyType.INSTANCE));
 		TypesRegistry.addType(
 			new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(), TagStringPropertyType.INSTANCE));
+		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TitleStringPropertyType.NG_INSTANCE.getName(),
+			TitleStringPropertyType.NG_INSTANCE));
 		TypesRegistry.addType(
 			new FoundsetLinkedPropertyType<Object, ValueListTypeSabloValue>(ValueListPropertyType.INSTANCE.getName(), ValueListPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
