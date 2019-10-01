@@ -259,11 +259,8 @@ div.svy-label-with-focus:focus{
 .ui-select-choices
 {
 	overflow-x: hidden;
-	min-width: inherit;
-}
-
-.ui-select-bootstrap>.ui-select-choices{
-   width: auto !important;
+	width: auto !important;
+	min-width: 100%;
 }
 
 body > .ui-select-bootstrap.open {
