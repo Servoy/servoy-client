@@ -24,14 +24,27 @@ import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 
 /**
  * Interface used by types that want to contribute special behavior for solutionModel usage.
+ * Converts between the value that a property has when returned/set via solution model in solution JS core and the design JSON value that it will have in the .frm file (I think).
  *
  * @author lvostinar
  */
 public interface IRhinoDesignConverter
 {
 
-	Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
+	/**
+	 * Converts from solution model value to .frm design JSON value (I think).
+	 *
+	 * @param solutionModelScriptingValue the solution model value that is available in solution scripting for this property
+	 * @return the design JSON value that it will have in the .frm file.
+	 */
+	Object fromRhinoToDesignValue(Object solutionModelScriptingValue, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
 
-	Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
+	/**
+	 * Converts from .frm design JSON value to solution model value (I think).
+	 *
+	 * @param frmJSONValue the .frm design JSON value.
+	 * @return what frmJSONValue would be in solution model scripting (in solution JS code).
+	 */
+	Object fromDesignToRhinoValue(Object frmJSONValue, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
 
 }
