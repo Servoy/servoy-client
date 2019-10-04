@@ -58,4 +58,14 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 		}
 		return null;
 	}
+
+	default int getFlags()
+	{
+		QueryColumn qcol = getColumn();
+		if (qcol != null)
+		{
+			return qcol.getFlags();
+		}
+		return 0;
+	}
 }

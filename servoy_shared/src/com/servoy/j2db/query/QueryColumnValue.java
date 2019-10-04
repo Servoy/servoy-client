@@ -105,6 +105,12 @@ public final class QueryColumnValue implements IQuerySelectValue
 	}
 
 	@Override
+	public int getFlags()
+	{
+		return 0;
+	}
+
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();
