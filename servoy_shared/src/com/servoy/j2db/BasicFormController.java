@@ -1733,6 +1733,10 @@ public abstract class BasicFormController
 		}
 		else if (data instanceof FoundSet)
 		{
+			if (data == formModel)
+			{
+				return true;
+			}
 			try
 			{
 				FoundSet fs = (FoundSet)data;

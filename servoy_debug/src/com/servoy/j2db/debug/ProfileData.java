@@ -162,6 +162,19 @@ public final class ProfileData
 		return dataCallProfileDatas;
 	}
 
+	public long getDataQueriesTime()
+	{
+		long time = 0;
+		if (dataCallProfileDatas != null && dataCallProfileDatas.size() > 0)
+		{
+			for (DataCallProfileData profile : dataCallProfileDatas)
+			{
+				time += profile.getTime();
+			}
+		}
+		return time;
+	}
+
 	/**
 	 * @param profileData
 	 */
@@ -286,12 +299,21 @@ public final class ProfileData
 			sb.append(parentSourceCall);
 		}
 		sb.append("\">");
+		if (dataCallProfileDatas != null)
+		{
+			for (DataCallProfileData dataCallProfileData : dataCallProfileDatas)
+			{
+				sb.append('\n');
+				sb.append(childPrefix);
+				dataCallProfileData.toXML(sb);
+			}
+		}
 		for (ProfileData child : childs)
 		{
 			sb.append('\n');
 			sb.append(childPrefix);
 			child.toXML(sb);
 		}
-		sb.append("</profiledata>");
+		sb.append("\n</profiledata>\n");
 	}
 }

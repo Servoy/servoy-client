@@ -466,14 +466,7 @@ public class JSI18N implements IJSI18N
 		TreeSet<String> countries = new TreeSet<String>();
 		for (Locale locale : locales)
 			if (!locale.getCountry().equals("")) countries.add(locale.getCountry()); //$NON-NLS-1$
-		String[] retList = new String[countries.size()];
-		Iterator<String> it = countries.iterator();
-		for (int i = 0; i < countries.size(); i++)
-		{
-			retList[i] = it.next();
-		}
-
-		return retList;
+		return countries.toArray(new String[countries.size()]);
 	}
 
 	/**
@@ -632,6 +625,7 @@ public class JSI18N implements IJSI18N
 	 *
 	 * @param timezone the client's time zone
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true, mc = false)
 	@JSFunction
 	public void setTimeZone(String timezone)
 	{

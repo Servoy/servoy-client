@@ -451,7 +451,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	 */
 	public boolean hasRealValues()
 	{
-		return realValues != null;
+		return realValues != null || (valueList != null && valueList.getRealValueType() != valueList.getDisplayValueType());
 	}
 
 	public int realValueIndexOf(Object obj)

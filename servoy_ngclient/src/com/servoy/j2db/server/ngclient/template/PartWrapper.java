@@ -30,7 +30,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
@@ -196,7 +196,7 @@ public class PartWrapper
 		}
 		for (IFormElement persist : persists)
 		{
-			Point location = CSSPosition.getLocation(persist);
+			Point location = CSSPositionUtils.getLocation(persist);
 			if (startPos <= location.y && endPos > location.y && persist instanceof BaseComponent)
 			{
 				if (isSecurityVisible(persist, converterContext.getSolution(), context)) baseComponents.add((BaseComponent)persist);

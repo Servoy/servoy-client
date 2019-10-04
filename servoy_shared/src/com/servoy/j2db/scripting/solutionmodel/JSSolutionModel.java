@@ -862,6 +862,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			application.getFormManager().addForm(form, false);
 			return instantiateForm(form, false);
 		}
+		else
+		{
+			form = application.getFormManager().getPossibleForm(name);
+			if (form != null)
+			{
+				application.getFormManager().removeForm(form);
+			}
+		}
 		return null;
 	}
 

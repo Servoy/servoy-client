@@ -259,12 +259,14 @@ div.svy-label-with-focus:focus{
 .ui-select-choices
 {
 	overflow-x: hidden;
-	min-width: inherit;
+	width: auto !important;
+	min-width: 100%;
 }
 
-.ui-select-bootstrap>.ui-select-choices{
-   width: auto !important;
+body > .ui-select-bootstrap.open {
+  z-index: 9999 !important; /* Put it always on top */
 }
+
 
 .svyPortalGridStyle .form-control[readonly]
 {

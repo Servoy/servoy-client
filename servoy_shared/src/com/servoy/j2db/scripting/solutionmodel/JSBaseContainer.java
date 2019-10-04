@@ -37,7 +37,7 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -110,7 +110,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		{
 			Field field = getContainer().createNewField(new Point(x, y));
 			field.setDisplayType(type);
-			CSSPosition.setSize(field, width, height);
+			CSSPositionUtils.setSize(field, width, height);
 			if (dataprovider instanceof String)
 			{
 				field.setDataProviderID((String)dataprovider);
@@ -648,7 +648,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		try
 		{
 			GraphicalComponent gc = getContainer().createNewGraphicalComponent(new Point(x, y));
-			CSSPosition.setSize(gc, width, height);
+			CSSPositionUtils.setSize(gc, width, height);
 			gc.setText(txt);
 			if (action instanceof JSMethod)
 			{
@@ -724,7 +724,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		try
 		{
 			GraphicalComponent gc = getContainer().createNewGraphicalComponent(new Point(x, y));
-			CSSPosition.setSize(gc, width, height);
+			CSSPositionUtils.setSize(gc, width, height);
 			gc.setText(txt);
 			if (action instanceof JSMethod)
 			{
@@ -858,7 +858,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		try
 		{
 			Portal portal = getContainer().createNewPortal(name, new Point(x, y));
-			CSSPosition.setSize(portal, width, height);
+			CSSPositionUtils.setSize(portal, width, height);
 			String relationName = null;
 			if (relation instanceof RelatedFoundSet)
 			{
@@ -1033,8 +1033,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		try
 		{
 			TabPanel tabPanel = getContainer().createNewTabPanel(name);
-			CSSPosition.setSize(tabPanel, width, height);
-			CSSPosition.setLocation(tabPanel, x, y);
+			CSSPositionUtils.setSize(tabPanel, width, height);
+			CSSPositionUtils.setLocation(tabPanel, x, y);
 			return new JSTabPanel(this, tabPanel, application, true);
 		}
 		catch (RepositoryException e)
@@ -1841,8 +1841,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		try
 		{
 			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
-			CSSPosition.setSize(webComponent, width, height);
-			CSSPosition.setLocation(webComponent, x, y);
+			CSSPositionUtils.setSize(webComponent, width, height);
+			CSSPositionUtils.setLocation(webComponent, x, y);
 			return createWebComponent(this, webComponent, application, true);
 		}
 		catch (RepositoryException e)

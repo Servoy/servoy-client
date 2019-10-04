@@ -39,6 +39,15 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			child.datetimepicker(options);
 			var theDateTimePicker = child.data('DateTimePicker');
 
+			if ($scope.model.format && $scope.model.format.isMask)
+			{
+				// delete shortcut clears the date; this interferes(behaves strange) with mask, so cancel the shortcut in this scenario 
+				var defaultBinding = theDateTimePicker.keyBinds();
+				defaultBinding.delete = function (widget) {
+					// nop
+		        }
+			}	
+	        
 			function inputChanged(e) {
 				if ($scope.model.findmode) {
 					ngModel.$setViewValue(child.children("input").val());
@@ -213,7 +222,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					storedTooltip = false;
 				}
 			}
-
+			
 			$scope.focusGained = function(event) {
 				if (!$scope.model.findmode) {
 					if ($scope.model.format.edit && $scope.model.format.isMask) {
@@ -223,6 +232,8 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 							settings.allowedCharacters = $scope.model.format.allowedCharacters;
 
 						$element.find('input').mask($scope.model.format.edit, settings);
+						// library doesn't handle well this scenario, forward focus event to make sure mask is set
+						if ($element.find('input').val() == '') $element.find('input').trigger("focus.mask");
 						$element.on("dp.change", inputChanged);
 					}
 					else if ($scope.model.format.edit)

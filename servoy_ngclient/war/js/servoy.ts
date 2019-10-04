@@ -292,6 +292,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	            (formname ? "/" + formname : "") + 
 	    		(beanname ? "/" + beanname : "") + 
 				(propertyName ? "/" + propertyName : "");
+        },
+        
+        generateServiceUploadUrl: function(serviceName, apiFunctionName){
+        	// svy_services should be in sync with MediaResourceServlet.SERVICE_UPLOAD
+            return "resources/upload/" + $sabloApplication.getClientnr() + "/svy_services/" + serviceName + "/" + apiFunctionName;
         }
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
@@ -827,12 +832,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				foundset: "=foundset",
 				responsivePageSize: "=responsivePageSize",
 				pageLayout: "=pageLayout",
-				selectionClass: "=selectionClass"
+				selectionClass: "=selectionClass",
+				selectionChangedHandler: "="
 			},
 			link: function( scope: any, element, attrs ) {
 				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
 				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
-				let handlers = scope.$parent.handlers;
 				if ( svyServoyApi.isInDesigner() ) {
 					// in designer just show it as a normal form component
 					const newValue = scope.svyFormComponent
@@ -860,7 +865,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					let foundsetListener = null;
 					const componentListeners = [];
 					scope.$on('$destroy', function() {
-				        console.log("destroy listform");
 				        if (foundsetListener) foundsetListener();
 				        componentListeners.forEach(value => value());
 				        foundsetListener = null;
@@ -999,7 +1003,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.model[simpleName] = rowModel;
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
 						row.api[simpleName] = {};
-						childElement['api'][index] = row.api[simpleName];
+						if(childElement['_api'] == undefined) {
+							childElement['_api'] = [];
+						}
+						childElement['_api'][index] = row.api[simpleName];
 						if ( scope.svyFormComponent.absoluteLayout ) {
 							
 							var elementLayout = {position: "absolute"};
@@ -1067,8 +1074,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.createdChildElements = 0;
 						
 						const clone = element.clone();
+						
+						// as we do the $compile below we don't want to create an svy-form-component directive instance for each row
 						clone.attr("svy-form-component-clone", clone.attr("svy-form-component"));
 						clone.removeAttr("svy-form-component");
+						// this compile (that happens before row contents are added to "clone") is only for ng-click to work on each rows container div, not the actual scope of the row (which is created and used for compilation in createChildElementForRow)
 						clone.attr("ng-click", "onRowClick(" + (scope.foundset.viewPort.startIndex + index) + ")");
 						$compile(clone)(scope);
 						
@@ -1098,6 +1108,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					}
 				
+					function updateChildElementsAPI(selectedRow) {
+						const viewportIndex = selectedRow - scope.foundset.viewPort.startIndex;  
+						for(let i = 0; i < scope.svyFormComponent.childElements.length; i++) {
+							if(viewportIndex < scope.svyFormComponent.childElements[i]['_api'].length) {
+								scope.svyFormComponent.childElements[i].api = scope.svyFormComponent.childElements[i]['_api'][viewportIndex]; 
+							}
+						}
+					}
+
 					function updateSelection(newValue, oldValue?) {
 						let children = parent.children();
 						if(oldValue) {
@@ -1119,6 +1138,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								$(parent.children()[idx + 1]).addClass(scope.selectionClass);
 							}
 						}
+						updateChildElementsAPI(newValue[0]);
 					}
 
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
@@ -1215,9 +1235,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								if(scope.selectionClass) {
 									updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								}
-								if(handlers && handlers.onSelectionChanged) {
+								if(scope.selectionChangedHandler) {
 									var e = {target: parent[0]};
-									handlers.onSelectionChanged($utils.createJSEvent(e,"onselectionchanged"));
+									scope.selectionChangedHandler($utils.createJSEvent(e,"onselectionchanged"));
 								}
 							}
 							// TODO any other types of changes that need handling here?
@@ -1585,7 +1605,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			if (serverKeysCounter > 0) {
 				var promiseA = $sabloApplication.callService("i18nService", "getI18NMessages", serverKeys,false);
-				var promiseB = promiseA.then(function(result) {
+				var promiseB = promiseA.then(function(result:any) {
 					for(var key in result) {
 						cachedMessages[key] = result[key];
 						retValue[key] = result[key];

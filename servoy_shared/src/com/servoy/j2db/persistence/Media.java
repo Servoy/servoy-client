@@ -143,7 +143,7 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 	@Override
 	public String toString()
 	{
-		return getName();
+		return "Media[name:" + getName() + ",mimeType:" + getMimeType() + ",blobid:" + getBlobId() + ']';
 	}
 
 	/**

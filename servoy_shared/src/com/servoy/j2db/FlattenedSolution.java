@@ -332,11 +332,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		// or revert was called on an original object then just ignore it.
 		AbstractBase realPersist = persist.getRuntimeProperty(CLONE_PROPERTY);
 		boolean exists = realPersist != null || getAllObjectsAsList().indexOf(persist) != -1;
-		if (!exists && revertToOriginal)
-		{
-			throw new RuntimeException("Can't revert " + persist + " to original, because there is no original"); //$NON-NLS-1$//$NON-NLS-2$
-		}
-		else if (exists && !revertToOriginal)
+		if (exists && !revertToOriginal)
 		{
 			if (realPersist != null)
 			{
@@ -3036,9 +3032,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		if (form != null)
 		{
-			deletePersistCopy(form, true);
+			deletePersistCopy(form,true);
 			form = getForm(name);
-			registerChangedForm(form);
+			if (form != null) registerChangedForm(form);
 		}
 		return form;
 	}

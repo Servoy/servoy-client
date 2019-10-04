@@ -31,7 +31,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
-import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -44,7 +43,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -108,7 +107,7 @@ public class FormLayoutGenerator
 			// if (PartWrapper.isSecurityVisible(component, fs, form))
 			if (component instanceof LayoutContainer)
 			{
-				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, false, cache);
+				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, null, cache);
 			}
 			else if (component instanceof IFormElement)
 			{
@@ -238,7 +237,7 @@ public class FormLayoutGenerator
 				}
 				if (allowedChildren.size() > 0)
 				{
-					String allowedChildrenJoin = StringUtil.join(allowedChildren, ",");
+					String allowedChildrenJoin = String.join(",", allowedChildren);
 					writer.print(" svy-allowed-children=\"");
 					writer.print(allowedChildrenJoin);
 					writer.print("\"");
@@ -272,7 +271,8 @@ public class FormLayoutGenerator
 		}
 		else if (design)
 		{
-			writer.print(" style=\"height:100%\"");
+			// design form should grow with content and dictate the height to parent
+			writer.print(" style=\"min-height:100%\"");
 		}
 		writer.print("svy-layout-update svy-form-class-update svy-autosave ");
 		// skip the scrollbars for forms in tableview then the portal component does this
@@ -353,7 +353,7 @@ public class FormLayoutGenerator
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
 			String style = "";
-			if (!form.getUseCssPosition().booleanValue() && !CSSPosition.isInAbsoluteLayoutMode(bc))
+			if (!form.getUseCssPosition().booleanValue() && !CSSPositionUtils.isInAbsoluteLayoutMode(bc))
 			{
 				int anchors = bc.getAnchors();
 				if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
@@ -395,7 +395,7 @@ public class FormLayoutGenerator
 			if (typeAndPropertyNames[0].size() > 0)
 			{
 				writer.print(" svy-types='");
-				writer.print("[" + StringUtil.join(typeAndPropertyNames[0], ",") + "]");
+				writer.print("[" + String.join(",", typeAndPropertyNames[0]) + "]");
 				writer.print("'");
 			}
 			String directEditPropertyName = getDirectEditProperty(fe);
@@ -409,7 +409,7 @@ public class FormLayoutGenerator
 			if (forbiddenComponentNames.size() > 0)
 			{
 				writer.print(" svy-forbidden-components='");
-				writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+				writer.print("[" + String.join(",", forbiddenComponentNames) + "]");
 				writer.print("'");
 			}
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
@@ -452,9 +452,7 @@ public class FormLayoutGenerator
 		IPersist fePersist = fe.getPersistIfAvailable();
 
 		String name = fe.getName();
-		boolean selectable = false;
-		if (name == null) name = fe.getName();
-		else selectable = name.startsWith(FormElement.SVY_NAME_PREFIX);
+		boolean selectable = fe.isFormComponentChild() ? name.indexOf('$' + FormElement.SVY_NAME_PREFIX) == -1 : true;
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -485,7 +483,7 @@ public class FormLayoutGenerator
 					writer.print(((ISupportBounds)fePersist).getLocation().x);
 					writer.print("'");
 				}
-				if (selectable)
+				if (!selectable)
 				{
 					writer.print(" svy-non-selectable='noname'");
 				}
@@ -498,21 +496,21 @@ public class FormLayoutGenerator
 				if (typeAndPropertyNames[0].size() > 0)
 				{
 					writer.print(" svy-types='");
-					writer.print("[" + StringUtil.join(typeAndPropertyNames[0], ",") + "]");
+					writer.print("[" + String.join(",", typeAndPropertyNames[0]) + "]");
 					writer.print("'");
 
 					writer.print(" svy-types-properties='");
-					writer.print("[" + StringUtil.join(typeAndPropertyNames[1], ",") + "]");
+					writer.print("[" + String.join(",", typeAndPropertyNames[1]) + "]");
 					writer.print("'");
 
 					ngClass.put("drop_highlight",
-						"<canContainDraggedElement('" + fe.getTypeName() + "',['" + StringUtil.join(typeAndPropertyNames[0], "','") + "'])<");
+						"<canContainDraggedElement('" + fe.getTypeName() + "',['" + String.join("','", typeAndPropertyNames[0]) + "'])<");
 				}
 				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
 				if (forbiddenComponentNames.size() > 0)
 				{
 					writer.print(" svy-forbidden-components='");
-					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+					writer.print("[" + String.join(",", forbiddenComponentNames) + "]");
 					writer.print("'");
 				}
 				String directEditPropertyName = getDirectEditProperty(fe);
@@ -535,7 +533,7 @@ public class FormLayoutGenerator
 				}
 
 				ngClass.put("invisible_element", "<getDesignFormControllerScope().model('" + designId + "').svyVisible == false<".toString());
-				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
+				ngClass.put("highlight_child_element", "<design_highlight=='highlight_element'<".toString());//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				writer.print(" ng-class='" + ngClass.toString().replaceAll("\"<", "").replaceAll("<\"", "").replaceAll("'", "\"") + "'");
 			}
 			writer.print(" svy-model=\"model('");

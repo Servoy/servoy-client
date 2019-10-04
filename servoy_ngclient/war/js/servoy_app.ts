@@ -177,6 +177,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 
+		if (beanData.cssPosition && !useAnchoring) {
+			angular.copy(beanData.cssPosition,beanLayout); 
+		}
+
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (beanModel.visible != undefined)
 		{
@@ -188,10 +192,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			{
 				delete beanLayout.display;
 			}
-		}
-		
-		if (beanData.cssPosition && !useAnchoring) {
-			angular.copy(beanData.cssPosition,beanLayout); 
 		}
 	}
 

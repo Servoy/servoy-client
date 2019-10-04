@@ -49,7 +49,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
-	private volatile boolean hiddenBecauseNoPk = false;
+	private volatile boolean invalidBecauseNoPk = false;
 
 	/**
 	 * Flag to mark this table as meta data, meta data will be included in export files
@@ -196,14 +196,14 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		hiddenInDeveloper = hidden;
 	}
 
-	public boolean isHiddenInDeveloperBecauseNoPk()
+	public boolean isTableInvalidInDeveloperBecauseNoPk()
 	{
-		return hiddenBecauseNoPk;
+		return invalidBecauseNoPk;
 	}
 
-	public void setHiddenInDeveloperBecauseNoPk(boolean b)
+	public void setTableInvalidInDeveloperBecauseNoPk(boolean b)
 	{
-		hiddenBecauseNoPk = b;
+		invalidBecauseNoPk = b;
 	}
 
 	/**

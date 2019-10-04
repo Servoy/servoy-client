@@ -35,11 +35,8 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 
 			scope.$watch("model.size", function (newVal) {
 				if (angular.isDefined(newVal)) {
+					// this makes popup item height same as combo height
 					scope.style['min-height'] = scope.model.size.height + 'px';
-					if (!scope.svyServoyapi.isInDesigner())
-					{
-						scope.style['min-width'] = element.parent().width() + 'px';
-					}
 				}	
 			});
 			

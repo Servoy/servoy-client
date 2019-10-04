@@ -72,7 +72,6 @@ import com.servoy.j2db.util.Utils;
 public abstract class AbstractApplication extends ClientState implements IApplication
 {
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
-	private transient ResourceBundle localeJarMessages;
 	protected Locale locale;
 	protected TimeZone timeZone;
 
@@ -311,14 +310,13 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	public ResourceBundle getResourceBundle(Locale lc)
 	{
 		final Locale loc = lc != null ? lc : locale != null ? locale : Locale.getDefault();
-		final ResourceBundle jarMessages = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
 		final Properties msg = getMessages(loc);
 		return new ResourceBundle()
 		{
 			@Override
 			protected Object handleGetObject(String key)
 			{
-				return getI18NMessage(key, null, msg, jarMessages, loc);
+				return getI18NMessage(key, null, msg, loc);
 			}
 
 			@Override
@@ -330,6 +328,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 			@Override
 			public Enumeration<String> getKeys()
 			{
+				final ResourceBundle jarMessages = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
 				return new Enumeration<String>()
 				{
 					private Enumeration< ? > solutionKeys = msg.keys();
@@ -383,7 +382,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	{
 		if (key == null || key.length() == 0) return key;
 		Properties properties = getMessages(locale);
-		return getI18NMessage(key, args, properties, ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale), locale);
+		return getI18NMessage(key, args, properties, locale);
 	}
 
 	public void setI18NMessage(String key, String value)
@@ -404,7 +403,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		}
 	}
 
-	private static String getI18NMessage(String key, Object[] args, Properties msg, ResourceBundle jar, Locale loc)
+	private static String getI18NMessage(String key, Object[] args, Properties msg, Locale loc)
 	{
 		String realKey = key;
 		if (realKey.startsWith("i18n:")) //$NON-NLS-1$
@@ -415,11 +414,12 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		try
 		{
 			message = msg.getProperty(realKey);
-			if (message == null && jar != null)
+			if (message == null)
 			{
 				try
 				{
-					message = jar.getString(realKey);
+					ResourceBundle jar = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
+					message = jar != null ? jar.getString(realKey) : null;
 				}
 				catch (Exception e)
 				{
@@ -475,11 +475,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 					messages.put(loc, properties);
 				}
 			}
-			// also test here for the local jar message
-			if (localeJarMessages == null && loc.equals(getLocale()))
-			{
-				localeJarMessages = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
-			}
 		}
 
 		return properties == null ? new Properties() : properties;
@@ -502,7 +497,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		if (locale != null && locale.equals(l)) return;
 		Locale old = locale;
 		locale = l;
-		localeJarMessages = null;
 		J2DBGlobals.firePropertyChange(this, "locale", old, locale); //$NON-NLS-1$
 	}
 

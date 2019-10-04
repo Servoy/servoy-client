@@ -1,8 +1,8 @@
 angular.module('window',['servoy'])
 .factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability,$utils) {
 	var scope = $services.getServiceScope('window');
-	return {
-
+	scope.formPopupShown = null;
+	var _this = {
 		translateSwingShortcut: function(shortcutcombination)
 		{
 			var shortcutParts = shortcutcombination.split(" ");
@@ -230,7 +230,6 @@ angular.module('window',['servoy'])
 					$('#formpopup').css(css);
 		    	})
 			};
-			var cancelFormPopup = this.cancelFormPopup;
 			getElementById(component).then(function(relatedElement)
 			{
 				var body = $('body');
@@ -274,34 +273,12 @@ angular.module('window',['servoy'])
 				var popup = $compile('<div id="tabStart" sablo-tabseq="1" ng-focus="firstElementFocused()"></div><div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" sablo-tabseq="2" sablo-tabseq-config="{container: true}"></div><div id="tabStop" sablo-tabseq="3" ng-focus="lastElementFocused()"></div>')(scope);
 				scope.popupElement = popup;
 				$timeout(function(){
-					body.on('click',function(event)
-					{
-						var backdrop = angular.element(".formpopup-backdrop");
-						if (backdrop && (backdrop.get(0) == event.target))
-						{
-							backdrop.remove();
-							cancelFormPopup();
-							return;
-						}
-						var mainform = angular.element(".svy-main-window-container");
-						if (mainform && mainform.find(event.target).length > 0 )
-						{
-							cancelFormPopup();
-							return;
-						}
-						 mainform = angular.element(".svy-dialog");
-						 if (mainform && mainform.find(event.target).length > 0 )
-						 {
-							 cancelFormPopup();
-							 return;
-						 }
-					});
+					body.on('mouseup',formPopupBodyListener);
 				},300);
 				if(showBackdrop) {
 					body.append('<div class="formpopup-backdrop modal-backdrop fade in" style="z-index:1498"></div>');
 				}
 				body.append(popup);
-				popup.closest( '#tabStart' ).focus();
 
 		 }, function()
 		 {
@@ -316,26 +293,21 @@ angular.module('window',['servoy'])
 		 */
 		cancelFormPopup : function()
 		{
-			$('body').off('click',this.cancelFormPopup);
-			if (scope.model.popupform)
+			$('body').off('mousedown',formPopupBodyListener);
+			if (scope.formPopupShown)
 			{
-				$formService.hideForm(scope.model.popupform.form);
+				$formService.hideForm(scope.formPopupShown.form);
 			}
 			var popup = angular.element("#formpopup");
 			if (popup)
 			{
-				if (scope.model.popupform){
-					var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(scope.model.popupform.form);
-					if (formState) {
+				if (scope.formPopupShown){
+					var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(scope.formPopupShown.form);
+					if (formState && formState.getScope) {
 						formState.getScope().$destroy();
 					}
 				}
 				popup.remove();
-			}
-			scope.model.popupform = null;
-			if(scope.popupElement) {
-				scope.popupElement.remove();
-				scope.popupElement = null;
 			}
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && backdrop.length) {
@@ -343,6 +315,18 @@ angular.module('window',['servoy'])
 			}
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "enableTabseq" );
+			}
+			if (scope.model.popupform === scope.formPopupShown) {
+				scope.model.popupform = null;
+				scope.formPopupShown = null;
+			}
+			else {
+				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
+				scope.formPopupShown = scope.model.popupform;
+			}
+			if(scope.popupElement) {
+				scope.popupElement.remove();
+				scope.popupElement = null;
 			}
 		},
 		generateMenu: function(items,oMenu)
@@ -403,7 +387,7 @@ angular.module('window',['servoy'])
 					if (items[j].items && items[j].items.length >0)
 					{
 						var menu = new YAHOO.widget.Menu(text);
-						this.generateMenu(items[j].items,menu);
+						_this.generateMenu(items[j].items,menu);
 						mi.cfg.setProperty('submenu', menu);
 					}
 				}
@@ -415,6 +399,29 @@ angular.module('window',['servoy'])
 			}
 		}
 	}
+	function formPopupBodyListener(event)
+	{
+			var backdrop = angular.element(".formpopup-backdrop");
+			if (backdrop && (backdrop.get(0) == event.target))
+			{
+				backdrop.remove();
+				_this.cancelFormPopup();
+				return;
+			}
+			var mainform = angular.element(".svy-main-window-container");
+			if (mainform && mainform.find(event.target).length > 0 )
+			{
+				_this.cancelFormPopup();
+				return;
+			}
+			 mainform = angular.element(".svy-dialog");
+			 if (mainform && mainform.find(event.target).length > 0 )
+			 {
+				 _this.cancelFormPopup();
+				 return;
+			 }
+	}
+	return _this;
 })
 .run(function($rootScope,$services,window,$window, $timeout)
 {
@@ -431,9 +438,13 @@ angular.module('window',['servoy'])
 				}	
 			}
 		}
-		if (newvalue && newvalue.popupform && !oldvalue.popupform)
+		if (newvalue && newvalue.popupform && !angular.equals(oldvalue.popupform,newvalue.popupform))
 		{
-			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+			if (!scope.formPopupShown) {
+				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+				scope.formPopupShown = newvalue.popupform;
+			}
+			else window.cancelFormPopup();
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{

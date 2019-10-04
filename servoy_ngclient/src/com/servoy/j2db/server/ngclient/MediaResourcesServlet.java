@@ -28,6 +28,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,6 +50,9 @@ import org.apache.wicket.util.upload.FileItem;
 import org.apache.wicket.util.upload.FileUploadBase.FileSizeLimitExceededException;
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -63,6 +67,9 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSMap;
+import com.servoy.j2db.scripting.JSUpload;
 import com.servoy.j2db.server.ngclient.less.LessCompiler;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -95,6 +102,11 @@ import com.servoy.j2db.util.Utils;
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
+	/**
+	 * constant for calling a service, should be in sync with servoy.ts generateServiceUploadUrl() function
+	 */
+	private static final String SERVICE_UPLOAD = "svy_services";
+
 	/**
 	 * the folder that contains the compiled less files
 	 */
@@ -441,37 +453,86 @@ public class MediaResourcesServlet extends HttpServlet
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
 						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
-						final ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
+						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
+						List<FileItem> formFields = new ArrayList<>();
 						while (iterator.hasNext())
 						{
 							FileItem item = iterator.next();
-							if (formName != null && elementName != null && propertyName != null)
+							if (item.isFormField())
+							{
+								formFields.add(item);
+							}
+							else if (formName != null && elementName != null && propertyName != null)
 							{
 								final Map<String, Object> fileData = new HashMap<String, Object>();
 								fileData.put("", item.get());
 								fileData.put(IMediaFieldConstants.FILENAME, item.getName());
 								fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
+								final List<FileItem> fields = formFields;
+								formFields = new ArrayList<>();
 
 								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
 								{
 									@Override
 									public void run()
 									{
-										IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
-										if (form == null)
+										Map<String, String> formFields = new JSMap<>();
+										for (FileItem fileItem : fields)
 										{
-											Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
-												" but form is not found, data: " + fileData);
-											return;
+											formFields.put(fileItem.getFieldName(), fileItem.getString());
 										}
-										WebFormComponent webComponent = form.getWebComponent(elementName);
-										if (webComponent == null)
+										if (formName.equals(SERVICE_UPLOAD))
 										{
-											Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
-												" but component  is not found, data: " + fileData);
-											return;
+											Scriptable plugins = (Scriptable)wsSession.getClient().getScriptEngine().getSolutionScope().get(
+												IExecutingEnviroment.TOPLEVEL_PLUGINS, null);
+											Scriptable plugin = (Scriptable)plugins.get(elementName, plugins);
+											if (plugin != null)
+											{
+												Object func = plugin.get(propertyName, plugin);
+												if (func instanceof Function)
+												{
+													Context context = Context.enter();
+													try
+													{
+														((Function)func).call(context, plugin, plugin, new Object[] { new JSUpload(item, formFields) });
+													}
+													finally
+													{
+														Context.exit();
+													}
+												}
+											}
 										}
-										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
+										else
+										{
+											IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
+											if (form == null)
+											{
+												Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
+													" but form is not found, data: " + fileData);
+												return;
+											}
+											WebFormComponent webComponent = form.getWebComponent(elementName);
+											if (webComponent == null)
+											{
+												Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
+													" but component  is not found, data: " + fileData);
+												return;
+											}
+											// if the property is a event handler  then just call that event with the FileUploadData as the argument
+											if (webComponent.hasEvent(propertyName))
+											{
+												try
+												{
+													webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item, formFields) });
+												}
+												catch (Exception e)
+												{
+													Debug.error("Error calling the upload event handler " + propertyName + "   of " + webComponent, e);
+												}
+											}
+											else form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
+										}
 									}
 								});
 							}
@@ -509,6 +570,7 @@ public class MediaResourcesServlet extends HttpServlet
 				}
 				catch (FileUploadException ex)
 				{
+					ex.printStackTrace();
 					throw new ServletException(ex.toString());
 				}
 			}

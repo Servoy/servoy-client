@@ -57,6 +57,7 @@ angular.module('ngclientutils', [ 'servoy' ])
 				$window.window.removeEventListener("beforeunload", beforeUnload);
 			}
 		},
+		
 		/**
 		 * Call this when a solution can handle mobile device layouts (responsive design, can handle nicely
 		 * width < height). This call is equivalent to calling setViewportMetaForMobileAwareSites(plugins.htmlHeaders.VIEWPORT_MOBILE_DEFAULT).<br/><br/>
@@ -190,6 +191,31 @@ angular.module('ngclientutils', [ 'servoy' ])
 		 */
 		removeClassFromDOMElement: function(jQuerySelector, className) {
 			$(jQuerySelector).removeClass(className);
+		},
+		
+		/**
+		 * Print a document from specific URL. This will open browser specific print dialog. 
+		 * 
+		 * NOTE: url should be from same domain, otherwise a temp file on server should be created and served
+		 * 
+		 * @sample
+		 *  // if url is not from same domain we must create a temporary file
+		 * 	var file = plugins.http.getMediaData(url);  
+		 *	var remoteFileName = application.getUUID().toString() + '.pdf'; 
+		 *	var remoteFile = plugins.file.convertToRemoteJSFile('/'+remoteFileName) 
+		 *	remoteFile.setBytes(file,true);  //Convert the remote file to a url, and print it
+		 *	var remoteUrl = plugins.file.getUrlForRemoteFile('/'+remoteFileName);  
+		 *	plugins.ngclientutils.printDocument(remoteUrl)
+		 * @param {string} url The URL of document to be printed.
+		 */
+		printDocument: function(url)
+		{
+			var objFra = document.createElement('iframe');   
+	        objFra.style.visibility = "hidden";    
+	        objFra.src = url;                      
+	        document.body.appendChild(objFra);  
+	        objFra.contentWindow.focus();      
+	        objFra.contentWindow.print();
 		}
 	}
 }])

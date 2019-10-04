@@ -95,6 +95,7 @@ import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
@@ -873,9 +874,30 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						dbIdentArguments.remove(relationName);
 					}
 				}
+				if (retval != null)
+				{
+					unwrapDbIdentValue(retval.getCreationSqlSelect(), relationName);
+					unwrapDbIdentValue(retval.getQuerySelectForReading(), relationName);
+				}
 			}
 		}
 		return retval;
+	}
+
+	private static void unwrapDbIdentValue(QuerySelect querySelect, String relationName)
+	{
+		Placeholder whereArgsPlaceholder = querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));
+		if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
+		{
+			Object[][] createWhereArgs = (Object[][])whereArgsPlaceholder.getValue();
+			for (int i = 0; i < createWhereArgs.length; i++)
+			{
+				if (createWhereArgs[i][0] instanceof DbIdentValue && ((DbIdentValue)createWhereArgs[i][0]).getPkValue() != null)
+				{
+					createWhereArgs[i][0] = ((DbIdentValue)createWhereArgs[i][0]).getPkValue();
+				}
+			}
+		}
 	}
 
 	private RelatedHashedArguments calculateFKHash(IRecordInternal state, Relation r, boolean testForCalcs) throws RepositoryException
@@ -1500,13 +1522,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						((RelatedFoundSet)fs).invalidateFoundset();
 					}
 					else if (fs instanceof ViewFoundSet)
-				{
-					((ViewFoundSet)fs).loadAllRecords();
-				}
+					{
+						((ViewFoundSet)fs).loadAllRecords();
+					}
 					else if (fs instanceof FoundSet)
-				{
-					((FoundSet)fs).refreshFromDB(false, false);
-				}
+					{
+						((FoundSet)fs).refreshFromDB(false, false);
+					}
 				}
 			}));
 
@@ -2640,7 +2662,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			ITable table = inMemDataSources.get(dataSource);
 			GlobalTransaction gt = getGlobalTransaction();
 			String targetTid = null;
-			String targetServerName = table == null ? serverName : table.getServerName();
+			String targetServerName = table == null ? IServer.INMEM_SERVER : table.getServerName();
 			if (gt != null)
 			{
 				targetTid = gt.getTransactionID(targetServerName);

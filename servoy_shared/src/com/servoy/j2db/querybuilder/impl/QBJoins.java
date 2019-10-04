@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.util.HashMap;
+import static com.servoy.j2db.util.Utils.stream;
+
 import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
@@ -61,13 +62,20 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	private final QBSelect root;
 	private final QBTableClause parent;
 
-	private final Map<String, QBJoin> joins = new HashMap<String, QBJoin>();
-
 	QBJoins(QBSelect root, QBTableClause parent)
 	{
 		super(root.getScriptableParent(), jsFunctions);
 		this.root = root;
 		this.parent = parent;
+
+		QuerySelect query = root.getQuery(false);
+		if (query != null)
+		{
+			stream(query.getJoins()) //
+				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast) //
+				.forEach(queryJoin -> allVars.put(queryJoin.getName(),
+					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getName())));
+		}
 	}
 
 	/**
@@ -109,8 +117,14 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin[] getJoins()
 	{
-		return joins.values().toArray(new QBJoin[joins.size()]);
+		return allVars.values().toArray(new QBJoin[allVars.size()]);
 	}
+
+	private QBJoin getJoin(String name)
+	{
+		return (QBJoin)allVars.get(name);
+	}
+
 
 	@Override
 	public Object get(String name, Scriptable start)
@@ -138,6 +152,30 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		return join;
 	}
 
+	@Override
+	public QBJoin remove(String key)
+	{
+		QBJoin removedJoin = (QBJoin)super.remove(key);
+		if (removedJoin != null)
+		{
+			root.getQuery().removeJoin(removedJoin.getJoin());
+		}
+
+		return removedJoin;
+	}
+
+
+	@Override
+	public void delete(String name)
+	{
+		QBJoin queryJoin = getJoin(name);
+		super.delete(name);
+		if (queryJoin != null)
+		{
+			root.getQuery().removeJoin(queryJoin.getJoin());
+		}
+	}
+
 	private QBJoin getOrAddRelation(IRelation relation, String relationName, String alias)
 	{
 		if (relation == null || !parent.getDataSource().equals(relation.getPrimaryDataSource()))
@@ -155,7 +193,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		}
 
 		String name = alias == null ? relationName : alias;
-		QBJoin join = joins.get(name);
+		QBJoin join = getJoin(name);
 		if (join == null)
 		{
 			try
@@ -296,7 +334,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		}
 
 		QuerySelect subquery = ((QBSelect)subqueryBuilder).getQuery();
-		QBJoin join = joins.get(alias);
+		QBJoin join = getJoin(alias);
 		if (join == null)
 		{
 			join = addJoin(new QueryJoin(alias, parent.getQueryTable(), new DerivedTable(subquery, alias), new AndCondition(), joinType, true),
@@ -327,7 +365,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		else
 		{
 			name = alias;
-			join = joins.get(name);
+			join = getJoin(name);
 		}
 		if (join == null)
 		{
@@ -346,7 +384,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		root.getQuery().addJoin(queryJoin);
 		if (name != null)
 		{
-			joins.put(name, join);
+			allVars.put(name, join);
 		}
 		return join;
 	}
@@ -357,14 +395,14 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 */
 	public QBTableClause findQueryBuilderTableClause(String tableAlias)
 	{
-		QBJoin join = joins.get(tableAlias);
+		QBJoin join = getJoin(tableAlias);
 		if (join != null)
 		{
 			return join;
 		}
 
 		// not a direct child, try recursive
-		for (QBJoin j : joins.values())
+		for (QBJoin j : getJoins())
 		{
 			QBTableClause found = ((QBTableClause)j).findQueryBuilderTableClause(tableAlias);
 			if (found != null)

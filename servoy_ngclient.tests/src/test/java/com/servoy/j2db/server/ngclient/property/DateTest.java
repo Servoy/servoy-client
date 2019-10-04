@@ -32,6 +32,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.server.ngclient.property.types.NGDatePropertyType;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 
@@ -260,6 +261,33 @@ public class DateTest
 		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55+02:00", true));
 		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55+03:00", true));
 		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55-03:00", true));
+
+	}
+
+	@Test
+	public void testDatesConversionFromString()
+	{
+		Assert.assertEquals(new Date(119, 6, 8), new Date(Column.getAsTime("2019-07-08")));
+		Assert.assertEquals(new Date(119, 6, 8), new Date(Column.getAsTime("2019-7-8")));
+		Assert.assertEquals(new Date(119, 0, 1), new Date(Column.getAsTime("2019-1-1")));
+		Assert.assertEquals(new Date(119, 0, 9), new Date(Column.getAsTime("2019-1-09")));
+
+		Assert.assertEquals(new Date(119, 6, 8, 7, 8), new Date(Column.getAsTime("2019-07-08T07:08")));
+		Assert.assertEquals(new Date(119, 6, 8, 21, 59), new Date(Column.getAsTime("2019-7-8T21:59")));
+		Assert.assertEquals(new Date(119, 6, 8, 7, 8, 10), new Date(Column.getAsTime("2019-07-08T07:08:10")));
+		Assert.assertEquals(new Date(119, 6, 8, 21, 59, 3), new Date(Column.getAsTime("2019-7-8T21:59:03")));
+
+		Assert.assertEquals(1562540400000l, Column.getAsTime("2019-07-08+01:00"));
+		Assert.assertEquals(1562558880000l, Column.getAsTime("2019-07-08T07:08+03:00"));
+		Assert.assertEquals(1562558880000l, Column.getAsTime("2019-7-8T07:08+03:00"));
+		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05:00"));
+		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+0500"));
+		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05"));
+		Assert.assertEquals(OffsetDateTime.parse("2019-07-08T21:59:03+05:00").toInstant().toEpochMilli(), Column.getAsTime("2019-7-8T21:59:03+05"));
+		Assert.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.000Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.000Z"));
+		Assert.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.001Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.001Z"));
+		Assert.assertEquals(1562605143100l, Column.getAsTime("2019-7-8T21:59:03.100+0500"));
+		Assert.assertEquals(1562605143900l, Column.getAsTime("2019-7-8T21:59:03:900+05"));
 
 	}
 }

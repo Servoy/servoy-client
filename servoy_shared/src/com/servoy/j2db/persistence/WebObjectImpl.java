@@ -415,6 +415,33 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return propPD != null && propPD.hasDefault() ? ServoyJSONObject.deepCloneJSONArrayOrObj(propPD.getDefaultValue()) : null;
 	}
 
+	@Override
+	public Object getOwnProperty(String propertyName)
+	{
+		JSONObject json = getJson();
+		if (json != null)
+		{
+			Object object = json.opt(propertyName);
+			if (object != null)
+			{
+				PropertyDescription propertyDescription = getPropertyDescription();
+				if (propertyDescription != null)
+				{
+					PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+					if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+						((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+						childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
+					if (childPd != null)
+					{
+						object = convertToJavaType(childPd, object);
+					}
+				}
+			}
+			return object;
+		}
+		return null;
+	}
+
 	public static Object convertToJavaType(PropertyDescription childPd, Object val)
 	{
 		Object value = val;
@@ -456,7 +483,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return allPersistMappedProperties;
 	}
 
-	private Map<String, Object> getPersistMappedProperties()
+	private synchronized Map<String, Object> getPersistMappedProperties()
 	{
 		if (!arePersistMappedPropertiesLoaded)
 		{
@@ -484,7 +511,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return persistMappedProperties;
 	}
 
-	protected void updatePersistMappedPropertyFromJSON(String beanJSONKey, Object object)
+	protected synchronized void updatePersistMappedPropertyFromJSON(String beanJSONKey, Object object)
 	{
 		if (object != null && getChildPropertyDescription(beanJSONKey) != null)
 		{
@@ -665,11 +692,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	}
 
 	@Override
-	public void reload()
+	public void reload(boolean keepPersistMappedProperties)
 	{
 		arePersistMappedPropertiesLoaded = false;
-		persistMappedProperties.clear();
-		persistMappedPropetiesByUUID = null;
+		if (!keepPersistMappedProperties)
+		{
+			persistMappedProperties.clear();
+			persistMappedPropetiesByUUID = null;
+		}
 		if (pdIsWebComponentSpecification) pdPleaseUseGetterToAccessThis = null; // if it's a web component, next time it's needed reload it's spec as well, don't use cached one
 	}
 

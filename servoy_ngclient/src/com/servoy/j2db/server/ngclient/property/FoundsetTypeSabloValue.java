@@ -263,7 +263,25 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 
 		// register parent record changed listener
-		if (parentDAL != null) parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
+		if (parentDAL != null)
+		{
+			TargetDataLinks dataLinks = TargetDataLinks.LINKED_TO_ALL;
+			if (foundsetSelector != null && !FORM_FOUNDSET_SELECTOR.equals(foundsetSelector) && !DataSourceUtils.isDatasourceUri(foundsetSelector))
+			{
+				// it is a relation then, not a datasource (separate or named foundset)
+				int lastIndex = foundsetSelector.lastIndexOf('.');
+				if (lastIndex > 0)
+				{
+					// if this is a nested relation the parent dal needs to know this. so it can monitor the parent relations.
+					Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector.substring(0, lastIndex));
+					if (relations != null && relations.length > 0)
+					{
+						dataLinks = new TargetDataLinks(null, true, relations);
+					}
+				}
+			}
+			parentDAL.addDataLinkedProperty(this, dataLinks);
+		}
 
 		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
 	}
@@ -1074,8 +1092,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											{
 												// TODO handle the validaton errors.
 												IWebFormUI formUI = getFormUI();
-												formUI.getController().getApplication().reportError(
-													"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
+												formUI.getController()
+													.getApplication()
+													.reportError(
+														"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
 											}
 										}
 										// else cannot start editing; finally block will deal with it (send old value back to client as new one can't be pushed)
@@ -1124,7 +1144,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
 		if (dataAdapterList == null && webObjectContext != null && webObjectContext.getUnderlyingWebObject() instanceof WebComponent)
 		{
-			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
+			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController(), this);
 			if (foundset != null) dataAdapterList.setFindMode(foundset.isInFindMode());
 		}
 		return dataAdapterList;

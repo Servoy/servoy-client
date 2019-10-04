@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.6 - 2017-03-06T14:17:22.576Z
+ * Version: 0.19.6 - 2019-08-07T10:48:19.925Z
  * License: MIT
  */
 
@@ -176,31 +176,6 @@ var uis = angular.module('ui.select', [])
       height: boundingClientRect.height || element.prop('offsetHeight'),
       top: boundingClientRect.top + ($window.pageYOffset || $document[0].documentElement.scrollTop),
       left: boundingClientRect.left + ($window.pageXOffset || $document[0].documentElement.scrollLeft)
-    };
-  };
-}]);
-
-/**
- * Debounces functions
- *
- * Taken from UI Bootstrap $$debounce source code
- * See https://github.com/angular-ui/bootstrap/blob/master/src/debounce/debounce.js
- *
- */
-uis.factory('$$uisDebounce', ['$timeout', function($timeout) {
-  return function(callback, debounceTime) {
-    var timeoutPromise;
-
-    return function() {
-      var self = this;
-      var args = Array.prototype.slice.call(arguments);
-      if (timeoutPromise) {
-        $timeout.cancel(timeoutPromise);
-      }
-
-      timeoutPromise = $timeout(function() {
-        callback.apply(self, args);
-      }, debounceTime);
     };
   };
 }]);
@@ -426,17 +401,21 @@ uis.controller('uiSelectCtrl',
           if (phase === 'start' && ctrl.items.length === 0) {
             // Only focus input after the animation has finished
             ctrl.$animate.off('removeClass', searchInput[0], animateHandler);
-            $timeout(function () {
-              ctrl.focusSearchInput(initSearchValue);
+            $timeout(function () { // TODO can we rely on some callback instead? to avoid $timeout?
+              if (ctrl.open) { // as this is in a timeout, make sure that the drop-down is still open
+                ctrl.focusSearchInput(initSearchValue);
+              }
             });
           } else if (phase === 'close') {
             // Only focus input after the animation has finished
             ctrl.$animate.off('enter', container[0], animateHandler);
-            $timeout(function () {
-              ctrl.focusSearchInput(initSearchValue);
-              if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
-                _ensureHighlightVisible();
-              }              
+            $timeout(function () { // TODO can we rely on some callback instead? to avoid $timeout?
+              if (ctrl.open) { // as this is in a timeout, make sure that the drop-down is still open
+                ctrl.focusSearchInput(initSearchValue);
+                if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
+                  _ensureHighlightVisible();
+                }
+              }
             });
           }
         };
@@ -447,10 +426,12 @@ uis.controller('uiSelectCtrl',
           ctrl.$animate.on('removeClass', searchInput[0], animateHandler);
         }
       } else {
-        $timeout(function () {
-          ctrl.focusSearchInput(initSearchValue);
-          if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
-            _ensureHighlightVisible();
+        $timeout(function () { // TODO can we rely on some callback instead? to avoid $timeout?
+          if (ctrl.open) { // as this is in a timeout, make sure that the drop-down is still open
+            ctrl.focusSearchInput(initSearchValue);
+            if(!ctrl.tagging.isActivated && ctrl.items.length > 1) {
+              _ensureHighlightVisible();
+            }
           }
         });
       }
@@ -1309,14 +1290,15 @@ uis.directive('uiSelect',
         var bodyElements = document.querySelectorAll('.svy-body,.ui-grid-viewport');
         if (appendToBody !== undefined ? appendToBody : uiSelectConfig.appendToBody) {
           scope.$watch('$select.open', function(isOpen) {
+            var i;
             if (isOpen) {
               positionDropdown();
-      		  for(var i = 0; i < bodyElements.length ; i++){
-      			bodyElements[i].addEventListener('scroll',resetDropdown);
-      		  }
+              for (i = 0; i < bodyElements.length ; i++) {
+                bodyElements[i].addEventListener('scroll', resetDropdown);
+              }
             } else {
-            	for(var i = 0; i < bodyElements.length ; i++){
-            		bodyElements[i].removeEventListener('scroll',resetDropdown);
+              for (i = 0; i < bodyElements.length ; i++) {
+                bodyElements[i].removeEventListener('scroll', resetDropdown);
               }
               resetDropdown();
             }
@@ -2301,6 +2283,31 @@ uis.directive('uiSelectSort', ['$timeout', 'uiSelectConfig', 'uiSelectMinErr', f
         element.off('drop', dropHandler);
       });
     }
+  };
+}]);
+
+/**
+ * Debounces functions
+ *
+ * Taken from UI Bootstrap $$debounce source code
+ * See https://github.com/angular-ui/bootstrap/blob/master/src/debounce/debounce.js
+ *
+ */
+uis.factory('$$uisDebounce', ['$timeout', function($timeout) {
+  return function(callback, debounceTime) {
+    var timeoutPromise;
+
+    return function() {
+      var self = this;
+      var args = Array.prototype.slice.call(arguments);
+      if (timeoutPromise) {
+        $timeout.cancel(timeoutPromise);
+      }
+
+      timeoutPromise = $timeout(function() {
+        callback.apply(self, args);
+      }, debounceTime);
+    };
   };
 }]);
 

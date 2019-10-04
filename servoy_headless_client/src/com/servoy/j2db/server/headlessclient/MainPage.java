@@ -1438,13 +1438,17 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		if (showUrlInfo != null)
 		{
+			String url = showUrlInfo.url;
+			if (url != null)
+			{
+				url = url.replace("'", "\\'");
+			}
 			if (showUrlInfo.target.equalsIgnoreCase("_close"))
 			{
 				return "window.close();window.opener.location.reload(true)";
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_self"))
 			{
-				String url = showUrlInfo.url;
 				if (showUrlInfo.useIFrame)
 				{
 					HttpServletRequest request = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
@@ -1462,7 +1466,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
 			{
-				String script = "window.top.location.href='" + showUrlInfo.url + "';";
+				String script = "window.top.location.href='" + url + "';";
 				return "window.setTimeout(\"" + script + "\"," + showUrlInfo.timeout + ");";
 			}
 			else
@@ -1471,15 +1475,15 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				if (!"_blank".equals(showUrlInfo.target))
 				{
 					script.append("if (top.window.frames['" + showUrlInfo.target + "'])");
-					script.append("{top.window.frames['" + showUrlInfo.target + "'].document.location.href = '" + showUrlInfo.url + "';}else{");
+					script.append("{top.window.frames['" + showUrlInfo.target + "'].document.location.href = '" + url + "';}else{");
 				}
 				if (showUrlInfo.target_options != null)
 				{
-					script.append("window.open('" + showUrlInfo.url + "','" + showUrlInfo.target + "','" + showUrlInfo.target_options + "');");
+					script.append("window.open('" + url + "','" + showUrlInfo.target + "','" + showUrlInfo.target_options + "');");
 				}
 				else
 				{
-					script.append("window.open('" + showUrlInfo.url + "','" + showUrlInfo.target + "');");
+					script.append("window.open('" + url + "','" + showUrlInfo.target + "');");
 				}
 				if (!"_blank".equals(showUrlInfo.target))
 				{

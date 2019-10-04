@@ -19,9 +19,9 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Point;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -220,7 +220,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	@Override
 	public Map<String, String> getMergedAttributes()
 	{
-		return (Map<String, String>)getMergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_ATTRIBUTES, new HashMap<String, String>());
+		return (Map<String, String>)getMergedCustomPropertiesInternal(IContentSpecConstants.PROPERTY_ATTRIBUTES, new TreeMap<String, String>());
 	}
 
 	@Override

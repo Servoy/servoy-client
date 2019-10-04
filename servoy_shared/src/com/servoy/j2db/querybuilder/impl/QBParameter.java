@@ -33,14 +33,16 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBParameter extends QBPart implements IQueryBuilderParameter
 {
+	static final String PARAMETER_PREFIX = "P:";
+
 	private final TablePlaceholderKey key;
 	private boolean isSet = false;
 	private Object value;
 
-	public QBParameter(QBSelect parent, String name) throws RepositoryException
+	public QBParameter(QBSelect parent, String name)
 	{
 		super(parent, parent);
-		this.key = new TablePlaceholderKey(parent.getQueryTable(), name);
+		this.key = new TablePlaceholderKey(parent.getQueryTable(), PARAMETER_PREFIX + name);
 	}
 
 	TablePlaceholderKey getPlaceholderKey()
@@ -57,7 +59,7 @@ public class QBParameter extends QBPart implements IQueryBuilderParameter
 
 	public String getName()
 	{
-		return key.getName();
+		return key.getName().substring(PARAMETER_PREFIX.length());
 	}
 
 	public Object getValue() throws RepositoryException

@@ -292,7 +292,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 				if (newVl != null)
 				{
-					previousComponentValue.setNewCustomValuelistInstance(newVl);
+					previousComponentValue.setNewCustomValuelistInstance(newVl, rhinoValue);
 					newValue = previousComponentValue;
 				}
 				else

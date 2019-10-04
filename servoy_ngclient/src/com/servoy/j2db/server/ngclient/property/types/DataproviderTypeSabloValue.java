@@ -19,6 +19,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.sql.Types;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -110,7 +113,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	protected IDataAdapterList dataAdapterList;
 	protected final IServoyDataConverterContext servoyDataConverterContext;
 
-	protected Object value;
+	protected Object uiValue; // if this DP prop. uses an UI converter, this value is the one from UI (so the one that would result after converting it from record/scope value to UI value)
 
 	protected Object jsonValue;
 	protected IChangeListener changeMonitor;
@@ -184,16 +187,18 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	}
 
 	/**
-	 * Returns the actual value (that is already full converted by an ui converter) that this dataProvider has.
+	 * Returns the value.
+	 * In case this DP type uses an UIConverter it will return the non-UI value (so the one in the record)
 	 */
 	public Object getValue()
 	{
 		if (!findMode && fieldFormat != null)
 		{
-			return ComponentFormat.applyUIConverterFromObject(value, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(),
+			// in case it has an UI converter, convert it from UI value into the record/scope value
+			return ComponentFormat.applyUIConverterFromObject(uiValue, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(),
 				fieldFormat);
 		}
-		return value;
+		return uiValue; // ui value == record/scope value (no converter)
 	}
 
 	@Override
@@ -446,13 +451,14 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 		if (fieldFormat != null && !findMode)
 		{
+			// if it has an UI converter, transform it from the record/scope value into the UI value
 			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
 		}
 
 		v = replaceTagsIfNeeded(v);
-		boolean changed = ((v != value) && (v == null || !v.equals(value)));
+		boolean changed = ((v != uiValue) && (v == null || !v.equals(uiValue)));
 
-		value = v;
+		uiValue = v;
 		if (changed)
 		{
 			jsonValue = null;
@@ -572,15 +578,15 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (value instanceof DbIdentValue)
+		if (uiValue instanceof DbIdentValue)
 		{
-			value = ((DbIdentValue)value).getPkValue();
+			uiValue = ((DbIdentValue)uiValue).getPkValue();
 		}
 
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (jsonValue == null)
 		{
-			jsonValue = getValueForToJSON(value, dataConverterContext);
+			jsonValue = getValueForToJSON(uiValue, dataConverterContext);
 		}
 
 		writer.value(jsonValue);
@@ -606,7 +612,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
-	protected Object getValueForToJSON(Object dpValue, IBrowserConverterContext dataConverterContext) throws JSONException
+	protected Object getValueForToJSON(Object uiValue, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		Object jsonValueRepresentation;
 		boolean valuelistDisplayValue = false;
@@ -617,11 +623,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			if (valuelistSabloValue != null && valuelistSabloValue.getValueList() != null)
 			{
 				valuelistDisplayValue = true;
-				if (valuelistSabloValue.getValueList().realValueIndexOf(dpValue) != -1)
+				if (valuelistSabloValue.getValueList().realValueIndexOf(uiValue) != -1)
 				{
 					try
 					{
-						dpValue = valuelistSabloValue.getValueList().getElementAt(valuelistSabloValue.getValueList().realValueIndexOf(dpValue));
+						// TODO don't we have to apply the UI converter's toObject here as well in the unlikely case of a valuelist + UI converter? and also
+						// when searching we should then use the fromObject(uiValue) rather then uiValue directly I think
+						uiValue = valuelistSabloValue.getValueList().getElementAt(valuelistSabloValue.getValueList().realValueIndexOf(uiValue));
 					}
 					catch (Exception ex)
 					{
@@ -636,9 +644,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 							ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), null, Types.OTHER, null,
 								valuelistSabloValue.getValueList().getValueList()),
 							null);
-						if (lookup.realValueIndexOf(dpValue) != -1)
+						if (lookup.realValueIndexOf(uiValue) != -1)
 						{
-							dpValue = lookup.getElementAt(lookup.realValueIndexOf(dpValue));
+							// TODO don't we have to apply the UI converter's toObject here as well in the unlikely case of a valuelist + UI converter? and also
+							// when searching we should then use the fromObject(uiValue) rather then uiValue directly I think
+							uiValue = lookup.getElementAt(lookup.realValueIndexOf(uiValue));
 						}
 						lookup.deregister();
 					}
@@ -654,18 +664,18 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
 			// from scripting, then show string representation
-			jsonValueRepresentation = dpValue instanceof String ? dpValue : (dpValue != null ? String.valueOf(dpValue) : "");
+			jsonValueRepresentation = uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : "");
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 			DataConversion jsonDataConversion = new DataConversion();
-			FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, dpValue, typeOfDP, jsonDataConversion, dataConverterContext);
+			FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, uiValue, typeOfDP, jsonDataConversion, dataConverterContext);
 			if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
 			String str = ejw.toJSONString();
 			if (str == null || str.trim().length() == 0)
 			{
-				Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + dpValue + ")");
+				Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + uiValue + ")");
 				str = "null";
 			}
 			jsonValueRepresentation = new JSONStringWithConversions(str, jsonDataConversion);
@@ -673,20 +683,20 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		else
 		{
 			// if valuelistDisplayValue just use the value from valuelist with no conversion ?
-			jsonValueRepresentation = dpValue;
+			jsonValueRepresentation = uiValue;
 		}
 		return jsonValueRepresentation;
 	}
 
 	public void browserUpdateReceived(Object newJSONValue, IBrowserConverterContext dataConverterContext)
 	{
-		Object oldValue = value;
+		Object oldUIValue = uiValue;
 
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
 			if (typeOfDP.getType() instanceof DatePropertyType && fieldFormat != null && fieldFormat.parsedFormat != null &&
-				fieldFormat.parsedFormat.getDisplayFormat() != null && oldValue instanceof Date)
+				fieldFormat.parsedFormat.getDisplayFormat() != null && (oldUIValue instanceof Date || oldUIValue == null))
 			{
 				// if we have format with no hour, skip converting the date from the client and merge it with the old date
 				String displayFormat = fieldFormat.parsedFormat.getDisplayFormat();
@@ -699,32 +709,43 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						Locale locale = dataAdapterList.getApplication().getLocale();
 						if (locale == null) locale = Locale.getDefault(Locale.Category.FORMAT);
 						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
-						formatter.setOriginal((Date)oldValue);
+						Date originalDate;
+						if (oldUIValue instanceof Date)
+						{
+							originalDate = (Date)oldUIValue;
+						}
+						else
+						{
+							// if oldUIValue is null, create a Date with time: 0:00:00
+							LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
+							originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+						}
+						formatter.setOriginal(originalDate);
 						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
-						value = formatter.getMergedDate();
+						uiValue = formatter.getMergedDate();
 					}
 					catch (Exception ex)
 					{
 						Debug.error(ex);
 						// just set the value to the newValue so we dont loose the input of the user (maybe only the other time part, like minutes)
-						value = newValue;
+						uiValue = newValue;
 					}
 				}
-				else value = newValue;
+				else uiValue = newValue;
 			}
 			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
+				uiValue = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, uiValue, typeOfDP, dataConverterContext,
 					serverSideValueIsNotTheSameAsClient);
 			}
 			else
 			{
-				value = newJSONValue;
+				uiValue = newJSONValue;
 			}
 		}
-		else value = newJSONValue;
+		else uiValue = newJSONValue;
 
-		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
+		if (oldUIValue != uiValue && (oldUIValue == null || !oldUIValue.equals(uiValue)))
 		{
 			jsonValue = null;
 		}
@@ -749,9 +770,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
 		}
-		if (v != value && (v == null || !v.equals(value)))
+		if (v != uiValue && (v == null || !v.equals(uiValue)))
 		{
-			value = v;
+			uiValue = v;
 			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
 			jsonValue = null;
 

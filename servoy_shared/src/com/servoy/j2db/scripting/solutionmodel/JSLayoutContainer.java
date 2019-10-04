@@ -345,6 +345,19 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 		getLayoutContainer().setSize(new Dimension(width, getLayoutContainer().getSize().height));
 	}
 
+	/**
+	 * Remove a layout container (with all its children) from hierarchy.
+	 *
+	 * @sample
+	 * layoutContainer.remove();
+	 */
+	@JSFunction
+	public void remove()
+	{
+		checkModification();
+		parent.getSupportChild().removeChild(getLayoutContainer());
+	}
+
 	@Override
 	public AbstractContainer getFlattenedContainer()
 	{

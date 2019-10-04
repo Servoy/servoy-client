@@ -23,6 +23,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 
@@ -49,17 +50,19 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 		/**
 		 * Used for properties that implement {@link IDataLinkedType} but decide not to be 'linked to data' based on their value.
 		 */
-		public static final TargetDataLinks NOT_LINKED_TO_DATA = new TargetDataLinks(null, false);
+		public static final TargetDataLinks NOT_LINKED_TO_DATA = new TargetDataLinks(null, false, null);
 
 		/**
 		 * Used by properties that are interested in changes to all data (record change or any dataProvider change).
 		 */
-		public static final TargetDataLinks LINKED_TO_ALL = new TargetDataLinks(null, true);
+		public static final TargetDataLinks LINKED_TO_ALL = new TargetDataLinks(null, true, null);
 
 		/** the dataProvider that a property is interested in. */
 		public final String[] dataProviderIDs;
 		/** true of this is a record dependent dataProvider and false otherwise (scope/form variable). */
 		public final boolean recordLinked;
+
+		public final Relation[] relations;
 
 		/**
 		 * Creates a new TargetDataLinks instance. If the given dataProviderID is not null, that means that the property
@@ -69,8 +72,21 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 		 */
 		public TargetDataLinks(String[] dataProviderIDs, boolean recordLinked)
 		{
+			this(dataProviderIDs, recordLinked, null);
+		}
+
+		/**
+		 * Creates a new TargetDataLinks instance. If the given dataProviderID is not null, that means that the property
+		 * is interested in changes to one dataProviderID only (so whole record changing or that specific dataProvider changing).
+		 * @param dataProviderID the dataProvider that a property is interested in.
+		 * @param recordLinked true of this is a record dependent dataProvider and false otherwise (scope/form variable).
+		 * @param relations the parent relations  that this target displays the data from. those relations should be monitored
+		 */
+		public TargetDataLinks(String[] dataProviderIDs, boolean recordLinked, Relation[] relations)
+		{
 			this.dataProviderIDs = dataProviderIDs;
 			this.recordLinked = recordLinked;
+			this.relations = relations;
 		}
 
 		public TargetDataLinks concatDataLinks(String[] dataproviderids, boolean linked)
@@ -80,7 +96,7 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 				String[] concat = new String[this.dataProviderIDs.length + dataproviderids.length];
 				System.arraycopy(this.dataProviderIDs, 0, concat, 0, this.dataProviderIDs.length);
 				System.arraycopy(dataproviderids, 0, concat, this.dataProviderIDs.length, dataProviderIDs.length);
-				return new TargetDataLinks(concat, this.recordLinked || linked);
+				return new TargetDataLinks(concat, this.recordLinked || linked, this.relations);
 			}
 			return this;
 		}
@@ -88,7 +104,9 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 		@Override
 		public String toString()
 		{
-			return "DataLinks " + (recordLinked ? "(recordLinked)" : "") + ": " + Arrays.asList(dataProviderIDs);
+			return "DataLinks " + (recordLinked ? "(recordLinked)" : "") + ": " +
+				(dataProviderIDs == null ? "<nodp>" : Arrays.asList(dataProviderIDs).toString()) + ": relations:" +
+				(relations == null ? "<norel>" : Arrays.asList(relations).toString());
 		}
 
 	}

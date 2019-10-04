@@ -27,6 +27,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 	// Type of identifier determines the rules for the allowed name
 	public static final int TYPE_SERVOY = 1;
 	public static final int TYPE_SQL = 2;
+	public static final int TYPE_JSON = 3;
 
 	public IdentDocumentValidator(int type)
 	{
@@ -106,7 +107,14 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 
 		for (int i = 0; i < source.length; i++)
 		{
-			if (i > 0)
+			if (type == TYPE_JSON)
+			{
+				if ((source[i] == '\\' || source[i] == '/' || source[i] == '"'))
+				{
+					return null;
+				}
+			}
+			else if (i > 0)
 			{
 				if (!Character.isJavaIdentifierPart(source[i]))
 				{

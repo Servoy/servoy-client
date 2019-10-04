@@ -10,25 +10,26 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			api: "=svyApi"
 		},
 		controller: function ($scope) {
-			var showValues = null;
+			$scope.showValues = null;
 			if ($scope.model.clientProperty && $scope.model.clientProperty['TypeAhead'] && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== null && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== undefined )
 			{
-				showValues = $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'];
+				$scope.showValues = $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'];
 			}
-			if (showValues === null)
+			if ($scope.showValues === null)
 			{
-				showValues = $applicationService.getUIProperty('TypeAhead.showPopupOnFocusGain');
+				$scope.showValues = $applicationService.getUIProperty('TypeAhead.showPopupOnFocusGain');
 			}	
-			$scope.canShowValues = function(){
-				if (showValues !== undefined && showValues != null)
-				{
-					return showValues;
-				}
-				return true;
-			};
 		},
 		link: function($scope, $element, $attrs, ngModel) {
 
+			$scope.onFocus = function(){
+				angular.element("[move-in-progress]").css("min-width",$element.outerWidth()+"px");
+				if ($scope.showValues !== undefined && $scope.showValues != null)
+				{
+					return $scope.showValues;
+				}
+				return true;
+			};
 			var lastSetterFunction = null;
 			function getSetterFunction() {
 				if (lastSetterFunction) lastSetterFunction.enabled = false;
@@ -66,7 +67,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			})
 			
 			$scope.$watch('model.valuelistID', function() {
-				if (!$scope.model.valuelistID || $scope.model.valuelistID.length == 0) return; // not loaded yet or already filtered
+				if (!$scope.model.valuelistID) return; // not loaded yet or already filtered
 				hasRealValues =  $scope.model.valuelistID.hasRealValues();
 				if (hasRealValues && !editing)
 				{

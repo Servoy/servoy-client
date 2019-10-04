@@ -291,6 +291,14 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		joins.add(join);
 	}
 
+	public void removeJoin(ISQLJoin join)
+	{
+		if (join != null && joins != null && joins.remove(join) && joins.isEmpty())
+		{
+			joins = null;
+		}
+	}
+
 	public void removeJoinsWithOrigin(Object origin)
 	{
 		if (origin != null && joins != null)

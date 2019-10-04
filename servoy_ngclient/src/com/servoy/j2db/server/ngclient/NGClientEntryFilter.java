@@ -43,6 +43,7 @@ import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
+import com.servoy.base.util.TagParser;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MessagesResourceBundle;
@@ -55,6 +56,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
+import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator.DesignProperties;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -389,7 +391,8 @@ public class NGClientEntryFilter extends WebEntry
 									if (html && form.isResponsiveLayout())
 									{
 										response.setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design")));
+										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design"))
+											? new DesignProperties(Utils.getAsInteger(request.getParameter("cont"))) : null);
 									}
 									else if (uri.endsWith(".html"))
 									{
@@ -435,6 +438,10 @@ public class NGClientEntryFilter extends WebEntry
 								if (StringUtils.isBlank(titleText))
 								{
 									titleText = fs.getSolution().getName();
+								}
+								else if (titleText.equals("<empty>") || titleText.contains("i18n:") || titleText.contains(TagParser.TAGCHAR))
+								{
+									titleText = "";
 								}
 								variableSubstitution.put("solutionTitle", titleText);
 

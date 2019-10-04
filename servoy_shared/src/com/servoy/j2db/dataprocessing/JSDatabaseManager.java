@@ -45,6 +45,7 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -1599,6 +1600,34 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * This method differences for recalculate() that it only works on a datasource rows/records that are loaded in memory.
+	 * It will not cause extra rows of that datasource to be loaded in memory (except if a calc itself would do that)
+	 *
+	 * if onlyUnstored is true, then only unstored calculations will be flushed. (so also not causing any saves to the database)
+	 *
+	 * @sample
+	 * // flushed all unstored caclulations of the foundsets datasource.
+	 * databaseManager.flushCalculations(datasource, true);
+	 *
+	 * @param datasource The datasource to flush all calculations of
+	 * @param onlyUnstored boolean to only go over the unstore cals of this datasource
+	 */
+	public void js_flushCalculations(String datasource, boolean unstoredOnly) throws ServoyException
+	{
+		checkAuthorized();
+		if (datasource != null)
+		{
+			RowManager rowManager = application.getFoundSetManager().getRowManager(datasource);
+			if (rowManager != null)
+			{
+				List<String> calcNames = unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
+					: rowManager.getSQLSheet().getAllCalculationNames();
+				rowManager.clearCalcs(null, calcNames);
+			}
+		}
+	}
+
+	/**
 	 * Can be used to recalculate a specified record or all rows in the specified foundset.
 	 * May be necessary when data is changed from outside of servoy, or when there is data changed inside servoy
 	 * but records with calculations depending on that data where not loaded so not updated and you need to update
@@ -2699,6 +2728,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		pds.switchServer(sourceName, destinationName);
 		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null);//flush all
 		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server
+
+		if (sourceName.equals(application.getSolution().getI18nServerName()))
+		{
+			((ClientState)application).refreshI18NMessages();
+		}
+
 		return true;
 	}
 

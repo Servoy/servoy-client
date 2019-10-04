@@ -114,12 +114,12 @@ public interface ITable
 	/**
 	 * @param b
 	 */
-	public void setHiddenInDeveloperBecauseNoPk(boolean b);
+	public void setTableInvalidInDeveloperBecauseNoPk(boolean b);
 
 	/**
 	 * @return
 	 */
-	public boolean isHiddenInDeveloperBecauseNoPk();
+	public boolean isTableInvalidInDeveloperBecauseNoPk();
 
 	/**
 	 * @return
@@ -266,4 +266,10 @@ public interface ITable
 	 * @return
 	 */
 	public IColumn getColumnBySqlname(String columnSqlname);
+
+	/**
+	 * @param indexedNames
+	 * @return
+	 */
+	public Iterator<Column> getColumnsSortedByIndex(List<String> indexedNames);
 }

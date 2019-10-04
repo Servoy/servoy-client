@@ -60,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -76,6 +77,7 @@ import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
 import javax.print.attribute.Size2DSyntax;
@@ -100,7 +102,7 @@ import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.Record;
-import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
@@ -2890,8 +2892,8 @@ public final class Utils
 			Object element = elements.next();
 			if (element instanceof ISupportBounds)
 			{
-				java.awt.Point location = CSSPosition.getLocation((ISupportBounds)element);
-				java.awt.Dimension size = CSSPosition.getSize(((ISupportBounds)element));
+				java.awt.Point location = CSSPositionUtils.getLocation((ISupportBounds)element);
+				java.awt.Dimension size = CSSPositionUtils.getSize(((ISupportBounds)element));
 				if (location != null && size != null)
 				{
 					if (minx == -1 || minx > location.x) minx = location.x;
@@ -3015,6 +3017,15 @@ public final class Utils
 		});
 	}
 
+	/**
+	 * Stream from collection.
+	 *
+	 * @param collection when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Collection<T> collection)
+	{
+		return collection == null ? Stream.empty() : collection.stream();
+	}
 
 	/**
 	 * Returns true if the given client/application type is a Swing client and false if it is not.

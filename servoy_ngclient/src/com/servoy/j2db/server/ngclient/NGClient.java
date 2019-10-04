@@ -225,13 +225,38 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
+	public void refreshI18NMessages()
+	{
+		super.refreshI18NMessages();
+		if (!isClosing)
+		{
+			refreshI18n();
+		}
+	}
+
+	@Override
 	public void setLocale(Locale l)
 	{
 		boolean send = locale != null && !locale.equals(l);
 		super.setLocale(l);
-		if (send && !("".equals(l.getLanguage()) && "".equals(l.getCountry())))
+		if (send)
+		{
+			refreshI18n();
+		}
+	}
+
+	private void refreshI18n()
+	{
+		if (locale == null)
+		{
+			return;
+		}
+
+		if (!("".equals(locale.getLanguage()) && "".equals(locale.getCountry())))
+		{
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
-				new Object[] { l.getLanguage(), l.getCountry() });
+				new Object[] { locale.getLanguage(), locale.getCountry() });
+		}
 
 		// flush the valuelist cache so that all valuelist are recreated with the new locale keys
 		ComponentFactory.flushAllValueLists(this, false);
@@ -243,7 +268,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Collection<WebComponent> components = formUI.getComponents();
 			for (WebComponent component : components)
 			{
-				if (component instanceof WebFormComponent) NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification());
+				if (component instanceof WebFormComponent)
+				{
+					NGUtils.resetI18NProperties((WebFormComponent)component, component.getSpecification());
+				}
 			}
 		}
 	}
