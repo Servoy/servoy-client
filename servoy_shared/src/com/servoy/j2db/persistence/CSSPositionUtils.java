@@ -364,6 +364,20 @@ public final class CSSPositionUtils
 		return valueInteger;
 	}
 
+	public static String getCSSValue(String value)
+	{
+		try
+		{
+			Utils.getAsInteger(value, true);
+			return value + "px";
+		}
+		catch (Exception ex)
+		{
+
+		}
+		return value;
+	}
+
 	public static Point getLocationFromPixels(List<IPersist> persists)
 	{
 		int x = -1;

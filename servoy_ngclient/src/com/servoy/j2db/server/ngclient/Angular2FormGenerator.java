@@ -45,6 +45,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -289,14 +290,14 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					CSSPosition position = ((BaseComponent)o).getCssPosition();
 					writer.key("position");
 					writer.object();
-					if (CSSPosition.isSet(position.left))
+					if (CSSPositionUtils.isSet(position.left))
 					{
-						writer.key("left").value(CSSPosition.getCSSValue(position.left));
+						writer.key("left").value(CSSPositionUtils.getCSSValue(position.left));
 					}
-					if (CSSPosition.isSet(position.top))
+					if (CSSPositionUtils.isSet(position.top))
 					{
 						String top = position.top;
-						Point location = CSSPosition.getLocation((BaseComponent)o);
+						Point location = CSSPositionUtils.getLocation((BaseComponent)o);
 						Part part = form.getPartAt(location.y);
 						if (part != null)
 						{
@@ -318,36 +319,36 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 								}
 							}
 						}
-						writer.key("top").value(CSSPosition.getCSSValue(top));
+						writer.key("top").value(CSSPositionUtils.getCSSValue(top));
 					}
-					if (CSSPosition.isSet(position.bottom))
+					if (CSSPositionUtils.isSet(position.bottom))
 					{
-						writer.key("bottom").value(CSSPosition.getCSSValue(position.bottom));
+						writer.key("bottom").value(CSSPositionUtils.getCSSValue(position.bottom));
 					}
-					if (CSSPosition.isSet(position.right))
+					if (CSSPositionUtils.isSet(position.right))
 					{
-						writer.key("right").value(CSSPosition.getCSSValue(position.right));
+						writer.key("right").value(CSSPositionUtils.getCSSValue(position.right));
 					}
-					if (CSSPosition.isSet(position.width))
+					if (CSSPositionUtils.isSet(position.width))
 					{
-						if (CSSPosition.isSet(position.left) && CSSPosition.isSet(position.right))
+						if (CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
 						{
-							writer.key("min-width").value(CSSPosition.getCSSValue(position.width));
+							writer.key("min-width").value(CSSPositionUtils.getCSSValue(position.width));
 						}
 						else
 						{
-							writer.key("width").value(CSSPosition.getCSSValue(position.width));
+							writer.key("width").value(CSSPositionUtils.getCSSValue(position.width));
 						}
 					}
-					if (CSSPosition.isSet(position.height))
+					if (CSSPositionUtils.isSet(position.height))
 					{
-						if (CSSPosition.isSet(position.top) && CSSPosition.isSet(position.bottom))
+						if (CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
 						{
-							writer.key("min-height").value(CSSPosition.getCSSValue(position.height));
+							writer.key("min-height").value(CSSPositionUtils.getCSSValue(position.height));
 						}
 						else
 						{
-							writer.key("height").value(CSSPosition.getCSSValue(position.height));
+							writer.key("height").value(CSSPositionUtils.getCSSValue(position.height));
 						}
 					}
 					writer.endObject();
