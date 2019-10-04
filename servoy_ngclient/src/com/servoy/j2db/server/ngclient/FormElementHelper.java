@@ -42,6 +42,7 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
@@ -55,6 +56,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
@@ -685,6 +687,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	{
 		if (persistIfAvailable == null || (nestedCall.get() != null && nestedCall.get().booleanValue())) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
 		nestedCall.set(Boolean.TRUE);
+		final boolean responsiveForm = flattenedForm.isResponsiveLayout();
 		try
 		{
 			if (flattenedForm.isFormComponent() && persistIfAvailable instanceof AbstractBase)
@@ -718,10 +721,51 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						int seq2 = o2.getSeqValue();
 						if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
 						{
-							int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
-							if (positionComparator != 0)
+							if (responsiveForm)
 							{
-								return positionComparator;
+								if (o1.element.getParent() == o2.element.getParent())
+								{
+									int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
+									if (positionComparator != 0)
+									{
+										return positionComparator;
+									}
+
+								}
+								else
+								{
+									List<ISupportChilds> ancestors = new ArrayList<ISupportChilds>();
+									IPersist persist = o1.element;
+									while (persist.getParent() instanceof AbstractContainer)
+									{
+										ancestors.add(persist.getParent());
+										persist = persist.getParent();
+									}
+									persist = o2.element;
+									while (persist.getParent() instanceof AbstractContainer)
+									{
+										if (ancestors.contains(persist.getParent()))
+										{
+											// we found the common ancestor
+											int positionComparator = PositionComparator.comparePoint(false,
+												((ISupportBounds)ancestors.get(ancestors.indexOf(persist.getParent()) - 1)).getLocation(),
+												((ISupportBounds)persist).getLocation());
+											if (positionComparator != 0)
+											{
+												return positionComparator;
+											}
+										}
+										persist = persist.getParent();
+									}
+								}
+							}
+							else
+							{
+								int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
+								if (positionComparator != 0)
+								{
+									return positionComparator;
+								}
 							}
 						}
 						return TabSeqComparator.compareTabSeq(seq1, o1.element, seq2, o2.element);
