@@ -534,7 +534,7 @@ public abstract class AbstractBase implements IPersist
 	public Object acceptVisitor(IPersistVisitor visitor)
 	{
 		Object retval = visitor.visit(this);
-		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL && this instanceof ISupportChilds && allobjects != null)
+		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL && this instanceof ISupportChilds)
 		{
 			Iterator<IPersist> it = getAllObjects();
 			while ((retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER) && it.hasNext())
