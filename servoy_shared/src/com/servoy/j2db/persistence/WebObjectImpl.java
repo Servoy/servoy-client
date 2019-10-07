@@ -511,171 +511,193 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return persistMappedProperties;
 	}
 
-	protected synchronized void updatePersistMappedPropertyFromJSON(String beanJSONKey, Object object)
+	protected void updatePersistMappedPropertyFromJSON(String beanJSONKey, Object object)
 	{
-		if (object != null && getChildPropertyDescription(beanJSONKey) != null)
+		List<IChildWebObject> newChildPersistPropertiesToFire = null;
+		try
 		{
-			PropertyDescription childPd = getChildPropertyDescription(beanJSONKey);
-			IPropertyType< ? > propertyType = childPd.getType();
-			String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyType);
-			if (isPersistMappedProperty(beanJSONKey))
+			synchronized (this)
 			{
-				if (ServoyJSONObject.isJavascriptUndefined(object))
+				if (object != null && getChildPropertyDescription(beanJSONKey) != null)
 				{
-					persistMappedProperties.remove(beanJSONKey);
-					persistMappedPropetiesByUUID = null;
-				}
-				else if (ServoyJSONObject.isJavascriptNull(object))
-				{
-					persistMappedProperties.put(beanJSONKey, null);
-					persistMappedPropetiesByUUID = null;
-				}
-				else
-				{
-					boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
-					if (!arrayReturnType)
+					PropertyDescription childPd = getChildPropertyDescription(beanJSONKey);
+					IPropertyType< ? > propertyType = childPd.getType();
+					String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyType);
+					if (isPersistMappedProperty(beanJSONKey))
 					{
-						IChildWebObject childWebObject;
-						IChildWebObject existingWebObject = null;
-
-						// find the UUID that is stored for that key already in the .frm file - if any
-						UUID childChildWebObjectUUID = null;
-						JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, -1, false);
-						if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
+						if (ServoyJSONObject.isJavascriptUndefined(object))
 						{
-							try
+							persistMappedProperties.remove(beanJSONKey);
+							persistMappedPropetiesByUUID = null;
+						}
+						else if (ServoyJSONObject.isJavascriptNull(object))
+						{
+							persistMappedProperties.put(beanJSONKey, null);
+							persistMappedPropetiesByUUID = null;
+						}
+						else
+						{
+							boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
+							if (!arrayReturnType)
 							{
-								childChildWebObjectUUID = UUID.fromString(childWebObjectJSON.getString(IChildWebObject.UUID_KEY));
-							}
-							catch (IllegalArgumentException ex)
-							{
-								Debug.error(ex);
-							}
-							if (childChildWebObjectUUID != null)
-							{
-								IChildWebObject currentPersist = null;
-								if (persistMappedProperties.containsKey(beanJSONKey) && persistMappedProperties.get(beanJSONKey) instanceof IChildWebObject)
+								IChildWebObject childWebObject;
+								IChildWebObject existingWebObject = null;
+
+								// find the UUID that is stored for that key already in the .frm file - if any
+								UUID childChildWebObjectUUID = null;
+								JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, -1, false);
+								if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
 								{
-									currentPersist = (IChildWebObject)persistMappedProperties.get(beanJSONKey);
-									if (currentPersist != null && childChildWebObjectUUID.equals(currentPersist.getUUID()))
+									try
 									{
-										existingWebObject = currentPersist;
+										childChildWebObjectUUID = UUID.fromString(childWebObjectJSON.getString(IChildWebObject.UUID_KEY));
+									}
+									catch (IllegalArgumentException ex)
+									{
+										Debug.error(ex);
+									}
+									if (childChildWebObjectUUID != null)
+									{
+										IChildWebObject currentPersist = null;
+										if (persistMappedProperties.containsKey(beanJSONKey) &&
+											persistMappedProperties.get(beanJSONKey) instanceof IChildWebObject)
+										{
+											currentPersist = (IChildWebObject)persistMappedProperties.get(beanJSONKey);
+											if (currentPersist != null && childChildWebObjectUUID.equals(currentPersist.getUUID()))
+											{
+												existingWebObject = currentPersist;
+											}
+										}
+									}
+								}
+
+								if (existingWebObject == null)
+								{
+									// "object" is not null/undefined here - there are checks for that above; so create the needed persists
+									if (isComponent(propertyType))
+									{
+										childWebObject = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false,
+											childChildWebObjectUUID);
+										persistMappedProperties.put(beanJSONKey, childWebObject);
+										if (newChildPersistPropertiesToFire == null) newChildPersistPropertiesToFire = new ArrayList<>();
+										newChildPersistPropertiesToFire.add(childWebObject);
+										persistMappedPropetiesByUUID = null;
+									}
+									else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
+									{
+										childWebObject = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
+										childWebObject.setTypeName(simpleTypeName);
+										persistMappedProperties.put(beanJSONKey, childWebObject);
+										if (newChildPersistPropertiesToFire == null) newChildPersistPropertiesToFire = new ArrayList<>();
+										newChildPersistPropertiesToFire.add(childWebObject);
+										persistMappedPropetiesByUUID = null;
 									}
 								}
 							}
-						}
-
-						if (existingWebObject == null)
-						{
-							// "object" is not null/undefined here - there are checks for that above; so create the needed persists
-							if (isComponent(propertyType))
+							else if (object instanceof JSONArray)
 							{
-								childWebObject = ChildWebComponent.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
-								persistMappedProperties.put(beanJSONKey, childWebObject);
-								fireChildCreated(childWebObject);
-								persistMappedPropetiesByUUID = null;
-							}
-							else if (PropertyUtils.isCustomJSONObjectProperty(propertyType))
-							{
-								childWebObject = WebCustomType.createNewInstance(webObject, childPd, beanJSONKey, -1, false, childChildWebObjectUUID);
-								childWebObject.setTypeName(simpleTypeName);
-								persistMappedProperties.put(beanJSONKey, childWebObject);
-								fireChildCreated(childWebObject);
-								persistMappedPropetiesByUUID = null;
-							}
-						}
-					}
-					else if (object instanceof JSONArray)
-					{
-						PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >)
-							? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition() : null;
-						if (elementPD != null)
-						{
-							ArrayList<IChildWebObject> persistMappedPropertyArray = new ArrayList<IChildWebObject>();
-
-							if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()) || isComponent(propertyType))
-							{
-								ArrayList<IChildWebObject> currentPersistMappedPropertyArray = new ArrayList<IChildWebObject>();
-								if (persistMappedProperties.containsKey(beanJSONKey) && persistMappedProperties.get(beanJSONKey) instanceof IChildWebObject[])
+								PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >)
+									? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition() : null;
+								if (elementPD != null)
 								{
-									currentPersistMappedPropertyArray.addAll(Arrays.asList((IChildWebObject[])persistMappedProperties.get(beanJSONKey)));
-								}
+									ArrayList<IChildWebObject> persistMappedPropertyArray = new ArrayList<IChildWebObject>();
 
-								for (int i = 0; i < ((JSONArray)object).length(); i++)
-								{
-									IChildWebObject existingWebObject = null;
-									UUID childChildWebObjectUUID = null;
-									JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, i, false);
-									if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
+									if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()) || isComponent(propertyType))
 									{
-										try
+										ArrayList<IChildWebObject> currentPersistMappedPropertyArray = new ArrayList<IChildWebObject>();
+										if (persistMappedProperties.containsKey(beanJSONKey) &&
+											persistMappedProperties.get(beanJSONKey) instanceof IChildWebObject[])
 										{
-											childChildWebObjectUUID = UUID.fromString(childWebObjectJSON.getString(IChildWebObject.UUID_KEY));
+											currentPersistMappedPropertyArray.addAll(
+												Arrays.asList((IChildWebObject[])persistMappedProperties.get(beanJSONKey)));
 										}
-										catch (IllegalArgumentException ex)
+
+										for (int i = 0; i < ((JSONArray)object).length(); i++)
 										{
-											Debug.error(ex);
-										}
-										if (childChildWebObjectUUID != null)
-										{
-											for (IChildWebObject wo : currentPersistMappedPropertyArray)
+											IChildWebObject existingWebObject = null;
+											UUID childChildWebObjectUUID = null;
+											JSONObject childWebObjectJSON = WebObjectImpl.getFullJSONInFrmFile(webObject, beanJSONKey, i, false);
+											if (childWebObjectJSON != null && childWebObjectJSON.has(IChildWebObject.UUID_KEY))
 											{
-												if (wo != null && childChildWebObjectUUID.equals(wo.getUUID()))
+												try
 												{
-													persistMappedPropertyArray.add(wo);
-													existingWebObject = wo;
-													existingWebObject.setIndex(i); // just to be sure we didn't find it at some other index
-													break;
+													childChildWebObjectUUID = UUID.fromString(childWebObjectJSON.getString(IChildWebObject.UUID_KEY));
+												}
+												catch (IllegalArgumentException ex)
+												{
+													Debug.error(ex);
+												}
+												if (childChildWebObjectUUID != null)
+												{
+													for (IChildWebObject wo : currentPersistMappedPropertyArray)
+													{
+														if (wo != null && childChildWebObjectUUID.equals(wo.getUUID()))
+														{
+															persistMappedPropertyArray.add(wo);
+															existingWebObject = wo;
+															existingWebObject.setIndex(i); // just to be sure we didn't find it at some other index
+															break;
+														}
+													}
+												}
+											}
+
+											if (existingWebObject == null)
+											{
+												// we couldn't find an old array item with the same UUID; add a fresh value
+												Object newJSNOValAtIdx = ((JSONArray)object).opt(i);
+												if (ServoyJSONObject.isJavascriptNullOrUndefined(newJSNOValAtIdx))
+												{
+													persistMappedPropertyArray.add(null);
+												}
+												else
+												{
+													if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+													{
+														WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i,
+															false, childChildWebObjectUUID);
+														webCustomType.setTypeName(simpleTypeName);
+														persistMappedPropertyArray.add(webCustomType);
+														if (newChildPersistPropertiesToFire == null) newChildPersistPropertiesToFire = new ArrayList<>();
+														newChildPersistPropertiesToFire.add(webCustomType);
+													}
+													else if (isComponent(propertyType))
+													{
+														ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD,
+															beanJSONKey, i, false, childChildWebObjectUUID);
+														persistMappedPropertyArray.add(childComponent);
+														if (newChildPersistPropertiesToFire == null) newChildPersistPropertiesToFire = new ArrayList<>();
+														newChildPersistPropertiesToFire.add(childComponent);
+													}
 												}
 											}
 										}
 									}
-
-									if (existingWebObject == null)
-									{
-										// we couldn't find an old array item with the same UUID; add a fresh value
-										Object newJSNOValAtIdx = ((JSONArray)object).opt(i);
-										if (ServoyJSONObject.isJavascriptNullOrUndefined(newJSNOValAtIdx))
-										{
-											persistMappedPropertyArray.add(null);
-										}
-										else
-										{
-											if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
-											{
-												WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i, false,
-													childChildWebObjectUUID);
-												webCustomType.setTypeName(simpleTypeName);
-												persistMappedPropertyArray.add(webCustomType);
-												fireChildCreated(webCustomType);
-											}
-											else if (isComponent(propertyType))
-											{
-												ChildWebComponent childComponent = ChildWebComponent.createNewInstance(webObject, elementPD, beanJSONKey, i,
-													false, childChildWebObjectUUID);
-												persistMappedPropertyArray.add(childComponent);
-												fireChildCreated(childComponent);
-											}
-										}
-									}
+									persistMappedProperties.put(beanJSONKey,
+										persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
+									persistMappedPropetiesByUUID = null;
 								}
 							}
-							persistMappedProperties.put(beanJSONKey,
-								persistMappedPropertyArray.toArray(new IChildWebObject[persistMappedPropertyArray.size()]));
-							persistMappedPropetiesByUUID = null;
+							else
+							{
+								Debug.error("Typed property value ('" + beanJSONKey + "') is not JSONArray although in spec it is defined as array... " + this +
+									" - " + object);
+							}
 						}
 					}
-					else
-					{
-						Debug.error("Typed property value ('" + beanJSONKey + "') is not JSONArray although in spec it is defined as array... " + this + " - " +
-							object);
-					}
+				}
+				else
+				{
+					if (persistMappedProperties.remove(beanJSONKey) != null) persistMappedPropetiesByUUID = null;
 				}
 			}
 		}
-		else
+		finally
 		{
-			if (persistMappedProperties.remove(beanJSONKey) != null) persistMappedPropetiesByUUID = null;
+			// fire these later outside the synchronized block to avoid potential deadlocks - who knows what code will execute in listeners
+			if (newChildPersistPropertiesToFire != null) newChildPersistPropertiesToFire.forEach((IChildWebObject p) -> {
+				fireChildCreated(p);
+			});
 		}
 	}
 

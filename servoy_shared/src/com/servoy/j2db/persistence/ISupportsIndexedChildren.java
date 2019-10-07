@@ -17,11 +17,9 @@
 
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.serverconfigtemplates.OracleTemplate;
-
 /**
- * A "support children" which is also able to distinguish between an insert or a set when adding children that are indexed (via {@link IChildWebObject#getIndex()}).<br/></br>
- * It is up to the implementing class whether {@link #addChild(IPersist)} inherited from {@link ISupportChilds} will do {@link #setChild(IChildWebObject)} {@link OracleTemplate} {@link #insertChild(IChildWebObject)} in case of indexed IChildWebObject instances.
+ * A "support children" which is also able to distinguish between an insert or a set when adding children that are indexed (via {@link IChildWebObject#getIndex()}).<br/><br/>
+ * It is up to the implementing class whether {@link #addChild(IPersist)} inherited from {@link ISupportChilds} will do {@link #setChild(IChildWebObject)} or {@link #insertChild(IChildWebObject)} in case of indexed IChildWebObject instances.
  *
  * @author acostescu
  */
