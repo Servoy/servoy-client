@@ -747,8 +747,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 										if (ancestors.contains(persist.getParent()))
 										{
 											// we found the common ancestor
-											int positionComparator = PositionComparator.comparePoint(false,
-												((ISupportBounds)ancestors.get(ancestors.indexOf(persist.getParent()) - 1)).getLocation(),
+											int index = ancestors.indexOf(persist.getParent());
+											IPersist comparablePersist = index == 0 ? o1.element : ancestors.get(index - 1);
+											int positionComparator = PositionComparator.comparePoint(false, ((ISupportBounds)comparablePersist).getLocation(),
 												((ISupportBounds)persist).getLocation());
 											if (positionComparator != 0)
 											{
