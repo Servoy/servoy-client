@@ -393,7 +393,9 @@ public class RepositoryHelper
 		{
 			return name.equals("serverName") || name.equals("tableName") || name.equals("addEmptyValue") || name.equals("customValues") ||
 				name.equals("dataSource") || name.equals("relationName") || name.equals("separator") || name.equals("sortOptions") ||
-				name.equals("useTableFilter") || name.equals("valueListType");
+				name.equals("useTableFilter") || name.equals("valueListType") || name.equals("dataProviderID") || name.equals("displayValueType") ||
+				name.equals("fallbackValueListID") || name.equals("lazyLoading") || name.equals("realValueType") || name.equals("returnDataProviders") ||
+				name.equals("showDataProviders");
 		}
 		if (persistClass.equals(Part.class))
 		{
