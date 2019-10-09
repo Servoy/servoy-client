@@ -45,6 +45,10 @@ public final class CSSPositionUtils
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			setLocationEx((BaseComponent)persist, (BaseComponent)persist, x, y, container.getSize());
 		}
+		else
+		{
+			persist.setLocation(new Point(x, y));
+		}
 	}
 
 	public static void setLocationEx(BaseComponent baseComponent, AbstractBase persist, int x, int y, Dimension containerSize)
@@ -125,6 +129,10 @@ public final class CSSPositionUtils
 		{
 			AbstractContainer container = getParentContainer((BaseComponent)persist);
 			setSizeEx((BaseComponent)persist, (BaseComponent)persist, width, height, container.getSize());
+		}
+		else
+		{
+			persist.setSize(new Dimension(width, height));
 		}
 	}
 
