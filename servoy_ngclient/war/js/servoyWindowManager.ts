@@ -683,6 +683,8 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			}
 		} );
 
-function evalControllerCodeWithoutClosure( controllerCode ) {
-	eval( controllerCode );
+function evalControllerCodeWithoutClosure(controllerCode) {
+	if (controllerCode) {
+		eval(controllerCode);
+	}
 }
