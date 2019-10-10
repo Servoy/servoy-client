@@ -833,6 +833,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				responsivePageSize: "=responsivePageSize",
 				pageLayout: "=pageLayout",
 				selectionClass: "=selectionClass",
+				rowStyleClass: "=rowStyleClass",
+				rowStyleClassDataprovider: "=rowStyleClassDataprovider",
+				paginationStyleClass: "=paginationStyleClass",
 				selectionChangedHandler: "="
 			},
 			link: function( scope: any, element, attrs ) {
@@ -903,7 +906,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 					const parent = element.parent();
                     const rowToModel: Array<servoy.IServoyScope> = [];
-					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1;overflow:hidden;'><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
+					const pager = $compile(angular.element("<div class='svyPagination' ng-class=\"paginationStyleClass !== undefined ?paginationStyleClass : ''\"><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
 
                     let template = null;
 					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
@@ -1080,6 +1083,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						clone.removeAttr("svy-form-component");
 						// this compile (that happens before row contents are added to "clone") is only for ng-click to work on each rows container div, not the actual scope of the row (which is created and used for compilation in createChildElementForRow)
 						clone.attr("ng-click", "onRowClick(" + (scope.foundset.viewPort.startIndex + index) + ")");
+						if (scope.rowStyleClass)
+						{
+							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClass);
+						}
+						if (scope.rowStyleClassDataprovider)
+						{
+							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClassDataprovider[index]);
+						}
 						$compile(clone)(scope);
 						
 						// pager div is the first div in parent; form component divs follow starting at index 1
