@@ -120,6 +120,16 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		return IQuerySelectValue.super.getColumnType();
 	}
 
+	@Override
+	public int getFlags()
+	{
+		if (type == COUNT)
+		{
+			return 0;
+		}
+		return IQuerySelectValue.super.getFlags();
+	}
+
 	public String getAggregateName()
 	{
 		return AGGREGATE_TYPE_HIBERNATE[type];

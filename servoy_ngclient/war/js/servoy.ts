@@ -903,7 +903,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 					const parent = element.parent();
                     const rowToModel: Array<servoy.IServoyScope> = [];
-					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1'><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
+					const pager = $compile(angular.element("<div style='position:absolute;right:0px;bottom:0px;z-index:1;overflow:hidden;'><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
 
                     let template = null;
 					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
@@ -1173,7 +1173,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								createRows();
 							} else if (changes.fullValueChanged) {
 								scope.foundset = changes.fullValueChanged.newValue; // the new value by ref would be updated in scope automatically only later otherwise and we use that in code
-								createRows();
+								// we have a new foundset, give time for its complete setup, because createRows will trigger calls that needs "changeNotifier" already
+								// setup on the foundset, and the foundset "changeNotifier" uses the foundset that is already set on the form model, which is at this time
+								// is not set yet
+								scope.$evalAsync(function() {
+									createRows();
+								});
+								return;
 							} else if (changes.viewportRowsUpdated) {
 								const updates = changes.viewportRowsUpdated.updates;
 								updates.forEach(( value ) => {

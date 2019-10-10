@@ -393,7 +393,9 @@ public class RepositoryHelper
 		{
 			return name.equals("serverName") || name.equals("tableName") || name.equals("addEmptyValue") || name.equals("customValues") ||
 				name.equals("dataSource") || name.equals("relationName") || name.equals("separator") || name.equals("sortOptions") ||
-				name.equals("useTableFilter") || name.equals("valueListType");
+				name.equals("useTableFilter") || name.equals("valueListType") || name.startsWith("dataProviderID") || name.equals("displayValueType") ||
+				name.equals("fallbackValueListID") || name.equals("lazyLoading") || name.equals("realValueType") || name.equals("returnDataProviders") ||
+				name.equals("showDataProviders");
 		}
 		if (persistClass.equals(Part.class))
 		{
@@ -449,8 +451,9 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(name) || StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(name) ||
-			StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name))
+		if (persist != null &&
+			(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(name) || StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(name) ||
+				StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name)))
 		{
 			if ((persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition())) ||
 				CSSPositionUtils.isInAbsoluteLayoutMode(persist))
@@ -458,7 +461,7 @@ public class RepositoryHelper
 				return true;
 			}
 		}
-		if (StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName().equals(name) && persist.getParent() instanceof Form &&
+		if (persist != null && StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName().equals(name) && persist.getParent() instanceof Form &&
 			!Utils.getAsBoolean(((Form)persist.getParent()).getUseCssPosition()) && !CSSPositionUtils.isInAbsoluteLayoutMode(persist))
 		{
 			return true;

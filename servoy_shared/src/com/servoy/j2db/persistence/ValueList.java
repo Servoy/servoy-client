@@ -235,7 +235,7 @@ public class ValueList extends AbstractBase
 
 	/**
 	 * The name of the database server that is used for loading the values when
-	 * the value list has the type set to database values.
+	 * the value list has the type set to database/table values.
 	 */
 	public String getServerName()
 	{
@@ -270,7 +270,7 @@ public class ValueList extends AbstractBase
 
 	/**
 	 * The name of the database table that is used for loading the values when
-	 * the value list has the type set to database values.
+	 * the value list has the type set to database/table values.
 	 */
 	public String getTableName()
 	{
@@ -295,7 +295,7 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Sets the tableName.
+	 * Table name property othat is set when a table valuelist is created
 	 *
 	 * @param tableName The tableName to set
 	 */
@@ -305,7 +305,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Gets the dataProviderID1.
+	 * This is the dataprovider selected in the fist list of dataproviders when a table or related valuelist is selected.
+	 * This dataprovide can be marked as a display and/or return value
 	 *
 	 * @return Returns a String
 	 */
@@ -315,7 +316,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Sets the dataProviderID1.
+	 * This is the dataprovider selected in the second list of dataproviders when a table or related valuelist is selected.
+	 * This dataprovide can be marked as a display and/or return value
 	 *
 	 * @param dataProviderID1 The dataProviderID1 to set
 	 */
@@ -326,7 +328,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Gets the dataProviderID2.
+	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
+	 * This dataprovide can be marked as a display and/or return value
 	 *
 	 * @return Returns a String
 	 */
@@ -336,7 +339,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Sets the dataProviderID2.
+	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
+	 * This dataprovide can be marked as a display and/or return value
 	 *
 	 * @param dataProviderID2 The dataProviderID2 to set
 	 */
@@ -347,7 +351,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Gets the dataProviderID3.
+	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
+	 * This dataprovide can be marked as a display and/or return value
 	 *
 	 * @return Returns a String
 	 */
@@ -357,7 +362,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Sets the dataProviderID3.
+	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
+	 * This dataprovide can be marked as a display and/or return value
 	 *
 	 * @param dataProviderID3 The dataProviderID3 to set
 	 */
@@ -430,7 +436,7 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Gets the returnDataProviders.
+	 * Which of the dataprovers should be used as the return dataprovider, so set back into the records dataprovider.
 	 *
 	 * @return Returns a int
 	 */
@@ -500,7 +506,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * Property that tells valuelist will be loaded lazy. Useful for NGClient, global method valuelist.
+	 * A property special for NGClient and GlobalValuelist to only query the global valuelist when it is needed.
+	 * This flag has to be set both on valuelist and in component spec, on the valuelist property.
 	 */
 	public boolean getLazyLoading()
 	{
@@ -532,6 +539,12 @@ public class ValueList extends AbstractBase
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_USETABLEFILTER, arg);
 	}
 
+	/**
+	 *  If the valuelist only displays the "active" values that a user can choose, but you still need to be able to show also old values, then a fallback valuelist should be set.
+	 *  So that there is a backup list for getting a display value for a real value that is not in the normal valuelist anymore.
+	 *
+	 * @return the valueback valuelist id.
+	 */
 	public int getFallbackValueListID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID).intValue();
@@ -591,7 +604,7 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * The type of the displayValue
+	 * The type of the display value if this is a global or custom valuelist, servoy needs to know this for formatting purposes
 	 */
 	public int getDisplayValueType()
 	{
@@ -609,7 +622,7 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * The type of the realValue
+	 * The type of the real value if this is a global or custom valuelist, servoy needs to know this so it can check if the types match on the record it is binded to.
 	 */
 	public int getRealValueType()
 	{

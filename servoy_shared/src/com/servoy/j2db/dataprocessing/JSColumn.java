@@ -195,6 +195,21 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	}
 
 	/**
+	 * Get the name of the column as used by Servoy.
+	 *
+	 * @sample
+	 * var table = databaseManager.getTable('db:/example_data/orders')
+	 * var column = table.getColumn('customerid')
+	 * var colName = column.getName()
+	 *
+	 * @return String column name
+	 */
+	public String js_getName()
+	{
+		return column.getName();
+	}
+
+	/**
 	 * Get the qualified name (including table name) of the column as known by the database.
 	 * The name is quoted, if necessary, as defined by the actual database used.
 	 *
@@ -524,7 +539,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	}
 
 	/**
-	 * Get the title property of the column.
+	 * Get the title property of the column. If title is null will return column name.
 	 *
 	 * @sample
 	 * var table = databaseManager.getTable('db:/example_data/orders')

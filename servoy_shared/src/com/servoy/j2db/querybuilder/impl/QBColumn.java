@@ -27,7 +27,6 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -90,8 +89,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	protected IQuerySelectValue createOperand(Object value)
 	{
 		IQuerySelectValue querySelectValue = getQuerySelectValue();
-		QueryColumn qColumn = querySelectValue.getColumn();
-		return getRoot().createOperand(value, querySelectValue.getColumnType(), qColumn == null ? 0 : qColumn.getFlags());
+		return getRoot().createOperand(value, querySelectValue.getColumnType(), querySelectValue.getFlags());
 	}
 
 	/**
@@ -198,9 +196,9 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public QBCondition in(Object[] values)
 	{
 		IQuerySelectValue querySelectValue = getQuerySelectValue();
-		QueryColumn qColumn = querySelectValue.getColumn();
 		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { querySelectValue },
-			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, querySelectValue.getColumnType(), qColumn == null ? 0 : qColumn.getFlags()) }, true));
+			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, querySelectValue.getColumnType(), querySelectValue.getFlags()) },
+			true));
 	}
 
 	@Override
@@ -720,7 +718,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public int getFlags()
 	{
-		return getQuerySelectValue().getColumn().getFlags();
+		return getQuerySelectValue().getFlags();
 	}
 
 	@Override

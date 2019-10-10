@@ -293,7 +293,7 @@ angular.module('window',['servoy'])
 		 */
 		cancelFormPopup : function()
 		{
-			$('body').off('mousedown',formPopupBodyListener);
+			$('body').off('mouseup',formPopupBodyListener);
 			if (scope.formPopupShown)
 			{
 				$formService.hideForm(scope.formPopupShown.form);

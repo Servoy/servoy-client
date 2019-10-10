@@ -151,7 +151,6 @@ public final class QueryFunction implements IQuerySelectValue
 				case ceil :
 				case distinct :
 				case nullif :
-				case concat :
 				case plus :
 				case minus :
 				case multiply :
@@ -184,12 +183,41 @@ public final class QueryFunction implements IQuerySelectValue
 			case bit_length :
 				return ColumnType.getColumnType(IColumnTypes.INTEGER);
 
+			case concat :
+				return ColumnType.getColumnType(IColumnTypes.TEXT);
+
 			default :
 				break;
 		}
 
 		// resolve via getColumn()
 		return IQuerySelectValue.super.getColumnType();
+	}
+
+	@Override
+	public int getFlags()
+	{
+		// for functions that do not change the return type return the column
+		switch (function)
+		{
+			case second :
+			case minute :
+			case hour :
+			case day :
+			case month :
+			case year :
+			case locate :
+			case length :
+			case bit_length :
+			case concat :
+				return 0;
+
+			default :
+				break;
+		}
+
+		// resolve via getColumn()
+		return IQuerySelectValue.super.getFlags();
 	}
 
 	@Override
