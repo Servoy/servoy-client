@@ -287,7 +287,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 	@Override
 	public boolean isInstance(String name)
 	{
-		if ("RuntimeComponent".equals(name)) return true;
+		if ("RuntimeWebComponent".equals(name) || "Component".equals(name)) return true;
 		if (getPrototype() instanceof IInstanceOf)
 		{
 			return ((IInstanceOf)getPrototype()).isInstance(name);
