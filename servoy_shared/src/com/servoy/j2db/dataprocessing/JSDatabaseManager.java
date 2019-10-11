@@ -1203,7 +1203,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX, new SQLException(), sql_query));
 		}
-		if (name == null || !checkQueryForSelect(sql_query) || !validateQueryArguments(arguments, sql_query))
+		if (name == null || !validateQueryArguments(arguments, sql_query))
 		{
 			return null;
 		}
@@ -1440,11 +1440,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	{
 		if (sql == null) return false;
 
-		String lowerCaseSql = sql.trim().toLowerCase();
-		int declareIndex = lowerCaseSql.indexOf("declare"); //$NON-NLS-1$
-		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
-		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
-		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
+		String cleanedSql = sql //
+			.replaceAll("/\\*([^*]|(\\*[^/]))*\\*/", "") // /* comment, possibly multiline */
+			.replaceAll("--.*\n", "") // -- comment until end of line
+			.trim() //
+			.toLowerCase();
+		int declareIndex = cleanedSql.indexOf("declare"); //$NON-NLS-1$
+		int withIndex = cleanedSql.indexOf("with"); //$NON-NLS-1$
+		int selectIndex = cleanedSql.indexOf("select"); //$NON-NLS-1$
+		int callIndex = cleanedSql.indexOf("call"); //$NON-NLS-1$
 		return ((declareIndex != -1 && declareIndex < 4) || (selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) ||
 			(withIndex != -1 && withIndex < 4));
 	}
