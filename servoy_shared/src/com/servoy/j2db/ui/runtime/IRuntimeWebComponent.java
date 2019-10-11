@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeWebComponent", scriptingName = "RuntimeWebComponent", extendsComponent = "Component")
-@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 public interface IRuntimeWebComponent extends IBaseRuntimeComponent
 
 {
