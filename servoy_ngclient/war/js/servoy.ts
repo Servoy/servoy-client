@@ -1184,12 +1184,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								createRows();
 							} else if (changes.fullValueChanged) {
 								scope.foundset = changes.fullValueChanged.newValue; // the new value by ref would be updated in scope automatically only later otherwise and we use that in code
-								// we have a new foundset, give time for its complete setup, because createRows will trigger calls that needs "changeNotifier" already
-								// setup on the foundset, and the foundset "changeNotifier" uses the foundset that is already set on the form model, which is at this time
-								// is not set yet
-								scope.$evalAsync(function() {
-									createRows();
-								});
+								createRows();
 								return;
 							} else if (changes.viewportRowsUpdated) {
 								const updates = changes.viewportRowsUpdated.updates;
