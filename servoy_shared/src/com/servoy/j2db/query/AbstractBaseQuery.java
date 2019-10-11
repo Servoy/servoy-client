@@ -48,6 +48,8 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	// This one is not final by choice! it has to touch this class first so that the classmapping hashmap is initialized
 	public static String QUERY_SERIALIZE_DOMAIN = "Q"; //$NON-NLS-1$
 
+	protected String comment;
+
 	static
 	{
 		Map<Class< ? extends IWriteReplace>, Short> classMapping = new HashMap<Class< ? extends IWriteReplace>, Short>();
@@ -93,6 +95,21 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		// this method triggers the static code above.
 	}
 
+	/**
+	 * @return the comment
+	 */
+	public String getComment()
+	{
+		return comment;
+	}
+
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment)
+	{
+		this.comment = comment;
+	}
 
 	@Override
 	public Object shallowClone() throws CloneNotSupportedException

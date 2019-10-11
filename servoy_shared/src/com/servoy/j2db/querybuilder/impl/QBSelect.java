@@ -22,6 +22,8 @@ import java.util.Date;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
@@ -450,7 +452,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Get the functions clause from a query, used for functions that are not tied to a column.
 	 * @sample
-	 * var query = ddatasources.db.example_data.orders.createSelect();
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('servoy'))) //$NON-NLS-1$
 	 * foundset.loadRecords(query)
 	 */
@@ -462,6 +464,28 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			functions = new QBFunctions(this);
 		}
 		return functions;
+	}
+
+	/**
+	 * Specifies a comment of the query.
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.comment = 'Query comment'
+	 */
+	@JSGetter
+	public String getComment()
+	{
+		if (query != null)
+		{
+			return query.getComment();
+		}
+		return null;
+	}
+
+	@JSSetter
+	public void setComment(String comment)
+	{
+		getQuery().setComment(comment);
 	}
 
 	public QuerySelect getQuery()

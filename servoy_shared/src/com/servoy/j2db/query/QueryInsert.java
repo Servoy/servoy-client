@@ -26,9 +26,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Query insert statement.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 {
@@ -193,7 +193,9 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer("INSERT INTO ").append(table.toString()); //$NON-NLS-1$
+		StringBuffer sb = new StringBuffer(comment == null ? "" : "/* " + comment + " */ ") //
+			.append("INSERT INTO ") //
+			.append(table.toString());
 		sb.append('(');
 		for (int i = 0; i < columns.length; i++)
 		{
@@ -233,7 +235,7 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { table, ReplacedObject.convertArray(columns, Object.class), values });
+			new Object[] { table, ReplacedObject.convertArray(columns, Object.class), values, comment });
 	}
 
 	public QueryInsert(ReplacedObject s)
@@ -243,6 +245,10 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 		this.table = (QueryTable)members[i++];
 		this.columns = (QueryColumn[])ReplacedObject.convertArray((Object[])members[i++], QueryColumn.class);
 		this.values = members[i++];
+		if (i < members.length) // comment is a new field that was added, so it is optional now
+		{
+			this.comment = (String)members[i++];
+		}
 	}
 
 }
