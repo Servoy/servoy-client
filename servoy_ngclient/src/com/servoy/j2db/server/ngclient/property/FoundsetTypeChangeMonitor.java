@@ -62,7 +62,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_PUSH_TO_SERVER = 0b1000000000;
 
-	protected static final int SEND_SCROLL_TO_SELECTION = 0b10000000000;
+	protected static final int SEND_USER_SET_SELECTION = 0b10000000000;
 
 	protected static final int SEND_FOUNDSET_ID = 0b100000000000;
 
@@ -109,15 +109,15 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * Called when the foundSet selection needs to be re-sent to client.
 	 */
-	public void selectionChanged(boolean scrollToSelection)
+	public void selectionChanged(boolean userSetSelection)
 	{
 		if (!shouldSendAll())
 		{
 			int oldChangeFlags = changeFlags;
 			changeFlags = changeFlags | SEND_SELECTED_INDEXES;
-			if (scrollToSelection)
+			if (userSetSelection)
 			{
-				changeFlags = changeFlags | SEND_SCROLL_TO_SELECTION;
+				changeFlags = changeFlags | SEND_USER_SET_SELECTION;
 			}
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
@@ -498,9 +498,9 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
 	}
 
-	public boolean shouldSendScrollToSelection()
+	public boolean shouldSendUserSetSelection()
 	{
-		return (changeFlags & SEND_SCROLL_TO_SELECTION) != 0;
+		return (changeFlags & SEND_USER_SET_SELECTION) != 0;
 	}
 
 	public List<Pair<Integer, Boolean>> getHandledRequestIds()

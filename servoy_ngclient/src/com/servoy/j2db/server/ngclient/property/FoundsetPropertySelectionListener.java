@@ -44,14 +44,14 @@ final class FoundsetPropertySelectionListener implements ListSelectionListener
 	{
 		if (!e.getValueIsAdjusting() && !ignoreSelectionChanges)
 		{
-			boolean scrollToSelection = false;
+			boolean userSetSelection = false;
 			Object eventSource = e.getSource();
 			if (eventSource instanceof AlwaysRowSelectedSelectionModel)
 			{
 				AlwaysRowSelectedSelectionModel alwaysRowSelectedSelectionModel = (AlwaysRowSelectedSelectionModel)eventSource;
-				scrollToSelection = !alwaysRowSelectedSelectionModel.isFoundsetIsFiringSizeChange();
+				userSetSelection = !alwaysRowSelectedSelectionModel.isFoundsetIsFiringSizeChange();
 			}
-			changeMonitor.selectionChanged(scrollToSelection);
+			changeMonitor.selectionChanged(userSetSelection);
 			viewPort.selectionChanged();
 		}
 	}
