@@ -233,7 +233,7 @@ declare namespace foundsetType {
 		NOTIFY_COLUMN_FORMATS_CHANGED: string,
 		NOTIFY_SORT_COLUMNS_CHANGED: string,
 		NOTIFY_SELECTED_ROW_INDEXES_CHANGED: string,
-		NOTIFY_USER_SET_SELECTION: string,
+		NOTIFY_USER_SET_SELECTION: string, // true when selection is changed by user, in scripting
 		NOTIFY_VIEW_PORT_START_INDEX_CHANGED: string,
 		NOTIFY_VIEW_PORT_SIZE_CHANGED: string,
 		NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED: string,
