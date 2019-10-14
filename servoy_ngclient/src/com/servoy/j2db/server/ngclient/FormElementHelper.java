@@ -236,7 +236,13 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
 			}
 			String templateName = getStartElementName(parent, pd) + elementName;
-			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, parent.getForm().getName());
+			String formName = parent.getForm().getName();
+			if (parent.getForm().isFormComponent() && parent.getPersistIfAvailable() instanceof AbstractBase &&
+				((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME) != null)
+			{
+				formName = ((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
+			}
+			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, formName);
 			JSONObject elementJson = json.optJSONObject(elementName);
 			if (elementJson != null)
 			{
