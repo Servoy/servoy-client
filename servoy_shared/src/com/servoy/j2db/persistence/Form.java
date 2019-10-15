@@ -454,7 +454,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * Check the parts. change for example the form size if summed height from all part is smaller.
+	 * Check the parts. Change for example the form height if summed height from all part is smaller.<br/>
+	 * NOTE: Part.getHeight() actually means Part.getY... So every Part.getHeight() will actually return the summed height of all previous parts directly; it's not the actual height of that part only.
 	 */
 	public static Dimension checkParts(Iterator<Part> parts, Dimension size)
 	{
