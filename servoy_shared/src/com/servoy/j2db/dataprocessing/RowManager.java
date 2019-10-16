@@ -908,6 +908,48 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			});
 		}
 
+		if (changedColumnNames != null)
+		{
+			List<String> autoEnterColumns = new ArrayList<String>();
+			for (String column : changedColumnNames)
+			{
+				Column c = sheet.getTable().getColumn(column);
+				if (c != null && c.getColumnInfo() != null && c.getColumnInfo().getAutoEnterType() == ColumnInfo.SYSTEM_VALUE_AUTO_ENTER)
+				{
+					int subType = c.getColumnInfo().getAutoEnterSubType();
+					if (subType == ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME || subType == ColumnInfo.SYSTEM_VALUE_MODIFICATION_SERVER_DATETIME ||
+						subType == ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERNAME || subType == ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERUID)
+					{
+						autoEnterColumns.add(column);
+					}
+				}
+			}
+			if (autoEnterColumns.size() > 0)
+			{
+				runnables.add(new Runnable()
+				{
+					public void run()
+					{
+						FireCollector collector = FireCollector.getFireCollector();
+						try
+						{
+							for (String name : autoEnterColumns)
+							{
+								row.fireNotifyChange(name, row.getValue(name), collector);
+							}
+						}
+						catch (Exception e)
+						{
+							Debug.error("error notifying the system of a autoenter column value change of row: " + row, e);
+						}
+						finally
+						{
+							collector.done();
+						}
+					}
+				});
+			}
+		}
 		// run fires later (add this runnable here first because the runnables in EditRecordList are processed in reverse order)
 		runnables.add(new Runnable()
 		{
