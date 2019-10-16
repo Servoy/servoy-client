@@ -1330,12 +1330,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							// but we don't really know this when we are compiling the template.
 							Object.defineProperty(childElement.model, $sabloConstants.modelChangeNotifier,
 			                         { configurable: true, value: function(property,value) {
-			                        	rowToModel.some((row) => {
-			                        		if (row.model[simpleName][$sabloConstants.modelChangeNotifier]) {
-			                        			row.model[simpleName][$sabloConstants.modelChangeNotifier](property,value);
-			                        		}
-			                        		else return true; // if there is no change modifier at the first row then we can skip
-			                        	})
+			                        	 let rowLevelChangeNotifierThatMightGetInherited = childElement.model[$sabloConstants.modelChangeNotifier];
+			                        	 rowToModel.some((row) => {
+			                        		 let cellLevelChangeNotifier = row.model[simpleName][$sabloConstants.modelChangeNotifier];
+			                        		 if (cellLevelChangeNotifier && cellLevelChangeNotifier != rowLevelChangeNotifierThatMightGetInherited) { // if the component does not define a change notifier it will probably have the inherited proto one from the row; we don't want to fire the inherited row notifier - that would result in a stack overflow
+			                        			 cellLevelChangeNotifier(property,value);
+			                        		 }
+			                        		 else return true; // if there is no change modifier at the first row then we can skip looping as the rest probably don't have it either
+			                        	 })
 			                  }});
 						}
 						if (scope.responsivePageSize == 0){
