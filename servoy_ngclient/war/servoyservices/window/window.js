@@ -1,7 +1,11 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability,$utils) {
+.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability,$utils,$log) {
 	var scope = $services.getServiceScope('window');
 	scope.formPopupShown = null;
+	// when a form popup is shown, we notify the server that the form will become visible but wait for the server to return any changes/data that form
+    // needs to have client side (to be up to date) before really showing it in the browser; so after the form popup decides to show a form there will
+	// be a req/respone cycle before the reallyShownFormURL that shows that form in the DOM is set to the new form
+	scope.reallyShownFormURL = null;
 	var _this = {
 		translateSwingShortcut: function(shortcutcombination)
 		{
@@ -125,9 +129,17 @@ angular.module('window',['servoy'])
 				$( "#mainForm" ).trigger( "disableTabseq" );
 			}
 
-			$formService.formWillShow(form, true);
+			$formService.formWillShow(form, true).then(function successCallback() {
+				if ($log.debugEnabled) $log.debug("wnd * formWillShow resolved successfully for showFormPopup; form: " + form + ". Adding the form to DOM.");
+				scope.reallyShownFormURL = $windowService.getFormUrl(form);
+			}, function errorCallback(e) {
+				$log.error("Error while trying to show form in form popup: " + e);
+				scope.reallyShownFormURL = null;
+				_this.cancelFormPopup();
+			});
+
 			scope.getFormUrl = function(){
-				return $windowService.getFormUrl(form);
+				return scope.reallyShownFormURL;
 			};
 			
 			scope.lastElementFocused = function( e ) {
@@ -308,6 +320,7 @@ angular.module('window',['servoy'])
 					}
 				}
 				popup.remove();
+				scope.reallyShownFormURL = null;
 			}
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && backdrop.length) {
