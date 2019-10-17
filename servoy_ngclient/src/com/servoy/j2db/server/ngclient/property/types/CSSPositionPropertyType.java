@@ -40,10 +40,10 @@ import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -95,8 +95,18 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		{
 			fe = ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement();
 		}
+		FlattenedSolution fs = null;
+		Form form = null;
+		if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
+		{
+			fs = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution();
+			if (((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getForm() != null)
+			{
+				form = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getForm().getForm();
+			}
+		}
 
-		return toJSON(writer, key, object, pd, clientConversion, fe);
+		return toJSON(writer, key, object, pd, clientConversion, fe, fs, form);
 	}
 
 	private String addPixels(String value)
@@ -111,7 +121,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	}
 
 	private JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, DataConversion clientConversion,
-		FormElement formElement) throws JSONException
+		FormElement formElement, FlattenedSolution fs, Form context) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
@@ -120,7 +130,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 			writer.key("position").value("absolute");
 
 			String top = object.top;
-			if (formElement != null)
+			if (formElement != null && fs != null && context != null && !formElement.isInDesigner())
 			{
 				// adjust the top for parts.
 				IPersist persist = formElement.getPersistIfAvailable();
@@ -128,7 +138,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 				{
 					AbstractContainer parentContainer = CSSPositionUtils.getParentContainer((BaseComponent)persist);
 					Point location = CSSPositionUtils.getLocation(object, parentContainer.getSize());
-					Form form = (Form)persist.getAncestor(IRepository.FORMS);
+					Form form = fs.getFlattenedForm(context);
 					Part part = form.getPartAt(location.y);
 					if (part != null)
 					{
@@ -182,7 +192,9 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, CSSPosition formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, formElementContext.getFormElement());
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, formElementContext.getFormElement(),
+			formElementContext.getFlattenedSolution(), (formElementContext.getContext() != null && formElementContext.getContext().getForm() != null)
+				? formElementContext.getContext().getForm().getForm() : null);
 	}
 
 	@Override
