@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -24,7 +25,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.1.1</version>
 				<executions>
 					<execution>
 						<id>unpack</id>
@@ -73,10 +74,12 @@
 									<fileset dir="${project.basedir}/../servoy_base/src" />
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
-									<fileset dir="${project.basedir}/../servoy_headless_client/src" />
+									<fileset
+										dir="${project.basedir}/../servoy_headless_client/src" />
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
-									<fileset dir="${project.basedir}/../servoy_ngclient/src" />
+									<fileset
+										dir="${project.basedir}/../servoy_ngclient/src" />
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
 									<fileset
@@ -94,7 +97,8 @@
 						</goals>
 						<configuration>
 							<target>
-								<copy todir="${project.build.directory}/classes" overwrite="true">
+								<copy todir="${project.build.directory}/classes"
+									overwrite="true">
 									<fileset dir="${workspace_dir}/servoy_shared/_doc/">
 										<include name="**/*.xml" />
 									</fileset>
@@ -140,28 +144,8 @@
 							<dependencies>
 								<dependency>
 									<groupId>com.servoy</groupId>
-									<artifactId>com.servoy.eclipse.docgenerator.client</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>com.servoy</groupId>
-									<artifactId>com.servoy.eclipse.docgenerator</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>com.servoy</groupId>
-									<artifactId>com.servoy.eclipse.docgenerator.ui</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>com.servoy</groupId>
-									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>org.eclipse.osgi</groupId>
-									<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-									<type>eclipse-plugin</type>
+									<artifactId>com.servoy.eclipse.docgenerator.client.feature</artifactId>
+									<type>eclipse-feature</type>
 								</dependency>
 							</dependencies>
 						</configuration>
@@ -304,7 +288,7 @@
 									<groupId>org.eclipse.osgi</groupId>
 									<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
 									<type>eclipse-plugin</type>
-								</dependency>								
+								</dependency>
 							</dependencies>
 						</configuration>
 						<executions>
