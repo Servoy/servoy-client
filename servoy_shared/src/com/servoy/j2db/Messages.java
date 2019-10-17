@@ -42,7 +42,6 @@ import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.dataprocessing.TableFilterdefinition;
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.I18NUtil;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Solution;
@@ -64,6 +63,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 public class Messages
 {
 	public static final String JRE_DEFAULT_KEY_VALUE = "%%java_default%%";
