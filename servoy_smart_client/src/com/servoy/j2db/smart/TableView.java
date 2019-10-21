@@ -665,7 +665,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							}
 						}
 						int objAccess = app.getFlattenedSolution().getSecurityAccess(obj.getUUID(),
-							fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+							fc.getForm() != null && fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS
+								: IRepository.IMPLICIT_FORM_ACCESS);
 						boolean b_visible = (objAccess == -1 || ((objAccess & IRepository.VIEWABLE) == IRepository.VIEWABLE));
 						if (b_visible)
 						{

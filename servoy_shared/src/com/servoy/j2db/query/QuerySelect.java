@@ -815,7 +815,8 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer("SELECT"); //$NON-NLS-1$
+		StringBuffer sb = new StringBuffer(comment == null ? "" : "/* " + comment + " */ ") //
+			.append("SELECT");
 		if (distinct)
 		{
 			sb.append(" DISTINCT"); //$NON-NLS-1$
@@ -893,7 +894,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, new Byte(
-			(byte)(distinct ? 1 : 0 + (plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy });
+			(byte)(distinct ? 1 : 0 + (plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy, comment });
 	}
 
 	@SuppressWarnings("unchecked")
@@ -921,5 +922,9 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.joins = (ArrayList<ISQLJoin>)members[i++];
 		this.sorts = (ArrayList<IQuerySort>)members[i++];
 		this.groupBy = (ArrayList<IQuerySelectValue>)members[i++];
+		if (i < members.length) // comment is a new field that was added, so it is optional now
+		{
+			this.comment = (String)members[i++];
+		}
 	}
 }

@@ -24,9 +24,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Query delete statement.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 {
@@ -160,7 +160,9 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer("DELETE FROM ").append(table.toString()); //$NON-NLS-1$
+		StringBuffer sb = new StringBuffer(comment == null ? "" : "/* " + comment + " */ ") //
+			.append("DELETE FROM ") //
+			.append(table.toString());
 		if (condition != null)
 		{
 			sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
@@ -179,7 +181,7 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, condition, joins });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, condition, joins, comment });
 	}
 
 	public QueryDelete(ReplacedObject s)
@@ -189,6 +191,10 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 		this.table = (QueryTable)members[i++];
 		this.condition = (AndCondition)members[i++];
 		this.joins = (List)members[i++];
+		if (i < members.length) // comment is a new field that was added, so it is optional now
+		{
+			this.comment = (String)members[i++];
+		}
 	}
 
 

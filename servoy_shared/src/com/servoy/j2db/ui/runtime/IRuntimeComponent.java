@@ -18,7 +18,6 @@ package com.servoy.j2db.ui.runtime;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IScriptable;
 
 /**
  * Interface for all runtime components
@@ -27,12 +26,11 @@ import com.servoy.j2db.scripting.IScriptable;
  *
  * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent", scriptingName = "RuntimeComponent")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent", scriptingName = "RuntimeComponent", extendsComponent = "Component")
 @SuppressWarnings("nls")
 @ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
-public interface IRuntimeComponent extends IScriptable, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder, HasRuntimeTransparant,
-	HasRuntimeTooltip, HasRuntimeFont, HasRuntimeSize, HasRuntimeLocation, HasRuntimeClientProperty, HasRuntimeName, HasRuntimeElementType,
-	HasRuntimeDesignTimeProperty, HasRuntimeFormName, HasRuntimeStyleClass
+public interface IRuntimeComponent extends IBaseRuntimeComponent, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder,
+	HasRuntimeTransparant, HasRuntimeTooltip, HasRuntimeFont, HasRuntimeSize, HasRuntimeLocation, HasRuntimeStyleClass
 {
 	// types for getElementType
 

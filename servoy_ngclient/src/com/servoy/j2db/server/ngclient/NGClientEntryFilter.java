@@ -1,5 +1,12 @@
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
+import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
+import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
+import static com.servoy.j2db.util.Utils.getAsBoolean;
+import static java.util.Arrays.asList;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
@@ -58,6 +66,7 @@ import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator.DesignProperties;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.template.JSTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -72,6 +81,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
+	private static final Pattern MAIN_JS_PATTERN = Pattern.compile("^.*/(main/[^/]*.js)$");
 	public static final String SERVOY_CSS = "css/servoy.css";
 	public static final String SVYGRP = "svygrp";
 	public static final String SERVOY_CONTRIBUTIONS_SVYGRP = "servoy_contributions_svygrp";
@@ -127,18 +137,18 @@ public class NGClientEntryFilter extends WebEntry
 	private String[] locations;
 	private String[] services;
 
-	private FilterConfig filterConfig;
 	private String group_id;
+
+	private final JSTemplateGenerator jsTemplateGenerator = new JSTemplateGenerator();
 
 	public NGClientEntryFilter()
 	{
-		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
+		super(CLIENT_ENDPOINT);
 	}
 
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
-		this.filterConfig = fc;
 		ApplicationServerRegistry.getServiceRegistry().registerService(IMessagesRecorder.class, new MessageRecorder());
 		// when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
@@ -166,7 +176,7 @@ public class NGClientEntryFilter extends WebEntry
 
 			Types.getTypesInstance().registerTypes();
 
-			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")))
+			if (getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")))
 			{
 				try
 				{
@@ -226,13 +236,13 @@ public class NGClientEntryFilter extends WebEntry
 	private Collection<String> getFormScriptReferences(FlattenedSolution fs)
 	{
 		List<String> formScripts = new ArrayList<>();
-		if (Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
+		if (Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue()) // RAGTEST
 		{
 			Iterator<Form> it = fs.getForms(false);
 			while (it.hasNext())
 			{
 				Form form = it.next();
-				Solution sol = (Solution)form.getAncestor(IRepository.SOLUTIONS);
+				Solution sol = (Solution)form.getAncestor(SOLUTIONS);
 				formScripts.add("solutions/" + sol.getName() + "/forms/" + form.getName() + ".js");
 			}
 		}
@@ -248,65 +258,34 @@ public class NGClientEntryFilter extends WebEntry
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
 			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 			String uri = request.getRequestURI();
-			if (isShortSolutionRequest(request))
+
+			if (handleShortSolutionRequest(request, response))
 			{
-				StringBuffer url = request.getRequestURL();
-				if (!url.toString().endsWith("/")) url.append("/");
-				url.append("index.html");
-				String queryString = request.getQueryString();
-				if (queryString != null) url.append("?").append(queryString);
-				response.sendRedirect(url.toString());
 				return;
 			}
-			else if (uri != null && uri.startsWith(request.getContextPath() + SOLUTIONS_PATH) && !request.getRequestURI().contains("index.html"))
+
+			if (handleDeeplink(request, response))
 			{
-				StringBuffer url = request.getRequestURL();
-				String ctx = request.getContextPath();
-				String base = url.substring(0, url.length() - uri.length() + ctx.length());
-				String contextPathWithSolutionPath = request.getContextPath() + SOLUTIONS_PATH;
-				String solutionName = uri.substring(contextPathWithSolutionPath.length());
-				if (solutionName.length() > 0)
-				{
-					StringBuffer redirectUrl = new StringBuffer(base);
-					String queryString = request.getQueryString();
-					redirectUrl.append(contextPathWithSolutionPath);
-					redirectUrl.append(solutionName.split("/")[0]);
-
-					String[] args = url.toString().replace(redirectUrl.toString() + "/", "").split("/");
-					redirectUrl.append("/index.html");
-
-					if (args.length != 0 || queryString != null)
-					{
-						redirectUrl.append("?");
-						if (queryString != null) redirectUrl.append(queryString);
-
-						if (args.length % 2 == 0)
-						{
-							int i = 0;
-							while (i < args.length - 1)
-							{
-								if (redirectUrl.indexOf("=") > 0) redirectUrl.append("&");
-								redirectUrl.append(args[i] + "=" + args[i + 1]);
-								i += 2;
-							}
-						}
-						response.sendRedirect(redirectUrl.toString());
-						return;
-					}
-				}
+				return;
 			}
-			else if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
+
+			if (handleRecording(request, response))
+			{
+				return;
+			}
+
+
+			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
 				String solutionName = getSolutionNameFromURI(uri);
 				if (solutionName != null)
 				{
-					String clientnr = request.getParameter("clientnr");
+					String clientnr = getClientNr(uri, request);
 					INGClientWebsocketSession wsSession = null;
 					HttpSession httpSession = request.getSession(false);
 					if (clientnr != null && httpSession != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession,
-							Integer.parseInt(clientnr));
+						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
 					}
 					FlattenedSolution fs = null;
 					boolean closeFS = false;
@@ -320,40 +299,26 @@ public class NGClientEntryFilter extends WebEntry
 						{
 							closeFS = true;
 							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-
-							if (as == null)
+							if (applicationServerUnavailable(response, as))
 							{
-								response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-								Writer w = response.getWriter();
-								w.write(
-									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:20px;color:#fd7100'><div class=\"bs-callout bs-callout-danger\"><p>System is inaccessible. Please contact your system administrator.</p></div></div></body></html>");
-								w.close();
 								return;
 							}
 
 							SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
-								solutionName, IRepository.SOLUTIONS);
-							if (solutionMetaData == null)
+								solutionName, SOLUTIONS);
+							if (solutionMissing(response, solutionName, solutionMetaData))
 							{
-								Debug.error("Solution '" + solutionName + "' was not found.");
-								response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-								Writer w = response.getWriter();
-								w.write(
-									"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Requested solution was not found.</p></div></div></body></html>");
-								w.close();
 								return;
 							}
-							else
+
+							fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
 							{
-								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
+								@Override
+								public IRepository getRepository()
 								{
-									@Override
-									public IRepository getRepository()
-									{
-										return ApplicationServerRegistry.get().getLocalRepository();
-									}
-								});
-							}
+									return ApplicationServerRegistry.get().getLocalRepository();
+								}
+							});
 						}
 						catch (Exception e)
 						{
@@ -365,165 +330,370 @@ public class NGClientEntryFilter extends WebEntry
 					{
 						try
 						{
-							String formName = getFormNameFromURI(uri);
-							if (formName != null)
+							if (handleMainJs(request, response, fs))
 							{
-								Form f = fs.getForm(formName);
-								if (f == null && wsSession != null) f = wsSession.getClient().getFormManager().getPossibleForm(formName);
-								Form form = (f != null ? fs.getFlattenedForm(f) : null);
-								if (form != null)
-								{
-									boolean html = uri.endsWith(".html");
-									PrintWriter w = response.getWriter();
-									if (request.getParameter("svy_designvalue") != null)
-									{
-										response.setContentType("text/html");
-										DesignFormLayoutStructureGenerator.generateLayout(form, fs, w);
-										w.flush();
-										return;
-
-									}
-
-									if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return;
-
-									HTTPUtils.setNoCacheHeaders(response);
-
-									if (html && form.isResponsiveLayout())
-									{
-										response.setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form, formName, fs, w, Utils.getAsBoolean(request.getParameter("design"))
-											? new DesignProperties(Utils.getAsInteger(request.getParameter("cont"))) : null);
-									}
-									else if (uri.endsWith(".html"))
-									{
-										response.setContentType("text/html");
-										FormLayoutGenerator.generateRecordViewForm(w, form, formName,
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-											Utils.getAsBoolean(request.getParameter("design")));
-									}
-									else if (uri.endsWith(".js"))
-									{
-										response.setContentType("text/" + (html ? "html" : "javascript"));
-										new FormTemplateGenerator(
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-											false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl", w);
-									}
-									w.flush();
-									return;
-								}
-							}
-							else
-							{
-								boolean maintenanceMode = wsSession == null //
-									&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
-									// when there is a http session, let the new client go through, otherwise another
-									// client from the same browser may be killed by a load balancer
-									&& request.getSession(false) == null;
-								if (maintenanceMode)
-								{
-									response.getWriter().write("Server in maintenance mode");
-									response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-									return;
-								}
-
-								// prepare for possible index.html lookup
-								Map<String, Object> variableSubstitution = new HashMap<>();
-
-								variableSubstitution.put("contextPath",
-									Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/'));
-								variableSubstitution.put("pathname", uri);
-								variableSubstitution.put("querystring",
-									HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
-								String titleText = fs.getSolution().getTitleText();
-								if (StringUtils.isBlank(titleText))
-								{
-									titleText = fs.getSolution().getName();
-								}
-								else if (titleText.equals("<empty>") || titleText.contains("i18n:") || titleText.contains(TagParser.TAGCHAR))
-								{
-									titleText = "";
-								}
-								variableSubstitution.put("solutionTitle", titleText);
-
-								variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
-
-								String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
-								if (ipaddr == null)
-								{
-									ipaddr = request.getRemoteAddr();
-								}
-								variableSubstitution.put("ipaddr", ipaddr);
-								variableSubstitution.put("hostaddr", servletRequest.getRemoteHost());
-
-								// push some translations to the client, in case the client cannot connect back
-								JSONObject defaultTranslations = new JSONObject();
-								defaultTranslations.put("servoy.ngclient.reconnecting",
-									getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
-								variableSubstitution.put("defaultTranslations", defaultTranslations.toString());
-
-								List<String> css = new ArrayList<String>();
-								css.add(SERVOY_CSS);
-								List<String> formScripts = new ArrayList<String>(getFormScriptReferences(fs));
-								List<String> extraMeta = new ArrayList<String>();
-								if (fs.getMedia("manifest.json") != null)
-								{
-									String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + fs.getName() + "/manifest.json";
-									extraMeta.add("<link rel=\"manifest\" href=\"" + url + "\">");
-								}
-								Media headExtension = fs.getMedia("head-index-contributions.html");
-								if (headExtension != null)
-								{
-									try (BufferedReader reader = new BufferedReader(
-										new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8")))
-									{
-										String line;
-										for (int count = 0; count < 1000 && (line = reader.readLine()) != null; count++)
-										{
-											if (line.trim().startsWith("<meta") || line.trim().startsWith("<link"))
-											{
-												extraMeta.add(line);
-											}
-										}
-									}
-									catch (Exception e)
-									{
-										Debug.error(e);
-									}
-								}
-								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, extraMeta, variableSubstitution);
 								return;
 							}
+
+							if (handleForm(request, response, wsSession, fs))
+							{
+								return;
+							}
+
+							if (handleMaintenanceMode(request, response, wsSession))
+							{
+								return;
+							}
+
+							// prepare for possible index.html lookup
+							Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
+
+							List<String> extraMeta = new ArrayList<String>();
+							addManifest(fs, extraMeta);
+							addHeadIndexContributions(fs, extraMeta);
+
+							super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS), new ArrayList<String>(getFormScriptReferences(fs)),
+								extraMeta, variableSubstitution,
+								getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")));
+							return;
 						}
 						finally
 						{
-							if (closeFS) fs.close(null);
+							if (closeFS)
+							{
+								fs.close(null);
+							}
 						}
 					}
 				}
 			}
-			else if (uri != null && uri.endsWith(".recording"))
-			{
-				IMessagesRecorder recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
-				int index = uri.lastIndexOf('/');
-				CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
-				if (message != null)
-				{
-					HTTPUtils.setNoCacheHeaders(response);
-					response.setContentType("text/plain");
-					response.getWriter().write(message.toString());
-					return;
-				}
 
-			}
 			if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
 				Debug.log("No solution found for this request, calling the default filter: " + uri);
-			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null);
+			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, false);
 		}
 		catch (RuntimeException | Error e)
 		{
 			Debug.error(e);
 			throw e;
 		}
+	}
+
+	private void addManifest(FlattenedSolution fs, List<String> extraMeta)
+	{
+		if (fs.getMedia("manifest.json") != null)
+		{
+			String url = "resources/" + FLATTENED_SOLUTION_ACCESS + "/" + fs.getName() + "/manifest.json";
+			extraMeta.add("<link rel=\"manifest\" href=\"" + url + "\">");
+		}
+
+	}
+
+	private void addHeadIndexContributions(FlattenedSolution fs, List<String> extraMeta)
+	{
+		Media headExtension = fs.getMedia("head-index-contributions.html");
+		if (headExtension != null)
+		{
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(headExtension.getMediaData()), "UTF8")))
+			{
+				String line;
+				for (int count = 0; count < 1000 && (line = reader.readLine()) != null; count++)
+				{
+					if (line.trim().startsWith("<meta") || line.trim().startsWith("<link"))
+					{
+						extraMeta.add(line);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+
+	}
+
+	private boolean handleMaintenanceMode(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession) throws IOException
+	{
+		boolean maintenanceMode = wsSession == null //
+			&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
+			// when there is a http session, let the new client go through, otherwise another
+			// client from the same browser may be killed by a load balancer
+			&& request.getSession(false) == null;
+		if (maintenanceMode)
+		{
+			response.getWriter().write("Server in maintenance mode");
+			response.setStatus(SC_SERVICE_UNAVAILABLE);
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean handleForm(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession, FlattenedSolution fs)
+		throws IOException
+	{
+		String uri = request.getRequestURI();
+		String formName = getFormNameFromURI(uri);
+		if (formName != null)
+		{
+			Form f = fs.getForm(formName);
+			if (f == null && wsSession != null) f = wsSession.getClient().getFormManager().getPossibleForm(formName);
+			Form form = (f != null ? fs.getFlattenedForm(f) : null);
+			if (form != null)
+			{
+				PrintWriter writer = response.getWriter();
+				if (request.getParameter("svy_designvalue") != null)
+				{
+					response.setContentType("text/html");
+					DesignFormLayoutStructureGenerator.generateLayout(form, fs, writer);
+					writer.flush();
+					return true;
+
+				}
+
+				if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime()))
+				{
+					return true;
+				}
+
+				HTTPUtils.setNoCacheHeaders(response);
+
+				boolean design = getAsBoolean(request.getParameter("design"));
+				if (uri.endsWith(".html"))
+				{
+					response.setContentType("text/html");
+					if (form.isResponsiveLayout())
+					{
+						FormLayoutStructureGenerator.generateLayout(form, formName, fs, writer,
+							design ? new DesignProperties(Utils.getAsInteger(request.getParameter("cont"))) : null);
+					}
+					else
+					{
+						FormLayoutGenerator.generateRecordViewForm(writer, form, formName,
+							wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), design);
+					}
+				}
+				else if (uri.endsWith(".js"))
+				{
+					response.setContentType("text/javascript");
+					new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+						false, design).generate(form, formName, "form_recordview_js.ftl", writer);
+				}
+
+				writer.flush();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean handleMainJs(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs) throws ServletException, IOException
+	{
+		String uri = request.getRequestURI();
+		String mainjs = getMainJs(uri);
+		if (mainjs != null)
+		{
+			if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime()))
+			{
+				return true;
+			}
+			HTTPUtils.setNoCacheHeaders(response);
+
+			response.setContentType("text/javascript");
+			PrintWriter writer = response.getWriter();
+
+			String solutionName = getSolutionNameFromURI(uri);
+			String clientnr = getClientNr(uri, request);
+
+			Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
+
+			jsTemplateGenerator.generate(mainjs, variableSubstitution, writer);
+
+			writer.flush();
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param response
+	 * @param solutionName
+	 * @param solutionMetaData
+	 * @throws IOException
+	 */
+	private boolean solutionMissing(HttpServletResponse response, String solutionName, SolutionMetaData solutionMetaData) throws IOException
+	{
+		if (solutionMetaData == null)
+		{
+			Debug.error("Solution '" + solutionName + "' was not found.");
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			Writer w = response.getWriter();
+			w.write(
+				"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Requested solution was not found.</p></div></div></body></html>");
+			w.close();
+			return true;
+		}
+		return false;
+	}
+
+	private boolean applicationServerUnavailable(HttpServletResponse response, IApplicationServer as) throws IOException
+	{
+		if (as == null)
+		{
+			response.setStatus(SC_SERVICE_UNAVAILABLE);
+			Writer w = response.getWriter();
+			w.write(
+				"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:20px;color:#fd7100'><div class=\"bs-callout bs-callout-danger\"><p>System is inaccessible. Please contact your system administrator.</p></div></div></body></html>");
+			w.close();
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean handleRecording(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		String uri = request.getRequestURI();
+		if (uri != null && uri.endsWith(".recording"))
+		{
+			IMessagesRecorder recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
+			int index = uri.lastIndexOf('/');
+			CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
+			if (message != null)
+			{
+				HTTPUtils.setNoCacheHeaders(response);
+				response.setContentType("text/plain");
+				response.getWriter().write(message.toString());
+				return true;
+			}
+
+		}
+
+		return false;
+	}
+
+	private boolean handleDeeplink(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		String uri = request.getRequestURI();
+		String ctx = request.getContextPath();
+		String contextPathWithSolutionPath = ctx + SOLUTIONS_PATH;
+		if (uri != null && uri.startsWith(contextPathWithSolutionPath) //
+			&& !uri.contains("index.html") && getMainJs(uri) == null)
+		{
+			StringBuffer url = request.getRequestURL();
+			String base = url.substring(0, url.length() - uri.length() + ctx.length());
+
+			String solutionName = uri.substring(contextPathWithSolutionPath.length());
+			if (solutionName.length() > 0)
+			{
+				StringBuffer redirectUrl = new StringBuffer(base);
+				String queryString = request.getQueryString();
+				redirectUrl.append(contextPathWithSolutionPath);
+				redirectUrl.append(solutionName.split("/")[0]);
+
+				String[] args = url.toString().replace(redirectUrl.toString() + "/", "").split("/");
+				redirectUrl.append("/index.html");
+
+				if (args.length != 0 || queryString != null)
+				{
+					redirectUrl.append("?");
+					if (queryString != null) redirectUrl.append(queryString);
+
+					if (args.length % 2 == 0)
+					{
+						int i = 0;
+						while (i < args.length - 1)
+						{
+							if (redirectUrl.indexOf("=") > 0) redirectUrl.append("&");
+							redirectUrl.append(args[i] + "=" + args[i + 1]);
+							i += 2;
+						}
+					}
+					response.sendRedirect(redirectUrl.toString());
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private String getMainJs(String uri)
+	{
+		Matcher matcher = MAIN_JS_PATTERN.matcher(uri);
+		if (matcher.find())
+		{
+			return matcher.group(1);
+		}
+
+		return null;
+	}
+
+	private boolean handleShortSolutionRequest(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		if (isShortSolutionRequest(request))
+		{
+			StringBuffer url = request.getRequestURL();
+			if (!url.toString().endsWith("/")) url.append("/");
+			url.append("index.html");
+			String queryString = request.getQueryString();
+			if (queryString != null) url.append("?").append(queryString);
+			response.sendRedirect(url.toString());
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param request
+	 * @param solutionName
+	 * @param clientnr
+	 * @param fs
+	 * @return
+	 * @throws ServletException
+	 */
+	private Map<String, Object> getSubstitutions(HttpServletRequest request, String solutionName, String clientnr, FlattenedSolution fs) throws ServletException
+	{
+		Map<String, Object> variableSubstitution = new HashMap<>();
+
+		variableSubstitution.put("solution", solutionName);
+		variableSubstitution.put("clientnr", clientnr);
+
+		variableSubstitution.put("contextPath", Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/'));
+		variableSubstitution.put("pathname", request.getRequestURI());
+		variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
+		String titleText = fs.getSolution().getTitleText();
+		if (StringUtils.isBlank(titleText))
+		{
+			titleText = fs.getSolution().getName();
+		}
+		else if (titleText.equals("<empty>") || titleText.contains("i18n:") || titleText.contains(TagParser.TAGCHAR))
+		{
+			titleText = "";
+		}
+		variableSubstitution.put("solutionTitle", titleText);
+
+		variableSubstitution.put("orientation", Integer.valueOf(fs.getSolution().getTextOrientation()));
+
+		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
+		if (ipaddr == null)
+		{
+			ipaddr = request.getRemoteAddr();
+		}
+		variableSubstitution.put("ipaddr", ipaddr);
+		variableSubstitution.put("hostaddr", request.getRemoteHost());
+
+		// push some translations to the client, in case the client cannot connect back
+		JSONObject defaultTranslations = new JSONObject();
+		defaultTranslations.put("servoy.ngclient.reconnecting",
+			getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
+		variableSubstitution.put("defaultTranslations", defaultTranslations.toString());
+
+		return variableSubstitution;
 	}
 
 	// checks for short solution request, like "<context>/solutions/solution_name" or "<context>/solutions/solution_name/"
@@ -592,6 +762,31 @@ public class NGClientEntryFilter extends WebEntry
 		return null;
 	}
 
+	/**
+	 * Get the clientnr from parameter or an url /solutions/<solutionname>/<clientnr>/
+	 *
+	 */
+	private String getClientNr(String uri, ServletRequest request)
+	{
+		String clientnr = request.getParameter("clientnr");
+		if (clientnr != null)
+		{
+			return clientnr;
+		}
+
+
+		int solutionIndex = uri.indexOf(SOLUTIONS_PATH);
+		if (solutionIndex >= 0)
+		{
+			String[] parts = uri.substring(solutionIndex + SOLUTIONS_PATH.length()).split("/");
+			if (parts.length >= 2 && parts[1].matches("[0-9]+"))
+			{
+				return parts[1];
+			}
+		}
+		return null;
+	}
+
 	@Override
 	protected IWebsocketSessionFactory createSessionFactory()
 	{
@@ -646,7 +841,7 @@ public class NGClientEntryFilter extends WebEntry
 	public List<String> filterCSSContributions(List<String> cssContributions)
 	{
 		ArrayList<String> allIndexCSS;
-		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")) && group_id != null)
+		if (getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")) && group_id != null)
 		{
 			allIndexCSS = new ArrayList<String>();
 			allIndexCSS.add("wro/" + SERVOY_CSS_THIRDPARTY_SVYGRP + group_id + ".css");
@@ -656,7 +851,7 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		else
 		{
-			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3RD_PARTY_CSS)));
+			allIndexCSS = new ArrayList<String>(appendGroupIdRequestParamToUrls(asList(INDEX_3RD_PARTY_CSS)));
 			allIndexCSS.addAll(appendGroupIdRequestParamToUrls(cssContributions));
 		}
 		return allIndexCSS;
@@ -666,11 +861,11 @@ public class NGClientEntryFilter extends WebEntry
 	public List<String> filterJSContributions(List<String> jsContributions)
 	{
 		ArrayList<String> allIndexJS;
-		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")) && group_id != null)
+		if (getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "true")) && group_id != null)
 		{
 			allIndexJS = new ArrayList<String>();
 			allIndexJS.add("wro/" + SERVOY_THIRDPARTY_SVYGRP + group_id + ".js");
-			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SABLO_JS)));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SABLO_JS)));
 			allIndexJS.add("wro/" + SERVOY_APP_SVYGRP + group_id + ".js");
 			//get all contributions which do not support grouping
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls((Collection<String>)IndexPageEnhancer.getAllContributions(Boolean.FALSE, this)[1]));
@@ -678,9 +873,9 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		else
 		{
-			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_3RD_PARTY_JS)));
-			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SABLO_JS)));
-			allIndexJS.addAll(appendGroupIdRequestParamToUrls(Arrays.asList(INDEX_SERVOY_JS)));
+			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(asList(INDEX_3RD_PARTY_JS)));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SABLO_JS)));
+			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SERVOY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(jsContributions));
 		}
 		if (ApplicationServerRegistry.get().isDeveloperStartup()) allIndexJS.add("js/debug.js");

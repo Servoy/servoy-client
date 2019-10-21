@@ -282,7 +282,7 @@ public class FormWrapper
 	{
 		getBaseComponents();
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
-		if (!properties.containsKey("size")) properties.put("size", form.getSize());
+		properties.put("size", form.getSize()); // form.getSize() computes the form height from form parts so do call it instead of relying on the height from size taken from raw form.getPropertiesMap() - where the height is not kept in sync in developer - we have to call getSize()
 		properties.put("designSize", form.getSize());
 		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW));
 		properties.put("hasExtraParts", Boolean.valueOf(FormElementHelper.INSTANCE.hasExtraParts(form)));

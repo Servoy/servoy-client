@@ -27,9 +27,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Query update statement.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 {
@@ -197,7 +197,10 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer("UPDATE ").append(table.toString()).append(" SET ("); //$NON-NLS-1$ //$NON-NLS-2$
+		StringBuffer sb = new StringBuffer(comment == null ? "" : "/* " + comment + " */ ") //
+			.append("UPDATE ") //
+			.append(table.toString()) //
+			.append(" SET (");
 		for (int i = 0; i < columns.size(); i++)
 		{
 			if (i > 0)
@@ -236,7 +239,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, conditions, joins });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, conditions, joins, comment });
 	}
 
 	public QueryUpdate(ReplacedObject s)
@@ -248,6 +251,10 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		this.values = (List)members[i++];
 		this.conditions = (HashMap<String, AndCondition>)members[i++];
 		this.joins = (List)members[i++];
+		if (i < members.length) // comment is a new field that was added, so it is optional now
+		{
+			this.comment = (String)members[i++];
+		}
 	}
 
 }

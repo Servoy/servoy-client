@@ -267,6 +267,7 @@ public class JavaToDocumentedJSTypeTranslator
 	public String translateJavaClassToJSTypeName(Class< ? > javaClass)
 	{
 		if (javaClass == null) return null;
+		if (javaClass.isEnum()) return "enum<" + javaClass.getSimpleName() +'>';
 
 		String cached = cachedJSTypeNames.get(javaClass);
 		if (cached != null) return cached;

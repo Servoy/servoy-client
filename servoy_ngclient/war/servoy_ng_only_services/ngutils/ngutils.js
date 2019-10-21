@@ -1,13 +1,24 @@
 angular.module('ngclientutils', [ 'servoy' ])
 .factory("ngclientutils",["$services","$window",function($services, $window) {
 	var scope = $services.getServiceScope('ngclientutils');
-	var confirmMessage = null
+	var confirmMessage = null;
 	var beforeUnload =  function(e) {
 		(e || window.event).returnValue = confirmMessage; //Gecko + IE
 		return confirmMessage; //Gecko + Webkit, Safari, Chrome etc.
 	};
 	
 	return {
+		setBackActionCallbackImpl: function() {
+			history.pushState('captureBack', null, null);
+				$window.addEventListener("popstate", function(event) {
+					if (event.state && event.state == 'captureBack') {
+						event.stopPropagation();
+						event.preventDefault();
+						$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, []);
+	                    history.pushState('captureBack', null, null);
+					}
+				})
+		},
 
 		/**
 		 * This will return the user agent string of the clients browser.
@@ -242,9 +253,14 @@ angular.module('ngclientutils', [ 'servoy' ])
 		}
 	};   
 })
-.run(["$services","$window",function($services,$window)
+.run(["$services","$window", "ngclientutils", function($services, $window, ngclientutils)
 		{
 			var scope = $services.getServiceScope('ngclientutils');
+			scope.$watch("model.backActionCB", function(newVal) {
+				if (newVal) {
+					ngclientutils.setBackActionCallbackImpl();
+				}
+			}, true);
 			
 			// bind-once watch to wait for the server value to come (become defined) in case of a browser page refresh
 			scope.$watch("model.contributedTags", function(newVal, oldVal) {

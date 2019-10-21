@@ -111,7 +111,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String SORT = "sortColumns";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	public static final String FOUNDSET_ID = "foundsetId";
-	public static final String SCROLL_TO_SELECTION = "scrollToSelection";
+	public static final String USER_SET_SELECTION = "userSetSelection";
 
 	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	public static final String ID_KEY = "id";
@@ -700,9 +700,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SELECTED_ROW_INDEXES);
 				addSelectedIndexes(destinationJSON);
-				if (changeMonitor.shouldSendScrollToSelection())
+				if (changeMonitor.shouldSendUserSetSelection())
 				{
-					destinationJSON.key(UPDATE_PREFIX + SCROLL_TO_SELECTION).value(true);
+					destinationJSON.key(UPDATE_PREFIX + USER_SET_SELECTION).value(true);
 				}
 				somethingChanged = true;
 			}
@@ -1092,10 +1092,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											{
 												// TODO handle the validaton errors.
 												IWebFormUI formUI = getFormUI();
-												formUI.getController()
-													.getApplication()
-													.reportError(
-														"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
+												formUI.getController().getApplication().reportError(
+													"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
 											}
 										}
 										// else cannot start editing; finally block will deal with it (send old value back to client as new one can't be pushed)
