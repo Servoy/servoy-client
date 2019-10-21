@@ -95,3 +95,7 @@ $scope.api.removeFormStyleClass = function(formname,styleclass)
 		}
 	}	
 }
+
+$scope.api.setBackActionCallback = function(backActionCB) {
+	$scope.model.backActionCB = backActionCB;
+}
