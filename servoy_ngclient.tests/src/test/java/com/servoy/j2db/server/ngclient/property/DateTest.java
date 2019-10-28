@@ -110,10 +110,23 @@ public class DateTest
 		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(),
 			null);
 		jsonWriter.endObject();
+		String toString = stringWriter.toString();
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		jsonWriter.object();
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.util.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(),
+			null);
+		jsonWriter.endObject();
+		JSONAssert.assertEquals(new JSONObject(stringWriter.toString()), new JSONObject(toString), JSONCompareMode.STRICT);
 		JSONAssert.assertEquals(
 			new JSONObject("{\"mydate\" : \"2018-06-05T00:00" +
 				OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString() + "\"}"),
-			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
+			new JSONObject(toString), JSONCompareMode.STRICT);
+
+
+		Date date = NGDatePropertyType.NG_INSTANCE.fromJSON(new JSONObject(toString).getString("mydate"), null, NGUtils.DATE_DATAPROVIDER_CACHED_PD, null,
+			null);
+		Assert.assertEquals(new java.util.Date(118, 5, 5), date);
 
 		TimeZone default1 = TimeZone.getDefault();
 		try
