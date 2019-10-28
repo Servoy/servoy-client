@@ -691,7 +691,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sampleas js_addFoundSetFilterParam(String, String, Object, String)
@@ -711,7 +711,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * @sample
@@ -753,7 +753,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * a query filter with a join from orders to order_details will be applied to the foundset,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sampleas js_addFoundSetFilterParam(QBSelect, String)
@@ -775,7 +775,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * a query filter with a join from orders to order_details will be applied to the foundset,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * The table of the query has to be the same as the foundset table.
@@ -814,7 +814,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Remove a named foundset filter.
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 *
 	 * @sample
 	 * var success = %%prefix%%foundset.removeFoundSetFilterParam('custFilter');// removes all filters with this name
@@ -2034,6 +2034,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect.setCondition(SQLGenerator.CONDITION_RELATION,
 				AbstractBaseQuery.relinkTable(pksAndRecords.getQuerySelectForReading().getTable(), sqlSelect.getTable(), fsRelatedCondition));
 		}
+
+		initialized = true;
 
 		//do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);

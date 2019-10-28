@@ -979,6 +979,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		// sqlGenerator may have calculations loaded based on the lgin flattened solution
 		sqlGenerator = null;
+		for (RowManager rm : rowManagers.values())
+		{
+			rm.dispose();
+		}
+		rowManagers.clear();
 	}
 
 	public void flushCachedItems()
