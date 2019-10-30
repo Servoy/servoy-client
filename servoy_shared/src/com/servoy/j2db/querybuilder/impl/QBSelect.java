@@ -572,7 +572,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private Object getAsRightType(Object value, BaseColumnType columnType, int flags)
 	{
-		Object val = Column.getAsRightType(columnType.getSqlType(), flags, value, columnType.getLength(), !isConversionLenient(), false);
+		Object val = Column.getAsRightType(columnType, flags, value, !isConversionLenient(), false);
 		if (val == null && value != null)
 		{
 			// safety-fallback, could not convert, let JDBC driver do the conversion, only when servoy.client.query.convert.lenient=true
