@@ -33,12 +33,11 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	
 	var parentSizes = ${containerSizesString}
 	var formProperties = ${propertiesString}
-
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
 	formState.resolving = true;
 	formState.absoluteLayout = formProperties.absoluteLayout[''];
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving = true for form = ${name}");
-	if (${hasRuntimeData()}) {
+	if (${hasRuntimeData()} && !formState.model[''] ) {
 		formState.model[''] =  ${runtimePropertiesString}
 		delete formState.initializing;
     }
