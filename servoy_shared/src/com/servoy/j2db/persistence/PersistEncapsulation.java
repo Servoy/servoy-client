@@ -22,7 +22,7 @@ import com.servoy.j2db.FlattenedSolution;
 
 /**
  * Interface that specifies the encapsulation flags of the {@link ISupportEncapsulation#getEncapsulation()}
- * 
+ *
  * @author jcompagner
  *
  */
@@ -41,13 +41,13 @@ public final class PersistEncapsulation
 
 	/**
 	 * Flags the persist as module scope, only the module itself will see the persist, solutions/modules
-	 * that have included the module of this persist will not see this persist in the code completion or 
+	 * that have included the module of this persist will not see this persist in the code completion or
 	 * any other dialog like place tab.
 	 */
 	public static final int MODULE_SCOPE = IFormConstants.MODULE_SCOPE;
 
 	/**
-	 * Hides the selected record dataproviders (columns,calculations and relations) from code completion. 
+	 * Hides the selected record dataproviders (columns,calculations and relations) from code completion.
 	 */
 	public static final int HIDE_DATAPROVIDERS = IFormConstants.HIDE_DATAPROVIDERS;
 
@@ -65,6 +65,11 @@ public final class PersistEncapsulation
 	 * Hides the elements property of the form.
 	 */
 	public static final int HIDE_ELEMENTS = IFormConstants.HIDE_ELEMENTS;
+
+	/**
+	 * Hides the containers property of the form.
+	 */
+	public static final int HIDE_CONTAINERS = IFormConstants.HIDE_CONTAINERS;
 
 	public static boolean isHideInScriptingModuleScope(ISupportEncapsulation persist, FlattenedSolution fs)
 	{
@@ -98,6 +103,11 @@ public final class PersistEncapsulation
 	public static boolean hideElements(Form form)
 	{
 		return (form.getEncapsulation() & HIDE_ELEMENTS) == HIDE_ELEMENTS;
+	}
+
+	public static boolean hideContainers(Form form)
+	{
+		return (form.getEncapsulation() & HIDE_CONTAINERS) == HIDE_CONTAINERS;
 	}
 
 	public static boolean hideDataproviders(Form form)
