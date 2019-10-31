@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  * @since 2019.12
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "containers", scriptingName = "containers")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "containers", scriptingName = "RuntimeContainers")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 public class RuntimeContainers
 {

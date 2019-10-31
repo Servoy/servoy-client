@@ -161,16 +161,13 @@ public class Form
 	}
 
 	/**
-	 * Get an array with the elements in the form.
+	 * Get an object with the containers of a responsive form.
 	 *
 	 * @sample
-	 * var cont = %%prefix%%containers;
-	 * application.output("This form has " + cont.length + " named containers.")
-	 * for (var i=0; i<cont.length; i++)
-	 * 	application.output(cont[i].getName());
+	 * %%prefix%%containers.mycontainer.addStyleClasses("red","blue");
 	 */
 	@JSReadonlyProperty
-	public FormElements containers()
+	public RuntimeContainers containers()
 	{
 		return null;
 	}
