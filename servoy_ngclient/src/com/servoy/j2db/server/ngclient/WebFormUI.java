@@ -66,6 +66,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGEnabledPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
+import com.servoy.j2db.server.ngclient.scripting.ContainersScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -145,6 +146,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		IDataAdapterList previousDataAdapterList = dataAdapterList;
 		dataAdapterList = new DataAdapterList(formController);
 
+		initContainerScopeIfNeeded(formController);
 		ElementScope elementsScope = initElementScope(formController);
 		List<FormElement> formElements = getFormElements();
 		for (FormElement fe : formElements)
@@ -191,6 +193,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			previousDataAdapterList.destroy();
 		}
 	}
+
 
 	// this should be the opposite of formUI.contributeComponentToElementsScope(...)
 	public void removeComponentFromElementsScope(FormElement fe, WebObjectSpecification componentSpec, WebFormComponent component)
@@ -357,6 +360,82 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		return components;
 	}
 
+	/**
+	 * @return
+	 */
+	private Map<String, Map<String, List<String>>> getContainersMap()
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, Map<String, List<String>>> containers = (Map<String, Map<String, List<String>>>)getProperty("containers");
+		if (containers == null)
+		{
+			containers = new HashMap<>();
+			setProperty("containers", containers);
+		}
+		return containers;
+	}
+
+	private Map<String, List<String>> getAddedMap()
+	{
+		Map<String, Map<String, List<String>>> containers = getContainersMap();
+		Map<String, List<String>> added = containers.get("added");
+		if (added == null)
+		{
+			added = new HashMap<>();
+			containers.put("added", added);
+		}
+		return added;
+	}
+
+	private Map<String, List<String>> getRemovedMap()
+	{
+		Map<String, Map<String, List<String>>> containers = getContainersMap();
+		Map<String, List<String>> removed = containers.get("removed");
+		if (removed == null)
+		{
+			removed = new HashMap<>();
+			containers.put("removed", removed);
+		}
+		return removed;
+	}
+
+
+	private void adjustContainersMap(Map<String, List<String>> cacheToRemoveFrom, Map<String, List<String>> cacheToAddTo, String containername,
+		String classname)
+	{
+		// if this was a removed value, then just remove it from the removed cache
+		List<String> containerRemovedCache = cacheToRemoveFrom.get(containername);
+		if (containerRemovedCache != null && containerRemovedCache.indexOf(classname) != -1)
+		{
+			containerRemovedCache.remove(classname);
+			if (containerRemovedCache.size() == 0) cacheToRemoveFrom.remove(containername);
+		}
+		else
+		{
+			List<String> classesToAdd = cacheToAddTo.get(containername);
+			if (classesToAdd == null)
+			{
+				classesToAdd = new ArrayList<>();
+				cacheToAddTo.put(containername, classesToAdd);
+			}
+			classesToAdd.add(classname);
+		}
+	}
+
+	@Override
+	public void addContainerStyleClass(String containerName, String cls)
+	{
+		adjustContainersMap(getRemovedMap(), getAddedMap(), containerName, cls);
+		markPropertyContentsUpdated("containers");
+	}
+
+	@Override
+	public void removeContainerStyleClass(String containerName, String cls)
+	{
+		adjustContainersMap(getAddedMap(), getRemovedMap(), containerName, cls);
+		markPropertyContentsUpdated("containers");
+	}
+
 	public Collection<WebComponent> getAllComponents()
 	{
 		Collection<WebComponent> allComponents = new ArrayList<WebComponent>();
@@ -404,6 +483,19 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		finally
 		{
 			getController().setRendering(false);
+		}
+	}
+
+	/**
+	 * @param formController2
+	 */
+	private void initContainerScopeIfNeeded(IWebFormController fc)
+	{
+		if (fc.getForm().isResponsiveLayout())
+		{
+			FormScope formScope = fc.getFormScope();
+			ContainersScope containersScope = new ContainersScope(fc);
+			formScope.putWithoutFireChange("containers", containersScope); //$NON-NLS-1$
 		}
 	}
 

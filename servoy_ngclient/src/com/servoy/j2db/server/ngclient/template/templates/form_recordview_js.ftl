@@ -172,6 +172,65 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	$scope.$watch("formProperties", function(newValue, oldValue) {
 		formStateWrapper(newValue, oldValue, undefined);
 	}, true);
+	
+	function getContainer(containername) {
+		var query = $("div.svy-layoutcontainer[svy-name='" + containername + "']");
+		if (query.length == 0) return null;
+		if (query.length == 1) return query;
+		var parents = query.closest("div.svy-form");
+		
+		for(var i = 0;i<parents.length;i++) {
+			if ($(parents[i]).filter("[ng-controller='${name}']").length != 0) return $(query[i]); 
+		}
+		
+	}
+	$scope.$watch("model[''].containers", function(newValue, oldValue) {
+		if (!newValue) return;
+		if (newValue.removed) {
+		  for (var containername in newValue.removed) {
+                var container = getContainer( containername);
+                if (container) {
+                    var classArray = newValue.removed[containername];
+                    classArray.forEach(function (classname) { container.removeClass(classname); });
+                }
+            }
+		}
+		if (oldValue && oldValue.removed) {
+			 for (var containername in oldValue.removed) {
+                var container = getContainer( containername);
+                if (container) {
+				 	var classesToAddBackIn = oldValue.removed[containername];
+				 	if (newValue.removed[containername]) {
+				 		var stillToRemove = newValue.removed[containername];
+				 		classesToAddBackIn = classesToAddBackIn.filter(function(value) {return stillToRemove.indexOf(value) == -1});
+				 	}
+				 	classesToAddBackIn.forEach(function (classname) { container.addClass(classname); });
+			 	}
+			 }
+		}
+		if (newValue.added) {
+		  for (var containername in newValue.added) {
+                var container = getContainer( containername);
+                if (container) {
+                    var classArray = newValue.added[containername];
+                    classArray.forEach(function (classname) { container.addClass(classname); });
+                }
+            }
+		}
+		if (oldValue && oldValue.added) {
+			 for (var containername in oldValue.added) {
+                var container = getContainer( containername);
+                if (container) {
+				 	var classesToRemove = oldValue.added[containername];
+				 	if (newValue.added[containername]) {
+				 		var stillToAdd = newValue.added[containername];
+				 		classesToRemove = classesToRemove.filter(function(value) {return stillToAdd.indexOf(value) == -1});
+				 	}
+				 	classesToRemove.forEach(function (classname) { container.removeClass(classname); });
+				}
+			 }
+		}
+ 	}, true);
 
 	var destroyListenerUnreg = $scope.$on("$destroy", function() {
 		if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
