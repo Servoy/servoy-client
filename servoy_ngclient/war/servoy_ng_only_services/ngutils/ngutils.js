@@ -8,7 +8,11 @@ angular.module('ngclientutils', [ 'servoy' ])
 	};
 	
 	return {
-		setBackActionCallbackImpl: function() {
+		/**
+		 * Cancel the default back button action from browser and do a callback when clicking on it. 
+		 */
+		setBackActionCallbackImpl: function() 
+		{
 			history.pushState('captureBack', null, null);
 				$window.addEventListener("popstate", function(event) {
 					if (event.state && event.state == 'captureBack') {
