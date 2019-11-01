@@ -199,10 +199,6 @@ public class FormLayoutStructureGenerator
 			}
 			writer.print(" svy-title='" + getLayouContainerTitle(container) + "'");
 		}
-		else
-		{
-			writer.print(" ng-class=\"'svy-layoutcontainer'\" ");
-		}
 		if (container.getName() != null)
 		{
 			writer.print(" svy-name='");
@@ -235,6 +231,10 @@ public class FormLayoutStructureGenerator
 				}
 			}
 		}
+		String classes = attributes.get("class");
+		if (classes == null) classes = "svy-layoutcontainer";
+		else classes += " svy-layoutcontainer";
+		attributes.put("class", classes);
 		for (Entry<String, String> entry : attributes.entrySet())
 		{
 			if (design != null && writtenAttributes.contains(entry.getKey())) continue;

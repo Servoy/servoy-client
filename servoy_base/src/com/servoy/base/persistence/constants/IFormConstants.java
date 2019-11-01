@@ -20,9 +20,9 @@ package com.servoy.base.persistence.constants;
 
 /**
  * Constants useful when dealing with forms.
- * 
+ *
  * @author acostescu
- * 
+ *
  */
 public interface IFormConstants
 {
@@ -62,13 +62,13 @@ public interface IFormConstants
 
 	/**
 	 * Flags the persist as module scope, only the module itself will see the persist, solutions/modules
-	 * that have included the module of this persist will not see this persist in the code completion or 
+	 * that have included the module of this persist will not see this persist in the code completion or
 	 * any other dialog like place tab.
 	 */
 	public static final int MODULE_SCOPE = 2;
 
 	/**
-	 * Hides the selected record dataproviders (columns,calculations and relations) from code completion. 
+	 * Hides the selected record dataproviders (columns,calculations and relations) from code completion.
 	 */
 	public static final int HIDE_DATAPROVIDERS = 4;
 
@@ -87,6 +87,10 @@ public interface IFormConstants
 	 */
 	public static final int HIDE_ELEMENTS = 32;
 
+	/**
+	 * Hides the containers property of the form.
+	 */
+	public static final int HIDE_CONTAINERS = 64;
 
 	// FORM NAVIGATOR TYPES ------------------------
 	/**

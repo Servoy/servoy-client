@@ -54,6 +54,7 @@ public class SolutionMetaData extends RootObjectMetaData
 	private String protectionPassword;
 
 	private boolean mustAuthenticate;
+	private boolean canOverride = true;
 
 	private transient int fileVersion = AbstractRepository.repository_version;
 
@@ -73,6 +74,16 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		checkForChange(mustAuthenticate, arg);
 		mustAuthenticate = arg;
+	}
+
+	public void setCanOverride(boolean canOverride)
+	{
+		this.canOverride = canOverride;
+	}
+
+	public boolean canOverride()
+	{
+		return canOverride;
 	}
 
 	public String getProtectionPassword()

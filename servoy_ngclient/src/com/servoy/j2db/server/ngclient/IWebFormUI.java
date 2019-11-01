@@ -78,4 +78,16 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	void setChanging(boolean b);
 
 	boolean isChanging();
+
+	/**
+	 * @param name
+	 * @param cls
+	 */
+	void addContainerStyleClass(String name, String cls);
+
+	/**
+	 * @param name
+	 * @param cls
+	 */
+	void removeContainerStyleClass(String name, String cls);
 }

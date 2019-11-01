@@ -1061,8 +1061,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 							// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
 							JSONObject dataChangeJSON = (JSONObject)update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
 							String rowIDValue = dataChangeJSON.getString(ROW_ID_COL_KEY);
-							Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : recordDataLinkedPropertyIDToColumnDP;
-							String dataProviderName = dp.get(dataChangeJSON.getString(DATAPROVIDER_KEY));
+							String dpKey = dataChangeJSON.getString(DATAPROVIDER_KEY);
+							String dataProviderName;
+							if (dataproviders.containsKey(dpKey))
+							{
+								dataProviderName = dataproviders.get(dpKey);
+							}
+							else
+							{
+								dataProviderName = recordDataLinkedPropertyIDToColumnDP.get(dpKey);
+							}
 							Object value = dataChangeJSON.get(VALUE_KEY);
 
 							if (foundset != null)
