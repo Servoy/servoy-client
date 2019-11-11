@@ -12,8 +12,6 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.property,
  com.servoy.j2db.server.ngclient.property.types,
  com.servoy.j2db.server.ngclient.scripting,
- com.servoy.j2db.server.ngclient.startup,
- com.servoy.j2db.server.ngclient.startup.resourceprovider,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
@@ -36,8 +34,6 @@ Import-Package: javax.servlet,
  javax.servlet.annotation,
  javax.servlet.http,
  javax.websocket,
- javax.websocket.server,
- org.osgi.framework
-Bundle-Activator: com.servoy.j2db.server.ngclient.startup.Activator
+ javax.websocket.server
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: servoy_ngclient
