@@ -1372,11 +1372,21 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        
 							            return lastValue;
 							        }, (newValue) => {
-	                                    createRows();
+										createRows();
+										if(scope.selectionClass) {
+											$timeout(function() {
+												updateSelection(getFoundset().selectedRowIndexes);
+											}, 0);	
+										}
 							        });
 						}
 						else {
 							createRows();
+							if(scope.selectionClass) {
+								$timeout(function() {
+									updateSelection(getFoundset().selectedRowIndexes);
+								}, 0);	
+							}
 						}
 					}
 			}
