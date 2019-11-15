@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -550,7 +551,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 		else if (columnType == null)
 		{
-			if (value instanceof Date && !(value instanceof Timestamp))
+			if (value instanceof Date && !(value instanceof Timestamp) && !(value instanceof Time))
 			{
 				// make sure a date is a timestamp
 				val = new Timestamp(((Date)value).getTime());

@@ -86,7 +86,7 @@ public class QBParameters extends DefaultScope
 	@Override
 	public void put(String name, Scriptable start, Object val)
 	{
-		// the parameter has to be created first using QBSelect.getParameter(), otherwise the parameter value is not RAGTEST
+		// the parameter has to be created first using QBSelect.getParameter(), otherwise the parameter value is not defined yet
 		QBParameter parameter = (QBParameter)allVars.get(name);
 		if (parameter != null)
 		{

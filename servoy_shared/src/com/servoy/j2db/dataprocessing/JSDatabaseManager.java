@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -1036,17 +1037,18 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			for (int i = 0; i < arguments.length; i++)
 			{
-				if (arguments[i] instanceof java.util.Date)
+				Object arg = arguments[i];
+				if (arg instanceof java.util.Date && !(arg instanceof Timestamp) && !(arg instanceof Time))
 				{
-					arguments[i] = new Timestamp(((java.util.Date)arguments[i]).getTime());
+					arguments[i] = new Timestamp(((java.util.Date)arg).getTime());
 				}
-				else if (arguments[i] instanceof DbIdentValue && ((DbIdentValue)arguments[i]).getPkValue() == null)
+				else if (arg instanceof DbIdentValue && ((DbIdentValue)arg).getPkValue() == null)
 				{
 					application.reportJSError("Custom query: " + sql_query + //$NON-NLS-1$
 						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
 					return false;
 				}
-				else if (arguments[i] == null)
+				else if (arg == null)
 				{
 					arguments[i] = ValueFactory.createNullValue(Types.OTHER);
 				}
@@ -1087,16 +1089,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						" not executed because not all arguments have been set: " + placeholder.getKey(), null); //$NON-NLS-1$
 					return false;
 				}
-				if (placeholder.getValue() instanceof DbIdentValue && ((DbIdentValue)placeholder.getValue()).getPkValue() == null)
+				Object value = placeholder.getValue();
+				if (value instanceof DbIdentValue && ((DbIdentValue)value).getPkValue() == null)
 				{
 					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
 						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
 					return false;
 				}
 
-				if (placeholder.getValue() instanceof java.util.Date)
+				if (value instanceof java.util.Date && !(value instanceof Timestamp) && !(value instanceof Time))
 				{
-					placeholder.setValue(new Timestamp(((java.util.Date)placeholder.getValue()).getTime()));
+					placeholder.setValue(new Timestamp(((java.util.Date)value).getTime()));
 				}
 			}
 		}
