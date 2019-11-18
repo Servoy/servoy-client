@@ -37,6 +37,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
@@ -49,47 +50,85 @@ import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
  */
 public class FormComponentSabloValue implements ISmartPropertyValue
 {
-	private final ComponentTypeSabloValue[] components;
 	private final Form form;
-	private final FormComponentCache cache;
 	private final String elementStartName;
+	private final INGFormElement formElement;
+	private final JSONObject formElementValue;
+	private final PropertyDescription pd;
+	private final DataAdapterList dal;
+	private final WebFormComponent component;
 
-	public FormComponentSabloValue(List<FormElement> elements, PropertyDescription pd, DataAdapterList dal, WebFormComponent component, Form form,
-		FormComponentCache cache)
+	private FormComponentCache currentFormComponentCache;
+	private ComponentTypeSabloValue[] components;
+
+	public FormComponentSabloValue(INGFormElement formElement, JSONObject formElementValue, PropertyDescription pd, DataAdapterList dal,
+		WebFormComponent component, Form form)
 	{
 		this.form = form;
-		this.cache = cache;
-		this.components = new ComponentTypeSabloValue[elements.size()];
+		this.formElement = formElement;
+		this.formElementValue = formElementValue;
+		this.pd = pd;
+		this.dal = dal;
+		this.component = component;
 		this.elementStartName = FormElementHelper.getStartElementName(component.getFormElement(), pd);
-		PropertyPath path = new PropertyPath();
-		path.add(component.getName());
-		path.add("containedForm");
-		path.add("childElements");
-		JSONObject tags = new JSONObject();
-		tags.put(ComponentTypeSabloValue.TAG_ADD_TO_ELEMENTS_SCOPE, true);
-		PropertyDescription compPd = new PropertyDescriptionBuilder().withName(pd.getName()).withType(ComponentPropertyType.INSTANCE).withConfig(
-			pd.getConfig()).withTags(tags).build();
-		int j = 0;
-		for (int i = 0; i < components.length; i++)
-		{
-			FormElement element = elements.get(i);
-			path.add(j);
-			ComponentTypeFormElementValue elementValue = ComponentPropertyType.INSTANCE.getFormElementValue(null, compPd, path, element,
-				dal.getApplication().getFlattenedSolution());
-			ComponentTypeSabloValue ctsv = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, element, component, dal);
-			if (ctsv != null) components[j++] = ctsv; // if it is null then it is probably a child component that was blocked by security (visibility == false); in that case just ignore it (similar to what portal does through .spec setting on comp. array to ignore null values at runtime)
-			path.backOneLevel();
-		}
 	}
 
 	public FormComponentCache getCache()
 	{
-		return cache;
+		return FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, formElementValue, form, dal.getApplication().getFlattenedSolution());
 	}
+
+	private ComponentTypeSabloValue[] getComponents()
+	{
+		FormComponentCache formComponentCache = getCache();
+		if (currentFormComponentCache != formComponentCache)
+		{
+			List<FormElement> elements = formComponentCache.getFormComponentElements();
+			components = new ComponentTypeSabloValue[elements.size()];
+
+			PropertyPath path = new PropertyPath();
+			path.add(component.getName());
+			path.add("containedForm");
+			path.add("childElements");
+			JSONObject tags = new JSONObject();
+			tags.put(ComponentTypeSabloValue.TAG_ADD_TO_ELEMENTS_SCOPE, true);
+			PropertyDescription compPd = new PropertyDescriptionBuilder().withName(pd.getName()).withType(ComponentPropertyType.INSTANCE).withConfig(
+				pd.getConfig()).withTags(tags).build();
+			int j = 0;
+			for (int i = 0; i < components.length; i++)
+			{
+				FormElement element = elements.get(i);
+				path.add(j);
+				ComponentTypeFormElementValue elementValue = ComponentPropertyType.INSTANCE.getFormElementValue(null, compPd, path, element,
+					dal.getApplication().getFlattenedSolution());
+				ComponentTypeSabloValue ctsv = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, element, component, dal);
+				if (ctsv != null) components[j++] = ctsv; // if it is null then it is probably a child component that was blocked by security (visibility == false); in that case just ignore it (similar to what portal does through .spec setting on comp. array to ignore null values at runtime)
+				path.backOneLevel();
+			}
+
+			// re-attach
+			if (currentFormComponentCache != null && changeMonitor != null && webObjectContext != null)
+			{
+				for (ComponentTypeSabloValue componentTypeSabloValue : components)
+				{
+					componentTypeSabloValue.attachToBaseObject(changeMonitor, webObjectContext);
+				}
+
+			}
+			currentFormComponentCache = formComponentCache;
+		}
+		return components;
+	}
+
+	private IChangeListener changeMonitor;
+	private IWebObjectContext webObjectContext;
 
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
 	{
+		this.changeMonitor = changeMonitor;
+		this.webObjectContext = webObjectContext;
+		ComponentTypeSabloValue[] components = getComponents();
 		for (ComponentTypeSabloValue componentTypeSabloValue : components)
 		{
 			componentTypeSabloValue.attachToBaseObject(changeMonitor, webObjectContext);
@@ -99,6 +138,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 	@Override
 	public void detach()
 	{
+		ComponentTypeSabloValue[] components = getComponents();
 		for (ComponentTypeSabloValue componentTypeSabloValue : components)
 		{
 			componentTypeSabloValue.detach();
@@ -111,7 +151,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		clientConversion.convert("formcomponent");
 		writer.object();
 		writer.key("uuid");
-		writer.value(cache.getHtmlTemplateUUIDForAngular());
+		writer.value(getCache().getHtmlTemplateUUIDForAngular());
 		writer.key("formHeight");
 		writer.value(form.getSize().height);
 		writer.key("formWidth");
@@ -126,6 +166,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.array();
 		DataConversion componentConversionMarkers = new DataConversion();
 		componentConversionMarkers.pushNode("childElements");
+		ComponentTypeSabloValue[] components = getComponents();
 		for (int i = 0; i < components.length; i++)
 		{
 			componentConversionMarkers.pushNode(String.valueOf(i));
@@ -148,6 +189,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 	 */
 	public void browserUpdatesReceived(JSONArray array)
 	{
+		ComponentTypeSabloValue[] components = getComponents();
 		for (int i = 0; i < array.length(); i++)
 		{
 			Object comp = array.get(i);
@@ -163,6 +205,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.array();
 		DataConversion componentConversionMarkers = new DataConversion();
 		componentConversionMarkers.pushNode("childElements");
+		ComponentTypeSabloValue[] components = getComponents();
 		for (int i = 0; i < components.length; i++)
 		{
 			componentConversionMarkers.pushNode(String.valueOf(i));
