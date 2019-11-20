@@ -122,6 +122,23 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 					sDate = sDateBuilder.toString();
 				}
 			}
+			else if (sDate.indexOf('-') != -1)
+			{
+				// handle timezone with -
+				int index = sDate.lastIndexOf('-');
+				int timeIndex = sDate.indexOf('T');
+				if (index > timeIndex)
+				{
+					String offset = sDate.substring(index + 1);
+					String[] offsetParts = offset.split(":");
+					if (offsetParts.length > 2) // seconds in offset, cut it, as it can't be handled in js
+					{
+						StringBuilder sDateBuilder = new StringBuilder(sDate.substring(0, index)).append('-');
+						sDateBuilder.append(offsetParts[0]).append(':').append(offsetParts[1]);
+						sDate = sDateBuilder.toString();
+					}
+				}
+			}
 		}
 
 		return writer.value(sDate);

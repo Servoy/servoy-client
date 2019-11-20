@@ -4,6 +4,7 @@ import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
@@ -73,6 +74,9 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
+import ua_parser.Parser;
+import ua_parser.UserAgent;
+
 /**
  * Filter and entrypoint for webapp
  * @author jcompagner
@@ -140,6 +144,21 @@ public class NGClientEntryFilter extends WebEntry
 	private String group_id;
 
 	private final JSTemplateGenerator jsTemplateGenerator = new JSTemplateGenerator();
+
+	private static final Parser USER_AGENT_PARSER;
+
+	static
+	{
+		try
+		{
+			USER_AGENT_PARSER = new Parser();
+		}
+		catch (IOException e)
+		{
+			// should not happen, default config should always be found
+			throw new RuntimeException(e);
+		}
+	}
 
 	public NGClientEntryFilter()
 	{
@@ -236,7 +255,7 @@ public class NGClientEntryFilter extends WebEntry
 	private Collection<String> getFormScriptReferences(FlattenedSolution fs)
 	{
 		List<String> formScripts = new ArrayList<>();
-		if (Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue()) // RAGTEST
+		if (Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
 		{
 			Iterator<Form> it = fs.getForms(false);
 			while (it.hasNext())
@@ -353,8 +372,7 @@ public class NGClientEntryFilter extends WebEntry
 							addHeadIndexContributions(fs, extraMeta);
 
 							super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS), new ArrayList<String>(getFormScriptReferences(fs)),
-								extraMeta, variableSubstitution,
-								getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")));
+								extraMeta, variableSubstitution, shouldSetContentSecurityPolicy(request));
 							return;
 						}
 						finally
@@ -377,6 +395,63 @@ public class NGClientEntryFilter extends WebEntry
 			Debug.error(e);
 			throw e;
 		}
+	}
+
+	/**
+	 * Should the Content-Security-Policy tag be added to the index page?
+	 *
+	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
+	 */
+	private boolean shouldSetContentSecurityPolicy(HttpServletRequest request)
+	{
+		if (!getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
+		{
+			return false;
+		}
+
+		String userAgentHeader = request.getHeader("user-agent");
+		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
+
+		return supportsContentSecurityPolicyLevel3(userAgent);
+	}
+
+	/** Does the CSP level 3, specifically strict-dynamic.
+	 *
+	 * @see <a href="https://caniuse.com/#feat=mdn-http_headers_csp_content-security-policy_strict-dynamic">caniuse.com</a>
+	 */
+	private boolean supportsContentSecurityPolicyLevel3(UserAgent userAgent)
+	{
+		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && parseInt(userAgent.major) >= 52)
+		{
+			return true;
+		}
+		if ("Firefox".equals(userAgent.family) && parseInt(userAgent.major) >= 52)
+		{
+			return true;
+		}
+		if ("Edge".equals(userAgent.family) && parseInt(userAgent.major) >= 74) // Chromium-based
+		{
+			return true;
+		}
+		if ("Opera".equals(userAgent.family) && parseInt(userAgent.major) >= 39)
+		{
+			return true;
+		}
+		if ("Chrome Mobile WebView".equals(userAgent.family) && parseInt(userAgent.major) >= 76)
+		{
+			return true;
+		}
+		if ("Opera Mini".equals(userAgent.family) && parseInt(userAgent.major) >= 46)
+		{
+			return true;
+		}
+		if ("Samsung Internet".equals(userAgent.family) &&
+			(parseInt(userAgent.major) > 6 || (parseInt(userAgent.major) == 6 && parseInt(userAgent.minor) >= 2)))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	private void addManifest(FlattenedSolution fs, List<String> extraMeta)
@@ -666,6 +741,7 @@ public class NGClientEntryFilter extends WebEntry
 		variableSubstitution.put("contextPath", Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/'));
 		variableSubstitution.put("pathname", request.getRequestURI());
 		variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
+		variableSubstitution.put("nonce", HTTPUtils.getNonce(request));
 		String titleText = fs.getSolution().getTitleText();
 		if (StringUtils.isBlank(titleText))
 		{

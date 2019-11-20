@@ -8,11 +8,11 @@
 		<link rel="icon" href="favicon32x32.png" sizes="32x32" type="image/png"/>
 		<link rel="icon" href="favicon192x192.png" sizes="192x192" type="image/png"/>
 		<title ng-bind="solutionSettings.solutionTitle">##solutionTitle##</title>
-		<script src="solutions/##solution##/##clientnr##/main/setmodule.js"></script>
+		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/setmodule.js"></script>
 		<!-- component_contributions -->
 		<link ng-repeat="path in solutionSettings.styleSheetPaths" rel="stylesheet" ng-href='{{path}}'>
-		<script src="solutions/##solution##/##clientnr##/main/browsercheck.js"></script>
-		<script src="solutions/##solution##/##clientnr##/main/startup.js"></script>
+		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/browsercheck.js"></script>
+		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/startup.js"></script>
 	</head>
 	
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">

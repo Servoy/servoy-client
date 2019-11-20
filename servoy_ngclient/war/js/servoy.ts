@@ -1152,6 +1152,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						updateChildElementsAPI(newValue[0]);
 					}
 
+					function createRowsAndSetSelection() {
+						createRows();
+						var selectedRowsIndexes = getFoundset().selectedRowIndexes; 
+						if(selectedRowsIndexes.length && scope.selectionClass) {
+							updateSelection(selectedRowsIndexes);
+						}
+					}
+
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
 						&& scope.svyFormComponent && scope.svyFormComponent.childElements ) {
 						element.empty();
@@ -1372,11 +1380,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        
 							            return lastValue;
 							        }, (newValue) => {
-	                                    createRows();
+										createRowsAndSetSelection();
 							        });
 						}
 						else {
-							createRows();
+							createRowsAndSetSelection();
 						}
 					}
 			}

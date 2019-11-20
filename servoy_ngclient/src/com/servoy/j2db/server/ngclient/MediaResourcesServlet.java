@@ -450,6 +450,7 @@ public class MediaResourcesServlet extends HttpServlet
 						}
 						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
 						ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory(tempFileThreshold, fileUploadDir));
+						upload.setHeaderEncoding("UTF-8");
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
 						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
