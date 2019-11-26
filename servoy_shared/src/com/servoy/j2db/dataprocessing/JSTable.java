@@ -135,7 +135,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 		if (table.getServerName().equals(IServer.INMEM_SERVER))
 		{
 			return Arrays.stream(table.getDataProviderIDs()) //
-				.filter(name -> !"_sv_rowid".equals(name)) //
+				.filter(name -> !Column._SV_ROWID.equals(name)) //
 				.toArray(String[]::new);
 		}
 		return table.getDataProviderIDs();
@@ -240,7 +240,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -256,7 +256,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

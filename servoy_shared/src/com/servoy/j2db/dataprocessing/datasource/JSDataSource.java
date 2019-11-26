@@ -25,6 +25,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.JSTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -145,7 +146,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 			if (datasource.startsWith(DataSourceUtils.INMEM_DATASOURCE_SCHEME_COLON))
 			{
 				return Arrays.stream(application.getFoundSetManager().getTable(datasource).getDataProviderIDs()) //
-					.filter(name -> !"_sv_rowid".equals(name)) //
+					.filter(name -> !Column._SV_ROWID.equals(name)) //
 					.toArray(String[]::new);
 			}
 			return application.getFoundSetManager().getTable(datasource).getDataProviderIDs();
