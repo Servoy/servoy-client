@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mozilla.javascript.Wrapper;
@@ -121,6 +122,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 
 	/**
 	 * Returns an array containing the names of all table columns.
+	 * If the table is in mem, then the internal rowid column name is not returned.
 	 *
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
@@ -130,11 +132,18 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 */
 	public String[] js_getColumnNames()
 	{
+		if (table.getServerName().equals(IServer.INMEM_SERVER))
+		{
+			return Arrays.stream(table.getDataProviderIDs()) //
+				.filter(name -> !"_sv_rowid".equals(name)) //
+				.toArray(String[]::new);
+		}
 		return table.getDataProviderIDs();
 	}
 
 	/**
 	 * Returns an array containing the names of the identifier (PK) column(s).
+	 *  Please note that if the table is in mem, then the internal rowid column name is also returned.
 	 *
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
