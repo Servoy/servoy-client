@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import org.slf4j.Logger;
+
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
@@ -22,16 +24,19 @@ public class PerformanceData extends PerformanceAggregator
 	// is closed sub-actions might still happen and they need to point to the correct parent action
 	private final Stack<UUID> startedTimingUUIDsStack = new Stack<>();
 
-	public PerformanceData(int maxEntriesToKeep)
+	private final Logger log;
+
+	public PerformanceData(int maxEntriesToKeep, Logger log)
 	{
 		super(maxEntriesToKeep);
+		this.log = log;
 	}
 
 	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
-		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep);
+		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log);
 		startedTimingUUIDsStack.push(timing.getUuid());
 		startedTimings.put(timing.getUuid(), timing);
 		return timing.getUuid();
@@ -55,7 +60,14 @@ public class PerformanceData extends PerformanceAggregator
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 
 		PerformanceTiming timing = startedTimings.remove(uuid);
-		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());
+		if (timing != null)
+		{
+			if (log != null && log.isInfoEnabled())
+			{
+				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
+			}
+			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());
+		}
 		startedTimingUUIDsStack.pop();
 	}
 
