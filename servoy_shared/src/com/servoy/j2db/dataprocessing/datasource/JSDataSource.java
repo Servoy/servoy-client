@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.dataprocessing.datasource;
 
+import java.util.Arrays;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
@@ -28,6 +30,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
@@ -139,6 +142,12 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	{
 		try
 		{
+			if (datasource.startsWith(DataSourceUtils.INMEM_DATASOURCE_SCHEME_COLON))
+			{
+				return Arrays.stream(application.getFoundSetManager().getTable(datasource).getDataProviderIDs()) //
+					.filter(name -> !"_sv_rowid".equals(name)) //
+					.toArray(String[]::new);
+			}
 			return application.getFoundSetManager().getTable(datasource).getDataProviderIDs();
 		}
 		catch (RepositoryException e)
