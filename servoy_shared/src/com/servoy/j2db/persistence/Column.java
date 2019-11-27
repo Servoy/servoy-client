@@ -1324,6 +1324,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 * It can happen when developers load existing table/columns from the db, that they contain reserved word for other dbs
 	 */
 	private transient Boolean hasBadName = null;
+	public static final String _SV_ROWID = "_sv_rowid";
 
 	public boolean hasBadNaming(boolean isMobile)
 	{

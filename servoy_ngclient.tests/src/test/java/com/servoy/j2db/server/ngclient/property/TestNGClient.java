@@ -528,7 +528,7 @@ public class TestNGClient extends NGClient
 							@Override
 							public PerformanceData getPerformanceData(String context)
 							{
-								return new PerformanceData(PerformanceAggregator.DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
+								return new PerformanceData(PerformanceAggregator.DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION, null);
 							}
 
 							@Override

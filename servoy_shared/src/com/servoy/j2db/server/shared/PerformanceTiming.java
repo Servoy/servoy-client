@@ -19,6 +19,8 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.util.UUID;
 
@@ -38,9 +40,9 @@ public class PerformanceTiming extends PerformanceData
 	private long interval_ms;
 	private final String clientUUID;
 
-	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep)
+	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log)
 	{
-		super(maxEntriesToKeep);
+		super(maxEntriesToKeep, log);
 
 		this.uuid = UUID.randomUUID();
 		this.action = action;
