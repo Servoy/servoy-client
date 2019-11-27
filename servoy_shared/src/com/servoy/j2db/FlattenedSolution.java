@@ -349,6 +349,22 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	protected ISolutionModelPersistIndex getIndex()
 	{
+		if (index == null && mainSolution != null && loginFlattenedSolution == null)
+		{
+			index = createPersistIndex();
+
+			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
+			Iterator<Form> it = getForms(false);
+			while (it.hasNext())
+			{
+				Form childForm = it.next();
+				if (childForm.getExtendsID() > 0)
+				{
+					childForm.setExtendsForm(getForm(childForm.getExtendsID()));
+				}
+			}
+
+		}
 		return index != null ? index : loginFlattenedSolution != null ? loginFlattenedSolution.getIndex() : new EmptyPersistIndex();
 	}
 
@@ -659,9 +675,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				if (referencedModules != null && referencedModules.size() != 0)
 				{
 					List<RootObjectMetaData> solutionAndModuleMetaDatas = new ArrayList<RootObjectMetaData>();
-					for (int idx = 0; idx < referencedModules.size(); idx++)
+					for (RootObjectReference moduleReference : referencedModules)
 					{
-						RootObjectReference moduleReference = referencedModules.get(idx);
 						RootObjectMetaData moduleMetaData = moduleReference.getMetaData();
 						if (moduleMetaData == null)
 						{
@@ -746,18 +761,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 		// everything loaded, let the index be created.
-		if (index != null) index.destroy();
-		index = createPersistIndex();
-
-		// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
-		Iterator<Form> it = getForms(false);
-		while (it.hasNext())
+		if (index != null)
 		{
-			Form childForm = it.next();
-			if (childForm.getExtendsID() > 0)
-			{
-				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
-			}
+			index.destroy();
+			index = null;
 		}
 	}
 
@@ -3032,7 +3039,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		if (form != null)
 		{
-			deletePersistCopy(form,true);
+			deletePersistCopy(form, true);
 			form = getForm(name);
 			if (form != null) registerChangedForm(form);
 		}
