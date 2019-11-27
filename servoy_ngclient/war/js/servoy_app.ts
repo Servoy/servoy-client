@@ -1362,7 +1362,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		setLocale : function(language, country, initializing) {
 			try{
-				console.error('lang:' + language +', country: ' + country);
 				$translate.refresh();
 				$svyI18NService.flush();
 				this.setAngularLocale(language);
