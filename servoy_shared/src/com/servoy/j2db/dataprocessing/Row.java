@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
+import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -642,7 +643,13 @@ public class Row
 				{
 					for (int i = 0; i < oldValues.length; i++)
 					{
-						if (!Utils.equalObjects(oldValues[i], array[i]))
+						// if the oldValue is still a blobmarker value
+						// just replace it..
+						if (oldValues[i] instanceof BlobMarkerValue && Utils.equalObjects(((BlobMarkerValue)oldValues[i]).getCachedData(), array[i]))
+						{
+							oldValues[i] = array[i];
+						}
+						else if (!Utils.equalObjects(oldValues[i], array[i]))
 						{
 							columndata[i] = array[i];
 							changedColumns.put(columnNames[i], array[i]);
