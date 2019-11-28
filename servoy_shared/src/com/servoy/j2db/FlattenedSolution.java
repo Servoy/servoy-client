@@ -349,7 +349,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	protected ISolutionModelPersistIndex getIndex()
 	{
-		if (index == null && mainSolution != null && loginFlattenedSolution == null)
+		if (index == null && mainSolution != null)
 		{
 			index = createPersistIndex();
 
