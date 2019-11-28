@@ -251,7 +251,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the day of month.
+	 * Gets the day of month in local time
 	 *
 	 * @sample date.getDate();
 	 *
@@ -264,7 +264,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the day of the week (sunday = 0).
+	 * Gets the day of the week (sunday = 0) in local time
 	 *
 	 * @sample date.getDay();
 	 *
@@ -277,7 +277,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the full year of the date.
+	 * Gets the full year of the date in local time
 	 *
 	 * @sample date.getFullYear();
 	 *
@@ -290,7 +290,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the hours of the date.
+	 * Gets the hours of the date in local time
 	 *
 	 * @sample date.getHours();
 	 *
@@ -303,7 +303,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the milliseconds of the date.
+	 * Gets the milliseconds of the date in local time
 	 *
 	 * @sample date.getMilliseconds();
 	 *
@@ -316,7 +316,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the minutes of the date.
+	 * Gets the minutes of the date in local time
 	 *
 	 * @sample date.getMinutes();
 	 *
@@ -329,7 +329,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the month of the date.
+	 * Gets the month of the date in local time
 	 *
 	 * @sample date.getMonth();
 	 *
@@ -342,7 +342,7 @@ public class Date
 	}
 
 	/**
-	 * Gets the seconds of the date.
+	 * Gets the seconds of the date in local time
 	 *
 	 * @sample date.getSeconds();
 	 *
