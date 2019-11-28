@@ -11,10 +11,10 @@
 		    <div class="window-body">
 		    	 <div ng-if="win.navigatorForm.name" ng-style="{'width':win.navigatorForm.size.width+'px'}"
 					  ng-include="getNavigatorFormUrl()" unwanted-dialog-scrollbars-workaround></div>
-				 <div id="tabStart" sablo-tabseq='1' ng-focus="firstElementFocused()"></div>
+				 <div id="tabStart" sablo-tabseq='1' ng-focus="firstElementFocused($event)"></div>
 		    	 <div sablo-tabseq='2' sablo-tabseq-config="{container: true}" ng-include="getFormUrl()"  
 		    	      ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':win.navigatorForm.size.width+'px'}" unwanted-dialog-scrollbars-workaround></div>
-				 <div id="tabStop" sablo-tabseq='3' ng-focus="lastElementFocused()"></div>	    	 
+				 <div id="tabStop" sablo-tabseq='3' ng-focus="lastElementFocused($event)"></div>	    	 
 		    </div>    
 			<div class="window-footer"
 				 ng-style="::{'display':isUndecorated()? 'none':'block'}"></div>
