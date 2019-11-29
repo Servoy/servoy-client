@@ -55,7 +55,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		CREATED, UPDATED, REMOVED
 	}
 
-	protected final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>(128);
 	protected final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
 	// caches per persist class a map of Name->Persist (we assume that is unique!)
 	protected final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> nameToPersist = new ConcurrentHashMap<>();
@@ -96,7 +96,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		ConcurrentMap<String, IPersist> classToList = nameToPersist.get(persistClass);
 		if (classToList == null)
 		{
-			final ConcurrentMap<String, IPersist> tmp = new ConcurrentHashMap<>();
+			final ConcurrentMap<String, IPersist> tmp = new ConcurrentHashMap<>(128);
 			if (ISupportName.class.isAssignableFrom(persistClass))
 			{
 				visit((persist) -> {
@@ -193,7 +193,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 					Map<String, ISupportScope> scopeMap = scopeCacheByName.get(scopeName);
 					if (scopeMap == null)
 					{
-						Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>());
+						Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>(128));
 						if (prev != null) scopeMap = prev;
 					}
 					scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
@@ -222,7 +222,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
 		if (cacheById == null)
 		{
-			cacheById = new IntHashMap<>();
+			cacheById = new IntHashMap<>(128);
 			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
 			if (currentValue != null) cacheById = currentValue;
 		}

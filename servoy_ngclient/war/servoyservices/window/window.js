@@ -143,12 +143,22 @@ angular.module('window',['servoy'])
 			};
 			
 			scope.lastElementFocused = function( e ) {
-				$( '[tabindex=2]' ).focus();
+				var newTarget = $( '[tabindex=2]' );
+				// if there is no focusable element in the popup, then newTarget == e.target,
+				// do a check here to avoid focus cycling
+				if(e.target != newTarget[0]) {
+					newTarget.focus();
+				}				
 			}
 			
 			scope.firstElementFocused =  function( e ) {
 				var tabIndex = parseInt( this.popupElement.closest( '#tabStop' ).attr( 'tabindex' ) );
-				$( '[tabindex=' + ( tabIndex - 1 ) + ']' ).focus();
+				var newTarget = $( '[tabindex=' + ( tabIndex - 1 ) + ']' );
+				// if there is no focusable element in the popup, then newTarget == e.target,
+				// do a check here to avoid focus cycling
+				if(e.target != newTarget[0]) {
+					newTarget.focus();
+				}
 			}
 			
 			function getElementById(id)
@@ -282,7 +292,7 @@ angular.module('window',['servoy'])
 				}
 				style+= 'left:'+left+'px;';
 				style+= 'top:'+top+'px;';
-				var popup = $compile('<div id="tabStart" sablo-tabseq="1" ng-focus="firstElementFocused()"></div><div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" sablo-tabseq="2" sablo-tabseq-config="{container: true}"></div><div id="tabStop" sablo-tabseq="3" ng-focus="lastElementFocused()"></div>')(scope);
+				var popup = $compile('<div id="tabStart" sablo-tabseq="1" ng-focus="firstElementFocused($event)"></div><div id=\'formpopup\' style="'+style+'" svyform="'+form +'"ng-include="getFormUrl()" onload="loadSize()" sablo-tabseq="2" sablo-tabseq-config="{container: true}"></div><div id="tabStop" sablo-tabseq="3" ng-focus="lastElementFocused($event)"></div>')(scope);
 				scope.popupElement = popup;
 				$timeout(function(){
 					body.on('mouseup',formPopupBodyListener);

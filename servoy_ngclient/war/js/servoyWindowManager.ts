@@ -13,12 +13,22 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			restrict: 'A',
 			link: function( scope, element, attrs ) {
 				scope['lastElementFocused'] = function( e ) {
-					$( '[tabindex=2]' ).focus();
+					var newTarget = $( '[tabindex=2]' );
+					// if there is no focusable element in the window, then newTarget == e.target,
+					// do a check here to avoid focus cycling
+					if(e.target != newTarget[0]) {
+						newTarget.focus();
+					}
 				}
 
 				scope['firstElementFocused'] = function( e ) {
 					var tabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
-					$( '[tabindex=' + ( tabIndex - 1 ) + ']' ).focus();
+					var newTarget = $( '[tabindex=' + ( tabIndex - 1 ) + ']' );
+					// if there is no focusable element in the window, then newTarget == e.target,
+					// do a check here to avoid focus cycling
+					if(e.target != newTarget[0]) {
+						newTarget.focus();
+					}
 				}
 			}
 		};

@@ -126,14 +126,14 @@ public class WebComponentSpecTest
 		WebServiceSpecProvider.init(new IPackageReader[0]);
 
 
-		Object[] contributions = IndexPageEnhancer.getAllContributions(null, null, null);
+		Object[] contributions = IndexPageEnhancer.getAllContributions(null, null, null, null);
 
 		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
 		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
 
 		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.5.8/angular-animate.js"));
 
-		contributions = IndexPageEnhancer.getAllContributions(null, null, NGClientEntryFilter.CONTRIBUTION_ENTRY_FILTER);
+		contributions = IndexPageEnhancer.getAllContributions(null, null, null, NGClientEntryFilter.CONTRIBUTION_ENTRY_FILTER);
 
 		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
 		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
