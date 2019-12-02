@@ -1160,6 +1160,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
+	 * Get the table used.
+	 *
+	 * @return JSTable table
+	 */
+	@JSFunction
+	public JSTable js_getTable() throws ServoyException
+	{
+		ITable table = getTable();
+		if (table != null)
+		{
+			return new JSTable(table, fsm.getApplication().getSolution().getServer(table.getServerName()));
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the relation name (null if not a related foundset).
 	 *
 	 * @sample var relName = %%prefix%%foundset.getRelationName();
@@ -5853,9 +5869,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (aggregatesToRemove.size() > 0)
 		{
-			for (int i = 0; i < aggregatesToRemove.size(); i++)
+			for (String aggregate : aggregatesToRemove)
 			{
-				String aggregate = aggregatesToRemove.get(i);
 				aggregateCache.remove(aggregate);
 				fireAggregateModificationEvent(aggregate, null);
 			}
@@ -5873,10 +5888,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// if it is already a full flush (invalidate_foundset) don't do anything.
 		if (indexen != null && indexen[0] < 0 && indexen[1] < 0) return;
 
-		for (int i = 0; i < records.size(); i++)
+		for (Record record : records)
 		{
-			Record record = records.get(i);
-
 			int recordIndex = pksAndRecords.getCachedRecords().indexOf(record);
 			if (recordIndex != -1)
 			{
@@ -6372,9 +6385,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		int counter = 0;
 		SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
-		for (int i = 0; i < cachedRecords.size(); i++)
+		for (IRecordInternal cachedRecord : cachedRecords)
 		{
-			if (cachedRecords.get(i) != null)
+			if (cachedRecord != null)
 			{
 				counter++;
 			}
