@@ -22,6 +22,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -706,6 +707,16 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public BaseColumnType getColumnType()
 	{
 		return getQuerySelectValue().getColumnType();
+	}
+
+	/**
+	 * Column type as a string
+	 */
+	@JSFunction
+	public String getTypeAsString()
+	{
+		BaseColumnType columnType = getColumnType();
+		return columnType != null ? Column.getDisplayTypeString(columnType.getSqlType()) : null;
 	}
 
 	/**

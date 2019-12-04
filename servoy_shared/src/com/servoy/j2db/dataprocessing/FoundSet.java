@@ -1160,22 +1160,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Get the table used.
-	 *
-	 * @return JSTable table
-	 */
-	@JSFunction
-	public JSTable js_getTable() throws ServoyException
-	{
-		ITable table = getTable();
-		if (table != null)
-		{
-			return new JSTable(table, fsm.getApplication().getSolution().getServer(table.getServerName()));
-		}
-		return null;
-	}
-
-	/**
 	 * Gets the relation name (null if not a related foundset).
 	 *
 	 * @sample var relName = %%prefix%%foundset.getRelationName();
