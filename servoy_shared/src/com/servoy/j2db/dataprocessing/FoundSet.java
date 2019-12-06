@@ -148,10 +148,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	public final String RECORD_IS_LOCKED;
-	public final String NO_RECORD;
-	public final String NO_ACCESS;
-
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
 	protected boolean findMode = false;
@@ -212,10 +208,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize);
 		relationName = relation_name;
 		this.sheet = sheet;
-
-		RECORD_IS_LOCKED = fsm.getApplication().getI18NMessage("servoy.foundSet.recordLocked"); //$NON-NLS-1$
-		NO_RECORD = fsm.getApplication().getI18NMessage("servoy.foundSet.noRecord"); //$NON-NLS-1$
-		NO_ACCESS = fsm.getApplication().getI18NMessage("servoy.foundSet.error.noModifyAccess", new Object[] { getDataSource() }); //$NON-NLS-1$
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
 		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
@@ -5501,11 +5493,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				boolean locked = rec.isLocked();
 				if (locked)
 				{
-					fsm.getApplication().reportWarning(RECORD_IS_LOCKED);
+					fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.recordLocked");
 				}
 				return !locked;
 			}
-			fsm.getApplication().reportWarning(NO_RECORD);
+			fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.noRecord");
 		}
 		else if (hasAccess(IRepository.INSERT))
 		{
@@ -5514,7 +5506,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				return !rec.existInDataSource();
 			}
-			fsm.getApplication().reportWarning(NO_RECORD);
+			fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.noRecord");
 		}
 		return false;
 	}

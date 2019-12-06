@@ -137,6 +137,11 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	}
 
 	@Override
+	public void blockGUII18NMessage(String key, Object... args)
+	{
+	}
+
+	@Override
 	public void releaseGUI()
 	{
 	}

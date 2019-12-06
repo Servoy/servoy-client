@@ -778,7 +778,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			if (f == null) return null;
 			try
 			{
-				application.blockGUI(application.getI18NMessage("servoy.formManager.loadingForm") + formName); //$NON-NLS-1$
+				application.blockGUII18NMessage("servoy.formManager.loadingForm", formName); //$NON-NLS-1$
 
 				f = application.getFlattenedSolution().getFlattenedForm(f, false);
 
