@@ -148,10 +148,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	public final String RECORD_IS_LOCKED;
-	public final String NO_RECORD;
-	public final String NO_ACCESS;
-
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
 	protected boolean findMode = false;
@@ -212,10 +208,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize);
 		relationName = relation_name;
 		this.sheet = sheet;
-
-		RECORD_IS_LOCKED = fsm.getApplication().getI18NMessage("servoy.foundSet.recordLocked"); //$NON-NLS-1$
-		NO_RECORD = fsm.getApplication().getI18NMessage("servoy.foundSet.noRecord"); //$NON-NLS-1$
-		NO_ACCESS = fsm.getApplication().getI18NMessage("servoy.foundSet.error.noModifyAccess", new Object[] { getDataSource() }); //$NON-NLS-1$
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
 		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
@@ -5485,11 +5477,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				boolean locked = rec.isLocked();
 				if (locked)
 				{
-					fsm.getApplication().reportWarning(RECORD_IS_LOCKED);
+					fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.recordLocked");
 				}
 				return !locked;
 			}
-			fsm.getApplication().reportWarning(NO_RECORD);
+			fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.noRecord");
 		}
 		else if (hasAccess(IRepository.INSERT))
 		{
@@ -5498,7 +5490,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				return !rec.existInDataSource();
 			}
-			fsm.getApplication().reportWarning(NO_RECORD);
+			fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.noRecord");
 		}
 		return false;
 	}
@@ -5853,9 +5845,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (aggregatesToRemove.size() > 0)
 		{
-			for (int i = 0; i < aggregatesToRemove.size(); i++)
+			for (String aggregate : aggregatesToRemove)
 			{
-				String aggregate = aggregatesToRemove.get(i);
 				aggregateCache.remove(aggregate);
 				fireAggregateModificationEvent(aggregate, null);
 			}
@@ -5873,10 +5864,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// if it is already a full flush (invalidate_foundset) don't do anything.
 		if (indexen != null && indexen[0] < 0 && indexen[1] < 0) return;
 
-		for (int i = 0; i < records.size(); i++)
+		for (Record record : records)
 		{
-			Record record = records.get(i);
-
 			int recordIndex = pksAndRecords.getCachedRecords().indexOf(record);
 			if (recordIndex != -1)
 			{
@@ -6372,9 +6361,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		int counter = 0;
 		SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
-		for (int i = 0; i < cachedRecords.size(); i++)
+		for (IRecordInternal cachedRecord : cachedRecords)
 		{
-			if (cachedRecords.get(i) != null)
+			if (cachedRecord != null)
 			{
 				counter++;
 			}

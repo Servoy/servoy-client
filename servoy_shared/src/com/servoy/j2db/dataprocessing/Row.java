@@ -455,9 +455,8 @@ public class Row
 		{
 			SQLSheet.SQLDescription desc = parent.getSQLSheet().getSQLDescription(SQLSheet.UPDATE);
 			List<String> list = desc.getOldRequiredDataProviderIDs();
-			for (int i = 0; i < list.size(); i++)
+			for (String array_element : list)
 			{
-				String array_element = list.get(i);
 				if (dataProviderID.equals(array_element))
 				{
 					int columnIndex = parent.getSQLSheet().getColumnIndex(dataProviderID);
@@ -643,13 +642,24 @@ public class Row
 				{
 					for (int i = 0; i < oldValues.length; i++)
 					{
-						// if the oldValue is still a blobmarker value
-						// just replace it..
-						if (oldValues[i] instanceof BlobMarkerValue && Utils.equalObjects(((BlobMarkerValue)oldValues[i]).getCachedData(), array[i]))
+						boolean updateData = false;
+						if (oldValues[i] instanceof BlobMarkerValue)
 						{
-							oldValues[i] = array[i];
+							// if the old value is a blob marker and the cached data != null && does not equal the new data then it is really changed and we need to update columndata
+							// if the cached data is null we assume it is not changed (because it just equals the latest data)
+							byte[] old = ((BlobMarkerValue)oldValues[i]).getCachedData();
+							updateData = old != null && !Utils.equalObjects(old, array[i]);
+							// make sure the new array item is wrapped into a blobmarker, so we dont keep it in memory when assigned to oldValues below.
+							if (array[i] instanceof byte[] || array[i] == null)
+							{
+								array[i] = ValueFactory.createBlobMarkerValue((byte[])array[i]);
+							}
 						}
-						else if (!Utils.equalObjects(oldValues[i], array[i]))
+						else
+						{
+							updateData = !Utils.equalObjects(oldValues[i], array[i]);
+						}
+						if (updateData)
 						{
 							columndata[i] = array[i];
 							changedColumns.put(columnNames[i], array[i]);

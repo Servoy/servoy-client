@@ -518,4 +518,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 				return "<unknown>";
 		}
 	}
+
+	public void blockGUII18NMessage(String key, Object... args);
+
+	default void reportWarningI18NMessage(String key, Object... args)
+	{
+		reportWarning(getI18NMessage(key, args));
+	}
 }

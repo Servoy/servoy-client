@@ -1248,7 +1248,7 @@ ngFileUpload.service('UploadValidate', ['UploadDataUrl', '$q', '$timeout', funct
     var pattern = globStringToRegex(val), valid = true;
     if (pattern.regexp && pattern.regexp.length) {
       var regexp = new RegExp(pattern.regexp, 'i');
-      valid = (file.type != null && regexp.test(file.type)) ||
+      valid = (file.type != null && (regexp.test(file.type) || file.type == '')) ||
         (file.name != null && regexp.test(file.name));
     }
     var len = pattern.excludes.length;

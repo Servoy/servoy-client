@@ -161,6 +161,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			case Types.DATE :
 			case Types.TIME :
 			case Types.TIMESTAMP :
+			case -155 : // MS SQlServer datetimeoffset
 			case 11 ://date?? fix for 'odbc-bridge' and 'inet driver'
 				return DATETIME;
 
@@ -439,30 +440,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
-
-				case Types.TIMESTAMP :
-				case 11 : //date?? fix for 'odbc-bridge' and 'inet driver'
-					if (obj instanceof org.mozilla.javascript.NativeDate)
-					{
-						return new Timestamp(((java.util.Date)((org.mozilla.javascript.NativeDate)obj).unwrap()).getTime());
-					}
-					if (obj instanceof java.util.Date)
-					{
-						return new Timestamp(((java.util.Date)obj).getTime());
-					}
-					if (obj instanceof Number)
-					{
-						return new Timestamp(((Number)obj).longValue());
-					}
-					if (obj instanceof String)
-					{
-						return new Timestamp(getAsTime((String)obj));
-					}
-					if (throwOnFail)
-					{
-						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
-					}
-					return null;
 			}
 
 			switch (mapToDefaultType(type))
@@ -512,6 +489,29 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					if (throwOnFail)
 					{
 						throw new RuntimeException(Messages.getString("servoy.conversion.error.media", new Object[] { obj })); //$NON-NLS-1$
+					}
+					return null;
+
+				case DATETIME :
+					if (obj instanceof org.mozilla.javascript.NativeDate)
+					{
+						return new Timestamp(((java.util.Date)((org.mozilla.javascript.NativeDate)obj).unwrap()).getTime());
+					}
+					if (obj instanceof java.util.Date)
+					{
+						return new Timestamp(((java.util.Date)obj).getTime());
+					}
+					if (obj instanceof Number)
+					{
+						return new Timestamp(((Number)obj).longValue());
+					}
+					if (obj instanceof String)
+					{
+						return new Timestamp(getAsTime((String)obj));
+					}
+					if (throwOnFail)
+					{
+						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
 
