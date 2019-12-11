@@ -12,34 +12,37 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
      	   function createContent() {
      		   $element.empty();
      		   var newValue = $scope.model.containedForm;
-     		   if (newValue) {       			   
-     			   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue);
-     			   var height = $scope.model.height;
-     			   var width = $scope.model.width;
-     			   
-     			   // set the styleClass
-     			   var styleClass = "svy-formcomponent";
-     			   if ($scope.model.styleClass) styleClass += " " + $scope.model.styleClass;
-     			   
-     			   if (newValue.absoluteLayout) {
-	        			   if (!height) height = newValue.formHeight;
-	        			   if (!width) width = newValue.formWidth;
-     			   }
-     			   if (height || width) { 	// is absolute. Why not to use newValue.absoluteLayout !?
-     				   var template = "<div style='position:relative;";
-     				   if (height) template += "height:" +height + "px;"
-     				   if (width) template += "width:" +width + "px;"
-     				   template += "'";
-     				   template += " class='svy-wrapper " + styleClass + "'";
-     				   template += "></div>";
-     				   var div = $compile(template)($scope);
-     				   div.append(elements);
-     				   $element.append(div);
-     			   } else  {	// is responsive
-     				   // add the styleClass to the angular data-x element
-     			   	   if (styleClass) $element.addClass(styleClass);
-     				   $element.append(elements);
-     			   }
+     		   if (newValue) {
+     			   if ($scope.model.visible)
+     			   {
+     				   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue);
+     				   var height = $scope.model.height;
+     				   var width = $scope.model.width;
+
+     				   // set the styleClass
+     				   var styleClass = "svy-formcomponent";
+     				   if ($scope.model.styleClass) styleClass += " " + $scope.model.styleClass;
+
+     				   if (newValue.absoluteLayout) {
+     					   if (!height) height = newValue.formHeight;
+     					   if (!width) width = newValue.formWidth;
+     				   }
+     				   if (height || width) { 	// is absolute. Why not to use newValue.absoluteLayout !?
+     					   var template = "<div style='position:relative;";
+     					   if (height) template += "height:" +height + "px;"
+     					   if (width) template += "width:" +width + "px;"
+     					   template += "'";
+     					   template += " class='svy-wrapper " + styleClass + "'";
+     					   template += "></div>";
+     					   var div = $compile(template)($scope);
+     					   div.append(elements);
+     					   $element.append(div);
+     				   } else  {	// is responsive
+     					   // add the styleClass to the angular data-x element
+     					   if (styleClass) $element.addClass(styleClass);
+     					   $element.append(elements);
+     				   }
+     			   }	   
      		   }
      		   else {
      			   $element.html("<div>FormComponentContainer, select a form</div>");
@@ -48,6 +51,12 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
      	   $scope.$watch("model.containedForm", function() { 
      		  createContent();
      	   });
+     	  $scope.$watch("model.visible", function(newValue,oldValue) {
+  	  		if (newValue !== oldValue)
+  	  		{
+  	  			createContent();	
+			}	
+		  });
      	   if ($scope.svyServoyapi.isInDesigner()) {
      		   var previousWidth = $scope.model.width;
      		   var previousHeigth = $scope.model.height;
