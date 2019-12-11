@@ -10,6 +10,7 @@
 		"containedForm": "formcomponent",
 		"styleClass" : { "type" :"styleclass","default": "svy-formcomponent"},
 		"width" : {"type" :"int", "tags": { "scope" :"design" }},
-		"height" :{"type" :"int", "tags": { "scope" :"design" }}
+		"height" :{"type" :"int", "tags": { "scope" :"design" }},
+		"visible" : "visible"
 	}
 }
