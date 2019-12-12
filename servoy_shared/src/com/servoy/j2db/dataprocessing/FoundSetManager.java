@@ -1876,6 +1876,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return foundset;
 	}
 
+	public String getFoundSetName(IFoundSet foundset)
+	{
+		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
+			if (foundset == entry.getValue().get())
+			{
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		if (dataSource == null || !application.getFlattenedSolution().isMainSolutionLoaded())

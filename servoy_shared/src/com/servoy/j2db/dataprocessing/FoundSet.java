@@ -1991,6 +1991,25 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null, query);
 	}
 
+	/**
+	 * Get foundset name. If foundset is not named foundset or related foundset will return null.
+	 *
+	 * @sample
+	 * var name = foundset.getName()
+	 *
+	 * @return name.
+	 */
+	@JSFunction
+	public String getName()
+	{
+		String name = getRelationName();
+		if (name == null)
+		{
+			name = fsm.getFoundSetName(this);
+		}
+		return name;
+	}
+
 	private boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
 	{
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
