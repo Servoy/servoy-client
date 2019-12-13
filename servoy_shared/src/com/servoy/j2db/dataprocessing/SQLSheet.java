@@ -125,7 +125,7 @@ public class SQLSheet
 		if (columnIndex != -1)
 		{
 			Column c = table.getColumn(dataProviderID);
-			if (c == null) Debug.error("getCalculationOrColumnVariableInfo: Cannot get colum with DP " + dataProviderID + " and columnIndex " + columnIndex +
+			if (c == null) Debug.error("getCalculationOrColumnVariableInfo: Cannot get column with DP " + dataProviderID + " and columnIndex " + columnIndex +
 				" for table " + table.getDataSource());
 			return new VariableInfo(c.getType(), c.getLength(), c.getFlags());
 		}
