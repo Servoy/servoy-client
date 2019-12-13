@@ -48,8 +48,7 @@ public interface IServerInternal
 
 	boolean hasTable(String tableName) throws RepositoryException;
 
-	String[] syncTableObjWithDB(ITable table, boolean createMissingServoySequences, boolean createMissingDBSequences)
-		throws RepositoryException, SQLException;
+	String[] syncTableObjWithDB(ITable table, boolean createMissingServoySequences, boolean createMissingDBSequences) throws RepositoryException, SQLException;
 
 	void syncWithExternalTable(String tableName, Table externalTable) throws RepositoryException;
 
@@ -138,9 +137,9 @@ public interface IServerInternal
 
 	DataSource getDataSource() throws Exception;
 
-	String getIndexDropString(Connection connection, Table t, String indexName) throws SQLException;
+	String getIndexDropString(ITable t, String indexName) throws SQLException, RepositoryException;
 
-	String getIndexCreateString(Connection connection, Table t, String indexName, Column[] indexColumns, boolean unique) throws SQLException;
+	String getIndexCreateString(ITable t, String indexName, Column[] indexColumns, boolean unique) throws SQLException, RepositoryException;
 
 	Connection getRawConnection() throws SQLException, RepositoryException;
 
@@ -179,5 +178,7 @@ public interface IServerInternal
 	Table getClientStatsTable() throws RepositoryException;
 
 	Table createClientStatsTable() throws RepositoryException;
+
+	void createIndex(ITable table, String indexName, Column[] indexColumns, boolean unique) throws RepositoryException;
 
 }
