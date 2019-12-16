@@ -8,18 +8,15 @@ angular.module('ngclientutils', [ 'servoy' ])
 	};
 	
 	return {
-		setBackActionCallbackImpl: function() {
-			history.pushState('captureBack', null, null);
-				$window.addEventListener("popstate", function(event) {
-					if (event.state && event.state == 'captureBack') {
-						event.stopPropagation();
-						event.preventDefault();
-						$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, []);
-	                    history.pushState('captureBack', null, null);
-					}
-				})
+		/**
+		 * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).
+		 * If this is registered then we will try to block the application from going out of the application.
+		 * 
+		 * @param {function} callback
+		 */
+		setBackActionCallback: function(callback) {
+			// implemented server side.
 		},
-
 		/**
 		 * This will return the user agent string of the clients browser.
 		 */
@@ -254,13 +251,18 @@ angular.module('ngclientutils', [ 'servoy' ])
 	};   
 })
 .run(["$services","$window", "ngclientutils", function($services, $window, ngclientutils)
-		{
+{
 			var scope = $services.getServiceScope('ngclientutils');
-			scope.$watch("model.backActionCB", function(newVal) {
-				if (newVal) {
-					ngclientutils.setBackActionCallbackImpl();
-				}
-			}, true);
+			
+			if (history.state !== 'captureBack') history.replaceState('captureBack', null, null);
+			$window.addEventListener("popstate", function(event) {
+						if (scope.model.backActionCB) {
+							$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, []);
+							if (event.state && event.state == 'captureBack') {
+								history.forward(); // if the back button is registered then don't allow to move back, go to the first page again.
+							}
+						}
+			})
 			
 			// bind-once watch to wait for the server value to come (become defined) in case of a browser page refresh
 			scope.$watch("model.contributedTags", function(newVal, oldVal) {
