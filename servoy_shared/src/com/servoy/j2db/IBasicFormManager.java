@@ -24,6 +24,7 @@ import java.util.List;
 import javax.swing.Action;
 
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 
 /**
@@ -155,6 +156,7 @@ public interface IBasicFormManager extends IFormManager
 		/**
 		 * @param string
 		 */
+		@SuppressWarnings("nls")
 		public boolean removeForm(String formName)
 		{
 			int i = list.indexOf(formName);
@@ -162,6 +164,7 @@ public interface IBasicFormManager extends IFormManager
 			{
 				if (!removeIndex(i))
 				{
+					Debug.log("Didn't remove form: " + formName + " because it was not in the history");
 					return false;
 				}
 				i = list.indexOf(formName);
