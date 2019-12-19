@@ -778,17 +778,8 @@ public class TestFormController implements IWebFormController
 	}
 
 	/*
-	 * @see com.servoy.j2db.IFormController#hasParentForm()
-	 */
-	@Override
-	public boolean hasParentForm()
-	{
-		return false;
-	}
-
-	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
 	 */
 	@Override

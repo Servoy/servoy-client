@@ -139,6 +139,7 @@ public abstract class BasicFormManager implements IBasicFormManager
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public boolean destroyFormInstance(String formName)
 	{
 		Form test = possibleForms.get(formName);
@@ -163,6 +164,7 @@ public abstract class BasicFormManager implements IBasicFormManager
 			setFormReadOnly(formName, false);
 			return true;
 		}
+		Debug.log("Couldn't destroy form instance " + formName + "because it is not found in the possible forms that can be constructed (doesn't exists)");
 		return false;
 	}
 
@@ -170,12 +172,7 @@ public abstract class BasicFormManager implements IBasicFormManager
 	{
 		if (fp.isFormVisible())
 		{
-			return false;
-		}
-
-		// it has a parent form, that is not destroyed, form is used when parent form is visible, skip delete
-		if (fp.hasParentForm())
-		{
+			if (Debug.tracing()) Debug.trace("Couldn't destroy form " + fp.getName() + "  instance because it is still visible");
 			return false;
 		}
 
@@ -183,11 +180,13 @@ public abstract class BasicFormManager implements IBasicFormManager
 		ScopesScope scopesScope = application.getScriptEngine().getScopesScope();
 		if (hasReferenceInScriptable(scopesScope, fp, new HashSet<Scriptable>()))
 		{
+			if (Debug.tracing()) Debug.trace("Couldn't destroy form " + fp.getName() + "  instance because it has references in scripting");
 			return false;
 		}
 
 		if (fp.isFormExecutingFunction())
 		{
+			if (Debug.tracing()) Debug.trace("Couldn't destroy form " + fp.getName() + "  instance because it is executing a function");
 			return false;
 		}
 
@@ -198,6 +197,8 @@ public abstract class BasicFormManager implements IBasicFormManager
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
 			if (editRecordList.stopIfEditing(fp.getFoundSet()) != ISaveConstants.STOPPED)
 			{
+				if (Debug.tracing())
+					Debug.trace("Couldn't destroy form " + fp.getName() + "  instance because it has a seperate foundset that has editing records");
 				return false;
 			}
 		}
