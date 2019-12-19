@@ -60,6 +60,8 @@ public interface IServerInternal
 
 	String[] removeTable(ITable t) throws SQLException, RepositoryException;
 
+	boolean dropTable(Table t) throws SQLException, RepositoryException;
+
 	void removeTable(String tableName) throws SQLException, RepositoryException;
 
 	void testConnection(int i) throws Exception;
