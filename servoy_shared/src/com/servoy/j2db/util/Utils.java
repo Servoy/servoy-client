@@ -2933,6 +2933,30 @@ public final class Utils
 		cal.set(Calendar.MILLISECOND, 999);
 	}
 
+	public static List<String> getTokenElementsAsList(String value, String delim, boolean trim)
+	{
+		if (value == null)
+		{
+			return Collections.emptyList();
+		}
+
+		List<String> lst = new ArrayList<String>();
+		StringTokenizer tokemizer = new StringTokenizer(value, delim);
+		while (tokemizer.hasMoreElements())
+		{
+			String token = tokemizer.nextToken();
+			if (trim)
+			{
+				lst.add(token.trim());
+			}
+			else
+			{
+				lst.add(token);
+			}
+		}
+		return lst;
+	}
+
 	public static String[] getTokenElements(String value, String delim, boolean trim)
 	{
 		if (value == null)

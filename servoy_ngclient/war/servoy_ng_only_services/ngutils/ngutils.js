@@ -9,21 +9,16 @@ angular.module('ngclientutils', [ 'servoy' ])
 	
 	return {
 		/**
-		 * Cancel the default back button action from browser and do a callback when clicking on it. 
+		 * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).
+		 * If this is registered then we will try to block the application from going out of the application.
+		 * The callback gets 1 argument and that is the hash of the url, that represents at this time the form where the back button would go to.
+		 * If this hash argument is an empty string then that means the backbutton was hit to the first loaded page and we force a forward again.
+		 * 
+		 * @param {function} callback
 		 */
-		setBackActionCallbackImpl: function() 
-		{
-			history.pushState('captureBack', null, null);
-				$window.addEventListener("popstate", function(event) {
-					if (event.state && event.state == 'captureBack') {
-						event.stopPropagation();
-						event.preventDefault();
-						$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, []);
-	                    history.pushState('captureBack', null, null);
-					}
-				})
+		setBackActionCallback: function(callback) {
+			// implemented server side.
 		},
-
 		/**
 		 * This will return the user agent string of the clients browser.
 		 */
@@ -258,13 +253,22 @@ angular.module('ngclientutils', [ 'servoy' ])
 	};   
 })
 .run(["$services","$window", "ngclientutils", function($services, $window, ngclientutils)
-		{
+{
 			var scope = $services.getServiceScope('ngclientutils');
-			scope.$watch("model.backActionCB", function(newVal) {
-				if (newVal) {
-					ngclientutils.setBackActionCallbackImpl();
-				}
-			}, true);
+			
+			if ($window.location.hash) {
+				// if there is a hash make sure we remove it
+				$window.location.hash = '';
+			}
+			
+			$window.addEventListener("popstate", function(event) {
+						if (scope.model.backActionCB) {
+							$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, [$window.location.hash]);
+							if (!$window.location.hash && $window.location.pathname.endsWith("/index.html")) {
+								history.forward(); // if the back button is registered then don't allow to move back, go to the first page again.
+							}
+						}
+			})
 			
 			// bind-once watch to wait for the server value to come (become defined) in case of a browser page refresh
 			scope.$watch("model.contributedTags", function(newVal, oldVal) {

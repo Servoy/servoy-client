@@ -1391,13 +1391,4 @@ public class FormController extends BasicFormController
 	{
 		return bodyRule;
 	}
-
-	/*
-	 * @see com.servoy.j2db.IFormController#hasParentForm()
-	 */
-	@Override
-	public boolean hasParentForm()
-	{
-		return false;
-	}
 }
