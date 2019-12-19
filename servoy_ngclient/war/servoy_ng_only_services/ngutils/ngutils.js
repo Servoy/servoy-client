@@ -11,6 +11,7 @@ angular.module('ngclientutils', [ 'servoy' ])
 		/**
 		 * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).
 		 * If this is registered then we will try to block the application from going out of the application.
+		 * The callback gets 1 argument and that is the hash of the url, that represents at this time the form where the back button would go to.
 		 * 
 		 * @param {function} callback
 		 */
@@ -254,11 +255,15 @@ angular.module('ngclientutils', [ 'servoy' ])
 {
 			var scope = $services.getServiceScope('ngclientutils');
 			
-			if (history.state !== 'captureBack') history.replaceState('captureBack', null, null);
+			if ($window.location.hash) {
+				// if there is a hash make sure we remove it
+				$window.location.hash = '';
+			}
+			
 			$window.addEventListener("popstate", function(event) {
 						if (scope.model.backActionCB) {
-							$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, []);
-							if (event.state && event.state == 'captureBack') {
+							$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, [$window.location.hash]);
+							if (!$window.location.hash && $window.location.pathname.endsWith("/index.html")) {
 								history.forward(); // if the back button is registered then don't allow to move back, go to the first page again.
 							}
 						}
