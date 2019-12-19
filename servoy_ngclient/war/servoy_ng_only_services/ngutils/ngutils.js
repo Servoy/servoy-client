@@ -12,6 +12,7 @@ angular.module('ngclientutils', [ 'servoy' ])
 		 * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).
 		 * If this is registered then we will try to block the application from going out of the application.
 		 * The callback gets 1 argument and that is the hash of the url, that represents at this time the form where the back button would go to.
+		 * If this hash argument is an empty string then that means the backbutton was hit to the first loaded page and we force a forward again.
 		 * 
 		 * @param {function} callback
 		 */
