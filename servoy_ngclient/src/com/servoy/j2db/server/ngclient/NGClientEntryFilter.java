@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
+import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
@@ -372,7 +373,7 @@ public class NGClientEntryFilter extends WebEntry
 							addHeadIndexContributions(fs, extraMeta);
 
 							super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS), new ArrayList<String>(getFormScriptReferences(fs)),
-								extraMeta, variableSubstitution, shouldSetContentSecurityPolicy(request));
+								extraMeta, variableSubstitution, getContentSecurityPolicyConfig(request));
 							return;
 						}
 						finally
@@ -388,7 +389,7 @@ public class NGClientEntryFilter extends WebEntry
 
 			if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
 				Debug.log("No solution found for this request, calling the default filter: " + uri);
-			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, false);
+			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
 		{
@@ -398,21 +399,50 @@ public class NGClientEntryFilter extends WebEntry
 	}
 
 	/**
-	 * Should the Content-Security-Policy tag be added to the index page?
+	 * Get the ContentSecurityPolicyConfig is it should be applied, otherwise return null;
 	 *
 	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
 	 */
-	private boolean shouldSetContentSecurityPolicy(HttpServletRequest request)
+	private ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
 	{
-		if (!getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
+		Settings settings = Settings.getInstance();
+		if (!getAsBoolean(settings.getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
 		{
-			return false;
+			Debug.trace("ContentSecurityPolicyHeader is disabled by configuration");
+			return null;
 		}
 
 		String userAgentHeader = request.getHeader("user-agent");
 		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
 
-		return supportsContentSecurityPolicyLevel3(userAgent);
+		if (!supportsContentSecurityPolicyLevel3(userAgent))
+		{
+			if (Debug.tracing())
+			{
+				Debug.trace("ContentSecurityPolicyHeader is disabled, user agent '" + userAgent + "' does not support ContentSecurityPolicy level 3");
+			}
+			return null;
+		}
+
+		ContentSecurityPolicyConfig contentSecurityPolicyConfig = new ContentSecurityPolicyConfig(HTTPUtils.getNonce(request));
+
+		// Overridable directives
+		setDirectiveOverride(contentSecurityPolicyConfig, "frame-src", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "style-src", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
+
+		return contentSecurityPolicyConfig;
+
+	}
+
+	private static void setDirectiveOverride(ContentSecurityPolicyConfig contentSecurityPolicyConfig, String directive, Settings settings)
+	{
+		String override = settings.getProperty("servoy.ngclient.contentSecurityPolicy." + directive);
+		if (override != null && override.trim().length() > 0 && override.indexOf(';') < 0)
+		{
+			contentSecurityPolicyConfig.setDirective(directive, override);
+		}
 	}
 
 	/** Does the CSP level 3, specifically strict-dynamic.
