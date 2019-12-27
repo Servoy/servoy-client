@@ -17,6 +17,7 @@
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -558,27 +559,29 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		selectCount.removeUnusedJoins(true);
 
 		IQuerySelectValue agregee;
+		int aggregateQuantifier;
 		if (selectCount.joins != null && (selectCount.distinct || distinctCount))
 		{
+			aggregateQuantifier = QueryAggregate.DISTINCT;
 			ArrayList<IQuerySelectValue> selectColumns = selectCount.getColumns();
 			IQuerySelectValue[] cols = selectColumns.toArray(new IQuerySelectValue[selectColumns.size()]);
 			if (cols.length == 1)
 			{
-				agregee = new QueryFunction(QueryFunctionType.distinct, cols[0], null);
+				agregee = cols[0];
 			}
 			else
 			{
-				agregee = new QueryFunction(QueryFunctionType.distinct, new QueryFunction(QueryFunctionType.concat, cols, null), null);
+				agregee = new QueryFunction(QueryFunctionType.concat, cols, null);
 			}
 		}
 		else
 		{
+			aggregateQuantifier = QueryAggregate.ALL;
 			agregee = new QueryColumnValue("*", null, true);
 		}
 
-		ArrayList<IQuerySelectValue> countCol = new ArrayList<IQuerySelectValue>();
-		countCol.add(new QueryAggregate(QueryAggregate.COUNT, agregee, name));
-		selectCount.setColumns(countCol);
+		selectCount.setColumns(
+			new ArrayList<IQuerySelectValue>(Arrays.asList(new QueryAggregate(QueryAggregate.COUNT, aggregateQuantifier, agregee, name, null, false))));
 		return selectCount;
 	}
 

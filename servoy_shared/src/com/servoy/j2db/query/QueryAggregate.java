@@ -38,7 +38,12 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 	public static final int SUM = 4;
 	public static final int[] ALL_DEFINED_AGGREGATES = new int[] { COUNT, MAX, MIN, AVG, SUM };
 
+	// aggregate quantifiers
+	public static final int ALL = 0;
+	public static final int DISTINCT = 1;
+
 	private final static int SKIP_FLAG = 1 << 16; // used in serialization, should not overlap with aggregate types
+	private final static int QUANTIFIER_OFFSET = 1 << 17; // used in serialization, should not overlap with other fields
 
 	public static final String[] AGGREGATE_TYPE_HIBERNATE = new String[] { "count", //$NON-NLS-1$
 		"max", //$NON-NLS-1$
@@ -50,39 +55,41 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 	public static final String ASTERIX = "*";
 
 	private final int type;
+	private final int quantifier;
 	private IQuerySelectValue aggregee;
 	private final String name;
 	private final String alias;
 	private final boolean skipInResult;
 
-	public QueryAggregate(int type, IQuerySelectValue aggregee, String name, String alias, boolean skipInResult)
+	public QueryAggregate(int type, int quantifier, IQuerySelectValue aggregee, String name, String alias, boolean skipInResult)
 	{
 		this.type = type;
+		this.quantifier = quantifier;
 		this.aggregee = aggregee;
 		this.name = name;
 		this.alias = alias;
 		this.skipInResult = skipInResult;
 	}
 
-	public QueryAggregate(int type, IQuerySelectValue aggregee, String name, String alias)
-	{
-		this(type, aggregee, name, alias, false);
-	}
-
 	public QueryAggregate(int type, IQuerySelectValue aggregee, String name)
 	{
-		this(type, aggregee, name, null, false);
+		this(type, ALL, aggregee, name, null, false);
 	}
 
 	@Override
 	public IQuerySelectValue asAlias(String newAlias)
 	{
-		return new QueryAggregate(type, aggregee, name, newAlias);
+		return new QueryAggregate(type, quantifier, aggregee, name, newAlias, false);
 	}
 
 	public int getType()
 	{
 		return type;
+	}
+
+	public int getQuantifier()
+	{
+		return quantifier;
 	}
 
 	public String getName()
@@ -135,6 +142,11 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		return AGGREGATE_TYPE_HIBERNATE[type];
 	}
 
+	public String getQuantifierName()
+	{
+		return quantifier == DISTINCT ? "distinct" : null; // "all" is default
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -167,6 +179,7 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (skipInResult ? 1231 : 1237);
 		result = prime * result + type;
+		result = prime * result + quantifier;
 		return result;
 	}
 
@@ -194,25 +207,28 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		else if (!name.equals(other.name)) return false;
 		if (skipInResult != other.skipInResult) return false;
 		if (type != other.type) return false;
+		if (quantifier != other.quantifier) return false;
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		return new StringBuilder(getAggregateName().toUpperCase()).append('(' + aggregee.toString()).append(") ").append(name).append( //$NON-NLS-1$
-			alias == null ? "" : (" AS " + alias)).toString();
+		return new StringBuilder(getAggregateName().toUpperCase()) //
+			.append('(') //
+			.append(quantifier == ALL ? "" : (getQuantifierName().toUpperCase() + " ")) //
+			.append(aggregee.toString()).append(") ") //
+			.append(name).append(alias == null ? "" : (" AS " + alias)) //
+			.toString();
 	}
 
-
 	///////// serialization ////////////////
-
 
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { new Integer(type + (skipInResult ? SKIP_FLAG : 0)), aggregee, name, alias });
+			new Object[] { Integer.valueOf(type + (quantifier == ALL ? 0 : QUANTIFIER_OFFSET) + (skipInResult ? SKIP_FLAG : 0)), aggregee, name, alias });
 	}
 
 	public QueryAggregate(ReplacedObject s)
@@ -220,7 +236,8 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
 		int typeAndSkip = ((Integer)members[i++]).intValue();
-		type = typeAndSkip & ~SKIP_FLAG;
+		type = typeAndSkip & ~SKIP_FLAG & ~QUANTIFIER_OFFSET;
+		quantifier = (typeAndSkip & QUANTIFIER_OFFSET) == 0 ? ALL : DISTINCT;
 		skipInResult = (typeAndSkip & SKIP_FLAG) != 0;
 		aggregee = (IQuerySelectValue)members[i++];
 		name = (String)members[i++];
