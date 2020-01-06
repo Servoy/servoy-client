@@ -53,7 +53,26 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					ngModel.$setViewValue(child.children("input").val());
 				} else {
 					if (e.date)
+					{
+						if (!$scope.model.dataProviderID && $scope.model.format.display)
+						{
+							// if format has no seconds do not use the current seconds, use 0; otherwise when parsing the input value seconds will be lost anyway
+							if ($scope.model.format.display.indexOf('s') < 0)
+							{
+								e.date.seconds(0);
+							}
+							if ($scope.model.format.display.indexOf('m') < 0)
+							{
+								e.date.minutes(0);
+							}
+							if ($scope.model.format.display.indexOf('h') < 0 && $scope.model.format.display.indexOf('H') < 0)
+							{
+								e.date.hours(0);
+							}
+							
+						}	
 						ngModel.$setViewValue(e.date.toDate());
+					}	
 					else
 						ngModel.$setViewValue(null);
 				}
