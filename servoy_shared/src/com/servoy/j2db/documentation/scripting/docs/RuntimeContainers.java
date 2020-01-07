@@ -36,7 +36,7 @@ public class RuntimeContainers
 	 *
 	 * @sample
 	 * 	%%prefix%%containers.name.addStyleClasses("class1");
-	 * }
+	 *
 	 */
 	@JSReadonlyProperty
 	public RuntimeContainer array__indexedby_name()
