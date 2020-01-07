@@ -18,6 +18,7 @@ package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Helper class for easier documentation of our JavaScript API for forms.
@@ -25,8 +26,21 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  * @since 2019.12
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "containers", scriptingName = "RuntimeContainers")
-@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "containers", scriptingName = "containers")
+@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public class RuntimeContainers
 {
+
+	/**
+	 * Get an element of the form by its name.
+	 *
+	 * @sample
+	 * 	%%prefix%%containers.name.addStyleClasses("class1");
+	 *
+	 */
+	@JSReadonlyProperty
+	public RuntimeContainer array__indexedby_name()
+	{
+		return null;
+	}
 }
