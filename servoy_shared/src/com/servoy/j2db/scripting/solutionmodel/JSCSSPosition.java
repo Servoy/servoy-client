@@ -21,8 +21,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 
@@ -30,8 +28,6 @@ import com.servoy.j2db.persistence.CSSPosition;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition")
-@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public class JSCSSPosition implements ICSSPosition
 {
 	private final JSComponent< ? extends BaseComponent> component;

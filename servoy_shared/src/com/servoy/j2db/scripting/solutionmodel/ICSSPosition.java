@@ -19,13 +19,17 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
+
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * @author jcomp
+ * @author jcompagner
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition")
+@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public interface ICSSPosition
 {
 
@@ -36,8 +40,10 @@ public interface ICSSPosition
 	 * var left = comp.cssPosition.left;
 	 *
 	 */
+	@JSGetter
 	String getLeft();
 
+	@JSGetter
 	void setLeft(String left);
 
 	/**
@@ -47,8 +53,10 @@ public interface ICSSPosition
 	 * comp.cssPosition.right
 	 *
 	 */
+	@JSGetter
 	String getRight();
 
+	@JSGetter
 	void setRight(String right);
 
 	/**
@@ -58,8 +66,10 @@ public interface ICSSPosition
 	 * comp.cssPosition.top
 	 *
 	 */
+	@JSGetter
 	String getTop();
 
+	@JSGetter
 	void setTop(String top);
 
 	/**
@@ -69,8 +79,10 @@ public interface ICSSPosition
 	 * comp.cssPosition.bottom
 	 *
 	 */
+	@JSGetter
 	String getBottom();
 
+	@JSGetter
 	void setBottom(String bottom);
 
 	/**
@@ -81,8 +93,10 @@ public interface ICSSPosition
 	 *
 	 * @return width css position
 	 */
+	@JSGetter
 	String getWidth();
 
+	@JSGetter
 	void setWidth(String width);
 
 	/**
@@ -92,8 +106,10 @@ public interface ICSSPosition
 	 * comp.cssPosition.height
 	 *
 	 */
+	@JSGetter
 	String getHeight();
 
+	@JSGetter
 	void setHeight(String height);
 
 	/**
@@ -106,6 +122,7 @@ public interface ICSSPosition
 	 *
 	 * @return css position
 	 */
+	@JSFunction
 	ICSSPosition l(String left);
 
 	/**
@@ -118,6 +135,7 @@ public interface ICSSPosition
 	 *
 	 * @return css position
 	 */
+	@JSFunction
 	ICSSPosition r(String right);
 
 	/**
@@ -130,6 +148,7 @@ public interface ICSSPosition
 	 *
 	 * @return css position
 	 */
+	@JSFunction
 	ICSSPosition t(String top);
 
 	/**
@@ -142,6 +161,7 @@ public interface ICSSPosition
 	 *
 	 * @return css position
 	 */
+	@JSFunction
 	ICSSPosition b(String bottom);
 
 	/**
@@ -154,6 +174,7 @@ public interface ICSSPosition
 	 *
 	 * @return css position
 	 */
+	@JSFunction
 	ICSSPosition w(String width);
 
 	/**
@@ -166,6 +187,7 @@ public interface ICSSPosition
 	 *
 	 * @return css position
 	 */
+	@JSFunction
 	ICSSPosition h(String height);
 
 }
