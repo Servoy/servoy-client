@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,7 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "CSSPosition", publicName = "CSSPosition")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public interface ICSSPosition
 {
@@ -43,7 +44,7 @@ public interface ICSSPosition
 	@JSGetter
 	String getLeft();
 
-	@JSGetter
+	@JSSetter
 	void setLeft(String left);
 
 	/**
@@ -56,7 +57,7 @@ public interface ICSSPosition
 	@JSGetter
 	String getRight();
 
-	@JSGetter
+	@JSSetter
 	void setRight(String right);
 
 	/**
@@ -69,7 +70,7 @@ public interface ICSSPosition
 	@JSGetter
 	String getTop();
 
-	@JSGetter
+	@JSSetter
 	void setTop(String top);
 
 	/**
@@ -82,7 +83,7 @@ public interface ICSSPosition
 	@JSGetter
 	String getBottom();
 
-	@JSGetter
+	@JSSetter
 	void setBottom(String bottom);
 
 	/**
@@ -96,7 +97,7 @@ public interface ICSSPosition
 	@JSGetter
 	String getWidth();
 
-	@JSGetter
+	@JSSetter
 	void setWidth(String width);
 
 	/**
@@ -109,7 +110,7 @@ public interface ICSSPosition
 	@JSGetter
 	String getHeight();
 
-	@JSGetter
+	@JSSetter
 	void setHeight(String height);
 
 	/**
