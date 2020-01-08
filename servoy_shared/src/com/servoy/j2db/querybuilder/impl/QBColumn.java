@@ -82,6 +82,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		return new QBCondition(getRoot(), getParent(), negate ? queryCondition.negate() : queryCondition);
 	}
 
+	protected IQuerySelectValue getQueryColumn()
+	{
+		return queryColumn;
+	}
+
 	public IQuerySelectValue getQuerySelectValue()
 	{
 		return queryColumn;
@@ -317,7 +322,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate count()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.COUNT);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.COUNT, QueryAggregate.ALL);
 	}
 
 	/**
@@ -331,7 +336,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate avg()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.AVG);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.AVG, QueryAggregate.ALL);
 	}
 
 	/**
@@ -345,7 +350,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate max()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MAX);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MAX, QueryAggregate.ALL);
 	}
 
 	/**
@@ -359,7 +364,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate min()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MIN);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MIN, QueryAggregate.ALL);
 	}
 
 	/**
@@ -373,7 +378,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate sum()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.SUM);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.SUM, QueryAggregate.ALL);
 	}
 
 	/**
