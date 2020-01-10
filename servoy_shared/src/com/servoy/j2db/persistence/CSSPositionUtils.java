@@ -26,6 +26,7 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -470,6 +471,11 @@ public final class CSSPositionUtils
 		{
 			return true;
 		}
+		if (persist instanceof BaseComponent && PersistHelper.getRealParent((BaseComponent)persist) instanceof LayoutContainer)
+		{
+			return CSSPositionUtils.isCSSPositionContainer(
+					(LayoutContainer)PersistHelper.getRealParent((BaseComponent)persist));
+		}
 		return false;
 	}
 
@@ -478,7 +484,10 @@ public final class CSSPositionUtils
 		IPersist currentComponent = component;
 		while (currentComponent != null)
 		{
-			if (currentComponent.getParent() instanceof AbstractContainer) return (AbstractContainer)currentComponent.getParent();
+			if (PersistHelper.getRealParent(currentComponent) instanceof AbstractContainer)
+			{
+				return (AbstractContainer)PersistHelper.getRealParent(currentComponent);
+			}
 			currentComponent = currentComponent.getParent();
 		}
 		return null;
