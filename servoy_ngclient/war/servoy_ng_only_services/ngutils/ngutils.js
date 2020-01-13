@@ -263,8 +263,9 @@ angular.module('ngclientutils', [ 'servoy' ])
 			
 			$window.addEventListener("popstate", function(event) {
 						if (scope.model.backActionCB) {
-							$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, [$window.location.hash]);
-							if (!$window.location.hash && $window.location.pathname.endsWith("/index.html")) {
+							if ($window.location.hash) {
+								$window.executeInlineScript(scope.model.backActionCB.formname, scope.model.backActionCB.script, [$window.location.hash]);
+							} else if ($window.location.pathname.endsWith("/index.html")) {
 								history.forward(); // if the back button is registered then don't allow to move back, go to the first page again.
 							}
 						}
