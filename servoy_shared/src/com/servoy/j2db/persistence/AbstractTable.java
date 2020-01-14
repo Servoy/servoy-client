@@ -164,7 +164,7 @@ public abstract class AbstractTable implements ITable, Serializable
 	@Override
 	public Iterator<Column> getColumnsSortedByName()
 	{
-		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, getColumns());
+		SortedList<Column> newList = new SortedList<Column>(new ColumnComparator(), getColumns());
 		return newList.iterator();
 	}
 
@@ -322,7 +322,7 @@ public abstract class AbstractTable implements ITable, Serializable
 	@Override
 	public Iterator<Column> getColumnsSortedByIndex(List<String> indexedNamesList)
 	{
-		ColumnComparator myComparator = ColumnComparator.INSTANCE;
+		ColumnComparator myComparator = new ColumnComparator();
 		myComparator.setIndexedNamesList(indexedNamesList);
 		SortedList<Column> newList = new SortedList<Column>(myComparator, getColumns());
 		return newList.iterator();

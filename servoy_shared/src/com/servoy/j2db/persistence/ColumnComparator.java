@@ -27,8 +27,6 @@ import com.servoy.base.persistence.IBaseColumn;
  */
 public class ColumnComparator implements Comparator<IColumn>
 {
-	public static final ColumnComparator INSTANCE = new ColumnComparator();
-
 	private List<String> indexedNamesList = null;
 
 	/**
