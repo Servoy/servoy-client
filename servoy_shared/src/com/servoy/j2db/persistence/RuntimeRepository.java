@@ -29,7 +29,7 @@ import com.servoy.j2db.util.UUID;
  * @author Jan Blok
  *
  */
-public class RuntimeRepository implements IRemoteRepository
+public class RuntimeRepository implements IRepository
 {
 	private final IServerManagerInternal serverManager;
 	private final Map<String, Solution> solutionAndmodules;
