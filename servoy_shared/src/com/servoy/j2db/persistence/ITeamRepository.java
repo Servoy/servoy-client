@@ -24,11 +24,11 @@ import com.servoy.j2db.util.UUID;
 /**
  * @author jblok
  */
-public interface ITeamRepository extends IRemoteRepository
+public interface ITeamRepository extends IRepository
 {
 	/**
 	 * Load an IRootObject
-	 * 
+	 *
 	 * @param name
 	 * @param objectTypeId (SOLUTION/STYLE see IRepository)
 	 * @param release (0 = active release)
@@ -39,7 +39,7 @@ public interface ITeamRepository extends IRemoteRepository
 
 	/**
 	 * Save an IRootObject (all child's are checked for changed flag, if changed they are stored)
-	 * 
+	 *
 	 * @param rootObject style or solution
 	 * @throws RepositoryException
 	 */
@@ -47,7 +47,7 @@ public interface ITeamRepository extends IRemoteRepository
 
 	/**
 	 * To be able to check if you are still talking with same repository as checkout did originate from
-	 * 
+	 *
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
@@ -55,7 +55,7 @@ public interface ITeamRepository extends IRemoteRepository
 
 	/**
 	 * To be able to check if team operation can be performed on the remote repository version
-	 * 
+	 *
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
@@ -63,7 +63,7 @@ public interface ITeamRepository extends IRemoteRepository
 
 	/**
 	 * push a eclipse configured table to the server to be synced with the actual database (this will also change the servoy_columninfo)
-	 * 
+	 *
 	 * @param serverName synch table's server name
 	 * @param tableName synch table name
 	 * @param dm the table to be synced or null if it was removed
@@ -79,7 +79,7 @@ public interface ITeamRepository extends IRemoteRepository
 
 	/**
 	 * Get i18n tables binded to at least one solution
-	 * 
+	 *
 	 * @return all i18n tables binded to at least one solution
 	 * @throws RemoteException
 	 */

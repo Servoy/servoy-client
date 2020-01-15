@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -29,7 +30,7 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jblok
  */
-public interface IRepository
+public interface IRepository extends Remote
 {
 	/**
 	 * Max length for root object names.

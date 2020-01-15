@@ -20,13 +20,13 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.persistence.IRemoteRepository;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITeamRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 
 public interface IApplicationServerAccess extends Remote
 {
-	public IRemoteRepository getRepository() throws RemoteException;
+	public IRepository getRepository() throws RemoteException;
 
 	public IDataServer getDataServer() throws RemoteException;
 
@@ -44,7 +44,7 @@ public interface IApplicationServerAccess extends Remote
 
 	/**
 	 * Get the license names
-	 * 
+	 *
 	 * @return
 	 */
 	public String[] getLicenseNames() throws RemoteException;
