@@ -28,7 +28,7 @@ public interface IRepositoryFactory
 	 * @param serverManager
 	 * @return
 	 */
-	IRemoteRepository getRemoteRepository(IServerManagerInternal serverManager, Properties settings);
+	IRepository getRemoteRepository(IServerManagerInternal serverManager, Properties settings);
 
 	/**
 	 * @param settings
