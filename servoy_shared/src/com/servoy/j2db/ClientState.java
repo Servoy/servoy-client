@@ -43,11 +43,11 @@ import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.ClientMethodTemplatesLoader;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
@@ -138,7 +138,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	// boolean set to true, right after the solution is closed (right after when the solution onclose method is called)
 	private volatile boolean solutionClosed;
 
-	protected transient volatile IUserClient userClient;
+	protected transient volatile IClient userClient;
 
 	private volatile ClientInfo clientInfo;
 
@@ -613,7 +613,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	}
 
 
-	protected boolean registerClient(IUserClient uc) throws Exception
+	protected boolean registerClient(IClient uc) throws Exception
 	{
 		String prevClientId = clientInfo.getClientId();
 		long t1 = System.currentTimeMillis();

@@ -65,10 +65,10 @@ import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
@@ -297,7 +297,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	}
 
 	@Override
-	protected boolean registerClient(IUserClient uc) throws Exception
+	protected boolean registerClient(IClient uc) throws Exception
 	{
 		boolean registered = false;
 		try
