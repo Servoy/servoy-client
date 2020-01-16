@@ -33,12 +33,12 @@ import com.servoy.j2db.dataprocessing.Blob;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.BufferedDataSetInternal;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.ITrackingSQLStatement;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.QueryData;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
@@ -167,13 +167,8 @@ public class TestNGClient extends NGClient
 							returnDataSet[i] = new BufferedDataSet();
 							for (int k = 0; k < set.getRowCount(); k++)
 							{
-								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions()
-									.values()
-									.iterator()
-									.next()
-									.getConditions()
-									.get(
-										0)).getValues()).getValue();
+								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions().values().iterator().next().getConditions().get(
+									0)).getValues()).getValue();
 								if (set.getRow(k)[1].equals(value[0][0]))
 								{
 									returnDataSet[i].addRow(new Object[] { set.getRow(k)[0], set.getRow(k)[1], set.getRow(k)[2], set.getRow(k)[3] });
@@ -445,7 +440,7 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public Object[] register(IUserClient c, ClientInfo clientInfo) throws RemoteException
+					public Object[] register(IClient c, ClientInfo clientInfo) throws RemoteException
 					{
 						return new Object[] { "uuid", new Integer(IClientManager.REGISTER_OK) };
 					}

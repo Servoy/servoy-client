@@ -29,7 +29,7 @@ public interface IClientHost extends Remote
 	public void pushClientInfo(String clientId, ClientInfo clientInfo) throws RemoteException;
 
 	// returns generated { clientId, isLicenced }
-	public Object[] register(IUserClient c, ClientInfo clientInfo) throws RemoteException;
+	public Object[] register(IClient c, ClientInfo clientInfo) throws RemoteException;
 
 	public void unregister(String client_id) throws RemoteException;
 
