@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +27,10 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * Used by clients to access the repository.
- * 
+ *
  * @author jblok
  */
-public interface IRepository
+public interface IRepository extends Remote
 {
 	/**
 	 * Max length for root object names.
@@ -112,7 +113,7 @@ public interface IRepository
 	public static final int SCRIPTCALCULATIONS = IRepositoryConstants.SCRIPTCALCULATIONS;
 
 	public static final int MEDIA = IRepositoryConstants.MEDIA;
-	public static final int COLUMNS = IRepositoryConstants.COLUMNS; //SYNC_IDS called before, needed columns type for Ivalidatename searchcontext type 
+	public static final int COLUMNS = IRepositoryConstants.COLUMNS; //SYNC_IDS called before, needed columns type for Ivalidatename searchcontext type
 	public static final int TABLENODES = IRepositoryConstants.TABLENODES; // better name whould be datasource node
 	public static final int AGGREGATEVARIABLES = IRepositoryConstants.AGGREGATEVARIABLES;
 
@@ -124,7 +125,7 @@ public interface IRepository
 
 	/**
 	 * Get all the defined server interfaces.
-	 * 
+	 *
 	 * @return String[] all the server names
 	 * @throws RemoteException
 	 * @throws RepositoryException
@@ -135,7 +136,7 @@ public interface IRepository
 	 * Get the named server interface.
 	 * <p>
 	 * <b>NOTE: NEVER call this method from client code, always use solution.getServer(name), databaseManager.switchServer() is based on this!<b>
-	 * 
+	 *
 	 * @throws RemoteException
 	 * @throws RepositoryException
 	 */
@@ -143,7 +144,7 @@ public interface IRepository
 
 	/**
 	 * Get the names of the server that are valid for the name.
-	 * 
+	 *
 	 * @throws RemoteException
 	 * @throws RepositoryException
 	 */
@@ -151,7 +152,7 @@ public interface IRepository
 
 	/**
 	 * Get the server proxies for offline loading
-	 * 
+	 *
 	 * @param solutionId the solution id
 	 * @param release the solution release
 	 * @param alreadyKnownServerNames list of names which are already known and dont have to be returned (can be null)
@@ -163,7 +164,7 @@ public interface IRepository
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RemoteException, RepositoryException;
@@ -178,7 +179,7 @@ public interface IRepository
 
 	/**
 	 * Get a root object.
-	 * 
+	 *
 	 * @param id the id
 	 * @return Root object
 	 * @throws RemoteException
@@ -190,7 +191,7 @@ public interface IRepository
 
 	/**
 	 * Get the update sequences of the active solutions.
-	 * 
+	 *
 	 * @param rootObjectIds the solution ids
 	 * @return the update seqences of the specified solution
 	 * @throws RemoteException
@@ -200,7 +201,7 @@ public interface IRepository
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Should only be called from Media Object!
-	 * 
+	 *
 	 * @exclude
 	 */
 	public byte[] getMediaBlob(int blob_id) throws RemoteException, RepositoryException;
