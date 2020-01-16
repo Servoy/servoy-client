@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import com.servoy.j2db.scripting.StartupArguments;
@@ -26,7 +27,7 @@ import com.servoy.j2db.scripting.StartupArguments;
  *
  * @author jblok
  */
-public interface IClient
+public interface IClient extends Remote
 {
 	public void alert(String msg) throws RemoteException;
 

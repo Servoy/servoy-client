@@ -22,9 +22,9 @@ import java.util.Stack;
 
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -36,7 +36,7 @@ import com.servoy.j2db.util.IGetStatusLine;
  *
  * @author jblok
  */
-public class ClientStub implements IUserClient
+public class ClientStub implements IClient
 {
 	private transient final ClientState client;
 
