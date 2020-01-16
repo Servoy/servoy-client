@@ -17,16 +17,17 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import com.servoy.j2db.scripting.StartupArguments;
 
 /**
  * The Client call back interface which are registered on the server.
- * 
+ *
  * @author jblok
  */
-public interface IClient
+public interface IClient extends Remote
 {
 	public void alert(String msg) throws RemoteException;
 
@@ -38,7 +39,7 @@ public interface IClient
 
 	/**
 	 * called when the databases are modified outside servoy, when server_name and table_name are null all is flushed
-	 * 
+	 *
 	 * @param server_name
 	 * @param table_name
 	 * @throws RemoteException
