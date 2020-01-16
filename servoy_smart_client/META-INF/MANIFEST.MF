@@ -23,3 +23,5 @@ Export-Package: com.servoy.j2db,
  com.servoy.j2db.util.gui,
  com.servoy.j2db.util.rtf,
  com.servoy.j2db.util.wizard
+Bundle-ClassPath: lib/javaws.jar,
+ .
