@@ -263,7 +263,7 @@ public class Messages
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
 				null, null, null, null, fm);
 		}
-		else if (ApplicationServerRegistry.get() != null)
+		else if (ApplicationServerRegistry.exists())
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerRegistry.get().getDataServer(),
 				ApplicationServerRegistry.get().getLocalRepository(), properties, null, language, ALL_LOCALES, null, null, null, null, fm);
@@ -319,7 +319,7 @@ public class Messages
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
 				searchKey, searchText, columnNameFilter, columnValueFilter, fm);
 		}
-		else if (ApplicationServerRegistry.get() != null)
+		else if (ApplicationServerRegistry.exists())
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerRegistry.get().getDataServer(),
 				ApplicationServerRegistry.get().getLocalRepository(), properties, null, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
@@ -340,7 +340,7 @@ public class Messages
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, defaultProperties, localeProperties,
 				language, ALL_LOCALES, searchKey, searchText, columnNameFilter, columnValueFilter, fm);
 		}
-		else if (ApplicationServerRegistry.get() != null)
+		else if (ApplicationServerRegistry.exists())
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerRegistry.get().getDataServer(),
 				ApplicationServerRegistry.get().getLocalRepository(), defaultProperties, localeProperties, language, ALL_LOCALES, searchKey, searchText,

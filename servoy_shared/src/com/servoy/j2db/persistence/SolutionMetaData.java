@@ -62,7 +62,7 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
-		if (ApplicationServerRegistry.get() != null) protectionPassword = ApplicationServerRegistry.get().calculateProtectionPassword(this, null);
+		if (ApplicationServerRegistry.exists()) protectionPassword = ApplicationServerRegistry.get().calculateProtectionPassword(this, null);
 	}
 
 	public boolean getMustAuthenticate()
@@ -189,7 +189,10 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	public static String getSolutionNamesByFilter(int solutionTypeFilter)
 	{
-		return IntStream.range(0, solutionTypes.length).filter(i -> (solutionTypeFilter & solutionTypes[i]) != 0).mapToObj(i -> solutionTypeNames[i]).collect(
-			Collectors.joining(", "));
+		return IntStream.range(0, solutionTypes.length)
+			.filter(i -> (solutionTypeFilter & solutionTypes[i]) != 0)
+			.mapToObj(i -> solutionTypeNames[i])
+			.collect(
+				Collectors.joining(", "));
 	}
 }

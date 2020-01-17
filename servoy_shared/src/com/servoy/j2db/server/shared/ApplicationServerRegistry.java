@@ -33,6 +33,11 @@ public final class ApplicationServerRegistry
 	{
 	}
 
+	public static boolean exists()
+	{
+		return as_instanceRef.get() != null;
+	}
+
 	public static IApplicationServerSingleton get()
 	{
 		IApplicationServerSingleton as = as_instanceRef.get();

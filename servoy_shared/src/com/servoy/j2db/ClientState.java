@@ -1333,10 +1333,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			try
 			{
-				return !Boolean.FALSE.equals(getScriptEngine().getSolutionScope().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-					Utils.arrayMerge((new Object[] { Boolean.valueOf(force) }),
-						Utils.parseJSExpressions(getSolution().getFlattenedMethodArguments("onCloseMethodID"))), //$NON-NLS-1$
-					false, false));
+				return !Boolean.FALSE.equals(getScriptEngine().getSolutionScope()
+					.getScopesScope()
+					.executeGlobalFunction(sm.getScopeName(), sm.getName(),
+						Utils.arrayMerge((new Object[] { Boolean.valueOf(force) }),
+							Utils.parseJSExpressions(getSolution().getFlattenedMethodArguments("onCloseMethodID"))), //$NON-NLS-1$
+						false, false));
 			}
 			catch (Exception e1)
 			{
@@ -1653,9 +1655,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				try
 				{
 					isHandlingError = true;
-					Object retval = getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-						Utils.arrayMerge((new Object[] { thrown }), Utils.parseJSExpressions(s.getFlattenedMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
-						false, false);
+					Object retval = getScriptEngine().getScopesScope()
+						.executeGlobalFunction(sm.getScopeName(), sm.getName(),
+							Utils.arrayMerge((new Object[] { thrown }), Utils.parseJSExpressions(s.getFlattenedMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
+							false, false);
 					if (Utils.getAsBoolean(retval))
 					{
 						reportError(msg, e);//error handler cannot handle this error
@@ -1726,7 +1729,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public final boolean isInDeveloper()
 	{
-		return ApplicationServerRegistry.get() != null && ApplicationServerRegistry.get().isDeveloperStartup();
+		return ApplicationServerRegistry.exists() && ApplicationServerRegistry.get().isDeveloperStartup();
 	}
 
 	public abstract void blockGUI(String reason);
