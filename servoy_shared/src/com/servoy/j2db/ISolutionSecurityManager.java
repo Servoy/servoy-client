@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import com.servoy.j2db.util.ServoyException;
 /**
  * Interface that gives the general solution security functionality (allows the solution to use the user/security functionality without altering it).
  */
-public interface ISolutionSecurityManager
+public interface ISolutionSecurityManager extends Remote
 {
 	/**
 	 * @return user_uid
