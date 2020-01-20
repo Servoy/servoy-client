@@ -2056,8 +2056,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				try
 				{
-					if (((ILockServer)getDataServer()).releaseLocks(application.getClientID(), rm.getSQLSheet().getServerName(),
-						rm.getSQLSheet().getTable().getName(), pkhashkeys))
+					if (getDataServer().releaseLocks(application.getClientID(), rm.getSQLSheet().getServerName(), rm.getSQLSheet().getTable().getName(),
+						pkhashkeys))
 					{
 						rm.removeLocks(pkhashkeys);
 					}
