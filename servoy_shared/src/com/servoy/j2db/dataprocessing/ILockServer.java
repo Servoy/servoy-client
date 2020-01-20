@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Set;
@@ -26,13 +27,13 @@ import com.servoy.j2db.query.QuerySelect;
 
 /**
  * Service for locking
- * 
+ *
  * @author jblok
  */
-public interface ILockServer
+public interface ILockServer extends Remote
 {
-	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect,
-		String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException;//returns the data for acquired locks
+	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
+		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException;//returns the data for acquired locks
 
 	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException;
 }

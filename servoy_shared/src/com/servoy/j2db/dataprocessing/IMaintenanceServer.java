@@ -16,6 +16,7 @@
 */
 package com.servoy.j2db.dataprocessing;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
@@ -23,11 +24,11 @@ import java.rmi.RemoteException;
  * @author rgansevles
  *
  */
-public interface IMaintenanceServer
+public interface IMaintenanceServer extends Remote
 {
 	/**
 	 * Log a message on the server
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void logMessage(String msg) throws RemoteException;
