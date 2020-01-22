@@ -30,7 +30,6 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
@@ -320,7 +319,7 @@ public class FormWrapper
 			Border border = ComponentFactoryHelper.createBorder((String)properties.get(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName()), false);
 			properties.put(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName(), BorderPropertyType.writeBorderToJson(border));
 		}
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
+		return JSONUtils.writeDataAsFullToJSON(properties, null, null); // null types as we don't have a .spec file for forms
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)
@@ -378,10 +377,8 @@ public class FormWrapper
 		for (FormElement fe : getAbsoluteLayoutElements())
 		{
 			sizes.put(fe.getName(), ((LayoutContainer)fe.getPersistIfAvailable().getParent()).getSize());
-
 		}
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), sizes, null, null).endObject().toString();
-
+		return JSONUtils.writeDataAsFullToJSON(sizes, null, null);
 	}
 
 	public List<FormElement> getAbsoluteLayoutElements()

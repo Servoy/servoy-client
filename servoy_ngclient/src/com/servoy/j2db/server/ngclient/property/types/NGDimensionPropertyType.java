@@ -26,7 +26,6 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.DimensionPropertyType;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IDesignValueConverter;
@@ -59,10 +58,10 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Dimension formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		if (formElementValue == null) return writer;
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, null);
 	}
 
 	@Override
@@ -92,11 +91,6 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 		return (Dimension)(rhinoValue instanceof Dimension ? rhinoValue : null);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Dimension fromDesignValue(Object newValue, PropertyDescription propertyDescription)
 	{
@@ -112,18 +106,13 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Object toDesignValue(Object value, PropertyDescription pd)
 	{
 		if (value instanceof Dimension)
 		{
 			JSONStringer writer = new JSONStringer();
-			toJSON(writer, null, (Dimension)value, pd, null, null);
+			toJSON(writer, null, (Dimension)value, pd, null);
 			return new JSONObject(writer.toString());
 		}
 		return value;

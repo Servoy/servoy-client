@@ -24,7 +24,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
@@ -64,8 +63,8 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (HtmlUtils.startsWithHtml(sabloValue))

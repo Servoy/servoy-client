@@ -31,6 +31,7 @@ import javax.swing.event.TableModelListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
@@ -39,13 +40,11 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
-import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +91,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	public static final String FORM_FOUNDSET_SELECTOR = "";
 
-	protected static final Logger log = LoggerFactory.getLogger(CustomJSONPropertyType.class.getCanonicalName());
+	protected static final Logger log = LoggerFactory.getLogger(FoundsetPropertyType.class.getCanonicalName());
 	protected static final String PUSH_TO_SERVER = "w";
 
 	/**
@@ -536,11 +535,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
-	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
-		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 		rowDataProvider.initializeIfNeeded(dataConverterContext);
 
 		destinationJSON.object();
@@ -585,7 +581,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 				for (Entry<String, ComponentFormat> columnFormat : columnFormats.entrySet())
 				{
-					formatPropertyType.writeComponentFormatToJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), null, dataConverterContext);
+					formatPropertyType.writeComponentFormatToJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), dataConverterContext);
 				}
 			} // else just an empty object if fine (but we do write it because when changing dataproviders from scripting it could change from something to null and the client should know about it)
 			destinationJSON.endObject();
@@ -603,16 +599,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 //	    ]
 		if (getFoundset() != null)
 		{
-			DataConversion clientConversionInfo = new DataConversion();
 
 			destinationJSON.key(ROWS);
-			clientConversionInfo.pushNode(ROWS);
-			rowDataProvider.writeRowData(viewPort.getStartIndex(), viewPort.getStartIndex() + viewPort.getSize() - 1, getFoundset(), destinationJSON,
-				clientConversionInfo);
-			clientConversionInfo.popNode();
+			ViewportClientSideTypes clientSideTypesForViewport = rowDataProvider.writeRowData(viewPort.getStartIndex(),
+				viewPort.getStartIndex() + viewPort.getSize() - 1, getFoundset(), destinationJSON);
 
-			// conversion info for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+			// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON and client-side needs to know about this)
+			if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.TYPES_KEY);
 		}
 		else
 		{
@@ -643,14 +636,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers, dataConverterContext);
+		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, dataConverterContext);
 		else
 		{
-			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 			rowDataProvider.initializeIfNeeded(dataConverterContext);
 
 			boolean somethingChanged = false;
@@ -744,22 +734,14 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						viewPortUpdateAdded = true;
 					}
 
-					DataConversion clientConversionInfo = new DataConversion();
-					clientConversionInfo.pushNode(UPDATE_PREFIX + ROWS);
 					destinationJSON.key(UPDATE_PREFIX + ROWS).array();
 
-					for (int i = 0; i < viewPortChanges.length; i++)
+					for (ViewportOperation viewPortChange : viewPortChanges)
 					{
-						clientConversionInfo.pushNode(String.valueOf(i));
-						viewPortChanges[i].writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, clientConversionInfo,
-							null);
-						clientConversionInfo.popNode();
+						viewPortChange.writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, null);
 					}
-					clientConversionInfo.popNode();
 					destinationJSON.endArray();
 
-					// conversion info for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 					somethingChanged = true;
 				}
 				else changeMonitor.clearChanges(); // changes have to be cleared anyway
@@ -820,10 +802,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return null;
 	}
 
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo,
-		IBrowserConverterContext browserConverterContext) throws JSONException
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, IBrowserConverterContext browserConverterContext,
+		ViewportClientSideTypes types) throws JSONException
 	{
 		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
+
+		List<Pair<String/* forColumn */, JSONString/* type */>> typesOfColumns = null;
+
 		while (it.hasNext())
 		{
 			Entry<String, String> entry = it.next();
@@ -842,15 +827,27 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				//					webObject));
 				//			}
 
-				clientConversionInfo.pushNode(entry.getKey());
 				if (value instanceof DbIdentValue)
 				{
 					value = ((DbIdentValue)value).getPkValue();
 				}
-				FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, browserConverterContext);
-				clientConversionInfo.popNode();
+
+				w.key(entry.getKey());
+				IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.getConvertedValueWithClientType(value, pd,
+					browserConverterContext);
+
+				w.value(jsonValueRepresentationForWrappedValue);
+				if (jsonValueRepresentationForWrappedValue.getClientSideType() != null)
+				{
+					// all this reusable thing
+					Pair<String/* forColumn */, JSONString/* type */> cellType = new Pair<>(entry.getKey(),
+						jsonValueRepresentationForWrappedValue.getClientSideType());
+					if (typesOfColumns == null) typesOfColumns = new ArrayList<>();
+					typesOfColumns.add(cellType);
+				}
 			}
 		}
+		types.registerClientSideType(typesOfColumns);
 	}
 
 	private PropertyDescription getDataProviderPropertyDescription(String dataProvider)

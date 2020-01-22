@@ -25,14 +25,14 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IGranularProtectionChecker;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -53,17 +53,17 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Implementation for the complex custom type "foundset".
+ * Implementation for the complex type "foundset".
  *
  * @author acostescu
  */
-public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue>
-	implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
-	IFormElementDefaultValueToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IConvertedPropertyType<FoundsetTypeSabloValue>,
-	ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
-	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType, IGranularProtectionChecker<FoundsetTypeSabloValue>
+public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloValue> implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>,
+	IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
+	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>,
+	ISupportsGranularUpdates<FoundsetTypeSabloValue>, IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType,
+	IGranularProtectionChecker<FoundsetTypeSabloValue>, IPropertyWithClientSideConversions<FoundsetTypeSabloValue>
 {
-	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
+	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType();
 
 	public static final String TYPE_NAME = "foundset";
 
@@ -74,20 +74,24 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	private static final String FOUNDSET_KEY_FOR_RHINO = "foundset";
 	public static final String DATAPROVIDERS_KEY_FOR_DESIGN = "dataproviders";
 
-	public FoundsetPropertyType(PropertyDescription definition)
+	public FoundsetPropertyType()
 	{
-		super("foundset", definition);
+		super();
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
+	public String getName()
+	{
+		return TYPE_NAME;
+	}
+
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd,
 		FormElementContext formElementContext) throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
 		// this just dumps an empty/dummy value
-		if (conversionMarkers != null) conversionMarkers.convert(TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
 		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
@@ -136,25 +140,25 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.changesToJSON(writer, clientConversion, dataConverterContext);
+			sabloValue.changesToJSON(writer, dataConverterContext);
 		}
 		return writer;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.toJSON(writer, clientConversion, dataConverterContext);
+			sabloValue.toJSON(writer, dataConverterContext);
 		}
 		return writer;
 	}
@@ -392,6 +396,15 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		}
 
 		return newSabloValue;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+
+		return true;
 	}
 
 }

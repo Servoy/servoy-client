@@ -33,12 +33,12 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -76,9 +76,9 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class FormComponentPropertyType extends DefaultPropertyType<Object>
-	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>,
-	IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType, ISupportsGranularUpdates<Object>
+public class FormComponentPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>,
+	IFormElementToTemplateJSON<Object, Object>, IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType,
+	ISupportsGranularUpdates<Object>, IPropertyWithClientSideConversions<Object>
 {
 	public static final String SVY_FORM = "svy_form";
 
@@ -118,14 +118,14 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (sabloValue instanceof FormComponentSabloValue)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			((FormComponentSabloValue)sabloValue).fullToJSON(writer, clientConversion, this, dataConverterContext);
-		}
+			((FormComponentSabloValue)sabloValue).fullToJSON(writer, this, dataConverterContext);
+		} // else - if it's not from a repeater (foundset linked) - we don't send anything at all to client for this property in the form component component - all form component subcomponents are already handled though form code directly
 		return writer;
 	}
 
@@ -177,8 +177,8 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
@@ -287,7 +287,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 				{
 					if (element.getName() != null)
 					{
-						WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+						WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
 							FormTemplateGenerator.getComponentTypeName(element));
 						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
 						if (properties.size() > 0)
@@ -495,14 +495,34 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter changesToJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue instanceof FormComponentSabloValue)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			((FormComponentSabloValue)sabloValue).changesToJSON(writer, clientConversion, this);
+			((FormComponentSabloValue)sabloValue).changesToJSON(writer, this);
 		}
 		return writer;
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
+		{
+			// this is a list form component's (or similar) property - linked to foundset
+			JSONUtils.addKeyIfPresent(w, keyToAddTo);
+			w.key(keyToAddTo).value(TYPE_NAME);
+			return true;
+		}
+		else
+		{
+			// this is a simple form component property (not in a repeated component) - that is part of a form directly - some things will happen directly through
+			// form code (form already has the subcomponents in it)
+			// this property will not even send any value client-side; we don't need to send anything here then either
+			return false;
+		}
+	}
+
 }

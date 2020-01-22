@@ -21,18 +21,18 @@ package com.servoy.j2db.server.ngclient.endpoint;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.sablo.websocket.WebsocketEndpoint;
+import org.sablo.websocket.ClientSideWindowState;
+import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.util.Pair;
 
 /**
- * Base endpoint for NGclients, keeps track of loaded forms on the client.
+ * ClientSideWindowState for NGclients, keeps track of loaded forms on the client as well.
  *
- * @author rgansevles
- *
+ * @author rgansevles, acostescu
  */
 
-public abstract class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClientWebsocketEndpoint
+public class NGClientSideWindowState extends ClientSideWindowState
 {
 
 	/**
@@ -44,31 +44,27 @@ public abstract class BaseNGClientEndpoint extends WebsocketEndpoint implements 
 	 */
 	private final ConcurrentMap<String, Pair<String, Boolean>> formsOnClientForThisEndpoint = new ConcurrentHashMap<String, Pair<String, Boolean>>();
 
-	public BaseNGClientEndpoint(String endpointType)
+	public NGClientSideWindowState(IWindow window)
 	{
-		super(endpointType);
+		super(window);
 	}
 
-	@Override
 	public boolean addFormIfAbsent(String formName, String formUrl)
 	{
 		return formsOnClientForThisEndpoint.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null;
 	}
 
-	@Override
 	public void formDestroyed(String formName)
 	{
 		formsOnClientForThisEndpoint.remove(formName);
 	}
 
-	@Override
 	public String getFormUrl(String formName)
 	{
 		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
 		return pair != null ? pair.getLeft() : null;
 	}
 
-	@Override
 	public void setAttachedToDOM(String formName, boolean attached)
 	{
 		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
@@ -78,11 +74,17 @@ public abstract class BaseNGClientEndpoint extends WebsocketEndpoint implements 
 		}
 	}
 
-	@Override
 	public boolean isFormAttachedToDOM(String formName)
 	{
 		Pair<String, Boolean> pair = formsOnClientForThisEndpoint.get(formName);
 		return pair != null ? pair.getRight().booleanValue() : false;
+	}
+
+	@Override
+	public void dispose()
+	{
+		super.dispose();
+		formsOnClientForThisEndpoint.clear();
 	}
 
 }

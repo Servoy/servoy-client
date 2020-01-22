@@ -16,6 +16,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,14 +26,15 @@ import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -40,8 +42,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
- * Currently this type is only used when set from scripting - for setValueListItems api call, but in the future
- * it could be used in other places as well.
+ * Currently this type is only used in servoy-extra-components treeview, but in the future
+ * it could be used in other places as well. It is also documented on wiki so others might use it too.
  *
  * @author acostescu
  */
@@ -50,6 +52,8 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
 	public static final String TYPE_NAME = "dataset";
+	private static final String VALUE_KEY = "v";
+	private static final String TYPES_KEY = "t";
 
 	private DatasetPropertyType()
 	{
@@ -70,7 +74,7 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
@@ -79,7 +83,8 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 			return writer.value(null);
 		}
 
-		writer.array();
+		writer.object().key(VALUE_KEY).array();
+		HashMap<Integer, EmbeddableJSONWriter> columnTypes = null;
 
 		if (value.getColumnCount() > 0)
 		{
@@ -106,12 +111,13 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 				PropertyDescription pd;
 				for (int j = 0; j < row.length; j++)
 				{
+					Object v;
 					pd = datasetConfig.getColumnType(columnNames[j]);
 					if (pd != null)
 					{
-						Object v;
 						if (pd.getType() instanceof IWrapperType< ? , ? >)
 						{
+							// this will probably only happen for MediaPropertyType here
 							IWrappingContext c = (dataConverterContext instanceof IWrappingContext ? (IWrappingContext)dataConverterContext
 								: new WrappingContext(dataConverterContext.getWebObject(), pd.getName()));
 							v = ((IWrapperType<Object, ? >)pd.getType()).wrap(row[j], null, pd, c);
@@ -120,19 +126,44 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 						{
 							v = row[j];
 						}
-						FullValueToJSONConverter.INSTANCE.toJSONValue(writer, null, v, pd, clientConversion, null);
+
+						// see if it this type also needs client side conversions
+						if (pd.getType() instanceof IPropertyWithClientSideConversions< ? >) // no use checking here IPropertyConverterForBrowserWithDynamicClientType as dataset won't have those
+						{
+							if (columnTypes == null)
+							{
+								columnTypes = new HashMap<>();
+							}
+							if (!columnTypes.containsKey(Integer.valueOf(j)))
+							{
+								columnTypes.put(Integer.valueOf(j), JSONUtils.getClientSideTypeJSONString(pd));
+							}
+						}
 					}
-					else
-					{
-						writer.value(row[j]);
-					}
+					else v = row[j];
+
+					// if we have a PD with to client json conversions from .spec for this column it will use it, otherwise it will just use default conversions (that work with dates as well)
+					FullValueToJSONConverter.INSTANCE.toJSONValue(writer, null, v, pd, null);
 				}
 
 				writer.endArray();
 			}
+
 		}
 
 		writer.endArray();
+
+		// see if any of the column types defined in .spec need client-side conversions (probably only dates can be in datasets and need this - if they are set as such in .spec; if they would not be specified in .spec then defaultToJSON will write the with types anyway)
+		if (columnTypes != null)
+		{
+			writer.key(TYPES_KEY).object();
+			for (Entry<Integer, EmbeddableJSONWriter> te : columnTypes.entrySet())
+			{
+				writer.key(String.valueOf(te.getKey())).value(te.getValue());
+			}
+			writer.endObject();
+		}
+		writer.endObject();
 
 		return writer;
 	}

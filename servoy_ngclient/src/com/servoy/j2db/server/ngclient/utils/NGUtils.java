@@ -35,8 +35,6 @@ import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DoublePropertyType;
 import org.sablo.specification.property.types.LongPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.base.persistence.IBaseColumn;
@@ -56,6 +54,7 @@ import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyT
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.util.Debug;
@@ -76,6 +75,8 @@ public abstract class NGUtils
 		TypesRegistry.getType(DatePropertyType.TYPE_NAME)).build();
 	public static final PropertyDescription LOCAL_DATE_DATAPROVIDER_CACHED_PD = new PropertyDescriptionBuilder().withName("Dataprovider (date)").withType(
 		TypesRegistry.getType(DatePropertyType.TYPE_NAME)).withConfig(new JSONObject("{useLocalDateTime:true}")).build();
+	public static final PropertyDescription MEDIA_CACHED_PD = new PropertyDescriptionBuilder().withName("Media (url)").withType(
+		TypesRegistry.getType(MediaPropertyType.TYPE_NAME)).build();
 	public static final PropertyDescription MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD = new PropertyDescriptionBuilder().withName(
 		"Dataprovider (media)").withType(TypesRegistry.getType(ByteArrayResourcePropertyType.TYPE_NAME)).build();
 	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_PARSE_HTML_CACHED_PD = new PropertyDescriptionBuilder().withName(
@@ -179,11 +180,9 @@ public abstract class NGUtils
 	public static String formChangesToString(Container formUI, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
 		JSONStringer w = new JSONStringer();
-		DataConversion conversions = new DataConversion();
 		w.object();
 		// converter here is always ChangesToJSONConverter except for some unit tests
-		formUI.writeAllComponentsChanges(w, "changes", converter, conversions);
-		JSONUtils.writeClientConversions(w, conversions);
+		formUI.writeAllComponentsChanges(w, "changes", converter);
 		w.endObject();
 		return w.toString();
 	}
@@ -215,7 +214,7 @@ public abstract class NGUtils
 	{
 		ArrayList<WebObjectSpecification> allPublicWebServiceSpecifications = new ArrayList<WebObjectSpecification>();
 		List<String> ignoreList = Arrays.asList(ignore);
-		for (WebObjectSpecification spec : servicesSpecProviderState.getAllWebComponentSpecifications())
+		for (WebObjectSpecification spec : servicesSpecProviderState.getAllWebObjectSpecifications())
 		{
 			if (ignoreList.indexOf(spec.getPackageName()) == -1)
 			{

@@ -29,7 +29,6 @@ import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -94,7 +93,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, MediaWrapper object, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, MediaWrapper object, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (object != null)
@@ -209,8 +208,8 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
@@ -220,7 +219,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 			String url = getMediaUrl(formElementValue, fs, null);
 			if (url != null)
 			{
-				return toJSON(writer, key, new MediaWrapper(formElementValue, url), pd, browserConversionMarkers, null);
+				return toJSON(writer, key, new MediaWrapper(formElementValue, url), pd, null);
 			}
 		}
 

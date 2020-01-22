@@ -26,7 +26,6 @@ import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IContextProvider;
@@ -92,8 +91,8 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FormScope sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, FormScope sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (sabloValue != null)
 		{

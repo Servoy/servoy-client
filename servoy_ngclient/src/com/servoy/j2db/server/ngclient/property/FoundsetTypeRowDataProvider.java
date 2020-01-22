@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient.property;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 
@@ -39,7 +38,7 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		w.object();
@@ -48,7 +47,7 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
 		}
 
-		foundsetPropertyValue.populateRowData(record, columnName, w, clientConversionInfo, browserConverterContext);
+		foundsetPropertyValue.populateRowData(record, columnName, w, browserConverterContext, types);
 
 		w.endObject();
 	}

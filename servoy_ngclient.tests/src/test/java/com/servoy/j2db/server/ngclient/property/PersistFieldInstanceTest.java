@@ -183,11 +183,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Assert.assertEquals(1, changes.content.size());
 
-		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null);
+		String json = JSONUtils.writeChanges(changes.content, changes.contentType, null);
 
-		Assert.assertEquals(
-			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
-			json);
+		Assert.assertEquals("{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}]}}", json);
 
 	}
 
@@ -215,9 +213,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
-		Assert.assertEquals(new JSONObject(
-			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\",\"svy_types\":{\"atype\":\"JSON_obj\"}}").toString(),
+		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, allowBrowserConverterContext);
+		Assert.assertEquals(
+			new JSONObject("{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\"}").toString(),
 			new JSONObject(json).toString());
 	}
 
@@ -263,9 +261,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
-		JSONAssert.assertEquals(
-			"{\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, null);
+		JSONAssert.assertEquals("{\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}}}",
 			json, true);
 	}
 

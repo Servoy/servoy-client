@@ -44,7 +44,6 @@ import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.TypedDataWithChangeInfo;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -484,12 +483,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	 * Writes a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
 	 * @param componentPropertyType
 	 */
-	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
-		throws JSONException
+	public JSONWriter initialToJSON(JSONWriter destinationJSON, ComponentPropertyType componentPropertyType) throws JSONException
 	{
-		if (recordBasedPropertiesChangedComparedToTemplate) return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
-
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (recordBasedPropertiesChangedComparedToTemplate) return fullToJSON(destinationJSON, componentPropertyType);
 
 		destinationJSON.object();
 		destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
@@ -503,10 +499,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
 
-		DataConversion conversions = new DataConversion();
 		// send component model (when linked to foundset only props that are not record related)
-		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, null, destinationJSON, allProps, conversions);
-		JSONUtils.writeClientConversions(destinationJSON, conversions);
+		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, null, destinationJSON, allProps);
 
 		destinationJSON.endObject();
 
@@ -519,16 +513,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		return destinationJSON;
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
-		throws JSONException
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, ComponentPropertyType componentPropertyType) throws JSONException
 	{
 		if (recordBasedPropertiesChanged)
 		{
 			// just send over the whole thing - viewport and model properties are not the same as they used to be
-			return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
+			return fullToJSON(destinationJSON, componentPropertyType);
 		}
-
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		TypedDataWithChangeInfo changes = childComponent.getAndClearChanges();
 		removeRecordDependentProperties(changes);
@@ -549,10 +540,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 			destinationJSON.object();
 
-			DataConversion conversions = new DataConversion();
 			// send component model (when linked to foundset only props that are not record related)
-			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, FullValueToJSONConverter.INSTANCE, destinationJSON, changes, conversions);
-			JSONUtils.writeClientConversions(destinationJSON, conversions);
+			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, FullValueToJSONConverter.INSTANCE, destinationJSON, changes);
 
 			destinationJSON.endObject();
 		}
@@ -570,25 +559,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			{
 				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				viewPortChangeMonitor.clearChanges();
-				DataConversion clientConversionInfo = new DataConversion();
 
-				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);
 				destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY).array();
 
 				FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-				for (int i = 0; i < viewPortChanges.length; i++)
+				for (ViewportOperation viewPortChange : viewPortChanges)
 				{
-					clientConversionInfo.pushNode(String.valueOf(i));
-					viewPortChanges[i].writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), foundsetPropValue.getFoundset(),
-						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, clientConversionInfo, null);
-					clientConversionInfo.popNode();
+					viewPortChange.writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), foundsetPropValue.getFoundset(),
+						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, null);
 				}
-				clientConversionInfo.popNode();
 				destinationJSON.endArray();
-
-				// conversion info for websocket traffic (for example Date objects will turn into long)
-				JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
-
 			}
 			viewPortChangeMonitor.doneWritingChanges();
 		}
@@ -613,19 +593,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
 
-			DataConversion clientConversionInfo = new DataConversion();
-
 			viewPortChangeMonitor.clearChanges();
 
 			destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_KEY);
-			clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_KEY);
-			viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
-				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON,
-				clientConversionInfo);
-			clientConversionInfo.popNode();
 
-			// conversion info for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+			// no need to keep and write return value below because components already know their property types client side (sent from ClientSideTypesState); and it will be null anyway because of what ComponentViewportRowDataProvider does
+			viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
+				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON);
+
 			viewPortChangeMonitor.doneWritingChanges();
 		}
 	}
@@ -635,10 +610,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	 * This is currently needed and can get called if the property is nested inside other complex properties (json object/array) that sometimes
 	 * might want/need to send again the entire content.
 	 */
-	public JSONWriter fullToJSON(final JSONWriter writer, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType) throws JSONException
+	public JSONWriter fullToJSON(final JSONWriter writer, ComponentPropertyType componentPropertyType) throws JSONException
 	{
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 		// create children of component as specified by this property
 		final FormElement fe = formElementValue.element;
 
@@ -680,12 +653,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			public void writeComponentModel() throws JSONException
 			{
 				writer.object();
-				DataConversion dataConversion = new DataConversion();
-				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, dataConversion,
-					formElementContext);
+				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, formElementContext);
 				// always use full to JSON converter here; second arg. is null due to that
-				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, null, writer, runtimeProperties, dataConversion);
-				JSONUtils.writeClientConversions(writer, dataConversion);
+				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, null, writer, runtimeProperties);
 				writer.endObject();
 			}
 

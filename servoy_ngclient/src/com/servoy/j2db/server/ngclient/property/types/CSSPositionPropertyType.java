@@ -29,7 +29,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -61,6 +60,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	implements IClassPropertyType<CSSPosition>, IFormElementToTemplateJSON<CSSPosition, CSSPosition>, IDesignToFormElement<Object, CSSPosition, CSSPosition>,
 	IDesignValueConverter<CSSPosition>, ISabloComponentToRhino<CSSPosition>
 {
+
 	public static final CSSPositionPropertyType INSTANCE = new CSSPositionPropertyType();
 	public static final String TYPE_NAME = "CSSPosition";
 
@@ -87,8 +87,8 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		return null;
 	}
 
-	public JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		FormElement fe = null;
 		if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebFormComponent)
@@ -106,7 +106,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 			}
 		}
 
-		return toJSON(writer, key, object, pd, clientConversion, fe, fs, form);
+		return toJSON(writer, key, object, pd, fe, fs, form);
 	}
 
 	private String addPixels(String value)
@@ -120,8 +120,8 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		return value != null && !value.equals("-1") && !value.trim().isEmpty();
 	}
 
-	private JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, DataConversion clientConversion,
-		FormElement formElement, FlattenedSolution fs, Form context) throws JSONException
+	private JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, FormElement formElement, FlattenedSolution fs,
+		Form context) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
@@ -190,11 +190,11 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, CSSPosition formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, formElementContext.getFormElement(),
-			formElementContext.getFlattenedSolution(), (formElementContext.getContext() != null && formElementContext.getContext().getForm() != null)
-				? formElementContext.getContext().getForm().getForm() : null);
+		return toJSON(writer, key, formElementValue, pd, formElementContext.getFormElement(), formElementContext.getFlattenedSolution(),
+			(formElementContext.getContext() != null && formElementContext.getContext().getForm() != null) ? formElementContext.getContext().getForm().getForm()
+				: null);
 	}
 
 	@Override
@@ -225,11 +225,6 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		return CSSPosition.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public CSSPosition fromDesignValue(Object designValue, PropertyDescription propertyDescription)
 	{
@@ -245,11 +240,6 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.IDesignValueConverter#toDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public Object toDesignValue(Object javaValue, PropertyDescription pd)
 	{

@@ -54,7 +54,7 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 
 			Pair<PropertyDescription, String> propAndName = getPropertyDescriptionAndName(propertyName, spec);
 
@@ -73,7 +73,7 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 			Pair<PropertyDescription, String> propAndName = getPropertyDescriptionAndName(propertyName, spec);
 			PropertyDescription pd = propAndName.getLeft();
 			if (pd != null && pd.getType() instanceof IFormComponentType)
@@ -137,7 +137,7 @@ public class JSNGWebComponent extends JSWebComponent
 		JSONObject json = webComponent.getFlattenedJson();
 		if (json == null) return Context.getUndefinedValue();
 
-		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			Pair<PropertyDescription, String> propAndName = getPropertyDescriptionAndName(propertyName, spec);
@@ -161,7 +161,7 @@ public class JSNGWebComponent extends JSWebComponent
 	public void setHandler(String handlerName, JSMethod value)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			String name = handlerName;
@@ -200,7 +200,7 @@ public class JSNGWebComponent extends JSWebComponent
 	public void resetHandler(String handlerName)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			String name = handlerName;

@@ -26,11 +26,12 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -70,10 +71,11 @@ import com.servoy.j2db.util.IRhinoDesignConverter;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
-	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
-	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType, IRhinoDesignConverter,
-	II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>, ISupportsGranularUpdates<ValueListTypeSabloValue>
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>
+	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
+	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
+	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>,
+	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -141,23 +143,23 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
-			sabloValue.toJSON(writer, key, clientConversion, dataConverterContext);
+			sabloValue.toJSON(writer, key, dataConverterContext);
 		}
 		return writer;
 	}
 
 	@Override
 	public JSONWriter changesToJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, PropertyDescription propertyDescription,
-		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
-			sabloValue.changesToJSON(writer, key, clientConversion, dataConverterContext);
+			sabloValue.changesToJSON(writer, key, dataConverterContext);
 		}
 		return writer;
 	}
@@ -440,6 +442,15 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			this.formatPropertyName = formatPropertyName;
 			this.dataproviderResolveValuelist = dataproviderResolveValuelist;
 		}
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+
+		w.value(TYPE_NAME);
+		return true;
 	}
 
 }

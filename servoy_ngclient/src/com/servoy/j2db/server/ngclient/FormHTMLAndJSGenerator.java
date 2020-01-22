@@ -29,7 +29,7 @@ import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 
 /**
  * Class that can generate and cache the form template HTML and JS.
- * Useful when a form was used in multiple windows and we need to resend it's templates, so that we don't regenerate the HTML and JS for each window (it uses tbe cacbe instead).
+ * Useful when a form was used in multiple windows and we need to resend it's templates, so that we don't regenerate the HTML and JS for each window (it uses the cache instead).
  *
  * @author acostescu
  */
@@ -85,4 +85,5 @@ public class FormHTMLAndJSGenerator implements IFormHTMLAndJSGenerator
 		}
 		return cachedJSTemplate;
 	}
+
 }

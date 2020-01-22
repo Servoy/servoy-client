@@ -31,7 +31,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.FunctionPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -99,18 +98,18 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
-		return toJSON(writer, key, object, pd, clientConversion,
+		return toJSON(writer, key, object, pd,
 			dataConverterContext.getWebObject() instanceof IContextProvider
 				? ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution() : null,
 			dataConverterContext.getWebObject() instanceof WebFormComponent ? ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement() : null,
 			dataConverterContext.getWebObject() instanceof WebFormComponent ? (WebFormComponent)dataConverterContext.getWebObject() : null);
 	}
 
-	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, DataConversion clientConversion, FlattenedSolution fs,
-		FormElement fe, WebFormComponent formComponent) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, FlattenedSolution fs, FormElement fe,
+		WebFormComponent formComponent) throws JSONException
 	{
 		Map<String, Object> map = new HashMap<>();
 		if (object != null && fs != null)
@@ -187,7 +186,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			Debug.error(ex);
 		}
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, clientConversion, null);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, null);
 	}
 
 	private void addScriptToMap(String script, Map<String, Object> map) throws Exception
@@ -217,13 +216,12 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers,
-			formElementContext != null ? formElementContext.getFlattenedSolution() : null,
+		return toJSON(writer, key, formElementValue, pd, formElementContext != null ? formElementContext.getFlattenedSolution() : null,
 			formElementContext != null ? formElementContext.getFormElement() : null, null);
 	}
 

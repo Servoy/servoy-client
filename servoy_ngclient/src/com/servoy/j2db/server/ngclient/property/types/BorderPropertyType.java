@@ -43,7 +43,6 @@ import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -239,11 +238,11 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Border value, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Border value, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		Map<String, Object> javaResult = writeBorderToJson(value);
-		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, clientConversion, null);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, null);
 	}
 
 	public static Map<String, Object> writeBorderToJson(Border value)
@@ -421,11 +420,11 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Border formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Border formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, null);
 	}
 
 	@Override
@@ -472,7 +471,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 			try
 			{
 				writer.object();
-				toJSON(writer, pd.getName(), border, pd, new DataConversion(), null);
+				toJSON(writer, pd.getName(), border, pd, null);
 				writer.endObject();
 				return new JSONObject(writer.toString()).get(pd.getName());
 			}

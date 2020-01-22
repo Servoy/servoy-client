@@ -28,7 +28,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.junit.Assert;
 import org.junit.Test;
-import org.sablo.websocket.utils.DataConversion;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -48,7 +47,7 @@ public class DateTest
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(70, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(70, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(
 			new JSONObject("{\"mydate\" : \"1970-02-02T00:00" +
@@ -58,7 +57,7 @@ public class DateTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		String stripOffsetSeconds = stripOffsetSeconds(
 			"1919-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(19, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString());
@@ -68,7 +67,7 @@ public class DateTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(39, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(39, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(
 			new JSONObject("{\"mydate\" : \"1939-02-02T00:00" +
@@ -78,7 +77,7 @@ public class DateTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(41, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(41, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(
 			new JSONObject("{\"mydate\" : \"1941-02-02T00:00" +
@@ -88,8 +87,7 @@ public class DateTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(118, 5, 5, 11, 50, 55), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(),
-			null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(118, 5, 5, 11, 50, 55), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(
 			new JSONObject("{\"mydate\" : \"2018-06-05T11:50:55" +
@@ -99,16 +97,14 @@ public class DateTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD,
-			new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"2018-06-05T00:00\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(),
-			null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.sql.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(
 			new JSONObject("{\"mydate\" : \"2018-06-05T00:00" +
@@ -122,7 +118,7 @@ public class DateTest
 			stringWriter = new StringWriter();
 			jsonWriter = new JSONWriter(stringWriter);
 			jsonWriter.object();
-			NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+			NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null);
 			jsonWriter.endObject();
 			JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"1919-02-02T00:00+01:44\"}"), new JSONObject(stringWriter.toString()),
 				JSONCompareMode.STRICT);
@@ -139,36 +135,35 @@ public class DateTest
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(70, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(70, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"1970-02-02T00:00\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(19, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"1919-02-02T00:00\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(39, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(39, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"1939-02-02T00:00\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(41, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(41, 1, 2), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"1941-02-02T00:00\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(118, 5, 5, 11, 50, 55), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD,
-			new DataConversion(), null);
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new Date(118, 5, 5, 11, 50, 55), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject("{\"mydate\" : \"2018-06-05T11:50:55\"}"), new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 	}

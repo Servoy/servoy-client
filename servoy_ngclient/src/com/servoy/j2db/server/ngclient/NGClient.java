@@ -109,10 +109,12 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed
 {
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
+	private static final String SABLO_LOADING_INDICATOR = "$sabloLoadingIndicator";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -279,7 +281,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
-		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
@@ -671,7 +673,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	protected void runWhileShowingLoadingIndicator(Runnable r)
 	{
-		IClientService s = getWebsocketSession().getClientService("$sabloLoadingIndicator");
+		IClientService s = getWebsocketSession().getClientService(SABLO_LOADING_INDICATOR);
 		s.executeAsyncNowServiceCall("showLoading", null);
 		r.run();
 		s.executeAsyncNowServiceCall("hideLoading", null);
@@ -723,7 +725,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
 			if (specProviderState != null)
 			{
-				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebComponentSpecifications();
+				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebObjectSpecifications();
 				for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 				{
 					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");

@@ -44,7 +44,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
+import com.servoy.j2db.server.ngclient.endpoint.NGClientSideWindowState;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
@@ -81,10 +81,19 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		return (INGClientWebsocketSession)super.getSession();
 	}
 
+	/**
+	 * Gives the opportunity of creatin their own type of ClientSideWindowState to subclasses.
+	 */
 	@Override
-	public INGClientWebsocketEndpoint getEndpoint()
+	protected NGClientSideWindowState createClientSideWindowState()
 	{
-		return (INGClientWebsocketEndpoint)super.getEndpoint();
+		return new NGClientSideWindowState(this);
+	}
+
+	@Override
+	protected NGClientSideWindowState getClientSideWindowState()
+	{
+		return (NGClientSideWindowState)super.getClientSideWindowState();
 	}
 
 	public INGApplication getClient()
@@ -153,7 +162,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 		if (!isDelayedApiCall(apiFunction))
 		{
-			if (!isAsyncApiCall(apiFunction) && !getEndpoint().isFormAttachedToDOM(form.getName()))
+			if (!isAsyncApiCall(apiFunction) && !getClientSideWindowState().isFormAttachedToDOM(form.getName()))
 			{
 				log.warn("You are doing a sync api call in form '" + form.getName() + "' before form is loaded, this should be avoided (Component : " +
 					receiver.getName() + " , api: " + apiFunction.getName() + " )");
@@ -249,12 +258,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-		if (testForValidForm && !allowedForms.containsKey(formName) && getEndpoint().getFormUrl(formName) == null)
+		if (testForValidForm && !allowedForms.containsKey(formName) && getClientSideWindowState().getFormUrl(formName) == null)
 		{
 			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
 		}
 		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName).getLeft();
-		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
+		boolean nowSentToClient = getClientSideWindowState().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
 			IWebFormController cachedFormController = getSession().getClient().getFormManager().getCachedFormController(formName);
@@ -276,14 +285,14 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 		else
 		{
-			formUrl = getEndpoint().getFormUrl(formName);
+			formUrl = getClientSideWindowState().getFormUrl(formName);
 			if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
 		if (!async)
 		{
-			if (!getEndpoint().isFormAttachedToDOM(formName))
+			if (!getClientSideWindowState().isFormAttachedToDOM(formName))
 			{
 				if (!nowSentToClient)
 				{
@@ -331,11 +340,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			final String htmlTemplate = (needsToGenerateTemplates ? formTemplateGenerator.generateHTMLTemplate() : "");
 
 			// update endpoint URL if needed
-			String previousURL = getEndpoint().getFormUrl(realFormName);
+			String previousURL = getClientSideWindowState().getFormUrl(realFormName);
 			if (previousURL != null && !realUrl.equals(previousURL))
 			{
-				getEndpoint().formDestroyed(realFormName);
-				getEndpoint().addFormIfAbsent(realFormName, realUrl);
+				getClientSideWindowState().formDestroyed(realFormName);
+				getClientSideWindowState().addFormIfAbsent(realFormName, realUrl);
 			}
 
 			CurrentWindow.runForWindow(this, new Runnable()
@@ -374,7 +383,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public boolean hasFormChangedSinceLastSendToClient(Form flattenedForm, String realName)
 	{
 		boolean changed = true;
-		String clientUsedFormURL = getEndpoint().getFormUrl(realName);
+		String clientUsedFormURL = getClientSideWindowState().getFormUrl(realName);
 		if (clientUsedFormURL == null)
 		{
 			// need to add the session id to the default, because all urls will have that (also the one from the end point)
@@ -429,8 +438,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public boolean hasForm(String realName)
 	{
-		INGClientWebsocketEndpoint endpoint = getEndpoint();
-		return endpoint != null && endpoint.getFormUrl(realName) != null;
+		return getEndpoint() != null && getClientSideWindowState().getFormUrl(realName) != null;
 	}
 
 	protected String getDefaultFormURLStart(Form form, String name)
@@ -441,7 +449,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public void destroyForm(String name)
 	{
 		getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
-		getEndpoint().formDestroyed(name);
+		getClientSideWindowState().formDestroyed(name);
 	}
 
 	/**
@@ -449,12 +457,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	 */
 	public void setFormResolved(String formName, boolean resolved)
 	{
-		String formUrl = getEndpoint().getFormUrl(formName);
+		String formUrl = getClientSideWindowState().getFormUrl(formName);
 		if (formUrl != null)
 		{
 			synchronized (formUrl)
 			{
-				getEndpoint().setAttachedToDOM(formName, resolved);
+				getClientSideWindowState().setAttachedToDOM(formName, resolved);
 				if (Debug.isDebugEnabled())
 					Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
 				if (resolved) getSession().getEventDispatcher().resume(formUrl);
@@ -472,12 +480,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (controller == null) return false;
 
 		String formName = controller.getName();
-		String formUrl = getEndpoint().getFormUrl(formName);
+		String formUrl = getClientSideWindowState().getFormUrl(formName);
 		if (formUrl != null)
 		{
 			synchronized (formUrl)
 			{
-				return getEndpoint().isFormAttachedToDOM(formName);
+				return getClientSideWindowState().isFormAttachedToDOM(formName);
 			}
 		}
 		return false;

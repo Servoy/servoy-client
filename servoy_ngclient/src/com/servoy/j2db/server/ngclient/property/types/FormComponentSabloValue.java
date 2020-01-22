@@ -28,8 +28,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.ISmartPropertyValue;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IContentSpecConstants;
@@ -44,8 +42,7 @@ import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
 
 /**
  * @author jcompagner
- *  @since 8.4
- *
+ * @since 8.4
  */
 public class FormComponentSabloValue implements ISmartPropertyValue
 {
@@ -105,10 +102,8 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		}
 	}
 
-	public void fullToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType,
-		IBrowserConverterContext dataConverterContext)
+	public void fullToJSON(JSONWriter writer, FormComponentPropertyType formComponentPropertyType, IBrowserConverterContext dataConverterContext)
 	{
-		clientConversion.convert("formcomponent");
 		writer.object();
 		writer.key("uuid");
 		writer.value(cache.getHtmlTemplateUUIDForAngular());
@@ -124,28 +119,14 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.value(elementStartName);
 		writer.key("childElements");
 		writer.array();
-		DataConversion componentConversionMarkers = new DataConversion();
-		componentConversionMarkers.pushNode("childElements");
-		for (int i = 0; i < components.length; i++)
+		for (ComponentTypeSabloValue component : components)
 		{
-			componentConversionMarkers.pushNode(String.valueOf(i));
-			components[i].fullToJSON(writer, componentConversionMarkers, ComponentPropertyType.INSTANCE);
-			componentConversionMarkers.popNode();
+			component.fullToJSON(writer, ComponentPropertyType.INSTANCE);
 		}
-		componentConversionMarkers.popNode();
 		writer.endArray();
-		if (componentConversionMarkers.getConversions().size() > 0)
-		{
-			writer.key(JSONUtils.TYPES_KEY).object();
-			JSONUtils.writeConversions(writer, componentConversionMarkers.getConversions());
-			writer.endObject();
-		}
 		writer.endObject();
 	}
 
-	/**
-	 * @param newJSONValue
-	 */
 	public void browserUpdatesReceived(JSONArray array)
 	{
 		for (int i = 0; i < array.length(); i++)
@@ -155,28 +136,17 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		}
 	}
 
-	public void changesToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType)
+	public void changesToJSON(JSONWriter writer, FormComponentPropertyType formComponentPropertyType)
 	{
-		clientConversion.convert("formcomponent");
 		writer.object();
 		writer.key("childElements");
 		writer.array();
-		DataConversion componentConversionMarkers = new DataConversion();
-		componentConversionMarkers.pushNode("childElements");
-		for (int i = 0; i < components.length; i++)
+		for (ComponentTypeSabloValue component : components)
 		{
-			componentConversionMarkers.pushNode(String.valueOf(i));
-			components[i].changesToJSON(writer, componentConversionMarkers, ComponentPropertyType.INSTANCE);
-			componentConversionMarkers.popNode();
+			component.changesToJSON(writer, ComponentPropertyType.INSTANCE);
 		}
-		componentConversionMarkers.popNode();
 		writer.endArray();
-		if (componentConversionMarkers.getConversions().size() > 0)
-		{
-			writer.key(JSONUtils.TYPES_KEY).object();
-			JSONUtils.writeConversions(writer, componentConversionMarkers.getConversions());
-			writer.endObject();
-		}
 		writer.endObject();
 	}
+
 }

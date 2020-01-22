@@ -37,7 +37,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.json.JSONException;
-import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
@@ -49,12 +48,10 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
-import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
-import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
+import org.sablo.websocket.utils.JSONUtils.JSONStringWithClientSideType;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
@@ -115,7 +112,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	protected Object uiValue; // if this DP prop. uses an UI converter, this value is the one from UI (so the one that would result after converting it from record/scope value to UI value)
 
-	protected Object jsonValue;
+	protected IJSONStringWithClientSideType jsonValue;
 	protected IChangeListener changeMonitor;
 	protected PropertyDescription typeOfDP;
 	protected ComponentFormat fieldFormat;
@@ -133,8 +130,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private IModificationListener relatedRecordModificationListener;
 	private List<IRecordInternal> relatedRecords = new ArrayList<IRecordInternal>();
 	private String relationName;
+
 	private IWebObjectContext webObjectContext;
 	private String shouldResolveFromValuelistWithName;
+	private String formatPdName;
 
 	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 		PropertyDescription dpPD)
@@ -208,6 +207,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		this.webObjectContext = webObjectCntxt;
 		if (webObjectCntxt instanceof INGWebObjectContext) this.dataAdapterList = ((INGWebObjectContext)webObjectCntxt).getDataAdapterList();
 		computeShouldResolveValuelistConfig();
+		if (webObjectCntxt != null) computeFormatPropertiesForThisDP();
 		// register data link and find mode listeners as needed
 		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID,
 			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null);
@@ -260,6 +260,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		relatedRecords = Collections.emptyList();
 
 		webObjectContext = null;
+		shouldResolveFromValuelistWithName = null;
+		formatPdName = null;
+
 		changeMonitor = null;
 	}
 
@@ -281,23 +284,17 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		// TODO can type or fieldFormat change, for example in scripting the format is reset (but type shouldn't really change)
 		IDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
 			servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null);
-		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(FormatPropertyType.TYPE_NAME));
 
-		for (PropertyDescription formatPd : properties)
+		if (formatPdName != null)
 		{
-			// see whether format if "for" this property (dataprovider)
-			Object formatConfig = formatPd.getConfig();
-			if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
+			INGApplication application = servoyDataConverterContext.getApplication();
+			FormatTypeSabloValue formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPdName);
+			if (formatSabloValue != null && formatSabloValue.getFormatDesignValue() != null)
 			{
-				INGApplication application = servoyDataConverterContext.getApplication();
-				FormatTypeSabloValue formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPd.getName());
-				if (formatSabloValue != null && formatSabloValue.getFormatDesignValue() != null)
-				{
-					fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
-					break;
-				}
+				fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
 			}
 		}
+
 		if (fieldFormat != null)
 		{
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml(),
@@ -576,21 +573,28 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		return result;
 	}
 
-	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+	public IJSONStringWithClientSideType toJSON(IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (uiValue instanceof DbIdentValue)
-		{
-			uiValue = ((DbIdentValue)uiValue).getPkValue();
-		}
-
-		JSONUtils.addKeyIfPresent(writer, key);
 		if (jsonValue == null)
 		{
-			jsonValue = getValueForToJSON(uiValue, dataConverterContext);
+			jsonValue = getValueForToJSON(dataConverterContext);
 		}
+		return jsonValue;
+	}
 
-		writer.value(jsonValue);
-		if (jsonValue instanceof IJSONStringWithConversions) clientConversion.convert(((IJSONStringWithConversions)jsonValue).getDataConversions());
+	private void computeFormatPropertiesForThisDP()
+	{
+		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(FormatPropertyType.TYPE_NAME));
+
+		for (PropertyDescription formatPd : properties)
+		{
+			// see whether format if "for" this property (dataprovider)
+			Object formatConfig = formatPd.getConfig();
+			if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
+			{
+				formatPdName = formatPd.getName();
+			}
+		}
 	}
 
 	private void computeShouldResolveValuelistConfig()
@@ -612,9 +616,14 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
-	protected Object getValueForToJSON(Object uiValue, IBrowserConverterContext dataConverterContext) throws JSONException
+	protected IJSONStringWithClientSideType getValueForToJSON(IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		Object jsonValueRepresentation;
+		if (uiValue instanceof DbIdentValue)
+		{
+			uiValue = ((DbIdentValue)uiValue).getPkValue();
+		}
+
+		IJSONStringWithClientSideType jsonValueRepresentation;
 		boolean valuelistDisplayValue = false;
 		if (shouldResolveFromValuelistWithName != null)
 		{
@@ -664,26 +673,26 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
 			// from scripting, then show string representation
-			jsonValueRepresentation = uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : "");
+			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
+			ejw.value(uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : ""));
+			jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
-			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
-			DataConversion jsonDataConversion = new DataConversion();
-			FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, uiValue, typeOfDP, jsonDataConversion, dataConverterContext);
-			if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
-			String str = ejw.toJSONString();
-			if (str == null || str.trim().length() == 0)
+			jsonValueRepresentation = JSONUtils.getConvertedValueWithClientType(uiValue, typeOfDP, dataConverterContext);
+
+			if (jsonValueRepresentation.toJSONString() == null || jsonValueRepresentation.toJSONString().trim().length() == 0)
 			{
 				Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + uiValue + ")");
-				str = "null";
+				jsonValueRepresentation = new JSONStringWithClientSideType("null", null);
 			}
-			jsonValueRepresentation = new JSONStringWithConversions(str, jsonDataConversion);
 		}
 		else
 		{
+			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
+			ejw.value(uiValue);
 			// if valuelistDisplayValue just use the value from valuelist with no conversion ?
-			jsonValueRepresentation = uiValue;
+			jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 		}
 		return jsonValueRepresentation;
 	}

@@ -86,7 +86,7 @@ public class Types
 		TypesRegistry.addType(RecordPropertyType.INSTANCE);
 		TypesRegistry.addType(NativeFunctionType.INSTANCE);
 
-		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
+		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselves
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
 		TypesRegistry.addType(ComponentPropertyType.INSTANCE);
 

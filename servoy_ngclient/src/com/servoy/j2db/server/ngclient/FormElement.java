@@ -112,7 +112,7 @@ public final class FormElement implements INGFormElement
 		boolean willTurnIntoErrorBean;
 		if (inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()))
 		{
-			WebObjectSpecification pd = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(((Bean)persist).getBeanClassName());
+			WebObjectSpecification pd = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(((Bean)persist).getBeanClassName());
 			willTurnIntoErrorBean = pd != null && usesPersistTypedProperties(pd);
 		}
 		else
@@ -169,7 +169,7 @@ public final class FormElement implements INGFormElement
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
 
-		if (WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentTypeString) == null)
+		if (WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentTypeString) == null)
 		{
 			this.componentType = FormElement.ERROR_BEAN;
 		}
@@ -416,7 +416,7 @@ public final class FormElement implements INGFormElement
 		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getSpecProviderState();
 		try
 		{
-			spec = componentsSpecProviderState.getWebComponentSpecification(componentType);
+			spec = componentsSpecProviderState.getWebObjectSpecification(componentType);
 		}
 		catch (RuntimeException re)
 		{
@@ -427,7 +427,7 @@ public final class FormElement implements INGFormElement
 		{
 			String errorMessage = "Component spec for " + componentType + " not found; please check your component spec file(s).";
 			Debug.error(errorMessage);
-			return componentsSpecProviderState.getWebComponentSpecification(FormElement.ERROR_BEAN);
+			return componentsSpecProviderState.getWebObjectSpecification(FormElement.ERROR_BEAN);
 			//if (throwException) throw new IllegalStateException(errorMessage);
 		}
 		return spec;
@@ -704,8 +704,7 @@ public final class FormElement implements INGFormElement
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType,
-				context);
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, context);
 			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
 			return propertyWriter.endObject();
 		}

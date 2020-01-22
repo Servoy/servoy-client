@@ -25,7 +25,6 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
@@ -128,11 +127,10 @@ public class NGConversions
 		 * key is null and you want to write the converted value write only the converted value to the writer, ignore the key.
 		 * @param formElementValue the value to be converted and written
 		 * @param pd the property description for this property.
-		 * @param browserConversionMarkers client conversion markers that can be set and if set will be used client side to interpret the data properly.
 		 * @return the JSON writer for easily continuing the write process in the caller.
 		 */
-		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-			FormElementContext formElementContext) throws JSONException;
+		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+			throws JSONException;
 
 	}
 
@@ -289,9 +287,9 @@ public class NGConversions
 	 * @param formElement
 	 */
 	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws IllegalArgumentException, JSONException
+		FormElementContext formElementContext) throws IllegalArgumentException, JSONException
 	{
-		return new FormElementToJSON().toJSONValue(writer, key, value, valueType, browserConversionMarkers, formElementContext);
+		return new FormElementToJSON().toJSONValue(writer, key, value, valueType, formElementContext);
 	}
 
 	/**
@@ -315,7 +313,7 @@ public class NGConversions
 		 */
 		@Override
 		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription propertyDescription,
-			DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException, IllegalArgumentException
+			FormElementContext formElementContext) throws JSONException, IllegalArgumentException
 		{
 			IPropertyType< ? > type = (propertyDescription != null ? propertyDescription.getType() : null);
 
@@ -328,8 +326,7 @@ public class NGConversions
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, propertyDescription, browserConversionMarkers,
-						formElementContext);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, propertyDescription, formElementContext);
 				}
 				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, propertyDescription, formElementContext))
 				{
@@ -337,7 +334,7 @@ public class NGConversions
 				}
 				else if (value != null)
 				{
-					if (!JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, browserConversionMarkers, formElementContext))
+					if (!JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, formElementContext))
 					{
 						JSONUtils.addKeyIfPresent(writer, key);
 						writer.value(value);
@@ -349,7 +346,7 @@ public class NGConversions
 				// so then this is a default value for that property... that is NON-NULL
 				// use conversion 5.1 to convert from DEFAULT sablo type value to browser JSON in this case
 				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(propertyDescription), propertyDescription,
-					browserConversionMarkers, null); // webObject will always be null - this is template JSON
+					null); // webObject will always be null - this is template JSON
 			}
 			return writer;
 		}
@@ -361,8 +358,8 @@ public class NGConversions
 		public static final InitialToJSONConverter INSTANCE = new InitialToJSONConverter();
 
 		@Override
-		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers,
-			IBrowserConverterContext context) throws JSONException, IllegalArgumentException
+		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, IBrowserConverterContext context)
+			throws JSONException, IllegalArgumentException
 		{
 			if (value != null && valueType != null)
 			{
@@ -372,7 +369,7 @@ public class NGConversions
 					// good, we now know that this type puts values in template as well and now it only needs to update them to match runtime content
 					try
 					{
-						return ((ITemplateValueUpdaterType)type).initialToJSON(writer, key, value, valueType, browserConversionMarkers, context);
+						return ((ITemplateValueUpdaterType)type).initialToJSON(writer, key, value, valueType, context);
 					}
 					catch (Exception ex)
 					{
@@ -383,7 +380,7 @@ public class NGConversions
 			}
 
 			// for most values that don't support template value + updates use full value to JSON
-			super.toJSONValue(writer, key, value, valueType, browserConversionMarkers, context);
+			super.toJSONValue(writer, key, value, valueType, context);
 
 			return writer;
 		}

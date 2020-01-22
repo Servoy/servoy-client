@@ -36,10 +36,9 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -471,8 +470,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		}
 	}
 
-	public JSONWriter fullToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter fullToJSON(JSONWriter writer, String key, PropertyDescription wrappedPropertyDescription, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (!wrappedValueInitialized)
 		{
@@ -480,7 +479,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return writer;
 		}
 
-		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();
@@ -497,11 +495,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; not record dependent
-			DataConversion dataConversions = new DataConversion();
-			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, dataConverterContext);
-			JSONUtils.writeClientConversions(writer, dataConversions);
+			IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.getConvertedValueWithClientType(wrappedSabloValue, wrappedPropertyDescription,
+				dataConverterContext);
+
+			writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(wrappedJSONValue);
+			if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.TYPES_KEY).value(wrappedJSONValue.getClientSideType());
 		}
 		else
 		{
@@ -520,20 +518,17 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
 
-		DataConversion clientConversionInfo = new DataConversion();
 
 		destinationJSON.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
-		clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
-		viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
+		ViewportClientSideTypes clientSideTypesForViewport = viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
 			foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, null, getFoundsetValue().getFoundset(), destinationJSON,
-			clientConversionInfo, wrappedSabloValue);
-		clientConversionInfo.popNode();
+			wrappedSabloValue);
 
-		// conversion info for websocket traffic (for example Date objects will turn into long)
-		JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+		// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON)
+		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.TYPES_KEY);
 	}
 
-	public JSONWriter changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
+	public JSONWriter changesToJSON(JSONWriter writer, String key, PropertyDescription wrappedPropertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (!wrappedValueInitialized)
@@ -542,7 +537,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return writer;
 		}
 
-		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();
@@ -555,11 +549,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; just send it's changes
-			DataConversion dataConversions = new DataConversion();
-			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE);
+			// I think we can safely assume here that the client side type (if any) was not changed, so
+			// if there is a client side type for this value it was already sent previously and is available client side in the property's internal state
 			ChangesToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, dataConverterContext);
-			JSONUtils.writeClientConversions(writer, dataConversions);
+				dataConverterContext);
 		}
 		else
 		{
@@ -572,26 +565,18 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			}
 			else if (viewPortChangeMonitor.hasViewportChanges())
 			{
-				DataConversion clientConversionInfo = new DataConversion();
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
-				clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
 				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				viewPortChangeMonitor.clearChanges();
 
 				writer.array();
-				for (int i = 0; i < viewPortChanges.length; i++)
+				for (ViewportOperation viewPortChange : viewPortChanges)
 				{
-					clientConversionInfo.pushNode(String.valueOf(i));
-					viewPortChanges[i].writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), getFoundset(),
-						getFoundsetValue().getViewPort().getStartIndex(), writer, null, clientConversionInfo, wrappedSabloValue);
-					clientConversionInfo.popNode();
+					viewPortChange.writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), getFoundset(), getFoundsetValue().getViewPort().getStartIndex(),
+						writer, null, wrappedSabloValue);
 				}
 				writer.endArray();
-				clientConversionInfo.popNode();
-
-				// conversion info for websocket traffic (for example Date objects will turn into long)
-				JSONUtils.writeClientConversions(writer, clientConversionInfo);
 			}
 			else viewPortChangeMonitor.clearChanges(); // else there is no change to send but clear it anyway!
 

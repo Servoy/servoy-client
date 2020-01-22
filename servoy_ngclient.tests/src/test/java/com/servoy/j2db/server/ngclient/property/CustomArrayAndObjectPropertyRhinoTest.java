@@ -136,7 +136,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(((CustomJSONPropertyType< ? >)changes.contentType.getProperty(
 				"arrayT").getType()).getCustomJSONTypeDefinition().getType() instanceof CustomJSONObjectType);
 
-			JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
+			JSONUtils.writeDataAsFullToJSON(changes.content, changes.contentType, allowingBrowserConverterContext); // just to see it doesn't err. out
 			// ok now that we called component.getChanges() no changes should be present any more
 
 			assertTrue(!chList.mustSendAll());
@@ -184,7 +184,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 			// ok clear changes
 			changes = component.getAndClearChanges();
-			JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
+			JSONUtils.writeDataAsFullToJSON(changes.content, changes.contentType, allowingBrowserConverterContext); // just to see it doesn't err. out
 			assertEquals(1, changes.content.size());
 			assertEquals(0, component.getAndClearChanges().content.size());
 			assertTrue(!chList.mustSendAll());
@@ -227,8 +227,8 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 			changes = component.getAndClearChanges();
 			JSONAssert.assertEquals(
-				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"svy_types\":{\"0\":\"JSON_obj\"},\"vEr\":2}},\"svy_types\":{\"active\":\"JSON_arr\"},\"vEr\":5},\"i\":0}],\"vEr\":3}}",
-				JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
+				"{\"arrayT\":{\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"vEr\":2}},\"vEr\":5},\"i\":0}],\"vEr\":3}}",
+				JSONUtils.writeChanges(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
 
@@ -237,8 +237,8 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 			changes = component.getAndClearChanges();
 			JSONAssert.assertEquals(
-				"{\"svy_types\":{\"arrayT\":\"JSON_arr\"},\"arrayT\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}},\"u\":[{\"v\":{\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}},\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}",
-				JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
+				"{\"arrayT\":{\"u\":[{\"v\":{\"u\":[{\"v\":{\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}",
+				JSONUtils.writeChanges(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 			((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
 			((Map)((List)((Map)cal.get(0)).get("active")).get(1)).put("percent", 0.99);

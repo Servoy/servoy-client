@@ -38,7 +38,6 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FormController;
@@ -392,14 +391,13 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	@Override
-	public void writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
-		DataConversion clientDataConversions) throws JSONException
+	public void writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
 		try
 		{
 			getController().setRendering(true);
 			// converter here is always ChangesToJSONConverter except for some unit tests
-			super.writeAllComponentsChanges(w, keyInParent, converter, clientDataConversions);
+			super.writeAllComponentsChanges(w, keyInParent, converter);
 		}
 		finally
 		{

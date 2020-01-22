@@ -14,3 +14,5 @@ Require-Bundle: org.junit,
  org.apache.logging.log4j.api,
  org.apache.logging.log4j.slf4j18-impl
 Automatic-Module-Name: servoy_ngclient.tests
+Import-Package: com.servoy.j2db.util,
+ org.sablo.websocket.utils

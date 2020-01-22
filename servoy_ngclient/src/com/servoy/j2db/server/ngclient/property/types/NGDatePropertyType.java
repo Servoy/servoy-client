@@ -28,7 +28,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -44,6 +43,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 public class NGDatePropertyType extends DatePropertyType implements IDesignToFormElement<Long, Date, Date>, IFormElementToTemplateJSON<Date, Date>
 {
 
+	private static final String SVY_DATE_CLIENT_SIDE_TYPE_NAME = "svy_date";
 	public final static NGDatePropertyType NG_INSTANCE = new NGDatePropertyType();
 
 	@Override
@@ -54,11 +54,11 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Date formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-		FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Date formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, null);
 	}
 
 
@@ -88,10 +88,9 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Date value, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Date value, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
-		if (clientConversion != null) clientConversion.convert("svy_date"); //$NON-NLS-1$
 		JSONUtils.addKeyIfPresent(writer, key);
 		String sDate;
 		OffsetDateTime offsetDT;
@@ -140,4 +139,13 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		}
 		return hasNoDateConversion;
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(SVY_DATE_CLIENT_SIDE_TYPE_NAME);
+		return true;
+	}
+
 }

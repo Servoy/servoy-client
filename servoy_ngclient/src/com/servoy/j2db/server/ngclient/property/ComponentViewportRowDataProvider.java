@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.BrowserConverterContext;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -56,7 +55,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		w.object();
@@ -67,14 +66,14 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		if (columnPropertyName != null)
 		{
 			// cell update
-			populateCellData(columnPropertyName, w, clientConversionInfo);
+			populateCellData(columnPropertyName, w);
 		}
 		else
 		{
 			// full row
 			for (String propertyName : recordBasedProperties)
 			{
-				populateCellData(propertyName, w, clientConversionInfo);
+				populateCellData(propertyName, w);
 			}
 		}
 		w.endObject();
@@ -113,16 +112,13 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		return null;
 	}
 
-	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
+	private void populateCellData(String propertyName, JSONWriter w) throws JSONException
 	{
 		PropertyDescription t = component.getSpecification().getProperty(propertyName);
 		Object val = component.getRawPropertyValue(propertyName);
 		if (t != null && val != null)
 		{
-			clientConversionInfo.pushNode(propertyName);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo,
-				new BrowserConverterContext(component, t.getPushToServer()));
-			clientConversionInfo.popNode();
+			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, new BrowserConverterContext(component, t.getPushToServer()));
 		}
 	}
 

@@ -26,7 +26,6 @@ import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.util.Debug;
 
@@ -58,8 +57,8 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, NativeJavaObject sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, NativeJavaObject sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -74,7 +73,7 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 						IClassPropertyType classPropertyType = TypesRegistry.getType(Class.forName(className));
 						if (classPropertyType != null)
 						{
-							return classPropertyType.toJSON(writer, key, o, pd, clientConversion, dataConverterContext);
+							return classPropertyType.toJSON(writer, key, o, pd, dataConverterContext);
 						}
 					}
 					catch (ClassNotFoundException ex)

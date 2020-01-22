@@ -27,7 +27,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -77,7 +76,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ReadonlySabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, ReadonlySabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
@@ -105,8 +104,8 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		// TODO this only works properly if opposite of prop. is inside the same nesting level (so if OppositeOf for example is a root property of the component and this property is nested in a custom object); this is unlikely but in order to fix that we'd need to receive as param a INGFormElement instead
 		Boolean propertyValue = (Boolean)formElementContext.getFormElement().getPropertyValue(((ReadonlyConfig)pd.getConfig()).getOppositeOf());
