@@ -34,7 +34,8 @@ public abstract class ClientVersion
 	private static final boolean lts = true;
 
 	// make sure you keep this the same format, or make it work with extensions version comparing & xml schema
-	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : "");
+	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : "") +
+		(lts ? " LTS" : "");
 
 	public static int getReleaseNumber()
 	{
