@@ -461,8 +461,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve,
-					initialized ? IDataServer.FIND_BROWSER_QUERY : IDataServer.FOUNDSET_LOAD_QUERY);
+				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 			}
 			synchronized (pksAndRecords)
 			{
