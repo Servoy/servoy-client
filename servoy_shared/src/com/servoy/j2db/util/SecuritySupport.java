@@ -183,7 +183,7 @@ public class SecuritySupport
 						File file = new File(filename);
 						if (!file.exists())
 						{
-							IApplicationServerSingleton appServer = ApplicationServerRegistry.get();
+							IApplicationServerSingleton appServer = ApplicationServerRegistry.exists() ? ApplicationServerRegistry.get() : null;
 							if (appServer != null && appServer.getServoyApplicationServerDirectory() != null)
 							{
 								String applicationServerDirectory = appServer.getServoyApplicationServerDirectory();

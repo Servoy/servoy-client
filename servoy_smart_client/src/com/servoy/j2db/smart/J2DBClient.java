@@ -159,10 +159,10 @@ import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.GlobalEditEvent;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IGlobalEditListener;
 import com.servoy.j2db.dataprocessing.IInfoListener;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -3519,7 +3519,7 @@ public class J2DBClient extends ClientState
 	}
 
 	@Override
-	protected boolean registerClient(IUserClient uc) throws Exception
+	protected boolean registerClient(IClient uc) throws Exception
 	{
 		boolean registered = false;
 		try

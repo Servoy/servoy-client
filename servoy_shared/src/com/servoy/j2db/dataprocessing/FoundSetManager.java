@@ -1524,13 +1524,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						((RelatedFoundSet)fs).invalidateFoundset();
 					}
 					else if (fs instanceof ViewFoundSet)
-					{
-						((ViewFoundSet)fs).loadAllRecords();
-					}
+				{
+					((ViewFoundSet)fs).loadAllRecords();
+				}
 					else if (fs instanceof FoundSet)
-					{
-						((FoundSet)fs).refreshFromDB(false, false);
-					}
+				{
+					((FoundSet)fs).refreshFromDB(false, false);
+				}
 				}
 			}));
 
@@ -2328,8 +2328,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				try
 				{
-					if (((ILockServer)getDataServer()).releaseLocks(application.getClientID(), rm.getSQLSheet().getServerName(),
-						rm.getSQLSheet().getTable().getName(), pkhashkeys))
+					if (getDataServer().releaseLocks(application.getClientID(), rm.getSQLSheet().getServerName(), rm.getSQLSheet().getTable().getName(),
+						pkhashkeys))
 					{
 						rm.removeLocks(pkhashkeys);
 					}

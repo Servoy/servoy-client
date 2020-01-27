@@ -33,16 +33,15 @@ import com.servoy.j2db.dataprocessing.Blob;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.BufferedDataSetInternal;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.ITrackingSQLStatement;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.QueryData;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.IRemoteRepository;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITeamRepository;
@@ -441,7 +440,7 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public Object[] register(IUserClient c, ClientInfo clientInfo) throws RemoteException
+					public Object[] register(IClient c, ClientInfo clientInfo) throws RemoteException
 					{
 						return new Object[] { "uuid", new Integer(IClientManager.REGISTER_OK) };
 					}
@@ -490,7 +489,7 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public IRemoteRepository getRepository() throws RemoteException
+					public IRepository getRepository() throws RemoteException
 					{
 						return null;
 					}
