@@ -126,7 +126,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	public IFoundSet getFoundSet(String name) throws ServoyException
 	{
 		IFoundSet foundset = application.getFoundSetManager().getNamedFoundSet(name);
-		if (Utils.equalObjects(foundset.getDataSource(), datasource))
+		if (foundset != null && Utils.equalObjects(foundset.getDataSource(), datasource))
 		{
 			return foundset;
 		}
