@@ -73,28 +73,37 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		tDiv.style.top = y + 10 + "px";		
 		tDiv.style.display = "block";
 		var tooltipOffsetWidth = x + 10 + tDiv.offsetWidth; 
-
-		if(wWidth < tooltipOffsetWidth)
-		{
-			var newLeft = x - 10 - tDiv.offsetWidth;
-			if(newLeft < 0)
-			{
-				newLeft = 0;
-				tDiv.style.width = x - 10 + "px";
-			}
-			tDiv.style.left = newLeft  + "px";
-		}
-
-		var tooltipOffsetHeight = y + 10 + tDiv.offsetHeight
-		if(wHeight < tooltipOffsetHeight)
-		{
-			var newTop = y - 10 - tDiv.offsetHeight;
-			tDiv.style.top = newTop  + "px";
-		}
-		tipTimeout = setTimeout(function() { _hideTooltip(); }, dismissDelay);
-	}
-	
-	function _hideTooltip() {
+		let positionClass = "tooltip-bottom-right";
+        let toTheLeft = false;
+        let toTheTop= false;
+        if(wWidth < tooltipOffsetWidth)
+        {
+            toTheLeft = true;
+            var newLeft = x - 10 - tDiv.offsetWidth;
+            if(newLeft < 0)
+            {
+                newLeft = 0;
+                tDiv.style.width = x - 10 + "px";
+            }
+            tDiv.style.left = newLeft  + "px";
+        }
+        var tooltipOffsetHeight = y + 10 + tDiv.offsetHeight
+        if(wHeight < tooltipOffsetHeight)
+        {
+            toTheTop = true;
+            var newTop = y - 10 - tDiv.offsetHeight;
+            tDiv.style.top = newTop  + "px";
+        }
+        if (toTheLeft)  {
+            positionClass = toTheTop?"tooltip-top-left":"tooltip-bottom-left";
+        }
+        else if (toTheTop) positionClass = "tooltip-top-right";
+        tDiv.classList.add(positionClass);
+        
+        tipTimeout = setTimeout(function() { _hideTooltip(positionClass); }, dismissDelay);
+    }
+    
+    function _hideTooltip(classToRemove) {
 		if($window.removeEventListener)
 		{
 			$window.removeEventListener('mousemove', tipmousemove, false);
@@ -108,6 +117,10 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		
 		var tDiv = getTooltipDiv();
 		tDiv.style.display = "none";
+
+        if (classToRemove) {
+        	tDiv.classList.remove(classToRemove);
+        }
 	}
 	
 	return {
@@ -123,7 +136,7 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 
 			if(targ.tagName && targ.tagName.toLowerCase() == "option")	// stop tooltip if over option element
 			{
-				_hideTooltip();
+				_hideTooltip( null );
 				return;
 			}
 
@@ -147,7 +160,7 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		},
 		
 		hideTooltip: function() {
-			_hideTooltip();
+			_hideTooltip( null );
 		}  
 	}
 })

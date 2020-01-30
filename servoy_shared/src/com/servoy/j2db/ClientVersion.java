@@ -81,4 +81,9 @@ public abstract class ClientVersion
 	{
 		return versionPostfix;
 	}
+
+	public static boolean isLts()
+	{
+		return lts;
+	}
 }

@@ -246,8 +246,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * It returns an array with 2 elements, a string that is the startup argument and a map containing all named startup arguments, or
 	 * null if there is no argument passed
 	 *
-	 * @deprecated As of release 6.0, method was deprecated because startup arguments are received as arguments to solution onOpen event.
-	 *
 	 * @sample
 	 * var args_array = application.getStartupArguments();
 	 * // the first element in the array is the 'argument' value from the startup
@@ -260,7 +258,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @return Array with 2 elements, a string that is the startup argument and a map containing all named startup arguments,
 	 * or null if there is no argument passed
 	 */
-	@Deprecated
 	public Object[] js_getStartupArguments()
 	{
 		if (application instanceof ClientState)
@@ -1896,7 +1893,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.showURL('http://www.example.com');
 	 *
 	 * //NGClient and webclient specific additional parameters...
-	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window
+	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
 	 *
