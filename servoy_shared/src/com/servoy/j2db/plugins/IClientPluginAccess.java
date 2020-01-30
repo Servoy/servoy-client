@@ -278,6 +278,15 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public String getSolutionName();
 
 	/**
+	 * Get the name of the main solution.
+	 * This is useful for instance when we have a login solution.
+	 * getSolutionName() returns the name of the current solution (which could be the login one) and
+	 * getMainSolutionName() always returns the name of the main solution.
+	 * @return the name, returns null if no solution is loaded
+	 */
+	public String getMainSolutionName();
+
+	/**
 	 * Get a remote service, will not work in the Servoy Runtime product!
 	 * @deprecated
 	 */
