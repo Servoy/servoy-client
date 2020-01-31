@@ -3024,11 +3024,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Returns the name of the operating system.
+	 * Returns the name of the operating system of the client.
 	 *
 	 * @sample var osname = application.getOSName();
 	 *
-	 * @return Name of the operating system
+	 * @return Name of the operating system of the client
 	 */
 	@SuppressWarnings("nls")
 	public String js_getOSName()
