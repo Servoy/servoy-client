@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -2837,6 +2838,43 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		}
 		return false;
 	}
+
+	/**
+	 * @clonedesc saveData()
+	 *
+	 * @sampleas saveData()
+	 *
+	 * @param records The array of JSRecord to save.
+	 *
+	 * @return true if the save was done without an error.
+	 */
+	@JSFunction
+	public boolean saveData(IRecordInternal[] records) throws ServoyException
+	{
+		checkAuthorized();
+		if (records != null && records.length != 0)
+		{
+			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
+
+			if (failedRecords.length != 0)
+			{
+				HashSet<IRecordInternal> failedSet = new HashSet<IRecordInternal>(Arrays.asList(failedRecords));
+
+				for (IRecordInternal record : records)
+				{
+					if (failedSet.contains(record))
+					{
+						editRecordList.startEditing(record, false);
+					}
+				}
+			}
+
+			return editRecordList.stopEditing(true, Arrays.asList(records)) == ISaveConstants.STOPPED;
+		}
+		return false;
+	}
+
 
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename.
