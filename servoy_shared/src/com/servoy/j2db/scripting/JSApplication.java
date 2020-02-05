@@ -1390,6 +1390,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'.
 	 * //if the user has been logged in, he will stay logged in
 	 * //application.closeSolution('solution_name','global_method_name','my_argument');
+	 * //application.closeSolution('solution_name', null, 'my_string_argument');//close current solution, open solution 'solution_name', call solution's onOpen with argument 'my_argument'
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *

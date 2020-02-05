@@ -808,9 +808,13 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					if (m != null)
 					{
 						url.append("?m=").append(m);
-						if (a != null && a.length > 0) url.append("&a=").append(a[0]);
-					}
 
+					}
+					if (a != null && a.length > 0)
+					{
+						url.append(m != null ? "&" : "?");
+						url.append("a=").append(a[0]);
+					}
 					showURL(url.toString(), "_self", null, 0, true);
 				}
 			}
