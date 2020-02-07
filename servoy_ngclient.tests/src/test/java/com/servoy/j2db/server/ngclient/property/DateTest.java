@@ -110,7 +110,7 @@ public class DateTest
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		jsonWriter.object();
-		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.util.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD, new DataConversion(),
+		NGDatePropertyType.NG_INSTANCE.toJSON(jsonWriter, "mydate", new java.util.Date(118, 5, 5), NGUtils.DATE_DATAPROVIDER_CACHED_PD,
 			null);
 		jsonWriter.endObject();
 		JSONAssert.assertEquals(new JSONObject(stringWriter.toString()), new JSONObject(toString), JSONCompareMode.STRICT);
