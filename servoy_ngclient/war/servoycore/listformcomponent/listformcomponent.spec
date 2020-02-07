@@ -16,7 +16,8 @@
 		"rowStyleClassDataprovider": { "type": "dataprovider", "forFoundset": "foundset" },
 		"paginationStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" } },
 		"selectionClass": { "type": "styleclass", "tags": { "scope" :"design" }},
-		"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}
+		"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
+		"visible" : "visible"
 	},
 	"handlers" : {
 		"onSelectionChanged": {

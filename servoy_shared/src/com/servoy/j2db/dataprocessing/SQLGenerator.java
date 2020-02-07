@@ -277,9 +277,9 @@ public class SQLGenerator
 			List<SortColumn> orderBy = orderByFields == null ? new ArrayList<SortColumn>(3) : orderByFields;
 			if (orderBy.size() == 0)
 			{
-				for (int i = 0; i < pkColumns.size(); i++)
+				for (Column pkColumn : pkColumns)
 				{
-					orderBy.add(new SortColumn(pkColumns.get(i)));
+					orderBy.add(new SortColumn(pkColumn));
 				}
 			}
 
@@ -388,7 +388,7 @@ public class SQLGenerator
 					}
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
-					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1,
+					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), QueryAggregate.ALL, new QueryColumn(foreignQtable, -1,
 						aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
@@ -1135,9 +1135,8 @@ public class SQLGenerator
 
 		//fill dataprovider map
 		List<String> dataProviderIDsDilivery = new ArrayList<String>();
-		for (int c = 0; c < columns.size(); c++)
+		for (Column col : columns)
 		{
-			Column col = columns.get(c);
 			dataProviderIDsDilivery.add(col.getDataProviderID());
 		}
 

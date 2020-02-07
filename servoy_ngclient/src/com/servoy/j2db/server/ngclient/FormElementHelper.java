@@ -492,7 +492,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
 							{
-								String elementName = fe.getName();
+								String elementName = ((IFormElement)persist).getName();
 								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
 								boolean hasLabelFor = false;
 								while (graphicalComponents.hasNext())

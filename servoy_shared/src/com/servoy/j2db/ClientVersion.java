@@ -26,10 +26,10 @@ package com.servoy.j2db;
 public abstract class ClientVersion
 {
 	// these fields are private intentionally, to prevent final class member copy in other classes!
-	private static final int majorVersion = 2019;
-	private static final int middleVersion = 12;
+	private static final int majorVersion = 2020;
+	private static final int middleVersion = 3;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 3540;
+	private static final int releaseNumber = 3560;
 	private static final String versionPostfix = "rc";
 	private static final boolean lts = false;
 
@@ -80,5 +80,10 @@ public abstract class ClientVersion
 	public static String getVersionPostFix()
 	{
 		return versionPostfix;
+	}
+
+	public static boolean isLts()
+	{
+		return lts;
 	}
 }

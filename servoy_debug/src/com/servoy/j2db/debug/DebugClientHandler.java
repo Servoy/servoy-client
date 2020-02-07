@@ -552,10 +552,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	private <T extends IDebugClient> T createDebugClient(final IDebugClientPovider<T> debugClientprovider)
 	{
-		if (!ApplicationServerRegistry.waitForApplicationServerStarted())
-		{
-			return null;
-		}
+		// wait for application server to start up.
+		ApplicationServerRegistry.get();
 		final IDebugClient[] client = new IDebugClient[1];
 		try
 		{

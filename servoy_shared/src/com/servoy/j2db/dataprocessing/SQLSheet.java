@@ -79,7 +79,6 @@ public class SQLSheet
 	private List<SortColumn> defaultSort;
 	private final Map<String, SQLDescription> relatedForeignSQLAccess;
 
-	private Map<String, Integer> allCalculationsTypes; //dataproviderID -> type
 	private final IServiceProvider application;
 
 	public SQLSheet(IServiceProvider app, String connectionName, Table table)//for root
@@ -104,20 +103,6 @@ public class SQLSheet
 			nonGlobalRelatedSQLSheets.remove(relation);
 			relatedForeignSQLAccess.remove(relation.getName());
 		}
-		else
-		{
-			// regenerate all cached calculations:
-			allCalculationsTypes = new HashMap<String, Integer>(8);
-			if (table != null)
-			{
-				Iterator< ? > it4 = app.getFlattenedSolution().getScriptCalculations(table, false);
-				while (it4.hasNext())
-				{
-					ScriptCalculation sp = (ScriptCalculation)it4.next();
-					allCalculationsTypes.put(sp.getDataProviderID(), new Integer(sp.getDataProviderType()));
-				}
-			}
-		}
 	}
 
 	VariableInfo getCalculationOrColumnVariableInfo(String dataProviderID, int columnIndex)
@@ -125,30 +110,40 @@ public class SQLSheet
 		if (columnIndex != -1)
 		{
 			Column c = table.getColumn(dataProviderID);
-			if (c == null) Debug.error("getCalculationOrColumnVariableInfo: Cannot get colum with DP " + dataProviderID + " and columnIndex " + columnIndex +
+			if (c == null) Debug.error("getCalculationOrColumnVariableInfo: Cannot get column with DP " + dataProviderID + " and columnIndex " + columnIndex +
 				" for table " + table.getDataSource());
 			return new VariableInfo(c.getType(), c.getLength(), c.getFlags());
 		}
 
-		Integer retVal = allCalculationsTypes.get(dataProviderID);
+		Integer retVal = null;
+		ScriptCalculation sc = application.getFlattenedSolution().getScriptCalculation(dataProviderID, table);
+		if (sc != null)
+		{
+			retVal = new Integer(sc.getDataProviderType());
+		}
 		return new VariableInfo((retVal != null ? retVal.intValue() : 0), Integer.MAX_VALUE /* allow unlimited value for unstored calcs */,
 			IBaseColumn.NORMAL_COLUMN);
 	}
 
 	public boolean containsCalculation(String dataProviderID)
 	{
-		return allCalculationsTypes.containsKey(dataProviderID);
+		return application.getFlattenedSolution().getScriptCalculation(dataProviderID, table) != null;
 	}
 
 	public List<String> getAllCalculationNames()
 	{
-		return new ArrayList<>(allCalculationsTypes.keySet());
+		List<String> calculationsNames = new ArrayList<String>();
+		for (ScriptCalculation sc : Utils.iterate(application.getFlattenedSolution().getScriptCalculations(table, false)))
+		{
+			calculationsNames.add(sc.getDataProviderID());
+		}
+		return calculationsNames;
 	}
 
 	public List<String> getStoredCalculationNames()
 	{
 		List<String> storedCalcs = new ArrayList<String>();
-		for (String calc : allCalculationsTypes.keySet())
+		for (String calc : getAllCalculationNames())
 		{
 			if (getDataProviderIDsColumnMap().containsKey(calc))
 			{
@@ -162,7 +157,7 @@ public class SQLSheet
 	public List<String> getUnStoredCalculationNames()
 	{
 		List<String> unstored = new ArrayList<String>();
-		for (String calc : allCalculationsTypes.keySet())
+		for (String calc : getAllCalculationNames())
 		{
 			if (!getDataProviderIDsColumnMap().containsKey(calc))
 			{
@@ -177,7 +172,7 @@ public class SQLSheet
 	{
 		Map< ? , Integer> columns = getDataProviderIDsColumnMap();
 		HashMap<String, Object> retval = new HashMap<String, Object>(5);
-		Iterator<String> it = allCalculationsTypes.keySet().iterator();
+		Iterator<String> it = getAllCalculationNames().iterator();
 		while (it.hasNext())
 		{
 			String dp = it.next();
@@ -358,10 +353,8 @@ public class SQLSheet
 							{
 								try
 								{
-									obj = application.getScriptEngine()
-										.getScopesScope()
-										.executeGlobalFunction(globalScriptMethod.getScopeName(),
-											globalScriptMethod.getName(), null, false, false);
+									obj = application.getScriptEngine().getScopesScope().executeGlobalFunction(globalScriptMethod.getScopeName(),
+										globalScriptMethod.getName(), null, false, false);
 								}
 								catch (Exception e)
 								{
@@ -935,9 +928,8 @@ public class SQLSheet
 
 	public String[] getCalculationNames()
 	{
-		String[] retval = new String[allCalculationsTypes.size()];
-		allCalculationsTypes.keySet().toArray(retval);
-		return retval;
+		List<String> calculationsList = getAllCalculationNames();
+		return calculationsList.toArray(new String[calculationsList.size()]);
 	}
 
 	private ConverterInfo[] converterInfos;

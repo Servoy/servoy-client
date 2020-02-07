@@ -17,17 +17,21 @@
 
 package com.servoy.j2db.dataprocessing.datasource;
 
+import java.util.Arrays;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.JSTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
@@ -122,7 +126,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	public IFoundSet getFoundSet(String name) throws ServoyException
 	{
 		IFoundSet foundset = application.getFoundSetManager().getNamedFoundSet(name);
-		if (Utils.equalObjects(foundset.getDataSource(), datasource))
+		if (foundset != null && Utils.equalObjects(foundset.getDataSource(), datasource))
 		{
 			return foundset;
 		}
@@ -139,6 +143,12 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	{
 		try
 		{
+			if (datasource.startsWith(DataSourceUtils.INMEM_DATASOURCE_SCHEME_COLON))
+			{
+				return Arrays.stream(application.getFoundSetManager().getTable(datasource).getDataProviderIDs()) //
+					.filter(name -> !Column._SV_ROWID.equals(name)) //
+					.toArray(String[]::new);
+			}
 			return application.getFoundSetManager().getTable(datasource).getDataProviderIDs();
 		}
 		catch (RepositoryException e)

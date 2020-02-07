@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Helper class for easier documentation of our JavaScript API for forms.
- * 
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeForm", scriptingName = "RuntimeForm")
@@ -34,7 +34,7 @@ public class Form
 {
 	/**
 	 * Get the foundset of the form.
-	 * 
+	 *
 	 * @sample
 	 * application.output("selected index in form foundset: " + %%prefix%%foundset.getSelectedIndex());
 	 */
@@ -49,13 +49,13 @@ public class Form
 
 	/**
 	 * Get all script names of the form.
-	 * 
+	 *
 	 * @sample
 	 * var methodNames = %%prefix%%allmethods;
 	 * application.output("This form has " + methodNames.length + " methods defined.")
 	 * for (var i=0; i<methodNames.length; i++)
 	 * 	application.output(methodNames[i]);
-	 * 
+	 *
 	 * @special
 	 * @deprecated use solutionModel - JSForm.getMethods(Boolean) or JSForm.getMethods() instead;
 	 * an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getMethods().map(function (jsMethod) { return jsMethod.getName() } )'.
@@ -69,13 +69,13 @@ public class Form
 
 	/**
 	 * Get the names of all elements on the form as an array.
-	 * 
+	 *
 	 * @sample
 	 * var names = %%prefix%%allnames;
 	 * application.output("This form has " + names.length + " named items.")
 	 * for (var i=0; i<names.length; i++)
 	 * 	application.output(names[i]);
-	 * 
+	 *
 	 * @special
 	 * @deprecated use elements.allnames instead.
 	 */
@@ -88,13 +88,13 @@ public class Form
 
 	/**
 	 * Get all dataproviders of the form's foundset.
-	 * 
+	 *
 	 * @sample
 	 * var dataprovidersNames = %%prefix%%alldataproviders;
 	 * application.output("This form has " + dataprovidersNames.length + " data providers.")
 	 * for (var i=0; i<dataprovidersNames.length; i++)
 	 * 	application.output(dataprovidersNames[i]);
-	 * 
+	 *
 	 * @special
 	 * @deprecated use foundset.alldataproviders instead.
 	 */
@@ -107,14 +107,14 @@ public class Form
 
 	/**
 	 * Get all form variable names.
-	 * 
+	 *
 	 * @sample
 	 * var varNames = %%prefix%%allvariables;
 	 * application.output("This form has " + varNames.length + " variables defined.")
 	 * for (var i=0; i<varNames.length; i++)
 	 * 	application.output(varNames[i]);
-	 * 
-	 * @special 
+	 *
+	 * @special
 	 * @deprecated use solutionModel - JSForm.getVariables(Boolean) or JSForm.getVariables() instead;
 	 * an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getVariables().map(function (jsVariable) { return jsVariable.name } )'.
 	 */
@@ -127,13 +127,13 @@ public class Form
 
 	/**
 	 * Get all relation names of the form.
-	 * 
+	 *
 	 * @sample
 	 * var relationsNames = %%prefix%%allrelations;
 	 * application.output("This form has " + relationsNames.length + " relations.")
 	 * for (var i=0; i<relationsNames.length; i++)
 	 * 	application.output(relationsNames[i]);
-	 * 
+	 *
 	 * @special
 	 * @deprecated use solutionModel.getRelations(dataSource) instead, where dataSource is provided by solution model's JSForm.dataSource or controller.getDataSource();
 	 * an exact replacement, if you need it would be 'solutionModel.getRelations(controller.getDataSource()).map(function (jsRelation) { return jsRelation.name } )'.
@@ -147,7 +147,7 @@ public class Form
 
 	/**
 	 * Get an array with the elements in the form.
-	 * 
+	 *
 	 * @sample
 	 * var elems = %%prefix%%elements;
 	 * application.output("This form has " + elems.length + " named elements.")
@@ -161,8 +161,20 @@ public class Form
 	}
 
 	/**
+	 * Get an object with the containers of a responsive form.
+	 *
+	 * @sample
+	 * %%prefix%%containers.mycontainer.addStyleClasses("red","blue");
+	 */
+	@JSReadonlyProperty
+	public RuntimeContainers containers()
+	{
+		return null;
+	}
+
+	/**
 	 * Get the controller of the form.
-	 * 
+	 *
 	 * @sample
 	 * %%prefix%%controller.enabled = !%%prefix%%controller.enabled;
 	 */
@@ -174,7 +186,7 @@ public class Form
 
 	/**
 	 * Provides access to the methods of the parent of this form.
-	 * 
+	 *
 	 * @sample
 	 * %%prefix%%_super.some_method();
 	 */

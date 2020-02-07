@@ -27,9 +27,23 @@ import com.servoy.base.persistence.IBaseColumn;
  */
 public class ColumnComparator implements Comparator<IColumn>
 {
-	public static final ColumnComparator INSTANCE = new ColumnComparator();
-
 	private List<String> indexedNamesList = null;
+
+	private ColumnComparator(final List<String> indexedNamesList)
+	{
+		super();
+		this.indexedNamesList = indexedNamesList;
+	}
+
+	public static ColumnComparator getColumnsNameComparator()
+	{
+		return new ColumnComparator(null);
+	}
+
+	public static ColumnComparator getColumnsIndexComparator(List<String> indexedNamesList)
+	{
+		return new ColumnComparator(indexedNamesList);
+	}
 
 	/**
 	 * @see java.util.Comparator#compare(Object, Object)
@@ -59,10 +73,5 @@ public class ColumnComparator implements Comparator<IColumn>
 		String name1 = column1.getName();
 		String name2 = column2.getName();
 		return name1.compareToIgnoreCase(name2);
-	}
-
-	public void setIndexedNamesList(List<String> indexedNamesList)
-	{
-		this.indexedNamesList = indexedNamesList;
 	}
 }

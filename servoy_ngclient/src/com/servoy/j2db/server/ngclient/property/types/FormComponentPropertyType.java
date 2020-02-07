@@ -240,15 +240,16 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, dataAdapterList.getApplication().getFlattenedSolution());
 		if (form != null)
 		{
-			FormComponentCache formComponentCache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
-				dataAdapterList.getApplication().getFlattenedSolution());
-			List<FormElement> elements = formComponentCache.getFormComponentElements();
 			if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
 			{
-				return new FormComponentSabloValue(elements, pd, dataAdapterList, component, form, formComponentCache);
+				return new FormComponentSabloValue(formElement, (JSONObject)formElementValue, pd, dataAdapterList, component, form);
 			}
 			else
 			{
+				FormComponentCache formComponentCache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
+					dataAdapterList.getApplication().getFlattenedSolution());
+				List<FormElement> elements = formComponentCache.getFormComponentElements();
+
 				IWebFormUI formUI = component.findParent(IWebFormUI.class);
 				for (FormElement element : elements)
 				{

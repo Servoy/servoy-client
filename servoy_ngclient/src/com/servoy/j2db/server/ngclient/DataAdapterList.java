@@ -872,6 +872,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				String onDataChangeCallback = null;
 				if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
 				{
+					getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
 					try
 					{
 						returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
@@ -880,6 +881,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					{
 						Debug.error("Error during onDataChange webComponent=" + webComponent, e);
 						exception = e;
+					}
+					finally
+					{
+						getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("hideLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
 

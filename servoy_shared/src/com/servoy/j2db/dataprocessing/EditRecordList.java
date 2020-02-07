@@ -268,7 +268,8 @@ public class EditRecordList
 	{
 		if (recursionDepth > 50)
 		{
-			fsm.getApplication().reportJSError("stopEditing max recursion exceeded", new RuntimeException());
+			fsm.getApplication().reportJSError(
+				"stopEditing max recursion exceeded, look if on (or after) record update or inserts  are constantly changing records", new RuntimeException());
 			return ISaveConstants.SAVE_FAILED;
 		}
 		if (ignoreSave)

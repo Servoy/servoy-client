@@ -156,7 +156,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 							}
 							else
 							{
-								top = "calc(" + top + "-" + topStart + "px)";
+								top = "calc(" + top + " - " + topStart + "px)";
 							}
 						}
 					}

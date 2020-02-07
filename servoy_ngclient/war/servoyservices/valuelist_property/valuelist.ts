@@ -28,7 +28,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 					else $sabloDeferHelper.initInternalStateForDeferring(internalState, "svy valuelist * ");
 
 					internalState.hasRealValues = serverJSONValue.hasRealValues; 
-					internalState.hasDifferentTypes = serverJSONValue.hasDifferentTypes; 
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					Object.defineProperty(newValue, 'filterList', {
 						value: function(filterString) {

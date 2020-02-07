@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
-Bundle-Version: 2019.12.0.3540_rc
+Bundle-Version: 2020.3.0.3560_rc
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.endpoint,
@@ -12,8 +12,6 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.property,
  com.servoy.j2db.server.ngclient.property.types,
  com.servoy.j2db.server.ngclient.scripting,
- com.servoy.j2db.server.ngclient.startup,
- com.servoy.j2db.server.ngclient.startup.resourceprovider,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
@@ -27,7 +25,8 @@ Require-Bundle: servoy_shared,
  org.jsoup,
  org.freemarker.freemarker,
  org.apache.commons.lang3,
- de.inetsoftware.jlessc
+ de.inetsoftware.jlessc,
+ com.github.ua-parser.uap-java
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
@@ -35,8 +34,6 @@ Import-Package: javax.servlet,
  javax.servlet.annotation,
  javax.servlet.http,
  javax.websocket,
- javax.websocket.server,
- org.osgi.framework
-Bundle-Activator: com.servoy.j2db.server.ngclient.startup.Activator
+ javax.websocket.server
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: servoy_ngclient

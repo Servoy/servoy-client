@@ -512,7 +512,7 @@ public abstract class AbstractSolutionTest
 	{
 		CurrentWindow.set(null);
 		FormElementHelper.INSTANCE.reload();
-		ApplicationServerRegistry.clear();
+		ApplicationServerRegistry.destroy();
 	}
 
 	protected abstract void setupData() throws ServoyException;

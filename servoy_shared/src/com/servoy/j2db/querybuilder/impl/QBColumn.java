@@ -22,6 +22,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -79,6 +80,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	protected QBCondition createCondition(ISQLCondition queryCondition)
 	{
 		return new QBCondition(getRoot(), getParent(), negate ? queryCondition.negate() : queryCondition);
+	}
+
+	protected IQuerySelectValue getQueryColumn()
+	{
+		return queryColumn;
 	}
 
 	public IQuerySelectValue getQuerySelectValue()
@@ -316,7 +322,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate count()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.COUNT);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.COUNT, QueryAggregate.ALL);
 	}
 
 	/**
@@ -330,7 +336,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate avg()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.AVG);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.AVG, QueryAggregate.ALL);
 	}
 
 	/**
@@ -344,7 +350,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate max()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MAX);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MAX, QueryAggregate.ALL);
 	}
 
 	/**
@@ -358,7 +364,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate min()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MIN);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MIN, QueryAggregate.ALL);
 	}
 
 	/**
@@ -372,7 +378,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate sum()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.SUM);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.SUM, QueryAggregate.ALL);
 	}
 
 	/**
@@ -706,6 +712,16 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public BaseColumnType getColumnType()
 	{
 		return getQuerySelectValue().getColumnType();
+	}
+
+	/**
+	 * Column type as a string
+	 */
+	@JSFunction
+	public String getTypeAsString()
+	{
+		BaseColumnType columnType = getColumnType();
+		return columnType != null ? Column.getDisplayTypeString(columnType.getSqlType()) : null;
 	}
 
 	/**

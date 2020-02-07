@@ -495,10 +495,14 @@ public class SQLKeywords
 		// PostgreSQL
 	"domains", 
 	"offset", 
+	"mod",
 
 		// Oracle
 	"uid", 
 	"length", 
+	
+		// Progress
+	"range",
 
 		// some more found in Hibernate dialects
 	"account", 

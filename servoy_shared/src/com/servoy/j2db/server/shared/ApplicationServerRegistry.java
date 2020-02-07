@@ -18,8 +18,6 @@ package com.servoy.j2db.server.shared;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.servoy.j2db.util.Debug;
-
 /**
  * This class holds a reference to the single application server instance in this JVM and provides the registry (services).
  * @author rgansevles, jblok
@@ -28,28 +26,54 @@ public final class ApplicationServerRegistry
 {
 	private static final AtomicReference<IApplicationServerSingleton> as_instanceRef = new AtomicReference<IApplicationServerSingleton>();
 	private static final AtomicReference<IServiceRegistry> reg_instanceRef = new AtomicReference<IServiceRegistry>();
+	private static volatile boolean destroyed = false;
 
 	//cannot be created
 	private ApplicationServerRegistry()
 	{
 	}
 
-	public static IApplicationServerSingleton get()
+	public static boolean exists()
 	{
-		return as_instanceRef.get();
+		return as_instanceRef.get() != null;
 	}
 
-	/** 
+	public static IApplicationServerSingleton get()
+	{
+		IApplicationServerSingleton as = as_instanceRef.get();
+		while (as == null && !destroyed)
+		{
+			synchronized (as_instanceRef)
+			{
+				try
+				{
+					as_instanceRef.wait();
+					as = as_instanceRef.get();
+				}
+				catch (InterruptedException e)
+				{
+				}
+			}
+		}
+		return as;
+	}
+
+	/**
 	 * Set instance, will not overwrite existing instance
 	 * @param instance
 	 * @return true if successful
 	 */
 	public static boolean setApplicationServerSingleton(IApplicationServerSingleton instance)
 	{
-		return as_instanceRef.compareAndSet(null, instance) || as_instanceRef.compareAndSet(instance, instance);
+		boolean isSet = as_instanceRef.compareAndSet(null, instance) || as_instanceRef.compareAndSet(instance, instance);
+		synchronized (as_instanceRef)
+		{
+			as_instanceRef.notifyAll();
+		}
+		return isSet;
 	}
 
-	/** 
+	/**
 	 * Set instance, will not overwrite existing instance
 	 * @param instance
 	 * @return true if successful
@@ -74,36 +98,10 @@ public final class ApplicationServerRegistry
 		return reg_instanceRef.get();
 	}
 
-	public static void clear()
+	public static void destroy()
 	{
+		destroyed = true;
 		as_instanceRef.set(null);
 		reg_instanceRef.set(null);
-	}
-
-	public static boolean waitForApplicationServerStarted()
-	{
-		IApplicationServerSingleton instance = get();
-		if (instance == null)
-		{
-			return false;
-		}
-		if (instance.isStarting())
-		{
-			synchronized (instance.getClass())
-			{
-				if (instance.isStarting())
-				{
-					try
-					{
-						instance.getClass().wait();
-					}
-					catch (InterruptedException e)
-					{
-						Debug.error(e);
-					}
-				}
-			}
-		}
-		return !instance.isStarting();
 	}
 }

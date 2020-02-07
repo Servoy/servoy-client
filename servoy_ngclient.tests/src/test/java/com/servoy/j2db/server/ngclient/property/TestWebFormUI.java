@@ -869,7 +869,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#isChanging()
 	 */
 	@Override
@@ -880,11 +880,35 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#setIsChanging(boolean)
 	 */
 	@Override
 	public void setChanging(boolean b)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#addContainerStyleClass(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void addContainerStyleClass(String name, String cls)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#removeContainerStyleClass(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void removeContainerStyleClass(String name, String cls)
 	{
 		// TODO Auto-generated method stub
 

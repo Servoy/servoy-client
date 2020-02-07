@@ -148,10 +148,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	public final String RECORD_IS_LOCKED;
-	public final String NO_RECORD;
-	public final String NO_ACCESS;
-
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
 	protected boolean findMode = false;
@@ -212,10 +208,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize);
 		relationName = relation_name;
 		this.sheet = sheet;
-
-		RECORD_IS_LOCKED = fsm.getApplication().getI18NMessage("servoy.foundSet.recordLocked"); //$NON-NLS-1$
-		NO_RECORD = fsm.getApplication().getI18NMessage("servoy.foundSet.noRecord"); //$NON-NLS-1$
-		NO_ACCESS = fsm.getApplication().getI18NMessage("servoy.foundSet.error.noModifyAccess", new Object[] { getDataSource() }); //$NON-NLS-1$
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
 		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
@@ -469,8 +461,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve,
-					initialized ? IDataServer.FIND_BROWSER_QUERY : IDataServer.FOUNDSET_LOAD_QUERY);
+				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -691,7 +682,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sampleas js_addFoundSetFilterParam(String, String, Object, String)
@@ -711,7 +702,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * @sample
@@ -753,7 +744,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * a query filter with a join from orders to order_details will be applied to the foundset,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sampleas js_addFoundSetFilterParam(QBSelect, String)
@@ -775,7 +766,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * a query filter with a join from orders to order_details will be applied to the foundset,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * The table of the query has to be the same as the foundset table.
@@ -814,7 +805,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Remove a named foundset filter.
-	 * Use clear() or loadAllRecords() to make the filter effective.
+	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
 	 *
 	 * @sample
 	 * var success = %%prefix%%foundset.removeFoundSetFilterParam('custFilter');// removes all filters with this name
@@ -1999,6 +1990,25 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null, query);
 	}
 
+	/**
+	 * Get foundset name. If foundset is not named foundset or related foundset will return null.
+	 *
+	 * @sample
+	 * var name = foundset.getName()
+	 *
+	 * @return name.
+	 */
+	@JSFunction
+	public String getName()
+	{
+		String name = getRelationName();
+		if (name == null)
+		{
+			name = fsm.getFoundSetName(this);
+		}
+		return name;
+	}
+
 	private boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
 	{
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
@@ -2034,6 +2044,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect.setCondition(SQLGenerator.CONDITION_RELATION,
 				AbstractBaseQuery.relinkTable(pksAndRecords.getQuerySelectForReading().getTable(), sqlSelect.getTable(), fsRelatedCondition));
 		}
+
+		initialized = true;
 
 		//do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);
@@ -5483,11 +5495,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				boolean locked = rec.isLocked();
 				if (locked)
 				{
-					fsm.getApplication().reportWarning(RECORD_IS_LOCKED);
+					fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.recordLocked");
 				}
 				return !locked;
 			}
-			fsm.getApplication().reportWarning(NO_RECORD);
+			fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.noRecord");
 		}
 		else if (hasAccess(IRepository.INSERT))
 		{
@@ -5496,7 +5508,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				return !rec.existInDataSource();
 			}
-			fsm.getApplication().reportWarning(NO_RECORD);
+			fsm.getApplication().reportWarningI18NMessage("servoy.foundSet.noRecord");
 		}
 		return false;
 	}
@@ -5851,9 +5863,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (aggregatesToRemove.size() > 0)
 		{
-			for (int i = 0; i < aggregatesToRemove.size(); i++)
+			for (String aggregate : aggregatesToRemove)
 			{
-				String aggregate = aggregatesToRemove.get(i);
 				aggregateCache.remove(aggregate);
 				fireAggregateModificationEvent(aggregate, null);
 			}
@@ -5871,10 +5882,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// if it is already a full flush (invalidate_foundset) don't do anything.
 		if (indexen != null && indexen[0] < 0 && indexen[1] < 0) return;
 
-		for (int i = 0; i < records.size(); i++)
+		for (Record record : records)
 		{
-			Record record = records.get(i);
-
 			int recordIndex = pksAndRecords.getCachedRecords().indexOf(record);
 			if (recordIndex != -1)
 			{
@@ -6370,9 +6379,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		int counter = 0;
 		SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
-		for (int i = 0; i < cachedRecords.size(); i++)
+		for (IRecordInternal cachedRecord : cachedRecords)
 		{
-			if (cachedRecords.get(i) != null)
+			if (cachedRecord != null)
 			{
 				counter++;
 			}

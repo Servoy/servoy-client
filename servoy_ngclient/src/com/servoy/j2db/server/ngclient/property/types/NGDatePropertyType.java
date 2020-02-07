@@ -96,14 +96,12 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		OffsetDateTime offsetDT;
 		// java.sqlDate seems to only be created by variable assignment where we make a new sql.Date() of a js date.
 		// what the datbase returns is a question, so we can't just always assume that is also a sql date..
-		if (value instanceof java.sql.Date)
+		Date tmp = value;
+		if (tmp instanceof java.sql.Date)
 		{
-			offsetDT = ((java.sql.Date)value).toLocalDate().atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
+			tmp = new Date(tmp.getTime());
 		}
-		else
-		{
-			offsetDT = OffsetDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault());
-		}
+		offsetDT = OffsetDateTime.ofInstant(tmp.toInstant(), ZoneId.systemDefault());
 		// remove time zone info from sDate if no date conversion
 		if (pd != null && hasNoDateConversion(pd))
 		{
@@ -121,6 +119,23 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 					StringBuilder sDateBuilder = new StringBuilder(sDateA[0]).append('+');
 					sDateBuilder.append(offset[0]).append(':').append(offset[1]);
 					sDate = sDateBuilder.toString();
+				}
+			}
+			else if (sDate.indexOf('-') != -1)
+			{
+				// handle timezone with -
+				int index = sDate.lastIndexOf('-');
+				int timeIndex = sDate.indexOf('T');
+				if (index > timeIndex)
+				{
+					String offset = sDate.substring(index + 1);
+					String[] offsetParts = offset.split(":");
+					if (offsetParts.length > 2) // seconds in offset, cut it, as it can't be handled in js
+					{
+						StringBuilder sDateBuilder = new StringBuilder(sDate.substring(0, index)).append('-');
+						sDateBuilder.append(offsetParts[0]).append(':').append(offsetParts[1]);
+						sDate = sDateBuilder.toString();
+					}
 				}
 			}
 		}

@@ -237,7 +237,29 @@ public class JSUtils implements IJSUtils
 	}
 
 	/**
-	 * Parse a string to a date object.
+	 * Parse a string to a date object. Using the timezone that is given, if null then it formats it with the clients timezone.
+	 *
+	 * see i18n.getAvailableTimeZoneIDs() to get a timezone string that can be used.
+	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
+	 *
+	 * @sample
+	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss');
+	 *
+	 * @param date the date as text
+	 * @param format the format to parse the to date
+	 * @param timezone The timezone string to use to parse the date (like GMT+3)
+	 * @return the date as date object
+	 */
+	public Date js_parseDate(String date, String format, String timezone)
+	{
+		TimeZone zone = application.getTimeZone();
+		if (timezone != null) zone = TimeZone.getTimeZone(timezone);
+		return parseDate(date, format, zone);
+	}
+
+	/**
+	 * Parse a string to a date object. This parses the date using the TimeZone of the server
 	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
 	 *
 	 * @sample
@@ -249,11 +271,18 @@ public class JSUtils implements IJSUtils
 	 */
 	public Date js_parseDate(String date, String format)
 	{
+		return parseDate(date, format, TimeZone.getDefault());
+	}
+
+	private Date parseDate(String date, String format, TimeZone zone)
+	{
 		if (format != null && date != null)
 		{
 			try
 			{
-				return new SimpleDateFormat(format, application.getLocale()).parse(date);
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, application.getLocale());
+				simpleDateFormat.setTimeZone(zone);
+				return simpleDateFormat.parse(date);
 			}
 			catch (ParseException ex)
 			{
@@ -282,7 +311,8 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Format a date object to a text representation.
-	 * This will format with the system timezone, so for web and ng clients it will use the server timezone to format
+	 * This will format with the system timezone for the webclient
+	 * For NGClient it will use the timezone of the client, the same goes for the Smartclient (but that is the system timezone)
 	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
 	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.

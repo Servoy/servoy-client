@@ -159,10 +159,10 @@ import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.GlobalEditEvent;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IGlobalEditListener;
 import com.servoy.j2db.dataprocessing.IInfoListener;
-import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -271,6 +271,7 @@ import com.servoy.j2db.util.rmi.IRMIClientSocketFactoryFactory;
 import com.servoy.j2db.util.rmi.IReconnectListener;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 import com.servoy.j2db.util.toolbar.Toolbar;
+import com.servoy.j2db.util.toolbar.Toolbar.ToolbarKey;
 import com.servoy.j2db.util.toolbar.ToolbarButton;
 import com.servoy.j2db.util.toolbar.ToolbarPanel;
 
@@ -1093,10 +1094,8 @@ public class J2DBClient extends ClientState
 			if (offsetRow == -1) offsetRow = 0;
 		}
 
-		for (int i = 0; i < sortedList.size(); i++)
+		for (ToolbarKey key : sortedList)
 		{
-			Toolbar.ToolbarKey key = sortedList.get(i);
-
 			if (toolbarsPanel.getToolBar(key.getToolbar().getName()) == null)
 			{
 				if ("edit".equals(key.getToolbar().getName())) //$NON-NLS-1$
@@ -1570,9 +1569,8 @@ public class J2DBClient extends ClientState
 			// test if selected lnf is loaded through the lafManager
 			List<LookAndFeelInfo> lst = lafManager.getLAFInfos(this);
 			boolean found = false;
-			for (int i = 0; i < lst.size(); i++)
+			for (LookAndFeelInfo info : lst)
 			{
-				UIManager.LookAndFeelInfo info = lst.get(i);
 				if (info.getClassName().equals(lnf))
 				{
 					found = true;
@@ -2267,6 +2265,12 @@ public class J2DBClient extends ClientState
 				invokeLater(update);
 			}
 		}
+	}
+
+	@Override
+	public void blockGUII18NMessage(String key, Object... args)
+	{
+		blockGUI(getI18NMessage(key, args));
 	}
 
 	// Releases GUI interaction
@@ -3515,7 +3519,7 @@ public class J2DBClient extends ClientState
 	}
 
 	@Override
-	protected boolean registerClient(IUserClient uc) throws Exception
+	protected boolean registerClient(IClient uc) throws Exception
 	{
 		boolean registered = false;
 		try

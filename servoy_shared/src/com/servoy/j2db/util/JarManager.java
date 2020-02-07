@@ -475,22 +475,16 @@ public abstract class JarManager
 	public static List<String> getManifestClassPath(URL jarUrl)
 	{
 		ArrayList<String> lst = new ArrayList<String>();
-		JarInputStream jis = null;
-		try
+		try (JarInputStream jis = new JarInputStream(jarUrl.openStream(), false))
 		{
-			InputStream is = (InputStream)jarUrl.getContent(new Class[] { InputStream.class });
-			if (is != null)
+			Manifest mf = jis.getManifest();
+			String classpath = mf.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+			if (classpath != null)
 			{
-				jis = new JarInputStream(is, false);
-				Manifest mf = jis.getManifest();
-				String classpath = mf.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
-				if (classpath != null)
+				StringTokenizer st = new StringTokenizer(classpath, " "); //$NON-NLS-1$
+				while (st.hasMoreTokens())
 				{
-					StringTokenizer st = new StringTokenizer(classpath, " "); //$NON-NLS-1$
-					while (st.hasMoreTokens())
-					{
-						lst.add(st.nextToken());
-					}
+					lst.add(st.nextToken());
 				}
 			}
 		}
@@ -498,11 +492,8 @@ public abstract class JarManager
 		{
 			Debug.error(e);
 		}
-		finally
-		{
-			Utils.closeInputStream(jis);
-		}
 		return lst;
+
 	}
 
 	private static Map<String, File> getManifestClassPath(File jarFile, File contextDir)

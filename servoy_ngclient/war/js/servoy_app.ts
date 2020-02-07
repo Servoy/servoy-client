@@ -1362,7 +1362,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		setLocale : function(language, country, initializing) {
 			try{
-                $translate.refresh();
+				$translate.refresh();
 				$svyI18NService.flush();
 				this.setAngularLocale(language);
 				numeral.localeData((language + '-' + country).toLowerCase());
@@ -1375,42 +1375,54 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					if (!initializing) webStorage.session.set("locale", language + '-' + country);
 				} catch(e2) {
 					try {
-						//try it with just the language part
-						numeral.localeData(language);
-						numeral.locale(language);
-						if (!initializing) webStorage.session.set("locale", language);
+						numeral.localeData((country + '-' + country).toLowerCase());
+						numeral.locale((country + '-' + country).toLowerCase());
+						if (!initializing) webStorage.session.set("locale", (country + '-' + country).toLowerCase());
 					} catch(e3) {
 						try {
-							//try it with just the language part but lowercase
-							numeral.localeData(language.toLowerCase());
-							numeral.locale(language.toLowerCase());
-							if (!initializing) webStorage.session.set("locale", language);
-						} catch(e4) {
+							numeral.localeData(country.toLowerCase());
+							numeral.locale(country.toLowerCase());
+							if (!initializing) webStorage.session.set("locale", country.toLowerCase());
+						} catch(e4) {	
 							try {
-								//try to duplicate the language in case it's only defined like that
-								numeral.localeData(language.toLowerCase() + "-" + language.toLowerCase()); // nl-nl for example is defined but browser only says 'nl' (this won't work for all languages for example "en-en" I don't think even exists)
-								numeral.locale(language.toLowerCase() + "-" + language.toLowerCase()); 
+								//try it with just the language part
+								numeral.localeData(language);
+								numeral.locale(language);
 								if (!initializing) webStorage.session.set("locale", language);
 							} catch(e5) {
-								// we can't find a suitable locale defined in locales.js; get the needed things from server (Java knows more locales)
-								// and create the locate info from that
-								var promise = $sabloApplication.callService<NumeralJSLocale>("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
-								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and locales.js provided langs?
-								var numeralLanguage = language + (country ? '-' + country : "");
-								promise.then(function(numeralLocaleInfo) {
-									if ($log.debugEnabled) $log.debug("Locale '" + numeralLanguage + "' not found in client js lib, but it was constructed based on server Java locale-specific information: " + JSON.stringify(numeralLocaleInfo));
-									numeralLocaleInfo.ordinal = function (number) {
-										return ".";
-									};
-									numeral.register('locale',numeralLanguage,numeralLocaleInfo);
-									numeral.locale(numeralLanguage);
-									if (!initializing) {
-										webStorage.session.set("locale", numeralLanguage);
-										$sabloApplication.setLocale({ language : language, country : country , full: language + "-" + country});
+								try {
+									//try it with just the language part but lowercase
+									numeral.localeData(language.toLowerCase());
+									numeral.locale(language.toLowerCase());
+									if (!initializing) webStorage.session.set("locale", language);
+								} catch(e6) {
+									try {
+										//try to duplicate the language in case it's only defined like that
+										numeral.localeData(language.toLowerCase() + "-" + language.toLowerCase()); // nl-nl for example is defined but browser only says 'nl' (this won't work for all languages for example "en-en" I don't think even exists)
+										numeral.locale(language.toLowerCase() + "-" + language.toLowerCase()); 
+										if (!initializing) webStorage.session.set("locale", language);
+									} catch(e7) {
+										// we can't find a suitable locale defined in locales.js; get the needed things from server (Java knows more locales)
+										// and create the locate info from that
+										var promise = $sabloApplication.callService<NumeralJSLocale>("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
+										// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and locales.js provided langs?
+										var numeralLanguage = language + (country ? '-' + country : "");
+										promise.then(function(numeralLocaleInfo) {
+											if ($log.debugEnabled) $log.debug("Locale '" + numeralLanguage + "' not found in client js lib, but it was constructed based on server Java locale-specific information: " + JSON.stringify(numeralLocaleInfo));
+											numeralLocaleInfo.ordinal = function (number) {
+												return ".";
+											};
+											numeral.register('locale',numeralLanguage,numeralLocaleInfo);
+											numeral.locale(numeralLanguage);
+											if (!initializing) {
+												webStorage.session.set("locale", numeralLanguage);
+												$sabloApplication.setLocale({ language : language, country : country , full: language + "-" + country});
+											}
+										}, function(reason) {
+											$log.warn("Cannot properly handle locale '" + numeralLanguage + "'. It is not available in js libs and it could not be loaded from server...");
+										});
 									}
-								}, function(reason) {
-									$log.warn("Cannot properly handle locale '" + numeralLanguage + "'. It is not available in js libs and it could not be loaded from server...");
-								});
+								}
 							}
 						}
 					}

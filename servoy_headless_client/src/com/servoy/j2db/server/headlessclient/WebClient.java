@@ -56,7 +56,7 @@ import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.IUserClient;
+import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
@@ -422,7 +422,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	private transient Object[] adsInfo = null;//chache to expensive to get each time
 
 	@Override
-	protected boolean registerClient(IUserClient uc) throws Exception
+	protected boolean registerClient(IClient uc) throws Exception
 	{
 		boolean registered = false;
 		try

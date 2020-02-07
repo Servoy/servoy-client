@@ -21,6 +21,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Procedure;
@@ -30,6 +31,7 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
@@ -38,7 +40,7 @@ import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
  *
  * @author jblok
  */
-public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
+public interface IDataServer extends Remote
 {
 	public static final int CUSTOM_QUERY = 1;
 	public static final int RELATION_QUERY = 2;
@@ -235,4 +237,19 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
 		throws RepositoryException, RemoteException;
 
+	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
+		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException;//returns the data for acquired locks
+
+	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException;
+
+	/**
+	 * Log a message on the server
+	 *
+	 * @param msg
+	 */
+	public void logMessage(String msg) throws RemoteException;
+
+	boolean isInServerMaintenanceMode() throws RemoteException;
+
+	void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException;
 }

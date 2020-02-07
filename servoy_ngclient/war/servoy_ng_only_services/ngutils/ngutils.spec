@@ -13,10 +13,14 @@
 		"VIEWPORT_MOBILE_DENY_ZOOM_OUT": { "type": "int", "default": 3 },
 		"VIEWPORT_MOBILE_DENY_ZOOM_IN": { "type": "int", "default": 4 },
 		"contributedTags": "tag[]",
-		"styleclasses": { "type": "object", "pushToServer": "shallow", "tags": { "scope": "private" } }
+		"styleclasses": { "type": "object", "pushToServer": "shallow", "tags": { "scope": "private" } },
+		"backActionCB": { "type": "function", "tags": { "scope": "private" }}
 	},
 
 	"api": {
+		"setBackActionCallback": {
+			"parameters": [{ "name": "callback", "type": "function" }]
+		},
 		"getUserAgent": {
 			"parameters": [ ],
 			"returns": "string"

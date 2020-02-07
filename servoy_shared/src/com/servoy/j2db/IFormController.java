@@ -130,6 +130,4 @@ public interface IFormController extends IForm
 	void refreshView();
 
 	boolean setMode(int mode);
-
-	boolean hasParentForm();
 }

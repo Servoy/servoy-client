@@ -5,12 +5,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2019.12.0.3540_rc</version>
+		<version>2020.3.0.3560_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2019.12.0.3540_rc</version>
+	<version>2020.3.0.3560_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -266,28 +266,8 @@
 							<dependencies>
 								<dependency>
 									<groupId>com.servoy</groupId>
-									<artifactId>com.servoy.eclipse.docgenerator.client</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>com.servoy</groupId>
-									<artifactId>com.servoy.eclipse.docgenerator</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>com.servoy</groupId>
-									<artifactId>com.servoy.eclipse.docgenerator.ui</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>com.servoy</groupId>
-									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
-									<type>eclipse-plugin</type>
-								</dependency>
-								<dependency>
-									<groupId>org.eclipse.osgi</groupId>
-									<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-									<type>eclipse-plugin</type>
+									<artifactId>com.servoy.eclipse.docgenerator.client.feature</artifactId>
+									<type>eclipse-feature</type>
 								</dependency>
 							</dependencies>
 						</configuration>

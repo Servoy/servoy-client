@@ -157,7 +157,7 @@ public class SPDataSourceServer extends DefaultJavaScope
 			{
 				if (i <= parameters.size() - 1)
 				{
-					args[i] = Column.getAsRightType(parameters.get(i).getColumnType().getSqlType(), 0, args[i], 0, true, false);
+					args[i] = Column.getAsRightType(parameters.get(i).getColumnType(), 0, args[i], true, false);
 				}
 			}
 		}

@@ -894,8 +894,9 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			for (UsedRelation usedRelation : uedRelations)
 			{
-				row.getRowManager().addCalculationRelationDependency(usedRelation.whereArgsHash, usedRelation.name, parent.getDataSource(), getPKHashKey(),
-					calc);
+				row.getRowManager()
+					.addCalculationRelationDependency(usedRelation.whereArgsHash, usedRelation.name, parent.getDataSource(), getPKHashKey(),
+						calc);
 			}
 		}
 
@@ -931,6 +932,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * This will not check if the record doesn't really have any changes, it just returns the edit state.
 	 * So this can return true but databaseManager.getEditedRecord() will not return this record because that
 	 * call will check if the record has really any changed values compared to the stored database values.
+	 * Record can be in edit mode without changes when some field is focused (so edit is started) but no changes are done yet
+	 * or when changes were done in such a way that record data is the same as database data.
 	 *
 	 * @sample
 	 * var isEditing = foundset.getSelectedRecord().isEditing() // also foundset.getRecord can be used

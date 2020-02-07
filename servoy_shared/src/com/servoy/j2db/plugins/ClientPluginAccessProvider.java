@@ -145,6 +145,15 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		return null;
 	}
 
+	public String getMainSolutionName()
+	{
+		if (application.getFlattenedSolution() != null && application.getFlattenedSolution().getMainSolutionMetaData() != null)
+		{
+			return application.getFlattenedSolution().getMainSolutionMetaData().getName();
+		}
+		return null;
+	}
+
 	public IFormManager getFormManager()
 	{
 		return application.getFormManager();

@@ -909,10 +909,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					const pager = $compile(angular.element("<div class='svyPagination' ng-class=\"paginationStyleClass !== undefined ?paginationStyleClass : ''\"><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
 
                     let template = null;
-					function copyRecordProperties( childElement, rowModel, viewportIndex ) {
+					function copyRecordProperties( childElement, rowModel, viewportIndex, notify ) {
 						if ( childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties ) {
 							childElement.foundsetConfig.recordBasedProperties.forEach(( value ) => {
 								rowModel[value] = childElement.modelViewport[viewportIndex][value];
+								if (notify)
+								{
+									rowToModel[viewportIndex].model[childElement.name][$sabloConstants.modelChangeNotifier](value,childElement.modelViewport[viewportIndex][value]);
+								}	
 							} );
 						}
 					};
@@ -1002,7 +1006,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				
 						const simpleName = childElement.name;
 						
-						copyRecordProperties( childElement, rowModel, index );
+						copyRecordProperties( childElement, rowModel, index,false );
 						row.model[simpleName] = rowModel;
 						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
 						row.api[simpleName] = {};
@@ -1150,6 +1154,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 						}
 						updateChildElementsAPI(newValue[0]);
+					}
+
+					function createRowsAndSetSelection() {
+						createRows();
+						var selectedRowsIndexes = getFoundset().selectedRowIndexes; 
+						if(selectedRowsIndexes.length && scope.selectionClass) {
+							updateSelection(selectedRowsIndexes);
+						}
 					}
 
 					if ( scope.foundset && scope.foundset.viewPort && scope.foundset.viewPort.rows
@@ -1309,7 +1321,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 												if (value.type == $foundsetTypeConstants.ROWS_CHANGED) {
 													for (let k = value.startIndex; k <= value.endIndex; k++) {
 														const row = rowToModel[k] as servoy.IServoyScope;
-														copyRecordProperties(childElement, row.model[simpleName], k);
+														copyRecordProperties(childElement, row.model[simpleName], k, true);
 													}
 												} else if (value.type == $foundsetTypeConstants.ROWS_INSERTED) {
 													// the actual 'row' was created when foundset change listener executed before; we just need to create the child element related stuff
@@ -1372,11 +1384,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        
 							            return lastValue;
 							        }, (newValue) => {
-	                                    createRows();
+										createRowsAndSetSelection();
 							        });
 						}
 						else {
-							createRows();
+							createRowsAndSetSelection();
 						}
 					}
 			}

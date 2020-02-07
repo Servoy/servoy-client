@@ -1490,8 +1490,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				Stream.concat(viewFoundSets.values().stream(), //
 					Stream.concat(foundSets.stream(), //
 						Stream.concat(namedFoundSets.values().stream().map(WeakReference::get).filter(Objects::nonNull), //
-							cachedSubStates.values().stream() //
-								.map(ConcurrentMap::values).flatMap(Collection::stream) //
+							cachedSubStates.values()
+								.stream() //
+								.map(ConcurrentMap::values)
+								.flatMap(Collection::stream) //
 								.map(SoftReference::get) //
 								.filter(Objects::nonNull))))));
 	}
@@ -1522,13 +1524,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						((RelatedFoundSet)fs).invalidateFoundset();
 					}
 					else if (fs instanceof ViewFoundSet)
-					{
-						((ViewFoundSet)fs).loadAllRecords();
-					}
+				{
+					((ViewFoundSet)fs).loadAllRecords();
+				}
 					else if (fs instanceof FoundSet)
-					{
-						((FoundSet)fs).refreshFromDB(false, false);
-					}
+				{
+					((FoundSet)fs).refreshFromDB(false, false);
+				}
 				}
 			}));
 
@@ -1869,6 +1871,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 		return foundset;
+	}
+
+	public String getFoundSetName(IFoundSet foundset)
+	{
+		return namedFoundSets.entrySet().stream().filter(entry -> (entry.getValue().get() == foundset)).findFirst().map(entry -> entry.getKey()).orElse(null);
 	}
 
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException
@@ -2321,8 +2328,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				try
 				{
-					if (((ILockServer)getDataServer()).releaseLocks(application.getClientID(), rm.getSQLSheet().getServerName(),
-						rm.getSQLSheet().getTable().getName(), pkhashkeys))
+					if (getDataServer().releaseLocks(application.getClientID(), rm.getSQLSheet().getServerName(), rm.getSQLSheet().getTable().getName(),
+						pkhashkeys))
 					{
 						rm.removeLocks(pkhashkeys);
 					}
@@ -2687,10 +2694,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 
-			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
-				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
-				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
-				targetTid, ColumnType.getColumnTypes(types), pkNames);
+			table = application.getDataServer()
+				.insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
+					useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY,
+					dataSource,
+					table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
+					targetTid, ColumnType.getColumnTypes(types), pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2770,11 +2779,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						{
 							try
 							{
-								application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-									Utils.arrayMerge(
-										new Object[] { ds, new Integer(action), new JSDataSet(application, fnewPks), Boolean.valueOf(didHaveDataCached) },
-										Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
-									false, false);
+								application.getScriptEngine()
+									.getScopesScope()
+									.executeGlobalFunction(sm.getScopeName(), sm.getName(),
+										Utils.arrayMerge(
+											new Object[] { ds, new Integer(action), new JSDataSet(application, fnewPks), Boolean.valueOf(didHaveDataCached) },
+											Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
+										false, false);
 							}
 							catch (Exception e1)
 							{
@@ -3200,17 +3211,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 
 
-			table = application.getDataServer().insertDataSet(application.getClientID(), fixedDataSet, dataSource,
-				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-				fixedColumnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
+			table = application.getDataServer()
+				.insertDataSet(application.getClientID(), fixedDataSet, dataSource,
+					table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
+					fixedColumnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 			if (table != null)
 			{
 				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem definition) and it has rows
 				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset.
 				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
 				{
-					table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
-						tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
+					table = application.getDataServer()
+						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
+							tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
 				}
 				if (serverName == IServer.INMEM_SERVER)
 				{
@@ -3465,9 +3478,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private IQuerySelectValue getSelectvalue(QBSelect query, String name)
 	{
-		return query.getQuery().getColumns().stream() //
+		return query.getQuery()
+			.getColumns()
+			.stream() //
 			.filter(column -> name.equals(column.getAliasOrName())) //
-			.findAny().orElse(null);
+			.findAny()
+			.orElse(null);
 	}
 
 	@Override
@@ -3547,8 +3563,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		ColumnInfo ci = column.getColumnInfo();
 		if (ci != null && ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
 		{
-			IColumnConverter columnConverter = ((FoundSetManager)application.getFoundSetManager()).getColumnConverterManager().getConverter(
-				ci.getConverterName());
+			IColumnConverter columnConverter = ((FoundSetManager)application.getFoundSetManager()).getColumnConverterManager()
+				.getConverter(
+					ci.getConverterName());
 			if (columnConverter instanceof ITypedColumnConverter)
 			{
 				try
