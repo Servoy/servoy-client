@@ -689,7 +689,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param dataprovider String column to filter on.
 	 *
-	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally
+	 * augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 *
 	 * @param value Object filter value (for in array and between an array with 2 elements)
 	 *
@@ -715,7 +716,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * // Filters with in-conditions can be used with arrays or with custom queries:
 	 * success = foundset.addFoundSetFilterParam("productcode", "in", [120, 144, 200]);
 	 * success = foundset.addFoundSetFilterParam("city", "in", ["London", "Paris"]);
-	 * success = foundset.addFoundSetFilterParam("countrycode", "in", "select country code from countries where region in ('Europe', 'Asia')");
+	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
+	 * success = foundset.addFoundSetFilterParam("countrycode", "sql:in", "select country code from countries where region in ('Europe', 'Asia')");
 	 *
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 *
@@ -723,7 +725,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param dataprovider String column to filter on.
 	 *
-	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally
+	 * augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 *
 	 * @param value Object filter value (for in array and between an array with 2 elements)
 	 *

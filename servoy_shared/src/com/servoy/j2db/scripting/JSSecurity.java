@@ -1064,6 +1064,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
+	 * @clonedesc js_logout(String,String,Object)
+	 * @sampleas js_logout(String,String,Object)
+	 *
+	 * @param solutionToLoad the solution to load after logout
+	 * @param argument the argument to pass to the (login) solution onOpen
+	 */
+	public void js_logout(String solutionToLoad, Object argument)
+	{
+		js_logout(solutionToLoad, null, argument);
+	}
+
+	/**
 	 * Logout the current user and close the solution, if the solution requires authentication and user is logged in.
 	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout() (this is only applicable for Web Client).
 	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
@@ -1076,6 +1088,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //security.logout('solution_name','global_method_name');//log out, close current solution, open solution 'solution_name' and call global method 'global_method_name' of the newly opened solution
 	 * //security.logout('solution_name','global_method_name','my_string_argument');//log out, close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'
 	 * //security.logout('solution_name','global_second_method_name',2);
+	 * //security.logout('solution_name', {a: 'my_string_argument', p1: 'param1', p2: 'param2'});//log out, close current solution, open solution 'solution_name', call (login) solution's onOpen with argument 'my_argument' and queryParams p1,p2
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *

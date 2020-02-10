@@ -246,8 +246,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * It returns an array with 2 elements, a string that is the startup argument and a map containing all named startup arguments, or
 	 * null if there is no argument passed
 	 *
-	 * @deprecated As of release 6.0, method was deprecated because startup arguments are received as arguments to solution onOpen event.
-	 *
 	 * @sample
 	 * var args_array = application.getStartupArguments();
 	 * // the first element in the array is the 'argument' value from the startup
@@ -260,7 +258,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @return Array with 2 elements, a string that is the startup argument and a map containing all named startup arguments,
 	 * or null if there is no argument passed
 	 */
-	@Deprecated
 	public Object[] js_getStartupArguments()
 	{
 		if (application instanceof ClientState)
@@ -1393,6 +1390,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'.
 	 * //if the user has been logged in, he will stay logged in
 	 * //application.closeSolution('solution_name','global_method_name','my_argument');
+	 * //application.closeSolution('solution_name', {a: 'my_string_argument', p1: 'param1', p2: 'param2'});//close current solution, open solution 'solution_name', call solution's onOpen with argument 'my_argument' and queryParams p1,p2
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *
@@ -1425,6 +1423,19 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public void js_closeSolution(String solutionToLoad, String methodName)
 	{
 		js_closeSolution(solutionToLoad, methodName, null);
+	}
+
+	/**
+	 * @clonedesc js_closeSolution()
+	 *
+	 * @sampleas js_closeSolution()
+	 *
+	 * @param solutionToLoad Name of the solution to load
+	 * @param methodArgument Argument passed to the solution onOpen
+	 */
+	public void js_closeSolution(String solutionToLoad, Object methodArgument)
+	{
+		js_closeSolution(solutionToLoad, null, methodArgument);
 	}
 
 	/**
@@ -1896,7 +1907,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.showURL('http://www.example.com');
 	 *
 	 * //NGClient and webclient specific additional parameters...
-	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window
+	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
 	 *
@@ -3027,11 +3038,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Returns the name of the operating system.
+	 * Returns the name of the operating system of the client.
 	 *
 	 * @sample var osname = application.getOSName();
 	 *
-	 * @return Name of the operating system
+	 * @return Name of the operating system of the client
 	 */
 	@SuppressWarnings("nls")
 	public String js_getOSName()

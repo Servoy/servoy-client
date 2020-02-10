@@ -500,6 +500,9 @@ public class SQLKeywords
 		// Oracle
 	"uid", 
 	"length", 
+	
+		// Progress
+	"range",
 
 		// some more found in Hibernate dialects
 	"account", 

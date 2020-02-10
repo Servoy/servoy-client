@@ -34,6 +34,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -1169,7 +1170,29 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				s_args = new String[args.length];
 				for (int i = 0; i < args.length; i++)
 				{
-					s_args[i] = (args[i] != null && args[i] != Scriptable.NOT_FOUND && args[i] != Undefined.instance ? args[i].toString() : null);
+					if (args[i] instanceof NativeObject)
+					{
+						StringBuilder sb = new StringBuilder();
+						NativeObject nativeObjectArg = (NativeObject)args[i];
+						Object defaultArg = null;
+						for (Object key : nativeObjectArg.keySet())
+						{
+							if ("a".equals(key.toString()))
+							{
+								defaultArg = nativeObjectArg.get(key);
+							}
+							else
+							{
+								sb.append('&').append(key).append('=').append(nativeObjectArg.get(key));
+							}
+						}
+						if (defaultArg != null) sb.insert(0, defaultArg.toString());
+						s_args[i] = sb.toString();
+					}
+					else
+					{
+						s_args[i] = (args[i] != null && args[i] != Scriptable.NOT_FOUND && args[i] != Undefined.instance ? args[i].toString() : null);
+					}
 				}
 			}
 			else if (!force && args == null)
