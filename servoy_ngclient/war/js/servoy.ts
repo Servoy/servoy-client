@@ -900,8 +900,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					}
 
-					scope.onRowClick = function(index) {
-						scope.foundset.requestSelectionUpdate([index]);
+					scope.onRowClick = function(rowID) {
+						for ( let i = 0; i < scope.foundset.viewPort.rows.length; i++ ) {
+							if (scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] == rowID)
+							{
+								scope.foundset.requestSelectionUpdate([i+scope.foundset.viewPort.startIndex]);
+								break;
+							}	
+						}
 					}
 
 					const parent = element.parent();
@@ -978,6 +984,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					
 					interface IServoyScopeInternal extends servoy.IServoyScope {
 						createdChildElements?: number;
+						rowID?: string;
 					}
 					
 					function createChildElementForRow(index: number, rowId: string, row: IServoyScopeInternal, childElement: componentType.ComponentPropertyValue) {
@@ -1079,6 +1086,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						row.layout = {};
 						row.handlers = {}
 						row.createdChildElements = 0;
+						row.rowID = rowId;
 						
 						const clone = element.clone();
 						
@@ -1086,7 +1094,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						clone.attr("svy-form-component-clone", clone.attr("svy-form-component"));
 						clone.removeAttr("svy-form-component");
 						// this compile (that happens before row contents are added to "clone") is only for ng-click to work on each rows container div, not the actual scope of the row (which is created and used for compilation in createChildElementForRow)
-						clone.attr("ng-click", "onRowClick(" + (scope.foundset.viewPort.startIndex + index) + ")");
+						clone.attr("ng-click", "onRowClick(rowID)");
 						if (scope.rowStyleClass)
 						{
 							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClass);
@@ -1095,7 +1103,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						{
 							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClassDataprovider[index]);
 						}
-						$compile(clone)(scope);
+						$compile(clone)(row);
 						
 						// pager div is the first div in parent; form component divs follow starting at index 1
 						if (rowToModel.length - 1 == index) {
@@ -1216,6 +1224,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 											parent.children()[value.startIndex + 1].remove(); // + 1 is due to pager that is the first div
 										}
 										shouldUpdatePagingControls = true;
+									}
+									else if (value.type == $foundsetTypeConstants.ROWS_CHANGED)
+									{
+										//check if rowid was changed 
+										for (let k = value.startIndex; k <= value.endIndex; k++) {
+											let elScope = rowToModel[k] as IServoyScopeInternal;
+											elScope.rowID = scope.foundset.viewPort.rows[k][$foundsetTypeConstants.ROW_ID_COL_KEY];
+										}
 									}
 								} )
 							}
