@@ -2103,12 +2103,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Flushes the client data cache and requeries the data for a record (based on the record index) in a foundset or all records in the foundset.
 	 * Used where a program external to Servoy has modified the database record.
-	 * Record index of -1 will refresh all records in the foundset and 0 the selected record.
+	 * Giving 0 as the index will just refresh he selected record.
+	 *
+	 * If the index is -1 then this method will refresh all the records of the datasource of the foundset, it does this by flusing all the records and the row data of the full datasource
+	 * So everything is reloaded fully fresh when the foundsets will requery for there data.
+	 * WARNING: Don't hold any references to JSRecord objects from before this call with -1 index. Those records objects are all in an invalid state because of the underlying data flush.
 	 *
 	 * @sample
 	 * //refresh the second record from the foundset.
 	 * databaseManager.refreshRecordFromDatabase(foundset,2)
-	 * //flushes all records in the related foundset  (-1 is or can be an expensive operation)
+	 * //flushes all records in the related foundset datasource (so the whole table, so -1 is an expensive operation)
 	 * databaseManager.refreshRecordFromDatabase(order_to_orderdetails,-1);
 	 *
 	 * @param foundset The JSFoundset to refresh
