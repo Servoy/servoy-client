@@ -470,6 +470,10 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					return "servoydefaultTextfield";
 				case "bootstrapcomponentsButton" :
 					return "servoydefaultButton";
+				case "bootstrapcomponentsTable" : //map to simple table to test the foundset property type
+					return "servoydefaultTable";
+				case "servoyextraTable" :
+					return "servoydefaultTable";
 			}
 			return typeName;
 		}
