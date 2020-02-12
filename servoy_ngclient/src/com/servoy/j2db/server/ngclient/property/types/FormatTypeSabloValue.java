@@ -21,11 +21,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -44,6 +46,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
@@ -433,6 +436,36 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 			} // else it will be searched for in form's context and table as below
 		} // else there is no "for DP or it's just a normal DP, not foundset-linked; see below - it will search for it's type using the form's dataproviderLookup
 
+		if (dataProviderLookup == null)
+		{
+			WebObjectSpecification spec = ((WebFormComponent)webObjectCntxt.getUnderlyingWebObject()).getParent().getSpecification();
+			if (spec != null)
+			{
+				Collection<PropertyDescription> formComponentProperties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+				if (formComponentProperties != null)
+				{
+					for (PropertyDescription property : formComponentProperties)
+					{
+						if (property.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)property.getConfig()).forFoundset != null)
+						{
+							FoundsetTypeSabloValue runtimeValOfFoundset = (FoundsetTypeSabloValue)((WebFormComponent)webObjectCntxt.getUnderlyingWebObject())
+								.getParent().getProperty(((ComponentTypeConfig)property.getConfig()).forFoundset);
+							ITable table = null;
+							Form form = ((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
+							if (runtimeValOfFoundset.getFoundset() != null) table = runtimeValOfFoundset.getFoundset().getTable();
+							if (table == null) table = FoundsetTypeSabloValue
+								.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(runtimeValOfFoundset.getFoundsetSelector(), application, form);
+							if (table != null)
+							{
+								dataProviderLookup = new FormAndTableDataProviderLookup(application.getFlattenedSolution(), form, table);
+							}
+							break;
+						}
+
+					}
+				}
+			}
+		}
 		if (dataProviderLookup == null && application != null)
 			dataProviderLookup = application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
 				((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm());
