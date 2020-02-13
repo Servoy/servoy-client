@@ -281,6 +281,15 @@ public class FormWrapper
 	public String getPropertiesString() throws JSONException, IllegalArgumentException
 	{
 		getBaseComponents();
+		Map<String, Object> properties = getProperties();
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
+	}
+
+	/**
+	 * @return
+	 */
+	public Map<String, Object> getProperties()
+	{
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		properties.put("size", form.getSize()); // form.getSize() computes the form height from form parts so do call it instead of relying on the height from size taken from raw form.getPropertiesMap() - where the height is not kept in sync in developer - we have to call getSize()
 		properties.put("designSize", form.getSize());
@@ -320,7 +329,7 @@ public class FormWrapper
 			Border border = ComponentFactoryHelper.createBorder((String)properties.get(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName()), false);
 			properties.put(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName(), BorderPropertyType.writeBorderToJson(border));
 		}
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
+		return properties;
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

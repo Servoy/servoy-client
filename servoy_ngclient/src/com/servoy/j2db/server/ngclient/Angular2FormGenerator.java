@@ -57,6 +57,8 @@ import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
+import com.servoy.j2db.server.ngclient.template.FormWrapper;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Utils;
 
@@ -158,10 +160,16 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		return "";
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String generateJS() throws IOException
 	{
 		IWebFormController cachedFormController = client.getFormManager().getCachedFormController(realFormName);
+		ServoyDataConverterContext context = cachedFormController != null ? new ServoyDataConverterContext(cachedFormController)
+			: new ServoyDataConverterContext(client);
+		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(context, true, false);
+		FormWrapper formWrapper = formTemplate.getFormWrapper(form);
+
 		// for this form it is really just some json.
 		StringWriter stringWriter = new StringWriter();
 		final JSONWriter writer = new JSONWriter(stringWriter);
@@ -196,6 +204,38 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			DataConversion dataConversion = new DataConversion();
 			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, con.getProperties(), dataConversion);
 			JSONUtils.writeClientConversions(writer, dataConversion);
+		}
+		if (formWrapper != null)
+		{
+			Map<String, Object> properties = formWrapper.getProperties();
+			properties.forEach((key, value) -> {
+				writer.key(key);
+				if (value instanceof Integer || value instanceof Long)
+				{
+					writer.value(((Number)value).longValue());
+				}
+				else if (value instanceof Float || value instanceof Double)
+				{
+					writer.value(((Number)value).doubleValue());
+				}
+				else if (value instanceof Boolean)
+				{
+					writer.value(((Boolean)value).booleanValue());
+				}
+				else if (value instanceof Dimension)
+				{
+					writer.object();
+					writer.key("width");
+					writer.value(((Dimension)value).getWidth());
+					writer.key("height");
+					writer.value(((Dimension)value).getHeight());
+					writer.endObject();
+				}
+				else
+				{
+					writer.value(value);
+				}
+			});
 		}
 		writer.endObject();
 		writer.endObject();
