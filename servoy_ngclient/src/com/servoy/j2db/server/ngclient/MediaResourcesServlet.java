@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -53,6 +54,8 @@ import org.apache.wicket.util.upload.ServletFileUpload;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -60,6 +63,7 @@ import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -71,12 +75,16 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.JSUpload;
 import com.servoy.j2db.server.ngclient.less.LessCompiler;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -92,7 +100,7 @@ import com.servoy.j2db.util.Utils;
  * </ul>
  * Post:
  * <ul>
- * <li>/resources/upload/[clientnr]/[formName]/[elementName]/[propertyName] - for binary upload targeting an element property</li>
+ * <li>/resources/upload/[clientnr]/[formName]/[elementName]/[propertyName]/[rowid] - for binary upload targeting an element property</li>
  * <li>/resources/upload/[clientnr] - for binary upload of files selected with the built-in file selector</li>
  * </ul>
  *
@@ -422,7 +430,7 @@ public class MediaResourcesServlet extends HttpServlet
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
 
-		if ((paths.length == 2 || paths.length == 5) && paths[0].equals("upload"))
+		if ((paths.length == 2 || paths.length >= 5) && paths[0].equals("upload"))
 		{
 			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
 			{
@@ -430,9 +438,10 @@ public class MediaResourcesServlet extends HttpServlet
 				final INGClientWebsocketSession wsSession = getSession(req, clientnr);
 				try
 				{
-					final String formName = paths.length == 5 ? paths[2] : null;
-					final String elementName = paths.length == 5 ? paths[3] : null;
-					final String propertyName = paths.length == 5 ? paths[4] : null;
+					final String formName = paths.length >= 5 ? paths[2] : null;
+					final String elementName = paths.length >= 5 ? paths[3] : null;
+					final String propertyName = paths.length >= 5 ? paths[4] : null;
+					final String rowID = paths.length >= 6 ? paths[5] : null;
 					if (wsSession != null)
 					{
 						Settings settings = Settings.getInstance();
@@ -532,7 +541,51 @@ public class MediaResourcesServlet extends HttpServlet
 													Debug.error("Error calling the upload event handler " + propertyName + "   of " + webComponent, e);
 												}
 											}
-											else form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
+											else
+											{
+												boolean isListFormComponent = false;
+												WebObjectSpecification spec = webComponent.getParent().getSpecification();
+												if (spec != null)
+												{
+													Collection<PropertyDescription> formComponentProperties = spec
+														.getProperties(FormComponentPropertyType.INSTANCE);
+													if (formComponentProperties != null)
+													{
+														for (PropertyDescription property : formComponentProperties)
+														{
+															if (property.getConfig() instanceof ComponentTypeConfig &&
+																((ComponentTypeConfig)property.getConfig()).forFoundset != null)
+															{
+																isListFormComponent = true;
+																FoundsetTypeSabloValue foundsetPropertyValue = (FoundsetTypeSabloValue)webComponent
+																	.getParent().getProperty(((ComponentTypeConfig)property.getConfig()).forFoundset);
+																if (rowID != null)
+																{
+																	IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
+
+																	Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowID);
+																	if (foundset != null)
+																	{
+																		int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(),
+																			splitHashAndIndex.getRight().intValue());
+
+																		if (recordIndex != -1)
+																		{
+																			foundsetPropertyValue.getDataAdapterList()
+																				.setRecordQuietly(foundset.getRecord(recordIndex));
+																		}
+																	}
+																}
+																foundsetPropertyValue.getDataAdapterList().pushChanges(webComponent, propertyName, fileData,
+																	null);
+																break;
+															}
+
+														}
+													}
+												}
+												if (!isListFormComponent) form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
+											}
 										}
 									}
 								});
