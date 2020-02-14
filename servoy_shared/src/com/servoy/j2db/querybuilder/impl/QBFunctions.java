@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static java.util.Arrays.asList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,11 +137,15 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction trim(String leading_trailing_both, String characters, String fromKeyword, Object value)
 	{
+		// some dbs (HXTT-DBF) do not like parameters for the characters, when it is 1 character it is safe for inline.
+		IQuerySelectValue charactersValue = characters.length() == 1
+			? new QueryColumnValue('\'' + characters + '\'', null, true)
+			: new QueryColumnValue(characters, null, false);
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.trim, new IQuerySelectValue[] { //
-			new QueryColumnValue(leading_trailing_both, null, true), // keyword
-			new QueryColumnValue(characters, null, false), // value
-			new QueryColumnValue(fromKeyword, null, true), // keyword
-			createOperand(value) //
+			new QueryColumnValue(leading_trailing_both, null, validateKeyword(leading_trailing_both, "leading", "trailing", "both")), // keyword
+			charactersValue, // characters
+			new QueryColumnValue(fromKeyword, null, validateKeyword(fromKeyword, "from")), // keyword
+			createOperand(value)
 		});
 	}
 
@@ -527,6 +533,14 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 			list.add(createOperand(arg));
 		}
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.coalesce, list.toArray(new IQuerySelectValue[list.size()]));
+	}
+
+	/**
+	 * @return true if the value matches one of the allowed strings.
+	 */
+	private static boolean validateKeyword(String value, String... allowed)
+	{
+		return value != null && asList(allowed).contains(value.trim().toLowerCase());
 	}
 
 }
