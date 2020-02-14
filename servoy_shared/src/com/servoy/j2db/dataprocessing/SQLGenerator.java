@@ -1314,13 +1314,23 @@ public class SQLGenerator
 			else
 			{
 				// RAGTEST any??
-				if (value != null && SQLGenerator.isSelectQuery(value.toString()))
+				if (value != null && isSelectQuery(value.toString()))
 				{
+					if ((op & IBaseSQLCondition.IS_SQL_MODIFIER) == 0)
+					{
+						Debug.warn(
+							"Filter is created using a custom query without using the sql-modifier, this will be removed in a future version of servoy, please use operator '" +
+								RelationItem.getOperatorAsString(op | IBaseSQLCondition.IS_SQL_MODIFIER) + "'");
+					}
 					// add as subquery
 					inValues = new QueryCustomSelect(value.toString(), null);
 				}
 				else
 				{
+					if (value != null && (op & IBaseSQLCondition.IS_SQL_MODIFIER) != 0)
+					{
+						Debug.warn("Filter has the sql-modifier, but the value is not valid sql for filters: '" + value + "'");
+					}
 					inValues = new Object[][] { new Object[] { value } };
 				}
 			}
@@ -1379,14 +1389,12 @@ public class SQLGenerator
 		return new QueryFilter(null, filterWhere);
 	}
 
+	/**
+	 * A select query must start with 'select' and must contains 'from'. This may be prefixed with starting word 'with' or 'declare'
+	 */
 	public static boolean isSelectQuery(String value)
 	{
-		if (value != null)
-		{
-			String lc = value.toLowerCase().trim();
-			return lc.startsWith("select") || lc.startsWith("with") || lc.startsWith("declare"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		return false;
+		return value != null && value.matches("(?si)\\s*(\\b(with|declare)\\b.*)?\\bselect\\b.*\\bfrom\\b.*");
 	}
 
 	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)

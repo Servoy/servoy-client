@@ -22,7 +22,7 @@
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "mediaOptions" : {"type" :"mediaoptions", "tags": { "scope" :"design" }}, 
 	        "mnemonic" : "string", 
-	        "rolloverCursor" : {"type" :"int", "tags": { "scope" :"design" }}, 
+	        "rolloverCursor" : {"type" :"int", "tags": { "scope" :"design" }, "default" : 12}, 
 	        "rolloverImageMediaID" : "media", 
 	        "showFocus" : {"type":"boolean", "default":true}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":80, "height":20}, "pushToServer": "deep"}, 

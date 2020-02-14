@@ -19,9 +19,9 @@ package com.servoy.base.query;
 
 /**
  * Common interface for conditions in queries.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public interface IBaseSQLCondition extends IBaseQueryElement
 {
@@ -43,66 +43,69 @@ public interface IBaseSQLCondition extends IBaseQueryElement
 	public static final int OPERATOR_MASK = 0xff; // use LSB for operators, rest for modifiers
 
 	public static final int[] ALL_DEFINED_OPERATORS = new int[] { //
-	EQUALS_OPERATOR,//
-	GT_OPERATOR,//
-	LT_OPERATOR,//
-	GTE_OPERATOR,//
-	LTE_OPERATOR,//
-	NOT_OPERATOR,//
-	IN_OPERATOR,//
-	LIKE_OPERATOR,//
-	NOT_IN_OPERATOR,//
-	NOT_LIKE_OPERATOR,//
-	BETWEEN_OPERATOR,//
-	NOT_BETWEEN_OPERATOR,//
-	ISNULL_OPERATOR,//
-	ISNOTNULL_OPERATOR //
+		EQUALS_OPERATOR, //
+		GT_OPERATOR, //
+		LT_OPERATOR, //
+		GTE_OPERATOR, //
+		LTE_OPERATOR, //
+		NOT_OPERATOR, //
+		IN_OPERATOR, //
+		LIKE_OPERATOR, //
+		NOT_IN_OPERATOR, //
+		NOT_LIKE_OPERATOR, //
+		BETWEEN_OPERATOR, //
+		NOT_BETWEEN_OPERATOR, //
+		ISNULL_OPERATOR, //
+		ISNOTNULL_OPERATOR //
 	};//
 
 
-	public static final String[] OPERATOR_STRINGS = new String[] {//
-	"=", //$NON-NLS-1$
-	">", //$NON-NLS-1$
-	"<", //$NON-NLS-1$
-	">=", //$NON-NLS-1$
-	"<=", //$NON-NLS-1$
-	"!=", //$NON-NLS-1$
-	"in", //$NON-NLS-1$
-	"like", //$NON-NLS-1$
-	"not in", //$NON-NLS-1$
-	"not like", //$NON-NLS-1$,
-	"between", //$NON-NLS-1$,
-	"not between", //$NON-NLS-1$,
-	"is null", //$NON-NLS-1$,
-	"is not null" //$NON-NLS-1$
+	public static final String[] OPERATOR_STRINGS = new String[] { //
+		"=", //$NON-NLS-1$
+		">", //$NON-NLS-1$
+		"<", //$NON-NLS-1$
+		">=", //$NON-NLS-1$
+		"<=", //$NON-NLS-1$
+		"!=", //$NON-NLS-1$
+		"in", //$NON-NLS-1$
+		"like", //$NON-NLS-1$
+		"not in", //$NON-NLS-1$
+		"not like", //$NON-NLS-1$,
+		"between", //$NON-NLS-1$,
+		"not between", //$NON-NLS-1$,
+		"is null", //$NON-NLS-1$,
+		"is not null" //$NON-NLS-1$
 	};
 
-	public static final int[] OPERATOR_NEGATED = new int[] {//
-	NOT_OPERATOR,//
-	LTE_OPERATOR, GTE_OPERATOR,//
-	LT_OPERATOR, GT_OPERATOR,//
-	EQUALS_OPERATOR,//
-	NOT_IN_OPERATOR,//
-	NOT_LIKE_OPERATOR,//
-	IN_OPERATOR, //
-	LIKE_OPERATOR,//
-	NOT_BETWEEN_OPERATOR,//
-	BETWEEN_OPERATOR, //
-	ISNOTNULL_OPERATOR, //
-	ISNULL_OPERATOR //
+	public static final int[] OPERATOR_NEGATED = new int[] { //
+		NOT_OPERATOR, //
+		LTE_OPERATOR, GTE_OPERATOR, //
+		LT_OPERATOR, GT_OPERATOR, //
+		EQUALS_OPERATOR, //
+		NOT_IN_OPERATOR, //
+		NOT_LIKE_OPERATOR, //
+		IN_OPERATOR, //
+		LIKE_OPERATOR, //
+		NOT_BETWEEN_OPERATOR, //
+		BETWEEN_OPERATOR, //
+		ISNOTNULL_OPERATOR, //
+		ISNULL_OPERATOR //
 	};
 
 	// modifiers included in the operator
 	public static final int ORNULL_MODIFIER = 0x100;
 	public static final int CASEINSENTITIVE_MODIFIER = 0x200;
+	public static final int IS_SQL_MODIFIER = 0x400;
 
-	public static final int[] ALL_MODIFIERS = new int[] {//
-	ORNULL_MODIFIER,//
-	CASEINSENTITIVE_MODIFIER //
+	public static final int[] ALL_MODIFIERS = new int[] { //
+		ORNULL_MODIFIER, //
+		CASEINSENTITIVE_MODIFIER, //
+		IS_SQL_MODIFIER //
 	};
-	public static final String[] MODIFIER_STRINGS = new String[] {//
-	"^||", // ORNULL_MODIFIER  //$NON-NLS-1$
-	"#" // CASEINSENTITIVE_MODIFIER //$NON-NLS-1$
+	public static final String[] MODIFIER_STRINGS = new String[] { //
+		"^||", // ORNULL_MODIFIER  //$NON-NLS-1$
+		"#", // CASEINSENTITIVE_MODIFIER //$NON-NLS-1$
+		"sql:" // IS_SQL_MODIFIER //$NON-NLS-1$
 	};
 
 
