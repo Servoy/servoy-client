@@ -90,4 +90,8 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	 * @param cls
 	 */
 	void removeContainerStyleClass(String name, String cls);
+
+	void addContainerCSSStyle(String name, String key, String value);
+
+	void removeContainerCSSStyle(String name, String key);
 }

@@ -57,32 +57,42 @@ public class ContainerScope implements Scriptable
 			@Override
 			public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 			{
-				// for now this is only about 3 style class methods that all have 1 argument.
 				if (args.length >= 1 && args[0] != null)
 				{
-					for (Object object : args)
+					if ("setCSSStyle".equals(nm) && args.length == 2)
 					{
-						String cls = (String)object;
-						switch (nm)
+						parent.getFormControler().getFormUI().addContainerCSSStyle(name, (String)args[0], (String)args[1]);
+					}
+					else if ("removeCSSStyle".equals(nm))
+					{
+						parent.getFormControler().getFormUI().removeContainerCSSStyle(name, (String)args[0]);
+					}
+					else
+					{
+						for (Object object : args)
 						{
-							case "addStyleClasses" :
-								if (!cssClasses.contains(cls))
-								{
-									cssClasses.add(cls);
-									parent.getFormControler().getFormUI().addContainerStyleClass(name, cls);
-								}
-								else return Boolean.FALSE;
-								break;
-							case "removeStyleClasses" :
-								if (cssClasses.remove(cls))
-								{
-									// it did remove it push to client
-									parent.getFormControler().getFormUI().removeContainerStyleClass(name, cls);
-								}
-								else return Boolean.FALSE;
-								break;
-							case "hasStyleClasses" :
-								if (cssClasses.indexOf(cls) == -1) return Boolean.FALSE;
+							String cls = (String)object;
+							switch (nm)
+							{
+								case "addStyleClasses" :
+									if (!cssClasses.contains(cls))
+									{
+										cssClasses.add(cls);
+										parent.getFormControler().getFormUI().addContainerStyleClass(name, cls);
+									}
+									else return Boolean.FALSE;
+									break;
+								case "removeStyleClasses" :
+									if (cssClasses.remove(cls))
+									{
+										// it did remove it push to client
+										parent.getFormControler().getFormUI().removeContainerStyleClass(name, cls);
+									}
+									else return Boolean.FALSE;
+									break;
+								case "hasStyleClasses" :
+									if (cssClasses.indexOf(cls) == -1) return Boolean.FALSE;
+							}
 						}
 					}
 				}
@@ -158,7 +168,7 @@ public class ContainerScope implements Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return new String[] { "addStyleClass", "removeStyleClass", "hasStyleClass" };
+		return new String[] { "addStyleClass", "removeStyleClass", "hasStyleClass", "setCSSStyle", "removeStyleClasses" };
 	}
 
 	@Override

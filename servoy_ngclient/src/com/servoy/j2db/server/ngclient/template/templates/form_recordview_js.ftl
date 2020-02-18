@@ -232,6 +232,20 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		}
  	}, true);
 
+	$scope.$watch("model[''].cssstyles", function(newValue, oldValue) {
+		if (!newValue) return;
+		for (var containername in newValue) {
+	        var container = getContainer( containername);
+	        if (container) {
+	           var stylesMap = newValue[containername];
+	           for (var key in stylesMap)
+		       {
+		          container.css(key,stylesMap[key]);
+		       }
+	        }
+	    }
+	}, true);
+	
 	var destroyListenerUnreg = $scope.$on("$destroy", function() {
 		if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
 		destroyListenerUnreg();
