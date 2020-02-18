@@ -127,17 +127,33 @@ public class SQLSheet
 
 	public boolean containsCalculation(String dataProviderID)
 	{
-		return application.getFlattenedSolution().getScriptCalculation(dataProviderID, table) != null;
+		long time = System.currentTimeMillis();
+		try
+		{
+			return application.getFlattenedSolution().getScriptCalculation(dataProviderID, table) != null;
+		}
+		finally
+		{
+			System.err.println("contains " + (System.currentTimeMillis() - time));
+		}
 	}
 
 	public List<String> getAllCalculationNames()
 	{
-		List<String> calculationsNames = new ArrayList<String>();
-		for (ScriptCalculation sc : Utils.iterate(application.getFlattenedSolution().getScriptCalculations(table, false)))
+		long time = System.currentTimeMillis();
+		try
 		{
-			calculationsNames.add(sc.getDataProviderID());
+			List<String> calculationsNames = new ArrayList<String>();
+			for (ScriptCalculation sc : Utils.iterate(application.getFlattenedSolution().getScriptCalculations(table, false)))
+			{
+				calculationsNames.add(sc.getDataProviderID());
+			}
+			return calculationsNames;
 		}
-		return calculationsNames;
+		finally
+		{
+			System.err.println("names " + (System.currentTimeMillis() - time));
+		}
 	}
 
 	public List<String> getStoredCalculationNames()
