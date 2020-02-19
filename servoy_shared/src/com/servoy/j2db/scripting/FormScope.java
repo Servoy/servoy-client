@@ -232,30 +232,23 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		List<String> al = new ArrayList<String>();
 		if (table == null) return al;
 		Iterator<Column> columns = table.getColumnsSortedByName();
-		try
+		while (columns.hasNext())
 		{
-			while (columns.hasNext())
-			{
-				al.add(columns.next().getDataProviderID());
-			}
-			Iterator<AggregateVariable> aggs;
-
-			aggs = _fp.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
-
-
-			while (aggs.hasNext())
-			{
-				al.add(aggs.next().getDataProviderID());
-			}
-			Iterator<ScriptCalculation> calcs = _fp.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
-			while (calcs.hasNext())
-			{
-				al.add(calcs.next().getDataProviderID());
-			}
+			al.add(columns.next().getDataProviderID());
 		}
-		catch (RepositoryException e)
+		Iterator<AggregateVariable> aggs;
+
+		aggs = _fp.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
+
+
+		while (aggs.hasNext())
 		{
-			Debug.error(e);
+			al.add(aggs.next().getDataProviderID());
+		}
+		Iterator<ScriptCalculation> calcs = _fp.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
+		while (calcs.hasNext())
+		{
+			al.add(calcs.next().getDataProviderID());
 		}
 		return al;
 	}

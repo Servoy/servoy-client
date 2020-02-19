@@ -474,7 +474,7 @@ public final class CSSPositionUtils
 		if (persist instanceof BaseComponent && PersistHelper.getRealParent((BaseComponent)persist) instanceof LayoutContainer)
 		{
 			return CSSPositionUtils.isCSSPositionContainer(
-					(LayoutContainer)PersistHelper.getRealParent((BaseComponent)persist));
+				(LayoutContainer)PersistHelper.getRealParent((BaseComponent)persist));
 		}
 		return false;
 	}
@@ -519,6 +519,12 @@ public final class CSSPositionUtils
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}
 			});
+		}
+		else if (form != null && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED ||
+			form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED))
+		{
+			// this is not supported, make sure right value is set (wrong value may come due to inheritance)
+			form.setUseCssPosition(Boolean.FALSE);
 		}
 	}
 

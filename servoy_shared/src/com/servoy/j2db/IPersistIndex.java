@@ -58,6 +58,23 @@ public interface IPersistIndex
 	<T extends IPersist> T getPersistByID(int id, Class<T> clz);
 
 	/**
+	 * @param <T>
+	 * @param datasource
+	 * @param persistClass
+	 * @return
+	 */
+	public <T extends IPersist> Iterator<T> getPersistByDatasource(String datasource, Class<T> persistClass);
+
+
+	/**
+	 * @param <T>
+	 * @param datasource
+	 * @param persistClass
+	 * @return
+	 */
+	public <T extends IPersist> T getPersistByDatasource(String datasource, Class<T> persistClass, String name);
+
+	/**
 	 * @param scopeName
 	 * @param baseName
 	 * @return

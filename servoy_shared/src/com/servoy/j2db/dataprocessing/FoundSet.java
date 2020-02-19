@@ -6237,31 +6237,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
 				{
 					List<ScriptMethod> methods = null;
-					try
+					Iterator<TableNode> tableNodes = fsm.getApplication().getFlattenedSolution().getTableNodes(getTable());
+					while (tableNodes.hasNext())
 					{
-						Iterator<TableNode> tableNodes = fsm.getApplication().getFlattenedSolution().getTableNodes(getTable());
-						while (tableNodes.hasNext())
+						TableNode tn = tableNodes.next();
+						Iterator<ScriptMethod> fsMethods = tn.getFoundsetMethods(sort);
+						if (methods == null)
 						{
-							TableNode tn = tableNodes.next();
-							Iterator<ScriptMethod> fsMethods = tn.getFoundsetMethods(sort);
-							if (methods == null)
+							if (!tableNodes.hasNext())
 							{
-								if (!tableNodes.hasNext())
-								{
-									// just 1
-									return fsMethods;
-								}
-								methods = new ArrayList<ScriptMethod>();
+								// just 1
+								return fsMethods;
 							}
-							while (fsMethods.hasNext())
-							{
-								methods.add(fsMethods.next());
-							}
+							methods = new ArrayList<ScriptMethod>();
 						}
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
+						while (fsMethods.hasNext())
+						{
+							methods.add(fsMethods.next());
+						}
 					}
 					return methods == null ? Collections.<ScriptMethod> emptyList().iterator() : methods.iterator();
 				}

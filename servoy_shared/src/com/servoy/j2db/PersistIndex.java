@@ -29,16 +29,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScope;
 import com.servoy.j2db.persistence.LineNumberComparator;
 import com.servoy.j2db.persistence.NameComparator;
+import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.util.IntHashMap;
 
 /**
@@ -59,6 +63,8 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	protected final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
 	// caches per persist class a map of Name->Persist (we assume that is unique!)
 	protected final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> nameToPersist = new ConcurrentHashMap<>();
+
+	protected final ConcurrentMap<String, ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>>> datasourceToPersist = new ConcurrentHashMap<>();
 
 	protected final ConcurrentMap<String, Map<String, ISupportScope>> scopeCacheByName = new ConcurrentHashMap<>();
 
@@ -113,6 +119,63 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		}
 		T persist = (T)classToList.get(name);
 		return persist;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends IPersist> Iterator<T> getPersistByDatasource(String datasource, Class<T> persistClass)
+	{
+		return (Iterator<T>)getDatasourceMap(datasource, persistClass).values().iterator();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends IPersist> T getPersistByDatasource(String datasource, Class<T> persistClass, String name)
+	{
+		return (T)getDatasourceMap(datasource, persistClass).get(name);
+	}
+
+	private Map<String, ? extends IPersist> getDatasourceMap(String datasource, Class< ? extends IPersist> persistClass)
+	{
+		ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist.get(datasource);
+		if (dsMap == null)
+		{
+			final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> tmp = new ConcurrentHashMap<>(4);
+			final ConcurrentHashMap<String, IPersist> calcCache = new ConcurrentHashMap<String, IPersist>(4);
+			final ConcurrentHashMap<String, IPersist> aggregateCache = new ConcurrentHashMap<String, IPersist>(4);
+			final ConcurrentHashMap<String, IPersist> tableNodeCache = new ConcurrentHashMap<String, IPersist>(4);
+			tmp.put(ScriptCalculation.class, calcCache);
+			tmp.put(TableNode.class, tableNodeCache);
+			tmp.put(AggregateVariable.class, aggregateCache);
+			visit((persist) -> {
+				if (persist instanceof TableNode)
+				{
+					if (((TableNode)persist).getDataSource().equals(datasource))
+					{
+						Solution solution = (Solution)((TableNode)persist).getAncestor(IRepository.SOLUTIONS);
+						tableNodeCache.put(solution.getName(), persist);
+						return IPersistVisitor.CONTINUE_TRAVERSAL;
+					}
+				}
+				else if (persist instanceof ScriptCalculation)
+				{
+					// only the right tablenode will go deeper so SC or AV are only found for the right TableNode
+					calcCache.put(((ScriptCalculation)persist).getDataProviderID(), persist);
+				}
+				else if (persist instanceof AggregateVariable)
+				{
+					aggregateCache.put(((AggregateVariable)persist).getDataProviderID(), persist);
+				}
+				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			});
+			dsMap = tmp;
+			datasourceToPersist.put(datasource, dsMap);
+		}
+		ConcurrentMap<String, ? extends IPersist> persistMap = dsMap.get(persistClass);
+		if (persistMap == null)
+		{
+			return Collections.emptyMap();
+		}
+		return persistMap;
 	}
 
 	@Override
@@ -246,6 +309,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		uuidToPersist.clear();
 		idToPersist.clear();
 		nameToPersist.clear();
+		datasourceToPersist.clear();
 		scopeCacheByName.clear();
 		createIndex();
 	}
@@ -261,6 +325,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		uuidToPersist.clear();
 		idToPersist.clear();
 		nameToPersist.clear();
+		datasourceToPersist.clear();
 		scopeCacheByName.clear();
 	}
 
@@ -270,6 +335,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		if (uuidToPersist.isEmpty()) return;
 		putInCache(item);
 		testNameCache(item, EventType.CREATED);
+		testDatasourceCache(item);
 		if (item instanceof ISupportChilds)
 		{
 			// If a form (or any isupport childs is added, also add all children); this is in mirror with remove
@@ -288,7 +354,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	/**
 	 * @param item
 	 */
-	protected void testNameCache(IPersist item, EventType type)
+	protected final void testNameCache(IPersist item, EventType type)
 	{
 		if (item instanceof ISupportName)
 		{
@@ -320,6 +386,22 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		}
 	}
 
+
+	/**
+	 * @param item
+	 * @param created
+	 */
+	protected final void testDatasourceCache(IPersist item)
+	{
+		if (item instanceof ScriptCalculation || item instanceof TableNode || item instanceof AggregateVariable)
+		{
+			// just remove the whole datasource cache
+			String ds = item instanceof TableNode ? ((TableNode)item).getDataSource() : ((TableNode)item.getParent()).getDataSource();
+			datasourceToPersist.remove(ds);
+		}
+	}
+
+
 	@Override
 	public void itemRemoved(IPersist item)
 	{
@@ -334,6 +416,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 			}
 		}
 		testNameCache(item, EventType.REMOVED);
+		testDatasourceCache(item);
 		if (item instanceof ISupportChilds)
 		{
 			// If a form (or any isupport childs is removed, also remove all children)
@@ -369,6 +452,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 			cacheById.put(item.getID(), item);
 		}
 		testNameCache(item, EventType.UPDATED);
+		testDatasourceCache(item);
 		if (item instanceof ISupportScope)
 		{
 			scopeCacheByName.clear();

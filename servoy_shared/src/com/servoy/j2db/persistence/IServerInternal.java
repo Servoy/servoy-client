@@ -50,6 +50,13 @@ public interface IServerInternal
 
 	String[] syncTableObjWithDB(ITable table, boolean createMissingServoySequences, boolean createMissingDBSequences) throws RepositoryException, SQLException;
 
+	/**
+	 * @param table
+	 * @param connection
+	 * @param createMissingDBSequences
+	 */
+	String[] syncTableObjWithDB(Table table, Connection connection, boolean createMissingDBSequences) throws SQLException, RepositoryException;
+
 	void syncWithExternalTable(String tableName, Table externalTable) throws RepositoryException;
 
 	void syncColumnSequencesWithDB(ITable t) throws RepositoryException;
@@ -59,6 +66,8 @@ public interface IServerInternal
 	ServerConfig getConfig();
 
 	String[] removeTable(ITable t) throws SQLException, RepositoryException;
+
+	public String[] removeTable(Table t, Connection connection) throws SQLException, RepositoryException;
 
 	boolean dropTable(Table t) throws SQLException, RepositoryException;
 
@@ -182,5 +191,4 @@ public interface IServerInternal
 	Table createClientStatsTable() throws RepositoryException;
 
 	void createIndex(ITable table, String indexName, Column[] indexColumns, boolean unique) throws RepositoryException;
-
 }
