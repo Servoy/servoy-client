@@ -115,8 +115,8 @@
 (function() {
         numeral.register('locale', 'de-ch', {
         delimiters: {
-            thousands: ' ',
-            decimal: ','
+            thousands: '\'',
+            decimal: '.'
         },
         abbreviations: {
             thousand: 'k',
