@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
@@ -117,7 +118,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	private ReadOnlyPropertyChangeListener parentReadOnlyListener;
 
 	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
-	private final Map<String, RuntimeWebGroup> groups = new HashMap<String, RuntimeWebGroup>();
+	private Map<String, RuntimeWebGroup> groups;
+	private Map<WebFormComponent, FormComponentCache> fcc;
 	private int changing = 0;
 
 	public WebFormUI(IWebFormController formController)
@@ -147,7 +149,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		clearComponents();
 		cachedElements.clear();
-		groups.clear();
+		fcc = null;
+		groups = null;
 		IDataAdapterList previousDataAdapterList = dataAdapterList;
 		dataAdapterList = new DataAdapterList(formController);
 
@@ -218,6 +221,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				String groupID = fe.getPersistIfAvailable() instanceof IFormElement ? ((IFormElement)fe.getPersistIfAvailable()).getGroupID() : null;
 				if (groupID != null)
 				{
+					if (groups == null) groups = new HashMap<String, RuntimeWebGroup>(4);
 					RuntimeWebGroup group = groups.get(groupID);
 					if (group != null)
 					{
@@ -275,6 +279,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			String groupID = fe.getPersistIfAvailable() instanceof IFormElement ? ((IFormElement)fe.getPersistIfAvailable()).getGroupID() : null;
 			if (groupID != null)
 			{
+				if (groups == null) groups = new HashMap<String, RuntimeWebGroup>(4);
 				RuntimeWebGroup group = groups.get(groupID);
 				if (group == null)
 				{
@@ -1109,6 +1114,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void clearCachedFormElements()
 	{
 		cachedElements.clear();
+		fcc = null;
 	}
 
 	public List<FormElement> getFormElements()
@@ -1120,6 +1126,22 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				getDataConverterContext());
 		}
 		return cachedElements;
+	}
+
+	public FormComponentCache getFormComponentCache(WebFormComponent comp)
+	{
+		return fcc != null ? fcc.get(comp) : null;
+	}
+
+
+	/**
+	 * @param component
+	 * @param fcc2
+	 */
+	public void cacheFormComponentCache(WebFormComponent component, FormComponentCache toCache)
+	{
+		if (fcc == null) fcc = new HashMap<WebFormComponent, FormElementHelper.FormComponentCache>(4);
+		fcc.put(component, toCache);
 	}
 
 	@Override
@@ -1160,5 +1182,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		return changing > 0;
 	}
+
 
 }

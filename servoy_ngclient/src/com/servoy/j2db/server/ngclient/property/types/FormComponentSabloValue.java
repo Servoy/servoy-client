@@ -22,6 +22,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.Container;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -39,6 +40,7 @@ import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
@@ -75,6 +77,16 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 
 	public FormComponentCache getCache()
 	{
+		Container parent = component.getParent();
+		if (parent instanceof WebFormUI)
+		{
+			// cache it on the FormUI object, because FormElementHelper can only cache when it is not solution model, but then the cache is constantly changing..
+			FormComponentCache fcc = ((WebFormUI)parent).getFormComponentCache(component);
+			if (fcc != null) return fcc;
+			fcc = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, formElementValue, form, dal.getApplication().getFlattenedSolution());
+			((WebFormUI)parent).cacheFormComponentCache(component, fcc);
+			return fcc;
+		}
 		return FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, formElementValue, form, dal.getApplication().getFlattenedSolution());
 	}
 
