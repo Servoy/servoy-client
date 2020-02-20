@@ -108,7 +108,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}).collect(Collectors.toMap(data -> (String)data[0], data -> (PropertyDescription)data[1]))).build();
 	// @formatter:on
 
-	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;
 
 	private Object parentContainerOrWindowName;
@@ -302,28 +301,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public IDataAdapterList getDataAdapterList()
 	{
 		return dataAdapterList;
-	}
-
-	public void add(String eventType, int functionID)
-	{
-		events.put(eventType, Integer.valueOf(functionID));
-	}
-
-	@Override
-	public boolean hasEvent(String eventType)
-	{
-		return events.containsKey(eventType);
-	}
-
-	@Override
-	public Object doExecuteEvent(String eventType, Object[] args)
-	{
-		Integer eventId = events.get(eventType);
-		if (eventId != null)
-		{
-			return dataAdapterList.executeEvent(this, eventType, eventId.intValue(), args);
-		}
-		throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
 	}
 
 	@Override
