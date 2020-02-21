@@ -18,9 +18,11 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.Arrays;
 
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.scripting.ReferenceOnlyInJS;
 import com.servoy.j2db.util.IntHashMap;
 
@@ -153,7 +155,45 @@ public class ValueFactory
 			}
 			return true;
 		}
+	}
 
+	public static final class ArrayValue implements Serializable
+	{
+		private final Object elements[];
+		private final BaseColumnType columnType;
+
+		private ArrayValue(Object elements[], BaseColumnType columnType)
+		{
+			this.elements = elements;
+			this.columnType = columnType;
+		}
+
+		public Object[] getElements()
+		{
+			return elements;
+		}
+
+		public BaseColumnType getColumnType()
+		{
+			return columnType;
+		}
+
+		/**
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (!super.equals(obj))
+			{
+				if (obj instanceof ArrayValue)
+				{
+					return Arrays.deepEquals(elements, ((ArrayValue)obj).getElements());
+				}
+				return false;
+			}
+			return true;
+		}
 	}
 
 	public static DbIdentValue createDbIdentValue()
@@ -185,5 +225,10 @@ public class ValueFactory
 	public static BlobMarkerValue createBlobMarkerValue(byte[] data_to_chache)
 	{
 		return new BlobMarkerValue(data_to_chache);
+	}
+
+	public static ArrayValue createArrayValue(Object[] elements, BaseColumnType columnType)
+	{
+		return new ArrayValue(elements, columnType);
 	}
 }
