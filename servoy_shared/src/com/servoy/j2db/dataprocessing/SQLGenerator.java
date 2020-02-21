@@ -1313,7 +1313,6 @@ public class SQLGenerator
 			}
 			else
 			{
-				// RAGTEST any??
 				if (value != null && isSelectQuery(value.toString()))
 				{
 					if ((op & IBaseSQLCondition.IS_SQL_MODIFIER) == 0)

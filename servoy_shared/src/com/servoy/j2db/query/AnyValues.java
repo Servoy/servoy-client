@@ -30,7 +30,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class AnyValues implements IQueryElement, IQueryValues
 {
-	private Object[] values;
+	private final Object[] values;
 
 	public AnyValues(Object[] values)
 	{
@@ -50,7 +50,6 @@ public class AnyValues implements IQueryElement, IQueryValues
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		values = AbstractBaseQuery.acceptVisitor(values, visitor);
 	}
 
 	@Override
