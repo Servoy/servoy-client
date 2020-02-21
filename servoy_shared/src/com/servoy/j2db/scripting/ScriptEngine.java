@@ -79,6 +79,7 @@ import com.servoy.j2db.ui.IScriptScriptLabelMethods;
 import com.servoy.j2db.ui.IScriptSplitPaneMethods;
 import com.servoy.j2db.ui.IScriptTabPanelMethods;
 import com.servoy.j2db.ui.RenderableWrapper;
+import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeButton;
 import com.servoy.j2db.ui.runtime.IRuntimeCalendar;
 import com.servoy.j2db.ui.runtime.IRuntimeCheck;
@@ -96,6 +97,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeRtfArea;
 import com.servoy.j2db.ui.runtime.IRuntimeSpinner;
 import com.servoy.j2db.ui.runtime.IRuntimeTextArea;
 import com.servoy.j2db.ui.runtime.IRuntimeTextField;
+import com.servoy.j2db.ui.runtime.IRuntimeWebComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -225,6 +227,8 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("RuntimeSpinner", toplevelScope, new InstanceOfScope("RuntimeSpinner", IRuntimeSpinner.class));
 			toplevelScope.put("RuntimeAccordionPanel", toplevelScope, new InstanceOfScope("RuntimeAccordionPanel", IScriptAccordionPanelMethods.class));
 			toplevelScope.put("DataException", toplevelScope, new InstanceOfScope("DataException", DataException.class));
+			toplevelScope.put("RuntimeWebComponent", toplevelScope, new InstanceOfScope("RuntimeWebComponent", IRuntimeWebComponent.class));
+			toplevelScope.put("Component", toplevelScope, new InstanceOfScope("Component", IBaseRuntimeComponent.class));
 
 			ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, toplevelScope);
 			toplevelScope.setPrototype(null);
@@ -637,8 +641,9 @@ public class ScriptEngine implements IScriptSupport
 					}
 				}
 				String solutionName = application.getSolutionName();
-				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null && !(application instanceof ISmartClientApplication)
-					? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null &&
+					!(application instanceof ISmartClientApplication)
+						? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
 				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
 				//run
 				if (performanceData != null)

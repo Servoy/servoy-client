@@ -266,7 +266,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return getTableDataSources(repository, table.getDataSource());
 	}
 
-	private static List<String> getTableDataSources(IRepository repository, String dataSource) throws RepositoryException
+	public static List<String> getTableDataSources(IRepository repository, String dataSource) throws RepositoryException
 	{
 		if (dataSource == null) return null;
 		String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
@@ -891,7 +891,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);

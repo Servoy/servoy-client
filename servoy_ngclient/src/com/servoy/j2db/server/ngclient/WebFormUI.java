@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
@@ -94,15 +95,19 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	// @formatter:off
-	private static final WebObjectSpecification FORM_SPEC = new WebObjectSpecificationBuilder().withName("form_spec").withPackageType(IPackageReader.WEB_COMPONENT).withProperties(Stream.of(new Object[][] {
-	   			{ "size", new PropertyDescriptionBuilder().withName("size").withType(DimensionPropertyType.INSTANCE).withPushToServer(PushToServerEnum.allow).withTags(new JSONObject().put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" }))).build() },
-	   			{ "visible",  new PropertyDescriptionBuilder().withName("visible").withType(VisiblePropertyType.INSTANCE).withPushToServer(PushToServerEnum.allow).build() },
-	   			{ WebFormUI.ENABLED, new PropertyDescriptionBuilder().withName(WebFormUI.ENABLED).withType(NGEnabledPropertyType.NG_INSTANCE).withPushToServer(PushToServerEnum.allow).build() },
-	   			{ "findmode", new PropertyDescriptionBuilder().withName("findmode").withType(BooleanPropertyType.INSTANCE).withPushToServer(PushToServerEnum.allow).build() },
-	}).collect(Collectors.toMap(data -> (String) data[0], data -> (PropertyDescription) data[1]))).build();
+	private static final WebObjectSpecification FORM_SPEC = new WebObjectSpecificationBuilder().withName("form_spec")
+		.withPackageType(IPackageReader.WEB_COMPONENT)
+		.withProperties(Stream.of(new Object[][] { { "size", new PropertyDescriptionBuilder().withName("size").withType(DimensionPropertyType.INSTANCE)
+			.withPushToServer(PushToServerEnum.allow)
+			.withTags(new JSONObject().put(WebObjectSpecification.ALLOW_ACCESS, new JSONArray(new Object[] { "visible", "enabled" })))
+			.build() }, { "visible", new PropertyDescriptionBuilder().withName("visible").withType(VisiblePropertyType.INSTANCE)
+				.withPushToServer(PushToServerEnum.allow).build() }, { WebFormUI.ENABLED, new PropertyDescriptionBuilder().withName(WebFormUI.ENABLED)
+					.withType(NGEnabledPropertyType.NG_INSTANCE).withPushToServer(PushToServerEnum.allow)
+					.build() }, { "findmode", new PropertyDescriptionBuilder().withName("findmode").withType(BooleanPropertyType.INSTANCE)
+						.withPushToServer(PushToServerEnum.allow).build() },
+		}).collect(Collectors.toMap(data -> (String)data[0], data -> (PropertyDescription)data[1]))).build();
 	// @formatter:on
 
-	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;
 
 	private Object parentContainerOrWindowName;
@@ -112,7 +117,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	private ReadOnlyPropertyChangeListener parentReadOnlyListener;
 
 	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
-	private final Map<String, RuntimeWebGroup> groups = new HashMap<String, RuntimeWebGroup>();
+	private Map<String, RuntimeWebGroup> groups;
+	private Map<WebFormComponent, FormComponentCache> fcc;
 	private int changing = 0;
 
 	public WebFormUI(IWebFormController formController)
@@ -142,7 +148,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		clearComponents();
 		cachedElements.clear();
-		groups.clear();
+		fcc = null;
+		groups = null;
 		IDataAdapterList previousDataAdapterList = dataAdapterList;
 		dataAdapterList = new DataAdapterList(formController);
 
@@ -213,6 +220,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				String groupID = fe.getPersistIfAvailable() instanceof IFormElement ? ((IFormElement)fe.getPersistIfAvailable()).getGroupID() : null;
 				if (groupID != null)
 				{
+					if (groups == null) groups = new HashMap<String, RuntimeWebGroup>(4);
 					RuntimeWebGroup group = groups.get(groupID);
 					if (group != null)
 					{
@@ -270,6 +278,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			String groupID = fe.getPersistIfAvailable() instanceof IFormElement ? ((IFormElement)fe.getPersistIfAvailable()).getGroupID() : null;
 			if (groupID != null)
 			{
+				if (groups == null) groups = new HashMap<String, RuntimeWebGroup>(4);
 				RuntimeWebGroup group = groups.get(groupID);
 				if (group == null)
 				{
@@ -292,28 +301,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public IDataAdapterList getDataAdapterList()
 	{
 		return dataAdapterList;
-	}
-
-	public void add(String eventType, int functionID)
-	{
-		events.put(eventType, Integer.valueOf(functionID));
-	}
-
-	@Override
-	public boolean hasEvent(String eventType)
-	{
-		return events.containsKey(eventType);
-	}
-
-	@Override
-	public Object doExecuteEvent(String eventType, Object[] args)
-	{
-		Integer eventId = events.get(eventType);
-		if (eventId != null)
-		{
-			return dataAdapterList.executeEvent(this, eventType, eventId.intValue(), args);
-		}
-		throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
 	}
 
 	@Override
@@ -375,6 +362,24 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		return containers;
 	}
 
+	private Map<String, String> getCSSStylesMap(String containerName)
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, Map<String, String>> styles = (Map<String, Map<String, String>>)getProperty("cssstyles");
+		if (styles == null)
+		{
+			styles = new HashMap<>();
+			setProperty("cssstyles", styles);
+		}
+		Map<String, String> containerStyle = styles.get(containerName);
+		if (containerStyle == null)
+		{
+			containerStyle = new HashMap<>();
+			styles.put(containerName, containerStyle);
+		}
+		return containerStyle;
+	}
+
 	private Map<String, List<String>> getAddedMap()
 	{
 		Map<String, Map<String, List<String>>> containers = getContainersMap();
@@ -434,6 +439,23 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		adjustContainersMap(getAddedMap(), getRemovedMap(), containerName, cls);
 		markPropertyContentsUpdated("containers");
+	}
+
+	@Override
+	public void addContainerCSSStyle(String containerName, String key, String value)
+	{
+		Map<String, String> style = getCSSStylesMap(containerName);
+		style.put(key, value);
+		markPropertyContentsUpdated("cssstyles");
+	}
+
+	@Override
+	public void removeContainerCSSStyle(String containerName, String key)
+	{
+		Map<String, String> style = getCSSStylesMap(containerName);
+		//.css() with empty value will remove the style
+		style.put(key, "");
+		markPropertyContentsUpdated("cssstyles");
 	}
 
 	public Collection<WebComponent> getAllComponents()
@@ -1069,6 +1091,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void clearCachedFormElements()
 	{
 		cachedElements.clear();
+		fcc = null;
 	}
 
 	public List<FormElement> getFormElements()
@@ -1080,6 +1103,22 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				getDataConverterContext());
 		}
 		return cachedElements;
+	}
+
+	public FormComponentCache getFormComponentCache(WebFormComponent comp)
+	{
+		return fcc != null ? fcc.get(comp) : null;
+	}
+
+
+	/**
+	 * @param component
+	 * @param fcc2
+	 */
+	public void cacheFormComponentCache(WebFormComponent component, FormComponentCache toCache)
+	{
+		if (fcc == null) fcc = new HashMap<WebFormComponent, FormElementHelper.FormComponentCache>(4);
+		fcc.put(component, toCache);
 	}
 
 	@Override
@@ -1120,5 +1159,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		return changing > 0;
 	}
+
 
 }

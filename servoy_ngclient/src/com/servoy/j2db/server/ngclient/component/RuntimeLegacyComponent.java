@@ -125,6 +125,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	@Override
 	public boolean isInstance(String name)
 	{
+		if ("RuntimeComponent".equals(name) && component.getFormElement().getTypeName().startsWith("servoydefault-")) return true;
 		if (name.equals(getRuntimeName())) return true;
 		if (getPrototype() instanceof IInstanceOf)
 		{

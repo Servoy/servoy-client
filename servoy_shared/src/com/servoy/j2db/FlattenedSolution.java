@@ -77,6 +77,7 @@ import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ISupportUpdateableName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
@@ -109,6 +110,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
@@ -2284,12 +2286,30 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<TableNode> getTableNodes(String dataSource)
 	{
-		return Solution.getTableNodes(getIndex().getIterableFor(TableNode.class), dataSource);
+		try
+		{
+			List<String> tableDataSources = Solution.getTableDataSources(getRepository(), dataSource);
+			if (tableDataSources.size() > 1)
+			{
+				IteratorChain<TableNode> ic = new IteratorChain<TableNode>();
+				for (String ds : tableDataSources)
+				{
+					ic.addIterator(getIndex().getPersistByDatasource(ds, TableNode.class));
+				}
+				return ic;
+			}
+
+		}
+		catch (RepositoryException e)
+		{
+		}
+		return getIndex().getPersistByDatasource(dataSource, TableNode.class);
 	}
 
-	public Iterator<TableNode> getTableNodes(ITable table) throws RepositoryException
+	public Iterator<TableNode> getTableNodes(ITable table)
 	{
-		return Solution.getTableNodes(getRepository(), getIndex().getIterableFor(TableNode.class), table);
+		if (table == null) return Collections.emptyIterator();
+		return getTableNodes(table.getDataSource());
 	}
 
 	public Iterator<Relation> getRelations(boolean sort) throws RepositoryException
@@ -2398,9 +2418,14 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return inheritingForms;
 	}
 
-	public Iterator<AggregateVariable> getAggregateVariables(ITable basedOnTable, boolean sort) throws RepositoryException
+	public Iterator<AggregateVariable> getAggregateVariables(ITable basedOnTable, boolean sort)
 	{
-		return Solution.getAggregateVariables(getTableNodes(basedOnTable), sort);
+		Iterator<AggregateVariable> aggregations = getIndex().getPersistByDatasource(basedOnTable.getDataSource(), AggregateVariable.class);
+		if (sort)
+		{
+			return Utils.asSortedIterator(aggregations, NameComparator.INSTANCE);
+		}
+		return aggregations;
 	}
 
 	public ScriptCalculation getScriptCalculation(String name, ITable basedOnTable)
@@ -2414,7 +2439,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public ScriptCalculation getScriptCalculation(String name, String basedOnDataSource)
 	{
-		return AbstractBase.selectByName(getScriptCalculations(basedOnDataSource, false), name);
+		return getIndex().getPersistByDatasource(basedOnDataSource, ScriptCalculation.class, name);
 	}
 
 	public Iterator<ScriptCalculation> getScriptCalculations(ITable basedOnTable, boolean sort)
@@ -2428,36 +2453,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Iterator<ScriptCalculation> getScriptCalculations(String basedOnDataSource, boolean sort)
 	{
-		List<ScriptCalculation> scriptCalculations = Solution.getScriptCalculations(getTableNodes(basedOnDataSource), sort);
-		if (copySolution != null)
+		Iterator<ScriptCalculation> calculations = getIndex().getPersistByDatasource(basedOnDataSource, ScriptCalculation.class);
+		if (sort)
 		{
-			Iterator<TableNode> tableNodes = copySolution.getTableNodes(basedOnDataSource);
-			// if there is a copy solution with a tablenode on that table
-			if (tableNodes.hasNext())
-			{
-				//  remove all script calcs with the same name as the calc which isnt the copy calc itself.
-				Iterator<ScriptCalculation> copyCalcs = tableNodes.next().getScriptCalculations();
-				while (copyCalcs.hasNext())
-				{
-					ScriptCalculation copyCalc = copyCalcs.next();
-					for (int i = scriptCalculations.size(); i-- != 0;)
-					{
-						ScriptCalculation scriptCalculation = scriptCalculations.get(i);
-						if (copyCalc.getName().equals(scriptCalculation.getName()) && copyCalc != scriptCalculation)
-						{
-							scriptCalculations.remove(i);
-							break;
-						}
-					}
-				}
-			}
+			return Utils.asSortedIterator(calculations, NameComparator.INSTANCE);
 		}
-
-		//remove the deleted calculation from the deletedPersists
-		scriptCalculations.removeAll(getIndex().getRemoved());
-
-
-		return scriptCalculations.iterator();
+		return calculations;
 	}
 
 	public ScriptMethod getFoundsetMethod(String name, String basedOnDataSource)
@@ -3130,6 +3131,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		@Override
 		public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends IPersist> Iterator<T> getPersistByDatasource(String datasource, Class<T> persistClass)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends IPersist> T getPersistByDatasource(String datasource, Class<T> persistClass, String name)
 		{
 			return null;
 		}
