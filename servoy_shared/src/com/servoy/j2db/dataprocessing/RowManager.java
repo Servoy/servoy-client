@@ -541,7 +541,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			else
 			{
-				values = Arrays.stream(valueLists).map(List::toArray).toArray();
+				values = new Object[ncols][];
+				for (int c = 0; c < ncols; c++)
+				{
+					values[c] = valueLists[c].toArray();
+				}
 			}
 
 			if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), values))

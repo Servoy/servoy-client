@@ -562,9 +562,8 @@ public class SQLGenerator
 				Column c = pkColumns.get(k);
 				pkValues[k][r] = c.getAsRightType(row[k]);
 			}
-
 		}
-		return Arrays.stream(pkValues).map(AnyValues::new).toArray();
+		return pkValues;
 	}
 
 	/**
@@ -580,14 +579,22 @@ public class SQLGenerator
 
 		if (pkValues != null && pkValues.length > 0 && pkValues[0] != null)
 		{
-			for (int r = 0; r < pkValues[0].length; r++)
+			// RAGTEST komen we hier?
+			if (pkValues[0].length == 1 && pkValues[0][0] instanceof AnyValues)
 			{
-				Object[] pk = new Object[pkColumns.size()];
-				for (int k = 0; k < pkColumns.size(); k++)
+				rows.add(new Object[] { pkValues[0][0] });
+			}
+			else
+			{
+				for (int r = 0; r < pkValues[0].length; r++)
 				{
-					pk[k] = pkValues[k][r];
+					Object[] pk = new Object[pkColumns.size()];
+					for (int k = 0; k < pkColumns.size(); k++)
+					{
+						pk[k] = pkValues[k][r];
+					}
+					rows.add(pk);
 				}
-				rows.add(pk);
 			}
 		}
 
@@ -798,7 +805,8 @@ public class SQLGenerator
 						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false, false);
 					}
 					// where qCol =ANY (e1, e2, ..., en)
-					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new AnyValues(elements), true);
+					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol },
+						new Object[][] { new Object[] { new AnyValues(elements) } }, true);
 				}
 				else
 				{

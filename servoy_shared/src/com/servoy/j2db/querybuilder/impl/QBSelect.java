@@ -571,18 +571,15 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 			val = placeholder == null ? new Placeholder(key) : placeholder;
 		}
-		else if (columnType == null && (value instanceof Date && !(value instanceof Timestamp) && !(value instanceof Time)))
+		else if (columnType == null)
 		{
-			// make sure a date is a timestamp
-			val = new Timestamp(((Date)value).getTime());
+			if (value instanceof Date && !(value instanceof Timestamp) && !(value instanceof Time))
+			{
+				// make sure a date is a timestamp
+				val = new Timestamp(((Date)value).getTime());
+			}
 		}
-
-		if (val instanceof IQuerySelectValue)
-		{
-			return (IQuerySelectValue)val;
-		}
-
-		if (columnType != null)
+		else if (!(value instanceof IQuerySelectValue))
 		{
 			if (val instanceof AnyValues)
 			{
@@ -595,6 +592,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 				// convert the value (especially UUID) to the type of the column
 				val = getAsRightType(value, columnType, flags);
 			}
+		}
+
+		if (val instanceof IQuerySelectValue)
+		{
+			return (IQuerySelectValue)val;
 		}
 
 		return new QueryColumnValue(val, null);
