@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.lang.reflect.Array;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.AnyValues;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ExistsCondition;
@@ -543,7 +545,7 @@ public class SQLGenerator
 		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
 	}
 
-	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
+	static Object[] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
 	{
 		Object[][] pkValues = new Object[pkColumns.size()][];
 
@@ -560,7 +562,6 @@ public class SQLGenerator
 				Column c = pkColumns.get(k);
 				pkValues[k][r] = c.getAsRightType(row[k]);
 			}
-
 		}
 		return pkValues;
 	}
@@ -578,14 +579,22 @@ public class SQLGenerator
 
 		if (pkValues != null && pkValues.length > 0 && pkValues[0] != null)
 		{
-			for (int r = 0; r < pkValues[0].length; r++)
+			// RAGTEST komen we hier?
+			if (pkValues[0].length == 1 && pkValues[0][0] instanceof AnyValues)
 			{
-				Object[] pk = new Object[pkColumns.size()];
-				for (int k = 0; k < pkColumns.size(); k++)
+				rows.add(new Object[] { pkValues[0][0] });
+			}
+			else
+			{
+				for (int r = 0; r < pkValues[0].length; r++)
 				{
-					pk[k] = pkValues[k][r];
+					Object[] pk = new Object[pkColumns.size()];
+					for (int k = 0; k < pkColumns.size(); k++)
+					{
+						pk[k] = pkValues[k][r];
+					}
+					rows.add(pk);
 				}
-				rows.add(pk);
 			}
 		}
 
@@ -795,8 +804,9 @@ public class SQLGenerator
 							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false, false), false);
 						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false, false);
 					}
-					// where qCol in (e1, e2, ..., en)
-					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
+					// where qCol =ANY (e1, e2, ..., en)
+					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol },
+						new Object[][] { new Object[] { new AnyValues(elements) } }, true);
 				}
 				else
 				{
@@ -1448,8 +1458,10 @@ public class SQLGenerator
 
 			if (isBlobColumn(column))
 			{
-				String alias = column.getDataProviderID().substring(0,
-					Math.min(Column.MAX_SQL_OBJECT_NAME_LENGTH - (IDataServer.BLOB_MARKER_COLUMN_ALIAS.length() + 1), column.getDataProviderID().length())) +
+				String alias = column.getDataProviderID()
+					.substring(0,
+						Math.min(Column.MAX_SQL_OBJECT_NAME_LENGTH - (IDataServer.BLOB_MARKER_COLUMN_ALIAS.length() + 1),
+							column.getDataProviderID().length())) +
 					'_' + IDataServer.BLOB_MARKER_COLUMN_ALIAS;
 				// make sure the alias is unique (2 media columns starting with the same name may clash here)
 				char c = 'a';

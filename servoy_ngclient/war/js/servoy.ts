@@ -839,6 +839,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				selectionChangedHandler: "="
 			},
 			link: function( scope: any, element, attrs ) {
+                interface IServoyScopeInternal extends servoy.IServoyScope {
+                    createdChildElements?: number;
+                    rowID?: object;
+                }
+
 				let svyServoyApi = scope.svyServoyapi?scope.svyServoyapi:scope.$parent.svyServoyapi;
 				if ( !svyServoyApi ) svyServoyApi = $utils.findAttribute( element, scope.$parent, "svy-servoyApi" );
 				if ( svyServoyApi.isInDesigner() ) {
@@ -911,7 +916,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					const parent = element.parent();
-                    const rowToModel: Array<servoy.IServoyScope> = [];
+                    const rowToModel: Array<IServoyScopeInternal> = [];
 					const pager = $compile(angular.element("<div class='svyPagination' ng-class=\"paginationStyleClass !== undefined ?paginationStyleClass : ''\"><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='firstPage()' ><i class='glyphicon glyphicon-backward'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveLeft()' ><i class='glyphicon glyphicon-chevron-left'></i></div><div style='text-align:center;cursor:pointer;visibility:hidden;display:inline;padding:3px;white-space:nowrap;vertical-align:middle;background-color:rgb(255, 255, 255, 0.6);' ng-click='moveRight()'><i class='glyphicon glyphicon-chevron-right'></i></div></div>"))(scope);
 
                     let template = null;
@@ -982,30 +987,26 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
     					pagerChildren.last().css("visibility", showNext ? "visible" : "hidden");
 					}
 					
-					interface IServoyScopeInternal extends servoy.IServoyScope {
-						createdChildElements?: number;
-						rowID?: string;
-					}
 					
-					function createChildElementForRow(index: number, rowId: string, row: IServoyScopeInternal, childElement: componentType.ComponentPropertyValue) {
+					function createChildElementForRow(index: number, row: IServoyScopeInternal, childElement: componentType.ComponentPropertyValue) {
 						function Model() {
 						}
 						Model.prototype = childElement.model;
 				
-						function ServoyApi( rowModel, rowId ) {
+						function ServoyApi( rowModel, row: IServoyScopeInternal ) {
 							this.apply = ( property ) => {
-								childElement.servoyApi.apply( property, rowModel, rowId );
+								childElement.servoyApi.apply( property, rowModel, row.rowID );
 							}
 							this.startEdit = ( property ) => {
-								childElement.servoyApi.startEdit( property, rowId )
+								childElement.servoyApi.startEdit( property, row.rowID )
 							}
 						}
 						ServoyApi.prototype = svyServoyApi;
-				
-						function Handlers( handlers, rowModel, rowId ) {
-							this.svy_servoyApi = new ServoyApi( rowModel, rowId );
+						
+						function Handlers( handlers, rowModel, row: IServoyScopeInternal ) {
+							this.svy_servoyApi = new ServoyApi( rowModel, row );
 							for (var key in handlers) {
-								this[key] = handlers[key].selectRecordHandler(rowId);
+								this[key] = handlers[key].selectRecordHandler(function(){return row.rowID})
 							}
 						}
 				
@@ -1015,7 +1016,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						
 						copyRecordProperties( childElement, rowModel, index,false );
 						row.model[simpleName] = rowModel;
-						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, rowId );
+						row.handlers[simpleName] = new Handlers( childElement.handlers, rowModel, row );
 						row.api[simpleName] = {};
 						if(childElement['_api'] == undefined) {
 							childElement['_api'] = [];
@@ -1117,7 +1118,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						
 						if (createRecordLinkedComponentsAsWell) {
 							for ( var j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
-								createChildElementForRow(index, rowId, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
+								createChildElementForRow(index, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 							}
 						} else {
 							// this is probably a foundset viewport insert; the components that are record linked will themselves populate the child elements in the component listeners code later
@@ -1125,7 +1126,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							for ( var j = 0; j < scope.svyFormComponent.childElements.length; j++ ) {
 								const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
 								if (!childElement.foundsetConfig || !childElement.foundsetConfig.recordBasedProperties || !(childElement.foundsetConfig.recordBasedProperties.length > 0)) {
-									createChildElementForRow(index, rowId, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
+									createChildElementForRow(index, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 								}
 							}
 						}
@@ -1342,9 +1343,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 												} else if (value.type == $foundsetTypeConstants.ROWS_INSERTED) {
 													// the actual 'row' was created when foundset change listener executed before; we just need to create the child element related stuff
 													for (let k = value.startIndex; k <= value.endIndex; k++) {
-														const rowId = scope.foundset.viewPort.rows[k][$foundsetTypeConstants.ROW_ID_COL_KEY];
 														const row = rowToModel[k];
-														createChildElementForRow(k, rowId, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
+														row.rowID = scope.foundset.viewPort.rows[k][$foundsetTypeConstants.ROW_ID_COL_KEY];
+														createChildElementForRow(k, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 													}
 												}
 											});

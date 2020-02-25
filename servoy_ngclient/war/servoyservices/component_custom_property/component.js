@@ -270,7 +270,9 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 									return eventHandler(arguments, null);
 								}
 								wrapper.selectRecordHandler = function(rowId){
-									return function () { return eventHandler(arguments,rowId) }
+									return function () { 
+										return eventHandler(arguments,rowId instanceof Function?rowId():rowId) 
+									}
 								};
 								serverJSONValue.handlers[key] = wrapper;
 							})(key);

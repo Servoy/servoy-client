@@ -947,7 +947,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
-	 * Returns true if the current record is a new record or false otherwise.
+	 * Returns true if the current record is a new record or false otherwise. New record means not saved to database.
 	 *
 	 * @sample
 	 * var isNew = foundset.getSelectedRecord().isNew();

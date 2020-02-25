@@ -86,6 +86,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		classMapping.put(QueryFilter.class, Short.valueOf((short)29));
 		classMapping.put(TableExpression.class, Short.valueOf((short)30));
 		classMapping.put(DerivedTable.class, Short.valueOf((short)31));
+		classMapping.put(AnyValues.class, Short.valueOf((short)32));
 
 		ReplacedObject.installClassMapping(QUERY_SERIALIZE_DOMAIN, classMapping);
 	}
