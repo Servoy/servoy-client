@@ -22,16 +22,18 @@ import com.servoy.j2db.util.ILogLevel;
 /**
  * The <code>InfoChannel</code> interface allows a program to send info messages to a user. Fatal errors should be handled using exceptions, but for all
  * non-fatal errors information can be sent to the user with this interface.
- * 
+ *
  */
 public interface InfoChannel extends ILogLevel
 {
 	/**
 	 * Send an informational message. This message should contain information that could be interesting for a user to see. The <code>priority</code> parameter
 	 * should indicate the relative importance of the message.
-	 * 
+	 *
 	 * @param message the message to send
 	 */
 	public void info(String message, int priority);
+
+	public void clientInfo(String message, int priority);
 
 }
