@@ -1437,7 +1437,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		showInfoPanel: function(url,w,h,t,closeText)
 		{
             var infoPanel = document.createElement("div");
-            infoPanel.innerHTML = "<iframe marginheight=0 marginwidth=0 scrolling=no frameborder=0 src='" + url + "' width='100%' height='" + (h - 25) + "'></iframe><br><a href='#' id = \"closePanelButton\"; return false;'>" + closeText + "</a>";
+            infoPanel.innerHTML = "<iframe marginheight=0 marginwidth=0 scrolling=no frameborder=0 src='" + url + "' width='100%' height='" + (h - 25) + "'></iframe><br><a href='#' id = \"closePanelButton\"'>" + closeText + "</a>";
             infoPanel.style.zIndex = "2147483647";
             infoPanel.id = "infoPanel";
             var width = window.innerWidth || document.body.offsetWidth;
@@ -1449,6 +1449,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
             document.body.appendChild(infoPanel);
             document.getElementById("closePanelButton").addEventListener("click", function(){
             	document.getElementById("infoPanel").style.display="none";
+            	return false;
             });
             setTimeout('document.getElementById(\"infoPanel\").style.display=\"none\"', t);
         },
