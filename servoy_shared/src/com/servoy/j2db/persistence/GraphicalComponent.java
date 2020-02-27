@@ -244,7 +244,7 @@ public class GraphicalComponent extends BaseComponent
 
 	/**
 	 * @templatedescription Perform the element onclick action
-	 * @templatename onClick
+	 * @templatename onAction
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
