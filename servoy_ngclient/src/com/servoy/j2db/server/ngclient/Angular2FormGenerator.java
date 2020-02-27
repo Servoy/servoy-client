@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
@@ -43,6 +44,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
@@ -53,9 +55,13 @@ import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.persistence.WebComponent;
+import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
+import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
@@ -240,7 +246,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		writer.endObject();
 		writer.endObject();
 		form.acceptVisitor(new ChildrenJSONGenerator(writer,
-			cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form));
+			cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null));
 		writer.endArray();
 		writer.endObject();
 		writer.endObject();
@@ -259,18 +265,21 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		private final ServoyDataConverterContext context;
 		private final WebFormUI formUI;
 		private final Object skip;
+		private final IFormElementCache cache;
 
 		/**
 		 * @param writer
 		 * @param client
 		 * @param cachedFormController
 		 */
-		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip)
+		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache)
 		{
 			this.writer = writer;
 			this.context = context;
 			this.skip = skip;
-			formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI) ? (WebFormUI)context.getForm().getFormUI() : null;
+			this.cache = cache;
+			formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
+				? (WebFormUI)context.getForm().getFormUI() : null;
 			if (formUI != null)
 			{
 				// write component properties is not called so do register the container here with the current window.
@@ -291,7 +300,12 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			if (o instanceof IFormElement)
 			{
 				FormElement fe = null;
-				if (formUI != null)
+				if (cache != null)
+				{
+					// this is for form component elements finding
+					fe = cache.getFormElement((IFormElement)o, client.getFlattenedSolution(), null, false);
+				}
+				if (fe == null && formUI != null)
 				{
 					List<FormElement> cachedFormElements = formUI.getFormElements();
 					for (FormElement cachedFE : cachedFormElements)
@@ -464,6 +478,63 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					}
 					writer.endArray();
 				}
+				if (o instanceof WebComponent)
+				{
+					WebObjectSpecification spec = fe.getWebComponentSpec();
+					if (spec != null)
+					{
+						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+						if (properties.size() > 0)
+						{
+							writer.key("formComponent");
+							writer.value(true);
+							writer.key("children");
+							writer.array();
+							boolean isResponsive = false;
+							for (PropertyDescription pd : properties)
+							{
+								Object propertyValue = fe.getPropertyValue(pd.getName());
+								Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
+								if (frm == null) continue;
+								isResponsive = frm.isResponsiveLayout();
+								FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(fe, pd,
+									(JSONObject)propertyValue, frm,
+									context.getSolution());
+								if (isResponsive)
+								{
+									// layout containers are not in the cache we need to generate manually the model
+									frm.acceptVisitor(new ChildrenJSONGenerator(writer, context, frm, new IFormElementCache()
+									{
+										@Override
+										public FormElement getFormElement(IFormElement component, FlattenedSolution flattendSol, PropertyPath path,
+											boolean design)
+										{
+											for (FormElement formElement : cache.getFormComponentElements())
+											{
+												if (component.getID() == formElement.getPersistIfAvailable().getID())
+												{
+													return formElement;
+												}
+											}
+											return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
+										}
+									}));
+								}
+								else
+								{
+									for (FormElement element : cache.getFormComponentElements())
+									{
+										IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
+										persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null));
+									}
+								}
+							}
+							writer.endArray();
+							writer.key("responsive");
+							writer.value(isResponsive);
+						}
+					}
+				}
 				writer.endObject();
 			}
 			else if (o instanceof LayoutContainer)
@@ -490,7 +561,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				}
 				writer.key("children");
 				writer.array();
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o));
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache));
 				writer.endArray();
 				writer.endObject();
 				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
