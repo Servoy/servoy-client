@@ -80,11 +80,6 @@ public final class QueryColumnValue implements IQuerySelectValue
 	@Override
 	public BaseColumnType getColumnType()
 	{
-		return getColumnType(value);
-	}
-
-	private static BaseColumnType getColumnType(Object value)
-	{
 		if (value instanceof Integer || value instanceof Long)
 		{
 			return ColumnType.getColumnType(IColumnTypes.INTEGER);
@@ -104,10 +99,6 @@ public final class QueryColumnValue implements IQuerySelectValue
 		if (value instanceof byte[])
 		{
 			return ColumnType.getColumnType(IColumnTypes.MEDIA);
-		}
-		if (value instanceof AnyValues && ((AnyValues)value).getValues().length > 0)
-		{
-			return getColumnType(((AnyValues)value).getValues()[0]);
 		}
 
 		return null;

@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
-import com.servoy.j2db.query.AnyValues;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QueryColumn;
@@ -534,18 +533,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				}
 			}
 
-			Object[] values;
-			if (ncols == 1)
+			Object[][] values = new Object[ncols][];
+			for (int c = 0; c < ncols; c++)
 			{
-				values = new Object[] { new AnyValues(valueLists[0].toArray()) };
-			}
-			else
-			{
-				values = new Object[ncols][];
-				for (int c = 0; c < ncols; c++)
-				{
-					values[c] = valueLists[c].toArray();
-				}
+				values[c] = valueLists[c].toArray();
 			}
 
 			if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), values))
