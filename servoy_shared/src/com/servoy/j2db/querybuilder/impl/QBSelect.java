@@ -19,7 +19,6 @@ package com.servoy.j2db.querybuilder.impl;
 
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.mozilla.javascript.Scriptable;
@@ -41,7 +40,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
-import com.servoy.j2db.query.AnyValues;
 import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
@@ -453,26 +451,6 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * Create an ANY operator with the given values.
-	 *
-	 *
-	* @sample
-	 * var query = datasources.db.example_data.orders.createSelect();
-	 * query.where.add(query.columns.shipcountry.eq(query.any(['US', 'UK', 'NL'])))
-	 * foundset.loadRecords(query)
-	 */
-	@JSFunction
-	public Object any(Object[] values)
-	{
-		if (values == null)
-		{
-			return null;
-		}
-
-		return new AnyValues(values.clone());
-	}
-
-	/**
 	 * Get the functions clause from a query, used for functions that are not tied to a column.
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -581,17 +559,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 		else if (!(value instanceof IQuerySelectValue))
 		{
-			if (val instanceof AnyValues)
-			{
-				// convert the values to match the column type
-				AnyValues anyValues = (AnyValues)val;
-				val = new AnyValues(Arrays.stream(anyValues.getValues()).map(el -> getAsRightType(el, columnType, flags)).toArray());
-			}
-			else
-			{
-				// convert the value (especially UUID) to the type of the column
-				val = getAsRightType(value, columnType, flags);
-			}
+			// convert the value (especially UUID) to the type of the column
+			val = getAsRightType(value, columnType, flags);
 		}
 
 		if (val instanceof IQuerySelectValue)

@@ -507,6 +507,12 @@ public final class CSSPositionUtils
 					if (useCSSPosition(o))
 					{
 						BaseComponent element = (BaseComponent)o;
+						if (form.getExtendsID() > 0 && !element.hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()) &&
+							!element.hasProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName()))
+						{
+							//do not set css position if parent contains the property, this should be done by converting the parent
+							return IPersistVisitor.CONTINUE_TRAVERSAL;
+						}
 						int anchors = element.getAnchors();
 						CSSPosition startPosition = new CSSPosition(((anchors & IAnchorConstants.NORTH) != 0) ? "0" : "-1",
 							((anchors & IAnchorConstants.EAST) != 0) ? "0" : "-1", ((anchors & IAnchorConstants.SOUTH) != 0) ? "0" : "-1",

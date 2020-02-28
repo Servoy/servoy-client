@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * Base interface for all client plugins.
- * 
+ *
  * @author jblok
  */
 public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupportName, IScriptableProvider
@@ -43,8 +43,12 @@ public interface IClientPlugin extends IPlugin, PropertyChangeListener, ISupport
 
 	/**
 	 * Get the plugin image (16x16 px), used in the developer debugger treeview and preference tabpanel.
-	 * 
-	 * @return ImageIcon (null means not availeble)
+	 * @deprecated client plugins need to implement the {@link com.servoy.j2db.plugins.IIconProvider} interface
+	 *        and return the image resource url from the {@link com.servoy.j2db.plugins.IIconProvider.getIconUrl()} method,
+	 *        for optimal display of the plugin icon on all OS systems.
+	 *
+	 * @return ImageIcon (null means not available)
 	 */
+	@Deprecated
 	public Icon getImage();
 }
