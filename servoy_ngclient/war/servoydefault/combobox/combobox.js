@@ -81,8 +81,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 								}
 								 
 							
-							});
-							
+							},50);
 						}
 						searchBox.on('blur', blur);
 						focusElement.on('blur', blur);
