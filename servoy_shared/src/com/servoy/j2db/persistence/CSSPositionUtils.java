@@ -291,10 +291,33 @@ public final class CSSPositionUtils
 		}
 		else
 		{
-			adjustedPosition.right = pixelsToPercentage(
-				percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x, containerSize.width,
-				position.right);
-			adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
+			int oldLeft = percentageToPixels(position.left, containerSize.width);
+			int oldWidth = containerSize.width - percentageToPixels(position.right, containerSize.width) -
+				oldLeft;
+			if (oldWidth != width)
+			{
+				// a resize
+				if (oldLeft != x)
+				{
+					adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
+				}
+				else
+				{
+					adjustedPosition.right = pixelsToPercentage(containerSize.width - x - width, containerSize.width, position.right);
+				}
+				if (CSSPositionUtils.isSet(position.width) && width < oldWidth)
+				{
+					adjustedPosition.width = pixelsToPercentage(width, containerSize.width, position.width);
+				}
+			}
+			else
+			{
+				// a move
+				adjustedPosition.right = pixelsToPercentage(
+					percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x, containerSize.width,
+					position.right);
+				adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
+			}
 		}
 
 		if (CSSPositionUtils.isSet(position.top) && !CSSPositionUtils.isSet(position.bottom))
@@ -309,10 +332,33 @@ public final class CSSPositionUtils
 		}
 		else
 		{
-			adjustedPosition.bottom = pixelsToPercentage(
-				percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y, containerSize.height,
-				position.bottom);
-			adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
+			int oldTop = percentageToPixels(position.top, containerSize.height);
+			int oldHeight = containerSize.height - percentageToPixels(position.bottom, containerSize.height) -
+				oldTop;
+			if (oldHeight != height)
+			{
+				// a resize
+				if (oldTop != y)
+				{
+					adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
+				}
+				else
+				{
+					adjustedPosition.bottom = pixelsToPercentage(containerSize.height - y - height, containerSize.height, position.bottom);
+				}
+				if (CSSPositionUtils.isSet(position.height) && height < oldHeight)
+				{
+					adjustedPosition.height = pixelsToPercentage(height, containerSize.height, position.height);
+				}
+			}
+			else
+			{
+				adjustedPosition.bottom = pixelsToPercentage(
+					percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y,
+					containerSize.height,
+					position.bottom);
+				adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
+			}
 		}
 		return adjustedPosition;
 	}
