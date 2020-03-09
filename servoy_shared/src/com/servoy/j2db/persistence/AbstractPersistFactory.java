@@ -59,17 +59,22 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	public int getElementIdForUUID(UUID uuid) throws RepositoryException
 	{
-		Integer element_id = uuid_element_id_map.get(uuid);
-		if (element_id != null)
+		synchronized (uuid_element_id_map)
 		{
-			return element_id.intValue();
+			Integer element_id = uuid_element_id_map.get(uuid);
+			if (element_id != null)
+			{
+				return element_id.intValue();
+			}
 		}
-
 		int resolved = resolveIdForElementUuid(uuid);
-		element_id = new Integer(resolved);
-		if (!uuid_element_id_map.containsKey(uuid) && !uuid_element_id_map.containsValue(element_id))
+		synchronized (uuid_element_id_map)
 		{
-			uuid_element_id_map.put(uuid, element_id);
+			Integer element_id = new Integer(resolved);
+			if (!uuid_element_id_map.containsKey(uuid) && !uuid_element_id_map.containsValue(element_id))
+			{
+				uuid_element_id_map.put(uuid, element_id);
+			}
 		}
 		return resolved;
 	}
@@ -219,11 +224,13 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 		}
 
 		// Save the uuid to element id mapping.
-		if (!uuid_element_id_map.containsKey(uuid))
+		synchronized (uuid_element_id_map)
 		{
-			uuid_element_id_map.put(uuid, new Integer(elementId));
+			if (!uuid_element_id_map.containsKey(uuid))
+			{
+				uuid_element_id_map.put(uuid, new Integer(elementId));
+			}
 		}
-
 		return object;
 	}
 
@@ -439,7 +446,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 			UUID uuid = resolveUUIDForElementId(id);
 			if (uuid == null)
 			{
-				uuid = uuid_element_id_map.getKey(new Integer(id));
+				synchronized (uuid_element_id_map)
+				{
+					uuid = uuid_element_id_map.getKey(new Integer(id));
+				}
 			}
 			return uuid;
 		}
@@ -481,7 +491,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	public void clearUUIDMap()
 	{
-		uuid_element_id_map.clear();
+		synchronized (uuid_element_id_map)
+		{
+			uuid_element_id_map.clear();
+		}
 	}
 
 }
