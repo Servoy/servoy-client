@@ -160,7 +160,16 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						IPersist topPersist = p;
 						while (((ISupportExtendsID)topPersist).getExtendsID() > 0)
 						{
-							topPersist = PersistHelper.getSuperPersist((ISupportExtendsID)topPersist);
+							IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)topPersist);
+							if (superPersist != null)
+							{
+								topPersist = superPersist;
+							}
+							else
+							{
+								Debug.error("Persist: " + topPersist + " has a super persist set, but that is not found");
+								break;
+							}
 						}
 						// only skip it if is override from other place in hierarchy; if real top container use it
 						if (!(topPersist.getParent() instanceof Form)) continue;
