@@ -15,6 +15,7 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -95,10 +96,10 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 		JSONUtils.addKeyIfPresent(writer, key);
 		String sDate;
 		OffsetDateTime offsetDT;
-		// java.sqlDate seems to only be created by variable assignment where we make a new sql.Date() of a js date.
-		// what the datbase returns is a question, so we can't just always assume that is also a sql date..
+		// java.sqlDate  seems to only be created by variable assignment where we make a new sql.Date() of a js date.
+		// what the datbase returns (can also be java.sql.Time) is a question, so we can't just always assume that is also a sql date..
 		Date tmp = value;
-		if (tmp instanceof java.sql.Date)
+		if (tmp instanceof java.sql.Date || tmp instanceof Time)
 		{
 			tmp = new Date(tmp.getTime());
 		}

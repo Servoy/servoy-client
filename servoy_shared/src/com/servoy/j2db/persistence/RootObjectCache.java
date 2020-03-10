@@ -247,7 +247,7 @@ public class RootObjectCache
 			if (rootObject == null)
 			{
 				rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, release);
-				cacheRecord.rootObjects.put(key, rootObject);
+				if (rootObject != null) cacheRecord.rootObjects.put(key, rootObject);
 			}
 			return rootObject;
 		}
