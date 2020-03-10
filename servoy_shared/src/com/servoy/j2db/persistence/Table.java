@@ -21,9 +21,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Utils;
@@ -299,7 +299,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		while (it.hasNext())
 		{
 			Column c = it.next();
-			if (c.getRowIdentType() == Column.PK_COLUMN)
+			if (c.getRowIdentType() == IBaseColumn.PK_COLUMN)
 			{
 				retval++;
 			}
@@ -342,11 +342,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	 */
 	public void updateDataproviderIDsIfNeeded()
 	{
-		for (Entry<String, Column> entry : columns.entrySet())
-		{
-			// just in case column info dataprovider ID changed
-			columns.put(entry.getKey(), entry.getValue());
-		}
+		columns.updateAliasses();
 	}
 
 	private transient List<Column> deleteColumns;
