@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +57,7 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.WebComponent;
+import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -65,7 +67,9 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
+import com.servoy.j2db.server.ngclient.template.PartWrapper;
 import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -245,8 +249,75 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		}
 		writer.endObject();
 		writer.endObject();
-		form.acceptVisitor(new ChildrenJSONGenerator(writer,
-			cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null));
+		Iterator<Part> it = form.getParts();
+		while (it.hasNext())
+		{
+			Part part = it.next();
+			if (!Part.rendersOnlyInPrint(part.getPartType()))
+			{
+				writer.object();
+				writer.key("part");
+				writer.value(true);
+				writer.key("classes");
+				writer.array();
+				writer.value("svy-" + PartWrapper.getName(part));
+				if (part.getStyleClass() != null)
+				{
+					writer.value(part.getStyleClass());
+				}
+				writer.endArray();
+				writer.key("layout");
+				writer.object();
+				writer.key("position");
+				writer.value("absolute");
+				writer.key("left");
+				writer.value("0px");
+				writer.key("right");
+				writer.value("0px");
+				int top = form.getPartStartYPos(part.getID());
+				if (part.getPartType() <= Part.BODY)
+				{
+					writer.key("top");
+					writer.value(top + "px");
+				}
+				if (part.getPartType() >= Part.BODY)
+				{
+					writer.key("bottom");
+					writer.value(form.getSize().height - part.getHeight() + "px");
+				}
+				if (part.getPartType() != Part.BODY)
+				{
+					writer.key("height");
+					writer.value((part.getHeight() - top) + "px");
+				}
+				if (part.getBackground() != null && !form.getTransparent())
+				{
+					writer.key("background-color");
+					writer.value(PersistHelper.createColorString(part.getBackground()));
+				}
+				if (part.getPartType() == Part.BODY)
+				{
+					writer.key("overflow-x");
+					writer.value(AbstractFormLayoutProvider.getCSSScrolling(form.getScrollbars(), true));
+					writer.key("overflow-y");
+					writer.value(AbstractFormLayoutProvider.getCSSScrolling(form.getScrollbars(), false));
+				}
+				else
+				{
+					writer.key("overflow");
+					writer.value("hidden"); //$NON-NLS-1$
+				}
+				writer.endObject();
+				writer.key("children");
+				// write the default form value object.
+				writer.array();
+				form.acceptVisitor(new ChildrenJSONGenerator(writer,
+					cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
+					part));
+				writer.endArray();
+				writer.endObject();
+			}
+		}
 		writer.endArray();
 		writer.endObject();
 		writer.endObject();
@@ -266,13 +337,14 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		private final WebFormUI formUI;
 		private final Object skip;
 		private final IFormElementCache cache;
+		private final Part part;
 
 		/**
 		 * @param writer
 		 * @param client
 		 * @param cachedFormController
 		 */
-		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache)
+		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part)
 		{
 			this.writer = writer;
 			this.context = context;
@@ -280,6 +352,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			this.cache = cache;
 			formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
 				? (WebFormUI)context.getForm().getFormUI() : null;
+			this.part = part;
 			if (formUI != null)
 			{
 				// write component properties is not called so do register the container here with the current window.
@@ -300,6 +373,16 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			if (o instanceof IFormElement)
 			{
 				FormElement fe = null;
+				if (part != null)
+				{
+					int startPos = form.getPartStartYPos(part.getID());
+					int endPos = part.getHeight();
+					Point location = CSSPositionUtils.getLocation((IFormElement)o);
+					if (location != null && (startPos > location.y || endPos <= location.y))
+					{
+						return IPersistVisitor.CONTINUE_TRAVERSAL;
+					}
+				}
 				if (cache != null)
 				{
 					// this is for form component elements finding
@@ -518,14 +601,14 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 											}
 											return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
 										}
-									}));
+									}, null));
 								}
 								else
 								{
 									for (FormElement element : cache.getFormComponentElements())
 									{
 										IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
-										persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null));
+										persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null));
 									}
 								}
 							}
@@ -561,7 +644,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				}
 				writer.key("children");
 				writer.array();
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache));
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null));
 				writer.endArray();
 				writer.endObject();
 				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
