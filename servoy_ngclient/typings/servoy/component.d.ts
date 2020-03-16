@@ -9,7 +9,7 @@ declare namespace componentType {
 		model:any;
 		handlers:any;
 		foundsetConfig?:{recordBasedProperties?:Array<string>;apiCallTypes?:Array<any>}
-		servoyApi:{ startEdit:(property:string, rowId:object)=>void;apply:(property:string, modelOfComponent:object, rowId:object)=>void}
+		servoyApi:{ startEdit:(property:string, rowId:object)=>void;apply:(property:string, modelOfComponent:object, rowId:object)=>void; trustAsHtml :()=>boolean}
 		
 		/**
 		 * Adds a change listener that will get triggered when server sends granular or full modelViewport changes for this component.

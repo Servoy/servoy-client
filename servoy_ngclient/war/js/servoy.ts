@@ -824,7 +824,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $anchorConstants) {
+.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $applicationService, $anchorConstants) {
 		return {
 			restrict: 'A',
 			scope: {
@@ -999,6 +999,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 							this.startEdit = ( property ) => {
 								childElement.servoyApi.startEdit( property, row.rowID )
+							}
+							this.trustAsHtml = ( ) => {
+								return $applicationService.trustAsHtml(rowModel);
 							}
 						}
 						ServoyApi.prototype = svyServoyApi;
