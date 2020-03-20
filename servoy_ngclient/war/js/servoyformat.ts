@@ -536,7 +536,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				var d = moment(data, servoyFormat,true).toDate();
 				// if format has not year/month/day use the one from the current model value
 				// because moment will just use current date
-				if(currentValue) {
+				if(currentValue && !isNaN(currentValue.getTime())) {
 					if(servoyFormat.indexOf('Y') == -1) {
 						d.setFullYear(currentValue.getFullYear());
 					}
@@ -644,7 +644,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					var format = null;
 					var type = svyFormat ? svyFormat.type : null;
 					format = svyFormat.display ? svyFormat.display : svyFormat.edit
-					if (svyFormat.edit && element.is(":focus")) format = svyFormat.edit
+					if (svyFormat.edit && !svyFormat.isMask && element.is(":focus")) format = svyFormat.edit
 					try {
 						ngModelController.$setValidity("", true);
 						data = formatUtils.format(data, format, type);

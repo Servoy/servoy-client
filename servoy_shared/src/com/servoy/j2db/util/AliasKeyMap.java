@@ -68,6 +68,16 @@ public class AliasKeyMap<K, A, V> extends AbstractMap<K, V> implements Serializa
 		V old = map.put(key, value);
 		if (old != null) removeAlias(key); // old alias must go away; even if the put value is the same, it's alias might have changed
 
+		putAlias(key, value);
+		return old;
+	}
+
+	/**
+	 * @param key
+	 * @param value
+	 */
+	private void putAlias(K key, V value)
+	{
 		A alias = getAlias(value);
 		if (alias != null && !alias.equals(key))
 		{
@@ -77,7 +87,12 @@ public class AliasKeyMap<K, A, V> extends AbstractMap<K, V> implements Serializa
 			}
 			aliases.put(alias, key);
 		}
-		return old;
+	}
+
+	public void updateAliasses()
+	{
+		aliases = null;
+		map.entrySet().forEach(entry -> putAlias(entry.getKey(), entry.getValue()));
 	}
 
 	@Override

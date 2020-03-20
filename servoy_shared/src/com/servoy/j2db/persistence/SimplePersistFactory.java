@@ -20,7 +20,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class SimplePersistFactory extends AbstractPersistFactory
 {
@@ -79,7 +79,7 @@ public class SimplePersistFactory extends AbstractPersistFactory
 	 * @see com.servoy.j2db.persistence.AbstractPersistFactory#resolveUUIDForElementId(int)
 	 */
 	@Override
-	public UUID resolveUUIDForElementId(int id) throws RepositoryException
+	public synchronized UUID resolveUUIDForElementId(int id) throws RepositoryException
 	{
 		return uuid_element_id_map.getKey(new Integer(id));
 	}
@@ -87,7 +87,7 @@ public class SimplePersistFactory extends AbstractPersistFactory
 	/**
 	 * @see com.servoy.j2db.persistence.IPersistFactory#getNewElementID(com.servoy.j2db.util.UUID)
 	 */
-	public int getNewElementID(UUID new_uuid) throws RepositoryException
+	public synchronized int getNewElementID(UUID new_uuid) throws RepositoryException
 	{
 		int element_id = ++last_element_id;
 		if (new_uuid != null) uuid_element_id_map.put(new_uuid, new Integer(element_id));

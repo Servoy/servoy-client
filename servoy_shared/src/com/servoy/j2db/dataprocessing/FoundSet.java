@@ -5758,6 +5758,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 									break;
 								}
 							}
+							if (e.getType() == RowEvent.DELETE && omittedPKs != null && omittedPKs.getRowCount() > 0)
+							{
+								for (int i = 0; i < omittedPKs.getRowCount(); i++)
+								{
+									if (Utils.equalObjects(pkHash, RowManager.createPKHashKey(omittedPKs.getRow(i))))
+									{
+										omittedPKs.removeRow(i);
+										break;
+									}
+								}
+							}
 						}
 						else if (row == null && getSize() > 0 && (!e.isAggregateChange() || aggregateCache.size() > 0))
 						{

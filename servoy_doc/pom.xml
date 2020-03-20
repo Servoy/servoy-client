@@ -127,12 +127,7 @@
 							<repositories>
 								<repository>
 									<id>servoy</id>
-									<url>${eclipse.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
-									<id>servoy_shiplibs</id>
-									<url>${servoy-shiplibs.url}</url>
+									<url>${all.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
@@ -249,12 +244,7 @@
 							<repositories>
 								<repository>
 									<id>servoy</id>
-									<url>${eclipse.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
-									<id>servoy_shiplibs</id>
-									<url>${servoy-shiplibs.url}</url>
+									<url>${all.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>

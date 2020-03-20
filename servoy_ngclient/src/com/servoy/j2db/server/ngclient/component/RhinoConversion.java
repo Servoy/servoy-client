@@ -18,9 +18,13 @@
 package com.servoy.j2db.server.ngclient.component;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -34,6 +38,8 @@ import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -149,7 +155,79 @@ public class RhinoConversion
 			}
 			return nativeObject;
 		}
+		if (webComponentValue instanceof JSONObject)
+		{
+			JSONObject json = (JSONObject)webComponentValue;
+			NativeObject nativeObject = new NativeObject()
+			{
+				@Override
+				public Object get(int index, Scriptable start)
+				{
+					// just in case they have numbers as keys
+					return super.get(String.valueOf(index), start);
+				}
+			};
+			Iterator<String> iterator = json.keys();
+			while (iterator.hasNext())
+			{
+				String key = iterator.next();
+				Object value = null;
+				try
+				{
+					value = ServoyJSONObject.jsonNullToNull(json.get(key));
+				}
+				catch (JSONException e)
+				{
+					Debug.error(e);
+				}
+				if (value != null)
+				{
+					value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+				}
 
+				nativeObject.put(key, nativeObject, value);
+			}
+			return nativeObject;
+		}
+		if (webComponentValue instanceof JSONArray)
+		{
+			JSONArray array = (JSONArray)webComponentValue;
+			Context cx = Context.enter();
+			Scriptable newObject = null;
+			try
+			{
+				newObject = cx.newObject(startScriptable, "Array");
+			}
+			finally
+			{
+				Context.exit();
+			}
+			if (newObject != null)
+			{
+				for (int i = 0; i < array.length(); i++)
+				{
+					Object value = null;
+					try
+					{
+						value = array.get(i);
+					}
+					catch (JSONException e)
+					{
+						Debug.error(e);
+					}
+					if (value != null)
+					{
+						value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+					}
+					newObject.put(i, newObject, value);
+				}
+				return newObject;
+			}
+			else
+			{
+				Debug.error("Cannot create javascript array from jsonarray in property/method: " + pd != null ? pd.getName() : "undefined");
+			}
+		}
 		return webComponentValue;
 	}
 
