@@ -381,4 +381,11 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
 	}
+	
+	@Override
+	public void applyPropertiesBuffer()
+	{
+		super.applyPropertiesBuffer();
+		if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
+	}
 }
