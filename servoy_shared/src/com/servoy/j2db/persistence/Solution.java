@@ -1459,7 +1459,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public void setVersion(String version)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION, version);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION, version != null ? version.trim() : version);
 	}
 
 	public String getVersion()
