@@ -31,7 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -91,13 +90,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public PropertyDescription getPropertyDescription()
 	{
 		// at the time WebComponent is created the resources project is not yet loaded nor is the typeName property set; so find it when it's needed in this case
-		if (pdPleaseUseGetterToAccessThis == null && !gettingTypeName)
+		if (pdPleaseUseGetterToAccessThis == null && !gettingTypeName && WebComponentSpecProvider.isLoaded())
 		{
 			gettingTypeName = true;
 			try
 			{
-				SpecProviderState specProviderState = WebComponentSpecProvider.getSpecProviderState();
-				pdPleaseUseGetterToAccessThis = specProviderState == null ? null : specProviderState.getWebComponentSpecification(getTypeName());
+				pdPleaseUseGetterToAccessThis = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(getTypeName());
 			}
 			finally
 			{
