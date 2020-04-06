@@ -228,15 +228,6 @@ public class FoundsetTypeChangeMonitor
 		if (propertyValue.getDataAdapterList() != null) propertyValue.getDataAdapterList().setFindMode(newFindMode);
 	}
 
-	/**
-	 * Called when the dataProviders that this foundset type provides changed.
-	 */
-	public void dataProvidersChanged()
-	{
-		// this normally happens only before initial send of initial form data so it isn't very useful; will we allow dataProviders to change later on?
-		if (propertyValue.viewPort.size > 0) allChanged();
-	}
-
 	public void shrinkClientViewport(final int relativeFirstRowToOldViewport, final int relativeLastRowToOldViewport, int oldSize)
 	{
 		if (!shouldSendAll() && !shouldSendWholeViewPort() && relativeFirstRowToOldViewport <= relativeLastRowToOldViewport)

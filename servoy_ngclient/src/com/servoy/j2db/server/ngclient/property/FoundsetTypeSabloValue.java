@@ -251,15 +251,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 //			dataProviders: 'dataprovider[]'
 //		}
 		updateFoundset((IRecordInternal)null);
-		if (designJSONValue != null)
-		{
-			JSONObject designValue = (JSONObject)designJSONValue;
-			JSONObject dataProvidersJSON = designValue.optJSONObject(FoundsetPropertyType.DATAPROVIDERS_KEY_FOR_DESIGN);
-			if (dataProvidersJSON != null)
-			{
-				changeMonitor.dataProvidersChanged();
-			}
-		}
 
 		// register parent record changed listener
 		if (parentDAL != null)
