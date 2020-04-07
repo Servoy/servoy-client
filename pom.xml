@@ -16,15 +16,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<all.url>http://developer.servoy.com/p2_repository/2020.03</all.url>
 	</properties>
 
 	<repositories>
-		<repository>
-			<id>all</id>
-			<url>${all.url}</url>
-			<layout>p2</layout>
-		</repository>
 		<repository>
 			<id>developer_repo</id>
 			<name>developer_repo</name>
@@ -84,7 +78,7 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<compilerArgument>-warn:none</compilerArgument>
-				 	<useProjectSettings>false</useProjectSettings>
+					<useProjectSettings>false</useProjectSettings>
 					<useJDK>BREE</useJDK>
 					<extraClasspathElements>
 						<dependency>
@@ -100,6 +94,13 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<target>
+						<artifact>
+							<groupId>com.servoy</groupId>
+							<artifactId>com.servoy.eclipse.target</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
 					<pomDependencies>consider</pomDependencies>
 					<resolver>p2</resolver>
 					<environments>
