@@ -112,6 +112,7 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -356,6 +357,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			index = createPersistIndex();
 
 			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
+			// flush first the persist helpers cach that could already been filled with null values in creating the index.
+			PersistHelper.flushSuperPersistCache();
 			Iterator<Form> it = getForms(false);
 			while (it.hasNext())
 			{
