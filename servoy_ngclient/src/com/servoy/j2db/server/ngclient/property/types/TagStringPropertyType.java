@@ -290,7 +290,12 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			// this code can interpret the new value as a static one or a a tag-aware one depending on the property's config: USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT
 			String newDesignValue = rhinoValue instanceof String ? (String)rhinoValue : rhinoValue.toString();
-			return createNewTagStringTypeSabloValue(newDesignValue, (previousComponentValue != null ? previousComponentValue.getDataAdapterList() : null),
+			DataAdapterList dal = previousComponentValue != null ? previousComponentValue.getDataAdapterList() : null;
+			if (dal == null && componentOrService != null && componentOrService.getUnderlyingWebObject() instanceof WebFormComponent)
+			{
+				dal = (DataAdapterList)((WebFormComponent)componentOrService.getUnderlyingWebObject()).getDataAdapterList();
+			}
+			return createNewTagStringTypeSabloValue(newDesignValue, dal,
 				!((TagStringConfig)pd.getConfig()).useParsedValueInRhino(), true, pd, componentOrService.getUnderlyingWebObject() instanceof WebFormComponent
 					? ((WebFormComponent)componentOrService.getUnderlyingWebObject()) : null,
 				((IContextProvider)componentOrService.getUnderlyingWebObject()).getDataConverterContext().getApplication(), false);
