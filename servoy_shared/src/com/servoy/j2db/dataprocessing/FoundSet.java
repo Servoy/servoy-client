@@ -899,7 +899,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Get a duplicate of the foundset.
+	 * Get a duplicate of the foundset. This is a full copy of the foundset (cached pks,records, relation, filters, search criteria, omitted records, selection).
 	 *
 	 * @sample
 	 * var dupFoundset = %%prefix%%foundset.duplicateFoundSet();

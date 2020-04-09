@@ -1457,6 +1457,17 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
 	}
 
+	public void setVersion(String version)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION, version != null ? version.trim() : version);
+	}
+
+	public String getVersion()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION);
+	}
+
+
 	@Override
 	public int compareTo(Solution o)
 	{

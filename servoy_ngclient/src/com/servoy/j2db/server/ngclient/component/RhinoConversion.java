@@ -27,8 +27,10 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.Undefined;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -149,6 +151,7 @@ public class RhinoConversion
 					if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 				}
 			};
+			ScriptRuntime.setBuiltinProtoAndParent(nativeObject, startScriptable, TopLevel.Builtins.Object);
 			for (Object key : ((Map)webComponentValue).keySet())
 			{
 				nativeObject.defineProperty(key.toString(), ((Map)webComponentValue).get(key), ScriptableObject.EMPTY);
@@ -158,36 +161,45 @@ public class RhinoConversion
 		if (webComponentValue instanceof JSONObject)
 		{
 			JSONObject json = (JSONObject)webComponentValue;
-			NativeObject nativeObject = new NativeObject()
+			Context cx = Context.enter();
+			Scriptable newObject = null;
+			try
 			{
-				@Override
-				public Object get(int index, Scriptable start)
+				newObject = cx.newObject(startScriptable);
+				if (newObject != null)
 				{
-					// just in case they have numbers as keys
-					return super.get(String.valueOf(index), start);
+					Iterator<String> iterator = json.keys();
+					while (iterator.hasNext())
+					{
+						String key = iterator.next();
+						Object value = null;
+						try
+						{
+							value = ServoyJSONObject.jsonNullToNull(json.get(key));
+						}
+						catch (JSONException e)
+						{
+							Debug.error(e);
+						}
+						if (value != null)
+						{
+							value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+						}
+						ScriptRuntime.setObjectElem(newObject, key, value, cx);
+					}
+					return newObject;
 				}
-			};
-			Iterator<String> iterator = json.keys();
-			while (iterator.hasNext())
-			{
-				String key = iterator.next();
-				Object value = null;
-				try
+				else
 				{
-					value = ServoyJSONObject.jsonNullToNull(json.get(key));
+					Debug.error("Cannot create javascript object from jsonobject " + webComponentValue + "  in property/method: " + pd != null ? pd.getName()
+						: "undefined");
 				}
-				catch (JSONException e)
-				{
-					Debug.error(e);
-				}
-				if (value != null)
-				{
-					value = defaultToRhino(value, pd, webObjectContext, startScriptable);
-				}
-
-				nativeObject.put(key, nativeObject, value);
 			}
-			return nativeObject;
+			finally
+			{
+				Context.exit();
+			}
+			return webComponentValue;
 		}
 		if (webComponentValue instanceof JSONArray)
 		{
@@ -197,36 +209,38 @@ public class RhinoConversion
 			try
 			{
 				newObject = cx.newObject(startScriptable, "Array");
+				if (newObject != null)
+				{
+					for (int i = 0; i < array.length(); i++)
+					{
+						Object value = null;
+						try
+						{
+							value = array.get(i);
+						}
+						catch (JSONException e)
+						{
+							Debug.error(e);
+						}
+						if (value != null)
+						{
+							value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+						}
+						ScriptRuntime.setObjectIndex(newObject, i, value, cx);
+					}
+					return newObject;
+				}
+				else
+				{
+					Debug.error("Cannot create javascript array from jsonarray " + webComponentValue + "in property/method: " + pd != null ? pd.getName()
+						: "undefined");
+				}
 			}
 			finally
 			{
 				Context.exit();
 			}
-			if (newObject != null)
-			{
-				for (int i = 0; i < array.length(); i++)
-				{
-					Object value = null;
-					try
-					{
-						value = array.get(i);
-					}
-					catch (JSONException e)
-					{
-						Debug.error(e);
-					}
-					if (value != null)
-					{
-						value = defaultToRhino(value, pd, webObjectContext, startScriptable);
-					}
-					newObject.put(i, newObject, value);
-				}
-				return newObject;
-			}
-			else
-			{
-				Debug.error("Cannot create javascript array from jsonarray in property/method: " + pd != null ? pd.getName() : "undefined");
-			}
+
 		}
 		return webComponentValue;
 	}

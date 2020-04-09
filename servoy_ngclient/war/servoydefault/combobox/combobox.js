@@ -73,15 +73,25 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 					}
 					if (scope.handlers.onFocusLostMethodID) {
 						function blur(e) {
-							$timeout(function () {
-								var currentElement = $(":focus")
+							var currentElement = $(document.activeElement);
+							if (currentElement.is('body'))
+							{
+								// we are not sure if focus is really lost or just temporarily transfered to body, we need to wait a bit
+								$timeout(function () {
+									var currentElement = $(document.activeElement)
+									if (currentElement.parents(".ui-select-container,.ui-select-choices").length == 0) {
+										hasFocus = false;
+										scope.handlers.onFocusLostMethodID(e);
+									}
+								},200);
+							}
+							else
+							{
 								if (currentElement.parents(".ui-select-container,.ui-select-choices").length == 0) {
 									hasFocus = false;
 									scope.handlers.onFocusLostMethodID(e);
 								}
-								 
-							
-							},50);
+							}	
 						}
 						searchBox.on('blur', blur);
 						focusElement.on('blur', blur);

@@ -45,7 +45,7 @@ angular.module('servoydefaultSplitpane').directive('bgSplitter', function() {
 
             handler.css('top', pos + 'px');
             pane1.elem.css('height', pos + 'px');
-            pane2.elem.css('top', (pos+handler[0].clientHeigth) + 'px');
+            pane2.elem.css('top', (pos+handler[0].clientHeight) + 'px');
       
           } else {
 

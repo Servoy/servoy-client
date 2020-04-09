@@ -468,6 +468,16 @@ public class RepositoryHelper
 		{
 			return true;
 		}
+		if (persist != null && StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName().equals(name) ||
+			StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(name) ||
+			StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name) ||
+			StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName().equals(name))
+		{
+			if (persist.getParent() instanceof LayoutContainer && !CSSPositionUtils.isInAbsoluteLayoutMode(persist))
+			{
+				return true;
+			}
+		}
 		if (persist instanceof Part && persist.getParent() instanceof Form && Utils.getAsBoolean(((Form)persist.getParent()).isFormComponent()) &&
 			!name.equals("height"))
 		{

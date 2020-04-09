@@ -3755,7 +3755,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns true if the specified foundset, on a specific index or in any of its records, or the specified record has changes.
+	 * Returns true if the specified foundset, on a specific index or in any of its records, or the specified record has changes or is new unsaved record.
 	 *
 	 * NOTE: The fields focus may be lost in user interface in order to determine the edits.
 	 *
