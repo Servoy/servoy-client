@@ -6,7 +6,7 @@
 		<maven>3.6.0</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>2020.3.0.3560_rc</version>
+	<version>2020.6.0.3580_rc</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
@@ -16,21 +16,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<eclipse.url>http://download.eclipse.org/eclipse/updates/4.14/</eclipse.url>
-		<servoy-shiplibs.url>http://developer.servoy.com/p2_repository/ship_plugins/2019.12/</servoy-shiplibs.url>
 	</properties>
 
 	<repositories>
-		<repository>
-			<id>servoy</id>
-			<url>${eclipse.url}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>servoy_shiplibs</id>
-			<url>${servoy-shiplibs.url}</url>
-			<layout>p2</layout>
-		</repository>
 		<repository>
 			<id>developer_repo</id>
 			<name>developer_repo</name>
@@ -90,7 +78,7 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<compilerArgument>-warn:none</compilerArgument>
-				 	<useProjectSettings>false</useProjectSettings>
+					<useProjectSettings>false</useProjectSettings>
 					<useJDK>BREE</useJDK>
 					<extraClasspathElements>
 						<dependency>
@@ -106,6 +94,13 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<target>
+						<artifact>
+							<groupId>com.servoy</groupId>
+							<artifactId>com.servoy.eclipse.target</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
 					<pomDependencies>consider</pomDependencies>
 					<resolver>p2</resolver>
 					<environments>

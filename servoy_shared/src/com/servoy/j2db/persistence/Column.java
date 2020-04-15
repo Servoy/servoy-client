@@ -62,9 +62,9 @@ import com.servoy.j2db.util.keyword.SQLKeywords;
 public class Column extends BaseColumn implements Serializable, IColumn, ISupportHTMLToolTipText, ISupportAlias<String>
 {
 	public static final long serialVersionUID = -2730015162348120893L;
-	public static final int MAX_SQL_OBJECT_NAME_LENGTH = 30; // max length of table names, column names, etc; 30 seen by oracle, 31 seen by firebird
-
-/*
+	public static final int MAX_SQL_OBJECT_NAME_LENGTH = RepositoryHelper.MAX_SQL_NAME_LENGTH; // max length of table names, column names, etc; 30 seen by oracle, 31 seen by firebird
+																							  //UPDATE: increase this to 50, oracle supports it now
+ /*
  * _____________________________________________________________ Declaration of attributes
  */
 	public static final int[] allDefinedTypes = new int[] { TEXT, INTEGER, NUMBER, DATETIME, MEDIA };

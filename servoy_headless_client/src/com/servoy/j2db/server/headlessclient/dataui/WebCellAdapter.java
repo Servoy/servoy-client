@@ -33,7 +33,6 @@ import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IScriptable;
@@ -46,7 +45,6 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
-import com.servoy.j2db.util.Debug;
 
 /**
  * A {@link IDataAdapter} used in {@link WebCellBasedView} for there columns to handle valuechanged events to make sure that the right cells are set to changed.
@@ -195,30 +193,22 @@ public class WebCellAdapter implements IDataAdapter
 					}
 				}
 
-				// check if is is calculation
-				try
+				Iterator<TableNode> tableNodes = view.getDataAdapterList().getApplication().getFlattenedSolution().getTableNodes(table);
+				while (tableNodes.hasNext())
 				{
-					Iterator<TableNode> tableNodes = view.getDataAdapterList().getApplication().getFlattenedSolution().getTableNodes(table);
-					while (tableNodes.hasNext())
+					TableNode tableNode = tableNodes.next();
+					if (tableNode != null)
 					{
-						TableNode tableNode = tableNodes.next();
-						if (tableNode != null)
+						Iterator<IPersist> it2 = tableNode.getAllObjects();
+						while (it2.hasNext())
 						{
-							Iterator<IPersist> it2 = tableNode.getAllObjects();
-							while (it2.hasNext())
+							IPersist persist = it2.next();
+							if (persist instanceof IDataProvider && (((IDataProvider)persist).getDataProviderID() == dataprovider))
 							{
-								IPersist persist = it2.next();
-								if (persist instanceof IDataProvider && (((IDataProvider)persist).getDataProviderID() == dataprovider))
-								{
-									isDBDataproviderObj = Boolean.FALSE;
-								}
+								isDBDataproviderObj = Boolean.FALSE;
 							}
 						}
 					}
-				}
-				catch (RepositoryException ex)
-				{
-					Debug.error("Cannot determin if " + dataprovider + " is a calculation");
 				}
 			}
 		}

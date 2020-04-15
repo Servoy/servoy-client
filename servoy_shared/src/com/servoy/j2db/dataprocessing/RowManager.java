@@ -341,8 +341,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				transaction_id = gt.getTransactionID(sheet.getServerName());
 			}
-			formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
-				fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
+			formdata = fsm.getDataServer()
+				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
 		}
 		catch (RemoteException e)
 		{
@@ -555,8 +556,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 				}
-				formdata = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
-					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+				formdata = fsm.getDataServer()
+					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+						fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$
@@ -1025,7 +1027,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 
 			// test the hashmap for empty  Softreferences
-			Iterator<Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap.entrySet().iterator();
+			Iterator<Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap
+				.entrySet()
+				.iterator();
 			while (it.hasNext())
 			{
 				Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry = it.next();
@@ -1157,8 +1161,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				transaction_id = gt.getTransactionID(sheet.getServerName());
 			}
-			IDataSet dataset = fsm.getApplication().getDataServer().acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(), ids, lockSelect,
-				transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().chunkSize);
+			IDataSet dataset = fsm.getApplication()
+				.getDataServer()
+				.acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(), ids, lockSelect,
+					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().chunkSize);
 			if (dataset != null)
 			{
 				addLocks(ids, lockName);
@@ -1224,8 +1230,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	{
 		//expensive but safe
 		@SuppressWarnings("unchecked")
-		Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>[] array = pkRowMap.entrySet().toArray(
-			new Entry[pkRowMap.size()]);
+		Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>[] array = pkRowMap.entrySet()
+			.toArray(
+				new Entry[pkRowMap.size()]);
 		for (Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry : array)
 		{
 			SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> ref = entry.getValue();
@@ -1282,8 +1289,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			transaction_id = gt.getTransactionID(sheet.getServerName());
 		}
-		return fsm.getApplication().getDataServer().getBlob(fsm.getApplication().getClientID(), serverName, blobSelect,
-			fsm.getTableFilterParams(sheet.getServerName(), blobSelect), transaction_id);
+		return fsm.getApplication()
+			.getDataServer()
+			.getBlob(fsm.getApplication().getClientID(), serverName, blobSelect,
+				fsm.getTableFilterParams(sheet.getServerName(), blobSelect), transaction_id);
 	}
 
 	/**
@@ -1372,7 +1381,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					List<CalculationDependency> calculationDependencies = new ArrayList<CalculationDependency>();
 
 					// go over each row to see if there are calcs depending on the RFS(whereArgs)
-					Iterator<Map.Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap.entrySet().iterator();
+					Iterator<Map.Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap
+						.entrySet()
+						.iterator();
 					while (it.hasNext())
 					{
 						Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry = it.next();
@@ -1492,7 +1503,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	private synchronized boolean clearCalc(String dp, List<RowFireNotifyChange> fires)
 	{
 		boolean changed = false;
-		Iterator<Map.Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap.entrySet().iterator();
+		Iterator<Map.Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap
+			.entrySet()
+			.iterator();
 		while (it.hasNext())
 		{
 			Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry = it.next();
@@ -1607,8 +1620,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						try
 						{
-							getFoundsetManager().getRowManager(reference.dataSource).removeCalculationDependency(reference.pkHashKey, reference.dataproviderId,
-								dataSource, pkHashKey, entry.getKey());
+							getFoundsetManager().getRowManager(reference.dataSource)
+								.removeCalculationDependency(reference.pkHashKey, reference.dataproviderId,
+									dataSource, pkHashKey, entry.getKey());
 						}
 						catch (ServoyException e)
 						{
@@ -1930,8 +1944,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			// inform depending rowmanager as well (including its own)
 			try
 			{
-				getFoundsetManager().getRowManager(dependingDataSource).addCalculationDependencyBackReference(
-					new RowReference(fsm.getDataSource(sheet.getTable()), dataproviderId, pkHashKey), dependingPkHashKey, dependingCalc);
+				getFoundsetManager().getRowManager(dependingDataSource)
+					.addCalculationDependencyBackReference(
+						new RowReference(fsm.getDataSource(sheet.getTable()), dataproviderId, pkHashKey), dependingPkHashKey, dependingCalc);
 			}
 			catch (ServoyException e)
 			{
@@ -2099,8 +2114,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		public String toString()
 		{
 			StringBuilder builder = new StringBuilder();
-			builder.append("CalculationDependency [calc=").append(calc).append(", dataSource=").append(dataSource).append(", pkHashKey=").append( //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-				pkHashKey).append(']');
+			builder.append("CalculationDependency [calc=") //$NON-NLS-1$
+				.append(calc)
+				.append(", dataSource=") //$NON-NLS-1$
+				.append(dataSource)
+				.append(", pkHashKey=") //$NON-NLS-1$
+				.append(
+					pkHashKey)
+				.append(']');
 			return builder.toString();
 		}
 
@@ -2171,8 +2192,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		public String toString()
 		{
 			StringBuilder builder = new StringBuilder();
-			builder.append("RowReference [dataSource=").append(dataSource).append(", dataproviderId=").append(dataproviderId).append(", pkHashKey=").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				pkHashKey).append(']');
+			builder.append("RowReference [dataSource=") //$NON-NLS-1$
+				.append(dataSource)
+				.append(", dataproviderId=") //$NON-NLS-1$
+				.append(dataproviderId)
+				.append(", pkHashKey=") //$NON-NLS-1$
+				.append(
+					pkHashKey)
+				.append(']');
 			return builder.toString();
 		}
 	}

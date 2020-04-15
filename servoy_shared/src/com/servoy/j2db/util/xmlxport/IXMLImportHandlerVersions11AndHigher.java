@@ -99,4 +99,6 @@ public interface IXMLImportHandlerVersions11AndHigher
 	void loadWebPackage(String solutionName, String webPackageName, JarFile jarFile, JarEntry jarEntry);
 
 	List<Pair<String, byte[]>> getWebPackages(String solutionName);
+
+	boolean shouldCheckRepositorySolutionsOverride();
 }

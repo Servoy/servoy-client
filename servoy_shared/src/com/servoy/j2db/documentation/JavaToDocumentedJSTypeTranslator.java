@@ -87,7 +87,7 @@ import com.servoy.j2db.solutionmodel.ISMVariable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
@@ -174,7 +174,7 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(IJSRecord.class, Record.class);
 		javaClassToDocumentedJavaClass.put(IRecord.class, Record.class);
 
-		javaClassToDocumentedJavaClass.put(IComponent.class, IRuntimeComponent.class);
+		javaClassToDocumentedJavaClass.put(IComponent.class, IBaseRuntimeComponent.class);
 
 		javaClassToDocumentedJavaClass.put(ISMMedia.class, JSMedia.class);
 
@@ -267,7 +267,7 @@ public class JavaToDocumentedJSTypeTranslator
 	public String translateJavaClassToJSTypeName(Class< ? > javaClass)
 	{
 		if (javaClass == null) return null;
-		if (javaClass.isEnum()) return "enum<" + javaClass.getSimpleName() +'>';
+		if (javaClass.isEnum()) return "enum<" + javaClass.getSimpleName() + '>';
 
 		String cached = cachedJSTypeNames.get(javaClass);
 		if (cached != null) return cached;

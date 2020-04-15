@@ -434,9 +434,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @param query the sub query
 	 *
 	 */
-	public QBCondition js_exists(QBSelect query) throws RepositoryException
+	public QBCondition js_exists(QBSelect q) throws RepositoryException
 	{
-		return exists(query);
+		return exists(q);
 	}
 
 	public QBCondition exists(IQueryBuilder q) throws RepositoryException

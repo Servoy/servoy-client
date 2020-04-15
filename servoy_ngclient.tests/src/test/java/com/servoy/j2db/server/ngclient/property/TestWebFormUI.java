@@ -892,7 +892,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#addContainerStyleClass(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -904,11 +904,35 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#removeContainerStyleClass(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void removeContainerStyleClass(String name, String cls)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#addContainerCSSStyle(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void addContainerCSSStyle(String name, String key, String value)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#removeContainerCSSStyle(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void removeContainerCSSStyle(String name, String key)
 	{
 		// TODO Auto-generated method stub
 

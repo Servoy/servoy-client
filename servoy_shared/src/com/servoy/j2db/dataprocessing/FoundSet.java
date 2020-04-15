@@ -689,7 +689,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param dataprovider String column to filter on.
 	 *
-	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally
+	 * augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 *
 	 * @param value Object filter value (for in array and between an array with 2 elements)
 	 *
@@ -715,7 +716,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * // Filters with in-conditions can be used with arrays or with custom queries:
 	 * success = foundset.addFoundSetFilterParam("productcode", "in", [120, 144, 200]);
 	 * success = foundset.addFoundSetFilterParam("city", "in", ["London", "Paris"]);
-	 * success = foundset.addFoundSetFilterParam("countrycode", "in", "select country code from countries where region in ('Europe', 'Asia')");
+	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
+	 * success = foundset.addFoundSetFilterParam("countrycode", "sql:in", "select country code from countries where region in ('Europe', 'Asia')");
 	 *
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 *
@@ -723,7 +725,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param dataprovider String column to filter on.
 	 *
-	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally
+	 * augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 *
 	 * @param value Object filter value (for in array and between an array with 2 elements)
 	 *
@@ -896,7 +899,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Get a duplicate of the foundset.
+	 * Get a duplicate of the foundset. This is a full copy of the foundset (cached pks,records, relation, filters, search criteria, omitted records, selection).
 	 *
 	 * @sample
 	 * var dupFoundset = %%prefix%%foundset.duplicateFoundSet();
@@ -5755,6 +5758,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 									break;
 								}
 							}
+							if (e.getType() == RowEvent.DELETE && omittedPKs != null && omittedPKs.getRowCount() > 0)
+							{
+								for (int i = 0; i < omittedPKs.getRowCount(); i++)
+								{
+									if (Utils.equalObjects(pkHash, RowManager.createPKHashKey(omittedPKs.getRow(i))))
+									{
+										omittedPKs.removeRow(i);
+										break;
+									}
+								}
+							}
 						}
 						else if (row == null && getSize() > 0 && (!e.isAggregateChange() || aggregateCache.size() > 0))
 						{
@@ -6234,31 +6248,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
 				{
 					List<ScriptMethod> methods = null;
-					try
+					Iterator<TableNode> tableNodes = fsm.getApplication().getFlattenedSolution().getTableNodes(getTable());
+					while (tableNodes.hasNext())
 					{
-						Iterator<TableNode> tableNodes = fsm.getApplication().getFlattenedSolution().getTableNodes(getTable());
-						while (tableNodes.hasNext())
+						TableNode tn = tableNodes.next();
+						Iterator<ScriptMethod> fsMethods = tn.getFoundsetMethods(sort);
+						if (methods == null)
 						{
-							TableNode tn = tableNodes.next();
-							Iterator<ScriptMethod> fsMethods = tn.getFoundsetMethods(sort);
-							if (methods == null)
+							if (!tableNodes.hasNext())
 							{
-								if (!tableNodes.hasNext())
-								{
-									// just 1
-									return fsMethods;
-								}
-								methods = new ArrayList<ScriptMethod>();
+								// just 1
+								return fsMethods;
 							}
-							while (fsMethods.hasNext())
-							{
-								methods.add(fsMethods.next());
-							}
+							methods = new ArrayList<ScriptMethod>();
 						}
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
+						while (fsMethods.hasNext())
+						{
+							methods.add(fsMethods.next());
+						}
 					}
 					return methods == null ? Collections.<ScriptMethod> emptyList().iterator() : methods.iterator();
 				}

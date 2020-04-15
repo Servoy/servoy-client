@@ -1010,7 +1010,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		}
 		else
 		{
-			outputChannel.info(msg != null ? msg.toString() : "NULL", level); //$NON-NLS-1$
+			outputChannel.clientInfo(msg != null ? msg.toString() : "NULL", level); //$NON-NLS-1$
 		}
 	}
 

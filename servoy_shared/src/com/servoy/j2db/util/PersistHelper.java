@@ -699,9 +699,8 @@ public class PersistHelper
 			boolean substantial = false;
 			int pieces = 0;
 			int missingPieces = 0;
-			for (int j = 0; j < pieceList.size(); j++)
+			for (String piece : pieceList)
 			{
-				String piece = pieceList.get(j);
 				if (piece.length() <= 2) continue; // do not match 'a' or 'in'
 				if (aName.indexOf(piece) >= 0)
 				{
@@ -996,11 +995,17 @@ public class PersistHelper
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
 	{
 		IPersist parentPersist = (IPersist)persist;
-		if (parentPersist instanceof ISupportExtendsID && ((ISupportExtendsID)parentPersist).getExtendsID() == IRepository.UNRESOLVED_ELEMENT) return true;
+		if (parentPersist instanceof ISupportExtendsID && ((ISupportExtendsID)parentPersist).getExtendsID() == IRepository.UNRESOLVED_ELEMENT)
+		{
+			return true;
+		}
 		while (parentPersist instanceof ISupportExtendsID && isOverrideElement(((ISupportExtendsID)parentPersist)))
 		{
 			parentPersist = getSuperPersist(((ISupportExtendsID)parentPersist));
-			if (parentPersist == null) return true;
+			if (parentPersist == null)
+			{
+				return true;
+			}
 		}
 		return false;
 	}
@@ -1213,6 +1218,14 @@ public class PersistHelper
 					superPersistCache.clear();
 				}
 			}
+		}
+	}
+
+	public static void flushSuperPersistCache()
+	{
+		synchronized (superPersistCache)
+		{
+			superPersistCache.clear();
 		}
 	}
 }

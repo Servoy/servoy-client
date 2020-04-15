@@ -32,6 +32,7 @@ public interface IXMLExporter
 {
 	void exportSolutionToFile(Solution solution, File file, String version, int buildNumber, boolean exportMetaData, boolean exportSampleData,
 		int nrOfExportSampleData, boolean exportI18N, boolean exportUserInfo, boolean includeModules, boolean protect, ITableDefinitionsManager tableDefManager,
-		IMetadataDefManager metadataDefManager, boolean exportSolution, JSONObject importSettings, Map<String, List<File>> modulesWebPackages)
+		IMetadataDefManager metadataDefManager, boolean exportSolution, JSONObject importSettings, Map<String, List<File>> modulesWebPackages,
+		boolean exportSolutionsVersions)
 		throws RepositoryException;
 }

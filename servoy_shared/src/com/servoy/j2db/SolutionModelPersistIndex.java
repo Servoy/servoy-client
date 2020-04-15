@@ -114,6 +114,54 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	}
 
 	@Override
+	public <T extends IPersist> T getPersistByDatasource(String datasource, Class<T> persistClass, String name)
+	{
+		T persist = null;
+		if (testIndex())
+		{
+			persist = super.getPersistByDatasource(datasource, persistClass, name);
+		}
+		if (persist == null)
+		{
+			persist = index.getPersistByDatasource(datasource, persistClass, name);
+		}
+		if (persist != null && isRemoved(persist)) return null;
+		return persist;
+	}
+
+	@Override
+	public <T extends IPersist> Iterator<T> getPersistByDatasource(String datasource, Class<T> persistClass)
+	{
+		Iterator<T> iterator = index.getPersistByDatasource(datasource, persistClass);
+		if (testIndex())
+		{
+			Set<T> set = new HashSet<>();
+			super.getPersistByDatasource(datasource, persistClass).forEachRemaining((persist) -> set.add(persist));
+			if (set.size() > 0)
+			{
+				// must merge
+				iterator.forEachRemaining((persist) -> {
+					if (!set.contains(persist)) set.add(persist);
+				});
+				iterator = set.iterator();
+			}
+		}
+
+		if (!removedPersist.isEmpty())
+		{
+			iterator = new FilteredIterator<T>(iterator, new IFilter<T>()
+			{
+				@Override
+				public boolean match(Object o)
+				{
+					return !removedPersist.containsKey(o);
+				}
+			});
+		}
+		return iterator;
+	}
+
+	@Override
 	public <T extends IPersist> Iterator<T> getIterableFor(Class<T> persistClass)
 	{
 		Iterator<T> iterator = index.getIterableFor(persistClass);

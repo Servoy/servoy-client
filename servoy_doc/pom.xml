@@ -5,12 +5,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2020.3.0.3560_rc</version>
+		<version>2020.6.0.3580_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2020.3.0.3560_rc</version>
+	<version>2020.6.0.3580_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -127,12 +127,7 @@
 							<repositories>
 								<repository>
 									<id>servoy</id>
-									<url>${eclipse.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
-									<id>servoy_shiplibs</id>
-									<url>${servoy-shiplibs.url}</url>
+									<url>${all.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
@@ -249,12 +244,7 @@
 							<repositories>
 								<repository>
 									<id>servoy</id>
-									<url>${eclipse.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
-									<id>servoy_shiplibs</id>
-									<url>${servoy-shiplibs.url}</url>
+									<url>${all.url}</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>

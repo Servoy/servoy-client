@@ -1436,19 +1436,23 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		showInfoPanel: function(url,w,h,t,closeText)
 		{
-			var infoPanel=document.createElement("div");
-			infoPanel.innerHTML="<iframe marginheight=0 marginwidth=0 scrolling=no frameborder=0 src='"+url+"' width='100%' height='"+(h-25)+"'></iframe><br><a href='#' onClick='javascript:document.getElementById(\"infoPanel\").style.display=\"none\";return false;'>"+closeText+"</a>";
-			infoPanel.style.zIndex="2147483647";  
-			infoPanel.id="infoPanel"; 
-			var width = window.innerWidth || document.body.offsetWidth; 
-			infoPanel.style.position = "absolute"; 
-			infoPanel.style.left = ((width - w) - 30) + "px";  
-			infoPanel.style.top = "10px"; 
-			infoPanel.style.height= h+"px"; 
-			infoPanel.style.width= w+"px";
-			document.body.appendChild(infoPanel);
-			setTimeout('document.getElementById(\"infoPanel\").style.display=\"none\"',t);
-		},
+            var infoPanel = document.createElement("div");
+            infoPanel.innerHTML = "<iframe marginheight=0 marginwidth=0 scrolling=no frameborder=0 src='" + url + "' width='100%' height='" + (h - 25) + "'></iframe><br><a href='#' id = \"closePanelButton\"'>" + closeText + "</a>";
+            infoPanel.style.zIndex = "2147483647";
+            infoPanel.id = "infoPanel";
+            var width = window.innerWidth || document.body.offsetWidth;
+            infoPanel.style.position = "absolute";
+            infoPanel.style.left = ((width - w) - 30) + "px";
+            infoPanel.style.top = "10px";
+            infoPanel.style.height = h + "px";
+            infoPanel.style.width = w + "px";
+            document.body.appendChild(infoPanel);
+            document.getElementById("closePanelButton").addEventListener("click", function(){
+            	document.getElementById("infoPanel").style.display="none";
+            	return false;
+            });
+            setTimeout('document.getElementById(\"infoPanel\").style.display=\"none\"', t);
+        },
 		showDefaultLogin: function() {
 			if(webStorage.local.get('servoy_username') && webStorage.local.get('servoy_password')) {
 				var promise = $sabloApplication.callService("applicationServerService", "login", {'username' : webStorage.local.get('servoy_username'), 'password' : webStorage.local.get('servoy_password'), 'encrypted': true}, false);

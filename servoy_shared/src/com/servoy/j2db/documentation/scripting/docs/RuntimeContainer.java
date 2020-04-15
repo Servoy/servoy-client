@@ -64,4 +64,23 @@ public class RuntimeContainer
 	{
 		return true;
 	}
+
+	/**
+	 * Sets a css style to the container.
+	 * @param key css key to add
+	 * @param value css value to add
+	 */
+	@JSFunction
+	public void setCSSStyle(String key, String value)
+	{
+	}
+
+	/**
+	 * Removes a css style that was previously added.
+	 * @param key css key to remove
+	 */
+	@JSFunction
+	public void removeCSSStyle(String key)
+	{
+	}
 }
