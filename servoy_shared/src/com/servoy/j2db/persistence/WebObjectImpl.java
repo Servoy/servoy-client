@@ -95,7 +95,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			gettingTypeName = true;
 			try
 			{
-				pdPleaseUseGetterToAccessThis = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(getTypeName());
+				pdPleaseUseGetterToAccessThis = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(getTypeName());
 			}
 			finally
 			{
