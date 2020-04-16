@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import org.sablo.IChangeListener;
 
 /**
- * This class is responsible for monitoring changes to a foundset property's viewport data and
+ * This class is responsible for monitoring changes to a foundset or foundset linked property's viewport data and
  * being able to update the client with those changes.
  *
  * @author acostescu

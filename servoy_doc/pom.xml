@@ -126,11 +126,6 @@
 						<configuration>
 							<repositories>
 								<repository>
-									<id>servoy</id>
-									<url>${all.url}</url>
-									<layout>p2</layout>
-								</repository>
-								<repository>
 									<id>servoy_local</id>
 									<url>${servoy-local.url}</url>
 									<layout>p2</layout>
