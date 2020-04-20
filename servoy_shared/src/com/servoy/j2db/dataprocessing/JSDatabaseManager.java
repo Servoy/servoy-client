@@ -4208,15 +4208,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Free resources allocated for a previously created data source
+	 * Free resources allocated for a previously created data source.
+	 * NOTE: make sure this datasource is not using anymore in forms or components!
+	 * because the inmemory table and the foundset build on that table are all just removed.
 	 *
-	 * @deprecated Deprecated as of release 5.0, not needed anymore.
+	 * Normally this will be automatically done if a client is removed/shutdown, but if constantly new stuff is created
+	 * or you don't need it anymore from what the client currently is using or seeing, then removing this will clean up memory.
 	 *
 	 * @sample databaseManager.removeDataSource(uri);
 	 *
 	 * @param uri
 	 */
-	@Deprecated
 	public boolean js_removeDataSource(String uri)
 	{
 		try

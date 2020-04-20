@@ -1065,6 +1065,15 @@ public class SQLGenerator
 		return createTableSQL(dataSource, false);
 	}
 
+
+	/**
+	 * @param uri
+	 */
+	public synchronized void removeCache(String dataSource)
+	{
+		cachedDataSourceSQLSheets.remove(dataSource);
+	}
+
 	private SQLSheet createNoTableSQL(boolean cache)
 	{
 		SQLSheet sheet = new SQLSheet(application, null, null);
@@ -1595,4 +1604,5 @@ public class SQLGenerator
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}
+
 }
