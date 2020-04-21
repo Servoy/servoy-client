@@ -11,8 +11,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>1.5.1</tycho.version>
-		<tycho.extra.version>1.5.1</tycho.extra.version>
+		<tycho.version>1.7.0</tycho.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -179,7 +178,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho.extras</groupId>
 				<artifactId>tycho-pack200a-plugin</artifactId>
-				<version>${tycho.extra.version}</version>
+				<version>${tycho.version}</version>
 				<executions>
 					<execution>
 						<id>pack200-normalize</id>
@@ -210,7 +209,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho.extras</groupId>
 				<artifactId>tycho-pack200b-plugin</artifactId>
-				<version>${tycho.extra.version}</version>
+				<version>${tycho.version}</version>
 				<executions>
 					<execution>
 						<id>pack200-pack</id>
