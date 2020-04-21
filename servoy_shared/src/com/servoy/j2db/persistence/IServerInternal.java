@@ -42,6 +42,8 @@ public interface IServerInternal
 
 	ITable createNewTable(IValidateName validator, String nm, boolean testSQL) throws RepositoryException;
 
+	ITable createNewTable(IValidateName validator, String nm, boolean testSQL, boolean fireTableAdded) throws RepositoryException;
+
 	ITable createNewTable(IValidateName validator, ITable otherServerTable) throws RepositoryException;
 
 	void reloadTables() throws RepositoryException;
@@ -161,6 +163,8 @@ public interface IServerInternal
 	 * @param hiddenInDeveloper if it should be hidden or not.
 	 */
 	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper);
+
+	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper, boolean fireTableHidden);
 
 	/**
 	 * Tells if a table is marked as 'hidden' in developer.
