@@ -10,7 +10,7 @@ Require-Bundle: servoy_headless_client,
  servoy_smart_client,
  org.eclipse.dltk.javascript.rhino,
  org.eclipse.core.runtime,
- org.eclipse.swt;bundle-version="3.102.1",
+ org.eclipse.swt,
  servoy_ngclient,
  sablo
 Export-Package: com.servoy.j2db.debug,

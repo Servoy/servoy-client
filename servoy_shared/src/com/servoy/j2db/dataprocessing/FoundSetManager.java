@@ -3305,6 +3305,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				sharedDataSourceFoundSet.remove(uri);
 				application.getDataServer().dropTemporaryTable(application.getClientID(), table.getServerName(), table.getName());
+				getSQLGenerator().removeCache(uri);
 				return true;
 			}
 		}
