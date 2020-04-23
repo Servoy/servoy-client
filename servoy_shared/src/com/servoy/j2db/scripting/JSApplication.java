@@ -87,6 +87,7 @@ import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -3544,6 +3545,21 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	{
 		//only for mobile
 	}
+
+	/**
+	 * Get the uuid from this server instance (the same value that is shown on the admin page)
+	 *
+	 * @sample
+	 * var uuid = application.getServerUUID();
+	 *
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
+	public String getServerUUID()
+	{
+		return ApplicationServerRegistry.get().getServerUUID();
+	}
+
 
 	@Override
 	public String toString()
