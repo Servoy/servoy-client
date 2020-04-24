@@ -433,4 +433,10 @@ final class TestApplicationServer implements IApplicationServerSingleton
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getServerUUID()
+	{
+		return "1";
+	}
 }

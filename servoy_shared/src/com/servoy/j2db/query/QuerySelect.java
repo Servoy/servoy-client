@@ -664,15 +664,16 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			return Optional.of(qColumn);
 		}
 		// find real column in derived table
-		return AbstractBaseQuery.<DerivedTable> searchOne(this, new TypePredicate<>(DerivedTable.class, derivedTable -> derivedTable.getTable() == qTable)) //
-			.map(DerivedTable::getQuery) //
-			.map(QuerySelect::getColumns) //
-			.flatMap(derivedColumns -> derivedColumns.stream() //
-				.filter(Objects::nonNull) //
+		return AbstractBaseQuery.<DerivedTable> searchOne(this, new TypePredicate<>(DerivedTable.class, derivedTable -> derivedTable.getTable() == qTable))
+			.map(DerivedTable::getQuery)
+			.map(QuerySelect::getColumns)
+			.flatMap(derivedColumns -> derivedColumns.stream()
+				.filter(Objects::nonNull)
 				.filter(
-					dtcol -> qColumn.getName().equals(dtcol.getAlias()) || (dtcol.getColumn() != null && qColumn.getName().equals(dtcol.getColumn().getName()))) //
-				.map(IQuerySelectValue::getColumn) //
-				.findAny()) //
+					dtcol -> qColumn.getName().equals(dtcol.getAlias()) || (dtcol.getColumn() != null && qColumn.getName().equals(dtcol.getColumn().getName())))
+				.map(IQuerySelectValue::getColumn)
+				.filter(Objects::nonNull)
+				.findAny())
 			.flatMap(this::getRealColumn); // recursive for nested derived tables
 	}
 

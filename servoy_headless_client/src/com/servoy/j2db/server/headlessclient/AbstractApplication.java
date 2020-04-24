@@ -111,12 +111,19 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public URL getServerURL()
 	{
 		try
 		{
-			return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort()); //$NON-NLS-1$
+			String port = "";
+			int webServerPort = ApplicationServerRegistry.get().getWebServerPort();
+			if (webServerPort > 0)
+			{
+				port = ":" + webServerPort;
+			}
+			return new URL("http://localhost" + port);
 		}
 		catch (MalformedURLException e)
 		{

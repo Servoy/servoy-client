@@ -122,7 +122,7 @@
 					<plugin>
 						<groupId>org.eclipse.tycho.extras</groupId>
 						<artifactId>tycho-eclipserun-plugin</artifactId>
-						<version>${tycho.extra.version}</version>
+						<version>${tycho.version}</version>
 						<configuration>
 							<repositories>
 								<repository>
@@ -234,7 +234,7 @@
 					<plugin>
 						<groupId>org.eclipse.tycho.extras</groupId>
 						<artifactId>tycho-eclipserun-plugin</artifactId>
-						<version>${tycho.extra.version}</version>
+						<version>${tycho.version}</version>
 						<configuration>
 							<repositories>
 								<repository>

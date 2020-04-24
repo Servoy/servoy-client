@@ -731,7 +731,9 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 				} 
 			} 
 		} ).run(function($sabloApplication, $windowService: servoy.IWindowService, $webSocket ,webStorage) {   
-	          if (webStorage.session.has('window0')) {
+			
+			// the window must have a form to show
+	        if (webStorage.session.has('window0') && webStorage.session.get('window0').showForm != undefined) { 
 	        	  	let isConnected = false;
 					// wait until the server is connected
         	  		let interval = setInterval(() => {
@@ -756,7 +758,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 
         	  		}
 	            }
-		});;
+		});
  
 function evalControllerCodeWithoutClosure(controllerCode) {
 	if (controllerCode) {
