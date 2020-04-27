@@ -150,7 +150,11 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	{
 		initDatasourceCache(datasource);
 		ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist.get(datasource);
-		ConcurrentMap<String, ? extends IPersist> persistMap = dsMap.get(persistClass);
+		ConcurrentMap<String, ? extends IPersist> persistMap = null;
+		if (dsMap != null)
+		{
+			persistMap = dsMap.get(persistClass);
+		}
 		if (persistMap == null)
 		{
 			return Collections.emptyMap();
