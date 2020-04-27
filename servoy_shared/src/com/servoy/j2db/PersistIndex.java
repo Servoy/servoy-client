@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.ISupportScope;
 import com.servoy.j2db.persistence.LineNumberComparator;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TableNode;
@@ -54,7 +55,7 @@ import com.servoy.j2db.util.IntHashMap;
  */
 public class PersistIndex implements IItemChangeListener<IPersist>, IPersistIndex
 {
-	private enum EventType
+	protected enum EventType
 	{
 		CREATED, UPDATED, REMOVED
 	}
@@ -99,6 +100,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	@SuppressWarnings("unchecked")
 	public <T extends IPersist> T getPersistByName(String name, Class<T> persistClass)
 	{
+		ConcurrentMap<String, IPersist> classToList = initNameCache(persistClass);
+		T persist = (T)classToList.get(name);
+		return persist;
+	}
+
+	protected ConcurrentMap<String, IPersist> initNameCache(Class< ? extends IPersist> persistClass)
+	{
 		ConcurrentMap<String, IPersist> classToList = nameToPersist.get(persistClass);
 		if (classToList == null)
 		{
@@ -108,7 +116,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				visit((persist) -> {
 					if (persist.getClass() == persistClass)
 					{
-						tmp.put(((ISupportName)persist).getName(), persist);
+						addInNameCache(tmp, persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
@@ -117,8 +125,12 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 			classToList = tmp;
 			nameToPersist.put(persistClass, classToList);
 		}
-		T persist = (T)classToList.get(name);
-		return persist;
+		return classToList;
+	}
+
+	protected void addInNameCache(ConcurrentMap<String, IPersist> cache, IPersist persist)
+	{
+		cache.put(((ISupportName)persist).getName(), persist);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -136,21 +148,37 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	private Map<String, ? extends IPersist> getDatasourceMap(String datasource, Class< ? extends IPersist> persistClass)
 	{
+		initDatasourceCache(datasource);
 		ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist.get(datasource);
-		if (dsMap == null)
+		ConcurrentMap<String, ? extends IPersist> persistMap = dsMap.get(persistClass);
+		if (persistMap == null)
 		{
-			final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> tmp = new ConcurrentHashMap<>(4);
-			final ConcurrentHashMap<String, IPersist> calcCache = new ConcurrentHashMap<String, IPersist>(4);
-			final ConcurrentHashMap<String, IPersist> aggregateCache = new ConcurrentHashMap<String, IPersist>(4);
-			final ConcurrentHashMap<String, IPersist> tableNodeCache = new ConcurrentHashMap<String, IPersist>(4);
-			tmp.put(ScriptCalculation.class, calcCache);
-			tmp.put(TableNode.class, tableNodeCache);
-			tmp.put(AggregateVariable.class, aggregateCache);
+			return Collections.emptyMap();
+		}
+		return persistMap;
+	}
+
+	protected void initDatasourceCache(String datasource)
+	{
+		if ((datasource == null && datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
+		{
 			visit((persist) -> {
 				if (persist instanceof TableNode)
 				{
-					if (((TableNode)persist).getDataSource().equals(datasource))
+					if (((TableNode)persist).getDataSource().equals(datasource) || datasource == null)
 					{
+						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+							.get(((TableNode)persist).getDataSource());
+						if (dsMap == null)
+						{
+							dsMap = new ConcurrentHashMap<>(4);
+							dsMap.put(ScriptCalculation.class, new ConcurrentHashMap<String, IPersist>(4));
+							dsMap.put(TableNode.class, new ConcurrentHashMap<String, IPersist>(4));
+							dsMap.put(AggregateVariable.class, new ConcurrentHashMap<String, IPersist>(4));
+							dsMap.put(ScriptMethod.class, new ConcurrentHashMap<String, IPersist>(4));
+							datasourceToPersist.put(((TableNode)persist).getDataSource(), dsMap);
+						}
+						ConcurrentMap<String, IPersist> tableNodeCache = dsMap.get(TableNode.class);
 						Solution solution = (Solution)((TableNode)persist).getAncestor(IRepository.SOLUTIONS);
 						tableNodeCache.put(solution.getName(), persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL;
@@ -158,24 +186,30 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				}
 				else if (persist instanceof ScriptCalculation)
 				{
-					// only the right tablenode will go deeper so SC or AV are only found for the right TableNode
-					calcCache.put(((ScriptCalculation)persist).getDataProviderID(), persist);
+					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+						.get(((TableNode)persist.getParent()).getDataSource());
+					addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist);
 				}
 				else if (persist instanceof AggregateVariable)
 				{
-					aggregateCache.put(((AggregateVariable)persist).getDataProviderID(), persist);
+					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+						.get(((TableNode)persist.getParent()).getDataSource());
+					addInDatasourceCache(dsMap.get(AggregateVariable.class), persist);
+				}
+				else if (persist instanceof ScriptMethod && persist.getParent() instanceof TableNode)
+				{
+					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+						.get(((TableNode)persist.getParent()).getDataSource());
+					addInDatasourceCache(dsMap.get(ScriptMethod.class), persist);
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
-			dsMap = tmp;
-			datasourceToPersist.put(datasource, dsMap);
 		}
-		ConcurrentMap<String, ? extends IPersist> persistMap = dsMap.get(persistClass);
-		if (persistMap == null)
-		{
-			return Collections.emptyMap();
-		}
-		return persistMap;
+	}
+
+	protected void addInDatasourceCache(ConcurrentMap<String, IPersist> cache, IPersist persist)
+	{
+		cache.put(((ISupportName)persist).getName(), persist);
 	}
 
 	@Override
@@ -241,7 +275,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		return empty.iterator();
 	}
 
-	private Map<String, Map<String, ISupportScope>> getGlobalScopeCache()
+	protected Map<String, Map<String, ISupportScope>> getGlobalScopeCache()
 	{
 		if (scopeCacheByName.isEmpty())
 		{
@@ -259,13 +293,17 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 						Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>(128));
 						if (prev != null) scopeMap = prev;
 					}
-					scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
-
+					addInScopeCache(scopeMap, (ISupportScope)persist);
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
 		}
 		return scopeCacheByName;
+	}
+
+	protected void addInScopeCache(Map<String, ISupportScope> cache, ISupportScope persist)
+	{
+		cache.put(persist.getName(), persist);
 	}
 
 	protected final void createIndex()
@@ -279,7 +317,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	/**
 	 * @param persist
 	 */
-	protected final void putInCache(IPersist persist)
+	protected void putInCache(IPersist persist)
 	{
 		uuidToPersist.put(persist.getUUID().toString(), persist);
 		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
@@ -347,14 +385,14 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		}
 		if (item instanceof ISupportScope)
 		{
-			scopeCacheByName.clear();
+			cleanScopeCache();
 		}
 	}
 
 	/**
 	 * @param item
 	 */
-	protected final void testNameCache(IPersist item, EventType type)
+	protected void testNameCache(IPersist item, EventType type)
 	{
 		if (item instanceof ISupportName)
 		{
@@ -391,9 +429,9 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	 * @param item
 	 * @param created
 	 */
-	protected final void testDatasourceCache(IPersist item)
+	protected void testDatasourceCache(IPersist item)
 	{
-		if (item instanceof ScriptCalculation || item instanceof TableNode || item instanceof AggregateVariable)
+		if (item instanceof TableNode || item.getParent() instanceof TableNode)
 		{
 			// just remove the whole datasource cache
 			String ds = item instanceof TableNode ? ((TableNode)item).getDataSource() : ((TableNode)item.getParent()).getDataSource();
@@ -428,7 +466,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		}
 		if (item instanceof ISupportScope)
 		{
-			scopeCacheByName.clear();
+			cleanScopeCache();
 		}
 	}
 
@@ -455,7 +493,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		testDatasourceCache(item);
 		if (item instanceof ISupportScope)
 		{
-			scopeCacheByName.clear();
+			cleanScopeCache();
 		}
 	}
 
@@ -466,5 +504,10 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		{
 			itemChanged(persist);
 		}
+	}
+
+	protected void cleanScopeCache()
+	{
+		scopeCacheByName.clear();
 	}
 }
