@@ -746,8 +746,6 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
     					let counter = 0;
     					while(webStorage.session.has('window' + counter)) {
     						let window = webStorage.session.get('window' + counter);
-							// server call for getting form's data (send data from server to client)
-        	                $sabloApplication.callService( "$windowService", "touchForm", { name: window.name }, true );
 							// call a couple of methods that will create and display the window
         	                $windowService.create(window.name, window.type);
         	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
