@@ -44,7 +44,7 @@ public class MimeTypes
 		{
 			return null;
 		}
-		byte[] header = new byte[11];
+		byte[] header = new byte[12];
 		System.arraycopy(data, 0, header, 0, Math.min(data.length, header.length));
 		int c1 = header[0] & 0xff;
 		int c2 = header[1] & 0xff;
@@ -57,6 +57,7 @@ public class MimeTypes
 		int c9 = header[8] & 0xff;
 		int c10 = header[9] & 0xff;
 		int c11 = header[10] & 0xff;
+		int c12 = header[11] & 0xff;
 
 		if (c1 == 0xCA && c2 == 0xFE && c3 == 0xBA && c4 == 0xBE)
 		{
@@ -220,12 +221,35 @@ public class MimeTypes
 			// endian
 		}
 
+		if (c1 == 'R' && c2 == 'I' && c3 == 'F' && c4 == 'F' && c9 == 'W' && c10 == 'E' && c11 == 'B' && c12 == 'P')
+		{
+			// https://wiki.fileformat.com/image/webp/
+			return "image/webp";
+		}
+
 		if (c1 == 'R' && c2 == 'I' && c3 == 'F' && c4 == 'F')
 		{
 			/*
 			 * I don't know if this is official but evidence suggests that .wav files start with "RIFF" - brown
 			 */
 			return "audio/x-wav";
+		}
+
+		if ((c5 == 'F' && c6 == 'T' && c7 == 'Y' && c8 == 'P') || (c5 == 'f' && c6 == 't' && c7 == 'y' && c8 == 'p'))
+		{
+			// ISOBMFF format
+			if (c9 == 'H' && c10 == 'E' && c11 == 'I' && c12 == 'C')
+			{
+				return "image/heif";
+			}
+			if (c9 == 'h' && c10 == 'e' && c11 == 'i' && c12 == 'c')
+			{
+				return "image/heif";
+			}
+			if (c9 == 'm' && c10 == 'i' && c11 == 'f')
+			{
+				return "image/heif";
+			}
 		}
 
 		if (c1 == 'P' && c2 == 'K')
