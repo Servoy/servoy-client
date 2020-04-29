@@ -40,6 +40,7 @@ import com.servoy.j2db.util.Utils;
 public class WebFormComponent extends Container implements IContextProvider, INGWebObjectContext
 {
 	public static final String TAG_SCOPE = "scope";
+	private static final String MARKUP_PROPERTY_ID = "svyMarkupId";
 
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
 	private FormElement formElement;
@@ -57,7 +58,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 
-		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
+		properties.put(MARKUP_PROPERTY_ID, ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
 	}
 
 	public FormElement getFormElement()
@@ -383,4 +384,9 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		return defaultPropertyValue;
 	}
 
+	@Override
+	public boolean isVisible(String property)
+	{
+		return MARKUP_PROPERTY_ID.equals(property) || super.isVisible(property);
+	}
 }

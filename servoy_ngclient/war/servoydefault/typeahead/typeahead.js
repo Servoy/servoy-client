@@ -154,7 +154,15 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 								}	
 								// if the dataproviderid was null and we are in real|display then reset the value to ""
 								else if($scope.model.dataProviderID == null) {
-									$scope.value = "";
+									if ($scope.value !== "")
+									{
+										$scope.value = "";
+									}
+									else
+									{
+										// do not push, is not changed, maybe null is not allowed
+										return;
+									}	
 								}
 							}
 							else

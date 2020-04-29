@@ -22,17 +22,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.sablo.WebComponent;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -122,6 +125,25 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 					{
 						fe = cachedFE;
 						break;
+					}
+				}
+				if (fe == null)
+				{
+					Form parentForm = (Form)((IFormElement)obj).getAncestor(IRepository.FORMS);
+					if (parentForm != null && parentForm.isFormComponent())
+					{
+						for (WebComponent webComponent : formUI.getAllComponents())
+						{
+							if (webComponent instanceof WebFormComponent)
+							{
+								FormElement cachedFE = ((WebFormComponent)webComponent).getFormElement();
+								if (Utils.equalObjects(cachedFE.getPersistIfAvailable(), obj))
+								{
+									fe = cachedFE;
+									break;
+								}
+							}
+						}
 					}
 				}
 			}
