@@ -176,6 +176,12 @@ public class EventExecutor
 							}
 						}
 					}
+
+					if (json.has("data"))
+					{
+						event.setData(json.get("data"));
+					}
+
 					try
 					{
 						event.setTimestamp(new Timestamp(json.getLong("timestamp")));
