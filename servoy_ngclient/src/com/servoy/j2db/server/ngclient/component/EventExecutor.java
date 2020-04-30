@@ -230,7 +230,7 @@ public class EventExecutor
 							Object value = instanceMethodArguments.get(i);
 							if (value != null && value != JSONObject.NULL)
 							{
-								newargs[i] = value;
+								newargs[i] = Utils.parseJSExpression(value);
 							}
 						}
 					}
