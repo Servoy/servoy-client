@@ -35,9 +35,9 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Scope for datasources.db.myserver.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 7.4
  *
  */
@@ -85,10 +85,10 @@ public class DBDataSourceServer extends DefaultJavaScope
 
 	/**
 	 * Get the server name.
-	 * 
+	 *
 	 * @sample
-	 * datasources.db.example_data.getServerName() // returns 'example_data' 
-	 * 
+	 * datasources.db.example_data.getServerName() // returns 'example_data'
+	 *
 	 * @return String server name
 	 */
 	@JSFunction
@@ -98,41 +98,38 @@ public class DBDataSourceServer extends DefaultJavaScope
 	}
 
 	/**
-	 * Get server table names.
+	 * Returns an array with the names of all tables of this server.
 	 *
 	 * @sample
 	 * datasources.db.example_data.getTableNames()
 	 *
-	 * @return List<String> server  table names;
+	 * @return String[] server table names;
 	 */
 	@JSFunction
-	public List<String> getTableNames()
+	public String[] getTableNames()
 	{
 		try
 		{
 			IServerInternal server = (IServerInternal)application.getRepository().getServer(serverName);
 			if (server != null)
 			{
-				return server.getTableNames(false);
+				List<String> tableNames = server.getTableNames(false);
+				return tableNames != null ? tableNames.toArray(new String[tableNames.size()]) : new String[] { };
 			}
 		}
-		catch (RemoteException e)
+		catch (RemoteException | RepositoryException e)
 		{
 			Debug.error(e);
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return null;
+		return new String[] { };
 	}
 
 	/**
 	 * Get the server where this server is a data model clone from.
-	 * 
+	 *
 	 * @sample
 	 * datasources.db.example_data99.getDataModelCloneFrom().getServerName()
-	 * 
+	 *
 	 * @return DBDataSourceServer server
 	 */
 	@JSFunction

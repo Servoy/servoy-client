@@ -176,6 +176,12 @@ public class EventExecutor
 							}
 						}
 					}
+
+					if (json.has("data"))
+					{
+						event.setData(json.get("data"));
+					}
+
 					try
 					{
 						event.setTimestamp(new Timestamp(json.getLong("timestamp")));
@@ -224,7 +230,7 @@ public class EventExecutor
 							Object value = instanceMethodArguments.get(i);
 							if (value != null && value != JSONObject.NULL)
 							{
-								newargs[i] = value;
+								newargs[i] = Utils.parseJSExpression(value);
 							}
 						}
 					}
