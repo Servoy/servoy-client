@@ -604,6 +604,30 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.ValueList#getLazyLoading()
+	 *
+	 * @sample
+	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
+	 * vlist.dataSource = 'db:/example_data/valuelists';
+	 * vlist.setDisplayDataProviderIds('valuelist_data');
+	 * vlist.setReturnDataProviderIds('valuelist_data');
+	 * vlist.lazyLoading = true;
+	 * vlist.name = 'two';
+	 */
+	@JSGetter
+	public boolean getLazyLoading()
+	{
+		return valuelist.getLazyLoading();
+	}
+
+	@JSSetter
+	public void setLazyLoading(boolean arg)
+	{
+		checkModification();
+		valuelist.setLazyLoading(arg);
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getValueListType()
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
