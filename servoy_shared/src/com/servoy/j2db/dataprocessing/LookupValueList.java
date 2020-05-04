@@ -79,12 +79,14 @@ public class LookupValueList implements IValueList
 	private final String displayFormat;
 	protected final int maxValuelistRows;
 
-	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback, String displayFormat) throws Exception
+	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback, String displayFormat, IRecordInternal parentState)
+		throws Exception
 	{
 		this.valueList = list;
 		this.application = application;
 		this.secondLookup = fallback;
 		this.displayFormat = displayFormat;
+		this.parentState = parentState;
 
 		String dataSource = null;
 		Relation[] relations = null;
@@ -130,6 +132,11 @@ public class LookupValueList implements IValueList
 				}
 			}
 		}
+	}
+
+	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback, String displayFormat) throws Exception
+	{
+		this(list, application, fallback, displayFormat, null);
 	}
 
 	public void setFallbackValueList(IValueList list)

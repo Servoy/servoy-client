@@ -346,6 +346,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 			case "getValuelistDisplayValue" :
 			{
+				String formName = args.optString("formName", null);
 				Object realValue = args.get("realValue");
 				Object valuelistID = args.get("valuelist");
 				int id = Utils.getAsInteger(valuelistID);
@@ -367,8 +368,15 @@ public class NGFormServiceHandler extends FormServiceHandler
 					}
 					if (realValueList instanceof DBValueList)
 					{
+						IRecordInternal formRecord = null;
+						if (formName != null)
+						{
+							IWebFormUI form = getApplication().getFormManager().getForm(formName).getFormUI();
+							formRecord = form.getDataAdapterList().getRecord();
+						}
+
 						LookupValueList lookup = new LookupValueList(val, getApplication(),
-							ComponentFactory.getFallbackValueList(getApplication(), null, Types.OTHER, null, val), null);
+							ComponentFactory.getFallbackValueList(getApplication(), null, Types.OTHER, null, val), null, formRecord);
 						Object displayValue = null;
 						if (lookup.realValueIndexOf(realValue) != -1)
 						{

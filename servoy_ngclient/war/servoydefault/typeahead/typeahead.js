@@ -44,7 +44,17 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				lastSetterFunction = new SetterFunction()
 				return lastSetterFunction.setter;
 			}
-            
+			
+			function getParentFormName() {
+				var parentForm = $scope.$parent;
+
+				while(parentForm && !parentForm.hasOwnProperty('formname')) {
+					parentForm = parentForm.$parent;
+				}
+
+				return parentForm ? parentForm['formname'] : null;
+			}
+
 			$scope.onClick = function(event){
 				if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
 				{
@@ -83,7 +93,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				if(hasRealValues == undefined) {
 					if (angular.isDefined($scope.model.valuelistID)) 
 					{
-						$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(getSetterFunction());
+						$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID, getParentFormName()).then(getSetterFunction());
 					}
 				}
 				else if (!hasRealValues)
@@ -108,7 +118,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						$scope.value = null;
 						if (angular.isDefined($scope.model.valuelistID)) 
 						{
-							$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(getSetterFunction());
+							$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID, getParentFormName()).then(getSetterFunction());
 						}
 					}	
 				}	 
@@ -150,7 +160,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 								if ($scope.model.dataProviderID != null && $scope.model.dataProviderID !== $scope.value)
 								{
 									// so invalid thing is typed in the list and we are in real/display values, try to search the real value again to set the display value back.
-									$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID).then(getSetterFunction());
+									$scope.model.valuelistID.getDisplayValue($scope.model.dataProviderID, getParentFormName()).then(getSetterFunction());
 								}	
 								// if the dataproviderid was null and we are in real|display then reset the value to ""
 								else if($scope.model.dataProviderID == null) {
