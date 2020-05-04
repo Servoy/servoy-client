@@ -93,6 +93,7 @@ import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
 import com.servoy.j2db.util.Pair;
@@ -933,11 +934,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				String userAgent = ((JSONObject)retValue).optString("userAgent");
 				if (userAgent != null)
 				{
-					if (userAgent.indexOf("NT 6.1") != -1) return "Windows 7";
-					if (userAgent.indexOf("NT 6.0") != -1) return "Windows Vista";
-					if (userAgent.indexOf("NT 5.1") != -1 || userAgent.indexOf("Windows XP") != -1) return "Windows XP";
-					if (userAgent.indexOf("Linux") != -1) return "Linux";
-					if (userAgent.indexOf("Mac") != -1) return "Mac OS";
+					return HtmlUtils
+						.getOSName("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1");
 				}
 				String platform = ((JSONObject)retValue).optString("platform");
 				if (platform != null) return platform;
