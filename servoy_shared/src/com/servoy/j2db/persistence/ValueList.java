@@ -506,26 +506,6 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * A property special for NGClient and GlobalValuelist to only query the global valuelist when it is needed.
-	 * This flag has to be set both on valuelist and in component spec, on the valuelist property.
-	 */
-	public boolean getLazyLoading()
-	{
-		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING });
-		return Utils.getAsBoolean(customProperty);
-	}
-
-	/**
-	 * Sets the lazyLoading.
-	 *
-	 * @param lazyLoading The lazyLoading to set
-	 */
-	public void setLazyLoading(boolean arg)
-	{
-		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING }, Boolean.valueOf(arg));
-	}
-
-	/**
 	 * Flag that tells if the name of the valuelist should be applied as a filter on the
 	 * 'valuelist_name' column when retrieving the data from the database.
 	 */
@@ -627,5 +607,30 @@ public class ValueList extends AbstractBase
 	public int getRealValueType()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELIST_REALVALUE_TYPE).intValue();
+	}
+
+	/**
+	 * A property special for NGClient and GlobalValuelist to only query the global valuelist when it is needed.
+	 * This flag has to be set both on valuelist and in component spec, on the valuelist property.
+	 *
+	 * IMPORTANT: Usage of real & display values is not fully supported with lazy loading. Don't set lazy load if your method returns both real and display values
+	 * This is because very likely we do need directly the display value for the given real to dispaly its value..
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	public boolean getLazyLoading()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING });
+		return Utils.getAsBoolean(customProperty);
+	}
+
+	/**
+	 * Sets the lazyLoading.
+	 *
+	 * @param lazyLoading The lazyLoading to set
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	public void setLazyLoading(boolean arg)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING }, Boolean.valueOf(arg));
 	}
 }
