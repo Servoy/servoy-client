@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
@@ -71,7 +72,6 @@ import com.servoy.j2db.server.ngclient.template.JSTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -396,7 +396,7 @@ public class NGClientEntryFilter extends WebEntry
 
 		String userAgentHeader = request.getHeader("user-agent");
 
-		if (!HtmlUtils.supportsContentSecurityPolicyLevel3(userAgentHeader))
+		if (!HCUtils.supportsContentSecurityPolicyLevel3(userAgentHeader))
 		{
 			if (Debug.tracing())
 			{

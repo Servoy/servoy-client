@@ -16,14 +16,7 @@
  */
 package com.servoy.j2db.util;
 
-import static java.lang.Integer.parseInt;
-
-import java.io.IOException;
 import java.util.StringTokenizer;
-
-import ua_parser.OS;
-import ua_parser.Parser;
-import ua_parser.UserAgent;
 
 
 public class HtmlUtils
@@ -38,21 +31,6 @@ public class HtmlUtils
 	public static final String[] alignNotSupportedTags = { "<b", "<u", "<i", "<br", "<hr", "<html", "<head", "<menu", "<sub", "<sup", "<style", "<button", "<a", "<center", "<blockquote", "<img", "<font", "<applet", "<bdo", "<big", "<button", "<abbr", "<area", "<!--", "<xmp", "<dir", "<script", "<meta" };
 	@SuppressWarnings("nls")
 	public static final String[] specialCaseTags = { "table", "tr", "td", "p", "div", "title", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li" };
-
-	private static final Parser USER_AGENT_PARSER;
-
-	static
-	{
-		try
-		{
-			USER_AGENT_PARSER = new Parser();
-		}
-		catch (IOException e)
-		{
-			// should not happen, default config should always be found
-			throw new RuntimeException(e);
-		}
-	}
 
 	public static boolean startsWithHtml(Object object)
 	{
@@ -601,65 +579,4 @@ public class HtmlUtils
 		}
 
 	}
-
-	public static String getOSName(String userAgent)
-	{
-		if (userAgent != null)
-		{
-			OS os = USER_AGENT_PARSER
-				.parseOS(userAgent);
-			String osName = os.family;
-			if (os.major != null)
-			{
-				osName += " " + os.major;
-				if (os.minor != null && !os.minor.equals("0"))
-				{
-					osName += "." + os.minor;
-				}
-			}
-			return osName;
-		}
-		return null;
-	}
-
-	/** Does the CSP level 3, specifically strict-dynamic.
-	 *
-	 * @see <a href="https://caniuse.com/#feat=mdn-http_headers_csp_content-security-policy_strict-dynamic">caniuse.com</a>
-	 */
-	public static boolean supportsContentSecurityPolicyLevel3(String userAgentHeader)
-	{
-		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
-		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && parseInt(userAgent.major) >= 52)
-		{
-			return true;
-		}
-		if ("Firefox".equals(userAgent.family) && parseInt(userAgent.major) >= 52)
-		{
-			return true;
-		}
-		if ("Edge".equals(userAgent.family) && parseInt(userAgent.major) >= 74) // Chromium-based
-		{
-			return true;
-		}
-		if ("Opera".equals(userAgent.family) && parseInt(userAgent.major) >= 39)
-		{
-			return true;
-		}
-		if ("Chrome Mobile WebView".equals(userAgent.family) && parseInt(userAgent.major) >= 76)
-		{
-			return true;
-		}
-		if ("Opera Mini".equals(userAgent.family) && parseInt(userAgent.major) >= 46)
-		{
-			return true;
-		}
-		if ("Samsung Internet".equals(userAgent.family) &&
-			(parseInt(userAgent.major) > 6 || (parseInt(userAgent.major) == 6 && parseInt(userAgent.minor) >= 2)))
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 }

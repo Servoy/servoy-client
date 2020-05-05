@@ -17,6 +17,10 @@
 
 package com.servoy.j2db.server.headlessclient.util;
 
+import static java.lang.Integer.parseInt;
+
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.jsoup.Jsoup;
@@ -27,6 +31,10 @@ import org.jsoup.safety.Whitelist;
 
 import com.servoy.j2db.util.HtmlUtils;
 
+import ua_parser.OS;
+import ua_parser.Parser;
+import ua_parser.UserAgent;
+
 /**
  * @author rgansevles
  *
@@ -35,26 +43,42 @@ import com.servoy.j2db.util.HtmlUtils;
 public class HCUtils
 {
 	private static String[] ALL_TAGS = new String[] { "a", "b", "blockquote", "br", "caption", "cite", "code", "col", "colgroup", //
-	"dd", "div", "dl", "dt", "em", "h1", "h2", "h3", "h4", "h5", "h6", "i", "img", "li", "ol", "p", "pre", "q", "small", "span", //
-	"strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "u", "ul" };
+		"dd", "div", "dl", "dt", "em", "h1", "h2", "h3", "h4", "h5", "h6", "i", "img", "li", "ol", "p", "pre", "q", "small", "span", //
+		"strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "u", "ul" };
 
 	private static final Whitelist WHITELIST;
 
 	static
 	{
 		WHITELIST = Whitelist.relaxed() //
-		.preserveRelativeLinks(true) //
-		.addTags("html", "head", "body", "style") //
-		.addAttributes("style", "type") //
-		.addAttributes("table", "border") //
-		.addProtocols("a", "href", "javascript") //
-		.addProtocols("img", "src", "media") //
+			.preserveRelativeLinks(true) //
+			.addTags("html", "head", "body", "style") //
+			.addAttributes("style", "type") //
+			.addAttributes("table", "border") //
+			.addProtocols("a", "href", "javascript") //
+			.addProtocols("img", "src", "media") //
 		;
 		for (String tag : ALL_TAGS)
 		{
 			WHITELIST.addAttributes(tag, "class", "style", "align");
 		}
 	}
+
+	private static final Parser USER_AGENT_PARSER;
+
+	static
+	{
+		try
+		{
+			USER_AGENT_PARSER = new Parser();
+		}
+		catch (IOException e)
+		{
+			// should not happen, default config should always be found
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	/**
 	 * Sanitize html against XSS attacks.
@@ -168,5 +192,65 @@ public class HCUtils
 		}
 
 		return url;
+	}
+
+	public static String getOSName(String userAgent)
+	{
+		if (userAgent != null)
+		{
+			OS os = USER_AGENT_PARSER
+				.parseOS(userAgent);
+			String osName = os.family;
+			if (os.major != null)
+			{
+				osName += " " + os.major;
+				if (os.minor != null && !os.minor.equals("0"))
+				{
+					osName += "." + os.minor;
+				}
+			}
+			return osName;
+		}
+		return null;
+	}
+
+	/** Does the CSP level 3, specifically strict-dynamic.
+	 *
+	 * @see <a href="https://caniuse.com/#feat=mdn-http_headers_csp_content-security-policy_strict-dynamic">caniuse.com</a>
+	 */
+	public static boolean supportsContentSecurityPolicyLevel3(String userAgentHeader)
+	{
+		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
+		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && parseInt(userAgent.major) >= 52)
+		{
+			return true;
+		}
+		if ("Firefox".equals(userAgent.family) && parseInt(userAgent.major) >= 52)
+		{
+			return true;
+		}
+		if ("Edge".equals(userAgent.family) && parseInt(userAgent.major) >= 74) // Chromium-based
+		{
+			return true;
+		}
+		if ("Opera".equals(userAgent.family) && parseInt(userAgent.major) >= 39)
+		{
+			return true;
+		}
+		if ("Chrome Mobile WebView".equals(userAgent.family) && parseInt(userAgent.major) >= 76)
+		{
+			return true;
+		}
+		if ("Opera Mini".equals(userAgent.family) && parseInt(userAgent.major) >= 46)
+		{
+			return true;
+		}
+		if ("Samsung Internet".equals(userAgent.family) &&
+			(parseInt(userAgent.major) > 6 || (parseInt(userAgent.major) == 6 && parseInt(userAgent.minor) >= 2)))
+		{
+			return true;
+		}
+
+		return false;
 	}
 }

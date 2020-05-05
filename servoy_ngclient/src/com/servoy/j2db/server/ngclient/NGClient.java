@@ -78,6 +78,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
@@ -93,7 +94,6 @@ import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
 import com.servoy.j2db.util.Pair;
@@ -934,8 +934,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				String userAgent = ((JSONObject)retValue).optString("userAgent");
 				if (userAgent != null)
 				{
-					return HtmlUtils
-						.getOSName("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1");
+					return HCUtils
+						.getOSName(userAgent);
 				}
 				String platform = ((JSONObject)retValue).optString("platform");
 				if (platform != null) return platform;
