@@ -69,6 +69,18 @@ public class GlobalScope extends ScriptVariableScope
 		this.application = application;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.DefaultScope#getClassName()
+	 */
+	@Override
+	public String getClassName()
+	{
+		if (application == null) return "DestroyedScope_" + scopeName;
+		return "Scope_" + scopeName;
+	}
+
 	@Override
 	public String getScopeName()
 	{
@@ -242,6 +254,6 @@ public class GlobalScope extends ScriptVariableScope
 	@Override
 	public String toString()
 	{
-		return "GlobalScope[name:" + scopeName + ", values:" + allVars + ']';
+		return "GlobalScope[name:" + scopeName + ",,destroyed:" + (application == null) + " values:" + allVars + ']';
 	}
 }
