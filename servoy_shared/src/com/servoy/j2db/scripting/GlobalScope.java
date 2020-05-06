@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 
@@ -176,6 +178,22 @@ public class GlobalScope extends ScriptVariableScope
 				Debug.error(e);
 			}
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
+		}
+		if ("__noSuchMethod__".equals(name))
+		{
+			return new Callable()
+			{
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					String message = "Trying to call method '" + args[0] + "' on scope: '" + scopeName +
+						"' but it is not found in the runtime compiled functions: " +
+						getDefaultValue(String.class) + ", trying to find the persist for that scope/name: " +
+						application.getFlattenedSolution().getScriptMethod(scopeName, (String)args[0]);
+					Debug.error(message);
+					throw new RuntimeException(
+						message);
+				}
+			};
 		}
 
 		Object o = super.get(name, start);
