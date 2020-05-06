@@ -73,6 +73,13 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	}
 
 	@Override
+	public String getClassName()
+	{
+		if (_fp == null) return "DestroyedFormScope_" + formName;
+		return "FormScope_" + formName;
+	}
+
+	@Override
 	public String getScopeName()
 	{
 		return _fp.getName();
