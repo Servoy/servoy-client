@@ -745,10 +745,6 @@ public abstract class AbstractBase implements IPersist
 			AbstractBase abstractBase = (AbstractBase)obj;
 			if (abstractBase.getUUID().equals(uuid))
 			{
-				if (getParent() != null && abstractBase.getParent() != null)
-				{
-					return getParent().equals(abstractBase.getParent());
-				}
 				return true;
 			}
 		}

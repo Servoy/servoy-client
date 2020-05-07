@@ -624,25 +624,20 @@ public class NGClientEntryFilter extends WebEntry
 
 	private boolean handleDeeplink(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		String uri = request.getRequestURI();
-		String ctx = request.getContextPath();
-		String contextPathWithSolutionPath = ctx + SOLUTIONS_PATH;
-		if (uri != null && uri.startsWith(contextPathWithSolutionPath) //
-			&& !uri.contains("index.html") && getMainJs(uri) == null)
+		String url = request.getRequestURL().toString();
+		int index = url.indexOf(SOLUTIONS_PATH);
+		if (index >= 0 && getMainJs(url) == null)
 		{
-			StringBuffer url = request.getRequestURL();
-			String base = url.substring(0, url.length() - uri.length() + ctx.length());
-
-			String solutionName = uri.substring(contextPathWithSolutionPath.length());
-			if (solutionName.length() > 0)
+			String solutionAndRest = url.substring(index + SOLUTIONS_PATH.length());
+			int solutionEnd = solutionAndRest.indexOf('/');
+			String rest = solutionAndRest.substring(solutionEnd + 1);
+			if (rest.indexOf('/') != -1)
 			{
-				StringBuffer redirectUrl = new StringBuffer(base);
-				String queryString = request.getQueryString();
-				redirectUrl.append(contextPathWithSolutionPath);
-				redirectUrl.append(solutionName.split("/")[0]);
-
-				String[] args = url.toString().replace(redirectUrl.toString() + "/", "").split("/");
+				// it has deeplinks, need to rewrite url.
+				StringBuffer redirectUrl = new StringBuffer(url.subSequence(0, index + SOLUTIONS_PATH.length() + solutionEnd));
 				redirectUrl.append("/index.html");
+				String queryString = request.getQueryString();
+				String[] args = rest.split("/");
 
 				if (args.length != 0 || queryString != null)
 				{
@@ -664,7 +659,6 @@ public class NGClientEntryFilter extends WebEntry
 				}
 			}
 		}
-
 		return false;
 	}
 
