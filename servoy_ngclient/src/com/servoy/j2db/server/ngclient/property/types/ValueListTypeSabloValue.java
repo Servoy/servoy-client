@@ -581,6 +581,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	 */
 	public void filterValuelist(JSONObject newJSONValue)
 	{
+		Debug.warn("RF filterValuelist " + newJSONValue + " " + initialized);
 		if (!initialized)
 		{
 			Debug.warn("Trying to send to client an uninitialized valuelist property: " + vlPD + " of " + webObjectContext);
@@ -660,6 +661,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				// do mark it as changed but don't notify yet (false arg) because fill below will probably trigger listener above and notify anyway; that would mean that although
 				// we do call notify after fill that is likely to end up in a NO_OP changesToJSON in case of foundset-linked valuelist properties
 				changeMonitor.markFullyChanged(false);
+				Debug.warn("RF filteredValuelist.fill");
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 
