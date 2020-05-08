@@ -38,7 +38,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 }).value("$clientPropertyConstants", {
 	WINDOW_BRANDING_ICON_32 : "window.branding.icon.32",
 	WINDOW_BRANDING_ICON_192 : "window.branding.icon.192"
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication) {
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -129,6 +129,51 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		if (attrValue) {
 			return correctScope.$eval(attrValue);
 		}
+	};
+
+	function getI18NCalendarMessages( datePicker ) 
+	{
+		var tooltips = datePicker.tooltips();
+		var x = $svyI18NService.getI18NMessages( "servoy.datetimepicker.today", "servoy.datetimepicker.clear", "servoy.datetimepicker.close",
+			"servoy.datetimepicker.selectmonth", "servoy.datetimepicker.prevmonth", "servoy.datetimepicker.nextmonth",
+			"servoy.datetimepicker.selectyear", "servoy.datetimepicker.prevyear", "servoy.datetimepicker.nextyear",
+			"servoy.datetimepicker.selectdecade", "servoy.datetimepicker.prevdecade", "servoy.datetimepicker.nextdecade",
+			"servoy.datetimepicker.prevcentury", "servoy.datetimepicker.nextcentury",
+			"servoy.datetimepicker.pickhour", "servoy.datetimepicker.incrementhour", "servoy.datetimepicker.decrementhour",
+			"servoy.datetimepicker.pickminute", "servoy.datetimepicker.incrementminute", "servoy.datetimepicker.decrementminute",
+			"servoy.datetimepicker.picksecond", "servoy.datetimepicker.incrementsecond", "servoy.datetimepicker.decrementsecond",
+			"servoy.datetimepicker.toggleperiod", "servoy.datetimepicker.selecttime" );
+
+		x.then( function( result ) 
+		{
+			if ( result["servoy.datetimepicker.today"] != "!servoy.datetimepicker.today!" ) tooltips.today = result["servoy.datetimepicker.today"];
+			if ( result["servoy.datetimepicker.clear"] != "!servoy.datetimepicker.clear!" ) tooltips.clear = result["servoy.datetimepicker.clear"];
+			if ( result["servoy.datetimepicker.close"] != "!servoy.datetimepicker.close!" ) tooltips.close = result["servoy.datetimepicker.close"];
+			if ( result["servoy.datetimepicker.selectmonth"] != "!servoy.datetimepicker.selectmonth!" ) tooltips.selectMonth = result["servoy.datetimepicker.selectmonth"];
+			if ( result["servoy.datetimepicker.prevmonth"] != "!servoy.datetimepicker.prevmonth!" ) tooltips.prevMonth = result["servoy.datetimepicker.prevmonth"];
+			if ( result["servoy.datetimepicker.nextmonth"] != "!servoy.datetimepicker.nextmonth!" ) tooltips.nextMonth = result["servoy.datetimepicker.nextmonth"];
+			if ( result["servoy.datetimepicker.selectyear"] != "!servoy.datetimepicker.selectyear!" ) tooltips.selectYear = result["servoy.datetimepicker.selectyear"];
+			if ( result["servoy.datetimepicker.prevyear"] != "!servoy.datetimepicker.prevyear!" ) tooltips.prevYear = result["servoy.datetimepicker.prevyear"];
+			if ( result["servoy.datetimepicker.nextyear"] != "!servoy.datetimepicker.nextyear!" ) tooltips.nextYear = result["servoy.datetimepicker.nextyear"];
+			if ( result["servoy.datetimepicker.selectdecade"] != "!servoy.datetimepicker.selectdecade!" ) tooltips.selectDecade = result["servoy.datetimepicker.selectdecade"];
+			if ( result["servoy.datetimepicker.prevdecade"] != "!servoy.datetimepicker.prevdecade!" ) tooltips.prevDecade = result["servoy.datetimepicker.prevdecade"];
+			if ( result["servoy.datetimepicker.nextdecade"] != "!servoy.datetimepicker.nextdecade!" ) tooltips.nextDecade = result["servoy.datetimepicker.nextdecade"];
+			if ( result["servoy.datetimepicker.prevcentury"] != "!servoy.datetimepicker.prevcentury!" ) tooltips.prevCentury = result["servoy.datetimepicker.prevcentury"];
+			if ( result["servoy.datetimepicker.nextcentury"] != "!servoy.datetimepicker.nextcentury!" ) tooltips.nextCentury = result["servoy.datetimepicker.nextcentury"];
+			if ( result["servoy.datetimepicker.pickhour"] != "!servoy.datetimepicker.pickhour!" ) tooltips.pickHour = result["servoy.datetimepicker.pickhour"];
+			if ( result["servoy.datetimepicker.incrementhour"] != "!servoy.datetimepicker.incrementhour!" ) tooltips.incrementHour = result["servoy.datetimepicker.incrementhour"];
+			if ( result["servoy.datetimepicker.decrementhour"] != "!servoy.datetimepicker.decrementhour!" ) tooltips.decrementHour = result["servoy.datetimepicker.decrementhour"];
+			if ( result["servoy.datetimepicker.pickminute"] != "!servoy.datetimepicker.pickminute!" ) tooltips.pickMinute = result["servoy.datetimepicker.pickminute"];
+			if ( result["servoy.datetimepicker.incrementminute"] != "!servoy.datetimepicker.incrementminute!" ) tooltips.incrementMinute = result["servoy.datetimepicker.incrementminute"];
+			if ( result["servoy.datetimepicker.decrementminute"] != "!servoy.datetimepicker.decrementminute!" ) tooltips.decrementMinute = result["servoy.datetimepicker.decrementminute"];
+			if ( result["servoy.datetimepicker.picksecond"] != "!servoy.datetimepicker.picksecond!" ) tooltips.pickSecond = result["servoy.datetimepicker.picksecond"];
+			if ( result["servoy.datetimepicker.incrementsecond"] != "!servoy.datetimepicker.incrementsecond!" ) tooltips.incrementSecond = result["servoy.datetimepicker.incrementsecond"];
+			if ( result["servoy.datetimepicker.decrementsecond"] != "!servoy.datetimepicker.decrementsecond!" ) tooltips.decrementSecond = result["servoy.datetimepicker.decrementsecond"];
+			if ( result["servoy.datetimepicker.toggleperiod"] != "!servoy.datetimepicker.toggleperiod!" ) tooltips.togglePeriod = result["servoy.datetimepicker.toggleperiod"];
+			if ( result["servoy.datetimepicker.selecttime"] != "!servoy.datetimepicker.selecttime!" ) tooltips.selectTime = result["servoy.datetimepicker.selecttime"];
+			datePicker.tooltips( tooltips );
+
+		} )
 	};
 	
 	return <servoy.IUtils> {
@@ -297,7 +342,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
         generateServiceUploadUrl: function(serviceName, apiFunctionName){
         	// svy_services should be in sync with MediaResourceServlet.SERVICE_UPLOAD
             return "resources/upload/" + $sabloApplication.getClientnr() + "/svy_services/" + serviceName + "/" + apiFunctionName;
-        }
+        },
+        
+		getI18NCalendarMessages: function( datePicker: object ) 
+		{
+			return getI18NCalendarMessages( datePicker );
+		}
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
 	return <servoy.IServoyProperties> {
