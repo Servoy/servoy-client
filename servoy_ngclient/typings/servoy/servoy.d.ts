@@ -135,7 +135,8 @@ declare namespace servoy {
 		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
 		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string),
 		generateUploadUrl(formname:string,beanname:string,propertyName: string),
-		generateServiceUploadUrl(serviceName:string,apiFunctionName: string)
+		generateServiceUploadUrl(serviceName:string,apiFunctionName: string),
+		getI18NCalendarMessages(datePicker:object)
 	}
 	
 	interface IServoyScope extends angular.IScope {
