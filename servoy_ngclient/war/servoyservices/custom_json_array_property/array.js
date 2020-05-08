@@ -49,10 +49,8 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 				internalState.changeNotifier = changeNotifier; 
 			}
 			internalState.isChanged = function() {
-				console.log("RF array isChanged " + JSON.stringify(internalState));
 				var hasChanges = internalState.allChanged;
 				if (!hasChanges) for (var x in internalState.changedIndexes) { hasChanges = true; break; }
-				console.log("RF array hasChanges " + hasChanges);
 				return hasChanges;
 			}
 
@@ -61,7 +59,6 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			internalState.arrayStructureUnwatch = null;
 			internalState.conversionInfo = [];
 			internalState.changedIndexes = {};
-			console.log("RF array initializenewvalue allChanged = false");
 			internalState.allChanged = false;
 		} // else don't reinitilize it - it's already initialized
 	}
@@ -267,7 +264,6 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 			var internalState;
 			if (newClientData && (internalState = newClientData[$sabloConverters.INTERNAL_IMPL])) {
-				console.log("RF arrays fromclienttoserver " + JSON.stringify(newClientData) + " " + JSON.stringify(oldClientData))
 				if (internalState.isChanged()) {
 					var changes = {};
 					changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
@@ -281,7 +277,6 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 							if (internalState.conversionInfo[idx]) toBeSentArray[idx] = $sabloConverters.convertFromClientToServer(val, internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
 							else toBeSentArray[idx] = $sabloUtils.convertClientObject(val);
 						}
-						console.log("RF array fromclientroserver allChanged = false");
 						internalState.allChanged = false;
 						internalState.changedIndexes = {};
 						return changes;
@@ -319,7 +314,6 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 								changedElements.push(ch);
 							}
 						}
-						console.log("RF array initializenewvalue 2 allChanged = false");
 						internalState.allChanged = false;
 						internalState.changedIndexes = {};
 						return changes;
