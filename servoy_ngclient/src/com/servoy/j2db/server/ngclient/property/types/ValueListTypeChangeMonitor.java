@@ -19,8 +19,6 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.IChangeListener;
 
-import com.servoy.j2db.util.Debug;
-
 /**
  * @author acostescu
  */
@@ -51,7 +49,6 @@ public class ValueListTypeChangeMonitor
 
 	public void notifyOfChange()
 	{
-		Debug.warn("RF valuelisttypechangemonitor " + changed + " " + changeNotifier);
 		if (changed && changeNotifier != null) changeNotifier.valueChanged();
 	}
 

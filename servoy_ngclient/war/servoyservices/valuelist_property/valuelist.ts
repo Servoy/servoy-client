@@ -12,7 +12,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 	$sabloConverters.registerCustomPropertyHandler('valuelist', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			var newValue;
-			console.log("RF valuelist fromservertoclient " + JSON.stringify(serverJSONValue));
 			if (serverJSONValue) {
 				newValue = serverJSONValue.values;
 				var internalState;
@@ -38,7 +37,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 							internalState.filterStringReq[ID_KEY] = $sabloDeferHelper.getNewDeferId(internalState);
 							var promise = internalState.deferred[internalState.filterStringReq[ID_KEY]].defer.promise;
 							
-							console.log("RF valuelist.filterList changeNotifier" + internalState.changeNotifier);
 							if (internalState.changeNotifier) internalState.changeNotifier();
 							
 							return promise;
@@ -92,7 +90,6 @@ angular.module('valuelist_property', ['webSocketModule'])
 					var handledIDAndState = serverJSONValue[HANDLED]; // { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
 				
 					var defer = $sabloDeferHelper.retrieveDeferForHandling(handledIDAndState[ID_KEY], internalState);
-					console.log("RF valuelist resolve defer " + defer + " " + JSON.stringify(handledIDAndState))
 					if (defer) {
 						if (handledIDAndState[VALUE_KEY]) defer.resolve(newValue);
 						else defer.reject();
@@ -108,11 +105,9 @@ angular.module('valuelist_property', ['webSocketModule'])
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {
-			console.log("RF valuelist.fromClientToServer newClientData: '" + newClientData + "'");
 			if (newClientData) {
 				var newDataInternalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (newDataInternalState.isChanged()) {
-					console.log("RF valuelist.fromClientToServer isChanged");
 					var tmp = newDataInternalState.filterStringReq;
 					delete newDataInternalState.filterStringReq;
 					return tmp;

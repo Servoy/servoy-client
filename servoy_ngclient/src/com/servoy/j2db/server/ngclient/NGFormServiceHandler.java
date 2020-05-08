@@ -395,11 +395,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
 				if (form != null)
 				{
-//					if (!form.getController().isFormVisible())
-//					{
-//						Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
-//						return null;
-//					}
+					if (!form.getController().isFormVisible())
+					{
+						Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
+						return null;
+					}
 					if (form.getController().getDesignModeCallbacks() != null)
 					{
 						// ignoring all calls from the client

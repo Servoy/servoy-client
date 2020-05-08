@@ -379,8 +379,7 @@ public class LookupListModel extends AbstractListModel
 		{
 			CustomValueList clist = (CustomValueList)lookup;
 			boolean procentStart = false;
-			if (txt.startsWith("%"))
-			{
+			if (txt.startsWith("%")) {
 				procentStart = true;
 				txt = txt.substring(1, txt.length());
 			}
@@ -551,11 +550,11 @@ public class LookupListModel extends AbstractListModel
 					else
 					{
 						ArrayList<String> lst = new ArrayList<String>();
-						for (String displayValue : displayValues)
+						for (int i = 0; i < displayValues.length; i++)
 						{
-							if (!displayValue.trim().equals("")) //$NON-NLS-1$
+							if (!displayValues[i].trim().equals("")) //$NON-NLS-1$
 							{
-								lst.add(displayValue.toUpperCase() + '%');
+								lst.add(displayValues[i].toUpperCase() + '%');
 							}
 						}
 						displayValues = lst.toArray(new String[lst.size()]);
@@ -720,7 +719,7 @@ public class LookupListModel extends AbstractListModel
 	 */
 	private void fireChanges(final int prevSize)
 	{
-		Debug.warn("RF lookuplistmodel.fireChanges " + application.isEventDispatchThread());
+
 		if (application.isEventDispatchThread())
 		{
 			fireChangesImpl(prevSize);

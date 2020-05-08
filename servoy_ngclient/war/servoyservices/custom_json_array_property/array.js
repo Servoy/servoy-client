@@ -15,7 +15,6 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 		return function() {
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedIndexes[idx] = true;
-			console.log("RF custom_json_array_property " + JSON.stringify(internalState) + " " + propertyValue + " " + idx);
 			internalState.changeNotifier();
 		}
 	}

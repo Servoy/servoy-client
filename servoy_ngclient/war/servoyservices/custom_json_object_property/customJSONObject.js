@@ -13,7 +13,6 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 	function getChangeNotifier(propertyValue, key) {
 		return function() {
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-			console.log("RF custom_json_object_property getChangeNotifier " + JSON.stringify(internalState) + " " + propertyValue + " " + key);
 			internalState.changedKeys[key] = true;
 			internalState.notifier();
 		}
