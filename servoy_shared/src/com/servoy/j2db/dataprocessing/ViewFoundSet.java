@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.swing.ListSelectionModel;
@@ -189,6 +190,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
 	private List<ViewRecord> records = new ArrayList<>();
+	private List<ViewRecord> editedRecords = Collections.synchronizedList(new ArrayList<>());
+	private final List<ViewRecord> failedRecords = Collections.synchronizedList(new ArrayList<ViewRecord>(2));
+	private final ReentrantLock editRecordsLock = new ReentrantLock();
 
 	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<>(6);
 
@@ -196,7 +200,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private final Map<IQuerySelectValue, String> columnNames = new LinkedHashMap<>();
 
-	private final List<ViewRecord> editedRecords = new ArrayList<>();
 
 	private final QuerySelect select;
 
@@ -668,6 +671,31 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
+	 * Get the edited records of this view foundset.
+	 * @sample
+	 * var editedRecords = foundset.getEditedRecords();
+	 * for (var i = 0; i < editedRecords.length; i++)
+	 * {
+	 *    application.output(editedRecords[i]);
+	 * }
+	 * @return an array of edited records
+	 */
+	@JSFunction
+	public ViewRecord[] getEditedRecords()
+	{
+		editRecordsLock.lock();
+		try
+		{
+			return editedRecords.toArray(new ViewRecord[editedRecords.size()]);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+	}
+
+
+	/**
 	 * Saves all records in the view foundset that have changes.
 	 * You can only save columns from a table if the pks of that table are also selected by the view foundset's query.
 	 */
@@ -718,8 +746,21 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					columnNames.forEach((selectValue, name) -> {
 						if (changes.containsKey(name))
 						{
-							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> new RuntimeException(
-								"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found"));
+							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> {
+								RuntimeException ex = new RuntimeException(
+									"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found");
+								rec.setLastException(ex);
+								editRecordsLock.lock();
+								try
+								{
+									if (!failedRecords.contains(rec)) failedRecords.add(rec);
+								}
+								finally
+								{
+									editRecordsLock.unlock();
+								}
+								return ex;
+							});
 							BaseQueryTable table = realColumn.getTable();
 							Map<QueryColumn, Object> map = tableToChanges.get(table);
 							if (map == null)
@@ -732,8 +773,22 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					});
 					tableToChanges.forEach((table, changesMap) -> {
 						List<IQuerySelectValue> pkColumns = pkColumnsForTable.get(table);
-						if (pkColumns == null) throw new RuntimeException("Can't save " + rec + " for changed values " + changes +
-							" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
+						if (pkColumns == null)
+						{
+							RuntimeException ex = new RuntimeException("Can't save " + rec + " for changed values " + changes +
+								" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
+							rec.setLastException(ex);
+							editRecordsLock.lock();
+							try
+							{
+								if (!failedRecords.contains(rec)) failedRecords.add(rec);
+							}
+							finally
+							{
+								editRecordsLock.unlock();
+							}
+							throw ex;
+						}
 
 						int counter = 0;
 						Object[] pk = new Object[pkColumns.size()];
@@ -2205,5 +2260,101 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			return true;
 		}
+	}
+
+	/**
+	 * Revert changes of the provided view records.
+	 * @param rec an array of view records
+	 */
+	@JSFunction
+	public void revertEditedRecords(ViewRecord[] rec)
+	{
+		if (rec != null)
+		{
+			try
+			{
+				Arrays.stream(rec).forEach(r -> editedRecords.remove(r));
+			}
+			finally
+			{
+				editRecordsLock.unlock();
+			}
+		}
+	}
+
+	/**
+	 * Revert changes of all unsaved view records of the view foundset.
+	 */
+	@JSFunction
+	public void revertEditedRecords()
+	{
+		editRecordsLock.lock();
+		try
+		{
+			editedRecords = new ArrayList<>();
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+	}
+
+	/**
+	 * Returns true if the viewfoundset has records.
+	 * @return true if the viewfoundset has records.
+	 */
+	@JSFunction
+	public boolean hasRecords()
+	{
+		return getSize() > 0;
+	}
+
+	/**
+	 * Get the records which could not be saved.
+	 * @return an array of failed records
+	 */
+	@JSFunction
+	public ViewRecord[] getFailedRecords()
+	{
+		editRecordsLock.lock();
+		try
+		{
+			return failedRecords.toArray(new ViewRecord[failedRecords.size()]);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+	}
+
+	/**
+	 * Check whether the foundset has record changes.
+	 * @return true if the foundset has any edited records, false otherwise
+	 */
+	@JSFunction
+	public boolean hasRecordChanges()
+	{
+		return getEditedRecords().length > 0;
+	}
+
+	/**
+	 * Check whether a specific record of the view foundset has changes.
+	 * @param row the row index of the view record
+	 * @return true if the record has changes, false otherwise
+	 */
+	@JSFunction
+	public boolean hasRecordChanges(int row)
+	{
+		ViewRecord record = getRecord(row);
+		if (record != null)
+		{
+			return record.isEditing();
+		}
+		return false;
+	}
+
+	public Class< ? >[] getAllReturnedTypes()
+	{
+		return new Class< ? >[] { ViewRecord.class };
 	}
 }
