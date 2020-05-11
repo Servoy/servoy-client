@@ -199,8 +199,11 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
 		if (cacheById != null)
 		{
-			Collection<IPersist> collection = Collections.unmodifiableCollection(cacheById.values());
-			return (Iterator<T>)collection.iterator();
+			synchronized (cacheById)
+			{
+				Collection<IPersist> collection = Collections.unmodifiableCollection(cacheById.values());
+				return (Iterator<T>)collection.iterator();
+			}
 		}
 		return (Iterator<T>)Collections.emptyList().iterator();
 	}
@@ -243,27 +246,30 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	private Map<String, Map<String, ISupportScope>> getGlobalScopeCache()
 	{
-		if (scopeCacheByName.isEmpty())
+		synchronized (scopeCacheByName)
 		{
-			visit((persist) -> {
-				if (persist instanceof ISupportScope)
-				{
-					String scopeName = ((ISupportScope)persist).getScopeName();
-					if (scopeName == null)
+			if (scopeCacheByName.isEmpty())
+			{
+				visit((persist) -> {
+					if (persist instanceof ISupportScope)
 					{
-						scopeName = ScriptVariable.GLOBAL_SCOPE;
-					}
-					Map<String, ISupportScope> scopeMap = scopeCacheByName.get(scopeName);
-					if (scopeMap == null)
-					{
-						Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>(128));
-						if (prev != null) scopeMap = prev;
-					}
-					scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
+						String scopeName = ((ISupportScope)persist).getScopeName();
+						if (scopeName == null)
+						{
+							scopeName = ScriptVariable.GLOBAL_SCOPE;
+						}
+						Map<String, ISupportScope> scopeMap = scopeCacheByName.get(scopeName);
+						if (scopeMap == null)
+						{
+							Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>(128));
+							if (prev != null) scopeMap = prev;
+						}
+						scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
 
-				}
-				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-			});
+					}
+					return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+				});
+			}
 		}
 		return scopeCacheByName;
 	}
