@@ -302,8 +302,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 							Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>(128));
 							if (prev != null) scopeMap = prev;
 						}
-						scopeMap.put(((ISupportScope)persist).getName(), (ISupportScope)persist);
-
+						addInScopeCache(scopeMap, (ISupportScope)persist);
 					}
 					return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 				});
