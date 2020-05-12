@@ -122,6 +122,10 @@ public class EventExecutor
 					}
 				}
 			}
+			else
+			{
+				Debug.warn("Couldn't find the ScriptMethod for event: " + eventType + " with event id: " + eventId + " to execute for component " + component);
+			}
 		}
 		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null;
 
