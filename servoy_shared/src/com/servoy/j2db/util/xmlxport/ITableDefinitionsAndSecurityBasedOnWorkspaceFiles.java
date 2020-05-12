@@ -20,15 +20,20 @@ package com.servoy.j2db.util.xmlxport;
 import java.util.List;
 import java.util.Map;
 
+import com.servoy.j2db.server.shared.SecurityInfo;
+
 /**
  * Interface for managing table definitions, needed in case database is down during solution export
- * 
+ *
  * @author acostache
  *
  */
-public interface ITableDefinitionsManager
+public interface ITableDefinitionsAndSecurityBasedOnWorkspaceFiles
 {
 	void setServerTableDefs(Map<String, List<TableDef>> serverTableDefsMap);
 
 	Map<String, List<TableDef>> getServerTableDefs();
+
+	List<SecurityInfo> getDatabaseSecurityInfoByGroup(String groupName);
+
 }
