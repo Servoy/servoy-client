@@ -158,6 +158,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * The record_index can be -1 to lock all rows, 0 to lock the current row, or a specific row of > 0
 	 * Optionally name the lock(s) so that it can be referenced it in releaseAllLocks()
 	 *
+	 * By default this call doesn't try to lock records in the database itself. But the locks are tracked  in the Servoy Server itself.
+	 * If you need database locking because of others applications that can also read the table or you use the Broadcaster plugin for more then 1 servoy server on the same database,
+	 * you need to set the property 'servoy.record.lock.lockInDB' in the servoy.properties file to true. This will try to do a 'select for update no wait' on databases that supports this.
+	 * This can only be used together with a transaction, so before you aquire the lock a transaction must be started so the database lock is held on to the transaction connection.
+	 *
 	 * returns true if the lock could be acquired.
 	 *
 	 * @sample
