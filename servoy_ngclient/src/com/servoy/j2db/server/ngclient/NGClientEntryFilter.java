@@ -177,7 +177,8 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Properties properties = new Properties();
 				properties.load(is);
-				locations = properties.getProperty("locations").split(";");
+				String loc = properties.getProperty("locations", "").trim();
+				locations = "".equals(loc) ? new String[0] : loc.split(";");
 			}
 			catch (Exception e)
 			{
@@ -187,7 +188,8 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Properties properties = new Properties();
 				properties.load(is);
-				services = properties.getProperty("locations").split(";");
+				String loc = properties.getProperty("locations", "").trim();
+				services = "".equals(loc) ? new String[0] : loc.split(";");
 			}
 			catch (Exception e)
 			{
