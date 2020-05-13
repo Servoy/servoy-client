@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.util.SortedList;
@@ -33,6 +34,7 @@ public class RootObjectCache
 	private final AbstractRepository repository;
 	private final HashMap<Integer, CacheRecord> rootObjectsById;
 	private final HashMap rootObjectsByName;
+	private final ConcurrentHashMap<String, Boolean> loadingBlocker = new ConcurrentHashMap<String, Boolean>();
 
 	class RootObjectKey
 	{
@@ -224,7 +226,7 @@ public class RootObjectCache
 		}
 	}
 
-	IRootObject getRootObject(int rootObjectId, int release) throws RepositoryException
+	IRootObject getRootObject(final int rootObjectId, final int release) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		try
@@ -234,20 +236,54 @@ public class RootObjectCache
 			{
 				return null;
 			}
-			if (release == 0)
+			int realRelease = release;
+			if (realRelease == 0)
 			{
-				release = cacheRecord.rootObjectMetaData.getActiveRelease();
+				realRelease = cacheRecord.rootObjectMetaData.getActiveRelease();
 			}
-			else if (release == -1)
+			else if (realRelease == -1)
 			{
-				release = cacheRecord.rootObjectMetaData.getLatestRelease();
+				realRelease = cacheRecord.rootObjectMetaData.getLatestRelease();
 			}
-			Integer key = new Integer(release);
+			Integer key = new Integer(realRelease);
 			IRootObject rootObject = cacheRecord.rootObjects.get(key);
 			if (rootObject == null)
 			{
-				rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, release);
+				// don't fully lock on loading, only lock for this root object
+				AbstractRepository.unlock();
+				try
+				{
+					// block loading for the same root object.
+					Boolean alreadyLoading = loadingBlocker.putIfAbsent(cacheRecord.rootObjectMetaData.getName(), Boolean.TRUE);
+					if (alreadyLoading != null)
+					{
+						synchronized (loadingBlocker)
+						{
+							try
+							{
+								loadingBlocker.wait();
+							}
+							catch (InterruptedException e)
+							{
+							}
+						}
+						return getRootObject(rootObjectId, release);
+					}
+					else
+					{
+						rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
+						loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
+					}
+				}
+				finally
+				{
+					AbstractRepository.lock();
+				}
 				if (rootObject != null) cacheRecord.rootObjects.put(key, rootObject);
+				synchronized (loadingBlocker)
+				{
+					loadingBlocker.notifyAll();
+				}
 			}
 			return rootObject;
 		}
