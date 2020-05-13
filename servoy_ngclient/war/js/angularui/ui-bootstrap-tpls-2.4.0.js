@@ -7061,7 +7061,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
        * tab is pressed to bring focus to the previous element
        * then clear the results
        */
-      if (scope.activeIdx === -1 && shouldSelect || evt.which === 9) {
+      if (scope.activeIdx === -1 && shouldSelect || evt.which === 9 && !originalScope.startedTyping) {
         resetMatches();
         scope.$digest();
         return;
