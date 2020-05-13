@@ -1,6 +1,7 @@
 {
 	"name": "servoycore-listformcomponent",
 	"displayName": "List FormComponent Container",
+	"categoryName": "Form Containers",
 	"version": 1,
 	"icon": "servoycore/listformcomponent/listformcomponent.png",
 	"definition": "servoycore/listformcomponent/listformcomponent.js", 
