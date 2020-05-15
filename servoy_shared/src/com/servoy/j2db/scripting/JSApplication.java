@@ -3040,6 +3040,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Returns the name of the operating system of the client.
+	 * In Smart Client this will return os.name system property. In Web/NG Client will return "OSFamily majorVersion.minorVersion".
 	 *
 	 * @sample var osname = application.getOSName();
 	 *

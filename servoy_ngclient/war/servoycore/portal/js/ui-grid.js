@@ -1570,6 +1570,8 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService, $documen
                     angular.element(headerViewport).on('scroll', scrollHandler);
                     $scope.$on('$destroy', function () {
                       angular.element(headerViewport).off('scroll', scrollHandler);
+                      // the ngrepeat watch is not being cleared, parent scope is destroyed and child scope is not cleaned up
+                      $scope.$$watchers = null
                     });
                   }
                 }

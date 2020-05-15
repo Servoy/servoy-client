@@ -50,7 +50,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 					internalState.realToDisplayCache = {};
 
 					Object.defineProperty(newValue, 'getDisplayValue', {
-						value: function(realValue) {
+						value: function(realValue, formName) {
 							if (realValue != null && realValue != undefined) {
 								if (internalState.valuelistid == undefined) {
 									return { then: function(then) { then(realValue) } };
@@ -64,7 +64,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 										return { then: function(then) { then(internalState.realToDisplayCache[key]) } }
 									}
 									internalState.realToDisplayCache[key] = $sabloApplication.callService('formService', 'getValuelistDisplayValue',
-															{ realValue:realValue, valuelist: internalState.valuelistid })
+															{ realValue:realValue, valuelist: internalState.valuelistid, formName: formName })
 											.then(function(val) {
 												internalState.realToDisplayCache[key] = val;
 												return val;

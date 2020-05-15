@@ -4,7 +4,6 @@ import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
-import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
@@ -62,6 +61,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
@@ -74,9 +74,6 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
-
-import ua_parser.Parser;
-import ua_parser.UserAgent;
 
 /**
  * Filter and entrypoint for webapp
@@ -146,21 +143,6 @@ public class NGClientEntryFilter extends WebEntry
 
 	private final JSTemplateGenerator jsTemplateGenerator = new JSTemplateGenerator();
 
-	private static final Parser USER_AGENT_PARSER;
-
-	static
-	{
-		try
-		{
-			USER_AGENT_PARSER = new Parser();
-		}
-		catch (IOException e)
-		{
-			// should not happen, default config should always be found
-			throw new RuntimeException(e);
-		}
-	}
-
 	public NGClientEntryFilter()
 	{
 		super(CLIENT_ENDPOINT);
@@ -177,7 +159,8 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Properties properties = new Properties();
 				properties.load(is);
-				locations = properties.getProperty("locations").split(";");
+				String loc = properties.getProperty("locations", "").trim();
+				locations = "".equals(loc) ? new String[0] : loc.split(";");
 			}
 			catch (Exception e)
 			{
@@ -187,7 +170,8 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Properties properties = new Properties();
 				properties.load(is);
-				services = properties.getProperty("locations").split(";");
+				String loc = properties.getProperty("locations", "").trim();
+				services = "".equals(loc) ? new String[0] : loc.split(";");
 			}
 			catch (Exception e)
 			{
@@ -413,13 +397,12 @@ public class NGClientEntryFilter extends WebEntry
 		}
 
 		String userAgentHeader = request.getHeader("user-agent");
-		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
 
-		if (!supportsContentSecurityPolicyLevel3(userAgent))
+		if (!HCUtils.supportsContentSecurityPolicyLevel3(userAgentHeader))
 		{
 			if (Debug.tracing())
 			{
-				Debug.trace("ContentSecurityPolicyHeader is disabled, user agent '" + userAgent + "' does not support ContentSecurityPolicy level 3");
+				Debug.trace("ContentSecurityPolicyHeader is disabled, user agent '" + userAgentHeader + "' does not support ContentSecurityPolicy level 3");
 			}
 			return null;
 		}
@@ -443,45 +426,6 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			contentSecurityPolicyConfig.setDirective(directive, override);
 		}
-	}
-
-	/** Does the CSP level 3, specifically strict-dynamic.
-	 *
-	 * @see <a href="https://caniuse.com/#feat=mdn-http_headers_csp_content-security-policy_strict-dynamic">caniuse.com</a>
-	 */
-	private boolean supportsContentSecurityPolicyLevel3(UserAgent userAgent)
-	{
-		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && parseInt(userAgent.major) >= 52)
-		{
-			return true;
-		}
-		if ("Firefox".equals(userAgent.family) && parseInt(userAgent.major) >= 52)
-		{
-			return true;
-		}
-		if ("Edge".equals(userAgent.family) && parseInt(userAgent.major) >= 74) // Chromium-based
-		{
-			return true;
-		}
-		if ("Opera".equals(userAgent.family) && parseInt(userAgent.major) >= 39)
-		{
-			return true;
-		}
-		if ("Chrome Mobile WebView".equals(userAgent.family) && parseInt(userAgent.major) >= 76)
-		{
-			return true;
-		}
-		if ("Opera Mini".equals(userAgent.family) && parseInt(userAgent.major) >= 46)
-		{
-			return true;
-		}
-		if ("Samsung Internet".equals(userAgent.family) &&
-			(parseInt(userAgent.major) > 6 || (parseInt(userAgent.major) == 6 && parseInt(userAgent.minor) >= 2)))
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	private void addManifest(FlattenedSolution fs, List<String> extraMeta)
@@ -682,25 +626,20 @@ public class NGClientEntryFilter extends WebEntry
 
 	private boolean handleDeeplink(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		String uri = request.getRequestURI();
-		String ctx = request.getContextPath();
-		String contextPathWithSolutionPath = ctx + SOLUTIONS_PATH;
-		if (uri != null && uri.startsWith(contextPathWithSolutionPath) //
-			&& !uri.contains("index.html") && getMainJs(uri) == null)
+		String url = request.getRequestURL().toString();
+		int index = url.indexOf(SOLUTIONS_PATH);
+		if (index >= 0 && getMainJs(url) == null)
 		{
-			StringBuffer url = request.getRequestURL();
-			String base = url.substring(0, url.length() - uri.length() + ctx.length());
-
-			String solutionName = uri.substring(contextPathWithSolutionPath.length());
-			if (solutionName.length() > 0)
+			String solutionAndRest = url.substring(index + SOLUTIONS_PATH.length());
+			int solutionEnd = solutionAndRest.indexOf('/');
+			String rest = solutionAndRest.substring(solutionEnd + 1);
+			if (rest.indexOf('/') != -1)
 			{
-				StringBuffer redirectUrl = new StringBuffer(base);
-				String queryString = request.getQueryString();
-				redirectUrl.append(contextPathWithSolutionPath);
-				redirectUrl.append(solutionName.split("/")[0]);
-
-				String[] args = url.toString().replace(redirectUrl.toString() + "/", "").split("/");
+				// it has deeplinks, need to rewrite url.
+				StringBuffer redirectUrl = new StringBuffer(url.subSequence(0, index + SOLUTIONS_PATH.length() + solutionEnd));
 				redirectUrl.append("/index.html");
+				String queryString = request.getQueryString();
+				String[] args = rest.split("/");
 
 				if (args.length != 0 || queryString != null)
 				{
@@ -722,7 +661,6 @@ public class NGClientEntryFilter extends WebEntry
 				}
 			}
 		}
-
 		return false;
 	}
 

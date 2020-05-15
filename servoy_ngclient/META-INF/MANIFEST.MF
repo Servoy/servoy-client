@@ -26,8 +26,7 @@ Require-Bundle: servoy_shared,
  org.freemarker.freemarker,
  org.apache.commons.lang3,
  org.apache.commons.commons-text,
- de.inetsoftware.jlessc,
- com.github.ua-parser.uap-java
+ de.inetsoftware.jlessc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy

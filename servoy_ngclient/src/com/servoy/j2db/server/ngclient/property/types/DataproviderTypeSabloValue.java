@@ -47,6 +47,8 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
+import org.sablo.specification.property.types.DoublePropertyType;
+import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -73,6 +75,7 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
@@ -616,6 +619,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	{
 		Object jsonValueRepresentation;
 		boolean valuelistDisplayValue = false;
+		int valuelistDisplayType = 0;
 		if (shouldResolveFromValuelistWithName != null)
 		{
 			ValueListTypeSabloValue valuelistSabloValue = (ValueListTypeSabloValue)FoundsetLinkedTypeSabloValue.unwrapIfNeeded(
@@ -623,6 +627,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			if (valuelistSabloValue != null && valuelistSabloValue.getValueList() != null)
 			{
 				valuelistDisplayValue = true;
+				valuelistDisplayType = valuelistSabloValue.getValueList().getValueList().getDisplayValueType();
 				if (valuelistSabloValue.getValueList().realValueIndexOf(uiValue) != -1)
 				{
 					try
@@ -680,9 +685,43 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			}
 			jsonValueRepresentation = new JSONStringWithConversions(str, jsonDataConversion);
 		}
+		else if (valuelistDisplayValue && (valuelistDisplayType == IColumnTypes.DATETIME ||
+			valuelistDisplayType == IColumnTypes.INTEGER ||
+			valuelistDisplayType == IColumnTypes.NUMBER ||
+			valuelistDisplayType == IColumnTypes.MEDIA) && !(uiValue instanceof String))
+		{
+			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
+			DataConversion jsonDataConversion = new DataConversion();
+
+			if (valuelistDisplayType == IColumnTypes.DATETIME)
+			{
+				NGDatePropertyType.NG_INSTANCE.toJSON(ejw, null, (Date)uiValue, null, jsonDataConversion, dataConverterContext);
+			}
+			else if (valuelistDisplayType == IColumnTypes.INTEGER)
+			{
+				IntPropertyType.INSTANCE.toJSON(ejw, null, (Integer)uiValue, null, jsonDataConversion, dataConverterContext);
+			}
+			else if (valuelistDisplayType == IColumnTypes.NUMBER)
+			{
+				DoublePropertyType.INSTANCE.toJSON(ejw, null, (Number)uiValue, null, jsonDataConversion, dataConverterContext);
+			}
+			else if (valuelistDisplayType == IColumnTypes.MEDIA)
+			{
+				MediaDataproviderPropertyType.INSTANCE.toJSON(ejw, null, uiValue, null, jsonDataConversion, dataConverterContext);
+			}
+
+			if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
+			String str = ejw.toJSONString();
+			if (str == null || str.trim().length() == 0)
+			{
+				Debug
+					.error("A dataprovider with resolveValuelist that is not able to send itself to client... (" + valuelistDisplayType + ", " + uiValue + ")");
+				str = "null";
+			}
+			jsonValueRepresentation = new JSONStringWithConversions(str, jsonDataConversion);
+		}
 		else
 		{
-			// if valuelistDisplayValue just use the value from valuelist with no conversion ?
 			jsonValueRepresentation = uiValue;
 		}
 		return jsonValueRepresentation;

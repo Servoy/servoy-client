@@ -67,6 +67,7 @@ import com.servoy.j2db.server.headlessclient.ServoyBrowserInfoPage.ServoyWebClie
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
@@ -173,11 +174,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 					String userAgent = clientInfo.getUserAgent();
 					if (userAgent != null)
 					{
-						if (userAgent.indexOf("NT 6.1") != -1) return "Windows 7";
-						if (userAgent.indexOf("NT 6.0") != -1) return "Windows Vista";
-						if (userAgent.indexOf("NT 5.1") != -1 || userAgent.indexOf("Windows XP") != -1) return "Windows XP";
-						if (userAgent.indexOf("Linux") != -1) return "Linux";
-						if (userAgent.indexOf("Mac") != -1) return "Mac OS";
+						return HCUtils.getOSName(userAgent);
 					}
 					return clientInfo.getProperties().getNavigatorPlatform();
 				}

@@ -79,6 +79,7 @@ import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
@@ -934,11 +935,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				String userAgent = ((JSONObject)retValue).optString("userAgent");
 				if (userAgent != null)
 				{
-					if (userAgent.indexOf("NT 6.1") != -1) return "Windows 7";
-					if (userAgent.indexOf("NT 6.0") != -1) return "Windows Vista";
-					if (userAgent.indexOf("NT 5.1") != -1 || userAgent.indexOf("Windows XP") != -1) return "Windows XP";
-					if (userAgent.indexOf("Linux") != -1) return "Linux";
-					if (userAgent.indexOf("Mac") != -1) return "Mac OS";
+					return HCUtils
+						.getOSName(userAgent);
 				}
 				String platform = ((JSONObject)retValue).optString("platform");
 				if (platform != null) return platform;

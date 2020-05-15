@@ -50,6 +50,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -582,8 +583,11 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						}
 						else
 						{
+							ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(scopename, methodname);
 							retval = new IllegalArgumentException(
-								"global methodname: " + methodname + " didnt resolve to a method in solution " + getSolutionName()); //$NON-NLS-1$ //$NON-NLS-2$
+								"global methodname: '" + methodname + "' didnt resolve to a method in the scope '" + scopename + "' of solution '" + //$NON-NLS-1$//$NON-NLS-2$
+									getSolutionName() + "', scope: " + (gs == null ? "null" : gs.getDefaultValue(String.class)) + " , scriptMethod:" +
+									scriptMethod);
 						}
 					}
 					else
