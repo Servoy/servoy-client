@@ -39,6 +39,7 @@ Bundle-ClassPath: .,\
                lib/wiquery.jar,\
                lib/fs-parser.jar,\
                lib/ua-parser.jar,\
+               lib/snakeyaml.jar,\
                lib/fs-commons.jar,\
                lib/PBKDF2.jar,\
                lib/minis.jar,\
