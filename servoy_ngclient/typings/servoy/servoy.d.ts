@@ -108,7 +108,7 @@ declare namespace servoy {
 	
 	interface IServoyI18NService {
 		addDefaultTranslations(translations):void,
-		getI18NMessages():angular.IPromise<{}>, // this uses the arguments as a variable arguments array..
+		getI18NMessages(...keys:string[]):angular.IPromise<{}>, // this uses the arguments as a variable arguments array..
 		getI18NMessage(key:string):string|angular.IPromise<{}>,
 		flush():void,
 	}
