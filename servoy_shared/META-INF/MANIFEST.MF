@@ -19,9 +19,7 @@ Bundle-ClassPath: .,
  lib/wicket-extentions.jar,
  lib/wicket.jar,
  lib/wiquery.jar,
- lib/xstream.jar,
- lib/ua-parser.jar,
- lib/snakeyaml.jar
+ lib/xstream.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  sablo,
  servoy_base;visibility:=reexport,
