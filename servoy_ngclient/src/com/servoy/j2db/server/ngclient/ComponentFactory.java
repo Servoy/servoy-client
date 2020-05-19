@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.Iterator;
-
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
@@ -29,7 +27,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.util.Debug;
@@ -154,12 +151,6 @@ public class ComponentFactory
 						else
 						{
 							Debug.warn("Still not found on Form " + form + " Script Method of value '" + eventValue + "' for handler " + eventName);
-							Iterator<ScriptMethod> scriptMethods = form.getScriptMethods(false);
-							while (scriptMethods.hasNext())
-							{
-								ScriptMethod next = scriptMethods.next();
-								Debug.warn("Form " + form + " has method with uuid: " + next.getUUID() + "  and name " + next.getName());
-							}
 						}
 					}
 				}
