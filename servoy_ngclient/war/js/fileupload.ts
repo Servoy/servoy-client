@@ -14,7 +14,10 @@ angular.module('servoyfileupload',['ngFileUpload', 'sabloApp'])
 	}
 
     $scope.isFileSelected = function() {
-    	return $scope.uploadFiles != null; 
+    	if($scope.uploadFiles == null){
+    		return false;
+    	}
+    	return $scope.uploadFiles.length != 0; 
     }    
     
     $scope.doRemove = function(f) {
