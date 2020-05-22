@@ -6,6 +6,7 @@
 	"definition": "servoydefault/splitpane/splitpane.js",
 	"serverscript": "servoydefault/splitpane/splitpane_server.js",
 	"libraries": [{"name":"bg-splitter", "version":"1", "url":"servoydefault/splitpane/bg-splitter/js/splitter.js", "mimetype":"text/javascript"},{"name":"bg-splitter", "version":"1", "url":"servoydefault/splitpane/bg-splitter/css/style.css", "mimetype":"text/css"},{"name":"splitpanecustom", "version":"1", "url":"servoydefault/splitpane/splitpanecustom.css", "mimetype":"text/css"}],
+	"keywords": [],
 	"model":
 	{
 	        "background" : "color", 

@@ -5,7 +5,8 @@
 	"version": 1,
 	"icon": "servoycore/listformcomponent/listformcomponent.png",
 	"definition": "servoycore/listformcomponent/listformcomponent.js", 
-	"libraries": [{ "name": "svy-listformcomponent-css", "version": "1.0", "url": "servoycore/listformcomponent/listformcomponent.css", "mimetype": "text/css" }],	
+	"libraries": [{ "name": "svy-listformcomponent-css", "version": "1.0", "url": "servoycore/listformcomponent/listformcomponent.css", "mimetype": "text/css" }],
+	"keywords": [],	
 	"model":
 	{
 		"foundset" : {"type": "foundset", "default" : {"foundsetSelector":""}},

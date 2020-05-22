@@ -5,6 +5,7 @@
 	"icon": "servoydefault/combobox/combobox.png",
 	"definition": "servoydefault/combobox/combobox.js",
 	"libraries": [{"name":"ui-select", "version":"0.8.1", "url":"servoydefault/combobox/lib/select.js", "mimetype":"text/javascript"},{"name":"ui-select", "version":"0.8.0", "url":"servoydefault/combobox/lib/select.css", "mimetype":"text/css"}],
+	"keywords": [],
 	"model":
 	{
 	        "background" : "color", 
