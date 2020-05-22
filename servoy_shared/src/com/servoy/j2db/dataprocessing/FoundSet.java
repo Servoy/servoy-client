@@ -4480,6 +4480,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (!(state instanceof PrototypeState))
 		{
 			removeRecordInternalEx(state, row);
+			// delete the row data so it won't be updated by other foundsets also having records to this rowdata.
+			if (state != null && state.getRawData() != null)
+			{
+				state.getRawData().flagExistInDB();
+			}
+
 		}
 	}
 
@@ -4609,12 +4615,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 				}
 			}
-		}
-
-		// delete the row data so it won't be updated by other foundsets also having records to this rowdata.
-		if (state != null && state.getRawData() != null) //the state can be a prototype state(without row) if the pk is notified but the record is not yet lookedup before notify delete
-		{
-			state.getRawData().flagExistInDB();
 		}
 
 		if (getSize() == 0) setSelectedIndex(-1);
