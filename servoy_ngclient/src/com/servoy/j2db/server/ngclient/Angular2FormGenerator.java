@@ -249,73 +249,83 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		}
 		writer.endObject();
 		writer.endObject();
-		Iterator<Part> it = form.getParts();
-		while (it.hasNext())
+		if (form.isResponsiveLayout())
 		{
-			Part part = it.next();
-			if (!Part.rendersOnlyInPrint(part.getPartType()))
+			form.acceptVisitor(new ChildrenJSONGenerator(writer,
+				cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
+				null));
+		}
+		else
+		{
+			Iterator<Part> it = form.getParts();
+			while (it.hasNext())
 			{
-				writer.object();
-				writer.key("part");
-				writer.value(true);
-				writer.key("classes");
-				writer.array();
-				writer.value("svy-" + PartWrapper.getName(part));
-				if (part.getStyleClass() != null)
+				Part part = it.next();
+				if (!Part.rendersOnlyInPrint(part.getPartType()))
 				{
-					writer.value(part.getStyleClass());
+					writer.object();
+					writer.key("part");
+					writer.value(true);
+					writer.key("classes");
+					writer.array();
+					writer.value("svy-" + PartWrapper.getName(part));
+					if (part.getStyleClass() != null)
+					{
+						writer.value(part.getStyleClass());
+					}
+					writer.endArray();
+					writer.key("layout");
+					writer.object();
+					writer.key("position");
+					writer.value("absolute");
+					writer.key("left");
+					writer.value("0px");
+					writer.key("right");
+					writer.value("0px");
+					int top = form.getPartStartYPos(part.getID());
+					if (part.getPartType() <= Part.BODY)
+					{
+						writer.key("top");
+						writer.value(top + "px");
+					}
+					if (part.getPartType() >= Part.BODY)
+					{
+						writer.key("bottom");
+						writer.value(form.getSize().height - part.getHeight() + "px");
+					}
+					if (part.getPartType() != Part.BODY)
+					{
+						writer.key("height");
+						writer.value((part.getHeight() - top) + "px");
+					}
+					if (part.getBackground() != null && !form.getTransparent())
+					{
+						writer.key("background-color");
+						writer.value(PersistHelper.createColorString(part.getBackground()));
+					}
+					if (part.getPartType() == Part.BODY)
+					{
+						writer.key("overflow-x");
+						writer.value(AbstractFormLayoutProvider.getCSSScrolling(form.getScrollbars(), true));
+						writer.key("overflow-y");
+						writer.value(AbstractFormLayoutProvider.getCSSScrolling(form.getScrollbars(), false));
+					}
+					else
+					{
+						writer.key("overflow");
+						writer.value("hidden"); //$NON-NLS-1$
+					}
+					writer.endObject();
+					writer.key("children");
+					// write the default form value object.
+					writer.array();
+					form.acceptVisitor(new ChildrenJSONGenerator(writer,
+						cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form,
+						null,
+						part));
+					writer.endArray();
+					writer.endObject();
 				}
-				writer.endArray();
-				writer.key("layout");
-				writer.object();
-				writer.key("position");
-				writer.value("absolute");
-				writer.key("left");
-				writer.value("0px");
-				writer.key("right");
-				writer.value("0px");
-				int top = form.getPartStartYPos(part.getID());
-				if (part.getPartType() <= Part.BODY)
-				{
-					writer.key("top");
-					writer.value(top + "px");
-				}
-				if (part.getPartType() >= Part.BODY)
-				{
-					writer.key("bottom");
-					writer.value(form.getSize().height - part.getHeight() + "px");
-				}
-				if (part.getPartType() != Part.BODY)
-				{
-					writer.key("height");
-					writer.value((part.getHeight() - top) + "px");
-				}
-				if (part.getBackground() != null && !form.getTransparent())
-				{
-					writer.key("background-color");
-					writer.value(PersistHelper.createColorString(part.getBackground()));
-				}
-				if (part.getPartType() == Part.BODY)
-				{
-					writer.key("overflow-x");
-					writer.value(AbstractFormLayoutProvider.getCSSScrolling(form.getScrollbars(), true));
-					writer.key("overflow-y");
-					writer.value(AbstractFormLayoutProvider.getCSSScrolling(form.getScrollbars(), false));
-				}
-				else
-				{
-					writer.key("overflow");
-					writer.value("hidden"); //$NON-NLS-1$
-				}
-				writer.endObject();
-				writer.key("children");
-				// write the default form value object.
-				writer.array();
-				form.acceptVisitor(new ChildrenJSONGenerator(writer,
-					cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
-					part));
-				writer.endArray();
-				writer.endObject();
 			}
 		}
 		writer.endArray();
