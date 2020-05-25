@@ -140,13 +140,17 @@ public class ComponentFactory
 					function = application.getFlattenedSolution().searchPersist((String)eventValue);
 					if (function == null)
 					{
-						Debug.warn("Script Method of value '" + eventValue + "' not found trying just the form " + form);
+						Debug.warn("Script Method of value '" + eventValue + "' for handler " + eventName + " not found trying just the form " + form);
 
 						IPersist child = form.getChild(UUID.fromString((String)eventValue));
 						if (child != null)
 						{
 							Debug.warn("Script Method " + child + " on the form " + form + " with uuid " + child.getUUID());
 							function = child;
+						}
+						else
+						{
+							Debug.warn("Still not found on Form " + form + " Script Method of value '" + eventValue + "' for handler " + eventName);
 						}
 					}
 				}

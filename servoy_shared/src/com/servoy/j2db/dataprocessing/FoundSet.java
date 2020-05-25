@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.util.Utils.iterate;
 
 import java.lang.ref.WeakReference;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -83,7 +85,6 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
-import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
@@ -461,7 +462,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+				pks = performQuery(transaction_id, theQuery, 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -2055,7 +2056,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IDataSet pk_data;
 		try
 		{
-			pk_data = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -2551,7 +2552,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			int size = getSize();
 			long time = System.currentTimeMillis();
-			IDataSet newpks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet newpks = performQuery(transaction_id, sqlSelect, startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			if (Debug.tracing())
 			{
@@ -2584,7 +2585,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					pks.createPKCache(); // out-of-sync detected, this also flags that new PKS need to be matched against existing ones
 					startRow = 0;
 					time = System.currentTimeMillis();
-					newpks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+					newpks = performQuery(transaction_id, sqlSelect, startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
 
 					if (Debug.tracing())
 					{
@@ -2693,7 +2694,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		long time = System.currentTimeMillis();
 		try
 		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet pks = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
@@ -4075,7 +4076,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
-			IDataSet ds = performQuery(transaction_id, select, false, 0, 1, IDataServer.AGGREGATE_QUERY);
+			IDataSet ds = performQuery(transaction_id, select, 0, 1, IDataServer.AGGREGATE_QUERY);
 
 			if (Debug.tracing())
 			{
@@ -4688,7 +4689,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String transaction_id = fsm.getTransactionID(sheet);
 			try
 			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet pks = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
 				synchronized (pksAndRecords)
 				{
@@ -5179,7 +5180,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet findPKs = null;
 			try
 			{
-				findPKs = performQuery(transaction_id, findSqlSelect, !findSqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
+				findPKs = performQuery(transaction_id, findSqlSelect, 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
 			}
 			catch (RemoteException e)
 			{
@@ -5372,7 +5373,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		String transaction_id = fsm.getTransactionID(sheet);
 		try
 		{
-			pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+			pks = performQuery(transaction_id, sqlSelect, 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			synchronized (pksAndRecords)
 			{
@@ -7005,7 +7006,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 
-	protected IDataSet performQuery(String transaction_id, ISQLSelect theQuery, boolean distinctInMemory, int startRow, int rowsToRetrive, int type)
+	protected IDataSet performQuery(String transaction_id, QuerySelect query, int startRow, int rowsToRetrieve, int type)
 		throws RemoteException, ServoyException
 	{
 		if (!hasAccess(IRepository.READ))
@@ -7013,6 +7014,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireDifference(getSize(), 0);
 			throw new ApplicationException(ServoyException.NO_ACCESS, new Object[] { getSQLSheet().getTable().getName() });
 		}
+
+		QuerySelect theQuery = query;
 
 		IDataSet dataSet = SQLGenerator.getEmptyDataSetForDummyQuery(theQuery);
 		if (dataSet != null)
@@ -7027,14 +7030,50 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
+			boolean distinctInMemory = !theQuery.isUnique();
+
+			if (!theQuery.isDistinct() && !distinctInMemory && hasTablefilterWithJoins(theQuery))
+			{
+				// table filters adds joins that cause duplicate results
+				if (theQuery.getColumns().size() == 1 && isDistinctAllowed(theQuery.getColumns(), theQuery.getSorts()))
+				{
+					// we can set distinct
+					QuerySelect copy = (QuerySelect)theQuery.shallowClone();
+					copy.setDistinct(true);
+					theQuery = copy;
+				}
+				else
+				{
+					// cannot set distinct, make sure we filter out duplicate records
+					distinctInMemory = true;
+				}
+			}
+
 			return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
-				fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrive, type);
+				fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrieve, type);
 		}
 		catch (ServoyException e)
 		{
 			e.setContext(this.toString());
 			throw e;
 		}
+		catch (CloneNotSupportedException e)
+		{
+			// should not happen
+			throw new RuntimeException(e);
+		}
+	}
+
+	private boolean hasTablefilterWithJoins(QuerySelect theQuery)
+	{
+		ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(sheet.getServerName(), theQuery);
+		return tableFilterParams != null && tableFilterParams.stream()
+			.map(TableFilter::getTableFilterdefinition)
+			.filter(QueryTableFilterdefinition.class::isInstance)
+			.map(QueryTableFilterdefinition.class::cast)
+			.map(QueryTableFilterdefinition::getQuerySelect)
+			.map(QuerySelect::getJoins)
+			.anyMatch(Objects::nonNull);
 	}
 
 	/**
