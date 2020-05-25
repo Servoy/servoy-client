@@ -76,7 +76,7 @@ public class AliasKeyMap<K, A, V> extends AbstractMap<K, V> implements Serializa
 	 * @param key
 	 * @param value
 	 */
-	private void putAlias(K key, V value)
+	private synchronized void putAlias(K key, V value)
 	{
 		A alias = getAlias(value);
 		if (alias != null && !alias.equals(key))
@@ -89,7 +89,7 @@ public class AliasKeyMap<K, A, V> extends AbstractMap<K, V> implements Serializa
 		}
 	}
 
-	public void updateAliasses()
+	public synchronized void updateAliasses()
 	{
 		aliases = null;
 		map.entrySet().forEach(entry -> putAlias(entry.getKey(), entry.getValue()));
