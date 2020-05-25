@@ -846,6 +846,16 @@ public final class FormElement implements INGFormElement
 	}
 
 	/**
+	 * This method shouild be called when you want to conver the value to a reall java null object when it is a #IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER value.
+	 * @param value
+	 * @return the same value or null if the value was IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER
+	 */
+	public static Object convertToNull(Object value)
+	{
+		return value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER ? null : value;
+	}
+
+	/**
 	 * Returns true if the give property description makes use of types that are turned into persists when used in persist properties.
 	 * For example component property types, component array, custom object and custom object arrays return Persist instances when accessed through WebComponent.getProperty(...)
 	 *
