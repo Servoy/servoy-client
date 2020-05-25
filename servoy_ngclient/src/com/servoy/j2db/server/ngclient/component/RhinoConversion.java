@@ -154,7 +154,8 @@ public class RhinoConversion
 			ScriptRuntime.setBuiltinProtoAndParent(nativeObject, startScriptable, TopLevel.Builtins.Object);
 			for (Object key : ((Map)webComponentValue).keySet())
 			{
-				nativeObject.defineProperty(key.toString(), ((Map)webComponentValue).get(key), ScriptableObject.EMPTY);
+				nativeObject.defineProperty(key.toString(), defaultToRhino(((Map)webComponentValue).get(key), pd, webObjectContext, startScriptable),
+					ScriptableObject.EMPTY);
 			}
 			return nativeObject;
 		}
@@ -165,7 +166,30 @@ public class RhinoConversion
 			Scriptable newObject = null;
 			try
 			{
-				newObject = cx.newObject(startScriptable);
+				// code from Context.newObject(Scriptable)
+				newObject = new NativeObject()
+				{
+					@Override
+					public void put(String name, Scriptable start, Object value)
+					{
+						super.put(name, start, value);
+						if (!Utils.equalObjects(json.opt(name), value))
+						{
+							json.put(name, value);
+							if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						}
+					}
+
+					@Override
+					public void delete(String name)
+					{
+						super.delete(name);
+						json.put(name, (Object)null);
+						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+					}
+				};
+				ScriptRuntime.setBuiltinProtoAndParent((NativeObject)newObject, startScriptable,
+					TopLevel.Builtins.Object);
 				if (newObject != null)
 				{
 					Iterator<String> iterator = json.keys();
