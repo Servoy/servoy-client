@@ -175,7 +175,7 @@ public class RhinoConversion
 						super.put(name, start, value);
 						if (!Utils.equalObjects(json.opt(name), value))
 						{
-							json.put(name, value);
+//							json.put(name, value);
 							if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 						}
 					}
@@ -184,7 +184,7 @@ public class RhinoConversion
 					public void delete(String name)
 					{
 						super.delete(name);
-						json.put(name, (Object)null);
+//						json.put(name, (Object)null);
 						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 					}
 				};
