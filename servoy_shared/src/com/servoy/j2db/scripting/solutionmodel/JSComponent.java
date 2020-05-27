@@ -341,9 +341,9 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	@JSSetter
-	public void setName(String name)
+	public void setName(String arg)
 	{
-		getBaseComponent(true).setName(name != null ? name.replace('-', '_').replace('.', '_') : null);
+		getBaseComponent(true).setName(arg);
 	}
 
 	/**

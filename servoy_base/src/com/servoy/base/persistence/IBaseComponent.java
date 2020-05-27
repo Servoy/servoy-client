@@ -22,7 +22,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Base interface for graphical components (for mobile as well as other clients).
- *
+ * 
  * @author rgansevles
  *
  * @since 7.0
@@ -33,7 +33,7 @@ public interface IBaseComponent
 {
 	/**
 	 * The visible property of the component, default true.
-	 *
+	 * 
 	 * @return visible property
 	 */
 	boolean getVisible();
@@ -42,7 +42,7 @@ public interface IBaseComponent
 
 	/**
 	 * The enable state of the component, default true.
-	 *
+	 * 
 	 * @return enabled state
 	 */
 	boolean getEnabled();
@@ -51,7 +51,6 @@ public interface IBaseComponent
 
 	/**
 	 * The name of the component. Through this name it can also accessed in methods.
-	 * Must be valid for javascript or it can be converted (- converted to _)
 	 */
 	String getName();
 
@@ -59,7 +58,7 @@ public interface IBaseComponent
 
 	/**
 	 * Returns the groupID.
-	 *
+	 * 
 	 * @return int
 	 */
 	String getGroupID();

@@ -857,7 +857,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			Portal portal = getContainer().createNewPortal(name != null ? name.replace('-', '_').replace('.', '_') : null, new Point(x, y));
+			Portal portal = getContainer().createNewPortal(name, new Point(x, y));
 			CSSPositionUtils.setSize(portal, width, height);
 			String relationName = null;
 			if (relation instanceof RelatedFoundSet)
@@ -1032,7 +1032,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			TabPanel tabPanel = getContainer().createNewTabPanel(name != null ? name.replace('-', '_').replace('.', '_') : null);
+			TabPanel tabPanel = getContainer().createNewTabPanel(name);
 			CSSPositionUtils.setSize(tabPanel, width, height);
 			CSSPositionUtils.setLocation(tabPanel, x, y);
 			return new JSTabPanel(this, tabPanel, application, true);
@@ -1433,7 +1433,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			Bean bean = getContainer().createNewBean(name != null ? name.replace('-', '_').replace('.', '_') : null, className);
+			Bean bean = getContainer().createNewBean(name, className);
 			bean.setSize(new Dimension(width, height));
 			bean.setLocation(new Point(x, y));
 			return new JSBean(this, bean, true);
@@ -1840,7 +1840,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			WebComponent webComponent = getContainer().createNewWebComponent(name != null ? name.replace('-', '_').replace('.', '_') : null, type);
+			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
 			CSSPositionUtils.setSize(webComponent, width, height);
 			CSSPositionUtils.setLocation(webComponent, x, y);
 			return createWebComponent(this, webComponent, application, true);
@@ -1876,7 +1876,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			Form form = (Form)container.getAncestor(IRepository.FORMS);
 			if (form.isResponsiveLayout())
 			{
-				WebComponent webComponent = container.createNewWebComponent(name != null ? name.replace('-', '_').replace('.', '_') : null, type);
+				WebComponent webComponent = container.createNewWebComponent(name, type);
 				webComponent.setLocation(new Point(position, position));
 				return createWebComponent(this, webComponent, application, true);
 			}
