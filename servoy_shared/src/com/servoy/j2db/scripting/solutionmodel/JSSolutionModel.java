@@ -81,6 +81,7 @@ import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -204,7 +205,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			{
 				style = fs.getStyle(styleName);
 			}
-			Form form = createNewForm(style, name, dataSource, show_in_menu, new Dimension(width, height));
+			Form form = createNewForm(style, IdentDocumentValidator.checkName(name), dataSource, show_in_menu, new Dimension(width, height));
 			if (!isResponsive)
 			{
 				form.createNewPart(Part.BODY, height);

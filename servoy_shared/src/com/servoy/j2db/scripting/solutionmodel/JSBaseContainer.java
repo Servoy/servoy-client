@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 
 /**
@@ -857,7 +858,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			Portal portal = getContainer().createNewPortal(name, new Point(x, y));
+			Portal portal = getContainer().createNewPortal(IdentDocumentValidator.checkName(name), new Point(x, y));
 			CSSPositionUtils.setSize(portal, width, height);
 			String relationName = null;
 			if (relation instanceof RelatedFoundSet)
@@ -1032,7 +1033,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			TabPanel tabPanel = getContainer().createNewTabPanel(name);
+			TabPanel tabPanel = getContainer().createNewTabPanel(IdentDocumentValidator.checkName(name));
 			CSSPositionUtils.setSize(tabPanel, width, height);
 			CSSPositionUtils.setLocation(tabPanel, x, y);
 			return new JSTabPanel(this, tabPanel, application, true);
@@ -1433,7 +1434,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			Bean bean = getContainer().createNewBean(name, className);
+			Bean bean = getContainer().createNewBean(IdentDocumentValidator.checkName(name), className);
 			bean.setSize(new Dimension(width, height));
 			bean.setLocation(new Point(x, y));
 			return new JSBean(this, bean, true);
@@ -1840,7 +1841,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		checkModification();
 		try
 		{
-			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
+			WebComponent webComponent = getContainer().createNewWebComponent(IdentDocumentValidator.checkName(name), type);
 			CSSPositionUtils.setSize(webComponent, width, height);
 			CSSPositionUtils.setLocation(webComponent, x, y);
 			return createWebComponent(this, webComponent, application, true);
@@ -1876,7 +1877,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			Form form = (Form)container.getAncestor(IRepository.FORMS);
 			if (form.isResponsiveLayout())
 			{
-				WebComponent webComponent = container.createNewWebComponent(name, type);
+				WebComponent webComponent = container.createNewWebComponent(IdentDocumentValidator.checkName(name), type);
 				webComponent.setLocation(new Point(position, position));
 				return createWebComponent(this, webComponent, application, true);
 			}
