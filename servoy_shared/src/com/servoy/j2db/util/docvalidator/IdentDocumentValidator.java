@@ -46,10 +46,12 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 		return name;
 	}
 
+
 	// Returns true if s is a legal Java identifier.
 	public static boolean isJavaIdentifier(String s)
 	{
-		return validateIdentifier(s, TYPE_SERVOY, true) != null;
+		String validated = validateIdentifier(s, TYPE_SERVOY, true);
+		return validated != null && validated.equals(s);
 	}
 
 	// Returns true if s is a legal SQL identifier.
@@ -108,7 +110,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 			}
 			if (!Character.isJavaIdentifierStart(source[0]))
 			{
-				return null;
+				return validateIdentifier('_' + str, type, isStart);
 			}
 			if (type == TYPE_SQL && source[0] == '_') // oracle does not like tables and columns to start with underscore
 			{
@@ -129,7 +131,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 			{
 				if (!Character.isJavaIdentifierPart(source[i]))
 				{
-					source[i] = ' ';
+					source[i] = '_';
 				}
 			}
 			else if (!Character.isJavaIdentifierPart(source[i]))
