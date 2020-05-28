@@ -1383,7 +1383,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Performs a sql query on the specified server, returns the result in a dataset.
-	 * Will throw an exception if anything did go wrong when executing the query.
+	 * Will throw an exception if query is not a select statement or anything did go wrong when executing the query.
 	 *
 	 * Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be disregarded.
 	 *
