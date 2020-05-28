@@ -5,7 +5,7 @@
 	"icon": "servoydefault/listbox/listbox.png",
 	"definition": "servoydefault/listbox/listbox.js",
 	"libraries": [],
-	"keywords": ['select'],
+	"keywords": ["select"],
 	"model":
 	{
 	        "background" : "color", 
