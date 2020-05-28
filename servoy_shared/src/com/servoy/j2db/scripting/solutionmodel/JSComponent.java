@@ -38,6 +38,7 @@ import com.servoy.j2db.solutionmodel.ISMComponent;
 import com.servoy.j2db.solutionmodel.ISMHasDesignTimeProperty;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 /**
  * @author jcompagner
@@ -341,9 +342,9 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	@JSSetter
-	public void setName(String arg)
+	public void setName(String name)
 	{
-		getBaseComponent(true).setName(arg);
+		getBaseComponent(true).setName(IdentDocumentValidator.checkName(name));
 	}
 
 	/**
