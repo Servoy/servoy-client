@@ -174,7 +174,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * //add a "normal" text entry field
 	 * myForm.newTextField('dataProviderNameHere', 140, 20, 140,20)
 	 *
-	 * @param name the specified name of the form
+	 * @param name the specified name of the form, must be a valid javascript identifier
 	 *
 	 * @param dataSource the specified name of the datasource for the specified table
 	 *
@@ -277,7 +277,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * forms['mySuperForm'].controller.recreateUI();
 	 * forms['mySubForm'].controller.show();
 	 *
-	 * @param name The name of the new form
+	 * @param name The name of the new form, must be a valid javascript identifier
 	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
 	 * @param isResponsive
 	 * @return a new JSForm object
@@ -328,7 +328,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var frm = solutionModel.newForm('test','db:/my_server/my_table', true);
 	 * var c = frm.newLayoutContainer(1);
 	 *
-	 * @param name The name of the new form
+	 * @param name The name of the new form, must be a valid javascript identifier
 	 * @param dataSource the form datasource
 	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
 	 * @return a new JSForm object
@@ -346,7 +346,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var frm = solutionModel.newForm('test', true);
 	 * var c = frm.newLayoutContainer(1);
 	 *
-	 * @param name The name of the new form
+	 * @param name The name of the new form, must be a valid javascript identifier
 	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
 	 * @return a new JSForm object
 	 */
