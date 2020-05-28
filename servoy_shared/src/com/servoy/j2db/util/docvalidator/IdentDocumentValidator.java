@@ -20,6 +20,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import com.servoy.j2db.util.Debug;
+
 public class IdentDocumentValidator implements ValidatingDocument.IDocumentValidator
 {
 	private final int type;
@@ -34,6 +36,15 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 		this.type = type;
 	}
 
+	public static String checkName(String name)
+	{
+		if (!isJavaIdentifier(name))
+		{
+			Debug.warn("The name '" + name + //$NON-NLS-1$
+				"' is not a valid indentifier for a component/form, please change this (avoid - or other invalid chars, replace those with _)"); //$NON-NLS-1$
+		}
+		return name;
+	}
 
 	// Returns true if s is a legal Java identifier.
 	public static boolean isJavaIdentifier(String s)
