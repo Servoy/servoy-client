@@ -202,10 +202,10 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			{
 				rhinoArrayCopy = new ArrayList<SabloT>();
 				NativeArray nativeArray = (NativeArray)rhinoValue;
-				for (int i = 0; i < nativeArray.size(); i++)
+				for (Object element : nativeArray)
 				{
 					rhinoArrayCopy.add(
-						(SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(nativeArray.get(i), null, elementPD, componentOrService));
+						(SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(element, null, elementPD, componentOrService));
 				}
 			}
 			else if (rhinoValue instanceof NativeJavaArray)
@@ -305,7 +305,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		{
 			if (entryPD.getType() instanceof IDataLinkedType)
 			{
-				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(FormElement.convertToNull(ServoyJSONObject.jsonNullToNull(value)),
+					entryPD, flattenedSolution,
 					formElement);
 				if (entryDPs != null && entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{

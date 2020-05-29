@@ -85,7 +85,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		private WindowServiceSpecification()
 		{
-			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null);
+			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);

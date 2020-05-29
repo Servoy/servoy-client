@@ -1195,24 +1195,26 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					function updateSelection(newValue, oldValue?) {
-						let children = parent.children();
-						if(oldValue) {
-							for(let k = 0; k < oldValue.length; k++) {
-								let idx = oldValue[k] - scope.foundset.viewPort.startIndex;
-								if(idx > -1 && idx < children.length - 1) {
-									$(parent.children()[idx + 1]).removeClass(scope.selectionClass);
+						if(scope.selectionClass) {
+							let children = parent.children();
+							if(oldValue) {
+								for(let k = 0; k < oldValue.length; k++) {
+									let idx = oldValue[k] - scope.foundset.viewPort.startIndex;
+									if(idx > -1 && idx < children.length - 1) {
+										$(parent.children()[idx + 1]).removeClass(scope.selectionClass);
+									}
 								}
 							}
-						}
-						else {
-							for(let k = 1; k < children.length; k++) {
-								$(parent.children()[k]).removeClass(scope.selectionClass);
+							else {
+								for(let k = 1; k < children.length; k++) {
+									$(parent.children()[k]).removeClass(scope.selectionClass);
+								}
 							}
-						}
-						for(let k = 0; k < newValue.length; k++) {
-							let idx = newValue[k] - scope.foundset.viewPort.startIndex;
-							if(idx > -1 && idx < children.length - 1) {
-								$(parent.children()[idx + 1]).addClass(scope.selectionClass);
+							for(let k = 0; k < newValue.length; k++) {
+								let idx = newValue[k] - scope.foundset.viewPort.startIndex;
+								if(idx > -1 && idx < children.length - 1) {
+									$(parent.children()[idx + 1]).addClass(scope.selectionClass);
+								}
 							}
 						}
 						updateChildElementsAPI(newValue[0]);
@@ -1221,7 +1223,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					function createRowsAndSetSelection() {
 						createRows();
 						var selectedRowsIndexes = getFoundset().selectedRowIndexes; 
-						if(selectedRowsIndexes.length && scope.selectionClass) {
+						if(selectedRowsIndexes.length) {
 							updateSelection(selectedRowsIndexes);
 						}
 					}
@@ -1328,9 +1330,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 											viewportSizeAfterShiftingIsDone -= Math.abs(loadLessCorrected);
 										}
 									}
-									if(scope.selectionClass) {
-										updateSelection(getFoundset().selectedRowIndexes);
-									}
+									updateSelection(getFoundset().selectedRowIndexes);
 								}
 								
 								// ok now we know startIndex is corrected if needed already; check is size needs to be corrected as well
@@ -1366,9 +1366,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 							
 							if(changes.selectedRowIndexesChanged) {
-								if(scope.selectionClass) {
-									updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
-								}
+								updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								if(scope.selectionChangedHandler) {
 									var e = {target: parent[0]};
 									scope.selectionChangedHandler($utils.createJSEvent(e,"onselectionchanged"));
@@ -1400,6 +1398,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 														row.rowID = scope.foundset.viewPort.rows[k][$foundsetTypeConstants.ROW_ID_COL_KEY];
 														createChildElementForRow(k, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 													}
+													updateSelection(getFoundset().selectedRowIndexes);
 												}
 											});
 										}

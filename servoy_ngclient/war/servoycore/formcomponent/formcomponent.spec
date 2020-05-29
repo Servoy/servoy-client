@@ -6,6 +6,7 @@
 	"icon": "servoycore/formcomponent/formcomponent.png",
 	"definition": "servoycore/formcomponent/formcomponent.js", 
 	"libraries": [],	
+	"keywords": [],
 	"model":
 	{
 		"containedForm": "formcomponent",

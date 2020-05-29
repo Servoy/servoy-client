@@ -43,6 +43,7 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.serialize.JSONConverter;
 
 /**
  * @author emera
@@ -136,6 +137,7 @@ public class RhinoConversion
 				public void put(String name, Scriptable start, Object value)
 				{
 					super.put(name, start, value);
+					value = defaultFromRhino(value, null, pd, null);
 					if (!Utils.equalObjects(((Map)webComponentValue).get(name), value))
 					{
 						((Map)webComponentValue).put(name, value);
@@ -154,7 +156,8 @@ public class RhinoConversion
 			ScriptRuntime.setBuiltinProtoAndParent(nativeObject, startScriptable, TopLevel.Builtins.Object);
 			for (Object key : ((Map)webComponentValue).keySet())
 			{
-				nativeObject.defineProperty(key.toString(), ((Map)webComponentValue).get(key), ScriptableObject.EMPTY);
+				nativeObject.defineProperty(key.toString(), defaultToRhino(((Map)webComponentValue).get(key), pd, webObjectContext, startScriptable),
+					ScriptableObject.EMPTY);
 			}
 			return nativeObject;
 		}
@@ -165,7 +168,44 @@ public class RhinoConversion
 			Scriptable newObject = null;
 			try
 			{
-				newObject = cx.newObject(startScriptable);
+				final boolean[] initializing = new boolean[] { true };
+				// code from Context.newObject(Scriptable)
+				newObject = new NativeObject()
+				{
+					private final JSONConverter converter = new JSONConverter();
+
+					@Override
+					public void put(String name, Scriptable start, Object value)
+					{
+						super.put(name, start, value);
+						if (!initializing[0])
+						{
+							try
+							{
+								value = converter.convertToJSON(value);
+							}
+							catch (Exception e)
+							{
+								Debug.error(e);
+							}
+							if (!Utils.equalObjects(json.opt(name), value))
+							{
+								json.put(name, value);
+								if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+							}
+						}
+					}
+
+					@Override
+					public void delete(String name)
+					{
+						super.delete(name);
+						json.put(name, (Object)null);
+						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+					}
+				};
+				ScriptRuntime.setBuiltinProtoAndParent((NativeObject)newObject, startScriptable,
+					TopLevel.Builtins.Object);
 				if (newObject != null)
 				{
 					Iterator<String> iterator = json.keys();
@@ -194,6 +234,7 @@ public class RhinoConversion
 					Debug.error("Cannot create javascript object from jsonobject " + webComponentValue + "  in property/method: " + pd != null ? pd.getName()
 						: "undefined");
 				}
+				initializing[0] = false;
 			}
 			finally
 			{

@@ -19,6 +19,7 @@ package com.servoy.j2db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,7 +62,8 @@ public class PersistIndexCache
 			{
 				IPersistIndex alreadyCreated = persistIndexCache.putIfAbsent(solution.getUUID(), index);
 				if (alreadyCreated != null) index = alreadyCreated;
-				LOG.debug("Persist Index Cache entry created for " + solution + " with modules " + Arrays.asList(modules));
+				LOG.debug("Persist Index Cache entry created for " + solution + " with modules " +
+					(modules != null ? Arrays.asList(modules) : Collections.emptyList()));
 			}
 		}
 		return index;

@@ -388,7 +388,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 			if (entryPD.getType() instanceof IDataLinkedType)
 			{
-				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(FormElement.convertToNull(ServoyJSONObject.jsonNullToNull(value)),
+					entryPD, flattenedSolution,
 					formElement);
 				if (entryDPs != null && entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{

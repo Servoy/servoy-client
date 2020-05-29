@@ -20,6 +20,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import com.servoy.j2db.util.Debug;
+
 public class IdentDocumentValidator implements ValidatingDocument.IDocumentValidator
 {
 	private final int type;
@@ -34,11 +36,22 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 		this.type = type;
 	}
 
+	public static String checkName(String name)
+	{
+		if (!isJavaIdentifier(name))
+		{
+			Debug.warn("The name '" + name + //$NON-NLS-1$
+				"' is not a valid indentifier for a component/form, please change this (avoid - or other invalid chars, replace those with _)"); //$NON-NLS-1$
+		}
+		return name;
+	}
+
 
 	// Returns true if s is a legal Java identifier.
 	public static boolean isJavaIdentifier(String s)
 	{
-		return validateIdentifier(s, TYPE_SERVOY, true) != null;
+		String validated = validateIdentifier(s, TYPE_SERVOY, true);
+		return validated != null && validated.equals(s);
 	}
 
 	// Returns true if s is a legal SQL identifier.
@@ -97,7 +110,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 			}
 			if (!Character.isJavaIdentifierStart(source[0]))
 			{
-				return null;
+				return validateIdentifier('_' + str, type, isStart);
 			}
 			if (type == TYPE_SQL && source[0] == '_') // oracle does not like tables and columns to start with underscore
 			{
@@ -118,7 +131,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 			{
 				if (!Character.isJavaIdentifierPart(source[i]))
 				{
-					source[i] = ' ';
+					source[i] = '_';
 				}
 			}
 			else if (!Character.isJavaIdentifierPart(source[i]))
