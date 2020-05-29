@@ -18,14 +18,15 @@ package com.servoy.j2db.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
 /**
  * Query condition consisting of conditions to be AND-ed.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class AndCondition extends AndOrCondition
 {
@@ -53,13 +54,13 @@ public final class AndCondition extends AndOrCondition
 		List<ISQLCondition> nconditions = new ArrayList<ISQLCondition>(conditions.size());
 		for (int i = 0; i < conditions.size(); i++)
 		{
-			nconditions.add((ISQLCondition)conditions.get(i).negate());
+			nconditions.add(conditions.get(i).negate());
 		}
 		return new OrCondition(nconditions);
 	}
 
 	/**
-	 * Combine 2 conditions in an AndCondition. 
+	 * Combine 2 conditions in an AndCondition.
 	 * @param c1
 	 * @param c2
 	 * @return
@@ -79,6 +80,13 @@ public final class AndCondition extends AndOrCondition
 		and.addCondition(c2);
 		return and;
 	}
+
+
+	public static Collector<ISQLCondition, ? , AndCondition> toAndCondition()
+	{
+		return AndOrCondition.collector(AndCondition::new);
+	}
+
 
 	///////// serialization ////////////////
 
