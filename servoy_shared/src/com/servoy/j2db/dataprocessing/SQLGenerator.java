@@ -17,6 +17,9 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Array;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -167,7 +170,7 @@ public class SQLGenerator
 		QuerySelect retval;
 		if (oldSQLQuery != null)
 		{
-			retval = AbstractBaseQuery.deepClone(oldSQLQuery);
+			retval = deepClone(oldSQLQuery);
 			retval.setGroupBy(null);
 			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
 			// remove all servoy conditions, except filter, search and relation
@@ -443,7 +446,7 @@ public class SQLGenerator
 			if (queryJoin != null)
 			{
 				// a query join was defined for this relation, just relink the tables for the first and last in the joins
-				queryJoin = AbstractBaseQuery.deepClone(queryJoin);
+				queryJoin = deepClone(queryJoin);
 				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getPrimaryTable(), primaryTable, queryJoin);
 				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getForeignTable(), foreignTable, queryJoin);
 
@@ -1138,8 +1141,8 @@ public class SQLGenerator
 			new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
 
 		select.setCondition(CONDITION_SEARCH, pkSelect);
-		delete.setCondition(AbstractBaseQuery.deepClone(pkSelect));
-		update.setCondition(AbstractBaseQuery.deepClone(pkSelect));
+		delete.setCondition(deepClone(pkSelect));
+		update.setCondition(deepClone(pkSelect));
 
 		//fill dataprovider map
 		List<String> dataProviderIDsDilivery = new ArrayList<String>();
@@ -1267,7 +1270,7 @@ public class SQLGenerator
 
 		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 		{
-			return createTableFiltercondition(qTable, ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+			return createTableFiltercondition(qTable, table, ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
 		}
 
 		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
@@ -1279,12 +1282,17 @@ public class SQLGenerator
 
 	}
 
-	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, QuerySelect filterQuery)
+	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, QuerySelect filterQuery)
 	{
-		QuerySelect filterQueryClone = AbstractBaseQuery.deepClone(filterQuery);
+		QuerySelect filterQueryClone = deepClone(filterQuery);
 		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
 
-		return new QueryFilter(filterQueryClone.getJoins(), filterQueryClone.getWhere());
+		List<QueryColumn> pkColumns = table.getRowIdentColumns().stream()
+			.map(column -> new QueryColumn(qTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
+				column.getFlags()))
+			.collect(toList());
+
+		return new QueryFilter(filterQueryClone.getJoins(), pkColumns, filterQueryClone.getWhere());
 	}
 
 	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
@@ -1391,7 +1399,7 @@ public class SQLGenerator
 			filterWhere = new CompareCondition(op, qColumn, operand);
 		}
 
-		return new QueryFilter(null, filterWhere);
+		return new QueryFilter(filterWhere);
 	}
 
 	/**
@@ -1531,7 +1539,7 @@ public class SQLGenerator
 
 	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)
 	{
-		QuerySelect selectClone = AbstractBaseQuery.deepClone(sqlSelect);
+		QuerySelect selectClone = deepClone(sqlSelect);
 		selectClone.clearSorts();
 		selectClone.setDistinct(false);
 		selectClone.setColumns(null);

@@ -16,7 +16,10 @@
  */
 package com.servoy.j2db.query;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collector;
 
 import com.servoy.base.query.BaseAndOrCondition;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -24,9 +27,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Base condition class for AndCondition and OrCondition.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> implements ISQLCondition
 {
@@ -48,6 +51,19 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 	public void acceptVisitor(IVisitor visitor)
 	{
 		conditions = AbstractBaseQuery.acceptVisitor(conditions, visitor);
+	}
+
+	static <T extends AndOrCondition> Collector<ISQLCondition, ArrayList<ISQLCondition>, T> collector(Function<ArrayList<ISQLCondition>, T> finisher)
+	{
+		Collector<ISQLCondition, ArrayList<ISQLCondition>, T> collector = Collector.of(
+			ArrayList::new,
+			ArrayList::add,
+			(left, right) -> {
+				left.addAll(right);
+				return left;
+			},
+			finisher);
+		return collector;
 	}
 
 
