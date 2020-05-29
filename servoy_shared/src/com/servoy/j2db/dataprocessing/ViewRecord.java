@@ -54,6 +54,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private Map<String, Object> changes;
 	private final List<IModificationListener> modificationListeners;
 	private final ViewFoundSet foundset;
+	private Exception lastException;
 
 	public ViewRecord(String[] columnNames, Object[] data, ViewFoundSet foundset)
 	{
@@ -134,6 +135,10 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		{
 			return foundset;
 		}
+		if ("exception".equals(dataProviderID)) //$NON-NLS-1$
+		{
+			return lastException;
+		}
 		if (values.containsKey(dataProviderID)) return values.get(dataProviderID);
 		return Scriptable.NOT_FOUND;
 	}
@@ -147,7 +152,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean has(String dataProviderID)
 	{
-		if ("foundset".equals(dataProviderID) || jsFunctions.containsKey(dataProviderID)) return true; //$NON-NLS-1$
+		if ("foundset".equals(dataProviderID) || "exception".equals(dataProviderID) || jsFunctions.containsKey(dataProviderID)) return true; //$NON-NLS-1$ //$NON-NLS-2$
 		return values.containsKey(dataProviderID);
 	}
 
@@ -197,11 +202,20 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		if (listener != null) modificationListeners.remove(listener);
 	}
 
+
+	/**
+	 * Returns last occurred exception on this record (or null).
+	 *
+	 * @sample
+	 * var exception = record.exception;
+	 *
+	 * @return The occurred exception.
+	 */
 	@JSReadonlyProperty
 	@Override
 	public Exception getException()
 	{
-		return null;
+		return lastException;
 	}
 
 	/**
@@ -548,8 +562,14 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		}
 		catch (Exception e)
 		{
+			setLastException(e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void setLastException(Exception ex)
+	{
+		lastException = ex;
 	}
 
 	@JSFunction
