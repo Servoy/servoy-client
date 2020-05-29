@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2020 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -16,19 +16,13 @@
  */
 package com.servoy.j2db.query;
 
-import java.io.Serializable;
-
-import com.servoy.base.query.IBaseQueryElement;
-import com.servoy.j2db.util.serialize.IWriteReplace;
-import com.servoy.j2db.util.visitor.IVisitable;
-
-
 /**
- * Common interface for all elements in the query structure.
+ * Common interface for all elements clonable in the query domain.
  *
  * @author rgansevles
  *
  */
-public interface IQueryElement extends IBaseQueryElement, Serializable, ISQLCloneable, IWriteReplace, IVisitable
+public interface ISQLCloneable extends Cloneable
 {
+	Object shallowClone() throws CloneNotSupportedException;
 }
