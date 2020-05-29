@@ -28,23 +28,34 @@ import com.servoy.j2db.util.visitor.IVisitor;
 /**
  * Filter with joins and a condition.
  *
- * In case of filters on dataproviders, the joins are empty.
+ * In case of filters on dataproviders, the joins and pkColumns are null.
  *
  * @author rgansevles
  *
  */
-public class QueryFilter implements IVisitable, IWriteReplace
+public class QueryFilter implements IVisitable, IWriteReplace, ISQLCloneable
 {
 	private List<ISQLJoin> joins;
+	private List<QueryColumn> pkColumns;
 	private ISQLCondition condition;
 
 	/**
-	 * @param joins
 	 * @param condition
 	 */
-	public QueryFilter(List<ISQLJoin> joins, ISQLCondition condition)
+	public QueryFilter(ISQLCondition condition)
+	{
+		this(null, null, condition);
+	}
+
+	/**
+	 * @param joins
+	 * @param pkColumns
+	 * @param condition
+	 */
+	public QueryFilter(List<ISQLJoin> joins, List<QueryColumn> pkColumns, ISQLCondition condition)
 	{
 		this.joins = joins;
+		this.pkColumns = pkColumns;
 		this.condition = condition;
 	}
 
@@ -57,6 +68,14 @@ public class QueryFilter implements IVisitable, IWriteReplace
 	}
 
 	/**
+	 * @return the pkColumns
+	 */
+	public List<QueryColumn> getPkColumns()
+	{
+		return pkColumns;
+	}
+
+	/**
 	 * @return the condition
 	 */
 	public ISQLCondition getCondition()
@@ -65,17 +84,26 @@ public class QueryFilter implements IVisitable, IWriteReplace
 	}
 
 	@Override
+	public Object shallowClone() throws CloneNotSupportedException
+	{
+		return super.clone();
+	}
+
+	@Override
 	public void acceptVisitor(IVisitor visitor)
 	{
 		joins = AbstractBaseQuery.acceptVisitor(joins, visitor);
+		pkColumns = AbstractBaseQuery.acceptVisitor(pkColumns, visitor);
 		condition = AbstractBaseQuery.acceptVisitor(condition, visitor);
 	}
 
 	@Override
 	public String toString()
 	{
-		return new StringBuilder("QueryFilter [joins=").append(BaseAbstractBaseQuery.toString(joins)).append(", condition=").append(
-			BaseAbstractBaseQuery.toString(condition)).append(']').toString();
+		return new StringBuilder("QueryFilter [joins=").append(BaseAbstractBaseQuery.toString(joins))
+			.append(", pkColumns=").append(BaseAbstractBaseQuery.toString(pkColumns))
+			.append(", condition=").append(BaseAbstractBaseQuery.toString(condition))
+			.append(']').toString();
 	}
 
 	///////// serialization ////////////////
@@ -83,7 +111,7 @@ public class QueryFilter implements IVisitable, IWriteReplace
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { joins, condition });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { joins, pkColumns, condition });
 	}
 
 	public QueryFilter(ReplacedObject s)
@@ -91,6 +119,7 @@ public class QueryFilter implements IVisitable, IWriteReplace
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
 		joins = (List<ISQLJoin>)members[i++];
+		pkColumns = (List<QueryColumn>)members[i++];
 		condition = (ISQLCondition)members[i++];
 	}
 }
