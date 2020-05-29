@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.swing.ListSelectionModel;
@@ -190,9 +189,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
 	private List<ViewRecord> records = new ArrayList<>();
-	private List<ViewRecord> editedRecords = Collections.synchronizedList(new ArrayList<>());
-	private final List<ViewRecord> failedRecords = Collections.synchronizedList(new ArrayList<ViewRecord>(2));
-	private final ReentrantLock editRecordsLock = new ReentrantLock();
+	private final List<ViewRecord> editedRecords = new ArrayList<>();
 
 	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<>(6);
 
@@ -683,15 +680,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public ViewRecord[] getEditedRecords()
 	{
-		editRecordsLock.lock();
-		try
-		{
-			return editedRecords.toArray(new ViewRecord[editedRecords.size()]);
-		}
-		finally
-		{
-			editRecordsLock.unlock();
-		}
+		return editedRecords.toArray(new ViewRecord[editedRecords.size()]);
 	}
 
 
@@ -746,21 +735,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					columnNames.forEach((selectValue, name) -> {
 						if (changes.containsKey(name))
 						{
-							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> {
-								RuntimeException ex = new RuntimeException(
-									"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found");
-								rec.setLastException(ex);
-								editRecordsLock.lock();
-								try
-								{
-									if (!failedRecords.contains(rec)) failedRecords.add(rec);
-								}
-								finally
-								{
-									editRecordsLock.unlock();
-								}
-								return ex;
-							});
+							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> new RuntimeException(
+								"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found"));
 							BaseQueryTable table = realColumn.getTable();
 							Map<QueryColumn, Object> map = tableToChanges.get(table);
 							if (map == null)
@@ -775,19 +751,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						List<IQuerySelectValue> pkColumns = pkColumnsForTable.get(table);
 						if (pkColumns == null)
 						{
-							RuntimeException ex = new RuntimeException("Can't save " + rec + " for changed values " + changes +
+							throw new RuntimeException("Can't save " + rec + " for changed values " + changes +
 								" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
-							rec.setLastException(ex);
-							editRecordsLock.lock();
-							try
-							{
-								if (!failedRecords.contains(rec)) failedRecords.add(rec);
-							}
-							finally
-							{
-								editRecordsLock.unlock();
-							}
-							throw ex;
 						}
 
 						int counter = 0;
@@ -2271,14 +2236,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		if (rec != null)
 		{
-			try
-			{
-				Arrays.stream(rec).forEach(r -> editedRecords.remove(r));
-			}
-			finally
-			{
-				editRecordsLock.unlock();
-			}
+			Arrays.stream(rec).forEach(r -> editedRecords.remove(r));
 		}
 	}
 
@@ -2288,15 +2246,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public void revertEditedRecords()
 	{
-		editRecordsLock.lock();
-		try
-		{
-			editedRecords = new ArrayList<>();
-		}
-		finally
-		{
-			editRecordsLock.unlock();
-		}
+		editedRecords.clear();
 	}
 
 	/**
@@ -2310,31 +2260,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Get the records which could not be saved.
-	 * @return an array of failed records
-	 */
-	@JSFunction
-	public ViewRecord[] getFailedRecords()
-	{
-		editRecordsLock.lock();
-		try
-		{
-			return failedRecords.toArray(new ViewRecord[failedRecords.size()]);
-		}
-		finally
-		{
-			editRecordsLock.unlock();
-		}
-	}
-
-	/**
 	 * Check whether the foundset has record changes.
 	 * @return true if the foundset has any edited records, false otherwise
 	 */
 	@JSFunction
 	public boolean hasRecordChanges()
 	{
-		return getEditedRecords().length > 0;
+		return !editedRecords.isEmpty();
 	}
 
 	/**
