@@ -963,7 +963,23 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								break;
 							}	
 						}
-					}
+					} 
+					
+					scope.onKeydown = function(event, rowID) {
+						const keycode = event.originalEvent.keyCode;
+						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
+							let selectedRowIndex = getFoundset().selectedRowIndexes[0];
+							if (keycode == 38) {
+								selectedRowIndex--;
+								if (selectedRowIndex < 0) return;
+							} else if (keycode == 40) {
+								selectedRowIndex++;
+								if (selectedRowIndex >= getFoundset().serverSize) return;
+							}
+							scope.foundset.requestSelectionUpdate([selectedRowIndex]);
+							(<HTMLElement>document.getElementById("listformcomponent").children[selectedRowIndex + 1]).focus();
+						} 
+					} 
 
 					const parent = element.parent();
                     const rowToModel: Array<IServoyScopeInternal> = [];
@@ -1149,6 +1165,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						clone.removeAttr("svy-form-component");
 						// this compile (that happens before row contents are added to "clone") is only for ng-click to work on each rows container div, not the actual scope of the row (which is created and used for compilation in createChildElementForRow)
 						clone.attr("ng-click", "onRowClick(rowID)");
+						clone.attr("ng-keydown", "onKeydown($event, rowID)");
+						
 						if (scope.rowStyleClass)
 						{
 							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClass);
