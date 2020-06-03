@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -34,6 +35,7 @@ import com.servoy.j2db.util.IFormComponentRhinoConverter;
 import com.servoy.j2db.util.IFormComponentType;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
@@ -149,6 +151,24 @@ public class JSNGWebComponent extends JSWebComponent
 			else
 			{
 				value = json.opt(propAndName.getRight());
+			}
+			// need to convert to plain because WrapFactory doesnt do this on purpose
+			// and at deployment this could be a ServoyJSONObject, but in developer it is a JSONObject
+			// so we need to make sure we always return a JSONObject.
+			if (value instanceof ServoyJSONObject)
+			{
+				value = new JSONObject((ServoyJSONObject)value, ((ServoyJSONObject)value).keySet().toArray(new String[0]));
+			}
+			else if (value instanceof ServoyJSONArray)
+			{
+				ServoyJSONArray sArray = (ServoyJSONArray)value;
+				JSONArray array = new JSONArray();
+				for (int i = 0; i < sArray.length(); i++)
+				{
+					array.put(i, sArray.get(i));
+				}
+				value = sArray;
+
 			}
 			return fromDesignToRhinoValue(value, propAndName.getLeft(), application, this, propertyName);
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
