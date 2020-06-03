@@ -479,6 +479,16 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return changes;
 	}
 
+	ViewRecord revertChangesImpl()
+	{
+		if (changes != null)
+		{
+			changes.forEach((key, value) -> values.put(key, value));
+		}
+		clearChanges();
+		return this;
+	}
+
 	void clearChanges()
 	{
 		changes = null;
@@ -544,6 +554,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	{
 		try
 		{
+			// this does a call back to revertChangesImpl
 			foundset.revertEditedRecords(new ViewRecord[] { this });
 		}
 		catch (Exception e)
