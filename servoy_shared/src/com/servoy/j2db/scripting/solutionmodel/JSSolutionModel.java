@@ -256,7 +256,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm newForm(String name, ISMForm superForm)
 	{
-		return newForm(name, superForm, null);
+		return newFormInternal(name, superForm, null);
 	}
 
 	/**
@@ -284,7 +284,18 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return a new JSForm object
 	 */
 	@JSFunction
-	public JSForm newForm(String name, ISMForm superForm, Boolean isResponsive)
+	public JSForm newForm(String name, ISMForm superForm, boolean isResponsive)
+	{
+		return newFormInternal(name, superForm, Boolean.valueOf(isResponsive));
+	}
+
+	/**
+	 * @param name
+	 * @param superForm
+	 * @param isResponsive
+	 * @return
+	 */
+	private JSForm newFormInternal(String name, ISMForm superForm, Boolean isResponsive)
 	{
 		if (superForm == null)
 		{

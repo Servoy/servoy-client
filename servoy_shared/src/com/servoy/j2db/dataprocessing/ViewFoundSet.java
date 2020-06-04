@@ -2251,7 +2251,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		if (rec != null)
 		{
-			Arrays.stream(rec).forEach(r -> editedRecords.remove(r));
+			Arrays.stream(rec).forEach(r -> editedRecords.remove(r.revertChangesImpl()));
 		}
 	}
 
@@ -2261,6 +2261,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public void revertEditedRecords()
 	{
+		editedRecords.stream().forEach(r -> r.revertChangesImpl());
 		editedRecords.clear();
 	}
 
