@@ -25,14 +25,14 @@ import com.servoy.j2db.persistence.InfoChannel;
 
 /**
  * The <code>IXMLExportUserChannel</code> interface is used to send send info messages and to delegate any decisions needed during the export to the user.
- * 
+ *
  */
 public interface IXMLExportUserChannel extends InfoChannel
 {
 	/**
 	 * Return the modules names which must be included in the export. The argument is a (sorted) list of all modules which the solution references. The result
 	 * should be a subset of the supplied list.
-	 * 
+	 *
 	 * @param allModules names of all modules of exported solution. This list may be altered and returned.
 	 * @return the modules names which must be included in the export.
 	 */
@@ -40,7 +40,7 @@ public interface IXMLExportUserChannel extends InfoChannel
 
 	/**
 	 * Return a protection password for export.
-	 * 
+	 *
 	 * @return a protection password for export.
 	 */
 	public String getProtectionPassword();
@@ -48,4 +48,6 @@ public interface IXMLExportUserChannel extends InfoChannel
 	public boolean getExportAllTablesFromReferencedServers();
 
 	public String getTableMetaData(ITable table) throws IOException;
+
+	public void displayWarningMessage(String title, String message);
 }
