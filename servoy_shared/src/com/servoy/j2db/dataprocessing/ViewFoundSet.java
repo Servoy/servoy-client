@@ -2295,21 +2295,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return !editedRecords.isEmpty();
 	}
 
-	/**
-	 * Check whether a specific record of the view foundset has changes.
-	 * @param row the row index of the view record
-	 * @return true if the record has changes, false otherwise
-	 */
-	@JSFunction
-	public boolean hasRecordChanges(int row)
-	{
-		ViewRecord record = getRecord(row);
-		if (record != null)
-		{
-			return record.isEditing();
-		}
-		return false;
-	}
 
 	public Class< ? >[] getAllReturnedTypes()
 	{
