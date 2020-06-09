@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.servoy.j2db.util.Debug;
 
@@ -36,21 +35,24 @@ public class ItemChangeHandler<E, I>
 		CREATED, REMOVED, CHANGED
 	}
 
-	protected final WeakHashMap<E, List<IItemChangeListener<I>>> listeners = new WeakHashMap<>();
+	private final WeakHashMap<E, List<IItemChangeListener<I>>> listeners = new WeakHashMap<>();
 
 	public void add(E element, IItemChangeListener<I> listener)
 	{
 		if (element != null && listener != null)
 		{
-			List<IItemChangeListener<I>> itemListeners = listeners.get(element);
-			if (itemListeners == null)
+			synchronized (listeners)
 			{
-				itemListeners = new CopyOnWriteArrayList<IItemChangeListener<I>>();
-				listeners.put(element, itemListeners);
-			}
-			if (!itemListeners.contains(listener))
-			{
-				itemListeners.add(listener);
+				List<IItemChangeListener<I>> itemListeners = listeners.get(element);
+				if (itemListeners == null)
+				{
+					itemListeners = new ArrayList<IItemChangeListener<I>>();
+					listeners.put(element, itemListeners);
+				}
+				if (!itemListeners.contains(listener))
+				{
+					itemListeners.add(listener);
+				}
 			}
 		}
 	}
@@ -59,13 +61,16 @@ public class ItemChangeHandler<E, I>
 	{
 		if (element != null && listener != null)
 		{
-			List<IItemChangeListener<I>> itemListeners = listeners.get(element);
-			if (itemListeners != null)
+			synchronized (listeners)
 			{
-				itemListeners.remove(listener);
-				if (itemListeners.size() == 0)
+				List<IItemChangeListener<I>> itemListeners = listeners.get(element);
+				if (itemListeners != null)
 				{
-					listeners.remove(element);
+					itemListeners.remove(listener);
+					if (itemListeners.size() == 0)
+					{
+						listeners.remove(element);
+					}
 				}
 			}
 		}
@@ -98,10 +103,10 @@ public class ItemChangeHandler<E, I>
 	{
 		if (element != null)
 		{
-			List<IItemChangeListener<I>> itemListeners = listeners.get(element);
-			if (itemListeners != null)
+			IItemChangeListener<I>[] array = getListeners(element);
+			if (array != null)
 			{
-				for (IItemChangeListener<I> listener : itemListeners)
+				for (IItemChangeListener<I> listener : array)
 				{
 					try
 					{
@@ -125,5 +130,25 @@ public class ItemChangeHandler<E, I>
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param element
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected IItemChangeListener<I>[] getListeners(E element)
+	{
+		IItemChangeListener<I> array[] = null;
+		synchronized (listeners)
+		{
+			List<IItemChangeListener<I>> itemListeners = listeners.get(element);
+			if (itemListeners != null)
+			{
+				array = new IItemChangeListener[itemListeners.size()];
+				array = itemListeners.toArray(array);
+			}
+		}
+		return array;
 	}
 }
