@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.persistence;
 
-import java.util.List;
-
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -27,7 +25,7 @@ import com.servoy.j2db.util.Debug;
  */
 public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITable>
 {
-	private static TableChangeHandler tableChangeHandler = new TableChangeHandler();
+	private static final TableChangeHandler tableChangeHandler = new TableChangeHandler();
 
 	private TableChangeHandler()
 	{
@@ -42,7 +40,7 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 	{
 		if (removedTables != null && removedTables.length > 0)
 		{
-			List<IItemChangeListener<ITable>> itemListeners = listeners.get(server);
+			IItemChangeListener<ITable>[] itemListeners = getListeners(server);
 			if (itemListeners != null)
 			{
 				for (IItemChangeListener<ITable> listener : itemListeners)
@@ -63,7 +61,7 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 
 	public void fireStateChanged(IServerInternal server, int oldState, int newState)
 	{
-		List<IItemChangeListener<ITable>> itemListeners = listeners.get(server);
+		IItemChangeListener<ITable>[] itemListeners = getListeners(server);
 		if (itemListeners != null)
 		{
 			for (IItemChangeListener<ITable> listener : itemListeners)
@@ -85,7 +83,7 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 	{
 		if (tableNames != null && tableNames.length > 0)
 		{
-			List<IItemChangeListener<ITable>> itemListeners = listeners.get(server);
+			IItemChangeListener<ITable>[] itemListeners = getListeners(server);
 			if (itemListeners != null)
 			{
 				for (IItemChangeListener<ITable> listener : itemListeners)
@@ -106,7 +104,7 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 
 	public void fireHiddenChanged(IServerInternal server, Table changedTable)
 	{
-		List<IItemChangeListener<ITable>> itemListeners = listeners.get(server);
+		IItemChangeListener<ITable>[] itemListeners = getListeners(server);
 		if (itemListeners != null)
 		{
 			for (IItemChangeListener<ITable> listener : itemListeners)
@@ -128,7 +126,7 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 	{
 		if (t != null)
 		{
-			List<IItemChangeListener<ITable>> itemListeners = listeners.get(server);
+			IItemChangeListener<ITable>[] itemListeners = getListeners(server);
 			if (itemListeners != null)
 			{
 				for (IItemChangeListener<ITable> listener : itemListeners)
