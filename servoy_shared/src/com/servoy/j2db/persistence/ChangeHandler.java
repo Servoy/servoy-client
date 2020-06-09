@@ -34,10 +34,6 @@ public class ChangeHandler
 
 	void setRootObject(AbstractRootObject rootObject)
 	{
-		if (this.rootObject != null)
-		{
-			throw new IllegalArgumentException("root object already set"); //$NON-NLS-1$
-		}
 		this.rootObject = rootObject;
 	}
 
