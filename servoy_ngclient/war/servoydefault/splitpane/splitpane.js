@@ -182,7 +182,14 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					}
 					// let the containing forms re-calculate their size
 					$timeout(function() {
-						$window.dispatchEvent(new Event("resize"));
+						var event;
+						if (typeof(Event) === 'function') {
+							event = new Event('resize');
+						} else {
+							event = document.createEvent('Event');
+							event.initEvent('resize', true, true);
+						}
+						$window.dispatchEvent(event);
 					});
 				}
 			});

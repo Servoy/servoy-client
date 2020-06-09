@@ -68,7 +68,7 @@
 
 	"types": {
 		"tag": {
-			"tagname": "string",
+			"tagName": "string",
 			"attrs": "attribute[]"
 		},
 		"attribute": {

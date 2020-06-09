@@ -527,9 +527,9 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@JSFunction
 	public IJSDataSet getChangedData()
 	{
-		if (getParentFoundSet() != null && changes != null)
+		List<Object[]> rows = new ArrayList<Object[]>();
+		if (changes != null)
 		{
-			List<Object[]> rows = new ArrayList<Object[]>();
 			changes.forEach((key, value) -> {
 				if (value != null && !Utils.equalObjects(value, values.get(key)))
 				{
@@ -539,7 +539,8 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			return new JSDataSet(getParentFoundSet().getFoundSetManager().getApplication(),
 				new BufferedDataSet(new String[] { "col_name", "old_value", "new_value" }, rows)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		return null;
+		return new JSDataSet(getParentFoundSet().getFoundSetManager().getApplication(),
+			new BufferedDataSet(new String[] { "col_name", "old_value", "new_value" }, rows));
 	}
 
 	/**

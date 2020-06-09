@@ -109,7 +109,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	public void setChangeHandler(ChangeHandler connectionHandler)
 	{
 		this.changeHandler = connectionHandler;
-		connectionHandler.setRootObject(this);
+		if (connectionHandler != null) connectionHandler.setRootObject(this);
 	}
 
 	public ChangeHandler getChangeHandler()
