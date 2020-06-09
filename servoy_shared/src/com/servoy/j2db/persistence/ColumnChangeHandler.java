@@ -23,7 +23,7 @@ package com.servoy.j2db.persistence;
  */
 public class ColumnChangeHandler extends ItemChangeHandler<ITable, IColumn>
 {
-	private static ColumnChangeHandler columnChangeHandler = new ColumnChangeHandler();
+	private static final ColumnChangeHandler columnChangeHandler = new ColumnChangeHandler();
 
 	private ColumnChangeHandler()
 	{

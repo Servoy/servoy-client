@@ -17,6 +17,8 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -26,6 +28,7 @@ public class ChangeHandler
 {
 	protected IPersistFactory factory;
 	protected AbstractRootObject rootObject;
+	private final CopyOnWriteArrayList<IItemChangeListener<IPersist>> listeners = new CopyOnWriteArrayList<IItemChangeListener<IPersist>>();
 
 	public ChangeHandler(IPersistFactory factory)
 	{
@@ -34,10 +37,6 @@ public class ChangeHandler
 
 	void setRootObject(AbstractRootObject rootObject)
 	{
-		if (this.rootObject != null)
-		{
-			throw new IllegalArgumentException("root object already set"); //$NON-NLS-1$
-		}
 		this.rootObject = rootObject;
 	}
 
@@ -81,27 +80,37 @@ public class ChangeHandler
 
 	public void addIPersistListener(IItemChangeListener<IPersist> listener)
 	{
-		PersistChangeHandler.getInstance().add(this, listener);
+		listeners.addIfAbsent(listener);
 	}
 
 	public void removeIPersistListener(IItemChangeListener<IPersist> listener)
 	{
-		PersistChangeHandler.getInstance().remove(this, listener);
+		listeners.remove(listener);
 	}
 
 	protected void fireIPersistCreated(IPersist persist)
 	{
-		PersistChangeHandler.getInstance().fireItemCreated(this, persist);
+		for (IItemChangeListener<IPersist> listener : listeners)
+		{
+			listener.itemCreated(persist);
+		}
 	}
 
 	protected void fireIPersistRemoved(IPersist persist)
 	{
-		PersistChangeHandler.getInstance().fireItemRemoved(this, persist);
+		for (IItemChangeListener<IPersist> listener : listeners)
+		{
+			listener.itemRemoved(persist);
+		}
 	}
 
 	public void fireIPersistChanged(IPersist persist)
 	{
-		PersistChangeHandler.getInstance().fireItemChanged(this, persist);
+		for (IItemChangeListener<IPersist> listener : listeners)
+		{
+			listener.itemChanged(persist);
+		}
+
 
 		if (persist.getParent() instanceof ISupportChilds)
 		{

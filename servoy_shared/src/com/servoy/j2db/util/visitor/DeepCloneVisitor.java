@@ -18,7 +18,7 @@ package com.servoy.j2db.util.visitor;
 
 import java.lang.reflect.InvocationTargetException;
 
-import com.servoy.j2db.query.IQueryElement;
+import com.servoy.j2db.query.ISQLCloneable;
 import com.servoy.j2db.util.Immutable;
 
 /**
@@ -52,9 +52,9 @@ public class DeepCloneVisitor implements IVisitor
 
 		try
 		{
-			if (o instanceof IQueryElement)
+			if (o instanceof ISQLCloneable)
 			{
-				return ((IQueryElement)o).shallowClone();
+				return ((ISQLCloneable)o).shallowClone();
 			}
 
 			// don't know why we can't use the reflection method below for object arrays, it throws NoSuchMethodException
