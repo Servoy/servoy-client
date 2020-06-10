@@ -354,7 +354,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (index == null && mainSolution != null)
 		{
-			index = createPersistIndex();
+			synchronized (this)
+			{
+				if (index == null)
+				{
+					index = createPersistIndex();
+				}
+			}
 
 			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
 			// flush first the persist helpers cach that could already been filled with null values in creating the index.
