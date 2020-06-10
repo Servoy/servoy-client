@@ -37,6 +37,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 			var lastCellModelsOfRenderedIndex = {};
 			var delayedChangeNotificationsForRenderedIndex = {};
 			var componentChangeListeners;
+			var foundsetListener;
 			
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -1528,7 +1529,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					});
 
 					// size can change server-side if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
-					var foundsetListener = function(foundsetChanges) {
+					foundsetListener = function(foundsetChanges) {
 						$webSocket.addIncomingMessageHandlingDoneTask(function() {
 							var vpSizeChange = foundsetChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_SIZE_CHANGED];
 							if (vpSizeChange) {
@@ -1538,6 +1539,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 							return [$scope];
 						});
 					};
+					
 					$scope.$watch('foundset', function(newVal, oldVal) {
 						if (oldVal && oldVal.removeChangeListener && newVal !== oldVal) oldVal.removeChangeListener(foundsetListener);
 						if (newVal && newVal.addChangeListener) {
@@ -1691,12 +1693,22 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					}
 				}
 			});
+			
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
+				
+				// remove model change notifiers (listener) for portal model and column component non-record-linked part of model
 				delete $scope.model[$sabloConstants.modelChangeNotifier];
-				for(var i=0;i<elements.length;i++) {
+				for (var i = 0; i < elements.length; i++) {
 					delete elements[i].model[$sabloConstants.modelChangeNotifier];
 				}
+				
+				// remove any registered listeners on foundset / column component viewports
+				if (componentChangeListeners && $scope.model.childElements) componentChangeListeners.forEach(function(chListener, idx) {
+					// componentChangeListeners and $scope.model.childElements must be here arrays wih the same length; the listener at index idx is for the child element at the same index
+					$scope.model.childElements[idx].removeViewportChangeListener(chListener);
+				});
+				if (foundsetListener && $scope.foundset.removeChangeListener) $scope.foundset.removeChangeListener(foundsetListener); // $scope.foundset is not directly the model relatedFoundset - can also be a dummy EMPTY value in some cases - and that doesn't know nor have listeners anyway so we have to check for removeChangeListener existence as well here
 			});
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
