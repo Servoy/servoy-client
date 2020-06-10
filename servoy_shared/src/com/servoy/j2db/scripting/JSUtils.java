@@ -286,7 +286,7 @@ public class JSUtils implements IJSUtils
 			}
 			catch (ParseException ex)
 			{
-				Debug.error("Date parsing error: " + date + ", format: " + format, ex); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.debug("Date parsing error: " + date + ", format: " + format); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
 		return null;
