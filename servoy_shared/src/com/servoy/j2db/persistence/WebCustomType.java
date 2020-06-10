@@ -48,7 +48,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	{
 		try
 		{
-			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
+			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebCustomType.class).keySet();
 		}
 		catch (IntrospectionException e)
 		{
@@ -381,7 +381,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
 		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
 	}
-	
+
 	@Override
 	public void applyPropertiesBuffer()
 	{
