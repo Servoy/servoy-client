@@ -1747,10 +1747,6 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 						return $element;
 					}
 			}
-			$scope.$on('$destroy', function ondestroy() {
-				// the ngrepeat watch is not being cleared, parent scope is destroyed and child scope is not cleaned up
-				$scope.$$watchers = null
-            });
 		}
 	}
 }]).directive('cellHelper', ["$parse","$formatterUtils","$svyProperties",function($parse,$formatterUtils,$svyProperties) {
