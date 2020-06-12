@@ -186,8 +186,8 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 						ConcurrentMap<String, IPersist> tableNodeCache = dsMap.get(TableNode.class);
 						Solution solution = (Solution)((TableNode)persist).getAncestor(IRepository.SOLUTIONS);
 						tableNodeCache.put(solution.getName(), persist);
+						return IPersistVisitor.CONTINUE_TRAVERSAL;
 					}
-					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}
 				else if (persist instanceof ScriptCalculation)
 				{
