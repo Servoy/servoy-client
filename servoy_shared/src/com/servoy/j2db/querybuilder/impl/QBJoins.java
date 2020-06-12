@@ -69,10 +69,10 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		this.parent = parent;
 
 		QuerySelect query = root.getQuery(false);
-		if (query != null)
+		if (query != null && parent == root)
 		{
-			stream(query.getJoins()) //
-				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast) //
+			stream(query.getJoins())
+				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast)
 				.forEach(queryJoin -> allVars.put(queryJoin.getName(),
 					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getName())));
 		}
