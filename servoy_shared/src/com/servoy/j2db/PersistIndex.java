@@ -149,7 +149,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	private Map<String, ? extends IPersist> getDatasourceMap(String datasource, Class< ? extends IPersist> persistClass)
 	{
 		initDatasourceCache(datasource);
-		ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist.get(datasource);
+		ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasource != null ? datasourceToPersist.get(datasource) : null;
 		ConcurrentMap<String, ? extends IPersist> persistMap = null;
 		if (dsMap != null)
 		{
@@ -169,10 +169,11 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 			visit((persist) -> {
 				if (persist instanceof TableNode)
 				{
-					if (((TableNode)persist).getDataSource().equals(datasource) || datasource == null)
+					String tableDs = ((TableNode)persist).getDataSource();
+					if (tableDs != null && (tableDs.equals(datasource) || datasource == null))
 					{
 						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-							.get(((TableNode)persist).getDataSource());
+							.get(tableDs);
 						if (dsMap == null)
 						{
 							dsMap = new ConcurrentHashMap<>(4);
@@ -180,13 +181,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 							dsMap.put(TableNode.class, new ConcurrentHashMap<String, IPersist>(4));
 							dsMap.put(AggregateVariable.class, new ConcurrentHashMap<String, IPersist>(4));
 							dsMap.put(ScriptMethod.class, new ConcurrentHashMap<String, IPersist>(4));
-							datasourceToPersist.put(((TableNode)persist).getDataSource(), dsMap);
+							datasourceToPersist.put(tableDs, dsMap);
 						}
 						ConcurrentMap<String, IPersist> tableNodeCache = dsMap.get(TableNode.class);
 						Solution solution = (Solution)((TableNode)persist).getAncestor(IRepository.SOLUTIONS);
 						tableNodeCache.put(solution.getName(), persist);
-						return IPersistVisitor.CONTINUE_TRAVERSAL;
 					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}
 				else if (persist instanceof ScriptCalculation)
 				{
@@ -445,7 +446,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		{
 			// just remove the whole datasource cache
 			String ds = item instanceof TableNode ? ((TableNode)item).getDataSource() : ((TableNode)item.getParent()).getDataSource();
-			datasourceToPersist.remove(ds);
+			if (ds != null) datasourceToPersist.remove(ds);
 		}
 	}
 
