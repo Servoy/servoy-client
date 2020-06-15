@@ -63,10 +63,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 {
 	public static final long serialVersionUID = -2730015162348120893L;
 	public static final int MAX_SQL_OBJECT_NAME_LENGTH = RepositoryHelper.MAX_SQL_NAME_LENGTH; // max length of table names, column names, etc; 30 seen by oracle, 31 seen by firebird
-																							  //UPDATE: increase this to 50, oracle supports it now
- /*
- * _____________________________________________________________ Declaration of attributes
- */
+																								//UPDATE: increase this to 50, oracle supports it now
+																								/*
+																								 * _____________________________________________________________
+																								 * Declaration of attributes
+																								 */
 	public static final int[] allDefinedTypes = new int[] { TEXT, INTEGER, NUMBER, DATETIME, MEDIA };
 
 	private final ITable table;
@@ -113,9 +114,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getTextualPropertyInfo()
 	{
-		if (columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null)
 		{
-			return columnInfo.getTextualPropertyInfo(false);
+			return ci.getTextualPropertyInfo(false);
 		}
 		return null;
 	}
@@ -798,9 +800,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getDataProviderID()//get the id
 	{
-		if (columnInfo != null && columnInfo.getDataProviderID() != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null && ci.getDataProviderID() != null)
 		{
-			return columnInfo.getDataProviderID();
+			return ci.getDataProviderID();
 		}
 		if (dataProviderID != null)
 		{
@@ -817,11 +820,12 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void setDataProviderID(String dataProviderID)
 	{
 		String oldDataProviderID = getDataProviderID();
-		if (columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null)
 		{
-			columnInfo.setDataProviderID(getName().equals(dataProviderID) ? null : dataProviderID);
+			ci.setDataProviderID(getName().equals(dataProviderID) ? null : dataProviderID);
 			this.dataProviderID = null;
-			columnInfo.flagChanged();
+			ci.flagChanged();
 		}
 		else
 		{
@@ -852,13 +856,14 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	@Override
 	public int getID()
 	{
-		if (columnInfo == null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci == null)
 		{
 			return -1;
 		}
 		else
 		{
-			return columnInfo.getID();
+			return ci.getID();
 		}
 	}
 
@@ -1009,12 +1014,13 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 		updateTableIdentColumns(newFlags);
 
-		if (columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null)
 		{
-			if (columnInfo.getFlags() != newFlags)
+			if (ci.getFlags() != newFlags)
 			{
-				columnInfo.setFlags(newFlags);
-				columnInfo.flagChanged();
+				ci.setFlags(newFlags);
+				ci.flagChanged();
 			}
 			this.flags = -1; // clear local
 		}
@@ -1040,7 +1046,8 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public int getFlags()
 	{
-		if (columnInfo == null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci == null)
 		{
 			if (flags != -1)
 			{
@@ -1048,7 +1055,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			}
 			return dbPK ? IBaseColumn.PK_COLUMN : 0;
 		}
-		return columnInfo.getFlags();
+		return ci.getFlags();
 	}
 
 	public void setDatabasePK(boolean pk)
@@ -1098,16 +1105,18 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void setDatabaseDefaultValue(String value)
 	{
 		databaseDefaultValue = value;
-		if (columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null)
 		{
 			// Don't flag the column info as changed, since the default value is dynamic (i.e., not saved).
-			columnInfo.setDatabaseDefaultValue(value);
+			ci.setDatabaseDefaultValue(value);
 		}
 	}
 
 	public String getDatabaseDefaultValue()
 	{
-		return columnInfo != null ? columnInfo.getDatabaseDefaultValue() : databaseDefaultValue;
+		ColumnInfo ci = getColumnInfo();
+		return ci != null ? ci.getDatabaseDefaultValue() : databaseDefaultValue;
 	}
 
 	/**
@@ -1115,9 +1124,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 */
 	public ColumnType getConfiguredColumnType()
 	{
-		if (columnInfo != null && columnInfo.getConfiguredColumnType() != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null && ci.getConfiguredColumnType() != null)
 		{
-			return columnInfo.getConfiguredColumnType();
+			return ci.getConfiguredColumnType();
 		}
 		// default to db-defined column type
 		return columnType;
@@ -1238,10 +1248,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getNote()
 	{
-		if (note == null && columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (note == null && ci != null)
 		{
 			// plain text
-			return columnInfo.getTextualPropertyInfo(false);
+			return ci.getTextualPropertyInfo(false);
 		}
 		return note;
 	}
@@ -1256,9 +1267,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public int getSequenceType()
 	{
-		if (columnInfo != null && columnInfo.getAutoEnterType() == ColumnInfo.SEQUENCE_AUTO_ENTER)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null && ci.getAutoEnterType() == ColumnInfo.SEQUENCE_AUTO_ENTER)
 		{
-			return columnInfo.getAutoEnterSubType();
+			return ci.getAutoEnterSubType();
 		}
 		return sequenceType;
 	}
@@ -1279,11 +1291,12 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public void setSequenceType(int i)
 	{
-		if (columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null)
 		{
-			columnInfo.setAutoEnterType(ColumnInfo.SEQUENCE_AUTO_ENTER);
-			columnInfo.setAutoEnterSubType(i);
-			columnInfo.flagChanged();
+			ci.setAutoEnterType(ColumnInfo.SEQUENCE_AUTO_ENTER);
+			ci.setAutoEnterSubType(i);
+			ci.flagChanged();
 			sequenceType = ColumnInfo.NO_SEQUENCE_SELECTED; //clear local
 		}
 		else
@@ -1294,10 +1307,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public void setDatabaseSequenceName(String databaseSequenceName)
 	{
-		if (columnInfo != null)
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null)
 		{
-			columnInfo.setDatabaseSequenceName(databaseSequenceName);
-			columnInfo.flagChanged();
+			ci.setDatabaseSequenceName(databaseSequenceName);
+			ci.flagChanged();
 			this.databaseSequenceName = null; // clear local
 		}
 		else
@@ -1347,9 +1361,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			if (notes.size() > 0)
 			{
 				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < notes.size(); i++)
+				for (String note2 : notes)
 				{
-					sb.append(notes.get(i));
+					sb.append(note2);
 				}
 				note = sb.toString();
 			}
@@ -1396,7 +1410,8 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public void flagColumnInfoChanged()
 	{
-		if (columnInfo != null) columnInfo.flagChanged();
+		ColumnInfo ci = getColumnInfo();
+		if (ci != null) ci.flagChanged();
 		if (table != null) table.fireIColumnChanged(this);
 	}
 
