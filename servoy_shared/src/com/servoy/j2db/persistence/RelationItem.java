@@ -68,7 +68,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractBase#clearChanged()
 	 */
 	@Override
@@ -207,7 +207,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 			foundModifiers = false;
 			for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
 			{
-				if (opString.startsWith(IBaseSQLCondition.MODIFIER_STRINGS[m]))
+				if (opString.toLowerCase().startsWith(IBaseSQLCondition.MODIFIER_STRINGS[m]))
 				{
 					foundModifiers = true;
 					opString = opString.substring(IBaseSQLCondition.MODIFIER_STRINGS[m].length());

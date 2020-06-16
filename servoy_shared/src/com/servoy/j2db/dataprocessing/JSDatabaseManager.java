@@ -225,7 +225,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * // some filters with in-conditions
 	 * var success = databaseManager.addTableFilterParam('crm', 'products', 'productcode', 'in', [120, 144, 200])
-	 * var success = databaseManager.addTableFilterParam('crm', 'orders', 'countrycode', 'in', 'select country code from countries where region = "Europe"')
+	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
+	 * var success = databaseManager.addTableFilterParam('crm', 'orders', 'countrycode', 'sql:in', 'select country code from countries where region = "Europe"')
 	 *
 	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
 	 * var success = databaseManager.addTableFilterParam('crm', 'companies', 'companyname', '#^||=', 'servoy')
@@ -240,7 +241,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param tableName The name of the specified table.
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
 	 * @return true if the tablefilter could be applied.
@@ -319,7 +320,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param datasource The datasource
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
 	 * @return true if the tablefilter could be applied.
@@ -338,7 +339,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param datasource The datasource
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 * @param filterName The specified name of the database table filter.
 	 *
@@ -385,7 +386,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param tableName The name of the specified table.
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query..
 	 * @param value The specified filter value.
 	 * @param filterName The specified name of the database table filter.
 	 *
