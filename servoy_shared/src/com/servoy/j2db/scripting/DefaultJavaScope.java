@@ -75,21 +75,20 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		checkFill();
 		NativeJavaMethod jm = jsFunctions.get(name);
 		if (jm != null)
 		{
 			ScriptRuntime.setFunctionProtoAndParent(jm, start);
 			return jm;
 		}
-
+		if (!filled && !("allnames".equals(name) || "length".equals(name))) checkFill();
 		return super.get(name, start);
 	}
 
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		checkFill();
+		if (!filled && !("allnames".equals(name) || "length".equals(name))) checkFill();
 		return jsFunctions.containsKey(name) || super.has(name, start);
 	}
 
@@ -104,6 +103,15 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 	public Object[] getIds()
 	{
 		checkFill();
+		return super.getIds();
+	}
+
+	/**
+	 * Use this method if you want to by pass the fill check (so you only get what really is in this scope at this time)
+	 * @return
+	 */
+	protected final Object[] getRealIds()
+	{
 		return super.getIds();
 	}
 
