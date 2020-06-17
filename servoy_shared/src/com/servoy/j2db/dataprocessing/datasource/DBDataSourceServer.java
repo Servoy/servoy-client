@@ -21,6 +21,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.dltk.rhino.dbgp.LazyInitScope;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -42,7 +43,7 @@ import com.servoy.j2db.util.Debug;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class DBDataSourceServer extends DefaultJavaScope
+public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScope
 {
 	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(DBDataSourceServer.class);
 	private volatile IApplication application;
@@ -81,6 +82,12 @@ public class DBDataSourceServer extends DefaultJavaScope
 		}
 
 		return true;
+	}
+
+	@Override
+	public Object[] getInitializedIds()
+	{
+		return getRealIds();
 	}
 
 	/**

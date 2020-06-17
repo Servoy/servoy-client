@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.dltk.rhino.dbgp.LazyInitScope;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaMethod;
@@ -49,7 +50,7 @@ import com.servoy.j2db.util.ServoyException;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class SPDataSourceServer extends DefaultJavaScope
+public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScope
 {
 	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSourceServer.class);
 	private volatile IApplication application;
@@ -61,6 +62,12 @@ public class SPDataSourceServer extends DefaultJavaScope
 		super(application.getScriptEngine().getSolutionScope(), jsFunctions);
 		this.application = application;
 		this.serverName = serverName;
+	}
+
+	@Override
+	public Object[] getInitializedIds()
+	{
+		return getRealIds();
 	}
 
 	@Override
