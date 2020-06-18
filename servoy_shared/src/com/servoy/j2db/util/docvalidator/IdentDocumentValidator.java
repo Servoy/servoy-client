@@ -42,8 +42,8 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 		if (!(validated != null && validated.equals(name)))
 		{
 			Debug.warn("The name '" + name + //$NON-NLS-1$
-				"' is not a valid indentifier for a component/form, please change this (avoid '-' or other invalid chars, replace those with '_', also can't start with a number), replacement could be: " + //$NON-NLS-1$
-				validated);
+				"' is not a valid indentifier for a component/form, please change this (avoid '-' or other invalid chars, replace those with '_', also can't start with a number), replacement could be: '" + //$NON-NLS-1$
+				validated + "'"); //$NON-NLS-1$
 		}
 		return name;
 	}
