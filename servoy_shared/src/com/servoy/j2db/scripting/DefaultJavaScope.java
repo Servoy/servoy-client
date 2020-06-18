@@ -81,14 +81,14 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 			ScriptRuntime.setFunctionProtoAndParent(jm, start);
 			return jm;
 		}
-		if (!filled && !("allnames".equals(name) || "length".equals(name))) checkFill();
+		checkFill();
 		return super.get(name, start);
 	}
 
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		if (!filled && !("allnames".equals(name) || "length".equals(name))) checkFill();
+		checkFill();
 		return jsFunctions.containsKey(name) || super.has(name, start);
 	}
 
@@ -108,11 +108,16 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 
 	/**
 	 * Use this method if you want to by pass the fill check (so you only get what really is in this scope at this time)
+	 * This will skip also the 2 "allnames" and "length" properties if they are the only 2 in this.
+	 *
 	 * @return
 	 */
 	protected final Object[] getRealIds()
 	{
-		return super.getIds();
+		Object[] ids = super.getIds();
+		// this assumes that the super call will always be "allnames" and "length" plus the rest (so if there is no rest this call will return an empty array)
+		if (ids.length == 2) return new Object[0];
+		return ids;
 	}
 
 	@Override
