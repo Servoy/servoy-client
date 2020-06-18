@@ -203,11 +203,12 @@ public class RhinoConversionTest
 			hm.put("text", "Just some text");
 			component.setProperty("arrayT", javaV);
 
-			Object[] objArray = { "2011", "0", "1", "2" };
-			final Object convertedDate = RhinoConversion.defaultFromRhino(NativeDate.jsConstructor(objArray), null, objectTPD, iServoyDataConverterContext);
+			Date date = new Date();
+			final Object convertedDate = RhinoConversion.defaultFromRhino(NativeDate.jsConstructor(new Object[] { date }), null, objectTPD,
+				iServoyDataConverterContext);
 			assertTrue(convertedDate instanceof Date);
-			assertEquals("1 Jan 2011 00:00:00 GMT", ((Date)convertedDate).toGMTString());
-			assertEquals("1293840000000", String.valueOf(((Date)convertedDate).getTime()));
+			assertEquals(date, convertedDate);
+			assertEquals(date.toString(), convertedDate.toString());
 		}
 		finally
 		{
