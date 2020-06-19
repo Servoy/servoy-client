@@ -111,11 +111,6 @@ public class RhinoConversionTest
 				return null;
 			}
 
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see com.servoy.j2db.server.ngclient.IServoyDataConverterContext#getI18nLoader()
-			 */
 			@Override
 			public ICustomMessageLoader getI18nLoader()
 			{
@@ -295,6 +290,17 @@ public class RhinoConversionTest
 			assertTrue(convertedList instanceof List);
 			assertEquals("[Hello World, 4, 3.5, true, Dis is a longe string, 35.983564, false]", convertedList.toString());
 
+			final Object convertedNativeArray = RhinoConversion.defaultToRhino(convertedList, arrayTPD, iWebObjectContext, scope);
+			assertTrue(convertedNativeArray instanceof NativeArray);
+			final NativeArray no = (NativeArray)convertedNativeArray;
+			assertEquals(nativeArray.get(0), no.get(0));
+			assertEquals(nativeArray.get(1), no.get(1));
+			assertEquals(nativeArray.get(2), no.get(2));
+			assertEquals(nativeArray.get(3), no.get(3));
+			assertEquals(nativeArray.get(4), no.get(4));
+			assertEquals(nativeArray.get(5), no.get(5));
+			assertEquals(nativeArray.get(6), no.get(6));
+
 		}
 		finally
 		{
@@ -369,11 +375,16 @@ public class RhinoConversionTest
 				map.put(index, array[index]);
 			}
 
-			final Object convertedNativeArray = RhinoConversion.defaultToRhino(map, objectTPD, iWebObjectContext, scope);
-			assertTrue(convertedNativeArray instanceof NativeObject);
-			assertEquals("[object Object]", ((NativeObject)convertedNativeArray).toString());
+			final Object convertedNativeObject = RhinoConversion.defaultToRhino(map, objectTPD, iWebObjectContext, scope);
+			assertTrue(convertedNativeObject instanceof NativeObject);
+			assertEquals("[object Object]", ((NativeObject)convertedNativeObject).toString());
 			assertEquals("[0=Hello World, 1=4, 2=3.5, 3=true, 4=Dis is a longe string, 5=35.983564, 6=false]",
-				((NativeObject)convertedNativeArray).entrySet().toString());
+				((NativeObject)convertedNativeObject).entrySet().toString());
+
+			final Object convertedMap = RhinoConversion.defaultFromRhino(convertedNativeObject, null, objectTPD, iServoyDataConverterContext);
+			assertTrue(convertedMap instanceof Map);
+			assertEquals("{0=Hello World, 1=4, 2=3.5, 3=true, 4=Dis is a longe string, 5=35.983564, 6=false}", convertedMap.toString());
+			assertEquals(map.toString(), convertedMap.toString());
 		}
 		finally
 		{
