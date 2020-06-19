@@ -50,6 +50,7 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.ICustomMessageLoader;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.IWebFormController;
@@ -105,6 +106,18 @@ public class RhinoConversionTest
 
 			@Override
 			public INGApplication getApplication()
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see com.servoy.j2db.server.ngclient.IServoyDataConverterContext#getI18nLoader()
+			 */
+			@Override
+			public ICustomMessageLoader getI18nLoader()
 			{
 				// TODO Auto-generated method stub
 				return null;
