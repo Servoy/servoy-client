@@ -30,11 +30,13 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.model.OptimizedDefaultListModel;
 
@@ -138,9 +140,8 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 				return strings.get(0).toLowerCase().startsWith(txt);
 			}
 			String[] displayValues = Utils.stringSplit(txt, separator);
-			for (int i = 0; i < strings.size(); i++)
+			for (String str : strings)
 			{
-				String str = strings.get(i);
 				for (String displayValue : displayValues)
 				{
 					if (str.toLowerCase().startsWith(displayValue)) return true;
@@ -635,7 +636,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 			}
 			else
 			{
-				anObject = val;
+				anObject = checkForUUIDType(vl.getDataSource(), vl.getDataProviderID1(), application, val);
 			}
 		}
 		if ((bitset & 2) != 0)
@@ -648,7 +649,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 			}
 			else
 			{
-				anObject = val;
+				anObject = checkForUUIDType(vl.getDataSource(), vl.getDataProviderID2(), application, val);
 			}
 		}
 		if ((bitset & 4) != 0)
@@ -661,7 +662,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 			}
 			else
 			{
-				anObject = val;
+				anObject = checkForUUIDType(vl.getDataSource(), vl.getDataProviderID3(), application, val);
 			}
 		}
 		if (concat)
@@ -672,6 +673,30 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		{
 			return anObject;
 		}
+	}
+
+	/**
+	 * Checks if the column is uuid and if so tries to convert the given value to a uuid.
+	 * 
+	 * @param datasource
+	 * @param dataprovider
+	 * @param application
+	 * @param value
+	 * @return
+	 */
+	private static Object checkForUUIDType(String datasource, String dataprovider, IServiceProvider application, Object value)
+	{
+		ITable table = application.getFlattenedSolution().getTable(datasource);
+		if (table != null)
+		{
+			Column column = table.getColumn(dataprovider);
+			if (column != null && column.hasFlag(IBaseColumn.UUID_COLUMN))
+			{
+				UUID uuid = Utils.getAsUUID(value, false);
+				return uuid != null ? uuid : value;
+			}
+		}
+		return value;
 	}
 
 	public static DisplayString handleDisplayData(ValueList vl, String[] displayFormat, boolean concat, int bitset, Object[] row, IServiceProvider application)
