@@ -54,7 +54,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 						internalState.realToDisplayCache = {};
 	
 						Object.defineProperty(newValue, 'getDisplayValue', {
-							value: function(realValue, formName) {
+							value: function(realValue) {
 								if (realValue != null && realValue != undefined) {
 									if (internalState.valuelistid == undefined) {
 										return { then: function(then) { then(realValue) } };
