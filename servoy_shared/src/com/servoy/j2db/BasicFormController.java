@@ -4147,15 +4147,16 @@ public abstract class BasicFormController
 		}
 
 		/**
-		 * Get/Set the current type of view of this form.
+		 * Get/Set the current type of view of this form. Can be one of the JSForm.xxxx_VIEW constants.
+		 * In NGClient only RECORD_VIEW is fully supported, the List and TableViews should be replaced by components.
 		 *
 		 * @sample
 		 * //gets the type of view for this form
 		 * var view = %%prefix%%controller.view;
 		 * //sets the form to Record view
-		 * %%prefix%%controller.view = 0;//RECORD_VIEW
+		 * %%prefix%%controller.view = JSForm.RECORD_VIEW;
 		 * //sets the form to List view
-		 * %%prefix%%controller.view = 1;//LIST_VIEW
+		 * %%prefix%%controller.view = JSForm.LIST_VIEW;
 		 */
 		public int js_getView()
 		{

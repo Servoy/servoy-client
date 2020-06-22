@@ -479,7 +479,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSForm cloneForm(String newName, IBaseSMForm jsForm)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), newName, fs.getSolutionCopy());
+		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), IdentDocumentValidator.checkName(newName), fs.getSolutionCopy());
 		application.getFormManager().addForm(clone, false);
 		return instantiateForm(clone, true);
 	}
@@ -547,7 +547,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		parent.checkModification();
 		Form form = parent.getSupportChild();
 		FlattenedSolution fs = application.getFlattenedSolution();
-		fs.clonePersist(((JSBase)component).getBaseComponent(false), newName, form);
+		fs.clonePersist(((JSBase)component).getBaseComponent(false), IdentDocumentValidator.checkName(newName), form);
 		return parent.getComponent(newName);
 	}
 

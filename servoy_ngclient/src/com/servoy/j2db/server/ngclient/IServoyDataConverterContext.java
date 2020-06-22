@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.ICustomMessageLoader;
 
 /**
  * Context for data converters
@@ -43,4 +44,6 @@ public interface IServoyDataConverterContext
 	 * @return
 	 */
 	IWebFormController getForm();
+
+	ICustomMessageLoader getI18nLoader();
 }

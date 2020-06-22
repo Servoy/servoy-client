@@ -88,11 +88,12 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener, IHasUnderlyingState
 {
-
+	private final static Object NULL_VALUE = new Object();
 	private final String ID_KEY = "id";
 	private final String VALUE_KEY = "value";
 	private final String HANDLED = "handledID";
 	private final String FILTER = "filter";
+	private final String DISPLAYVALUE = "getDisplayValue";
 
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 
@@ -125,6 +126,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	// dataset of the runtime set custom valuelist
 	private Object customValueListDataSet;
+
+	// realValueRequest return value
+	private Object displayValue = NULL_VALUE;
 
 	/**
 	 * Creates a new ValueListTypeSabloValue that is not ready yet for operation.<br/>
@@ -535,29 +539,47 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.value(null);
 			return;
 		}
-
-		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
 		DataConversion clientConversionsInsideValuelist = new DataConversion();
 		if (key != null) writer.key(key);
-		writer.object();
-		if (handledIDForResponse != null)
-		{
-			writer.key(HANDLED);
-			writer.object().key(ID_KEY).value(handledIDForResponse.longValue()).key(VALUE_KEY).value(true).endObject();
-			handledIDForResponse = null;
-		}
-		if (valueList != null && valueList.getValueList() != null)
-		{
-			writer.key("valuelistid");
-			writer.value(valueList.getValueList().getID());
-		}
 
-		writer.key("hasRealValues");
-		writer.value(valueList.hasRealValues());
-		writer.key("values");
-		JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, dataConverterContext);
-		writer.endObject();
+		if (displayValue != NULL_VALUE)
+		{
+			writer.object();
+			if (handledIDForResponse != null)
+			{
+				writer.key(HANDLED);
+				writer.object().key(ID_KEY).value(handledIDForResponse.longValue()).key(VALUE_KEY).value(true).endObject();
+				handledIDForResponse = null;
+			}
+			writer.key(DISPLAYVALUE);
+			JSONUtils.toBrowserJSONFullValue(writer, null, displayValue, null, clientConversionsInsideValuelist, dataConverterContext);
+			writer.endObject();
+
+			displayValue = NULL_VALUE;
+		}
+		else
+		{
+			List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
+			writer.object();
+			if (handledIDForResponse != null)
+			{
+				writer.key(HANDLED);
+				writer.object().key(ID_KEY).value(handledIDForResponse.longValue()).key(VALUE_KEY).value(true).endObject();
+				handledIDForResponse = null;
+			}
+			if (valueList != null && valueList.getValueList() != null)
+			{
+				writer.key("valuelistid");
+				writer.value(valueList.getValueList().getID());
+			}
+
+			writer.key("hasRealValues");
+			writer.value(valueList.hasRealValues());
+			writer.key("values");
+			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, dataConverterContext);
+			writer.endObject();
+		}
 
 		changeMonitor.clearChanges();
 	}
@@ -579,7 +601,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	/**
 	 * Filters the values of the valuelist for type-ahead-like usage.
 	 */
-	public void filterValuelist(JSONObject newJSONValue)
+	private void filterValuelist(JSONObject newJSONValue)
 	{
 		if (!initialized)
 		{
@@ -592,38 +614,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		String filterString = newJSONValue.optString(FILTER);
 		if (filteredValuelist == null)
 		{
-			if (valueList instanceof DBValueList)
-			{
-				try
-				{
-					filteredValuelist = new LookupListModel(dataAdapterListToUse.getApplication(),
-						new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
-							ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
-								format != null ? format.parsedFormat : null, valueList.getValueList()),
-							format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null));
-				}
-				catch (Exception ex)
-				{
-					Debug.error(ex);
-				}
-			}
-			else if (valueList instanceof CustomValueList)
-			{
-				filteredValuelist = new LookupListModel(dataAdapterListToUse.getApplication(), (CustomValueList)valueList);
-			}
-			else if (valueList instanceof LookupValueList)
-			{
-				filteredValuelist = new LookupListModel(dataAdapterListToUse.getApplication(), (LookupValueList)valueList);
-			}
-			else if (valueList instanceof ColumnBasedValueList)
-			{
-				filteredValuelist = ((ColumnBasedValueList)valueList).getListModel();
-			}
-			else if (valueList instanceof LookupListModel)
-			{
-				filteredValuelist = (LookupListModel)valueList;
-			}
-
+			filteredValuelist = createFilteredValueList();
 			if (filteredValuelist != null)
 			{
 				filteredValuelist.addListDataListener(new ListDataListener()
@@ -671,6 +662,43 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 		}
 
+	}
+
+	private LookupListModel createFilteredValueList()
+	{
+		LookupListModel llm = null;
+		if (valueList instanceof DBValueList)
+		{
+			try
+			{
+				llm = new LookupListModel(dataAdapterListToUse.getApplication(),
+					new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
+						ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
+							format != null ? format.parsedFormat : null, valueList.getValueList()),
+						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null));
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else if (valueList instanceof CustomValueList)
+		{
+			llm = new LookupListModel(dataAdapterListToUse.getApplication(), (CustomValueList)valueList);
+		}
+		else if (valueList instanceof LookupValueList)
+		{
+			llm = new LookupListModel(dataAdapterListToUse.getApplication(), (LookupValueList)valueList);
+		}
+		else if (valueList instanceof ColumnBasedValueList)
+		{
+			llm = ((ColumnBasedValueList)valueList).getListModel();
+		}
+		else if (valueList instanceof LookupListModel)
+		{
+			llm = (LookupListModel)valueList;
+		}
+		return llm;
 	}
 
 	@Override
@@ -833,6 +861,67 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				l.valueChanged();
 			}
 		}
+	}
+
+	/**
+	 * @param newJSONValue
+	 */
+	public void fromJSON(JSONObject newJSONValue)
+	{
+		if (newJSONValue.has(FILTER))
+		{
+			filterValuelist(newJSONValue);
+		}
+		else if (newJSONValue.has(DISPLAYVALUE))
+		{
+			getDisplayValue(newJSONValue);
+		}
+	}
+
+	/**
+	 * @param newJSONValue
+	 */
+	private void getDisplayValue(JSONObject newJSONValue)
+	{
+		this.handledIDForResponse = Long.valueOf(newJSONValue.getLong(ID_KEY));
+		Object realValue = newJSONValue.opt(DISPLAYVALUE);
+		displayValue = realValue;
+		int realValueIndex = valueList.realValueIndexOf(realValue);
+		if (realValueIndex != -1)
+		{
+			try
+			{
+				displayValue = valueList.getElementAt(realValueIndex);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		else
+		{
+			if (valueList instanceof DBValueList)
+			{
+				try
+				{
+					LookupValueList lookup = new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
+						ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
+							format != null ? format.parsedFormat : null, valueList.getValueList()),
+						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null);
+					if (lookup.realValueIndexOf(realValue) != -1)
+					{
+						displayValue = lookup.getElementAt(lookup.realValueIndexOf(realValue));
+					}
+					lookup.deregister();
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
+
+			}
+		}
+		changeMonitor.markFullyChanged(true);
 	}
 
 }

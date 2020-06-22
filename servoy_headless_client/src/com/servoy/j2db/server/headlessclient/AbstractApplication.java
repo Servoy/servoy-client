@@ -461,6 +461,20 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		}
 	}
 
+	public static String getDefaultMessage(String key, Locale loc)
+	{
+		String message = null;
+		try
+		{
+			ResourceBundle jar = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
+			message = jar != null ? jar.getString(key) : null;
+		}
+		catch (Exception e)
+		{
+		}
+		return message;
+	}
+
 	private static String getFormattedText(String message, Locale locale, Object[] args)
 	{
 		MessageFormat mf = new MessageFormat(message);

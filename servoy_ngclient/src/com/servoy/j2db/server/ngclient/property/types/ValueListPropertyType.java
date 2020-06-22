@@ -133,7 +133,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		if (previousSabloValue != null && (newJSONValue instanceof JSONObject))
 		{
 			// currently the only thing that can come from client is a filter request...
-			previousSabloValue.filterValuelist((JSONObject)newJSONValue);
+			previousSabloValue.fromJSON((JSONObject)newJSONValue);
 		}
 		else Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
 

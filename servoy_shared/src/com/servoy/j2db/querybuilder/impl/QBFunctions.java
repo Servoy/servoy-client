@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.persistence.IColumnTypes.TEXT;
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
@@ -62,7 +64,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction upper(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.upper, new IQuerySelectValue[] { createOperand(value) });
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.upper, new IQuerySelectValue[] { createOperand(value, TEXT) });
 	}
 
 	/**
@@ -104,7 +106,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction lower(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.lower, new IQuerySelectValue[] { createOperand(value) });
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.lower, new IQuerySelectValue[] { createOperand(value, TEXT) });
 	}
 
 	/**
@@ -145,13 +147,18 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 			new QueryColumnValue(leading_trailing_both, null, validateKeyword(leading_trailing_both, "leading", "trailing", "both")), // keyword
 			charactersValue, // characters
 			new QueryColumnValue(fromKeyword, null, validateKeyword(fromKeyword, "from")), // keyword
-			createOperand(value)
+			createOperand(value, TEXT)
 		});
 	}
 
 	protected IQuerySelectValue createOperand(Object value)
 	{
 		return getRoot().createOperand(value, null, 0);
+	}
+
+	protected IQuerySelectValue createOperand(Object value, int type)
+	{
+		return getRoot().createOperand(value, ColumnType.getColumnType(type), 0);
 	}
 
 	/**
@@ -232,7 +239,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBFunction substring(Object arg, int pos, int len)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.substring,
-			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(pos)), createOperand(Integer.valueOf(len)) });
+			new IQuerySelectValue[] { createOperand(arg, TEXT), createOperand(Integer.valueOf(pos)), createOperand(Integer.valueOf(len)) });
 	}
 
 	/**
@@ -264,7 +271,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBFunction locate(Object string1, Object string2, int start)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.locate,
-			new IQuerySelectValue[] { createOperand(string1), createOperand(string2), createOperand(Integer.valueOf(start)) });
+			new IQuerySelectValue[] { createOperand(string1, TEXT), createOperand(string2, TEXT), createOperand(Integer.valueOf(start)) });
 	}
 
 	/**
