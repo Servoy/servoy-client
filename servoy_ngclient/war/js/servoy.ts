@@ -965,19 +965,31 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					} 
 					
-					scope.onKeydown = function(event, rowID) {
+					scope.onKeydown = function(event, rowID) { 
 						const keycode = event.originalEvent.keyCode;
 						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
-							let selectedRowIndex = getFoundset().selectedRowIndexes[0];
-							if (keycode == 38) {
+						    if (scope.responsivePageSize <= 1) return; // only 1 row per page
+							let selectedRowIndex = getFoundset().selectedRowIndexes[0]; // it starts from 0
+						    let currentIndexFromView = selectedRowIndex;
+                            if (page >= 1) { // it starts from 0
+                                currentIndexFromView = selectedRowIndex - scope.responsivePageSize * page;
+                            }
+							if (keycode == 38) { // keyup
+								if (currentIndexFromView >= 1) {
+									event.currentTarget.parentElement.children[++currentIndexFromView - 1].focus();
+								}
 								selectedRowIndex--;
-								if (selectedRowIndex < 0) return;
-							} else if (keycode == 40) {
-								selectedRowIndex++;
-								if (selectedRowIndex >= getFoundset().serverSize) return;
+							} else if (keycode == 40) { // keydown
+							    if (currentIndexFromView < scope.responsivePageSize - 1 
+							        && selectedRowIndex + 1 < getFoundset().serverSize) {
+							    	event.currentTarget.parentElement.children[++currentIndexFromView + 1].focus();
+							    }
+							    selectedRowIndex++;
 							}
-							scope.foundset.requestSelectionUpdate([selectedRowIndex]);
-							(<HTMLElement>document.getElementById("listformcomponent").children[selectedRowIndex + 1]).focus();
+							// do not move the select for the first or last element
+							if (selectedRowIndex >= 0 && selectedRowIndex < getFoundset().serverSize) {
+								scope.foundset.requestSelectionUpdate([selectedRowIndex]);
+							}
 						} 
 					} 
 
