@@ -77,6 +77,7 @@ import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
@@ -2253,6 +2254,28 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public String js_getVersion()
 	{
 		return ClientVersion.getVersion();
+	}
+
+	/**
+	 * Get the full version information of this solution and all its modules.
+	 * This will return an object that is a map of Name(Sting)->Version(String) of the solution and all its modules.
+	 *
+	 * @return Name->Version map object.
+	 */
+	public JSMap<String, String> js_getVersionInfo()
+	{
+		JSMap<String, String> info = new JSMap<>();
+		Solution solution = application.getSolution();
+		info.put(solution.getName(), solution.getVersion());
+		Solution[] modules = application.getFlattenedSolution().getModules();
+		if (modules != null)
+		{
+			for (Solution m : modules)
+			{
+				info.put(m.getName(), m.getVersion());
+			}
+		}
+		return info;
 	}
 
 	/**
