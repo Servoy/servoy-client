@@ -176,6 +176,7 @@
 		  	"enabled": { "type": "protected", "blockingOn": false, "default": true },
 		  	"visible": "visible",
 		  	"icon": "media",
+		  	"fa_icon": "string",
 		  	"mnemonic": "string",
 		  	"backgroundColor": "string",
 		  	"foregroundColor": "string",

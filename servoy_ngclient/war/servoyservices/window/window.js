@@ -373,11 +373,12 @@ angular.module('window',['servoy'])
 						// selected radio
 						cssClass = "img_radio_on";
 					}
-					if (items[j].icon || cssClass)
+					if (items[j].icon || cssClass || items[j].fa_icon)
 					{
 						var htmltext = "<html><table><tr>";
 						if (items[j].cssClass) htmltext += "<td class=\"" + cssClass + "\">&nbsp;&nbsp;&nbsp;&nbsp;</td>"; 
 						if (items[j].icon) htmltext += "<td><img src=\"" + items[j].icon + "\" style=\"border:none\"/></td>";
+						if (items[j].fa_icon) htmltext += "<td><i class=\""+items[j].fa_icon+"\" aria-hidden=\"true\"></i></td>";
 						htmltext += "<td>" + text + "</td>"; 
 						htmltext += "</tr></table></html>";
 						text = htmltext;
