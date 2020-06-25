@@ -232,7 +232,7 @@ angular.module('ngclientutils', [ 'servoy' ])
 		 * Retrieves the screen location of a specific element. Returns the location as point (object with x and y properties).
 		 * 
 		 * @param {string} component the component to retrieve location for.
-		 * @return {string} the location of the component.
+		 * @return {point} the location of the component.
 		 */
 		getAbsoluteLocation: function(component)
 		{
