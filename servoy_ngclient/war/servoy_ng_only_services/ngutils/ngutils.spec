@@ -63,6 +63,10 @@
 		},
 		"printDocument": {
 			"parameters": [{ "name": "url", "type": "string" }]
+		},
+		"getAbsoluteLocation": {
+			"parameters": [{ "name": "component", "type": "runtimecomponent" }],
+			"returns": "point"
 		}
 	},
 
