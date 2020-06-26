@@ -968,25 +968,21 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					scope.onKeydown = function(event, rowID) { 
 						const keycode = event.originalEvent.keyCode;
 						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
-						    if (scope.responsivePageSize <= 1) return; // only 1 row per page
 							let selectedRowIndex = getFoundset().selectedRowIndexes[0]; // it starts from 0
-						    let currentIndexFromView = selectedRowIndex;
-                            if (page >= 1) { // it starts from 0
-                                currentIndexFromView = selectedRowIndex - scope.responsivePageSize * page;
-                            }
 							if (keycode == 38) { // keyup
-								if (currentIndexFromView >= 1) {
-									event.currentTarget.parentElement.children[++currentIndexFromView - 1].focus();
+								// move to the previous page if the first element (not from the first page) is selected
+								if (page != 0 && selectedRowIndex / (page) == scope.responsivePageSize) {
+									scope.moveLeft();
 								}
 								selectedRowIndex--;
 							} else if (keycode == 40) { // keydown
-							    if (currentIndexFromView < scope.responsivePageSize - 1 
-							        && selectedRowIndex + 1 < getFoundset().serverSize) {
-							    	event.currentTarget.parentElement.children[++currentIndexFromView + 1].focus();
-							    }
 							    selectedRowIndex++;
+							    // move to the next page if the last element (not from the last page) is selected
+								if (selectedRowIndex / (page + 1) == scope.responsivePageSize) {
+									scope.moveRight();
+								}
 							}
-							// do not move the select for the first or last element
+							// do not move the selection for the first or last element 
 							if (selectedRowIndex >= 0 && selectedRowIndex < getFoundset().serverSize) {
 								scope.foundset.requestSelectionUpdate([selectedRowIndex]);
 							}
@@ -1248,6 +1244,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 						}
 						updateChildElementsAPI(newValue[0]);
+						// update the focus
+                        let selectedRowIndex = getFoundset().selectedRowIndexes[0];
+                        const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
+                        if (element) element.focus();
 					}
 
 					function createRowsAndSetSelection() {
