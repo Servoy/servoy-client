@@ -22,7 +22,10 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.TopLevel;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.DimensionPropertyType;
@@ -37,7 +40,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -74,7 +76,18 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 	@Override
 	public Object toRhinoValue(Dimension webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
-		return PersistHelper.createDimensionString(webComponentValue);
+		NativeObject newObject = null;
+		if (webComponentValue != null)
+		{
+			newObject = new NativeObject();
+			ScriptRuntime.setBuiltinProtoAndParent(newObject, startScriptable,
+				TopLevel.Builtins.Object);
+			newObject.defineProperty("width", webComponentValue.width,
+				ScriptableObject.EMPTY);
+			newObject.defineProperty("height", webComponentValue.height,
+				ScriptableObject.EMPTY);
+		}
+		return newObject;
 	}
 
 	@Override
