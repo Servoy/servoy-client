@@ -965,19 +965,27 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					} 
 					
-					scope.onKeydown = function(event, rowID) {
+					scope.onKeydown = function(event, rowID) { 
 						const keycode = event.originalEvent.keyCode;
 						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
-							let selectedRowIndex = getFoundset().selectedRowIndexes[0];
-							if (keycode == 38) {
+							let selectedRowIndex = getFoundset().selectedRowIndexes[0]; // it starts from 0
+							if (keycode == 38) { // keyup
+								// move to the previous page if the first element (not from the first page) is selected
+								if (page != 0 && selectedRowIndex / (page) == scope.responsivePageSize) {
+									scope.moveLeft();
+								}
 								selectedRowIndex--;
-								if (selectedRowIndex < 0) return;
-							} else if (keycode == 40) {
-								selectedRowIndex++;
-								if (selectedRowIndex >= getFoundset().serverSize) return;
+							} else if (keycode == 40) { // keydown
+							    selectedRowIndex++;
+							    // move to the next page if the last element (not from the last page) is selected
+								if (selectedRowIndex / (page + 1) == scope.responsivePageSize) {
+									scope.moveRight();
+								}
 							}
-							scope.foundset.requestSelectionUpdate([selectedRowIndex]);
-							(<HTMLElement>document.getElementById("listformcomponent").children[selectedRowIndex + 1]).focus();
+							// do not move the selection for the first or last element 
+							if (selectedRowIndex >= 0 && selectedRowIndex < getFoundset().serverSize) {
+								scope.foundset.requestSelectionUpdate([selectedRowIndex]);
+							}
 						} 
 					} 
 
@@ -1236,6 +1244,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 						}
 						updateChildElementsAPI(newValue[0]);
+						// update the focus
+                        let selectedRowIndex = getFoundset().selectedRowIndexes[0];
+                        const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
+                        if (element) element.focus();
 					}
 
 					function createRowsAndSetSelection() {

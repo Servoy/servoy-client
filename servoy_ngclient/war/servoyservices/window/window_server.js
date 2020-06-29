@@ -118,7 +118,14 @@ var Menu = {
 		var newItem = Object.create(MenuItem);
 		newItem.text = text;
 		newItem.callback = callback;
-		newItem.icon = icon;
+		if (icon && icon.slice(0, 2) === "fa")
+		{
+			newItem.fa_icon = icon;
+		}
+		else
+		{
+			newItem.icon = icon;
+		}	
 		newItem.mnemonic = mnemonic;
 		newItem.align = align;
 		newItem.enabled = enabled;

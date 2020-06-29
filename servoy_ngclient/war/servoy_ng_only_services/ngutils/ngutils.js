@@ -226,6 +226,18 @@ angular.module('ngclientutils', [ 'servoy' ])
 	        document.body.appendChild(objFra);  
 	        objFra.contentWindow.focus();      
 	        objFra.contentWindow.print();
+		},
+		
+		/**
+		 * Retrieves the screen location of a specific element. Returns the location as point (object with x and y properties).
+		 * 
+		 * @param {string} component the component to retrieve location for.
+		 * @return {point} the location of the component.
+		 */
+		getAbsoluteLocation: function(component)
+		{
+			var position = $("#"+ component).offset();
+			return {x: position.left, y: position.top};
 		}
 	}
 }])

@@ -1,27 +1,27 @@
 /* VERSION: 2020.6.0 */
 
 /* main theme color; should be called primary ? */
-@main-color: #E9720B;							/* Main color */
-@main-color-inverse: #FFF;						/* Main color inverse */
-@main-color-light: lighten(@main-color, 10%); 	/* Main color light lighten(@main-color, 28%); #F9DB89 */
-@main-color-dark: darken(@main-color, 15%); 	/* Main color dark EB8C39 */
+@main-color: #E9720B;                           /* Main color */
+@main-color-inverse: #FFF;                      /* Main color inverse */
+@main-color-light: lighten(@main-color, 10%);   /* Main color light lighten(@main-color, 28%); #F9DB89 */
+@main-color-dark: darken(@main-color, 15%);     /* Main color dark EB8C39 */
 
-@secondary-color: #18222C;						/* Secondary color */
-@secondary-color-inverse: #FFF;					/* Secondary color inverse */
-@secondary-color-light: #464E56;				/* Secondary color light*/
-@secondary-color-dark: #364453;					/* Secondary color dark*/
+@secondary-color: #18222C;                      /* Secondary color */
+@secondary-color-inverse: #FFF;                 /* Secondary color inverse */
+@secondary-color-light: #464E56;                /* Secondary color light*/
+@secondary-color-dark: #364453;                 /* Secondary color dark*/
 
 /* Scrollbars */
-@theme-scrollbar: true;							/* Set theme-scrollbar to true to use custom scrollbar theme, set it to false to use the default browser webkit */
-@scrollbar-bg: #FFF;							/* Scrollbar background color. Only when theme-scrollbar is true */
-@scrollbar-color: #DBDBDB;						/* Scrollbar thumb color. Only when theme-scrollbar is true */
-@scrollbar-border-width: 0 1px;					/* Scrollbar border width. Only when theme-scrollbar is true */
+@theme-scrollbar: true;                         /* Set theme-scrollbar to true to use custom scrollbar theme, set it to false to use the default browser webkit */
+@scrollbar-bg: #FFF;                            /* Scrollbar background color. Only when theme-scrollbar is true */
+@scrollbar-color: #DBDBDB;                      /* Scrollbar thumb color. Only when theme-scrollbar is true */
+@scrollbar-border-width: 0 1px;                 /* Scrollbar border width. Only when theme-scrollbar is true */
 
 /* Font & Font Sizes */
 @font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 /* when the font-size is set to 62.5 1rem = 10px */
-@rem-to-px: 10;								
+@rem-to-px: 10;                             
 
 @font-size-h1 : 36px;
 @font-size-h2 : 30px;
@@ -31,32 +31,32 @@
 @font-size-h6 : 12px;
 
 /* Body bg */
-@body-bg: #FFF;									/* Bogy bg */
-@body-bg-inverse: #DDD;							/* Body bg inverse */
+@body-bg: #FFF;                                 /* Bogy bg */
+@body-bg-inverse: #DDD;                         /* Body bg inverse */
 
 /* TODO setup borders for colors */
 /* Borders */
-@border-color : #DBDBDB; 						/* Border color */
-@border-width : 1px; 							/* Border width */
-@border-style : solid;							/* Border style */
-@border-radius: 2px;							/* Border radius */
+@border-color : #DBDBDB;                        /* Border color */
+@border-width : 1px;                            /* Border width */
+@border-style : solid;                          /* Border style */
+@border-radius: 2px;                            /* Border radius */
 
 /* Colors for labels and inputs */
 @text-font-size: @font-size-h5;
-@text-color : #777777;							/* Text color */
-@text-color-inverse: @text-color;				/* Text color inverse */
+@text-color : #777777;                          /* Text color */
+@text-color-inverse: @text-color;               /* Text color inverse */
 @text-color-default: #333;
 @text-color-default-inverse: #333;
 
 /* Fields */
 @field-font-size: @text-font-size;
-@field-bg : #FFF;								/* Field bg */
-@field-disabled-bg : @field-bg;					/* Field disabled bg */
-@field-color: @text-color;  					/* Field color */
-@field-addon-bg: @field-bg;						/* Field addon bg */
-@field-border-width: 1px 1px @border-width 1px;	/* Field width */
-@field-border-radius: 2px;						/* Field border radius */
-@field-check-color: @brand-info;				/* Check and Radio Color */
+@field-bg : #FFF;                               /* Field bg */
+@field-disabled-bg : @field-bg;                 /* Field disabled bg */
+@field-color: @text-color;                      /* Field color */
+@field-addon-bg: @field-bg;                     /* Field addon bg */
+@field-border-width: 1px 1px @border-width 1px; /* Field width */
+@field-border-radius: 2px;                      /* Field border radius */
+@field-check-color: @brand-info;                /* Check and Radio Color */
 
 /* TODO icons */
 
@@ -83,9 +83,9 @@
 @sidenav-secondary-selected-border-width: 0px 0px 0px 5px; /* Border for selected top-level item top|right|bottom|left */
 
 /* Navbar */
-@navbar-bg: @main-color;								/* Navbar background color; */
-@navbar-bg-highlighted: @main-color-dark; 				/* Navbar highlighted item; */
-@navbar-text-color: @main-color-inverse;				/* Navbar text color; */
+@navbar-bg: @main-color;                                /* Navbar background color; */
+@navbar-bg-highlighted: @main-color-dark;               /* Navbar highlighted item; */
+@navbar-text-color: @main-color-inverse;                /* Navbar text color; */
 @navbar-dropdown-bg: @navbar-bg;
 @navbar-dropdown-text-color: @navbar-text-color;
 @navbar-active-bg: @navbar-bg;
@@ -107,11 +107,11 @@
 @tab-active-border-width: 0;
 
 /* Windows */
-@window-header-bg : @brand-primary;				/* Window header bg */
-@window-header-color: @brand-primary-inverse;	/* Window header color */
-@window-body-bg: @body-bg;						/* Window body bg */
-@window-footer-bg: @body-bg;					/* Window footer bg */
-@window-border-radius: 6px;						/* Border radius for window and dialogs */
+@window-header-bg : @brand-primary;             /* Window header bg */
+@window-header-color: @brand-primary-inverse;   /* Window header color */
+@window-body-bg: @body-bg;                      /* Window body bg */
+@window-footer-bg: @body-bg;                    /* Window footer bg */
+@window-border-radius: 6px;                     /* Border radius for window and dialogs */
 
 /* Popup Menu */
 @popup-selected-bg: @body-bg;
@@ -119,21 +119,21 @@
 @popup-disabled-color: @border-color;
 
 /* Dialogs */
-@dialog-info-header-bg: @brand-info;			/* Info Dialog header bg */
+@dialog-info-header-bg: @brand-info;            /* Info Dialog header bg */
 @dialog-info-header-color: @brand-info-inverse; /* Info Dialog header color */
-@dialog-question-header-bg: @window-header-bg;	/* Question Dialog header bg */
-@dialog-question-header-color: @window-header-color;	/* Question Dialog header color */
-@dialog-input-header-bg: @window-header-bg;			/* Input and Select Dialog header bg */
-@dialog-input-header-color: @window-header-color;	/* Input and Select Dialog header color */
+@dialog-question-header-bg: @window-header-bg;  /* Question Dialog header bg */
+@dialog-question-header-color: @window-header-color;    /* Question Dialog header color */
+@dialog-input-header-bg: @window-header-bg;         /* Input and Select Dialog header bg */
+@dialog-input-header-color: @window-header-color;   /* Input and Select Dialog header color */
 
 /* Tables */
-@table-bg: inherit;								/* Table bg */
-@table-border-width: 1px;						/* TODO Table border width */
-@table-border-radius: 0;						/* Table border radius */
-@table-header-bg: inherit;						/* Table header bg */
-@table-header-text-color: @text-color;			/* Table header color */
-@table-header-font-style: normal;				/* Table header font style */
-@table-header-text-transform: uppercase;		/* Table header text transform */
+@table-bg: inherit;                             /* Table bg */
+@table-border-width: 1px;                       /* TODO Table border width */
+@table-border-radius: 0;                        /* Table border radius */
+@table-header-bg: inherit;                      /* Table header bg */
+@table-header-text-color: @text-color;          /* Table header color */
+@table-header-font-style: normal;               /* Table header font style */
+@table-header-text-transform: uppercase;        /* Table header text transform */
 
 @table-row-odd-bg-color: @body-bg;
 @table-row-odd-text-color: @text-color;
@@ -145,11 +145,11 @@
 
 /* NG Table style: applied only for NG Grid components having the styleClass ag-theme-servoy */
 @ngtable-cell-value-line-height : 20px;
-@ngtable-row-group-bg: @body-bg;				
-@ngtable-row-group-color: @text-color;			
-@ngtable-row-group-bg-level-0: #F9F9F9;			
-@ngtable-row-group-color-level-0: @main-color;			
-@ngtable-row-group-cell-font-weight : bold;			
+@ngtable-row-group-bg: @body-bg;                
+@ngtable-row-group-color: @text-color;          
+@ngtable-row-group-bg-level-0: #F9F9F9;         
+@ngtable-row-group-color-level-0: @main-color;          
+@ngtable-row-group-cell-font-weight : bold;         
 
 /* NG Table Panels: applied only for NG Grid components having the styleClass ag-theme-servoy */
 @ngtable-menu-panel-bg: @body-bg;
@@ -187,12 +187,12 @@
 @brand-danger-inverse:  #FFF;
 
 /* Brand colors applicable to hovers of labels and buttons */
-@brand-primary-highlighted: 	darken(@brand-primary, 5%);
-@brand-tertiary-highlighted: 	darken(@brand-tertiary, 5%);
-@brand-success-highlighted: 	darken(@brand-success, 5%);
-@brand-info-highlighted:   		darken(@brand-info, 5%);
-@brand-warning-highlighted: 	darken(@brand-warning, 5%);
-@brand-danger-highlighted:  	darken(@brand-danger, 5%);
+@brand-primary-highlighted:     darken(@brand-primary, 5%);
+@brand-tertiary-highlighted:    darken(@brand-tertiary, 5%);
+@brand-success-highlighted:     darken(@brand-success, 5%);
+@brand-info-highlighted:        darken(@brand-info, 5%);
+@brand-warning-highlighted:     darken(@brand-warning, 5%);
+@brand-danger-highlighted:      darken(@brand-danger, 5%);
 
 /* Brand colors applicable to hovers of labels and buttons */
 @brand-primary-highlighted-inverse: #FFF;
