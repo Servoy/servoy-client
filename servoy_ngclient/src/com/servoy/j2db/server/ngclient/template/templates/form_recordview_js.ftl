@@ -62,7 +62,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				if($uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
 				{
 					// reject execution
-					console.log("rejecting execution of: "+eventType +" on "+beanName);
+					console.log("Prevented duplicate  execution of: "+eventType +" on "+beanName);
 					return $q.resolve(null);
 				}
 				var promise = $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
