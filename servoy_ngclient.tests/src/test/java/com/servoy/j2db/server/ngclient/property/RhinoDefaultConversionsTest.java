@@ -502,11 +502,164 @@ public class RhinoDefaultConversionsTest
 //		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
 //		assertFalse("Now it no longer has changes", component.hasChanges());
 
-		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
+		// FIXME it seems that the NativeArray that we create for JSONArray sablo val. doesn't intercept the operations in it
 		// ok now add/remove (splice) from array inside the object (rhino) and see if it is reflected in sablo
 //		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, "aha")", "dummy js file name from junit tests", 0, null);
 //		assertEquals("Check childDate of array change from Rhino", "aha", ((JSONArray)jsonObject.get("childArray")).get(2));
 //		assertEquals("New length of array", 6, ((JSONArray)jsonObject.get("childArray")).length());
+//		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
+//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
+//		assertFalse("Now it no longer has changes", component.hasChanges());
+	}
+
+	@Test
+	public void testChangesFromRhinoWhenMapObjectPropIsNotDirectlyOnComponentButInCustomObjOrArray()
+	{
+		PropertyDescription mytype007PD = component.getSpecification().getProperty("objectT");
+		Map objectTValue = new HashMap();
+		Map defaultConversionsSubPropValue = new HashMap();
+		objectTValue.put("defaultConversionsSubProp", defaultConversionsSubPropValue);
+		defaultConversionsSubPropValue.put("someSubKey", 12);
+
+		component.setProperty("objectT", objectTValue); // this should directly convert it into a ChangeAwareMap
+		objectTValue = (Map)component.getRawPropertyValue("objectT"); // so get the change aware map
+		component.getAndClearChanges();
+
+		Object rhinoVal = ScriptRuntime.toObject(rhinoContext, someRhinoScope,
+			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
+		someRhinoScope.put("a", someRhinoScope, rhinoVal);
+
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+
+		// change sub-key of 'object' type inside custom type
+		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey = 15;", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+
+		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
+		assertTrue("We changed 'object' prop; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
+	}
+
+
+	@Test
+	public void testChangesFromRhinoWhenJSONObjectObjectPropIsNotDirectlyOnComponentButInCustomObjOrArray()
+	{
+		PropertyDescription mytype007PD = component.getSpecification().getProperty("objectT");
+		Map objectTValue = new HashMap();
+		JSONObject defaultConversionsSubPropValue = new JSONObject();
+		objectTValue.put("defaultConversionsSubProp", defaultConversionsSubPropValue);
+		defaultConversionsSubPropValue.put("someSubKey", 12);
+
+		component.setProperty("objectT", objectTValue); // this should directly convert it into a ChangeAwareMap
+		objectTValue = (Map)component.getRawPropertyValue("objectT"); // so get the change aware map
+		component.getAndClearChanges();
+
+		Object rhinoVal = ScriptRuntime.toObject(rhinoContext, someRhinoScope,
+			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
+		someRhinoScope.put("a", someRhinoScope, rhinoVal);
+
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+
+		// change sub-key of 'object' type inside custom type
+		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey = 15;", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+
+		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
+		assertTrue("We changed the 'object' prop; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
+	}
+
+	@Test
+	public void testChangesFromRhinoWhenListObjectPropIsNotDirectlyOnComponentButInCustomObjOrArray()
+	{
+		PropertyDescription mytype007PD = component.getSpecification().getProperty("objectT");
+		Map objectTValue = new HashMap();
+		List defaultConversionsSubPropValue = new ArrayList();
+		objectTValue.put("defaultConversionsSubProp", defaultConversionsSubPropValue);
+		defaultConversionsSubPropValue.add(12);
+
+		component.setProperty("objectT", objectTValue); // this should directly convert it into a ChangeAwareMap
+		objectTValue = (Map)component.getRawPropertyValue("objectT"); // so get the change aware map
+		component.getAndClearChanges();
+
+		Object rhinoVal = ScriptRuntime.toObject(rhinoContext, someRhinoScope,
+			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
+		someRhinoScope.put("a", someRhinoScope, rhinoVal);
+
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+
+		// change sub-key of 'object' type inside custom type
+		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0] = 15;", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+
+		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
+		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
+//		assertTrue("We changed the 'object' prop; component should know it has changed", component.hasChanges());
+//		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
+//		assertFalse("Now it no longer has changes", component.hasChanges());
+	}
+
+	@Test
+	public void testChangesFromRhinoWhenJSONArrayObjectPropIsNotDirectlyOnComponentButInCustomObjOrArray()
+	{
+		PropertyDescription mytype007PD = component.getSpecification().getProperty("objectT");
+		Map objectTValue = new HashMap();
+		JSONArray defaultConversionsSubPropValue = new JSONArray();
+		objectTValue.put("defaultConversionsSubProp", defaultConversionsSubPropValue);
+		defaultConversionsSubPropValue.put(12);
+
+		component.setProperty("objectT", objectTValue); // this should directly convert it into a ChangeAwareMap
+		objectTValue = (Map)component.getRawPropertyValue("objectT"); // so get the change aware map
+		component.getAndClearChanges();
+
+		Object rhinoVal = ScriptRuntime.toObject(rhinoContext, someRhinoScope,
+			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
+		someRhinoScope.put("a", someRhinoScope, rhinoVal);
+
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+
+		// change sub-key of 'object' type inside custom type
+		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0] = 15;", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+
+		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
+		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
+//		assertTrue("We changed something in the 'object' prop", component.hasChanges());
+//		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
+//		assertFalse("Now it no longer has changes", component.hasChanges());
+	}
+
+	@Test
+	public void testSetFromRhinoThenChangesFromRhinoOnSameInstanceWithoutGettingItBackFromProp()
+	{
+		Map sabloVal;
+		// from for new native object in Rhino
+		sabloVal = (Map)RhinoConversion.defaultFromRhino(
+			rhinoContext.evaluateString(someRhinoScope, "var a; (function z() { a = { key5: 'aha', key6: 475 }; return a; }) ()",
+				"dummy js file name from junit tests", 0,
+				null),
+			null);
+		component.setProperty(DEFAULT_CONVERSIONS_PROP, sabloVal);
+
+		assertEquals("Check key5 in java", "aha", sabloVal.get("key5"));
+		assertEquals("Check key6 in java", Integer.valueOf(475), sabloVal.get("key6"));
+
+		// TODO this is not currently supported (so it will fail similar to how custom object props or custom array props. fails as well in a similar scenario); see if it can be improved in the future; if it;s improved add similar tests for List, JSONArray, JSONObject as sablo values for 'object' typed property
+		// change original rhino NativeObject and see if sablo value is updated and component is aware of changes
+		rhinoContext.evaluateString(someRhinoScope, "a.key5 = 'changedVal';",
+			"dummy js file name from junit tests", 0,
+			null);
+//		assertEquals("Check key5 in java", "changedVal", sabloVal.get("key5"));
 //		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
 //		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
 //		assertFalse("Now it no longer has changes", component.hasChanges());

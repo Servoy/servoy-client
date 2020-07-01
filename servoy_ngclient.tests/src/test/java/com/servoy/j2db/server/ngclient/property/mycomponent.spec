@@ -20,7 +20,8 @@
 			"active": "activeType[]",
 			"foreground": "color",
 			"size": "dimension",
-			"mnemonic": "string"
+			"mnemonic": "string",
+			"defaultConversionsSubProp": "object"
 		},
 		"activeType": {
 			"field": "int",
