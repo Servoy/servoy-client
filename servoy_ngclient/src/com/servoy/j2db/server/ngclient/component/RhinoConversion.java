@@ -42,7 +42,6 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
@@ -58,7 +57,7 @@ public class RhinoConversion
 	 * Default conversion used to convert from Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
 	 * Values of types that don't implement the sablo <-> rhino conversions are by default accessible directly.
 	 */
-	public static Object defaultFromRhino(Object propertyValue, Object oldValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
+	public static Object defaultFromRhino(Object propertyValue, Object oldValue) // PropertyDescription / IWebObjectContext ... can be made available here if needed
 	{
 		// convert simple values to json values
 		if (isUndefinedOrNotFound(propertyValue))
@@ -79,7 +78,7 @@ public class RhinoConversion
 			for (Object id2 : ids)
 			{
 				String id = String.valueOf(id2);
-				map.put(id, defaultFromRhino(no.get(id2), oldMap != null ? oldMap.get(id) : null, pd != null ? pd.getProperty(id) : null, converterContext));
+				map.put(id, defaultFromRhino(no.get(id2), oldMap != null ? oldMap.get(id) : null));
 			}
 			return map;
 		}
@@ -94,8 +93,7 @@ public class RhinoConversion
 			for (long id = 0; id < naLength; id++)
 			{
 				list.add(
-					defaultFromRhino(no.get(id), oldList != null ? oldList.get((int)id) : null, pd != null ? pd.getProperty(String.valueOf(id)) : null,
-						converterContext));
+					defaultFromRhino(no.get(id), oldList != null ? oldList.get((int)id) : null));
 
 			}
 			return list;
@@ -208,7 +206,7 @@ public class RhinoConversion
 						super.put(name, start, value);
 						if (!initializing[0])
 						{
-							value = defaultFromRhino(value, null, pd, null);
+							value = defaultFromRhino(value, null);
 							if (!Utils.equalObjects(((Map)webComponentValue).get(name), value))
 							{
 								((Map)webComponentValue).put(name, value);
@@ -235,6 +233,7 @@ public class RhinoConversion
 							defaultToRhino(((Map)webComponentValue).get(key), pd, webObjectContext, startScriptable),
 							ScriptableObject.EMPTY);
 					}
+					initializing[0] = false;
 					return newObject;
 				}
 				else
@@ -242,7 +241,6 @@ public class RhinoConversion
 					Debug.error("Cannot create javascript object from jsonobject " + webComponentValue + "  in property/method: " + pd != null ? pd.getName()
 						: "undefined");
 				}
-				initializing[0] = false;
 			}
 			finally
 			{
@@ -315,6 +313,7 @@ public class RhinoConversion
 						}
 						ScriptRuntime.setObjectElem(newObject, key, value, cx);
 					}
+					initializing[0] = false;
 					return newObject;
 				}
 				else
@@ -322,7 +321,6 @@ public class RhinoConversion
 					Debug.error("Cannot create javascript object from jsonobject " + webComponentValue + "  in property/method: " + pd != null ? pd.getName()
 						: "undefined");
 				}
-				initializing[0] = false;
 			}
 			finally
 			{

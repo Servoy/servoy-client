@@ -10,7 +10,8 @@
 		"arrayT": "mytype007[]",
 		"arraySkipNullsAtRuntime": { "type" : "objWith3Keys[]", "skipNullItemsAtRuntime": true, "elementConfig": { "setToNullAtRuntimeIfAnyOfTheseKeysAreNull": [ "a", "c" ] } },
 		"normalArray": "objWith3Keys[]",
-		"normalArrayWithConfig": { "type": "objWith3Keys[]", "elementConfig": {} }
+		"normalArrayWithConfig": { "type": "objWith3Keys[]", "elementConfig": {} },
+		"defaultConversionsProp": "object"
 	},
 	"types": {
 		"mytype007": {
