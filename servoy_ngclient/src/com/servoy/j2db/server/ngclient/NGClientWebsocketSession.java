@@ -401,7 +401,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void sessionExpired()
 	{
-		getClient().shutDown(true);
+		getClient().invokeAndWait(() -> {
+			getClient().shutDown(true);
+		});
 		super.sessionExpired();
 	}
 
