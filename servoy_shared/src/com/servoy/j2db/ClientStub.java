@@ -38,7 +38,7 @@ import com.servoy.j2db.util.IGetStatusLine;
  */
 public class ClientStub implements IClient
 {
-	private transient final ClientState client;
+	protected transient final ClientState client;
 
 	public ClientStub(ClientState c)
 	{
