@@ -18,6 +18,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  * @author jcompager
@@ -25,5 +26,5 @@ import java.rmi.Remote;
  */
 public interface ISmartClient extends IClient, Remote
 {
-	public void processMessages(Object[][] messages);
+	public void processMessages(Object[][] messages) throws RemoteException;
 }
