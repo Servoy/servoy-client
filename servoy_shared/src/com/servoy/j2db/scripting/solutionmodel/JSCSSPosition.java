@@ -192,39 +192,6 @@ public class JSCSSPosition implements ICSSPosition
 	}
 
 	/**
-	 * Get height css position (in pixels or percent).
-	 *
-	 * @sample
-	 * comp.cssPosition.h()
-	 *
-	 * @return height css position
-	 */
-	@Deprecated
-	@JSGetter
-	public String getHeigth()
-	{
-		return getHeight();
-	}
-
-
-	/**
-	 * Set height css position (in pixels or percent).
-	 *
-	 * @param height height position in pixels or percentage
-	 *
-	 * @sample
-	 * comp.cssPosition.l("10").t("10").w("20%").h("30px")
-	 *
-	 * @return css position
-	 */
-	@Deprecated
-	@JSGetter
-	public void setHeigth(String height)
-	{
-		setHeight(height);
-	}
-
-	/**
 	 * Get/Set height css position (in pixels or percent).
 	 *
 	 * @sample
