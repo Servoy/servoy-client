@@ -1181,7 +1181,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 						if (scope.rowStyleClassDataprovider)
 						{
-							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClassDataprovider[index]);
+							clone.attr("ng-class", "rowStyleClassDataprovider[" + index +"]");
 						}
 						$compile(clone)(row);
 						
