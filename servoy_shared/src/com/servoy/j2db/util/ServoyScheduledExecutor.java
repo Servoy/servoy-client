@@ -32,10 +32,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * A {@link ScheduledExecutorService} that has 2 thread pools, 1 for the normal execute and 1 for scheduled execution.
  * This is because the {@link ScheduledThreadPoolExecutor} is a fixed size thread pool. And will not grow.
- * This class does have options to let the normal calls to {@link ExecutorService#execute(Runnable)} grow the thread pool if all 
- * the threads are busy to a maximum of the executorMaximumPoolSize. When using the {@link ScheduledExecutorService#schedule(Callable, long, TimeUnit)} 
+ * This class does have options to let the normal calls to {@link ExecutorService#execute(Runnable)} grow the thread pool if all
+ * the threads are busy to a maximum of the executorMaximumPoolSize. When using the {@link ScheduledExecutorService#schedule(Callable, long, TimeUnit)}
  * or other schedule calls it will map on the fixed size thread pool specified by the scheduledExecutorSize parameter.
- * 
+ *
  * @author jcompagner
  */
 public class ServoyScheduledExecutor extends ThreadPoolExecutor implements ScheduledExecutorService, ITaskExecuter
@@ -46,7 +46,7 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 		{
 			try
 			{
-				// sleep for a while so that if there are more then one of these 
+				// sleep for a while so that if there are more then one of these
 				// runnables inserted it doesn't get handled by 1 worker.
 				Thread.sleep(10);
 			}
@@ -71,7 +71,7 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	 */
 	public ServoyScheduledExecutor(int executorSize, int executorMaximumPoolSize, int scheduledExecutorSize)
 	{
-		super(executorSize, executorMaximumPoolSize, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+		super(executorSize, executorMaximumPoolSize, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		this.executorSize = executorSize;
 		this.scheduledExecutorSize = scheduledExecutorSize;
 	}
@@ -182,7 +182,7 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.util.ITaskExecuter#addTask(java.lang.Runnable)
 	 */
 	@Deprecated
