@@ -40,28 +40,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServoyScheduledExecutor extends ThreadPoolExecutor implements ScheduledExecutorService, ITaskExecuter
 {
-	private final Runnable NOTHING = new Runnable()
-	{
-		public void run()
-		{
-			try
-			{
-				// sleep for a while so that if there are more then one of these
-				// runnables inserted it doesn't get handled by 1 worker.
-				Thread.sleep(10);
-			}
-			catch (InterruptedException e)
-			{
-			}
-		}
-	};
 	private volatile ScheduledThreadPoolExecutor scheduledService;
 	private final int scheduledExecutorSize;
-	private final int executorSize;
 
 	public ServoyScheduledExecutor()
 	{
-		this(3, 30, 3);
+		this(30, 3);
 	}
 
 	/**
@@ -69,10 +53,10 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	 * @param executorMaximumPoolSize The maximum pool size that the normal executor can grow to.
 	 * @param scheduledExecutorSize The (fixed) core size of the scheduled executor
 	 */
-	public ServoyScheduledExecutor(int executorSize, int executorMaximumPoolSize, int scheduledExecutorSize)
+	public ServoyScheduledExecutor(int executorSize, int scheduledExecutorSize)
 	{
-		super(executorSize, executorMaximumPoolSize, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-		this.executorSize = executorSize;
+		super(executorSize, executorSize, 4, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>());
+		allowCoreThreadTimeOut(true);
 		this.scheduledExecutorSize = scheduledExecutorSize;
 	}
 
@@ -148,36 +132,6 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	public ScheduledFuture< ? > scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)
 	{
 		return getScheduledExecutorService().scheduleWithFixedDelay(command, initialDelay, delay, unit);
-	}
-
-	/**
-	 * @see java.util.concurrent.ThreadPoolExecutor#execute(java.lang.Runnable)
-	 */
-	@Override
-	public void execute(Runnable command)
-	{
-		// hack around the fact that the java 5 Executor will not grow and shrink like we want it to.
-		// java 6 has support for it to also be able to time out core pool threads.
-		// make it also always one bigger if the caller is a scheduler thread it self and the active count => current core size.
-		synchronized (this)
-		{
-			int activeCount = super.getActiveCount();
-			int coreSize = super.getCorePoolSize();
-			if (activeCount >= coreSize && (super.getMaximumPoolSize() > coreSize || schedulerThreadsCheck.get() != null))
-			{
-				setCorePoolSize(coreSize + 1);
-			}
-			else if (coreSize > executorSize && (activeCount + 1) < coreSize)
-			{
-				int newCoreSize = Math.max(executorSize, activeCount + 1);
-				setCorePoolSize(newCoreSize);
-				while (newCoreSize++ < coreSize)
-				{
-					super.execute(NOTHING);
-				}
-			}
-		}
-		super.execute(command);
 	}
 
 	/*

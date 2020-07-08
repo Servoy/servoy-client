@@ -515,7 +515,7 @@ public class J2DBClient extends ClientState
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(2, 7, 4)
+					scheduledExecutorService = new ServoyScheduledExecutor(7, 4)
 					{
 						@Override
 						protected void beforeExecute(Thread t, Runnable r)
