@@ -977,7 +977,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(1, 4, 1)
+					scheduledExecutorService = new ServoyScheduledExecutor(4, 1)
 					{
 						private IServiceProvider prev;
 
