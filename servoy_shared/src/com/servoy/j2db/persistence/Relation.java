@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -839,6 +840,16 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				if (primaryType == IColumnTypes.NUMBER && foreignType == IColumnTypes.INTEGER)
 				{
 					continue; //allow number to integer mappings
+				}
+				if (primaryType == IColumnTypes.TEXT && foreignType == IColumnTypes.MEDIA && primary[i] instanceof IBaseColumn &&
+					((((IBaseColumn)primary[i]).getFlags() & IBaseColumn.UUID_COLUMN) != 0))
+				{
+					continue; //allow uuid to media mapping
+				}
+				if (primaryType == IColumnTypes.MEDIA && foreignType == IColumnTypes.TEXT &&
+					((foreign[i].getFlags() & IBaseColumn.UUID_COLUMN) != 0))
+				{
+					continue; //allow media to uuid mapping
 				}
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
 					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
