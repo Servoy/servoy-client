@@ -50,7 +50,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
-import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -247,20 +246,24 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		}
 
 		@Override
-		public void put(String name, Scriptable start, Object value)
+		public void put(String name, Scriptable start, Object val)
 		{
+			// can't we already unwrap it all here? Foundset can be done but also the dataprovdiers that test for scriptable itself?
+			Object value = val;
 			switch (name)
 			{
 				case FOUNDSET_KEY_FOR_RHINO :
 				{
+					value = value instanceof Wrapper ? ((Wrapper)value).unwrap() : value;
 					if (value instanceof IFoundSetInternal)
 					{
-						if (webComponentValue.foundsetSelector == null || DataSourceUtils.isDatasourceUri(webComponentValue.foundsetSelector))
+						if (webComponentValue.foundsetSelector == null || webComponentValue.foundsetSelector.equals(((IFoundSetInternal)value).getDataSource()))
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
 						else throw new RuntimeException("illegal value '" + value +
-							"' to set on the foundset property; this foundset is either pinned to form's foundset or to a related foundset " + pd.getName());
+							"' to set on the foundset property with foundsetSelector/datasource: " + webComponentValue.foundsetSelector +
+							", foundset is either pinned to form's foundset or to a related foundset " + pd.getName());
 					}
 					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
 					break;
