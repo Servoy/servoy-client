@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
@@ -200,7 +201,17 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			{
 				case FOUNDSET_KEY_FOR_RHINO :
 				{
-					return webComponentValue.getFoundset();
+					Context cx = Context.enter();
+					try
+					{
+						IFoundSetInternal foundset = webComponentValue.getFoundset();
+						if (foundset != null) return cx.getWrapFactory().wrap(cx, start, foundset, foundset.getClass());
+						return foundset;
+					}
+					finally
+					{
+						Context.exit();
+					}
 				}
 				case DATAPROVIDERS_KEY_FOR_RHINO :
 				{
