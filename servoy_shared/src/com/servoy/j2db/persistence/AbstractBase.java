@@ -823,15 +823,7 @@ public abstract class AbstractBase implements IPersist
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	public final IPersist clonePersist()
-	{
-		return clonePersist(null);
-	}
-
-	/**
-	 * @see java.lang.Object#clone()
-	 */
-	public final IPersist clonePersist(ISupportChilds newParent)
+	public final IPersist clonePersist(AbstractBase newParent)
 	{
 		AbstractBase cloned;
 		try
@@ -862,9 +854,7 @@ public abstract class AbstractBase implements IPersist
 			{
 				if (persist instanceof ICloneable)
 				{
-					IPersist clonePersist = ((ICloneable)persist).clonePersist();
-					cloned.addChild(clonePersist);
-//					cloned.allobjects.add(clonePersist);
+					((ICloneable)persist).clonePersist(cloned);
 				}
 				else
 				{

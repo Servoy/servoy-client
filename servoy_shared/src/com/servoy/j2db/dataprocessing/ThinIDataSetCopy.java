@@ -17,11 +17,12 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.servoy.j2db.util.SafeArrayList;
 
-public class ThinIDataSetCopy
+public class ThinIDataSetCopy implements Serializable
 {
 
 	private final List<Object[]> rows;

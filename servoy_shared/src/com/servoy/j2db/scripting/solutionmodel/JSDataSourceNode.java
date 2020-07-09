@@ -71,8 +71,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 		T sc = AbstractBase.selectByName(new TypeIterator<T>(tableNode.getAllObjects(), script.getTypeID()), script.getName());
 		if (sc == null)
 		{
-			sc = (T)((ICloneable)script).clonePersist();
-			tableNode.addChild(sc);
+			sc = (T)((ICloneable)script).clonePersist(tableNode);
 		}
 
 		return sc;

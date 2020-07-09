@@ -154,6 +154,7 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.MessagesResourceBundle;
 import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.RuntimeWindowManager;
+import com.servoy.j2db.SmartClientStub;
 import com.servoy.j2db.SwingModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
@@ -448,6 +449,17 @@ public class J2DBClient extends ClientState
 		return new RemoteActiveSolutionHandler(getApplicationServer(), this);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ClientState#createUserClient()
+	 */
+	@Override
+	protected void createUserClient()
+	{
+		userClient = new SmartClientStub(this);
+	}
+
 	@Override
 	public IRepository getRepository()
 	{
@@ -503,7 +515,7 @@ public class J2DBClient extends ClientState
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(2, 7, 4)
+					scheduledExecutorService = new ServoyScheduledExecutor(7, 4)
 					{
 						@Override
 						protected void beforeExecute(Thread t, Runnable r)
